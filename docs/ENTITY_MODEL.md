@@ -116,7 +116,7 @@ Per-device attributes now include:
 - configured vs resolved adapter metadata
 - adapter status / adapter reason / supported actions
 - min-on / min-off / cooldown settings
-- planned action reason
+- planned action reason and policy (`balance` vs `runtime_cap`)
 - guard status and guard reason
 - whether the current planned action is executable
 - last actual action and age
@@ -154,6 +154,7 @@ Options now also include:
   - `min_on_seconds`
   - `min_off_seconds`
   - `cooldown_seconds`
+  - `max_active_seconds`
 
 ## Diagnostics
 

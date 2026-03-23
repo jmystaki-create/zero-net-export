@@ -20,6 +20,7 @@ class PlannedDeviceAction:
     delta_power_w: float
     priority: int
     reason: str
+    policy: str = "balance"
 
 
 @dataclass(slots=True)
@@ -122,6 +123,28 @@ def build_control_plan(context: PlannerContext, devices: list[DeviceRuntime]) ->
     usable_devices = [device for device in devices if device.usable]
     mode_policy = _mode_policy(context)
     export_error_w = _export_error_w(context, mode_policy)
+    runtime_cap_actions = _runtime_cap_actions(usable_devices)
+
+    if runtime_cap_actions:
+        planned_power_delta_w = sum(action.delta_power_w for action in runtime_cap_actions)
+        variable_delta_w = sum(action.delta_power_w for action in runtime_cap_actions if action.kind == DEVICE_KIND_VARIABLE)
+        fixed_delta_w = sum(action.delta_power_w for action in runtime_cap_actions if action.kind == DEVICE_KIND_FIXED)
+        return ControlPlan(
+            status="plan_ready",
+            summary=(
+                f"Planned {len(runtime_cap_actions)} runtime-cap safety action(s) before normal balancing in {mode_policy.label} mode"
+            ),
+            reason=(
+                "One or more active devices exceeded their configured max_active_seconds safety window, so the planner is pre-emptively "
+                "shedding or winding them back before applying normal export-target balancing."
+            ),
+            export_error_w=export_error_w,
+            action_count=len(runtime_cap_actions),
+            planned_power_delta_w=planned_power_delta_w,
+            variable_power_delta_w=variable_delta_w,
+            fixed_power_delta_w=fixed_delta_w,
+            actions=runtime_cap_actions,
+        )
 
     if not usable_devices:
         return ControlPlan(
@@ -296,6 +319,7 @@ def _plan_absorb_surplus(export_error_w: float, devices: list[DeviceRuntime], mo
                     f"Increase variable target from about {round(current_target_w)} W to about {round(requested_power_w)} W "
                     f"to absorb roughly {round(actual_delta_w)} W of surplus export."
                 ),
+                policy="balance",
             )
         )
 
@@ -315,6 +339,7 @@ def _plan_absorb_surplus(export_error_w: float, devices: list[DeviceRuntime], mo
                     delta_power_w=device.config.nominal_power_w,
                     priority=device.config.priority,
                     reason=f"Enable fixed load to absorb coarse surplus in {round(device.config.nominal_power_w)} W steps.",
+                    policy="balance",
                 )
             )
 
@@ -412,6 +437,7 @@ def _plan_reduce_load(import_error_w: float, devices: list[DeviceRuntime], mode_
                     f"Reduce variable target from about {round(current_target_w)} W to about {round(requested_power_w)} W "
                     f"to shed roughly {round(actual_delta_w)} W of discretionary load."
                 ),
+                policy="balance",
             )
         )
 
@@ -430,6 +456,7 @@ def _plan_reduce_load(import_error_w: float, devices: list[DeviceRuntime], mode_
                 delta_power_w=-device.config.nominal_power_w,
                 priority=device.config.priority,
                 reason=f"Advisory fixed-load shed step worth about {round(device.config.nominal_power_w)} W.",
+                policy="balance",
             )
         )
 
@@ -468,6 +495,64 @@ def _plan_reduce_load(import_error_w: float, devices: list[DeviceRuntime], mode_
         fixed_power_delta_w=fixed_delta_w,
         actions=actions,
     )
+
+
+def _runtime_cap_actions(devices: list[DeviceRuntime]) -> list[PlannedDeviceAction]:
+    actions: list[PlannedDeviceAction] = []
+    for device in sorted(devices, key=lambda item: (item.config.priority, item.config.name.lower())):
+        max_active_seconds = device.config.max_active_seconds
+        if max_active_seconds is None or max_active_seconds <= 0 or not device.observed_active:
+            continue
+
+        active_seconds = device.current_active_seconds
+        if active_seconds is None or active_seconds <= max_active_seconds:
+            continue
+
+        if device.config.kind == DEVICE_KIND_FIXED:
+            actions.append(
+                PlannedDeviceAction(
+                    device_key=device.config.key,
+                    name=device.config.name,
+                    kind=device.config.kind,
+                    action="turn_off",
+                    requested_power_w=0.0,
+                    delta_power_w=-device.config.nominal_power_w,
+                    priority=device.config.priority,
+                    reason=(
+                        f"Continuous runtime is about {round(active_seconds)} s, above the configured safety cap of "
+                        f"{round(max_active_seconds)} s, so the fixed load is being turned off."
+                    ),
+                    policy="runtime_cap",
+                )
+            )
+            continue
+
+        current_target_w = _variable_current_target_w(device)
+        minimum_target_w = max(device.config.min_power_w, 0.0)
+        if current_target_w <= minimum_target_w:
+            continue
+        requested_power_w = _quantize_down(minimum_target_w, device.config.step_w)
+        requested_power_w = max(requested_power_w, minimum_target_w)
+        actual_delta_w = max(current_target_w - requested_power_w, 0.0)
+        if actual_delta_w <= 0:
+            continue
+        actions.append(
+            PlannedDeviceAction(
+                device_key=device.config.key,
+                name=device.config.name,
+                kind=device.config.kind,
+                action="decrease",
+                requested_power_w=requested_power_w,
+                delta_power_w=-actual_delta_w,
+                priority=device.config.priority,
+                reason=(
+                    f"Continuous runtime is about {round(active_seconds)} s, above the configured safety cap of "
+                    f"{round(max_active_seconds)} s, so the variable target is being wound back to about {round(requested_power_w)} W."
+                ),
+                policy="runtime_cap",
+            )
+        )
+    return actions
 
 
 def _variable_current_target_w(device: DeviceRuntime) -> float:

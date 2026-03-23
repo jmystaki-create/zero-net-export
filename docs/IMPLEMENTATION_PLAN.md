@@ -41,7 +41,8 @@
 - variable target-aware planning ✅ variable-device increase/decrease planning now uses observed current target power as the baseline, respects configured min/max/step limits, and sheds conservatively toward configured minimums instead of blindly jumping to zero
 - mode-specific control semantics ✅ Zero Export / Soft Zero Export / Self-Consumption Max / Import Min now alter effective target and absorption policy instead of sharing one generic planner path
 - initial battery reserve policy ✅ a configurable battery reserve SOC threshold now blocks discretionary surplus-absorption actions whenever battery SOC is below reserve, while still allowing import-pressure shedding
-- next: validate the new mode semantics plus battery-reserve gating against a real Home Assistant install, then tighten the dashboard around the operators' most useful diagnostics
+- max-runtime safety preemption ✅ optional per-device `max_active_seconds` limits now let the planner pre-empt normal balancing to wind back overrunning variable devices or turn off overrunning fixed loads, with explainable runtime-cap policy metadata exposed through device state
+- next: validate the new mode semantics, runtime-cap safety preemption, and battery-reserve gating against a real Home Assistant install, then tighten the dashboard around the operators' most useful diagnostics
 
 ## Phase 5 — UX entities and dashboard
 - controller entities

@@ -110,6 +110,8 @@ For each configured device, the current integration exposes a per-device set inc
 - last applied at timestamp sensor
 - last action result sensor
 
+Per-device state now also includes runtime-cap visibility in attributes such as `max_active_seconds`, `current_active_seconds`, and `planned_action_policy`, so operators can distinguish ordinary balancing from protective runtime-cap shedding.
+
 The example YAML uses two sample device keys:
 
 - `hot_water`

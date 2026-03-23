@@ -346,6 +346,17 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             return None
         return max((now - when).total_seconds(), 0.0)
 
+    def _active_runtime_seconds(self, runtime: DeviceRuntime, now: datetime) -> float | None:
+        if not runtime.observed_active:
+            return None
+        memory = self._device_guard_state.get(runtime.config.key)
+        if memory is None:
+            return runtime.current_active_seconds
+        inferred = self._seconds_since(memory.last_turned_on_at, now)
+        if inferred is not None:
+            return inferred
+        return runtime.current_active_seconds
+
     def _guard_action(self, runtime: DeviceRuntime, planned: PlannedDeviceAction | None, now: datetime) -> dict:
         memory = self._device_guard_state.get(runtime.config.key)
         observed_active = runtime.observed_active
@@ -391,13 +402,23 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             }
 
         if planned.action in {"increase", "decrease"} and runtime.config.kind == "variable":
-            if since_action is not None and since_action < runtime.config.cooldown_seconds:
+            if planned.policy != "runtime_cap" and since_action is not None and since_action < runtime.config.cooldown_seconds:
                 wait_s = round(runtime.config.cooldown_seconds - since_action)
                 return {
                     "guard_status": "blocked",
                     "guard_reason": f"Variable device cooldown is still active for about {wait_s} more second(s).",
                     "action_executable": False,
                     "blocked_by": "cooldown",
+                    "last_action": memory.last_action if memory else None,
+                    "last_action_status": memory.last_action_status if memory else None,
+                    "last_action_seconds_ago": since_action,
+                }
+            if planned.policy == "runtime_cap":
+                return {
+                    "guard_status": "ready",
+                    "guard_reason": "Runtime-cap safety action bypasses the normal cooldown so the device can be wound back promptly.",
+                    "action_executable": True,
+                    "blocked_by": None,
                     "last_action": memory.last_action if memory else None,
                     "last_action_status": memory.last_action_status if memory else None,
                     "last_action_seconds_ago": since_action,
@@ -413,7 +434,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             }
 
         if planned.action == "turn_on":
-            if since_off is not None and since_off < runtime.config.min_off_seconds:
+            if planned.policy != "runtime_cap" and since_off is not None and since_off < runtime.config.min_off_seconds:
                 wait_s = round(runtime.config.min_off_seconds - since_off)
                 return {
                     "guard_status": "blocked",
@@ -424,7 +445,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     "last_action_status": memory.last_action_status if memory else None,
                     "last_action_seconds_ago": since_action,
                 }
-            if since_action is not None and since_action < runtime.config.cooldown_seconds:
+            if planned.policy != "runtime_cap" and since_action is not None and since_action < runtime.config.cooldown_seconds:
                 wait_s = round(runtime.config.cooldown_seconds - since_action)
                 return {
                     "guard_status": "blocked",
@@ -446,7 +467,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             }
 
         if planned.action == "turn_off":
-            if since_on is not None and since_on < runtime.config.min_on_seconds:
+            if planned.policy != "runtime_cap" and since_on is not None and since_on < runtime.config.min_on_seconds:
                 wait_s = round(runtime.config.min_on_seconds - since_on)
                 return {
                     "guard_status": "blocked",
@@ -457,13 +478,23 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     "last_action_status": memory.last_action_status if memory else None,
                     "last_action_seconds_ago": since_action,
                 }
-            if since_action is not None and since_action < runtime.config.cooldown_seconds:
+            if planned.policy != "runtime_cap" and since_action is not None and since_action < runtime.config.cooldown_seconds:
                 wait_s = round(runtime.config.cooldown_seconds - since_action)
                 return {
                     "guard_status": "blocked",
                     "guard_reason": f"Action cooldown is still active for about {wait_s} more second(s).",
                     "action_executable": False,
                     "blocked_by": "cooldown",
+                    "last_action": memory.last_action if memory else None,
+                    "last_action_status": memory.last_action_status if memory else None,
+                    "last_action_seconds_ago": since_action,
+                }
+            if planned.policy == "runtime_cap":
+                return {
+                    "guard_status": "ready",
+                    "guard_reason": "Runtime-cap safety action bypasses min-on and cooldown protection so the device can be shed promptly.",
+                    "action_executable": True,
+                    "blocked_by": None,
                     "last_action": memory.last_action if memory else None,
                     "last_action_status": memory.last_action_status if memory else None,
                     "last_action_seconds_ago": since_action,
@@ -979,6 +1010,8 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 overrides=self._persistent_device_state,
             )
             self._sync_device_guard_state(device_summary.devices, now)
+            for runtime in device_summary.devices:
+                runtime.current_active_seconds = self._active_runtime_seconds(runtime, now)
             combined_issues = validation.issues + self._device_issues_as_validation(device_parse_issues)
             device_status_summary = self._device_status_summary(
                 device_summary.devices,
@@ -1063,6 +1096,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     "planned_power_delta_w": 0.0,
                     "planned_requested_power_w": None,
                     "planned_action_reason": "No current advisory action for this device in the latest control cycle.",
+                    "planned_action_policy": None,
                     "last_action_at": self._parse_iso_datetime(persisted.get("last_action_at")),
                     "last_action_result_message": persisted.get("last_result_message"),
                     "last_action_service": persisted.get("last_service"),
@@ -1078,6 +1112,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                             "planned_power_delta_w": planned.delta_power_w,
                             "planned_requested_power_w": planned.requested_power_w,
                             "planned_action_reason": planned.reason,
+                            "planned_action_policy": planned.policy,
                         }
                         if planned
                         else {}

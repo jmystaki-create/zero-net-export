@@ -69,6 +69,7 @@ class DeviceConfig:
     min_on_seconds: int
     min_off_seconds: int
     cooldown_seconds: int
+    max_active_seconds: int | None
 
 
 @dataclass(slots=True)
@@ -84,6 +85,7 @@ class DeviceRuntime:
     adapter_reason: str
     current_power_w: float | None
     current_target_power_w: float | None
+    current_active_seconds: float | None
     observed_active: bool
     configured_enabled: bool
     configured_priority: int
@@ -121,6 +123,7 @@ def default_device_blueprint() -> str:
                 "min_on_seconds": 900,
                 "min_off_seconds": 900,
                 "cooldown_seconds": 60,
+                "max_active_seconds": 14400,
             },
             {
                 "name": "EV Charger",
@@ -135,6 +138,7 @@ def default_device_blueprint() -> str:
                 "min_on_seconds": 300,
                 "min_off_seconds": 60,
                 "cooldown_seconds": 30,
+                "max_active_seconds": 28800,
             },
         ],
         indent=2,
@@ -201,6 +205,7 @@ def parse_device_configs(raw: str | None) -> tuple[list[DeviceConfig], list[str]
         min_on_seconds = _as_int(item.get("min_on_seconds"), default=300)
         min_off_seconds = _as_int(item.get("min_off_seconds"), default=300)
         cooldown_seconds = _as_int(item.get("cooldown_seconds"), default=30)
+        max_active_seconds = _as_int(item.get("max_active_seconds"), default=None)
 
         if nominal_power_w is None or nominal_power_w <= 0:
             issues.append(f"{prefix} nominal_power_w must be a positive number")
@@ -232,6 +237,11 @@ def parse_device_configs(raw: str | None) -> tuple[list[DeviceConfig], list[str]
         if cooldown_seconds is None or cooldown_seconds < 0:
             issues.append(f"{prefix} cooldown_seconds must be zero or a positive integer")
             continue
+        if max_active_seconds is not None and max_active_seconds < 0:
+            issues.append(f"{prefix} max_active_seconds must be zero or a positive integer when provided")
+            continue
+        if max_active_seconds == 0:
+            max_active_seconds = None
 
         devices.append(
             DeviceConfig(
@@ -249,6 +259,7 @@ def parse_device_configs(raw: str | None) -> tuple[list[DeviceConfig], list[str]
                 min_on_seconds=min_on_seconds,
                 min_off_seconds=min_off_seconds,
                 cooldown_seconds=cooldown_seconds,
+                max_active_seconds=max_active_seconds,
             )
         )
 
@@ -287,6 +298,13 @@ def build_device_summary(
         current_target_power_w = effective_config.nominal_power_w if effective_config.kind == DEVICE_KIND_FIXED and observed_active else None
         if effective_config.kind == DEVICE_KIND_VARIABLE and current_power_w is not None:
             current_target_power_w = current_power_w
+        current_active_seconds = None
+        if observed_active:
+            active_seconds_attr = state.attributes.get("current_duration") if state is not None else None
+            try:
+                current_active_seconds = float(active_seconds_attr) if active_seconds_attr is not None else None
+            except (TypeError, ValueError):
+                current_active_seconds = None
         runtimes.append(
             DeviceRuntime(
                 config=effective_config,
@@ -298,6 +316,7 @@ def build_device_summary(
                 adapter_reason=adapter_reason,
                 current_power_w=current_power_w,
                 current_target_power_w=current_target_power_w,
+                current_active_seconds=current_active_seconds,
                 observed_active=observed_active,
                 configured_enabled=device.enabled,
                 configured_priority=device.priority,
@@ -345,6 +364,8 @@ def runtime_as_attributes(runtime: DeviceRuntime) -> dict[str, Any]:
         "min_on_seconds": runtime.config.min_on_seconds,
         "min_off_seconds": runtime.config.min_off_seconds,
         "cooldown_seconds": runtime.config.cooldown_seconds,
+        "max_active_seconds": runtime.config.max_active_seconds,
+        "current_active_seconds": runtime.current_active_seconds,
         "observed_active": runtime.observed_active,
     }
 
