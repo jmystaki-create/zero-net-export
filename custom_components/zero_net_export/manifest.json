@@ -1,0 +1,14 @@
+{
+  "domain": "zero_net_export",
+  "name": "Zero Net Export",
+  "version": "0.1.0",
+  "documentation": "https://example.invalid/zero-net-export",
+  "issue_tracker": "https://example.invalid/zero-net-export/issues",
+  "codeowners": ["@jmystaki"],
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "integration_type": "service",
+  "requirements": [],
+  "dependencies": [],
+  "after_dependencies": ["energy"]
+}

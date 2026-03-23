@@ -1,0 +1,323 @@
+title: Zero Net Export
+views:
+  - title: Overview
+    path: zero-net-export
+    icon: mdi:transmission-tower-export
+    badges:
+      - entity: switch.zero_net_export_enabled
+      - entity: binary_sensor.zero_net_export_active
+      - entity: binary_sensor.zero_net_export_safe_mode
+      - entity: binary_sensor.zero_net_export_stale_data
+      - entity: binary_sensor.zero_net_export_command_failure
+      - entity: binary_sensor.zero_net_export_battery_below_reserve
+      - entity: sensor.zero_net_export_confidence
+    cards:
+      - type: markdown
+        content: |
+          ## Zero Net Export
+          Replace the example entity ids in this dashboard with the ones created by your own integration entry if they differ.
+
+      - type: entities
+        title: Live overview
+        show_header_toggle: false
+        entities:
+          - entity: sensor.zero_net_export_solar_power
+            name: Solar power
+          - entity: sensor.zero_net_export_home_load_power
+            name: Home load
+          - entity: sensor.zero_net_export_grid_export_power
+            name: Grid export
+          - entity: sensor.zero_net_export_grid_import_power
+            name: Grid import
+          - entity: sensor.zero_net_export_battery_state_of_charge
+            name: Battery SOC
+          - entity: sensor.zero_net_export_surplus
+            name: Surplus
+          - entity: sensor.zero_net_export_export_error
+            name: Export error
+
+      - type: entities
+        title: Controller
+        show_header_toggle: false
+        entities:
+          - entity: switch.zero_net_export_enabled
+            name: Enabled
+          - entity: select.zero_net_export_mode
+            name: Mode
+          - entity: number.zero_net_export_target_export
+            name: Target export
+          - entity: number.zero_net_export_deadband
+            name: Deadband
+          - entity: number.zero_net_export_battery_reserve_soc
+            name: Battery reserve SOC
+          - entity: button.zero_net_export_reset_controller_overrides
+            name: Reset controller overrides
+          - type: attribute
+            entity: number.zero_net_export_target_export
+            attribute: configured_target_export_w
+            name: Configured target export
+          - type: attribute
+            entity: number.zero_net_export_target_export
+            attribute: target_export_override_active
+            name: Target override active
+          - type: attribute
+            entity: number.zero_net_export_deadband
+            attribute: configured_deadband_w
+            name: Configured deadband
+          - type: attribute
+            entity: number.zero_net_export_deadband
+            attribute: deadband_override_active
+            name: Deadband override active
+          - type: attribute
+            entity: number.zero_net_export_battery_reserve_soc
+            attribute: configured_battery_reserve_soc
+            name: Configured battery reserve SOC
+          - type: attribute
+            entity: number.zero_net_export_battery_reserve_soc
+            attribute: battery_reserve_override_active
+            name: Battery reserve override active
+          - entity: sensor.zero_net_export_status
+            name: Status
+          - entity: sensor.zero_net_export_reason
+            name: Reason
+          - entity: sensor.zero_net_export_recommendation
+            name: Recommendation
+          - entity: sensor.zero_net_export_control_status
+            name: Control status
+          - entity: sensor.zero_net_export_control_summary
+            name: Control summary
+          - entity: sensor.zero_net_export_control_reason
+            name: Control reason
+          - entity: sensor.zero_net_export_control_guard_summary
+            name: Guard summary
+
+      - type: entities
+        title: Validation and diagnostics
+        show_header_toggle: false
+        entities:
+          - entity: sensor.zero_net_export_confidence
+            name: Confidence
+          - entity: binary_sensor.zero_net_export_source_mismatch
+            name: Source mismatch
+          - entity: binary_sensor.zero_net_export_safe_mode
+            name: Safe mode
+          - entity: binary_sensor.zero_net_export_stale_data
+            name: Stale data
+          - entity: binary_sensor.zero_net_export_command_failure
+            name: Command failure
+          - entity: binary_sensor.zero_net_export_battery_below_reserve
+            name: Battery below reserve
+          - entity: sensor.zero_net_export_health_status
+            name: Health status
+          - entity: sensor.zero_net_export_health_summary
+            name: Health summary
+          - entity: sensor.zero_net_export_stale_source_count
+            name: Stale sources
+          - entity: sensor.zero_net_export_stale_source_summary
+            name: Stale source summary
+          - entity: sensor.zero_net_export_last_reconciliation_error
+            name: Reconciliation error
+          - entity: sensor.zero_net_export_action_history_count
+            name: Action history entries
+          - entity: sensor.zero_net_export_last_action_status
+            name: Last action status
+          - entity: sensor.zero_net_export_last_action_summary
+            name: Last action summary
+          - entity: sensor.zero_net_export_recent_action_summary
+            name: Recent action summary
+          - entity: sensor.zero_net_export_recent_failure_summary
+            name: Recent failure summary
+          - entity: sensor.zero_net_export_last_successful_action_summary
+            name: Last successful action summary
+          - entity: sensor.zero_net_export_last_action_at
+            name: Last action at
+          - entity: sensor.zero_net_export_last_successful_action_at
+            name: Last successful action at
+          - entity: sensor.zero_net_export_last_failed_action_at
+            name: Last failed action at
+          - entity: sensor.zero_net_export_last_action_device
+            name: Last action device
+          - entity: sensor.zero_net_export_last_failed_action_device
+            name: Last failed action device
+          - entity: sensor.zero_net_export_last_failed_action_message
+            name: Last failure detail
+          - entity: sensor.zero_net_export_successful_action_count
+            name: Cycle successes
+          - entity: sensor.zero_net_export_failed_action_count
+            name: Cycle failures
+          - entity: sensor.zero_net_export_total_successful_action_count
+            name: Total successes
+          - entity: sensor.zero_net_export_total_failed_action_count
+            name: Total failures
+
+      - type: entities
+        title: Source diagnostics
+        show_header_toggle: false
+        entities:
+          - entity: sensor.zero_net_export_source_solar_power_status
+            name: Solar power status
+          - entity: sensor.zero_net_export_source_solar_power_reading
+            name: Solar power reading
+          - entity: sensor.zero_net_export_source_solar_power_age_seconds
+            name: Solar power age
+          - entity: sensor.zero_net_export_source_solar_power_issue_count
+            name: Solar power issues
+          - entity: binary_sensor.zero_net_export_source_solar_power_stale
+            name: Solar power stale
+          - entity: sensor.zero_net_export_source_grid_export_power_status
+            name: Grid export status
+          - entity: sensor.zero_net_export_source_grid_export_power_reading
+            name: Grid export reading
+          - entity: sensor.zero_net_export_source_grid_export_power_age_seconds
+            name: Grid export age
+          - entity: sensor.zero_net_export_source_grid_export_power_issue_count
+            name: Grid export issues
+          - entity: binary_sensor.zero_net_export_source_grid_export_power_stale
+            name: Grid export stale
+          - entity: sensor.zero_net_export_source_grid_import_power_status
+            name: Grid import status
+          - entity: sensor.zero_net_export_source_grid_import_power_reading
+            name: Grid import reading
+          - entity: sensor.zero_net_export_source_grid_import_power_age_seconds
+            name: Grid import age
+          - entity: sensor.zero_net_export_source_grid_import_power_issue_count
+            name: Grid import issues
+          - entity: binary_sensor.zero_net_export_source_grid_import_power_stale
+            name: Grid import stale
+          - entity: sensor.zero_net_export_source_home_load_power_status
+            name: Home load status
+          - entity: sensor.zero_net_export_source_home_load_power_reading
+            name: Home load reading
+          - entity: sensor.zero_net_export_source_home_load_power_age_seconds
+            name: Home load age
+          - entity: sensor.zero_net_export_source_home_load_power_issue_count
+            name: Home load issues
+          - entity: binary_sensor.zero_net_export_source_home_load_power_stale
+            name: Home load stale
+
+      - type: entities
+        title: Device fleet summary
+        show_header_toggle: false
+        entities:
+          - entity: sensor.zero_net_export_configured_devices
+            name: Configured devices
+          - entity: sensor.zero_net_export_enabled_devices
+            name: Enabled devices
+          - entity: sensor.zero_net_export_usable_devices
+            name: Usable devices
+          - entity: sensor.zero_net_export_fixed_devices
+            name: Fixed devices
+          - entity: sensor.zero_net_export_variable_devices
+            name: Variable devices
+          - entity: sensor.zero_net_export_configured_controllable_power
+            name: Configured controllable power
+          - entity: sensor.zero_net_export_usable_controllable_power
+            name: Usable controllable power
+          - entity: sensor.zero_net_export_planned_action_count
+            name: Planned actions
+          - entity: sensor.zero_net_export_executable_action_count
+            name: Guard-approved actions
+          - entity: sensor.zero_net_export_blocked_planned_action_count
+            name: Blocked planned actions
+          - entity: sensor.zero_net_export_planned_power_delta
+            name: Planned power delta
+          - entity: sensor.zero_net_export_variable_planned_power_delta
+            name: Variable power delta
+          - entity: sensor.zero_net_export_fixed_planned_power_delta
+            name: Fixed power delta
+          - entity: sensor.zero_net_export_device_status_summary
+            name: Fleet summary
+
+      - type: entities
+        title: Daily reporting
+        show_header_toggle: false
+        entities:
+          - entity: sensor.zero_net_export_actions_today
+            name: Actions today
+          - entity: sensor.zero_net_export_successful_actions_today
+            name: Successful actions today
+          - entity: sensor.zero_net_export_failed_actions_today
+            name: Failed actions today
+          - entity: sensor.zero_net_export_active_controlled_power
+            name: Active controlled power
+          - entity: sensor.zero_net_export_energy_redirected_today
+            name: Estimated redirected energy today
+
+      - type: grid
+        title: Managed devices
+        columns: 2
+        square: false
+        cards:
+          - type: entities
+            title: Fixed load example
+            show_header_toggle: false
+            entities:
+              - entity: switch.zero_net_export_hot_water_enabled
+                name: Enabled
+              - entity: number.zero_net_export_hot_water_priority
+                name: Priority
+              - entity: button.zero_net_export_hot_water_reset_overrides
+                name: Reset overrides
+              - entity: binary_sensor.zero_net_export_hot_water_usable
+                name: Usable
+              - entity: sensor.zero_net_export_hot_water_status
+                name: Status
+              - entity: sensor.zero_net_export_hot_water_planned_action
+                name: Planned action
+              - entity: sensor.zero_net_export_hot_water_guard_status
+                name: Guard status
+              - entity: sensor.zero_net_export_hot_water_planned_power_delta
+                name: Planned power delta
+              - entity: sensor.zero_net_export_hot_water_last_requested_power
+                name: Last requested power
+              - entity: sensor.zero_net_export_hot_water_last_applied_power
+                name: Last applied power
+              - entity: sensor.zero_net_export_hot_water_last_action_status
+                name: Last action status
+              - entity: sensor.zero_net_export_hot_water_last_action_at
+                name: Last action at
+              - entity: sensor.zero_net_export_hot_water_last_applied_at
+                name: Last applied at
+              - entity: sensor.zero_net_export_hot_water_last_action_result
+                name: Last action result
+          - type: entities
+            title: Variable load example
+            show_header_toggle: false
+            entities:
+              - entity: switch.zero_net_export_ev_charger_enabled
+                name: Enabled
+              - entity: number.zero_net_export_ev_charger_priority
+                name: Priority
+              - entity: button.zero_net_export_ev_charger_reset_overrides
+                name: Reset overrides
+              - entity: binary_sensor.zero_net_export_ev_charger_usable
+                name: Usable
+              - entity: sensor.zero_net_export_ev_charger_status
+                name: Status
+              - entity: sensor.zero_net_export_ev_charger_target_power
+                name: Current target power
+              - entity: sensor.zero_net_export_ev_charger_planned_action
+                name: Planned action
+              - entity: sensor.zero_net_export_ev_charger_guard_status
+                name: Guard status
+              - entity: sensor.zero_net_export_ev_charger_planned_power_delta
+                name: Planned power delta
+              - entity: sensor.zero_net_export_ev_charger_last_requested_power
+                name: Last requested power
+              - entity: sensor.zero_net_export_ev_charger_last_applied_power
+                name: Last applied power
+              - entity: sensor.zero_net_export_ev_charger_last_action_status
+                name: Last action status
+              - entity: sensor.zero_net_export_ev_charger_last_action_at
+                name: Last action at
+              - entity: sensor.zero_net_export_ev_charger_last_applied_at
+                name: Last applied at
+              - entity: sensor.zero_net_export_ev_charger_last_action_result
+                name: Last action result
+
+      - type: markdown
+        content: |
+          ### Operator notes
+          - Safe mode means the controller will not issue load-control actions.
+          - Use the *Reason*, *Recommendation*, and per-device *Guard status* entities before changing mappings or device JSON.
+          - Duplicate the example device cards above for each configured controllable load.

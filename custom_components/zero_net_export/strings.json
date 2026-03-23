@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zero Net Export",
+        "description": "Map your Home Assistant energy sources.\n\n{issues}",
+        "data": {
+          "name": "Name",
+          "solar_power_entity": "Solar power sensor",
+          "solar_energy_entity": "Solar energy sensor",
+          "grid_import_power_entity": "Grid import power sensor",
+          "grid_export_power_entity": "Grid export power sensor",
+          "grid_import_energy_entity": "Grid import energy sensor",
+          "grid_export_energy_entity": "Grid export energy sensor",
+          "home_load_power_entity": "Home load power sensor",
+          "battery_soc_entity": "Battery state of charge sensor",
+          "battery_charge_power_entity": "Battery charge power sensor",
+          "battery_discharge_power_entity": "Battery discharge power sensor",
+          "target_export_w": "Target export (W)",
+          "deadband_w": "Deadband (W)",
+          "battery_reserve_soc": "Battery reserve SOC (%)",
+          "refresh_seconds": "Refresh interval (s)"
+        }
+      }
+    },
+    "error": {
+      "source_validation_failed": "One or more required source mappings are invalid."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zero Net Export options",
+        "description": "Tune control settings and define controllable devices as JSON.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "data": {
+          "target_export_w": "Target export (W)",
+          "deadband_w": "Deadband (W)",
+          "battery_reserve_soc": "Battery reserve SOC (%)",
+          "refresh_seconds": "Refresh interval (s)",
+          "device_inventory_json": "Device inventory JSON"
+        }
+      }
+    },
+    "error": {
+      "device_inventory_invalid": "The device inventory JSON is invalid or incomplete."
+    }
+  }
+}
