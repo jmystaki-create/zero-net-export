@@ -272,6 +272,10 @@ views:
                 name: Last requested power
               - entity: sensor.zero_net_export_hot_water_last_applied_power
                 name: Last applied power
+              - entity: sensor.zero_net_export_hot_water_current_active_runtime
+                name: Current active runtime
+              - entity: sensor.zero_net_export_hot_water_active_runtime_today
+                name: Active runtime today
               - entity: sensor.zero_net_export_hot_water_last_action_status
                 name: Last action status
               - entity: sensor.zero_net_export_hot_water_last_action_at
@@ -306,6 +310,10 @@ views:
                 name: Last requested power
               - entity: sensor.zero_net_export_ev_charger_last_applied_power
                 name: Last applied power
+              - entity: sensor.zero_net_export_ev_charger_current_active_runtime
+                name: Current active runtime
+              - entity: sensor.zero_net_export_ev_charger_active_runtime_today
+                name: Active runtime today
               - entity: sensor.zero_net_export_ev_charger_last_action_status
                 name: Last action status
               - entity: sensor.zero_net_export_ev_charger_last_action_at

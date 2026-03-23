@@ -31,6 +31,7 @@ Responsible for:
 - applying control mode rules
 - deadband / hysteresis
 - battery reserve policy gating
+- optional max-runtime safety preemption
 - allocating power to devices
 - scheduling on/off decisions
 - emitting explanation state

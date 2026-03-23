@@ -61,7 +61,8 @@
 - stale-data / command-failure health surfaces ✅ required-source freshness now drives explicit stale-data health entities plus safe-mode hold behavior, and recent failed commands now surface as an active health condition
 - per-source diagnostics entity slice ✅ each mapped source now exposes direct status/reading/age/issue-count sensors plus a stale binary sensor, so dashboard work no longer depends on digging through controller attributes
 - Home Assistant diagnostics export ✅ redacted config-entry diagnostics now capture controller/runtime/validation/device state for support and real-install debugging
-- next: validate these health surfaces plus the new diagnostics payload against a real Home Assistant install and refine reporting once live installs reveal which aggregates operators actually trust
+- per-device runtime reporting ✅ current active runtime plus active-runtime-today telemetry now persist through the daily metrics store and surface as first-class per-device sensors for dashboards and runtime-cap review
+- next: validate these health surfaces plus the new diagnostics payload against a real Home Assistant install, and confirm the new per-device runtime telemetry is trustworthy enough before expanding longer-horizon reporting
 
 ## Phase 7 — Future enhancements
 - forecast-aware optimization

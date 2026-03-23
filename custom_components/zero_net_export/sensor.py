@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
-from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower
+from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
@@ -130,6 +130,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
                 ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "planned_power_delta_w", "Planned power delta"),
                 ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_requested_power_w", "Last requested power"),
                 ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_applied_power_w", "Last applied power"),
+                ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "current_active_seconds", "Current active runtime"),
+                ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "active_runtime_today_seconds", "Active runtime today"),
                 ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_action_at", "Last action at"),
                 ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_applied_at", "Last applied at"),
                 ZeroNetExportDeviceDetailSensor(coordinator, device_key, details["name"], "last_action_status", "Last action status"),
@@ -322,6 +324,25 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def native_unit_of_measurement(self):
         return UnitOfPower.WATT
+
+    @property
+    def extra_state_attributes(self):
+        return self.coordinator.data.device_details[self._device_key]
+
+
+class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
+    def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
+        super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
+        self._device_key = device_key
+        self._value_key = value_key
+
+    @property
+    def native_value(self):
+        return self.coordinator.data.device_details[self._device_key][self._value_key]
+
+    @property
+    def native_unit_of_measurement(self):
+        return UnitOfTime.SECONDS
 
     @property
     def extra_state_attributes(self):

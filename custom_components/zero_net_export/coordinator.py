@@ -545,8 +545,10 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "successful_actions": 0,
                 "failed_actions": 0,
                 "energy_redirected_kwh": 0.0,
+                "per_device_active_seconds": {},
             },
         )
+        bucket.setdefault("per_device_active_seconds", {})
         self._prune_daily_metrics()
         return bucket
 
@@ -571,13 +573,28 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
     async def _update_daily_energy_metrics(self, now: datetime, runtimes: list[DeviceRuntime]) -> None:
         active_power_w = self._active_controlled_power_w(runtimes)
         if self._last_daily_metrics_update_at is not None:
-            elapsed_hours = max((now - self._last_daily_metrics_update_at).total_seconds(), 0.0) / 3600.0
+            elapsed_seconds = max((now - self._last_daily_metrics_update_at).total_seconds(), 0.0)
+            elapsed_hours = elapsed_seconds / 3600.0
+            bucket = self._daily_metrics_bucket(now)
+            changed = False
             if elapsed_hours > 0 and active_power_w > 0:
-                bucket = self._daily_metrics_bucket(now)
                 bucket["energy_redirected_kwh"] = round(
                     float(bucket.get("energy_redirected_kwh") or 0.0) + ((active_power_w * elapsed_hours) / 1000.0),
                     4,
                 )
+                changed = True
+            if elapsed_seconds > 0:
+                per_device_active_seconds = dict(bucket.get("per_device_active_seconds") or {})
+                for runtime in runtimes:
+                    if not runtime.config.enabled or not runtime.observed_active:
+                        continue
+                    per_device_active_seconds[runtime.config.key] = round(
+                        float(per_device_active_seconds.get(runtime.config.key) or 0.0) + elapsed_seconds,
+                        1,
+                    )
+                    changed = True
+                bucket["per_device_active_seconds"] = per_device_active_seconds
+            if changed:
                 await self._save_runtime_store()
         else:
             self._prune_daily_metrics()
@@ -590,6 +607,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "successful_actions": 0,
                 "failed_actions": 0,
                 "energy_redirected_kwh": 0.0,
+                "per_device_active_seconds": {},
             },
         )
         successful = int(bucket.get("successful_actions") or 0)
@@ -686,6 +704,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
 
     def _persistent_state_for_device(self, device_key: str) -> dict[str, Any]:
         return self._persistent_device_state.get(device_key, {})
+
+    def _device_active_runtime_today_seconds(self, device_key: str, now: datetime) -> float:
+        bucket = self._daily_metrics.get(self._local_day_key(now), {})
+        per_device = bucket.get("per_device_active_seconds") or {}
+        return round(float(per_device.get(device_key) or 0.0), 1)
 
     def _summarize_history_entry(self, item: dict[str, Any]) -> str:
         name = item.get("name") or item.get("device_key") or "device"
@@ -1092,6 +1115,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     "reason": runtime.reason,
                     "current_power_w": runtime.current_power_w,
                     "current_target_power_w": runtime.current_target_power_w,
+                    "active_runtime_today_seconds": self._device_active_runtime_today_seconds(runtime.config.key, now),
                     "planned_action": "hold",
                     "planned_power_delta_w": 0.0,
                     "planned_requested_power_w": None,
@@ -1122,6 +1146,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
 
             await self._update_daily_energy_metrics(now, device_summary.devices)
             today_metrics = self._today_metrics_snapshot(now)
+            for runtime in device_summary.devices:
+                device_details[runtime.config.key]["active_runtime_today_seconds"] = self._device_active_runtime_today_seconds(
+                    runtime.config.key,
+                    now,
+                )
 
             action_results: list[ActionResult] = []
             if control_plan.status == "plan_ready" and executable_action_count > 0:

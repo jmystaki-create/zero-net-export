@@ -14,7 +14,7 @@ The dashboard is structured around the v1 operator workflow:
 2. **Controller** — enable switch, mode, target export, deadband, controller reason/summary
 3. **Validation and diagnostics** — confidence, source mismatch, safe mode, battery reserve state, reconciliation error, recent action outcome state
 4. **Device fleet summary** — configured/usable devices and current planned vs blocked control state
-5. **Managed devices** — example per-device cards for one fixed load and one variable load
+5. **Managed devices** — example per-device cards for one fixed load and one variable load, now including current active runtime and active runtime today sensors
 
 ## Importing it into Home Assistant
 
@@ -104,6 +104,8 @@ For each configured device, the current integration exposes a per-device set inc
 - planned power delta sensor
 - last requested power sensor
 - last applied power sensor
+- current active runtime sensor
+- active runtime today sensor
 - target power sensor for variable devices
 - last action status sensor
 - last action at timestamp sensor
@@ -122,6 +124,8 @@ Replace those with the real device keys derived from your device inventory JSON.
 ## Reporting caveat
 
 `energy_redirected_today_kwh` is an operator-focused estimate based on observed active managed-device power over time. It is useful for spotting whether the controller is doing meaningful work, but it should not be treated as a billing-grade or inverter-grade energy total.
+
+Per-device `active_runtime_today_seconds` is likewise operational telemetry derived from coordinator refresh intervals while a device appears active. It is useful for runtime-cap review and operator dashboards, but it is not a compliance-grade runtime ledger.
 
 ## Why this milestone matters
 

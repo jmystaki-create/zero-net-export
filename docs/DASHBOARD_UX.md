@@ -43,7 +43,7 @@ For each device:
 ### 5. Reporting Widgets
 - export avoided today
 - actions taken today
-- runtime by device
+- runtime by device ✅ current active runtime and active-runtime-today sensors now exposed per managed device
 - confidence trend (future)
 
 ## UX principles

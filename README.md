@@ -99,6 +99,7 @@ Current behavior:
   - `self_consumption_max` biases slightly toward absorbing extra surplus
   - `import_min` avoids turning on coarse fixed loads just to chase small exports, while still shedding discretionary load on import pressure
 - each planned action is checked against observed device state plus min-on / min-off / cooldown guards
+- optional per-device `max_active_seconds` limits let the planner shed or wind back overrunning loads before resuming normal balancing
 - each configured device now also exposes an operator-facing enable switch and priority number so the planner can be tuned device-by-device from Home Assistant without rewriting the inventory JSON
 - the main controller enable/mode/target-export/deadband controls now persist as operator runtime overrides, so dashboard tuning survives integration reloads while keeping config-flow values as the baseline defaults
 - controller target/deadband tuning and per-device enable/priority overrides now also have explicit reset buttons, so operators can safely fall back to config defaults instead of treating runtime overrides as write-only
@@ -110,6 +111,7 @@ Current behavior:
 - runtime events now fire when safe mode enters/exits and when source mismatch appears/clears, so Home Assistant automations can react to validation-state changes without scraping attributes
 - controller diagnostics now also expose concise recent-action, recent-failure, and last-successful-action summaries so operators can see control outcomes without opening raw history attributes
 - daily reporting sensors now track actions today, success/failure split, active controlled power, and an estimated energy redirected today value based on observed active managed-device power integrated over refresh time; this is intentionally operational telemetry, not a revenue-grade energy meter
+- per-device runtime reporting now exposes current active runtime plus active runtime today, making runtime-cap review and operator dashboards easier without inspecting raw attributes
 - required mapped sources are now checked for freshness; if a source stops updating for longer than about three refresh intervals (minimum 120 s), the controller raises stale-data health state and holds safe mode until live values resume
 - a command-failure health indicator now stays active for a short retry window after the most recent failed guarded action, unless a newer successful action clears it
 - per-source diagnostic entities now expose each mapped source's current validation status, latest reading, issue count, freshness age, and stale flag directly in Home Assistant without forcing operators to inspect raw coordinator attributes
@@ -152,7 +154,7 @@ Because Home Assistant entity ids can vary by integration entry naming, treat th
 ## Recommended next step
 
 Tighten the operator surface around the current backend:
-- wire the new daily reporting sensors into the dashboard scaffold
 - validate the stale-data / command-failure health surfaces against a real Home Assistant install
+- validate the new per-device runtime reporting semantics against a real Home Assistant install
 - expand supported variable/fixed device types carefully, only with clear service semantics
 - validate the current entity ids and reporting semantics against a real Home Assistant install

@@ -109,6 +109,8 @@ Each managed device now gets:
 - planned action sensor
 - guard status sensor
 - planned power delta sensor
+- current active runtime sensor
+- active runtime today sensor
 - optional current target power sensor for variable loads
 
 Per-device attributes now include:
@@ -128,6 +130,7 @@ Daily reporting notes:
 - `actions_today` is the combined successful + failed action count for the current local day
 - `energy_redirected_today_kwh` is an operational estimate derived from observed active managed-device power integrated over coordinator refresh time, not a revenue-grade meter reading
 - `active_controlled_power_w` shows the current estimated managed load contribution from active devices
+- each device now also exposes `current_active_seconds` and `active_runtime_today_seconds` so runtime-cap safety and dashboard review do not depend on digging through raw attributes
 
 Planned next:
 - richer last-action diagnostics entity set beyond the current daily/reporting slice
