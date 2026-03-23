@@ -137,6 +137,24 @@ Primary existing references identified during research:
 - `docs/DASHBOARD_SETUP.md`
 - `docs/IMPLEMENTATION_PLAN.md`
 
+## Installation
+
+### HACS
+
+Once this repository is added to HACS as a custom repository, install **Zero Net Export** as an integration, then restart Home Assistant.
+
+### Manual install
+
+1. Copy `custom_components/zero_net_export/` into your Home Assistant config at `config/custom_components/zero_net_export/`
+2. Restart Home Assistant
+3. Add **Zero Net Export** from **Settings → Devices & Services → Add Integration**
+4. Map the required source entities in the config flow
+5. Open the integration options to tune controller settings and paste your controllable-device inventory JSON
+
+### Packaging notes
+
+The repository now includes Home Assistant manifest links plus a `hacs.json` file so the project is easier to consume as a real custom integration instead of just a source tree.
+
 ## Dashboard scaffold
 
 A first plain-Lovelace operator dashboard scaffold now lives at:

@@ -54,6 +54,7 @@
 - next: tighten the dashboard against real installed entity ids and validate the override UX on a real Home Assistant install
 
 ## Phase 6 — Reporting and hardening
+- packaging metadata ✅ manifest documentation/issue links now point at the real repository and `hacs.json` has been added so the project is easier to install/test as a real custom integration
 - action history ✅ recent action history, last-success / last-failure summaries, and persistent action counters implemented
 - daily summary metrics ✅ actions-today, success/failure-today, active-controlled-power-now, and estimated energy-redirected-today metrics now persist across reloads
 - health / warning events ✅ safe-mode and source-mismatch transition events implemented
@@ -62,7 +63,7 @@
 - per-source diagnostics entity slice ✅ each mapped source now exposes direct status/reading/age/issue-count sensors plus a stale binary sensor, so dashboard work no longer depends on digging through controller attributes
 - Home Assistant diagnostics export ✅ redacted config-entry diagnostics now capture controller/runtime/validation/device state for support and real-install debugging
 - per-device runtime reporting ✅ current active runtime plus active-runtime-today telemetry now persist through the daily metrics store and surface as first-class per-device sensors for dashboards and runtime-cap review
-- next: validate these health surfaces plus the new diagnostics payload against a real Home Assistant install, and confirm the new per-device runtime telemetry is trustworthy enough before expanding longer-horizon reporting
+- next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, and confirm the new per-device runtime telemetry is trustworthy enough before expanding longer-horizon reporting
 
 ## Phase 7 — Future enhancements
 - forecast-aware optimization
