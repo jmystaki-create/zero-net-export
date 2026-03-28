@@ -9,7 +9,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/jmystaki-create/zero-net-export/releases"><img src="https://img.shields.io/github/v/release/jmystaki-create/zero-net-export?style=for-the-badge" alt="Latest Release"></a>
   <a href="https://github.com/jmystaki-create/zero-net-export/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"></a>
   <a href="https://github.com/jmystaki-create/zero-net-export/issues"><img src="https://img.shields.io/github/issues/jmystaki-create/zero-net-export?style=for-the-badge" alt="Issues"></a>
   <br>
@@ -123,15 +122,16 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-This is a **developer preview** release. It is functional but not yet production-hardened.
+This integration is **functionally complete** and ready for real-world testing.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
 - [x] Guarded planner & executor
 - [x] Diagnostics & action history
 - [x] Dashboard scaffold
-- [ ] Real-world runtime validation
-- [ ] HACS release packaging
+- [x] MIT license
+- [ ] Real-world runtime validation (in progress)
+- [ ] HACS release packaging (pending community feedback)
 
 ---
 
