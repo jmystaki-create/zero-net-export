@@ -1,81 +1,129 @@
 <p align="center">
-  <img src="zero-net-export.png" alt="Zero Net Export Logo" width="200"/>
+  <img src="zero-net-export.png" alt="Zero Net Export Logo" width="150"/>
 </p>
 
-# Zero Net Export
+<h1 align="center">Zero Net Export</h1>
 
-> **Stop sending free power to the grid.**
+<p align="center">
+  <strong>Stop sending free power to the grid.</strong>
+</p>
 
-With export tariffs often near zero, every watt your solar panels push back to the grid is money left on the table. **Zero Net Export** solves this by turning your Home Assistant into an active energy optimizer that aggressively keeps your grid export at a precise, user-defined target—ideally **0W**.
+<p align="center">
+  <a href="https://github.com/jmystaki-create/zero-net-export/releases"><img src="https://img.shields.io/github/v/release/jmystaki-create/zero-net-export?style=for-the-badge" alt="Latest Release"></a>
+  <a href="https://github.com/jmystaki-create/zero-net-export/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/jmystaki-create/zero-net-export/issues"><img src="https://img.shields.io/github/issues/jmystaki-create/zero-net-export?style=for-the-badge" alt="Issues"></a>
+  <br>
+  <em>Turn your Home Assistant into an active energy optimizer that keeps grid export at a precise target (ideally 0W).</em>
+</p>
 
-Instead of letting excess solar vanish into the grid, this system intelligently orchestrates your battery storage and flexible loads (EV chargers, hot water, pools) to absorb that surplus *inside* your home. It dynamically shifts consumption to match generation, ensuring you maximize self-consumption and get the most value from your solar investment.
+---
 
-**Built for safety and reliability:**
-Unlike fragile automation scripts, Zero Net Export is a **guard-first control engine**. It validates data integrity in real-time, applies anti-flap logic to protect your hardware from rapid cycling, and automatically degrades into a safe mode if sensors drift or data becomes uncertain. Whether you are avoiding export fees, balancing a microgrid, or simply trying to get every cent of value from your solar panels, Zero Net Export provides the operator-grade precision and safety needed to run your home as a true, self-sufficient energy system.
+## 🚀 Quick Start
 
-## Features
+| **I want to...** | **Go here** |
+| :--- | :--- |
+| **Install via HACS** | [Add as Custom Repository](https://hacs.xyz/docs/faq/custom_repositories) → `jmystaki-create/zero-net-export` |
+| **Install Manually** | [Copy to `custom_components`](#manual-installation) |
+| **Set up the Dashboard** | [Dashboard Setup Guide](docs/DASHBOARD_SETUP.md) |
+| **Understand the Logic** | [Control Loop Architecture](docs/CONTROL_LOOP.md) |
 
+---
+
+## 📖 Table of Contents
+
+- [The Problem](#-the-problem)
+- [The Solution](#-the-solution)
+- [Key Features](#-key-features)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Documentation](#-documentation)
+- [Safety & Reliability](#-safety--reliability)
+- [Development Status](#-development-status)
+
+---
+
+## 🌍 The Problem
+
+With export tariffs often near **zero**, every watt your solar panels push back to the grid is **money left on the table**. Standard Home Assistant automations are often too fragile to handle the real-time balancing required to keep export at zero without causing hardware stress or data errors.
+
+## ⚡ The Solution
+
+**Zero Net Export** transforms Home Assistant into an active energy strategist. It intelligently orchestrates your battery storage and flexible loads (EV chargers, hot water, pools) to absorb surplus solar *inside* your home.
+
+Instead of letting excess energy vanish, it dynamically shifts consumption to match generation, ensuring you maximize self-consumption and get the most value from your solar investment.
+
+## 🛡️ Key Features
+
+- **Guard-First Control Engine**: Safety-first architecture with anti-flap logic, data validation, and safe-mode degradation.
 - **Source-of-Truth Validation**: Ensures data integrity from solar, grid, and battery sources before acting.
-- **Guarded Control Loop**: Implements anti-flap logic (min on/off times, deadbands) and safety guards.
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
-- **Explainable Decisions**: Rich diagnostics showing why actions were planned, blocked, or executed.
+- **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
 - **Operator Dashboard**: Lovelace dashboard scaffold for live monitoring and control.
 
-## Installation
+---
+
+## 📦 Installation
 
 ### Option 1: HACS (Recommended)
 
-1. Add this repository as a **Custom Repository** in HACS:
-   - Repository: `jmystaki-create/zero-net-export`
-   - Category: **Integration**
-2. Click **Download**.
-3. **Restart Home Assistant**.
-4. Go to **Settings** → **Devices & Services** → **Add Integration**.
-5. Search for **Zero Net Export**.
+1.  Open **HACS** in Home Assistant.
+2.  Click the **three dots (⋮)** → **Custom repositories**.
+3.  Add:
+    - **Repository**: `jmystaki-create/zero-net-export`
+    - **Category**: `Integration`
+4.  Click **Add**.
+5.  Go to **Integrations**, find **Zero Net Export**, and click **Download**.
+6.  **Restart Home Assistant**.
 
-### Option 2: Manual Install
+### Option 2: Manual Installation
 
-1. Copy the `custom_components/zero_net_export` folder into your Home Assistant `/config/custom_components/` directory.
-2. **Restart Home Assistant**.
-3. Add the integration via **Settings** → **Devices & Services**.
+1.  Copy the `custom_components/zero_net_export` folder into your Home Assistant `/config/custom_components/` directory.
+2.  **Restart Home Assistant**.
+3.  Go to **Settings** → **Devices & Services** → **Add Integration**.
+4.  Search for **Zero Net Export**.
 
-## Configuration
+---
 
-1. Add the **Zero Net Export** integration.
-2. Map your source entities:
-   - Solar power
-   - Grid import/export power
-   - Home load power
-   - (Optional) Battery entities
-3. Set your **Target Export** (e.g., 0W) and **Deadband**.
-4. Configure controllable devices (fixed or variable loads).
+## ⚙️ Configuration
 
-## Documentation
+1.  Add the **Zero Net Export** integration.
+2.  **Map your source entities**:
+    - Solar Power
+    - Grid Import/Export Power
+    - Home Load Power
+    - (Optional) Battery Entities
+3.  Set your **Target Export** (e.g., `0W`) and **Deadband**.
+4.  Configure your **controllable devices** (fixed or variable loads).
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Control Loop Logic](docs/CONTROL_LOOP.md)
-- [Dashboard Setup](docs/DASHBOARD_SETUP.md)
-- [Entity Model](docs/ENTITY_MODEL.md)
-- [Product Spec](docs/PRODUCT_SPEC_V1.md)
+---
 
-## Dashboard
+## 📚 Documentation
 
-A Lovelace dashboard scaffold is included at `examples/lovelace/zero_net_export_dashboard.yaml`.
+| Document | Description |
+| :--- | :--- |
+| [Architecture](docs/ARCHITECTURE.md) | System design and component overview |
+| [Control Loop](docs/CONTROL_LOOP.md) | How the optimization logic works |
+| [Dashboard Setup](docs/DASHBOARD_SETUP.md) | How to install the Lovelace UI |
+| [Entity Model](docs/ENTITY_MODEL.md) | List of all created entities |
+| [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 
-1. Copy the YAML into your HA config (e.g., `/config/lovelace/zero_net_export_dashboard.yaml`).
-2. Add it as a new dashboard in **Settings** → **Dashboards**.
-3. Adjust entity IDs to match your setup.
+---
 
-## Safety Notes
+## 🛡️ Safety & Reliability
 
-- The controller operates in **advisory mode** by default; actual actuation requires explicit configuration.
-- **Safe Mode** is enabled if source validation fails or data is stale.
-- Always test in a non-production environment first.
+> **⚠️ Important**: This is a **developer preview**. Test in a non-production environment first.
 
-## Development Status
+- **Advisory Mode**: The controller operates in advisory mode by default; actual actuation requires explicit configuration.
+- **Safe Mode**: Automatically enabled if source validation fails or data becomes stale.
+- **Anti-Flap Logic**: Built-in delays and deadbands prevent rapid cycling of your hardware.
+- **Data Validation**: Real-time checks ensure sensors are reporting valid data before acting.
 
-This is a **developer preview**. It is functional but not yet production-hardened.
+---
+
+## 🚧 Development Status
+
+This is a **developer preview** release. It is functional but not yet production-hardened.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
@@ -85,6 +133,8 @@ This is a **developer preview**. It is functional but not yet production-hardene
 - [ ] Real-world runtime validation
 - [ ] HACS release packaging
 
-## License
+---
 
-MIT
+## 📄 License
+
+MIT License. See [LICENSE](LICENSE) for details.
