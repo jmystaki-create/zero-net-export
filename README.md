@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="zero-net-export.png" alt="Zero Net Export Logo" width="200"/>
+</p>
+
 # Zero Net Export
 
 > **Stop sending free power to the grid.**

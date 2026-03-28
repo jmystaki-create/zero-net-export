@@ -10,5 +10,6 @@
   "integration_type": "service",
   "requirements": [],
   "dependencies": [],
-  "after_dependencies": ["energy"]
+  "after_dependencies": ["energy"],
+  "icon": "zero-net-export.png"
 }
