@@ -1,6 +1,13 @@
 # Zero Net Export
 
-A Home Assistant custom integration that controls solar, battery, and flexible loads to keep grid export near a configured target (ideally 0W).
+> **Stop sending free power to the grid.**
+
+With export tariffs often near zero, every watt your solar panels push back to the grid is money left on the table. **Zero Net Export** solves this by turning your Home Assistant into an active energy optimizer that aggressively keeps your grid export at a precise, user-defined target—ideally **0W**.
+
+Instead of letting excess solar vanish into the grid, this system intelligently orchestrates your battery storage and flexible loads (EV chargers, hot water, pools) to absorb that surplus *inside* your home. It dynamically shifts consumption to match generation, ensuring you maximize self-consumption and get the most value from your solar investment.
+
+**Built for safety and reliability:**
+Unlike fragile automation scripts, Zero Net Export is a **guard-first control engine**. It validates data integrity in real-time, applies anti-flap logic to protect your hardware from rapid cycling, and automatically degrades into a safe mode if sensors drift or data becomes uncertain. Whether you are avoiding export fees, balancing a microgrid, or simply trying to get every cent of value from your solar panels, Zero Net Export provides the operator-grade precision and safety needed to run your home as a true, self-sufficient energy system.
 
 ## Features
 
