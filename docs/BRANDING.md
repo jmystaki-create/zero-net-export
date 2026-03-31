@@ -9,6 +9,11 @@ The repository now also includes a simple branding asset package:
 - `branding/icon.png`
 - `branding/logo.png`
 
+And a Home Assistant brands-style layout for the integration domain:
+
+- `brands/zero_net_export/icon.png`
+- `brands/zero_net_export/logo.png`
+
 These are currently sourced from the same approved 1024×1024 project logo and are intended to give the project a stable branding baseline for future Home Assistant / HACS branding work.
 
 ## Current Usage
@@ -49,6 +54,8 @@ Usually controlled by:
 
 - A square 1024×1024 PNG logo is present in the repository.
 - README branding is already wired to use this logo.
+- A release-managed `branding/` asset package exists.
+- A Home Assistant brands-style `brands/zero_net_export/` layout now exists.
 - The repository now has release/changelog structure so branding can be kept consistent across releases.
 
 ## Next Step If Custom HACS / HA Tile Branding Is Required

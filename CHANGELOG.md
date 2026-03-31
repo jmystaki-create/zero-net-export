@@ -8,6 +8,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Added
 - Branding asset package in `branding/` with versioned `icon.png` and `logo.png` copies of the approved project logo.
+- Home Assistant brands-style asset layout in `brands/zero_net_export/`.
 - Release workflow updated to treat branding assets as release-managed project files.
 
 ## [0.1.0] - 2026-03-31
