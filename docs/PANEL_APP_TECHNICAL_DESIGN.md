@@ -181,9 +181,9 @@ Names may change during implementation, but the panel should use explicit app-le
 ## Delivery sequence
 
 ### Milestone 1 — Panel shell
-- register panel
-- static shell with tabs/sections
-- placeholder content sourced from current backend state
+- register panel ✅
+- static shell with tabs/sections ✅
+- placeholder content sourced from current backend state ✅ via `zero_net_export/panel/get_state`
 
 ### Milestone 2 — Overview + diagnostics
 - show real current controller state

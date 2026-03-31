@@ -69,11 +69,11 @@ Add / rebuild:
 - keep HACS/manual install path working
 
 ### Phase 2 — App shell
-- create panel registration
-- establish frontend asset structure
-- define backend-to-panel API or websocket contract
+- create panel registration ✅ first sidebar panel registered
+- establish frontend asset structure ✅ frontend bundle now ships under the integration
+- define backend-to-panel API or websocket contract ✅ initial websocket bootstrap via `zero_net_export/panel/get_state`
 - use `docs/PANEL_APP_TECHNICAL_DESIGN.md` as the panel-shell implementation blueprint
-- ship first panel shell with placeholder sections
+- ship first panel shell with placeholder sections ✅ Overview / Setup / Devices / Diagnostics / Settings shell delivered
 
 ### Phase 3 — Guided setup
 - source role mapping UI

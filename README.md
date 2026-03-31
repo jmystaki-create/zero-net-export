@@ -58,7 +58,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
-- **Operator Dashboard**: Lovelace dashboard scaffold for live monitoring and control.
+- **Operator Panel App**: Home Assistant sidebar panel shell for overview, setup, devices, diagnostics, and settings.
+- **Operator Dashboard**: Lovelace dashboard scaffold retained as a fallback/debugging surface.
 
 ---
 
@@ -137,7 +138,8 @@ The backend control engine is substantially built, but the project is now in an 
 - [x] Dashboard scaffold
 - [x] MIT license
 - [ ] Stabilize install/runtime behavior in real Home Assistant environments
-- [ ] Rebuild the operator experience as a panel-style app
+- [x] Ship the first panel-style app shell in Home Assistant
+- [ ] Add guided source and device workflows to the panel so operators no longer need raw JSON for normal setup
 - [ ] Real-world validation of the rebuilt operator flow
 
 ---

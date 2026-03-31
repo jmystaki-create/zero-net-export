@@ -7,6 +7,26 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
+- Placeholder panel shell follow-up work remains focused on guided source setup, guided device management, and operator mutations inside the app.
+
+## [0.1.2] - 2026-04-01
+
+### Added
+- Registered a real Home Assistant sidebar panel for Zero Net Export instead of leaving the app-first path as docs-only planning.
+- Added a frontend panel bundle with tabbed shell sections for Overview, Setup, Devices, Diagnostics, and Settings.
+- Added a normalized websocket payload at `zero_net_export/panel/get_state` so the panel can read structured overview, setup, device, and diagnostics state from the existing backend coordinator.
+
+### Changed
+- Integration startup now ensures the panel shell is registered alongside the existing backend coordinator/platform setup.
+- README and implementation docs now reflect that the first panel shell milestone has been delivered.
+- Integration version advanced to `0.1.2` for the panel-shell milestone.
+
+### Fixed
+- Removed the custom `icon` field from `manifest.json` as a likely contributor to wider Home Assistant UI/icon breakage during install.
+
+## [0.1.1] - 2026-03-31
+
+### Added
 - `docs/PANEL_APP_REBUILD_PLAN.md` defining the app-first rebuild strategy.
 - `docs/PANEL_APP_TECHNICAL_DESIGN.md` defining app sections, backend contract, and phased panel delivery.
 - New project goals and implementation direction focused on a panel-style operator experience.
@@ -16,14 +36,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Changed
 - Design direction now explicitly rejects the original poor device configuration UX as a long-term operator workflow.
-
-### Changed
 - Product documentation now treats the YAML dashboard as a transitional surface rather than the long-term primary UX.
 - Implementation planning now includes stabilization plus panel-app rebuild phases.
 - Integration version advanced toward `0.1.1` for stabilization work.
-
-### Fixed
-- Removed the custom `icon` field from `manifest.json` as a likely contributor to wider Home Assistant UI/icon breakage during install.
 
 ## [0.1.0] - 2026-03-31
 

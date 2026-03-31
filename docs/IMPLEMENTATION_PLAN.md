@@ -67,8 +67,8 @@
 
 ## Phase 7 — Panel-app rebuild
 - stabilize install/runtime behavior in Home Assistant
-- remove UI-breaking integration packaging behaviors
-- add panel registration and frontend shell
+- remove UI-breaking integration packaging behaviors ✅ manifest icon packaging issue removed
+- add panel registration and frontend shell ✅ first sidebar panel shell and websocket bootstrap state delivered
 - create guided source/device setup UX
 - replace JSON/YAML-first operator workflow with panel-first workflow
 - retain YAML dashboard as fallback/debugging surface
