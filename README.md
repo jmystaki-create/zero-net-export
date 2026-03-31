@@ -127,7 +127,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, but the project is now in an active **stabilization + app-first rebuild** phase.
+The backend control engine is substantially built, but the project is now in an active **stabilization + app-first rebuild** phase focused on delivering a comprehensive UI for setup, device management, operation, and diagnostics.
 
 - [x] Config flow & source validation
 - [x] Device model & guards

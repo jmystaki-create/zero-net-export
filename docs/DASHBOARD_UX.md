@@ -1,10 +1,12 @@
 # Dashboard and UX
 
-## Primary dashboard goals
+## Primary dashboard / app goals
 - show current energy picture clearly
 - show controller state clearly
 - show active decisions clearly
 - keep operator override simple
+- provide a comprehensive UI for setup, configuration, operation, and diagnostics
+- eliminate dependence on poor raw device configuration UX for normal operators
 
 ## Main dashboard sections
 
@@ -52,6 +54,8 @@ For each device:
 - never hide active constraints
 - every action should be explainable
 - manual override must be obvious
+- configuration must be guided, visual, and recoverable
+- device setup must feel like a proper product workflow, not a developer-only JSON editor
 
 ## Current scaffold status
 

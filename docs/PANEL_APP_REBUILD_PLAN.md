@@ -7,6 +7,8 @@ The current backend logic is valuable, but the current delivery shape is too int
 Observed problems:
 - install/runtime polish issues need tightening
 - the current setup experience is too dependent on Devices & Services forms
+- the original device configuration experience was poor and not acceptable as the long-term product UX
+- raw JSON device inventory editing is too fragile and too technical for normal operation
 - the operator experience feels like a collection of entities and YAML instead of a coherent app
 - the product should feel closer to an in-Home-Assistant app or control center
 
@@ -24,9 +26,11 @@ This preserves the backend work already completed while replacing the operator-f
 1. Stabilize install/runtime behavior in Home Assistant
 2. Prevent the integration from negatively affecting broader HA UI rendering
 3. Replace the current integration-first operator workflow with a panel-first workflow
-4. Keep setup guided and visual instead of JSON-heavy wherever possible
-5. Preserve explainability, source validation, and safe control behavior
-6. Maintain release discipline while the rebuild is underway
+4. Deliver a comprehensive UI for setup, configuration, operation, and diagnostics
+5. Keep setup guided and visual instead of JSON-heavy wherever possible
+6. Replace poor device configuration UX with a first-class device onboarding and management experience
+7. Preserve explainability, source validation, and safe control behavior
+8. Maintain release discipline while the rebuild is underway
 
 ## What stays
 
@@ -50,9 +54,11 @@ Add / rebuild:
 - panel route and panel frontend
 - guided setup wizard
 - guided device onboarding
+- full device management UI (edit, enable/disable, priority, capabilities, constraints, runtime limits)
 - source-mapping UI with inline validation
 - operator dashboard optimized for daily use
 - diagnostics / history / explanation views inside the panel
+- clear separation between onboarding, live operations, warnings, and advanced settings
 
 ## Phases
 
@@ -73,13 +79,17 @@ Add / rebuild:
 - validation feedback in-panel
 - operator-safe defaults
 - options editing without raw JSON as the primary path
+- guided device onboarding wizard with templates for fixed and variable devices
+- human-friendly editing for device constraints, priorities, and safety settings
 
 ### Phase 4 — Operator workflow
 - live overview
 - controller mode/target controls
 - managed device list
+- rich device detail pages or panels
 - warnings and diagnostics
 - action history / explanation timeline
+- comprehensive settings views for controller, sources, devices, and health state
 
 ### Phase 5 — Completion
 - confirm panel is the primary operator surface
@@ -92,5 +102,6 @@ The rebuild can be considered complete when:
 - install no longer causes broader HA UI regressions
 - a usable panel exists in Home Assistant sidebar/navigation
 - source setup and device setup can be completed through the app surface
+- device management is comprehensive enough that operators do not need to edit raw JSON for normal use
 - operator workflow no longer depends on raw YAML or JSON-first interaction
 - docs and release notes reflect the new app-first product shape
