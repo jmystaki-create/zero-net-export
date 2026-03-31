@@ -7,18 +7,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
+- No unreleased changes currently tracked.
+
+## [0.1.0] - 2026-03-31
+
+### Added
 - Release management structure for ongoing versioned maintenance.
 - `CHANGELOG.md` to track user-visible changes by release.
 - `docs/RELEASE_PROCESS.md` describing the release workflow.
-
-### Changed
-- No released-version change yet; current branch state remains ahead of the first formal release tag.
-
-### Fixed
-- HACS metadata parsing issue for the `homeassistant` field in `hacs.json`.
-- Home Assistant compatibility issue caused by importing `ATTR_STATE_CLASS` from `homeassistant.const`.
-
-## [0.1.0] - 2026-03-29
 
 ### Added
 - Initial Home Assistant custom integration scaffold for Zero Net Export.
