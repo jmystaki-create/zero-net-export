@@ -11,9 +11,10 @@ import voluptuous as vol
 from homeassistant.components import panel_custom, websocket_api
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
+from .const import DOMAIN, MODES
 
 PANEL_TITLE = "Zero Net Export"
 PANEL_ICON = "mdi:transmission-tower-export"
@@ -22,7 +23,11 @@ PANEL_COMPONENT_NAME = "zero-net-export-panel"
 PANEL_STATIC_DIR = "frontend"
 PANEL_BUNDLE_NAME = "zero-net-export-panel.js"
 PANEL_WEBSOCKET_GET_STATE = f"{DOMAIN}/panel/get_state"
-PANEL_SCHEMA_VERSION = 1
+PANEL_WEBSOCKET_SAVE_CONTROLLER = f"{DOMAIN}/panel/save_controller_settings"
+PANEL_WEBSOCKET_RESET_CONTROLLER = f"{DOMAIN}/panel/reset_controller_overrides"
+PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
+PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
+PANEL_SCHEMA_VERSION = 2
 
 
 def _frontend_dir() -> Path:
@@ -31,6 +36,29 @@ def _frontend_dir() -> Path:
 
 def _frontend_module_url() -> str:
     return f"/api/{DOMAIN}/{PANEL_BUNDLE_NAME}"
+
+
+def _coordinators(hass: HomeAssistant) -> dict[str, Any]:
+    entries = hass.data.get(DOMAIN, {})
+    return {
+        entry_id: coordinator
+        for entry_id, coordinator in entries.items()
+        if entry_id != "panel_registered"
+    }
+
+
+def _get_coordinator(hass: HomeAssistant, entry_id: str | None = None) -> Any:
+    coordinators = _coordinators(hass)
+    if not coordinators:
+        raise HomeAssistantError("Zero Net Export is not configured yet.")
+
+    if entry_id:
+        coordinator = coordinators.get(entry_id)
+        if coordinator is None:
+            raise HomeAssistantError(f"Unknown Zero Net Export entry: {entry_id}")
+        return coordinator
+
+    return next(iter(coordinators.values()))
 
 
 async def async_setup_panel(hass: HomeAssistant) -> None:
@@ -61,6 +89,10 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
     )
 
     websocket_api.async_register_command(hass, websocket_get_panel_state)
+    websocket_api.async_register_command(hass, websocket_save_controller_settings)
+    websocket_api.async_register_command(hass, websocket_reset_controller_overrides)
+    websocket_api.async_register_command(hass, websocket_update_device)
+    websocket_api.async_register_command(hass, websocket_reset_device_overrides)
     domain_data["panel_registered"] = True
 
 
@@ -72,6 +104,104 @@ async def websocket_get_panel_state(
     msg: dict[str, Any],
 ) -> None:
     """Return the normalized panel bootstrap state."""
+    connection.send_result(msg["id"], _build_panel_state(hass))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): PANEL_WEBSOCKET_SAVE_CONTROLLER,
+        vol.Optional("entry_id"): str,
+        vol.Optional("enabled"): bool,
+        vol.Optional("mode"): vol.In(MODES),
+        vol.Optional("target_export_w"): vol.Coerce(float),
+        vol.Optional("deadband_w"): vol.All(vol.Coerce(float), vol.Range(min=0)),
+        vol.Optional("battery_reserve_soc"): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
+    }
+)
+@websocket_api.async_response
+async def websocket_save_controller_settings(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Apply operator-facing controller overrides from the panel."""
+    coordinator = _get_coordinator(hass, msg.get("entry_id"))
+
+    if "enabled" in msg:
+        await coordinator.async_set_enabled(msg["enabled"])
+    if "mode" in msg:
+        await coordinator.async_set_mode(msg["mode"])
+    if "target_export_w" in msg:
+        await coordinator.async_set_target_export_w_override(msg["target_export_w"])
+    if "deadband_w" in msg:
+        await coordinator.async_set_deadband_w_override(msg["deadband_w"])
+    if "battery_reserve_soc" in msg:
+        await coordinator.async_set_battery_reserve_soc_override(msg["battery_reserve_soc"])
+
+    connection.send_result(msg["id"], _build_panel_state(hass))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): PANEL_WEBSOCKET_RESET_CONTROLLER,
+        vol.Optional("entry_id"): str,
+    }
+)
+@websocket_api.async_response
+async def websocket_reset_controller_overrides(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Reset controller overrides back to configured defaults."""
+    coordinator = _get_coordinator(hass, msg.get("entry_id"))
+    await coordinator.async_reset_controller_overrides()
+    connection.send_result(msg["id"], _build_panel_state(hass))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): PANEL_WEBSOCKET_UPDATE_DEVICE,
+        vol.Optional("entry_id"): str,
+        vol.Required("device_key"): str,
+        vol.Optional("enabled"): bool,
+        vol.Optional("priority"): vol.Coerce(int),
+    }
+)
+@websocket_api.async_response
+async def websocket_update_device(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Apply operator-facing device overrides from the panel."""
+    coordinator = _get_coordinator(hass, msg.get("entry_id"))
+    device_key = msg["device_key"]
+
+    if "enabled" in msg:
+        await coordinator.async_set_device_enabled_override(device_key, msg["enabled"])
+    if "priority" in msg:
+        await coordinator.async_set_device_priority_override(device_key, msg["priority"])
+
+    connection.send_result(msg["id"], _build_panel_state(hass))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): PANEL_WEBSOCKET_RESET_DEVICE,
+        vol.Optional("entry_id"): str,
+        vol.Required("device_key"): str,
+    }
+)
+@websocket_api.async_response
+async def websocket_reset_device_overrides(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Reset per-device operator overrides back to configured defaults."""
+    coordinator = _get_coordinator(hass, msg.get("entry_id"))
+    await coordinator.async_reset_device_overrides(msg["device_key"])
     connection.send_result(msg["id"], _build_panel_state(hass))
 
 
@@ -120,6 +250,7 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "health_status": state.health_status,
         "health_summary": state.health_summary,
         "confidence": state.confidence,
+        "controller_settings": _serialize_value(state.validation_details),
     }
 
     setup = {

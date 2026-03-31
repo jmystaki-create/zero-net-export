@@ -1109,6 +1109,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                         blocked_planned_action_count += 1
                 device_details[runtime.config.key] = {
                     **runtime_as_attributes(runtime),
+                    "key": runtime.config.key,
                     "name": runtime.config.name,
                     "usable": runtime.usable,
                     "status": runtime.status,

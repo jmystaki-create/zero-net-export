@@ -186,9 +186,10 @@ Names may change during implementation, but the panel should use explicit app-le
 - placeholder content sourced from current backend state ✅ via `zero_net_export/panel/get_state`
 
 ### Milestone 2 — Overview + diagnostics
-- show real current controller state
-- show top warnings and explanations
-- show fleet summary and recent actions
+- show real current controller state ✅
+- show top warnings and explanations ✅
+- show fleet summary and recent actions ✅
+- allow common runtime controller and device override mutations ✅ first panel websocket save/reset flows now wired to coordinator runtime overrides
 
 ### Milestone 3 — Setup UX
 - source mapping UI

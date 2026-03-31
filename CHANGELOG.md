@@ -7,7 +7,19 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- Placeholder panel shell follow-up work remains focused on guided source setup, guided device management, and operator mutations inside the app.
+- Guided source mapping and full add/edit/remove device onboarding remain the highest-value panel milestones after runtime operator controls.
+
+## [0.1.3] - 2026-04-01
+
+### Added
+- Added panel websocket mutations for controller runtime settings and per-device operator overrides so the app can now perform common operator actions instead of staying read-only.
+- Added in-panel controller controls for enable/disable, mode, target export, deadband, battery reserve, and reset-to-defaults.
+- Added in-panel device controls for runtime enable/disable, priority override, and per-device override reset.
+
+### Changed
+- Panel schema advanced to `2` and the frontend now reflects saving/busy state during operator mutations.
+- Panel docs now describe the current shell as read/write for runtime control while guided source and full device onboarding remain next.
+- Integration version advanced to `0.1.3` for the first operator-mutation panel milestone.
 
 ## [0.1.2] - 2026-04-01
 

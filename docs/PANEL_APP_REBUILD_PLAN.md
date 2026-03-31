@@ -85,8 +85,8 @@ Add / rebuild:
 
 ### Phase 4 — Operator workflow
 - live overview
-- controller mode/target controls
-- managed device list
+- controller mode/target controls ✅ first runtime control mutations now available in-panel
+- managed device list ✅ first runtime enable/disable and priority override controls now available in-panel
 - rich device detail pages or panels
 - warnings and diagnostics
 - action history / explanation timeline
