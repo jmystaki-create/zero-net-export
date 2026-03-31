@@ -7,9 +7,17 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- Branding asset package in `branding/` with versioned `icon.png` and `logo.png` copies of the approved project logo.
-- Home Assistant brands-style asset layout in `brands/zero_net_export/`.
-- Release workflow updated to treat branding assets as release-managed project files.
+- `docs/PANEL_APP_REBUILD_PLAN.md` defining the app-first rebuild strategy.
+- New project goals and implementation direction focused on a panel-style operator experience.
+- A 4-hour supervision direction for finishing the project against the new app-first goals.
+
+### Changed
+- Product documentation now treats the YAML dashboard as a transitional surface rather than the long-term primary UX.
+- Implementation planning now includes stabilization plus panel-app rebuild phases.
+- Integration version advanced toward `0.1.1` for stabilization work.
+
+### Fixed
+- Removed the custom `icon` field from `manifest.json` as a likely contributor to wider Home Assistant UI/icon breakage during install.
 
 ## [0.1.0] - 2026-03-31
 

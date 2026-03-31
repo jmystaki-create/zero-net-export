@@ -65,7 +65,15 @@
 - per-device runtime reporting ✅ current active runtime plus active-runtime-today telemetry now persist through the daily metrics store and surface as first-class per-device sensors for dashboards and runtime-cap review
 - next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, and confirm the new per-device runtime telemetry is trustworthy enough before expanding longer-horizon reporting
 
-## Phase 7 — Future enhancements
+## Phase 7 — Panel-app rebuild
+- stabilize install/runtime behavior in Home Assistant
+- remove UI-breaking integration packaging behaviors
+- add panel registration and frontend shell
+- create guided source/device setup UX
+- replace JSON/YAML-first operator workflow with panel-first workflow
+- retain YAML dashboard as fallback/debugging surface
+
+## Phase 8 — Future enhancements
 - forecast-aware optimization
 - tariff-aware strategy
 - direct inverter/export-limiter adapters

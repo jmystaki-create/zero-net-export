@@ -107,6 +107,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Entity Model](docs/ENTITY_MODEL.md) | List of all created entities |
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
+| [Panel-App Rebuild Plan](docs/PANEL_APP_REBUILD_PLAN.md) | New app-first direction and rebuild phases |
 | [Release Process](docs/RELEASE_PROCESS.md) | Versioning, changelog, tags, and release workflow |
 | [Branding](docs/BRANDING.md) | Logo usage and HACS / Home Assistant branding notes |
 | [Changelog](CHANGELOG.md) | User-visible changes by version |
@@ -126,7 +127,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-This integration is **functionally complete** and ready for real-world testing.
+The backend control engine is substantially built, but the project is now in an active **stabilization + app-first rebuild** phase.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
@@ -134,8 +135,9 @@ This integration is **functionally complete** and ready for real-world testing.
 - [x] Diagnostics & action history
 - [x] Dashboard scaffold
 - [x] MIT license
-- [ ] Real-world runtime validation (in progress)
-- [ ] HACS release packaging (pending community feedback)
+- [ ] Stabilize install/runtime behavior in real Home Assistant environments
+- [ ] Rebuild the operator experience as a panel-style app
+- [ ] Real-world validation of the rebuilt operator flow
 
 ---
 

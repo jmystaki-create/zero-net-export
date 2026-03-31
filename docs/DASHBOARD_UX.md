@@ -64,4 +64,4 @@ It currently provides:
 - fleet summary metrics
 - example fixed-load and variable-load device cards
 
-This is intentionally a plain YAML dashboard so operators can use the current integration state immediately without waiting for a custom frontend or panel framework.
+This plain YAML dashboard is now considered a transitional operator surface only. The project direction has shifted toward a custom panel / app-like frontend, with the YAML dashboard retained as a fallback and debugging surface until the panel experience is ready.
