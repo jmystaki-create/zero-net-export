@@ -7,7 +7,8 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- No unreleased changes currently tracked.
+- Branding asset package in `branding/` with versioned `icon.png` and `logo.png` copies of the approved project logo.
+- Release workflow updated to treat branding assets as release-managed project files.
 
 ## [0.1.0] - 2026-03-31
 

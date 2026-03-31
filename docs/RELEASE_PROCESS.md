@@ -31,8 +31,12 @@ At minimum:
    - Update `version`
 2. `CHANGELOG.md`
    - Move the relevant items from `Unreleased` into a versioned section
-3. Optional: `README.md`
+3. `branding/` assets
+   - Update if the public project icon or logo changes
+4. Optional: `README.md`
    - Update wording if release status materially changes
+5. Optional: `docs/BRANDING.md`
+   - Update if branding usage or packaging changes
 
 ## Standard Workflow
 

@@ -4,6 +4,13 @@ This project uses the repository asset below as its current primary brand image:
 
 - `zero-net-export.png` — 1024×1024 square PNG
 
+The repository now also includes a simple branding asset package:
+
+- `branding/icon.png`
+- `branding/logo.png`
+
+These are currently sourced from the same approved 1024×1024 project logo and are intended to give the project a stable branding baseline for future Home Assistant / HACS branding work.
+
 ## Current Usage
 
 The logo is currently used for:
