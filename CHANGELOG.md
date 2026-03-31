@@ -11,6 +11,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - New project goals and implementation direction focused on a panel-style operator experience.
 - A 4-hour supervision direction for finishing the project against the new app-first goals.
 - Comprehensive UI goals covering setup, device management, operation, and diagnostics.
+- Explicit architectural decision: panel app is now the chosen product path.
 
 ### Changed
 - Design direction now explicitly rejects the original poor device configuration UX as a long-term operator workflow.

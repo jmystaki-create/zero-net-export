@@ -12,14 +12,14 @@ Observed problems:
 - the operator experience feels like a collection of entities and YAML instead of a coherent app
 - the product should feel closer to an in-Home-Assistant app or control center
 
-## New product direction
+## Chosen product direction
 
-Zero Net Export should evolve into a:
+Zero Net Export is now explicitly committed to a:
 
 - **custom integration backend** for runtime state, validation, planning, and execution
-- **custom panel frontend** for onboarding, control, diagnostics, and operator workflow
+- **custom panel frontend** as the primary operator product surface for onboarding, control, diagnostics, and workflow
 
-This preserves the backend work already completed while replacing the operator-facing UX with an app-like experience.
+This preserves the backend work already completed while replacing the operator-facing UX with an app-like experience. The panel app is the chosen path; a full standalone add-on rewrite is not the current target.
 
 ## New goals
 

@@ -2,7 +2,7 @@
 
 ## Product statement
 
-Zero Net Export is evolving from a Home Assistant custom integration / mini app into an **app-first Home Assistant energy control product**: a custom integration backend paired with a panel-style operator experience that keeps grid export near a configured target, ideally **0 W**, using battery-aware logic and controllable loads.
+Zero Net Export is evolving from a Home Assistant custom integration / mini app into an **app-first Home Assistant energy control product**: a custom integration backend paired with a **panel-style operator app** that keeps grid export near a configured target, ideally **0 W**, using battery-aware logic and controllable loads.
 
 ## Product goals
 
@@ -21,7 +21,8 @@ Zero Net Export is evolving from a Home Assistant custom integration / mini app 
 - full forecasting optimization
 - deep tariff arbitrage
 - vendor-specific inverter control integrations beyond generic abstractions
-- full standalone add-on rewrite before proving the panel-app path
+- reverting to a devices/forms-first UX as the intended final product experience
+- full standalone add-on rewrite before proving the chosen panel-app path
 
 ## Core user stories
 
