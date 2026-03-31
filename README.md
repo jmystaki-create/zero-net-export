@@ -108,6 +108,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
 | [Release Process](docs/RELEASE_PROCESS.md) | Versioning, changelog, tags, and release workflow |
+| [Branding](docs/BRANDING.md) | Logo usage and HACS / Home Assistant branding notes |
 | [Changelog](CHANGELOG.md) | User-visible changes by version |
 
 ---
