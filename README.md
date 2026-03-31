@@ -108,6 +108,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
 | [Panel-App Rebuild Plan](docs/PANEL_APP_REBUILD_PLAN.md) | New app-first direction and rebuild phases |
+| [Panel App Technical Design](docs/PANEL_APP_TECHNICAL_DESIGN.md) | App sections, backend contract, and delivery milestones |
 | [Release Process](docs/RELEASE_PROCESS.md) | Versioning, changelog, tags, and release workflow |
 | [Branding](docs/BRANDING.md) | Logo usage and HACS / Home Assistant branding notes |
 | [Changelog](CHANGELOG.md) | User-visible changes by version |

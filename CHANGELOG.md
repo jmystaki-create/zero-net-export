@@ -8,6 +8,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Added
 - `docs/PANEL_APP_REBUILD_PLAN.md` defining the app-first rebuild strategy.
+- `docs/PANEL_APP_TECHNICAL_DESIGN.md` defining app sections, backend contract, and phased panel delivery.
 - New project goals and implementation direction focused on a panel-style operator experience.
 - A 4-hour supervision direction for finishing the project against the new app-first goals.
 - Comprehensive UI goals covering setup, device management, operation, and diagnostics.

@@ -72,6 +72,7 @@ Add / rebuild:
 - create panel registration
 - establish frontend asset structure
 - define backend-to-panel API or websocket contract
+- use `docs/PANEL_APP_TECHNICAL_DESIGN.md` as the panel-shell implementation blueprint
 - ship first panel shell with placeholder sections
 
 ### Phase 3 — Guided setup
