@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.7] - 2026-04-02
+
+### Added
+- Added a real panel Settings payload with controller defaults, fleet health summary, panel-first workflow guidance, and direct documentation/release/support links.
+- Expanded the Settings tab into an operator-facing release/support view instead of leaving it as a near-duplicate of runtime controls.
+
+### Changed
+- Panel schema advanced to `6` so the frontend can consume structured settings/release metadata.
+- Integration version advanced to `0.1.7` for the first panel settings/release-management milestone.
+
 ## [0.1.6] - 2026-04-01
 
 ### Added

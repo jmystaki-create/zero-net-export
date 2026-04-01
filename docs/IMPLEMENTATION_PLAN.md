@@ -73,6 +73,7 @@
 - create guided source/device setup UX ✅ initial panel source-mapping save flow now validates and persists source entities plus refresh interval from the Setup tab
 - replace raw device inventory JSON for normal setup ✅ first panel-side add/edit/remove device inventory management now persists validated fixed/variable devices through structured panel forms
 - add operator diagnostics/explanation UX ✅ panel diagnostics now exposes recent action history, source health, calibration hints, and per-device guard/result explanations from the existing backend state
+- add operator settings/release UX ✅ Settings tab now exposes configured defaults, fleet health summary, panel-first workflow guidance, and direct docs/release/support links
 - replace JSON/YAML-first operator workflow with panel-first workflow
 - retain YAML dashboard as fallback/debugging surface
 

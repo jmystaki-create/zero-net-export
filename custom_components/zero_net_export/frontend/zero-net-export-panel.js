@@ -497,8 +497,19 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _renderSettings(entry) {
     const overview = entry?.overview || {};
+    const settings = entry?.settings || {};
     const defaults = this._controllerDefaults(entry);
+    const configuredDefaults = settings.controller_defaults || {};
+    const operatorSummary = settings.operator_summary || {};
+    const workflow = settings.workflow || {};
+    const links = settings.links || {};
     const modeOptions = MODES.map((mode) => `<option value="${mode.value}" ${overview.mode === mode.value ? 'selected' : ''}>${mode.label}</option>`).join('');
+    const workflowItems = (workflow.normal_operator_path || [])
+      .map((item) => `<li>${item}</li>`)
+      .join('');
+    const linkItems = Object.entries(links)
+      .map(([key, value]) => `<li><a href="${value}" target="_blank" rel="noreferrer">${key.replaceAll('_', ' ')}</a></li>`)
+      .join('');
     return `
       <section class="panel-section">
         <h3>Controller Settings</h3>
@@ -535,9 +546,31 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Override state:</strong> target ${defaults.target_export_override_active ? 'active' : 'default'}, deadband ${defaults.deadband_override_active ? 'active' : 'default'}, reserve ${defaults.battery_reserve_override_active ? 'active' : 'default'}</p>
       </section>
       <section class="panel-section">
-        <h3>Panel Status</h3>
-        <p><strong>Entry:</strong> ${entry?.title || 'Not configured'}</p>
-        <p><strong>Schema version:</strong> ${this._state?.panel_schema_version ?? '—'}</p>
+        <h3>Operator Defaults & Health</h3>
+        <p><strong>Configured refresh interval:</strong> ${configuredDefaults.refresh_seconds ?? '—'} s</p>
+        <p><strong>Configured target export:</strong> ${configuredDefaults.target_export_w ?? '—'} W</p>
+        <p><strong>Configured deadband:</strong> ${configuredDefaults.deadband_w ?? '—'} W</p>
+        <p><strong>Configured battery reserve:</strong> ${configuredDefaults.battery_reserve_soc ?? '—'} %</p>
+        <p><strong>Device fleet:</strong> ${operatorSummary.device_count ?? 0} total / ${operatorSummary.enabled_device_count ?? 0} enabled / ${operatorSummary.usable_device_count ?? 0} usable</p>
+        <p><strong>Health:</strong> ${operatorSummary.health_status || '—'}</p>
+        <p><strong>Health summary:</strong> ${operatorSummary.health_summary || '—'}</p>
+        <p><strong>Safe mode:</strong> ${operatorSummary.safe_mode ? 'Yes' : 'No'}</p>
+        <p><strong>Stale data:</strong> ${operatorSummary.stale_data ? 'Yes' : 'No'}</p>
+        <p><strong>Source mismatch:</strong> ${operatorSummary.source_mismatch ? 'Yes' : 'No'}</p>
+      </section>
+      <section class="panel-section">
+        <h3>Panel-First Workflow</h3>
+        <p><strong>Primary operator surface:</strong> ${workflow.panel_primary ? 'Panel app' : 'Not declared'}</p>
+        <p><strong>YAML dashboard:</strong> ${workflow.dashboard_fallback_only ? 'Fallback/debug only' : 'Primary surface'}</p>
+        <p><strong>JSON options flow:</strong> ${workflow.json_options_fallback_only ? 'Advanced fallback only' : 'Normal path'}</p>
+        ${workflowItems ? `<ul>${workflowItems}</ul>` : '<p>No workflow guidance published yet.</p>'}
+      </section>
+      <section class="panel-section">
+        <h3>Release & Support</h3>
+        <p><strong>Entry:</strong> ${operatorSummary.entry_title || entry?.title || 'Not configured'}</p>
+        <p><strong>Integration version:</strong> ${entry?.version ?? '—'}</p>
+        <p><strong>Panel schema version:</strong> ${this._state?.panel_schema_version ?? '—'}</p>
+        ${linkItems ? `<ul>${linkItems}</ul>` : '<p>No support links available.</p>'}
       </section>
     `;
   }

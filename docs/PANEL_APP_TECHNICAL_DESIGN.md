@@ -204,6 +204,7 @@ Names may change during implementation, but the panel should use explicit app-le
 ### Milestone 5 — Daily operator workflow
 - live control page
 - overrides, reset actions, per-device details
+- settings/release surface ✅ Settings now exposes configured defaults, fleet health, workflow guidance, and support links
 - complete app-first workflow
 
 ## Relationship to existing entities

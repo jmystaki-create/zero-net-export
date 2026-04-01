@@ -55,7 +55,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 5
+PANEL_SCHEMA_VERSION = 6
 
 
 def _frontend_dir() -> Path:
@@ -626,6 +626,57 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "device_items": _serialize_value(list(state.device_details.values())),
     }
 
+    settings = {
+        "controller_defaults": {
+            "target_export_w": coordinator.entry.options.get(
+                CONF_TARGET_EXPORT_W,
+                coordinator.entry.data.get(CONF_TARGET_EXPORT_W),
+            ),
+            "deadband_w": coordinator.entry.options.get(
+                CONF_DEADBAND_W,
+                coordinator.entry.data.get(CONF_DEADBAND_W),
+            ),
+            "battery_reserve_soc": coordinator.entry.options.get(
+                CONF_BATTERY_RESERVE_SOC,
+                coordinator.entry.data.get(CONF_BATTERY_RESERVE_SOC),
+            ),
+            "refresh_seconds": coordinator.entry.options.get(
+                CONF_REFRESH_SECONDS,
+                coordinator.entry.data.get(CONF_REFRESH_SECONDS),
+            ),
+        },
+        "operator_summary": {
+            "entry_title": coordinator.entry.title,
+            "entry_version": coordinator.entry.version,
+            "device_count": state.device_count,
+            "enabled_device_count": state.enabled_device_count,
+            "usable_device_count": state.usable_device_count,
+            "safe_mode": state.safe_mode,
+            "health_status": state.health_status,
+            "health_summary": state.health_summary,
+            "source_mismatch": state.source_mismatch,
+            "stale_data": state.stale_data,
+        },
+        "workflow": {
+            "panel_primary": True,
+            "dashboard_fallback_only": True,
+            "json_options_fallback_only": True,
+            "normal_operator_path": [
+                "Setup tab for source mapping",
+                "Devices tab for add/edit/remove device onboarding",
+                "Overview tab for daily operation",
+                "Diagnostics tab for explanation and troubleshooting",
+            ],
+        },
+        "links": {
+            "documentation": "https://github.com/jmystaki-create/zero-net-export#readme",
+            "changelog": "https://github.com/jmystaki-create/zero-net-export/blob/main/CHANGELOG.md",
+            "panel_rebuild_plan": "https://github.com/jmystaki-create/zero-net-export/blob/main/docs/PANEL_APP_REBUILD_PLAN.md",
+            "release_process": "https://github.com/jmystaki-create/zero-net-export/blob/main/docs/RELEASE_PROCESS.md",
+            "issues": "https://github.com/jmystaki-create/zero-net-export/issues",
+        },
+    }
+
     return {
         "entry_id": entry_id,
         "title": coordinator.entry.title,
@@ -635,6 +686,7 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "setup": setup,
         "devices": devices,
         "diagnostics": diagnostics,
+        "settings": settings,
     }
 
 

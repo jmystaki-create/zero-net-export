@@ -90,7 +90,7 @@ Add / rebuild:
 - rich device detail pages or panels
 - warnings and diagnostics ✅ panel diagnostics now surfaces health, mapped-source issues, and stale-data context
 - action history / explanation timeline ✅ recent action history and per-device planned-action / guard / result explanations now surface in-panel
-- comprehensive settings views for controller, sources, devices, and health state
+- comprehensive settings views for controller, sources, devices, and health state ✅ first settings/release surface now shows configured defaults, fleet health, workflow guidance, and support links in-panel
 
 ### Phase 5 — Completion
 - confirm panel is the primary operator surface

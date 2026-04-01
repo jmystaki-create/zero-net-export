@@ -31,7 +31,7 @@
     "step": {
       "init": {
         "title": "Zero Net Export options",
-        "description": "Tune control settings and define controllable devices as JSON.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "description": "Tune advanced defaults here. Normal operators should use the Zero Net Export panel for source setup and device management; the JSON field below is a fallback for advanced recovery/debugging only.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
