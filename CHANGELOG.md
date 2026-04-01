@@ -7,7 +7,18 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- Guided source mapping and full add/edit/remove device onboarding remain the highest-value panel milestones after runtime operator controls.
+- Guided full add/edit/remove device onboarding remains the highest-value panel milestone after source mapping moved into the panel.
+
+## [0.1.4] - 2026-04-01
+
+### Added
+- Added panel source-mapping save support so operators can update the integration's mapped Home Assistant sensors directly from the sidebar app.
+- Added source-mapping form inputs with sensor suggestions and refresh-interval editing in the Setup tab.
+
+### Changed
+- Panel schema advanced to `3` and Setup is now read/write for source mapping rather than diagnostics-only.
+- Panel/backend flow now validates proposed source mappings before persisting them and reloads the config entry after a successful save.
+- Integration version advanced to `0.1.4` for the first guided source-setup milestone.
 
 ## [0.1.3] - 2026-04-01
 

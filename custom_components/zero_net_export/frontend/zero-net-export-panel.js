@@ -1,6 +1,7 @@
 const PANEL_GET_STATE = 'zero_net_export/panel/get_state';
 const PANEL_SAVE_CONTROLLER = 'zero_net_export/panel/save_controller_settings';
 const PANEL_RESET_CONTROLLER = 'zero_net_export/panel/reset_controller_overrides';
+const PANEL_SAVE_SOURCES = 'zero_net_export/panel/save_sources';
 const PANEL_UPDATE_DEVICE = 'zero_net_export/panel/update_device';
 const PANEL_RESET_DEVICE = 'zero_net_export/panel/reset_device_overrides';
 const TABS = ['overview', 'setup', 'devices', 'diagnostics', 'settings'];
@@ -10,6 +11,19 @@ const MODES = [
   { value: 'self_consumption_max', label: 'Self-Consumption Max' },
   { value: 'import_min', label: 'Import Min' },
   { value: 'manual_hold', label: 'Manual / Hold' },
+];
+
+const SOURCE_FIELDS = [
+  { key: 'solar_power_entity', label: 'Solar Power', required: true },
+  { key: 'solar_energy_entity', label: 'Solar Energy', required: true },
+  { key: 'grid_import_power_entity', label: 'Grid Import Power', required: true },
+  { key: 'grid_export_power_entity', label: 'Grid Export Power', required: true },
+  { key: 'grid_import_energy_entity', label: 'Grid Import Energy', required: true },
+  { key: 'grid_export_energy_entity', label: 'Grid Export Energy', required: true },
+  { key: 'home_load_power_entity', label: 'Home Load Power', required: true },
+  { key: 'battery_soc_entity', label: 'Battery SOC', required: false },
+  { key: 'battery_charge_power_entity', label: 'Battery Charge Power', required: false },
+  { key: 'battery_discharge_power_entity', label: 'Battery Discharge Power', required: false },
 ];
 
 class ZeroNetExportPanel extends HTMLElement {
@@ -138,6 +152,22 @@ class ZeroNetExportPanel extends HTMLElement {
   _renderSetup(entry) {
     const setup = entry?.setup || {};
     const validation = setup.validation || {};
+    const sourceMapping = setup.source_mapping || {};
+    const entityOptions = (setup.available_entities || [])
+      .map((item) => `<option value="${item.entity_id}">${item.label}</option>`)
+      .join('');
+    const sourceInputs = SOURCE_FIELDS.map((field) => `
+      <label>
+        <span>${field.label}${field.required ? ' *' : ''}</span>
+        <input
+          list="source-entity-options"
+          id="source-${field.key}"
+          value="${sourceMapping[field.key] || ''}"
+          placeholder="sensor.example_${field.key}"
+          ${this._busy ? 'disabled' : ''}
+        />
+      </label>
+    `).join('');
     const sourceFreshness = validation.source_freshness || {};
     const freshnessRows = Object.entries(sourceFreshness)
       .map(([key, item]) => `<tr><td>${key}</td><td>${item.entity_id || '—'}</td><td>${item.stale ? 'Stale' : 'OK'}</td><td>${item.age_seconds ?? '—'}</td></tr>`)
@@ -150,7 +180,20 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Stale data:</strong> ${setup.stale_data ? 'Yes' : 'No'}</p>
         <p><strong>Source mismatch:</strong> ${setup.source_mismatch ? 'Yes' : 'No'}</p>
         <p><strong>Stale source summary:</strong> ${setup.stale_source_summary || '—'}</p>
-        <p class="muted">Source mapping save flows are the next panel-first setup milestone; current setup state is read through the normalized backend payload.</p>
+        <p class="muted">Save source mappings here to reload the integration with validated panel-first setup data.</p>
+      </section>
+      <section class="panel-section">
+        <h3>Source Mapping</h3>
+        <div class="form-grid">${sourceInputs}
+          <label>
+            <span>Refresh Seconds</span>
+            <input id="source-refresh-seconds" type="number" min="5" max="300" step="5" value="${sourceMapping.refresh_seconds ?? 30}" ${this._busy ? 'disabled' : ''} />
+          </label>
+        </div>
+        <datalist id="source-entity-options">${entityOptions}</datalist>
+        <div class="button-row">
+          <button class="action-button" data-action="save-sources" ${this._busy ? 'disabled' : ''}>Save Source Mapping</button>
+        </div>
       </section>
       <section class="panel-section">
         <h3>Mapped Source Freshness</h3>
@@ -315,6 +358,21 @@ class ZeroNetExportPanel extends HTMLElement {
     });
   }
 
+  async _saveSourcesFromForm() {
+    const payload = {
+      type: PANEL_SAVE_SOURCES,
+      entry_id: this._entryId(),
+      refresh_seconds: Number(this.shadowRoot.querySelector('#source-refresh-seconds')?.value ?? 30),
+    };
+
+    SOURCE_FIELDS.forEach((field) => {
+      const value = this.shadowRoot.querySelector(`#source-${field.key}`)?.value?.trim() || '';
+      payload[field.key] = value;
+    });
+
+    await this._callWS(payload);
+  }
+
   _attachEventHandlers() {
     this.shadowRoot.querySelector('.refresh')?.addEventListener('click', () => this._loadState());
     this.shadowRoot.querySelectorAll('.tab').forEach((button) => {
@@ -342,6 +400,10 @@ class ZeroNetExportPanel extends HTMLElement {
 
     this.shadowRoot.querySelector('[data-action="save-controller"]')?.addEventListener('click', async () => {
       await this._saveControllerFromForm();
+    });
+
+    this.shadowRoot.querySelector('[data-action="save-sources"]')?.addEventListener('click', async () => {
+      await this._saveSourcesFromForm();
     });
 
     this.shadowRoot.querySelectorAll('[data-device-enabled]').forEach((input) => {

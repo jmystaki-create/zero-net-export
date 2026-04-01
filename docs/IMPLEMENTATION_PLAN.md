@@ -70,7 +70,7 @@
 - remove UI-breaking integration packaging behaviors ✅ manifest icon packaging issue removed
 - add panel registration and frontend shell ✅ first sidebar panel shell and websocket bootstrap state delivered
 - add runtime operator mutations in-panel ✅ controller runtime overrides and per-device enable/priority overrides now flow through panel websocket commands instead of staying read-only
-- create guided source/device setup UX
+- create guided source/device setup UX ✅ initial panel source-mapping save flow now validates and persists source entities plus refresh interval from the Setup tab
 - replace JSON/YAML-first operator workflow with panel-first workflow
 - retain YAML dashboard as fallback/debugging surface
 

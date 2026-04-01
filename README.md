@@ -139,7 +139,8 @@ The backend control engine is substantially built, but the project is now in an 
 - [x] MIT license
 - [ ] Stabilize install/runtime behavior in real Home Assistant environments
 - [x] Ship the first panel-style app shell in Home Assistant
-- [ ] Add guided source mapping and full add/edit/remove device workflows to the panel so operators no longer need raw JSON for normal setup
+- [ ] Add full add/edit/remove device workflows to the panel so operators no longer need raw JSON for normal setup
+- [x] Add guided source mapping to the panel so operators can complete source setup in the app
 - [x] Add runtime operator controls to the panel for controller tuning and per-device override management
 - [ ] Real-world validation of the rebuilt operator flow
 

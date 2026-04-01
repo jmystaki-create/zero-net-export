@@ -76,8 +76,8 @@ Add / rebuild:
 - ship first panel shell with placeholder sections ✅ Overview / Setup / Devices / Diagnostics / Settings shell delivered
 
 ### Phase 3 — Guided setup
-- source role mapping UI
-- validation feedback in-panel
+- source role mapping UI ✅ first Setup-tab source mapping editor now saves validated source entities and refresh interval
+- validation feedback in-panel ✅ source mapping saves are blocked on the same validation engine used by config flow
 - operator-safe defaults
 - options editing without raw JSON as the primary path
 - guided device onboarding wizard with templates for fixed and variable devices

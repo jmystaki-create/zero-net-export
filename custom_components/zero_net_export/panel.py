@@ -14,7 +14,22 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, MODES
+from .const import (
+    CONF_BATTERY_CHARGE_POWER_ENTITY,
+    CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+    CONF_BATTERY_SOC_ENTITY,
+    CONF_GRID_EXPORT_ENERGY_ENTITY,
+    CONF_GRID_EXPORT_POWER_ENTITY,
+    CONF_GRID_IMPORT_ENERGY_ENTITY,
+    CONF_GRID_IMPORT_POWER_ENTITY,
+    CONF_HOME_LOAD_POWER_ENTITY,
+    CONF_REFRESH_SECONDS,
+    CONF_SOLAR_ENERGY_ENTITY,
+    CONF_SOLAR_POWER_ENTITY,
+    DOMAIN,
+    MODES,
+)
+from .validation import SourceSpec, validate_configured_entities
 
 PANEL_TITLE = "Zero Net Export"
 PANEL_ICON = "mdi:transmission-tower-export"
@@ -25,9 +40,10 @@ PANEL_BUNDLE_NAME = "zero-net-export-panel.js"
 PANEL_WEBSOCKET_GET_STATE = f"{DOMAIN}/panel/get_state"
 PANEL_WEBSOCKET_SAVE_CONTROLLER = f"{DOMAIN}/panel/save_controller_settings"
 PANEL_WEBSOCKET_RESET_CONTROLLER = f"{DOMAIN}/panel/reset_controller_overrides"
+PANEL_WEBSOCKET_SAVE_SOURCES = f"{DOMAIN}/panel/save_sources"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 2
+PANEL_SCHEMA_VERSION = 3
 
 
 def _frontend_dir() -> Path:
@@ -91,6 +107,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, websocket_get_panel_state)
     websocket_api.async_register_command(hass, websocket_save_controller_settings)
     websocket_api.async_register_command(hass, websocket_reset_controller_overrides)
+    websocket_api.async_register_command(hass, websocket_save_sources)
     websocket_api.async_register_command(hass, websocket_update_device)
     websocket_api.async_register_command(hass, websocket_reset_device_overrides)
     domain_data["panel_registered"] = True
@@ -157,6 +174,77 @@ async def websocket_reset_controller_overrides(
     coordinator = _get_coordinator(hass, msg.get("entry_id"))
     await coordinator.async_reset_controller_overrides()
     connection.send_result(msg["id"], _build_panel_state(hass))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): PANEL_WEBSOCKET_SAVE_SOURCES,
+        vol.Optional("entry_id"): str,
+        vol.Required(CONF_SOLAR_POWER_ENTITY): str,
+        vol.Required(CONF_SOLAR_ENERGY_ENTITY): str,
+        vol.Required(CONF_GRID_IMPORT_POWER_ENTITY): str,
+        vol.Required(CONF_GRID_EXPORT_POWER_ENTITY): str,
+        vol.Required(CONF_GRID_IMPORT_ENERGY_ENTITY): str,
+        vol.Required(CONF_GRID_EXPORT_ENERGY_ENTITY): str,
+        vol.Required(CONF_HOME_LOAD_POWER_ENTITY): str,
+        vol.Optional(CONF_BATTERY_SOC_ENTITY): str,
+        vol.Optional(CONF_BATTERY_CHARGE_POWER_ENTITY): str,
+        vol.Optional(CONF_BATTERY_DISCHARGE_POWER_ENTITY): str,
+        vol.Optional(CONF_REFRESH_SECONDS): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
+    }
+)
+@websocket_api.async_response
+async def websocket_save_sources(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Persist source mapping changes from the panel and reload the entry."""
+    coordinator = _get_coordinator(hass, msg.get("entry_id"))
+    entry = coordinator.entry
+    merged_data = dict(entry.data)
+
+    for key in (
+        CONF_SOLAR_POWER_ENTITY,
+        CONF_SOLAR_ENERGY_ENTITY,
+        CONF_GRID_IMPORT_POWER_ENTITY,
+        CONF_GRID_EXPORT_POWER_ENTITY,
+        CONF_GRID_IMPORT_ENERGY_ENTITY,
+        CONF_GRID_EXPORT_ENERGY_ENTITY,
+        CONF_HOME_LOAD_POWER_ENTITY,
+        CONF_BATTERY_SOC_ENTITY,
+        CONF_BATTERY_CHARGE_POWER_ENTITY,
+        CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+    ):
+        merged_data[key] = msg.get(key) or None
+
+    issues = validate_configured_entities(hass, merged_data, _source_specs_from_config(merged_data))
+    blocking_issues = [issue.message for issue in issues if issue.severity == "error"]
+    if blocking_issues:
+        raise HomeAssistantError("\n".join(blocking_issues[:6]))
+
+    merged_options = dict(entry.options)
+    if CONF_REFRESH_SECONDS in msg:
+        merged_options[CONF_REFRESH_SECONDS] = msg[CONF_REFRESH_SECONDS]
+
+    hass.config_entries.async_update_entry(entry, data=merged_data, options=merged_options)
+    await hass.config_entries.async_reload(entry.entry_id)
+    connection.send_result(msg["id"], _build_panel_state(hass))
+
+
+def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
+    return [
+        SourceSpec(CONF_SOLAR_POWER_ENTITY, config.get(CONF_SOLAR_POWER_ENTITY), "power"),
+        SourceSpec(CONF_SOLAR_ENERGY_ENTITY, config.get(CONF_SOLAR_ENERGY_ENTITY), "energy"),
+        SourceSpec(CONF_GRID_IMPORT_POWER_ENTITY, config.get(CONF_GRID_IMPORT_POWER_ENTITY), "power"),
+        SourceSpec(CONF_GRID_EXPORT_POWER_ENTITY, config.get(CONF_GRID_EXPORT_POWER_ENTITY), "power"),
+        SourceSpec(CONF_GRID_IMPORT_ENERGY_ENTITY, config.get(CONF_GRID_IMPORT_ENERGY_ENTITY), "energy"),
+        SourceSpec(CONF_GRID_EXPORT_ENERGY_ENTITY, config.get(CONF_GRID_EXPORT_ENERGY_ENTITY), "energy"),
+        SourceSpec(CONF_HOME_LOAD_POWER_ENTITY, config.get(CONF_HOME_LOAD_POWER_ENTITY), "power"),
+        SourceSpec(CONF_BATTERY_SOC_ENTITY, config.get(CONF_BATTERY_SOC_ENTITY), "percent", required=False),
+        SourceSpec(CONF_BATTERY_CHARGE_POWER_ENTITY, config.get(CONF_BATTERY_CHARGE_POWER_ENTITY), "power", required=False),
+        SourceSpec(CONF_BATTERY_DISCHARGE_POWER_ENTITY, config.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY), "power", required=False),
+    ]
 
 
 @websocket_api.websocket_command(
@@ -260,6 +348,23 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "stale_source_summary": state.stale_source_summary,
         "diagnostic_summary": state.diagnostic_summary,
         "validation": _serialize_value(state.validation_details),
+        "source_mapping": {
+            CONF_SOLAR_POWER_ENTITY: coordinator.entry.data.get(CONF_SOLAR_POWER_ENTITY),
+            CONF_SOLAR_ENERGY_ENTITY: coordinator.entry.data.get(CONF_SOLAR_ENERGY_ENTITY),
+            CONF_GRID_IMPORT_POWER_ENTITY: coordinator.entry.data.get(CONF_GRID_IMPORT_POWER_ENTITY),
+            CONF_GRID_EXPORT_POWER_ENTITY: coordinator.entry.data.get(CONF_GRID_EXPORT_POWER_ENTITY),
+            CONF_GRID_IMPORT_ENERGY_ENTITY: coordinator.entry.data.get(CONF_GRID_IMPORT_ENERGY_ENTITY),
+            CONF_GRID_EXPORT_ENERGY_ENTITY: coordinator.entry.data.get(CONF_GRID_EXPORT_ENERGY_ENTITY),
+            CONF_HOME_LOAD_POWER_ENTITY: coordinator.entry.data.get(CONF_HOME_LOAD_POWER_ENTITY),
+            CONF_BATTERY_SOC_ENTITY: coordinator.entry.data.get(CONF_BATTERY_SOC_ENTITY),
+            CONF_BATTERY_CHARGE_POWER_ENTITY: coordinator.entry.data.get(CONF_BATTERY_CHARGE_POWER_ENTITY),
+            CONF_BATTERY_DISCHARGE_POWER_ENTITY: coordinator.entry.data.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY),
+            CONF_REFRESH_SECONDS: coordinator.entry.options.get(
+                CONF_REFRESH_SECONDS,
+                coordinator.entry.data.get(CONF_REFRESH_SECONDS),
+            ),
+        },
+        "available_entities": _available_sensor_entities(hass),
     }
 
     devices = {
@@ -330,3 +435,14 @@ def _build_panel_state(hass: HomeAssistant) -> dict[str, Any]:
         "top_health_summary": active_entry["overview"]["health_summary"] if active_entry else "Zero Net Export is not configured yet.",
         "entries": panel_entries,
     }
+
+
+def _available_sensor_entities(hass: HomeAssistant) -> list[dict[str, str]]:
+    entities: list[dict[str, str]] = []
+    for state in sorted(hass.states.async_all("sensor"), key=lambda item: item.entity_id):
+        label = state.attributes.get("friendly_name") or state.entity_id
+        unit = state.attributes.get("unit_of_measurement")
+        if unit:
+            label = f"{label} ({unit})"
+        entities.append({"entity_id": state.entity_id, "label": label})
+    return entities
