@@ -192,14 +192,14 @@ Names may change during implementation, but the panel should use explicit app-le
 - allow common runtime controller and device override mutations ✅ first panel websocket save/reset flows now wired to coordinator runtime overrides
 
 ### Milestone 3 — Setup UX
-- source mapping UI
-- validation summaries and remediation
-- save/apply path
+- source mapping UI ✅
+- validation summaries and remediation ✅ first freshness and validation summaries now surface in-panel
+- save/apply path ✅ source mapping saves now validate then reload the entry
 
 ### Milestone 4 — Device management UX
-- add/edit/remove devices
-- guided templates
-- no raw JSON required for ordinary use
+- add/edit/remove devices ✅ first panel-side CRUD editor now persists the device inventory without using the options-form JSON field
+- guided templates ✅ fixed and variable device editor defaults now drive adapter/entity suggestions
+- no raw JSON required for ordinary use ✅ for normal add/edit/remove device workflows
 
 ### Milestone 5 — Daily operator workflow
 - live control page

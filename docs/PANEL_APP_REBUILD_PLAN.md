@@ -79,14 +79,14 @@ Add / rebuild:
 - source role mapping UI ✅ first Setup-tab source mapping editor now saves validated source entities and refresh interval
 - validation feedback in-panel ✅ source mapping saves are blocked on the same validation engine used by config flow
 - operator-safe defaults
-- options editing without raw JSON as the primary path
-- guided device onboarding wizard with templates for fixed and variable devices
-- human-friendly editing for device constraints, priorities, and safety settings
+- options editing without raw JSON as the primary path ✅ for source mapping and normal device inventory changes
+- guided device onboarding wizard with templates for fixed and variable devices ✅ first device editor now supports fixed/variable templates with entity suggestions
+- human-friendly editing for device constraints, priorities, and safety settings ✅ first structured form fields now cover normal device constraints and safety timings
 
 ### Phase 4 — Operator workflow
 - live overview
 - controller mode/target controls ✅ first runtime control mutations now available in-panel
-- managed device list ✅ first runtime enable/disable and priority override controls now available in-panel
+- managed device list ✅ runtime overrides plus structured add/edit/remove management now available in-panel
 - rich device detail pages or panels
 - warnings and diagnostics
 - action history / explanation timeline

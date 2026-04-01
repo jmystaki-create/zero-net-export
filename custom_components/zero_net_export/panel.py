@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
+import json
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +16,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_DEVICE_INVENTORY_JSON,
     CONF_BATTERY_CHARGE_POWER_ENTITY,
     CONF_BATTERY_DISCHARGE_POWER_ENTITY,
     CONF_BATTERY_SOC_ENTITY,
@@ -29,6 +31,14 @@ from .const import (
     DOMAIN,
     MODES,
 )
+from .device_model import (
+    ADAPTER_FIXED_TOGGLE,
+    ADAPTER_SPECS,
+    ADAPTER_VARIABLE_NUMBER,
+    DEVICE_KIND_FIXED,
+    DEVICE_KIND_VARIABLE,
+    parse_device_configs,
+)
 from .validation import SourceSpec, validate_configured_entities
 
 PANEL_TITLE = "Zero Net Export"
@@ -41,9 +51,11 @@ PANEL_WEBSOCKET_GET_STATE = f"{DOMAIN}/panel/get_state"
 PANEL_WEBSOCKET_SAVE_CONTROLLER = f"{DOMAIN}/panel/save_controller_settings"
 PANEL_WEBSOCKET_RESET_CONTROLLER = f"{DOMAIN}/panel/reset_controller_overrides"
 PANEL_WEBSOCKET_SAVE_SOURCES = f"{DOMAIN}/panel/save_sources"
+PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
+PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 3
+PANEL_SCHEMA_VERSION = 4
 
 
 def _frontend_dir() -> Path:
@@ -108,7 +120,9 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, websocket_save_controller_settings)
     websocket_api.async_register_command(hass, websocket_reset_controller_overrides)
     websocket_api.async_register_command(hass, websocket_save_sources)
+    websocket_api.async_register_command(hass, websocket_add_device)
     websocket_api.async_register_command(hass, websocket_update_device)
+    websocket_api.async_register_command(hass, websocket_delete_device)
     websocket_api.async_register_command(hass, websocket_reset_device_overrides)
     domain_data["panel_registered"] = True
 
@@ -247,13 +261,134 @@ def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
     ]
 
 
+def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[str]]:
+    raw = entry.options.get(CONF_DEVICE_INVENTORY_JSON, entry.data.get(CONF_DEVICE_INVENTORY_JSON))
+    devices, issues = parse_device_configs(raw)
+    payloads: list[dict[str, Any]] = []
+    for device in devices:
+        payloads.append(
+            {
+                "key": device.key,
+                "name": device.name,
+                "kind": device.kind,
+                "entity_id": device.entity_id,
+                "adapter": device.adapter,
+                "nominal_power_w": device.nominal_power_w,
+                "min_power_w": device.min_power_w,
+                "max_power_w": device.max_power_w,
+                "step_w": device.step_w,
+                "priority": device.priority,
+                "enabled": device.enabled,
+                "min_on_seconds": device.min_on_seconds,
+                "min_off_seconds": device.min_off_seconds,
+                "cooldown_seconds": device.cooldown_seconds,
+                "max_active_seconds": device.max_active_seconds,
+            }
+        )
+    return payloads, issues
+
+
+def _device_form_payload(msg: dict[str, Any], existing_key: str | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "name": str(msg["name"]).strip(),
+        "kind": str(msg["kind"]).strip(),
+        "entity_id": str(msg["entity_id"]).strip(),
+        "adapter": str(msg.get("adapter") or "").strip() or None,
+        "nominal_power_w": float(msg["nominal_power_w"]),
+        "priority": int(msg.get("priority", 100)),
+        "enabled": bool(msg.get("enabled", True)),
+        "min_on_seconds": int(msg.get("min_on_seconds", 300)),
+        "min_off_seconds": int(msg.get("min_off_seconds", 300)),
+        "cooldown_seconds": int(msg.get("cooldown_seconds", 30)),
+        "max_active_seconds": int(msg["max_active_seconds"]) if msg.get("max_active_seconds") not in (None, "") else None,
+    }
+    if existing_key:
+        payload["key"] = existing_key
+
+    if payload["kind"] == DEVICE_KIND_FIXED:
+        payload["adapter"] = payload["adapter"] or ADAPTER_FIXED_TOGGLE
+        payload["min_power_w"] = float(msg.get("min_power_w", payload["nominal_power_w"]))
+        payload["max_power_w"] = float(msg.get("max_power_w", payload["nominal_power_w"]))
+        payload["step_w"] = float(msg.get("step_w", payload["nominal_power_w"]))
+    else:
+        payload["adapter"] = payload["adapter"] or ADAPTER_VARIABLE_NUMBER
+        payload["min_power_w"] = float(msg["min_power_w"])
+        payload["max_power_w"] = float(msg["max_power_w"])
+        payload["step_w"] = float(msg["step_w"])
+
+    return payload
+
+
+def _validate_device_inventory(payloads: list[dict[str, Any]]) -> None:
+    _, issues = parse_device_configs(json.dumps(payloads, indent=2))
+    if issues:
+        raise HomeAssistantError("\n".join(issues[:6]))
+
+
+async def _save_device_inventory(hass: HomeAssistant, entry: Any, payloads: list[dict[str, Any]]) -> None:
+    _validate_device_inventory(payloads)
+    merged_options = dict(entry.options)
+    merged_options[CONF_DEVICE_INVENTORY_JSON] = json.dumps(payloads, indent=2)
+    hass.config_entries.async_update_entry(entry, options=merged_options)
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): PANEL_WEBSOCKET_ADD_DEVICE,
+        vol.Optional("entry_id"): str,
+        vol.Required("name"): str,
+        vol.Required("kind"): vol.In([DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE]),
+        vol.Required("entity_id"): str,
+        vol.Optional("adapter"): vol.In(list(ADAPTER_SPECS.keys())),
+        vol.Required("nominal_power_w"): vol.Coerce(float),
+        vol.Optional("min_power_w"): vol.Coerce(float),
+        vol.Optional("max_power_w"): vol.Coerce(float),
+        vol.Optional("step_w"): vol.Coerce(float),
+        vol.Optional("priority"): vol.Coerce(int),
+        vol.Optional("enabled"): bool,
+        vol.Optional("min_on_seconds"): vol.Coerce(int),
+        vol.Optional("min_off_seconds"): vol.Coerce(int),
+        vol.Optional("cooldown_seconds"): vol.Coerce(int),
+        vol.Optional("max_active_seconds"): vol.Any(None, vol.Coerce(int)),
+    }
+)
+@websocket_api.async_response
+async def websocket_add_device(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Add a configured device through the panel."""
+    coordinator = _get_coordinator(hass, msg.get("entry_id"))
+    entry = coordinator.entry
+    payloads, _ = _configured_device_payloads(entry)
+    payloads.append(_device_form_payload(msg))
+    await _save_device_inventory(hass, entry, payloads)
+    connection.send_result(msg["id"], _build_panel_state(hass))
+
+
 @websocket_api.websocket_command(
     {
         vol.Required("type"): PANEL_WEBSOCKET_UPDATE_DEVICE,
         vol.Optional("entry_id"): str,
         vol.Required("device_key"): str,
+        vol.Optional("save_config"): bool,
+        vol.Optional("name"): str,
+        vol.Optional("kind"): vol.In([DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE]),
+        vol.Optional("entity_id"): str,
+        vol.Optional("adapter"): vol.In(list(ADAPTER_SPECS.keys())),
+        vol.Optional("nominal_power_w"): vol.Coerce(float),
+        vol.Optional("min_power_w"): vol.Coerce(float),
+        vol.Optional("max_power_w"): vol.Coerce(float),
+        vol.Optional("step_w"): vol.Coerce(float),
         vol.Optional("enabled"): bool,
         vol.Optional("priority"): vol.Coerce(int),
+        vol.Optional("configured_enabled"): bool,
+        vol.Optional("min_on_seconds"): vol.Coerce(int),
+        vol.Optional("min_off_seconds"): vol.Coerce(int),
+        vol.Optional("cooldown_seconds"): vol.Coerce(int),
+        vol.Optional("max_active_seconds"): vol.Any(None, vol.Coerce(int)),
     }
 )
 @websocket_api.async_response
@@ -262,15 +397,79 @@ async def websocket_update_device(
     connection: websocket_api.ActiveConnection,
     msg: dict[str, Any],
 ) -> None:
-    """Apply operator-facing device overrides from the panel."""
+    """Apply operator overrides or persist config edits for a device from the panel."""
     coordinator = _get_coordinator(hass, msg.get("entry_id"))
     device_key = msg["device_key"]
+
+    config_fields = {
+        "name",
+        "kind",
+        "entity_id",
+        "adapter",
+        "nominal_power_w",
+        "min_power_w",
+        "max_power_w",
+        "step_w",
+        "configured_enabled",
+        "priority",
+        "min_on_seconds",
+        "min_off_seconds",
+        "cooldown_seconds",
+        "max_active_seconds",
+    }
+    if msg.get("save_config"):
+        entry = coordinator.entry
+        payloads, _ = _configured_device_payloads(entry)
+        updated = False
+        for index, payload in enumerate(payloads):
+            if payload.get("key") != device_key:
+                continue
+            merged = dict(payload)
+            if "configured_enabled" in msg:
+                merged["enabled"] = bool(msg["configured_enabled"])
+            for field in config_fields - {"configured_enabled"}:
+                if field in msg:
+                    merged[field] = msg[field]
+            payloads[index] = _device_form_payload(merged, existing_key=device_key)
+            updated = True
+            break
+
+        if not updated:
+            raise HomeAssistantError(f"Unknown device: {device_key}")
+
+        await _save_device_inventory(hass, entry, payloads)
+        connection.send_result(msg["id"], _build_panel_state(hass))
+        return
 
     if "enabled" in msg:
         await coordinator.async_set_device_enabled_override(device_key, msg["enabled"])
     if "priority" in msg:
         await coordinator.async_set_device_priority_override(device_key, msg["priority"])
 
+    connection.send_result(msg["id"], _build_panel_state(hass))
+
+
+@websocket_api.websocket_command(
+    {
+        vol.Required("type"): PANEL_WEBSOCKET_DELETE_DEVICE,
+        vol.Optional("entry_id"): str,
+        vol.Required("device_key"): str,
+    }
+)
+@websocket_api.async_response
+async def websocket_delete_device(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Delete a configured device through the panel."""
+    coordinator = _get_coordinator(hass, msg.get("entry_id"))
+    entry = coordinator.entry
+    payloads, _ = _configured_device_payloads(entry)
+    filtered = [payload for payload in payloads if payload.get("key") != msg["device_key"]]
+    if len(filtered) == len(payloads):
+        raise HomeAssistantError(f"Unknown device: {msg['device_key']}")
+    await _save_device_inventory(hass, entry, filtered)
     connection.send_result(msg["id"], _build_panel_state(hass))
 
 
@@ -367,6 +566,8 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "available_entities": _available_sensor_entities(hass),
     }
 
+    configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
+
     devices = {
         "device_count": state.device_count,
         "enabled_device_count": state.enabled_device_count,
@@ -376,7 +577,19 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "controllable_nominal_power_w": state.controllable_nominal_power_w,
         "usable_nominal_power_w": state.usable_nominal_power_w,
         "summary": state.device_status_summary,
+        "parse_issues": device_parse_issues,
+        "configured_items": configured_devices,
         "items": _serialize_value(list(state.device_details.values())),
+        "available_entities": _available_device_entities(hass),
+        "adapter_options": [
+            {
+                "key": spec.key,
+                "label": spec.label,
+                "kind": spec.kind,
+                "description": spec.description,
+            }
+            for spec in ADAPTER_SPECS.values()
+        ],
     }
 
     diagnostics = {
@@ -445,4 +658,16 @@ def _available_sensor_entities(hass: HomeAssistant) -> list[dict[str, str]]:
         if unit:
             label = f"{label} ({unit})"
         entities.append({"entity_id": state.entity_id, "label": label})
+    return entities
+
+
+def _available_device_entities(hass: HomeAssistant) -> list[dict[str, str]]:
+    entities: list[dict[str, str]] = []
+    for domain in ("switch", "input_boolean", "number", "input_number"):
+        for state in sorted(hass.states.async_all(domain), key=lambda item: item.entity_id):
+            label = state.attributes.get("friendly_name") or state.entity_id
+            unit = state.attributes.get("unit_of_measurement")
+            if unit:
+                label = f"{label} ({unit})"
+            entities.append({"entity_id": state.entity_id, "label": label, "domain": domain})
     return entities

@@ -2,9 +2,15 @@ const PANEL_GET_STATE = 'zero_net_export/panel/get_state';
 const PANEL_SAVE_CONTROLLER = 'zero_net_export/panel/save_controller_settings';
 const PANEL_RESET_CONTROLLER = 'zero_net_export/panel/reset_controller_overrides';
 const PANEL_SAVE_SOURCES = 'zero_net_export/panel/save_sources';
+const PANEL_ADD_DEVICE = 'zero_net_export/panel/add_device';
 const PANEL_UPDATE_DEVICE = 'zero_net_export/panel/update_device';
+const PANEL_DELETE_DEVICE = 'zero_net_export/panel/delete_device';
 const PANEL_RESET_DEVICE = 'zero_net_export/panel/reset_device_overrides';
 const TABS = ['overview', 'setup', 'devices', 'diagnostics', 'settings'];
+const DEVICE_KINDS = [
+  { value: 'fixed', label: 'Fixed Load' },
+  { value: 'variable', label: 'Variable Load' },
+];
 const MODES = [
   { value: 'zero_export', label: 'Zero Export' },
   { value: 'soft_zero_export', label: 'Soft Zero Export' },
@@ -36,6 +42,7 @@ class ZeroNetExportPanel extends HTMLElement {
     this._loading = true;
     this._activeTab = 'overview';
     this._busy = false;
+    this._editingDeviceKey = 'new';
   }
 
   set hass(hass) {
@@ -113,6 +120,45 @@ class ZeroNetExportPanel extends HTMLElement {
       deadband_override_active: settings.deadband_override_active,
       battery_reserve_override_active: settings.battery_reserve_override_active,
     };
+  }
+
+  _deviceConfigItems(entry) {
+    return entry?.devices?.configured_items || [];
+  }
+
+  _activeDeviceConfig(entry) {
+    const items = this._deviceConfigItems(entry);
+    if (!items.length || this._editingDeviceKey === 'new') {
+      return null;
+    }
+    return items.find((item) => item.key === this._editingDeviceKey) || null;
+  }
+
+  _deviceFormValue(entry, field, fallback = '') {
+    const active = this._activeDeviceConfig(entry);
+    const value = active?.[field];
+    return value === null || value === undefined ? fallback : value;
+  }
+
+  _deviceKindValue(entry) {
+    return this._deviceFormValue(entry, 'kind', 'fixed');
+  }
+
+  _deviceAdapterOptions(entry, kind) {
+    return (entry?.devices?.adapter_options || []).filter((item) => item.kind === kind);
+  }
+
+  _deviceEntityOptions(entry, kind) {
+    const domains = kind === 'variable' ? ['number', 'input_number'] : ['switch', 'input_boolean'];
+    return (entry?.devices?.available_entities || []).filter((item) => domains.includes(item.domain));
+  }
+
+  _readNumber(selector, fallback = 0) {
+    const raw = this.shadowRoot.querySelector(selector)?.value;
+    if (raw === '' || raw === null || raw === undefined) {
+      return fallback;
+    }
+    return Number(raw);
   }
 
   _renderOverview(entry) {
@@ -207,6 +253,17 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _renderDevices(entry) {
     const devices = entry?.devices || {};
+    const configured = devices.configured_items || [];
+    const selectedKind = this._deviceKindValue(entry);
+    const adapterOptions = this._deviceAdapterOptions(entry, selectedKind)
+      .map((item) => `<option value="${item.key}" ${this._deviceFormValue(entry, 'adapter', '') === item.key ? 'selected' : ''}>${item.label}</option>`)
+      .join('');
+    const entityOptions = this._deviceEntityOptions(entry, selectedKind)
+      .map((item) => `<option value="${item.entity_id}">${item.label}</option>`)
+      .join('');
+    const deviceChooser = configured
+      .map((item) => `<option value="${item.key}" ${this._editingDeviceKey === item.key ? 'selected' : ''}>${item.name}</option>`)
+      .join('');
     const rows = (devices.items || [])
       .map((item) => `
         <tr>
@@ -242,7 +299,87 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Summary:</strong> ${devices.summary || '—'}</p>
         <p><strong>Devices:</strong> ${devices.device_count ?? 0} total / ${devices.usable_device_count ?? 0} usable</p>
         <p><strong>Nominal power:</strong> ${devices.controllable_nominal_power_w ?? '—'} W</p>
-        <p class="muted">This panel now supports runtime enable/disable and priority overrides. Full add/edit/remove onboarding is the next device milestone.</p>
+        <p class="muted">Add, edit, and remove devices here so normal setup no longer depends on raw JSON in the options flow.</p>
+        ${(devices.parse_issues || []).length ? `<p class="error"><strong>Inventory issues:</strong> ${(devices.parse_issues || []).join(' · ')}</p>` : ''}
+      </section>
+      <section class="panel-section">
+        <h3>Device Editor</h3>
+        <div class="form-grid">
+          <label>
+            <span>Edit Device</span>
+            <select id="device-edit-key" ${this._busy ? 'disabled' : ''}>
+              <option value="new" ${this._editingDeviceKey === 'new' ? 'selected' : ''}>Add new device</option>
+              ${deviceChooser}
+            </select>
+          </label>
+          <label>
+            <span>Name</span>
+            <input id="device-name" value="${this._deviceFormValue(entry, 'name', '')}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Kind</span>
+            <select id="device-kind" ${this._busy ? 'disabled' : ''}>
+              ${DEVICE_KINDS.map((item) => `<option value="${item.value}" ${selectedKind === item.value ? 'selected' : ''}>${item.label}</option>`).join('')}
+            </select>
+          </label>
+          <label>
+            <span>Entity</span>
+            <input list="device-entity-options" id="device-entity-id" value="${this._deviceFormValue(entry, 'entity_id', '')}" placeholder="switch.hot_water" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Adapter</span>
+            <select id="device-adapter" ${this._busy ? 'disabled' : ''}>${adapterOptions}</select>
+          </label>
+          <label>
+            <span>Nominal Power (W)</span>
+            <input id="device-nominal" type="number" min="1" value="${this._deviceFormValue(entry, 'nominal_power_w', 0)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Min Power (W)</span>
+            <input id="device-min-power" type="number" min="1" value="${this._deviceFormValue(entry, 'min_power_w', 0)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Max Power (W)</span>
+            <input id="device-max-power" type="number" min="1" value="${this._deviceFormValue(entry, 'max_power_w', 0)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Step (W)</span>
+            <input id="device-step" type="number" min="1" value="${this._deviceFormValue(entry, 'step_w', 0)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Priority</span>
+            <input id="device-priority" type="number" value="${this._deviceFormValue(entry, 'priority', 100)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Configured Enabled</span>
+            <select id="device-configured-enabled" ${this._busy ? 'disabled' : ''}>
+              <option value="true" ${this._deviceFormValue(entry, 'enabled', true) ? 'selected' : ''}>Enabled</option>
+              <option value="false" ${!this._deviceFormValue(entry, 'enabled', true) ? 'selected' : ''}>Disabled</option>
+            </select>
+          </label>
+          <label>
+            <span>Min On (s)</span>
+            <input id="device-min-on" type="number" min="0" value="${this._deviceFormValue(entry, 'min_on_seconds', 300)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Min Off (s)</span>
+            <input id="device-min-off" type="number" min="0" value="${this._deviceFormValue(entry, 'min_off_seconds', 300)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Cooldown (s)</span>
+            <input id="device-cooldown" type="number" min="0" value="${this._deviceFormValue(entry, 'cooldown_seconds', 30)}" ${this._busy ? 'disabled' : ''} />
+          </label>
+          <label>
+            <span>Max Active Runtime (s)</span>
+            <input id="device-max-active" type="number" min="0" value="${this._deviceFormValue(entry, 'max_active_seconds', '')}" placeholder="blank for none" ${this._busy ? 'disabled' : ''} />
+          </label>
+        </div>
+        <datalist id="device-entity-options">${entityOptions}</datalist>
+        <div class="button-row">
+          <button class="action-button" data-action="save-device" ${this._busy ? 'disabled' : ''}>${this._editingDeviceKey === 'new' ? 'Add Device' : 'Save Device'}</button>
+          ${this._editingDeviceKey !== 'new' ? `<button class="action-button secondary" data-action="delete-device" ${this._busy ? 'disabled' : ''}>Delete Device</button>` : ''}
+          <button class="action-button secondary" data-action="new-device" ${this._busy ? 'disabled' : ''}>New Blank Device</button>
+        </div>
       </section>
       <section class="panel-section">
         <table>
@@ -373,6 +510,47 @@ class ZeroNetExportPanel extends HTMLElement {
     await this._callWS(payload);
   }
 
+  async _saveDeviceFromForm() {
+    const kind = this.shadowRoot.querySelector('#device-kind')?.value || 'fixed';
+    const payload = {
+      entry_id: this._entryId(),
+      name: this.shadowRoot.querySelector('#device-name')?.value?.trim() || '',
+      kind,
+      entity_id: this.shadowRoot.querySelector('#device-entity-id')?.value?.trim() || '',
+      adapter: this.shadowRoot.querySelector('#device-adapter')?.value || undefined,
+      nominal_power_w: this._readNumber('#device-nominal', 0),
+      priority: this._readNumber('#device-priority', 100),
+      configured_enabled: this.shadowRoot.querySelector('#device-configured-enabled')?.value === 'true',
+      min_on_seconds: this._readNumber('#device-min-on', 300),
+      min_off_seconds: this._readNumber('#device-min-off', 300),
+      cooldown_seconds: this._readNumber('#device-cooldown', 30),
+    };
+
+    const maxActiveRaw = this.shadowRoot.querySelector('#device-max-active')?.value;
+    payload.max_active_seconds = maxActiveRaw === '' ? null : Number(maxActiveRaw);
+
+    if (kind === 'variable') {
+      payload.min_power_w = this._readNumber('#device-min-power', 0);
+      payload.max_power_w = this._readNumber('#device-max-power', 0);
+      payload.step_w = this._readNumber('#device-step', 0);
+    }
+
+    if (this._editingDeviceKey === 'new') {
+      payload.type = PANEL_ADD_DEVICE;
+      payload.enabled = payload.configured_enabled;
+      delete payload.configured_enabled;
+    } else {
+      payload.type = PANEL_UPDATE_DEVICE;
+      payload.device_key = this._editingDeviceKey;
+      payload.save_config = true;
+    }
+
+    await this._callWS(payload);
+    if (this._editingDeviceKey === 'new') {
+      this._editingDeviceKey = 'new';
+    }
+  }
+
   _attachEventHandlers() {
     this.shadowRoot.querySelector('.refresh')?.addEventListener('click', () => this._loadState());
     this.shadowRoot.querySelectorAll('.tab').forEach((button) => {
@@ -404,6 +582,32 @@ class ZeroNetExportPanel extends HTMLElement {
 
     this.shadowRoot.querySelector('[data-action="save-sources"]')?.addEventListener('click', async () => {
       await this._saveSourcesFromForm();
+    });
+
+    this.shadowRoot.querySelector('#device-edit-key')?.addEventListener('change', (event) => {
+      this._editingDeviceKey = event.target.value;
+      this._render();
+    });
+
+    this.shadowRoot.querySelector('#device-kind')?.addEventListener('change', () => {
+      this._render();
+    });
+
+    this.shadowRoot.querySelector('[data-action="save-device"]')?.addEventListener('click', async () => {
+      await this._saveDeviceFromForm();
+    });
+
+    this.shadowRoot.querySelector('[data-action="new-device"]')?.addEventListener('click', () => {
+      this._editingDeviceKey = 'new';
+      this._render();
+    });
+
+    this.shadowRoot.querySelector('[data-action="delete-device"]')?.addEventListener('click', async () => {
+      if (this._editingDeviceKey === 'new') {
+        return;
+      }
+      await this._callWS({ type: PANEL_DELETE_DEVICE, entry_id: this._entryId(), device_key: this._editingDeviceKey });
+      this._editingDeviceKey = 'new';
     });
 
     this.shadowRoot.querySelectorAll('[data-device-enabled]').forEach((input) => {

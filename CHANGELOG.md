@@ -7,7 +7,19 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- Guided full add/edit/remove device onboarding remains the highest-value panel milestone after source mapping moved into the panel.
+- Real Home Assistant validation of the new in-panel device onboarding flow is now the highest-value next step.
+
+## [0.1.5] - 2026-04-01
+
+### Added
+- Added explicit panel websocket mutations for `add_device` and `delete_device` so the sidebar app can manage the controllable device inventory directly.
+- Added device-editor bootstrap payloads with configured device models, adapter choices, and Home Assistant entity suggestions for fixed and variable device templates.
+- Added an in-panel device editor that supports add/edit/remove workflows for normal fixed and variable device onboarding.
+
+### Changed
+- Panel schema advanced to `4` and the Devices tab now treats structured device management as the primary operator path instead of deferring to raw JSON.
+- Device inventory saves now validate through the existing backend parser before persisting updated options and reloading the integration.
+- Integration version advanced to `0.1.5` for the first panel-side device management milestone.
 
 ## [0.1.4] - 2026-04-01
 
