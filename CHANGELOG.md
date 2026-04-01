@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.8] - 2026-04-02
+
+### Fixed
+- Fixed a panel backend runtime regression where the Settings payload referenced controller default constants that were not imported, which could break `zero_net_export/panel/get_state` and prevent the panel app from loading cleanly.
+
+### Changed
+- Integration version advanced to `0.1.8` for the panel runtime stability fix.
+
 ## [0.1.7] - 2026-04-02
 
 ### Added
