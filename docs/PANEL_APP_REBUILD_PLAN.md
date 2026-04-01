@@ -88,8 +88,8 @@ Add / rebuild:
 - controller mode/target controls ✅ first runtime control mutations now available in-panel
 - managed device list ✅ runtime overrides plus structured add/edit/remove management now available in-panel
 - rich device detail pages or panels
-- warnings and diagnostics
-- action history / explanation timeline
+- warnings and diagnostics ✅ panel diagnostics now surfaces health, mapped-source issues, and stale-data context
+- action history / explanation timeline ✅ recent action history and per-device planned-action / guard / result explanations now surface in-panel
 - comprehensive settings views for controller, sources, devices, and health state
 
 ### Phase 5 — Completion

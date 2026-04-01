@@ -41,6 +41,7 @@ For each device:
 - missing mapped sensors
 - device command failures
 - health summary showing whether the current top issue is stale data, safe mode, or a recent command failure
+- in-panel source diagnostics and recent action history for operator troubleshooting ✅ first panel diagnostics milestone delivered
 
 ### 5. Reporting Widgets
 - export avoided today

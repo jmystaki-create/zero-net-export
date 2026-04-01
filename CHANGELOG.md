@@ -7,7 +7,17 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- Real Home Assistant validation of the new in-panel device onboarding flow is now the highest-value next step.
+- Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
+
+## [0.1.6] - 2026-04-01
+
+### Added
+- Expanded the panel diagnostics payload with action history, source diagnostics, calibration hints, and per-device explanation data already available in the backend coordinator.
+- Added an in-panel diagnostics view for recent action timeline, mapped-source health, and per-device planned-action/guard/result inspection.
+
+### Changed
+- Panel schema advanced to `5` so the frontend can consume richer diagnostics and explanation state.
+- Integration version advanced to `0.1.6` for the first operator-grade diagnostics/explanation panel milestone.
 
 ## [0.1.5] - 2026-04-01
 

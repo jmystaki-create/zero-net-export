@@ -72,6 +72,7 @@
 - add runtime operator mutations in-panel ✅ controller runtime overrides and per-device enable/priority overrides now flow through panel websocket commands instead of staying read-only
 - create guided source/device setup UX ✅ initial panel source-mapping save flow now validates and persists source entities plus refresh interval from the Setup tab
 - replace raw device inventory JSON for normal setup ✅ first panel-side add/edit/remove device inventory management now persists validated fixed/variable devices through structured panel forms
+- add operator diagnostics/explanation UX ✅ panel diagnostics now exposes recent action history, source health, calibration hints, and per-device guard/result explanations from the existing backend state
 - replace JSON/YAML-first operator workflow with panel-first workflow
 - retain YAML dashboard as fallback/debugging surface
 

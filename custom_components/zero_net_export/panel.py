@@ -55,7 +55,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 4
+PANEL_SCHEMA_VERSION = 5
 
 
 def _frontend_dir() -> Path:
@@ -609,6 +609,21 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "recent_action_summary": state.recent_action_summary,
         "recent_failure_summary": state.recent_failure_summary,
         "last_successful_action_summary": state.last_successful_action_summary,
+        "last_failed_action_message": state.last_failed_action_message,
+        "last_action_device": state.last_action_device,
+        "last_failed_action_device": state.last_failed_action_device,
+        "health_status": state.health_status,
+        "health_summary": state.health_summary,
+        "stale_data": state.stale_data,
+        "stale_source_summary": state.stale_source_summary,
+        "source_mismatch": state.source_mismatch,
+        "battery_below_reserve": state.battery_below_reserve,
+        "action_history_count": state.action_history_count,
+        "action_history": _serialize_value(state.validation_details.get("action_history", [])),
+        "source_diagnostics": _serialize_value(state.validation_details.get("source_diagnostics", {})),
+        "source_freshness": _serialize_value(state.validation_details.get("source_freshness", {})),
+        "calibration_hints": list(state.validation_details.get("calibration_hints", [])),
+        "device_items": _serialize_value(list(state.device_details.values())),
     }
 
     return {

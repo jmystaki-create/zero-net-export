@@ -110,6 +110,17 @@ class ZeroNetExportPanel extends HTMLElement {
     return `<div class="metric"><div class="label">${label}</div><div class="value">${safeValue}</div></div>`;
   }
 
+  _formatDateTime(value) {
+    if (!value) {
+      return '—';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+    return date.toLocaleString();
+  }
+
   _controllerDefaults(entry) {
     const settings = entry?.overview?.controller_settings || {};
     return {
@@ -392,15 +403,94 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _renderDiagnostics(entry) {
     const diagnostics = entry?.diagnostics || {};
+    const actionRows = (diagnostics.action_history || [])
+      .map((item) => `
+        <tr>
+          <td>${this._formatDateTime(item.at)}</td>
+          <td>${item.name || item.device_key || '—'}</td>
+          <td>${item.action || '—'}</td>
+          <td>${item.success ? 'Success' : 'Failed'}</td>
+          <td>${item.requested_power_w ?? '—'}</td>
+          <td>${item.message || '—'}</td>
+        </tr>`)
+      .join('');
+    const sourceRows = Object.entries(diagnostics.source_diagnostics || {})
+      .map(([key, item]) => {
+        const freshness = diagnostics.source_freshness?.[key] || {};
+        const issues = Array.isArray(item.issues) ? item.issues.join(' · ') : '—';
+        return `
+          <tr>
+            <td>${key}</td>
+            <td>${item.entity_id || '—'}</td>
+            <td>${item.status || '—'}</td>
+            <td>${freshness.stale ? 'Stale' : 'OK'}</td>
+            <td>${freshness.age_seconds ?? '—'}</td>
+            <td>${issues || '—'}</td>
+          </tr>`;
+      })
+      .join('');
+    const deviceRows = (diagnostics.device_items || [])
+      .map((item) => `
+        <tr>
+          <td>${item.name || item.key || '—'}</td>
+          <td>${item.planned_action || 'hold'}</td>
+          <td>${item.guard_status || '—'}</td>
+          <td>${item.planned_requested_power_w ?? item.current_target_power_w ?? '—'}</td>
+          <td>${item.last_action_status || '—'}</td>
+          <td>${item.last_action_result_message || item.reason || '—'}</td>
+        </tr>`)
+      .join('');
+    const calibrationHints = (diagnostics.calibration_hints || [])
+      .map((item) => `<li>${item}</li>`)
+      .join('');
     return `
       <section class="panel-section">
-        <h3>Diagnostics</h3>
+        <h3>Diagnostics & Explanation</h3>
+        <p><strong>Health:</strong> ${diagnostics.health_status || '—'}</p>
+        <p><strong>Health summary:</strong> ${diagnostics.health_summary || '—'}</p>
         <p><strong>Control status:</strong> ${diagnostics.control_status || '—'}</p>
         <p><strong>Control summary:</strong> ${diagnostics.control_summary || '—'}</p>
+        <p><strong>Control reason:</strong> ${diagnostics.control_reason || '—'}</p>
         <p><strong>Guard summary:</strong> ${diagnostics.control_guard_summary || '—'}</p>
+        <p><strong>Plan counts:</strong> ${diagnostics.planned_action_count ?? 0} planned / ${diagnostics.executable_action_count ?? 0} executable / ${diagnostics.blocked_planned_action_count ?? 0} blocked</p>
+        <p><strong>Planned power delta:</strong> ${diagnostics.planned_power_delta_w ?? '—'} W</p>
         <p><strong>Last action:</strong> ${diagnostics.last_action_summary || '—'}</p>
+        <p><strong>Last action device:</strong> ${diagnostics.last_action_device || '—'}</p>
+        <p><strong>Last action at:</strong> ${this._formatDateTime(diagnostics.last_action_at)}</p>
         <p><strong>Recent actions:</strong> ${diagnostics.recent_action_summary || '—'}</p>
+        <p><strong>Last successful action:</strong> ${diagnostics.last_successful_action_summary || '—'}</p>
+        <p><strong>Last successful at:</strong> ${this._formatDateTime(diagnostics.last_successful_action_at)}</p>
         <p><strong>Recent failures:</strong> ${diagnostics.recent_failure_summary || '—'}</p>
+        <p><strong>Last failed device:</strong> ${diagnostics.last_failed_action_device || '—'}</p>
+        <p><strong>Last failed message:</strong> ${diagnostics.last_failed_action_message || '—'}</p>
+        <p><strong>Last failed at:</strong> ${this._formatDateTime(diagnostics.last_failed_action_at)}</p>
+        <p><strong>Stale data:</strong> ${diagnostics.stale_data ? 'Yes' : 'No'}</p>
+        <p><strong>Source mismatch:</strong> ${diagnostics.source_mismatch ? 'Yes' : 'No'}</p>
+        <p><strong>Battery below reserve:</strong> ${diagnostics.battery_below_reserve ? 'Yes' : 'No'}</p>
+        <p><strong>Stale source summary:</strong> ${diagnostics.stale_source_summary || '—'}</p>
+      </section>
+      <section class="panel-section">
+        <h3>Recent Action Timeline</h3>
+        <p><strong>Recorded actions:</strong> ${diagnostics.action_history_count ?? 0}</p>
+        <table>
+          <thead><tr><th>When</th><th>Device</th><th>Action</th><th>Result</th><th>Requested W</th><th>Message</th></tr></thead>
+          <tbody>${actionRows || '<tr><td colspan="6">No action history recorded yet.</td></tr>'}</tbody>
+        </table>
+      </section>
+      <section class="panel-section">
+        <h3>Source Diagnostics</h3>
+        <table>
+          <thead><tr><th>Source</th><th>Entity</th><th>Status</th><th>Freshness</th><th>Age (s)</th><th>Issues</th></tr></thead>
+          <tbody>${sourceRows || '<tr><td colspan="6">No source diagnostics available yet.</td></tr>'}</tbody>
+        </table>
+        ${calibrationHints ? `<div class="hint-list"><strong>Calibration hints</strong><ul>${calibrationHints}</ul></div>` : ''}
+      </section>
+      <section class="panel-section">
+        <h3>Per-Device Explanation</h3>
+        <table>
+          <thead><tr><th>Device</th><th>Planned Action</th><th>Guard</th><th>Requested/Target W</th><th>Last Result</th><th>Explanation</th></tr></thead>
+          <tbody>${deviceRows || '<tr><td colspan="6">No managed devices available yet.</td></tr>'}</tbody>
+        </table>
       </section>
     `;
   }
@@ -774,6 +864,9 @@ class ZeroNetExportPanel extends HTMLElement {
         }
         .muted {
           color: var(--secondary-text-color);
+        }
+        .hint-list {
+          margin-top: 12px;
         }
         table {
           width: 100%;
