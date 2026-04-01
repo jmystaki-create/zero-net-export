@@ -46,8 +46,9 @@ class ZeroNetExportPanel extends HTMLElement {
   }
 
   set hass(hass) {
+    const firstHassAssignment = !this._hass && !!hass;
     this._hass = hass;
-    if (!this._state && !this._loading) {
+    if (firstHassAssignment && !this._state) {
       this._loadState();
       return;
     }
@@ -55,11 +56,17 @@ class ZeroNetExportPanel extends HTMLElement {
   }
 
   connectedCallback() {
-    this._loadState();
+    if (this._hass && !this._state) {
+      this._loadState();
+      return;
+    }
+    this._render();
   }
 
   async _loadState() {
     if (!this._hass) {
+      this._loading = false;
+      this._render();
       return;
     }
     this._loading = true;

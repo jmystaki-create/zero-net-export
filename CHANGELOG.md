@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.9] - 2026-04-02
+
+### Fixed
+- Fixed the panel shell bootstrap lifecycle so the frontend now loads state correctly even when the custom element connects before Home Assistant injects `hass`, avoiding a permanent loading screen in real installs.
+
+### Changed
+- Integration version advanced to `0.1.9` for the panel bootstrap/runtime stability fix.
+
 ## [0.1.8] - 2026-04-02
 
 ### Fixed
