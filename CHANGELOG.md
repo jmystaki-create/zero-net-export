@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.10] - 2026-04-02
+
+### Fixed
+- Hardened panel frontend registration so repeated bundle imports during Home Assistant reload/update flows no longer throw a duplicate custom-element definition error.
+- Added panel bundle cache-busting via the schema/versioned module URL so Home Assistant is less likely to keep serving a stale frontend bundle after panel updates.
+
+### Changed
+- Panel schema advanced to `7` to force the hardened panel bundle to refresh with this runtime stability update.
+- Integration version advanced to `0.1.10` for the panel reload/cache stability fix.
+
 ## [0.1.9] - 2026-04-02
 
 ### Fixed

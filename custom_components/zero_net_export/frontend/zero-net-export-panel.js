@@ -942,4 +942,6 @@ class ZeroNetExportPanel extends HTMLElement {
   }
 }
 
-customElements.define('zero-net-export-panel', ZeroNetExportPanel);
+if (!customElements.get('zero-net-export-panel')) {
+  customElements.define('zero-net-export-panel', ZeroNetExportPanel);
+}
