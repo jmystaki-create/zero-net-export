@@ -58,7 +58,60 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 11
+PANEL_SCHEMA_VERSION = 12
+
+_SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
+    CONF_SOLAR_POWER_ENTITY: {
+        "quantity": "power",
+        "description": "Live solar generation power.",
+        "preferred_terms": ("solar", "pv", "inverter", "generation"),
+    },
+    CONF_SOLAR_ENERGY_ENTITY: {
+        "quantity": "energy",
+        "description": "Accumulating solar generation energy sensor.",
+        "preferred_terms": ("solar", "pv", "inverter", "generation"),
+    },
+    CONF_GRID_IMPORT_POWER_ENTITY: {
+        "quantity": "power",
+        "description": "Positive import-from-grid power sensor.",
+        "preferred_terms": ("grid", "import", "consumption", "from grid"),
+    },
+    CONF_GRID_EXPORT_POWER_ENTITY: {
+        "quantity": "power",
+        "description": "Positive export-to-grid power sensor.",
+        "preferred_terms": ("grid", "export", "feed", "to grid"),
+    },
+    CONF_GRID_IMPORT_ENERGY_ENTITY: {
+        "quantity": "energy",
+        "description": "Accumulating grid-import energy sensor.",
+        "preferred_terms": ("grid", "import", "consumption", "from grid"),
+    },
+    CONF_GRID_EXPORT_ENERGY_ENTITY: {
+        "quantity": "energy",
+        "description": "Accumulating grid-export energy sensor.",
+        "preferred_terms": ("grid", "export", "feed", "to grid"),
+    },
+    CONF_HOME_LOAD_POWER_ENTITY: {
+        "quantity": "power",
+        "description": "Whole-home load / consumption power sensor.",
+        "preferred_terms": ("home", "load", "consumption", "house"),
+    },
+    CONF_BATTERY_SOC_ENTITY: {
+        "quantity": "percent",
+        "description": "Battery state of charge percent sensor.",
+        "preferred_terms": ("battery", "soc", "state of charge"),
+    },
+    CONF_BATTERY_CHARGE_POWER_ENTITY: {
+        "quantity": "power",
+        "description": "Positive battery charge power sensor.",
+        "preferred_terms": ("battery", "charge", "charging"),
+    },
+    CONF_BATTERY_DISCHARGE_POWER_ENTITY: {
+        "quantity": "power",
+        "description": "Positive battery discharge power sensor.",
+        "preferred_terms": ("battery", "discharge", "discharging"),
+    },
+}
 
 
 def _frontend_dir() -> Path:
@@ -569,6 +622,7 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
             ),
         },
         "available_entities": _available_sensor_entities(hass),
+        "entity_suggestions": _source_entity_suggestions(hass),
     }
 
     configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
@@ -748,6 +802,66 @@ def _available_sensor_entities(hass: HomeAssistant) -> list[dict[str, str]]:
             }
         )
     return entities
+
+
+def _score_source_candidate(entity: dict[str, Any], quantity: str, preferred_terms: tuple[str, ...]) -> int:
+    score = 0
+    unit = entity.get("unit")
+    device_class = entity.get("device_class")
+    state_class = entity.get("state_class")
+    haystack = f"{entity.get('entity_id', '')} {entity.get('label', '')}".lower()
+
+    if quantity == "power":
+        if unit in {"W", "kW"}:
+            score += 50
+        if device_class == "power":
+            score += 25
+        if state_class == "measurement":
+            score += 10
+    elif quantity == "energy":
+        if unit in {"Wh", "kWh"}:
+            score += 50
+        if device_class == "energy":
+            score += 25
+        if state_class in {"total", "total_increasing"}:
+            score += 10
+    elif quantity == "percent":
+        if unit == "%":
+            score += 50
+        if device_class in {"battery", "power_factor"}:
+            score += 15
+        if state_class == "measurement":
+            score += 10
+
+    for term in preferred_terms:
+        if term in haystack:
+            score += 8
+
+    return score
+
+
+def _source_entity_suggestions(hass: HomeAssistant) -> dict[str, Any]:
+    available = _available_sensor_entities(hass)
+    suggestions: dict[str, Any] = {}
+
+    for key, hint in _SOURCE_ROLE_HINTS.items():
+        ranked = sorted(
+            (
+                {
+                    **entity,
+                    "score": _score_source_candidate(entity, hint["quantity"], hint["preferred_terms"]),
+                }
+                for entity in available
+            ),
+            key=lambda item: (-item["score"], item["entity_id"]),
+        )
+        suggestions[key] = {
+            "description": hint["description"],
+            "quantity": hint["quantity"],
+            "items": [item for item in ranked[:5] if item["score"] > 0],
+        }
+
+    return suggestions
 
 
 def _available_device_entities(hass: HomeAssistant) -> list[dict[str, str]]:

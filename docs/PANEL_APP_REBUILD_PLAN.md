@@ -77,6 +77,7 @@ Add / rebuild:
 
 ### Phase 3 — Guided setup
 - source role mapping UI ✅ first Setup-tab source mapping editor now saves validated source entities and refresh interval
+- guided source suggestions ✅ Setup now ranks likely sensors for each source role so operators can map common solar/grid/home/battery entities faster from the panel
 - validation feedback in-panel ✅ source mapping saves are blocked on the same validation engine used by config flow
 - operator-safe defaults
 - options editing without raw JSON as the primary path ✅ for source mapping and normal device inventory changes

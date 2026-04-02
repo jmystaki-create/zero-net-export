@@ -471,6 +471,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const validation = setup.validation || {};
     const sourceMapping = setup.source_mapping || {};
     const sourceDiagnostics = setup.source_diagnostics || validation.source_diagnostics || {};
+    const sourceSuggestions = setup.entity_suggestions || {};
     const calibrationHints = setup.calibration_hints || validation.calibration_hints || [];
     const entityOptions = (setup.available_entities || [])
       .map((item) => `<option value="${item.entity_id}">${item.label}</option>`)
@@ -485,6 +486,14 @@ class ZeroNetExportPanel extends HTMLElement {
           placeholder="sensor.example_${field.key}"
           ${this._busy ? 'disabled' : ''}
         />
+        ${((sourceSuggestions[field.key]?.items || []).length)
+          ? `<div class="suggestion-block">
+              <div class="suggestion-label">Suggested matches · ${sourceSuggestions[field.key]?.description || ''}</div>
+              <div class="chip-row">
+                ${(sourceSuggestions[field.key].items || []).map((item) => `<button type="button" class="suggestion-chip" data-source-field="${field.key}" data-source-entity="${item.entity_id}" ${this._busy ? 'disabled' : ''}>${item.label}</button>`).join('')}
+              </div>
+            </div>`
+          : `<div class="suggestion-block muted">No obvious ${field.label.toLowerCase()} candidates detected yet.</div>`}
       </label>
     `).join('');
     const sourceFreshness = validation.source_freshness || {};
@@ -1039,6 +1048,15 @@ class ZeroNetExportPanel extends HTMLElement {
       await this._saveSourcesFromForm();
     });
 
+    this.shadowRoot.querySelectorAll('[data-source-field]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const input = this.shadowRoot.querySelector(`#source-${button.dataset.sourceField}`);
+        if (input) {
+          input.value = button.dataset.sourceEntity || '';
+        }
+      });
+    });
+
     const entry = this._entry();
 
     this.shadowRoot.querySelector('#device-edit-key')?.addEventListener('change', (event) => {
@@ -1272,6 +1290,28 @@ class ZeroNetExportPanel extends HTMLElement {
         }
         .hint-list {
           margin-top: 12px;
+        }
+        .suggestion-block {
+          margin-top: 8px;
+        }
+        .suggestion-label {
+          font-size: 12px;
+          color: var(--secondary-text-color);
+          margin-bottom: 6px;
+        }
+        .chip-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .suggestion-chip {
+          background: var(--secondary-background-color, var(--card-background-color));
+          color: var(--primary-text-color);
+          border: 1px solid var(--divider-color);
+          border-radius: 999px;
+          padding: 6px 10px;
+          cursor: pointer;
+          text-align: left;
         }
         .live-chip {
           display: inline-flex;

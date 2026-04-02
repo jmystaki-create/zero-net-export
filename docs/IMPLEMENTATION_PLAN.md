@@ -72,6 +72,7 @@
 - add runtime operator mutations in-panel ✅ controller runtime overrides and per-device enable/priority overrides now flow through panel websocket commands instead of staying read-only
 - create guided source/device setup UX ✅ initial panel source-mapping save flow now validates and persists source entities plus refresh interval from the Setup tab
 - guided source remediation detail ✅ Setup now also surfaces mapped-source readings, units, device/state class metadata, and validation issues so operators can debug bad mappings inside the panel
+- guided source suggestions ✅ Setup now ranks likely Home Assistant sensors per source role so panel-first onboarding does not depend on scanning a flat entity list manually
 - replace raw device inventory JSON for normal setup ✅ first panel-side add/edit/remove device inventory management now persists validated fixed/variable devices through structured panel forms
 - add operator diagnostics/explanation UX ✅ panel diagnostics now exposes recent action history, source health, calibration hints, and per-device guard/result explanations from the existing backend state
 - add operator settings/release UX ✅ Settings tab now exposes configured defaults, fleet health summary, panel-first workflow guidance, and direct docs/release/support links

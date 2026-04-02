@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.15] - 2026-04-03
+
+### Added
+- Added role-specific source suggestions in the panel Setup tab so operators can apply likely solar/grid/home/battery mappings directly from guided chips instead of hunting through a flat sensor list.
+
+### Changed
+- Panel source suggestions now rank Home Assistant sensors by unit, metadata, and role-name hints to make panel-first onboarding faster and less error-prone.
+- Panel schema advanced to `12` and integration version advanced to `0.1.15` for the guided source-suggestion setup refresh.
+
 ## [0.1.14] - 2026-04-03
 
 ### Added
