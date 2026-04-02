@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.12] - 2026-04-02
+
+### Fixed
+- Fixed a panel operator-path gap for installations with multiple Zero Net Export config entries: the frontend can now switch between configured entries instead of silently reading and mutating only the first returned entry.
+
+### Changed
+- Panel header now exposes the active configured system and resets device-editor context when operators switch entries so edits do not leak across systems.
+- Panel schema advanced to `9` and integration version advanced to `0.1.12` for the multi-entry panel selection refresh.
+
 ## [0.1.11] - 2026-04-02
 
 ### Added

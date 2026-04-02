@@ -147,6 +147,7 @@ class ZeroNetExportPanel extends HTMLElement {
     this._editingDeviceKey = 'new';
     this._deviceDraft = {};
     this._selectedTemplateKey = 'custom';
+    this._selectedEntryId = undefined;
   }
 
   set hass(hass) {
@@ -177,6 +178,7 @@ class ZeroNetExportPanel extends HTMLElement {
     this._render();
     try {
       this._state = await this._hass.callWS({ type: PANEL_GET_STATE });
+      this._reconcileSelectedEntry();
       this._error = undefined;
     } catch (err) {
       this._error = err?.message || String(err);
@@ -195,6 +197,7 @@ class ZeroNetExportPanel extends HTMLElement {
     this._render();
     try {
       this._state = await this._hass.callWS(payload);
+      this._reconcileSelectedEntry();
     } catch (err) {
       this._error = err?.message || String(err);
     } finally {
@@ -208,8 +211,31 @@ class ZeroNetExportPanel extends HTMLElement {
     this._render();
   }
 
+  _reconcileSelectedEntry() {
+    const entries = this._state?.entries || [];
+    if (!entries.length) {
+      this._selectedEntryId = undefined;
+      return;
+    }
+    if (entries.some((item) => item.entry_id === this._selectedEntryId)) {
+      return;
+    }
+    this._selectedEntryId = this._state?.active_entry_id || entries[0]?.entry_id;
+  }
+
+  _setEntry(entryId) {
+    this._selectedEntryId = entryId;
+    this._editingDeviceKey = 'new';
+    this._deviceDraft = {};
+    this._selectedTemplateKey = 'custom';
+    this._render();
+  }
+
   _entry() {
-    return this._state?.entries?.[0];
+    const entries = this._state?.entries || [];
+    return entries.find((item) => item.entry_id === this._selectedEntryId)
+      || entries.find((item) => item.entry_id === this._state?.active_entry_id)
+      || entries[0];
   }
 
   _entryId() {
@@ -906,6 +932,9 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _attachEventHandlers() {
     this.shadowRoot.querySelector('.refresh')?.addEventListener('click', () => this._loadState());
+    this.shadowRoot.querySelector('#entry-picker')?.addEventListener('change', (event) => {
+      this._setEntry(event.target.value);
+    });
     this.shadowRoot.querySelectorAll('.tab').forEach((button) => {
       button.addEventListener('click', () => this._setTab(button.dataset.tab));
     });
@@ -1026,6 +1055,10 @@ class ZeroNetExportPanel extends HTMLElement {
     const tabs = TABS.map((tab) => `
       <button class="tab ${this._activeTab === tab ? 'active' : ''}" data-tab="${tab}">${tab}</button>
     `).join('');
+    const entryOptions = (this._state?.entries || [])
+      .map((entry) => `<option value="${entry.entry_id}" ${this._entryId() === entry.entry_id ? 'selected' : ''}>${entry.title || entry.entry_id}</option>`)
+      .join('');
+    const multipleEntries = (this._state?.entry_count || 0) > 1;
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -1040,6 +1073,16 @@ class ZeroNetExportPanel extends HTMLElement {
           align-items: center;
           gap: 12px;
           margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+        .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .entry-picker {
+          min-width: 260px;
         }
         .title h1 {
           margin: 0;
@@ -1181,8 +1224,17 @@ class ZeroNetExportPanel extends HTMLElement {
           <h1>Zero Net Export</h1>
           <p>${this._state?.top_health_summary || 'Panel-first operator shell'}${this._busy ? ' · Saving…' : ''}</p>
         </div>
-        <button class="refresh" ${this._busy ? 'disabled' : ''}>Refresh</button>
+        <div class="header-actions">
+          ${multipleEntries ? `
+            <label class="entry-picker">
+              <span>Active system</span>
+              <select id="entry-picker" ${this._busy ? 'disabled' : ''}>${entryOptions}</select>
+            </label>
+          ` : ''}
+          <button class="refresh" ${this._busy ? 'disabled' : ''}>Refresh</button>
+        </div>
       </div>
+      ${multipleEntries ? `<div class="panel-section"><p><strong>Configured systems:</strong> ${this._state?.entry_count || 0}. This panel can now switch between configured Zero Net Export entries instead of silently operating on the first one only.</p></div>` : ''}
       <div class="tabs">${tabs}</div>
       ${this._renderBody()}
     `;
