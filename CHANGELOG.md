@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.14] - 2026-04-03
+
+### Added
+- The panel app now auto-refreshes its live state every 15 seconds while visible and refreshes again when Home Assistant regains browser focus, reducing stale operator state during day-to-day use.
+
+### Changed
+- Panel schema advanced to `11` so Home Assistant will pick up the live-refresh panel bundle update reliably.
+- Integration version advanced to `0.1.14` for the panel live-state usability refresh.
+
 ## [0.1.13] - 2026-04-03
 
 ### Added

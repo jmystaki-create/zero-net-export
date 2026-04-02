@@ -202,7 +202,7 @@ Names may change during implementation, but the panel should use explicit app-le
 - no raw JSON required for ordinary use ✅ for normal add/edit/remove device workflows
 
 ### Milestone 5 — Daily operator workflow
-- live control page
+- live control page ✅ panel now auto-refreshes while visible and refreshes again when Home Assistant regains focus so the primary operator surface does not sit on stale data between manual refreshes
 - overrides, reset actions, per-device details
 - settings/release surface ✅ Settings now exposes configured defaults, fleet health, workflow guidance, and support links
 - complete app-first workflow

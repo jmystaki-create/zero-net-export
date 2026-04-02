@@ -148,6 +148,13 @@ class ZeroNetExportPanel extends HTMLElement {
     this._deviceDraft = {};
     this._selectedTemplateKey = 'custom';
     this._selectedEntryId = undefined;
+    this._refreshTimer = undefined;
+    this._boundVisibilityRefresh = () => {
+      if (!document.hidden) {
+        this._loadState({ force: true });
+      }
+    };
+    this._boundWindowFocusRefresh = () => this._loadState({ force: true });
   }
 
   set hass(hass) {
@@ -161,6 +168,9 @@ class ZeroNetExportPanel extends HTMLElement {
   }
 
   connectedCallback() {
+    document.addEventListener('visibilitychange', this._boundVisibilityRefresh);
+    window.addEventListener('focus', this._boundWindowFocusRefresh);
+    this._startAutoRefresh();
     if (this._hass && !this._state) {
       this._loadState();
       return;
@@ -168,14 +178,42 @@ class ZeroNetExportPanel extends HTMLElement {
     this._render();
   }
 
-  async _loadState() {
+  disconnectedCallback() {
+    document.removeEventListener('visibilitychange', this._boundVisibilityRefresh);
+    window.removeEventListener('focus', this._boundWindowFocusRefresh);
+    this._stopAutoRefresh();
+  }
+
+  _startAutoRefresh() {
+    this._stopAutoRefresh();
+    this._refreshTimer = window.setInterval(() => {
+      if (!document.hidden) {
+        this._loadState();
+      }
+    }, 15000);
+  }
+
+  _stopAutoRefresh() {
+    if (this._refreshTimer) {
+      window.clearInterval(this._refreshTimer);
+      this._refreshTimer = undefined;
+    }
+  }
+
+  async _loadState({ force = false } = {}) {
     if (!this._hass) {
       this._loading = false;
       this._render();
       return;
     }
-    this._loading = true;
-    this._render();
+    if (!force && (this._busy || document.hidden)) {
+      return;
+    }
+    const showLoadingState = !this._state;
+    if (showLoadingState) {
+      this._loading = true;
+      this._render();
+    }
     try {
       this._state = await this._hass.callWS({ type: PANEL_GET_STATE });
       this._reconcileSelectedEntry();
@@ -1235,6 +1273,24 @@ class ZeroNetExportPanel extends HTMLElement {
         .hint-list {
           margin-top: 12px;
         }
+        .live-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 12px;
+          border-radius: 999px;
+          background: var(--card-background-color);
+          border: 1px solid var(--divider-color);
+          color: var(--secondary-text-color);
+          font-size: 13px;
+        }
+        .live-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #2e7d32;
+          box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.18);
+        }
         table {
           width: 100%;
           border-collapse: collapse;
@@ -1260,6 +1316,10 @@ class ZeroNetExportPanel extends HTMLElement {
           <p>${this._state?.top_health_summary || 'Panel-first operator shell'}${this._busy ? ' · Saving…' : ''}</p>
         </div>
         <div class="header-actions">
+          <div class="live-chip" title="This panel refreshes automatically while visible and refreshes again when Home Assistant regains focus.">
+            <span class="live-dot"></span>
+            <span>Auto-refresh every 15s</span>
+          </div>
           ${multipleEntries ? `
             <label class="entry-picker">
               <span>Active system</span>

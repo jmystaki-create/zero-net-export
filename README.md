@@ -145,6 +145,7 @@ The backend control engine is substantially built, but the project is now in an 
 - [x] Add guided source-remediation detail in the panel so operators can inspect per-source metadata and validation issues without dropping into raw entity debugging
 - [x] Add runtime operator controls to the panel for controller tuning and per-device override management
 - [x] Add richer in-panel diagnostics and explanation views for recent actions, source health, and per-device control reasoning
+- [x] Keep the panel state live enough for daily operation via automatic in-panel refresh while visible
 - [ ] Real-world validation of the rebuilt operator flow
 
 ---
