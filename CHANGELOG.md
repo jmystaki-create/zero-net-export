@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.11] - 2026-04-02
+
+### Added
+- Added curated device onboarding templates in the panel for common fixed and variable operator workflows such as hot water, pool pumps, EV charging, and battery charge sinks.
+- Added direct edit actions from the managed-device table plus a selected-device runtime summary so operators can move from diagnosis to configuration without falling back to raw JSON or hunting through entities.
+
+### Changed
+- Devices tab editing is now more guided: template selection prefills safer defaults, the form can be reset explicitly, and the editor keeps context about the currently selected device.
+- Panel schema advanced to `8` and integration version advanced to `0.1.11` for the guided device-onboarding UX refresh.
+
 ## [0.1.10] - 2026-04-02
 
 ### Fixed

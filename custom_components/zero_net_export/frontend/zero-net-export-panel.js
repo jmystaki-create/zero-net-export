@@ -11,6 +11,108 @@ const DEVICE_KINDS = [
   { value: 'fixed', label: 'Fixed Load' },
   { value: 'variable', label: 'Variable Load' },
 ];
+const DEVICE_TEMPLATES = [
+  {
+    key: 'hot_water',
+    label: 'Hot Water Diverter',
+    description: 'Fixed resistive load such as a hot water service or relay-controlled heater.',
+    values: {
+      name: 'Hot Water',
+      kind: 'fixed',
+      adapter: 'fixed_toggle',
+      nominal_power_w: 3600,
+      min_power_w: 3600,
+      max_power_w: 3600,
+      step_w: 3600,
+      priority: 100,
+      enabled: true,
+      min_on_seconds: 900,
+      min_off_seconds: 900,
+      cooldown_seconds: 60,
+      max_active_seconds: null,
+    },
+  },
+  {
+    key: 'pool_pump',
+    label: 'Pool Pump',
+    description: 'Fixed load with longer run windows and anti-flap protection.',
+    values: {
+      name: 'Pool Pump',
+      kind: 'fixed',
+      adapter: 'fixed_toggle',
+      nominal_power_w: 1100,
+      min_power_w: 1100,
+      max_power_w: 1100,
+      step_w: 1100,
+      priority: 140,
+      enabled: true,
+      min_on_seconds: 1800,
+      min_off_seconds: 900,
+      cooldown_seconds: 60,
+      max_active_seconds: 28800,
+    },
+  },
+  {
+    key: 'ev_charger',
+    label: 'EV Charger',
+    description: 'Variable charger current/power target exposed through a number entity.',
+    values: {
+      name: 'EV Charger',
+      kind: 'variable',
+      adapter: 'variable_number',
+      nominal_power_w: 7000,
+      min_power_w: 1400,
+      max_power_w: 7000,
+      step_w: 230,
+      priority: 80,
+      enabled: true,
+      min_on_seconds: 300,
+      min_off_seconds: 300,
+      cooldown_seconds: 30,
+      max_active_seconds: null,
+    },
+  },
+  {
+    key: 'battery_charge_sink',
+    label: 'Battery Charge Sink',
+    description: 'Variable battery/inverter charge target used to absorb surplus while respecting reserve rules.',
+    values: {
+      name: 'Battery Charge Sink',
+      kind: 'variable',
+      adapter: 'variable_number',
+      nominal_power_w: 5000,
+      min_power_w: 500,
+      max_power_w: 5000,
+      step_w: 100,
+      priority: 60,
+      enabled: true,
+      min_on_seconds: 120,
+      min_off_seconds: 120,
+      cooldown_seconds: 15,
+      max_active_seconds: null,
+    },
+  },
+  {
+    key: 'smart_plug_load',
+    label: 'Smart Plug Load',
+    description: 'Small fixed discretionary load such as a dryer, dehumidifier, or heater on a smart plug.',
+    values: {
+      name: 'Smart Plug Load',
+      kind: 'fixed',
+      adapter: 'fixed_toggle',
+      nominal_power_w: 800,
+      min_power_w: 800,
+      max_power_w: 800,
+      step_w: 800,
+      priority: 180,
+      enabled: true,
+      min_on_seconds: 600,
+      min_off_seconds: 600,
+      cooldown_seconds: 60,
+      max_active_seconds: 14400,
+    },
+  },
+];
 const MODES = [
   { value: 'zero_export', label: 'Zero Export' },
   { value: 'soft_zero_export', label: 'Soft Zero Export' },
@@ -43,6 +145,8 @@ class ZeroNetExportPanel extends HTMLElement {
     this._activeTab = 'overview';
     this._busy = false;
     this._editingDeviceKey = 'new';
+    this._deviceDraft = {};
+    this._selectedTemplateKey = 'custom';
   }
 
   set hass(hass) {
@@ -154,7 +258,8 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _deviceFormValue(entry, field, fallback = '') {
     const active = this._activeDeviceConfig(entry);
-    const value = active?.[field];
+    const draftValue = this._deviceDraft[field];
+    const value = draftValue !== undefined ? draftValue : active?.[field];
     return value === null || value === undefined ? fallback : value;
   }
 
@@ -164,6 +269,90 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _deviceAdapterOptions(entry, kind) {
     return (entry?.devices?.adapter_options || []).filter((item) => item.kind === kind);
+  }
+
+  _deviceTemplate() {
+    return DEVICE_TEMPLATES.find((item) => item.key === this._selectedTemplateKey) || null;
+  }
+
+  _activeDeviceRuntime(entry) {
+    const key = this._editingDeviceKey;
+    if (!key || key === 'new') {
+      return null;
+    }
+    return (entry?.devices?.items || []).find((item) => item.key === key) || null;
+  }
+
+  _setDeviceDraft(values = {}, { preserveEntity = true } = {}) {
+    const nextDraft = { ...this._deviceDraft, ...values };
+    if (!preserveEntity && !('entity_id' in values)) {
+      nextDraft.entity_id = '';
+    }
+    this._deviceDraft = nextDraft;
+  }
+
+  _resetDeviceDraft(entry, editingKey = this._editingDeviceKey) {
+    this._deviceDraft = {};
+    this._selectedTemplateKey = 'custom';
+    if (!entry || editingKey === 'new') {
+      return;
+    }
+    const active = (entry?.devices?.configured_items || []).find((item) => item.key === editingKey);
+    if (!active) {
+      return;
+    }
+    const template = DEVICE_TEMPLATES.find((item) => item.values.kind === active.kind && item.values.adapter === active.adapter);
+    if (template) {
+      this._selectedTemplateKey = template.key;
+    }
+  }
+
+  _applyTemplate(entry, templateKey) {
+    this._selectedTemplateKey = templateKey;
+    if (templateKey === 'custom') {
+      if (this._editingDeviceKey === 'new') {
+        this._deviceDraft = {};
+      } else {
+        this._resetDeviceDraft(entry);
+      }
+      this._render();
+      return;
+    }
+
+    const template = DEVICE_TEMPLATES.find((item) => item.key === templateKey);
+    if (!template) {
+      return;
+    }
+
+    const currentEntityId = this.shadowRoot.querySelector('#device-entity-id')?.value?.trim()
+      || this._deviceFormValue(entry, 'entity_id', '');
+
+    this._deviceDraft = {
+      ...template.values,
+      entity_id: currentEntityId,
+    };
+    this._render();
+  }
+
+  _captureDeviceDraft(entry) {
+    const kind = this.shadowRoot.querySelector('#device-kind')?.value || this._deviceKindValue(entry);
+    this._deviceDraft = {
+      ...this._deviceDraft,
+      name: this.shadowRoot.querySelector('#device-name')?.value ?? this._deviceFormValue(entry, 'name', ''),
+      kind,
+      entity_id: this.shadowRoot.querySelector('#device-entity-id')?.value ?? this._deviceFormValue(entry, 'entity_id', ''),
+      adapter: this.shadowRoot.querySelector('#device-adapter')?.value ?? this._deviceFormValue(entry, 'adapter', ''),
+      nominal_power_w: this.shadowRoot.querySelector('#device-nominal')?.value ?? this._deviceFormValue(entry, 'nominal_power_w', 0),
+      min_power_w: this.shadowRoot.querySelector('#device-min-power')?.value ?? this._deviceFormValue(entry, 'min_power_w', 0),
+      max_power_w: this.shadowRoot.querySelector('#device-max-power')?.value ?? this._deviceFormValue(entry, 'max_power_w', 0),
+      step_w: this.shadowRoot.querySelector('#device-step')?.value ?? this._deviceFormValue(entry, 'step_w', 0),
+      priority: this.shadowRoot.querySelector('#device-priority')?.value ?? this._deviceFormValue(entry, 'priority', 100),
+      enabled: (this.shadowRoot.querySelector('#device-configured-enabled')?.value ?? `${this._deviceFormValue(entry, 'enabled', true)}`) === 'true',
+      min_on_seconds: this.shadowRoot.querySelector('#device-min-on')?.value ?? this._deviceFormValue(entry, 'min_on_seconds', 300),
+      min_off_seconds: this.shadowRoot.querySelector('#device-min-off')?.value ?? this._deviceFormValue(entry, 'min_off_seconds', 300),
+      cooldown_seconds: this.shadowRoot.querySelector('#device-cooldown')?.value ?? this._deviceFormValue(entry, 'cooldown_seconds', 30),
+      max_active_seconds: this.shadowRoot.querySelector('#device-max-active')?.value ?? this._deviceFormValue(entry, 'max_active_seconds', ''),
+    };
   }
 
   _deviceEntityOptions(entry, kind) {
@@ -272,6 +461,8 @@ class ZeroNetExportPanel extends HTMLElement {
   _renderDevices(entry) {
     const devices = entry?.devices || {};
     const configured = devices.configured_items || [];
+    const activeRuntime = this._activeDeviceRuntime(entry);
+    const template = this._deviceTemplate();
     const selectedKind = this._deviceKindValue(entry);
     const adapterOptions = this._deviceAdapterOptions(entry, selectedKind)
       .map((item) => `<option value="${item.key}" ${this._deviceFormValue(entry, 'adapter', '') === item.key ? 'selected' : ''}>${item.label}</option>`)
@@ -306,10 +497,17 @@ class ZeroNetExportPanel extends HTMLElement {
           </td>
           <td>${item.reason || '—'}</td>
           <td>
+            <button class="small-button" data-edit-device="${item.key}" ${this._busy ? 'disabled' : ''}>Edit</button>
             <button class="small-button secondary" data-reset-device="${item.key}" ${this._busy ? 'disabled' : ''}>Reset</button>
           </td>
         </tr>`)
       .join('');
+
+    const templateOptions = DEVICE_TEMPLATES
+      .map((item) => `<option value="${item.key}" ${this._selectedTemplateKey === item.key ? 'selected' : ''}>${item.label}</option>`)
+      .join('');
+
+    const editorModeLabel = this._editingDeviceKey === 'new' ? 'Add new device' : `Editing ${this._deviceFormValue(entry, 'name', this._editingDeviceKey)}`;
 
     return `
       <section class="panel-section">
@@ -322,6 +520,17 @@ class ZeroNetExportPanel extends HTMLElement {
       </section>
       <section class="panel-section">
         <h3>Device Editor</h3>
+        <p><strong>Editor mode:</strong> ${editorModeLabel}</p>
+        <div class="form-grid">
+          <label>
+            <span>Template</span>
+            <select id="device-template" ${this._busy ? 'disabled' : ''}>
+              <option value="custom" ${this._selectedTemplateKey === 'custom' ? 'selected' : ''}>Custom device</option>
+              ${templateOptions}
+            </select>
+          </label>
+        </div>
+        ${template ? `<div class="hint-list"><strong>${template.label}</strong><p class="muted">${template.description}</p></div>` : '<p class="muted">Pick a template to prefill a common device profile, then point it at the correct Home Assistant entity.</p>'}
         <div class="form-grid">
           <label>
             <span>Edit Device</span>
@@ -396,9 +605,24 @@ class ZeroNetExportPanel extends HTMLElement {
         <div class="button-row">
           <button class="action-button" data-action="save-device" ${this._busy ? 'disabled' : ''}>${this._editingDeviceKey === 'new' ? 'Add Device' : 'Save Device'}</button>
           ${this._editingDeviceKey !== 'new' ? `<button class="action-button secondary" data-action="delete-device" ${this._busy ? 'disabled' : ''}>Delete Device</button>` : ''}
+          <button class="action-button secondary" data-action="reset-device-form" ${this._busy ? 'disabled' : ''}>Reset Form</button>
           <button class="action-button secondary" data-action="new-device" ${this._busy ? 'disabled' : ''}>New Blank Device</button>
         </div>
+        <p class="muted">${selectedKind === 'variable' ? 'Variable devices should point at a number/input_number entity that represents a live power or current target.' : 'Fixed loads should point at a switch/input_boolean entity that can be safely toggled by Zero Net Export.'}</p>
       </section>
+      ${activeRuntime ? `
+      <section class="panel-section">
+        <h3>Selected Device Runtime</h3>
+        <p><strong>Status:</strong> ${activeRuntime.status || '—'}</p>
+        <p><strong>Usable:</strong> ${activeRuntime.usable ? 'Yes' : 'No'}</p>
+        <p><strong>Reason:</strong> ${activeRuntime.reason || '—'}</p>
+        <p><strong>Current power:</strong> ${activeRuntime.current_power_w ?? '—'} W</p>
+        <p><strong>Current target:</strong> ${activeRuntime.current_target_power_w ?? '—'} W</p>
+        <p><strong>Planned action:</strong> ${activeRuntime.planned_action || 'hold'} (${activeRuntime.planned_requested_power_w ?? '—'} W)</p>
+        <p><strong>Guard:</strong> ${activeRuntime.guard_status || '—'}</p>
+        <p><strong>Last result:</strong> ${activeRuntime.last_action_status || '—'} · ${activeRuntime.last_action_result_message || 'No recorded action yet.'}</p>
+        <p><strong>Successful actions:</strong> ${activeRuntime.successful_action_count ?? 0} · <strong>Failed actions:</strong> ${activeRuntime.failed_action_count ?? 0}</p>
+      </section>` : ''}
       <section class="panel-section">
         <table>
           <thead><tr><th>Name</th><th>Type</th><th>Status</th><th>Power (W)</th><th>Priority</th><th>Enabled</th><th>Reason</th><th>Overrides</th></tr></thead>
@@ -676,9 +900,8 @@ class ZeroNetExportPanel extends HTMLElement {
     }
 
     await this._callWS(payload);
-    if (this._editingDeviceKey === 'new') {
-      this._editingDeviceKey = 'new';
-    }
+    this._deviceDraft = {};
+    this._selectedTemplateKey = 'custom';
   }
 
   _attachEventHandlers() {
@@ -714,12 +937,21 @@ class ZeroNetExportPanel extends HTMLElement {
       await this._saveSourcesFromForm();
     });
 
+    const entry = this._entry();
+
     this.shadowRoot.querySelector('#device-edit-key')?.addEventListener('change', (event) => {
       this._editingDeviceKey = event.target.value;
+      this._resetDeviceDraft(entry, this._editingDeviceKey);
       this._render();
     });
 
+    this.shadowRoot.querySelector('#device-template')?.addEventListener('change', (event) => {
+      this._captureDeviceDraft(entry);
+      this._applyTemplate(entry, event.target.value);
+    });
+
     this.shadowRoot.querySelector('#device-kind')?.addEventListener('change', () => {
+      this._captureDeviceDraft(entry);
       this._render();
     });
 
@@ -729,6 +961,13 @@ class ZeroNetExportPanel extends HTMLElement {
 
     this.shadowRoot.querySelector('[data-action="new-device"]')?.addEventListener('click', () => {
       this._editingDeviceKey = 'new';
+      this._deviceDraft = {};
+      this._selectedTemplateKey = 'custom';
+      this._render();
+    });
+
+    this.shadowRoot.querySelector('[data-action="reset-device-form"]')?.addEventListener('click', () => {
+      this._resetDeviceDraft(entry);
       this._render();
     });
 
@@ -738,6 +977,16 @@ class ZeroNetExportPanel extends HTMLElement {
       }
       await this._callWS({ type: PANEL_DELETE_DEVICE, entry_id: this._entryId(), device_key: this._editingDeviceKey });
       this._editingDeviceKey = 'new';
+      this._deviceDraft = {};
+      this._selectedTemplateKey = 'custom';
+    });
+
+    this.shadowRoot.querySelectorAll('[data-edit-device]').forEach((button) => {
+      button.addEventListener('click', () => {
+        this._editingDeviceKey = button.dataset.editDevice;
+        this._resetDeviceDraft(entry, this._editingDeviceKey);
+        this._render();
+      });
     });
 
     this.shadowRoot.querySelectorAll('[data-device-enabled]').forEach((input) => {
