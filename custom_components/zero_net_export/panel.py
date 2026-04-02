@@ -58,7 +58,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 9
+PANEL_SCHEMA_VERSION = 10
 
 
 def _frontend_dir() -> Path:
@@ -550,6 +550,8 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "stale_source_summary": state.stale_source_summary,
         "diagnostic_summary": state.diagnostic_summary,
         "validation": _serialize_value(state.validation_details),
+        "source_diagnostics": _serialize_value(state.validation_details.get("source_diagnostics", {})),
+        "calibration_hints": list(state.validation_details.get("calibration_hints", [])),
         "source_mapping": {
             CONF_SOLAR_POWER_ENTITY: coordinator.entry.data.get(CONF_SOLAR_POWER_ENTITY),
             CONF_SOLAR_ENERGY_ENTITY: coordinator.entry.data.get(CONF_SOLAR_ENERGY_ENTITY),
@@ -721,13 +723,30 @@ def _build_panel_state(hass: HomeAssistant) -> dict[str, Any]:
 
 
 def _available_sensor_entities(hass: HomeAssistant) -> list[dict[str, str]]:
-    entities: list[dict[str, str]] = []
+    entities: list[dict[str, str | None]] = []
     for state in sorted(hass.states.async_all("sensor"), key=lambda item: item.entity_id):
         label = state.attributes.get("friendly_name") or state.entity_id
         unit = state.attributes.get("unit_of_measurement")
+        device_class = state.attributes.get("device_class")
+        state_class = state.attributes.get("state_class")
         if unit:
             label = f"{label} ({unit})"
-        entities.append({"entity_id": state.entity_id, "label": label})
+        metadata: list[str] = []
+        if device_class:
+            metadata.append(str(device_class))
+        if state_class:
+            metadata.append(str(state_class))
+        if metadata:
+            label = f"{label} — {', '.join(metadata)}"
+        entities.append(
+            {
+                "entity_id": state.entity_id,
+                "label": label,
+                "unit": unit,
+                "device_class": device_class,
+                "state_class": state_class,
+            }
+        )
     return entities
 
 

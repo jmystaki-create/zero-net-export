@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.13] - 2026-04-03
+
+### Added
+- Added guided source-remediation detail to the panel Setup tab so operators can review each mapped source's live reading, unit, device class, state class, and validation issues without leaving the app.
+- Added in-panel calibration hints during source setup so sign, metadata, and mapping problems are surfaced directly in the panel-first workflow.
+
+### Changed
+- Sensor suggestions in the panel source-mapping form now include richer metadata context to make it easier to choose the correct Home Assistant source entity.
+- Panel schema advanced to `10` and integration version advanced to `0.1.13` for the guided source diagnostics/setup refresh.
+
 ## [0.1.12] - 2026-04-02
 
 ### Fixed

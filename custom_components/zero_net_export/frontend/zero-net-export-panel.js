@@ -432,6 +432,8 @@ class ZeroNetExportPanel extends HTMLElement {
     const setup = entry?.setup || {};
     const validation = setup.validation || {};
     const sourceMapping = setup.source_mapping || {};
+    const sourceDiagnostics = setup.source_diagnostics || validation.source_diagnostics || {};
+    const calibrationHints = setup.calibration_hints || validation.calibration_hints || [];
     const entityOptions = (setup.available_entities || [])
       .map((item) => `<option value="${item.entity_id}">${item.label}</option>`)
       .join('');
@@ -451,6 +453,26 @@ class ZeroNetExportPanel extends HTMLElement {
     const freshnessRows = Object.entries(sourceFreshness)
       .map(([key, item]) => `<tr><td>${key}</td><td>${item.entity_id || '—'}</td><td>${item.stale ? 'Stale' : 'OK'}</td><td>${item.age_seconds ?? '—'}</td></tr>`)
       .join('');
+    const diagnosticRows = Object.entries(sourceDiagnostics)
+      .map(([key, item]) => {
+        const issueSummary = Array.isArray(item.issues) && item.issues.length
+          ? item.issues.map((issue) => `${issue.severity}: ${issue.message}`).join(' · ')
+          : 'No issues reported';
+        return `<tr>
+          <td>${key}</td>
+          <td>${item.entity_id || '—'}</td>
+          <td>${item.status || '—'}</td>
+          <td>${item.value ?? item.raw_state ?? '—'}</td>
+          <td>${item.unit || '—'}</td>
+          <td>${item.device_class || '—'}</td>
+          <td>${item.state_class || '—'}</td>
+          <td>${issueSummary}</td>
+        </tr>`;
+      })
+      .join('');
+    const hintItems = calibrationHints
+      .map((item) => `<li>${item}</li>`)
+      .join('');
 
     return `
       <section class="panel-section">
@@ -461,6 +483,11 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Stale source summary:</strong> ${setup.stale_source_summary || '—'}</p>
         <p class="muted">Save source mappings here to reload the integration with validated panel-first setup data.</p>
       </section>
+      ${hintItems ? `
+      <section class="panel-section">
+        <h3>Calibration Hints</h3>
+        <div class="hint-list"><ul>${hintItems}</ul></div>
+      </section>` : ''}
       <section class="panel-section">
         <h3>Source Mapping</h3>
         <div class="form-grid">${sourceInputs}
@@ -479,6 +506,14 @@ class ZeroNetExportPanel extends HTMLElement {
         <table>
           <thead><tr><th>Role</th><th>Entity</th><th>Status</th><th>Age (s)</th></tr></thead>
           <tbody>${freshnessRows || '<tr><td colspan="4">No source diagnostics available yet.</td></tr>'}</tbody>
+        </table>
+      </section>
+      <section class="panel-section">
+        <h3>Mapped Source Diagnostics</h3>
+        <p class="muted">Use this to confirm units, device classes, state classes, and validation issues before assuming a source is safe to drive control decisions.</p>
+        <table>
+          <thead><tr><th>Role</th><th>Entity</th><th>Status</th><th>Reading</th><th>Unit</th><th>Device Class</th><th>State Class</th><th>Issues</th></tr></thead>
+          <tbody>${diagnosticRows || '<tr><td colspan="8">No source diagnostics available yet.</td></tr>'}</tbody>
         </table>
       </section>
     `;
