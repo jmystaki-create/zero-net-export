@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.18] - 2026-04-04
+
+### Added
+- Added an in-panel support snapshot in Settings so operators can copy a concise release/runtime/setup summary for Discord or issue triage without reconstructing state from multiple diagnostics sections.
+
+### Changed
+- Settings now previews the generated support snapshot alongside release links, making the panel-first support path more practical during real-install validation and troubleshooting.
+- Panel schema advanced to `15` and integration version advanced to `0.1.18` for the panel support-snapshot refresh.
+
 ## [0.1.17] - 2026-04-03
 
 ### Added

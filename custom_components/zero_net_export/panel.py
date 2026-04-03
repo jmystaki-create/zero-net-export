@@ -59,7 +59,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 14
+PANEL_SCHEMA_VERSION = 15
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -677,6 +677,108 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     }
 
 
+def _build_support_snapshot(
+    entry_id: str,
+    coordinator: Any,
+    state: Any,
+    operator_readiness: dict[str, Any],
+    configured_devices: list[dict[str, Any]],
+    device_parse_issues: list[str],
+) -> str:
+    source_diagnostics = state.validation_details.get("source_diagnostics", {})
+    mapped_sources = [
+        f"- {key}: {coordinator.entry.data.get(key) or 'not configured'}"
+        for key in (
+            CONF_SOLAR_POWER_ENTITY,
+            CONF_SOLAR_ENERGY_ENTITY,
+            CONF_GRID_IMPORT_POWER_ENTITY,
+            CONF_GRID_EXPORT_POWER_ENTITY,
+            CONF_GRID_IMPORT_ENERGY_ENTITY,
+            CONF_GRID_EXPORT_ENERGY_ENTITY,
+            CONF_HOME_LOAD_POWER_ENTITY,
+            CONF_BATTERY_SOC_ENTITY,
+            CONF_BATTERY_CHARGE_POWER_ENTITY,
+            CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+        )
+    ]
+    source_health_lines = [
+        (
+            f"- {key}: status={details.get('status') or 'unknown'}, "
+            f"age_s={details.get('age_seconds') if details.get('age_seconds') is not None else 'n/a'}, "
+            f"issues={len(details.get('issues') or [])}, "
+            f"entity={details.get('entity_id') or 'n/a'}"
+        )
+        for key, details in source_diagnostics.items()
+    ]
+    device_lines = [
+        (
+            f"- {item.get('key')}: enabled={item.get('enabled')}, usable={item.get('usable')}, "
+            f"kind={item.get('kind')}, adapter={item.get('adapter')}, "
+            f"priority={item.get('priority')}, entity={item.get('entity_id')}"
+        )
+        for item in configured_devices
+    ]
+    recent_issues = list(state.validation_details.get("issues", []))[:5]
+    issue_lines = [
+        f"- {issue.get('severity', 'info')}: {issue.get('message', issue)}"
+        for issue in recent_issues
+    ]
+    checklist_lines = [
+        f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
+        for item in operator_readiness.get("checklist", [])
+    ]
+
+    sections = [
+        "Zero Net Export support snapshot",
+        f"Generated: {dt_util.now().isoformat()}",
+        f"Entry title: {coordinator.entry.title}",
+        f"Entry id: {entry_id}",
+        f"Integration version: {INTEGRATION_VERSION}",
+        f"Config entry version: {coordinator.entry.version}",
+        f"Panel schema version: {PANEL_SCHEMA_VERSION}",
+        "",
+        "Readiness",
+        f"- phase: {operator_readiness.get('phase')}",
+        f"- summary: {operator_readiness.get('summary')}",
+        f"- next_step: {operator_readiness.get('next_step')}",
+        *checklist_lines,
+        "",
+        "Runtime summary",
+        f"- control_status: {state.control_status}",
+        f"- control_summary: {state.control_summary}",
+        f"- health_status: {state.health_status}",
+        f"- health_summary: {state.health_summary}",
+        f"- safe_mode: {state.safe_mode}",
+        f"- stale_data: {state.stale_data}",
+        f"- source_mismatch: {state.source_mismatch}",
+        f"- battery_below_reserve: {state.battery_below_reserve}",
+        f"- confidence: {state.confidence}",
+        f"- recommendation: {state.recommendation}",
+        f"- last_action_status: {state.last_action_status}",
+        f"- last_action_summary: {state.last_action_summary}",
+        f"- recent_failure_summary: {state.recent_failure_summary}",
+        "",
+        "Mapped sources",
+        *mapped_sources,
+        "",
+        "Source health",
+        *(source_health_lines or ["- none"]),
+        "",
+        "Configured devices",
+        f"- total: {state.device_count}",
+        f"- enabled: {state.enabled_device_count}",
+        f"- usable: {state.usable_device_count}",
+        *(device_lines or ["- none configured"]),
+        "",
+        "Device parse issues",
+        *([f"- {issue}" for issue in device_parse_issues] or ["- none"]),
+        "",
+        "Recent validation issues",
+        *(issue_lines or ["- none"]),
+    ]
+    return "\n".join(sections)
+
+
 def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
     state = coordinator.data
     if state is None:
@@ -750,6 +852,14 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         device_parse_issues,
     )
     setup["operator_readiness"] = operator_readiness
+    support_snapshot = _build_support_snapshot(
+        entry_id,
+        coordinator,
+        state,
+        operator_readiness,
+        configured_devices,
+        device_parse_issues,
+    )
 
     devices = {
         "device_count": state.device_count,
@@ -860,6 +970,7 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
             "release_process": "https://github.com/jmystaki-create/zero-net-export/blob/main/docs/RELEASE_PROCESS.md",
             "issues": "https://github.com/jmystaki-create/zero-net-export/issues",
         },
+        "support_snapshot": support_snapshot,
     }
 
     return {

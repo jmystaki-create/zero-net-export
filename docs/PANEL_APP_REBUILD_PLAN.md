@@ -93,6 +93,7 @@ Add / rebuild:
 - warnings and diagnostics ✅ panel diagnostics now surfaces health, mapped-source issues, and stale-data context
 - action history / explanation timeline ✅ recent action history and per-device planned-action / guard / result explanations now surface in-panel
 - comprehensive settings views for controller, sources, devices, and health state ✅ first settings/release surface now shows configured defaults, fleet health, workflow guidance, and support links in-panel
+- panel-native support/export summary ✅ Settings now provides a copyable support snapshot for Discord and issue triage during real-install validation
 
 ### Phase 5 — Completion
 - confirm panel is the primary operator surface

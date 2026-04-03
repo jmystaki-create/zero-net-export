@@ -149,6 +149,7 @@ class ZeroNetExportPanel extends HTMLElement {
     this._selectedTemplateKey = 'custom';
     this._selectedEntryId = undefined;
     this._refreshTimer = undefined;
+    this._copyStatus = undefined;
     this._boundVisibilityRefresh = () => {
       if (!document.hidden) {
         this._loadState({ force: true });
@@ -242,6 +243,22 @@ class ZeroNetExportPanel extends HTMLElement {
       this._busy = false;
       this._render();
     }
+  }
+
+  async _copySupportSnapshot() {
+    const snapshot = this._entry()?.settings?.support_snapshot;
+    if (!snapshot) {
+      this._copyStatus = 'No support snapshot is available yet.';
+      this._render();
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(snapshot);
+      this._copyStatus = 'Support snapshot copied to clipboard.';
+    } catch (err) {
+      this._copyStatus = `Failed to copy support snapshot: ${err?.message || String(err)}`;
+    }
+    this._render();
   }
 
   _setTab(tab) {
@@ -861,6 +878,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const linkItems = Object.entries(links)
       .map(([key, value]) => `<li><a href="${value}" target="_blank" rel="noreferrer">${key.replaceAll('_', ' ')}</a></li>`)
       .join('');
+    const supportSnapshot = settings.support_snapshot || '';
     return `
       <section class="panel-section">
         <h3>Controller Settings</h3>
@@ -925,6 +943,14 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Integration version:</strong> ${entry?.integration_version || operatorSummary.integration_version || this._state?.integration_version || '—'}</p>
         <p><strong>Config entry version:</strong> ${entry?.config_entry_version ?? operatorSummary.config_entry_version ?? '—'}</p>
         <p><strong>Panel schema version:</strong> ${this._state?.panel_schema_version ?? '—'}</p>
+        <div class="button-row">
+          <button class="action-button secondary" data-action="copy-support-snapshot" ${this._busy ? 'disabled' : ''}>Copy Support Snapshot</button>
+        </div>
+        ${this._copyStatus ? `<p><strong>Copy status:</strong> ${this._copyStatus}</p>` : ''}
+        <label>
+          <span>Support snapshot preview</span>
+          <textarea readonly rows="16">${supportSnapshot}</textarea>
+        </label>
         ${linkItems ? `<ul>${linkItems}</ul>` : '<p>No support links available.</p>'}
       </section>
     `;
@@ -1058,6 +1084,10 @@ class ZeroNetExportPanel extends HTMLElement {
 
     this.shadowRoot.querySelector('[data-action="save-controller"]')?.addEventListener('click', async () => {
       await this._saveControllerFromForm();
+    });
+
+    this.shadowRoot.querySelector('[data-action="copy-support-snapshot"]')?.addEventListener('click', async () => {
+      await this._copySupportSnapshot();
     });
 
     this.shadowRoot.querySelector('[data-action="save-sources"]')?.addEventListener('click', async () => {

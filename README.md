@@ -160,6 +160,7 @@ The backend control engine is substantially built, and the project is now in a l
 - [x] Keep the panel state live enough for daily operation via automatic in-panel refresh while visible
 - [x] Keep release metadata visible and accurate in-panel so operators/support can distinguish packaged integration version from HA config-entry schema version
 - [x] Publish in-panel readiness guidance so operators can see the current setup phase, blockers, and highest-value next step without piecing it together from raw diagnostics
+- [x] Publish an in-panel support snapshot so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
 - [ ] Real-world validation of the rebuilt operator flow
 - [ ] Final install/runtime hardening based on real HA feedback
 

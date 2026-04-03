@@ -72,6 +72,8 @@ Those tabs are now the intended normal operator workflow for source setup, devic
 
 The panel now also publishes an explicit readiness phase, checklist, and recommended next step so operators can tell whether they are blocked on source mapping, source health, device onboarding, or runtime eligibility without mentally stitching together multiple diagnostics sections.
 
+The Settings tab now also provides a copyable support snapshot that condenses release metadata, readiness, mapped-source health, configured-device state, and recent validation issues into one operator-facing text block for support and validation triage.
+
 A first importable Lovelace scaffold now exists at `examples/lovelace/zero_net_export_dashboard.yaml`.
 
 It currently provides:
