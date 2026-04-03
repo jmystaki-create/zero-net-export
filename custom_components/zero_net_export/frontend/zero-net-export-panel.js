@@ -907,7 +907,8 @@ class ZeroNetExportPanel extends HTMLElement {
       <section class="panel-section">
         <h3>Release & Support</h3>
         <p><strong>Entry:</strong> ${operatorSummary.entry_title || entry?.title || 'Not configured'}</p>
-        <p><strong>Integration version:</strong> ${entry?.version ?? '—'}</p>
+        <p><strong>Integration version:</strong> ${entry?.integration_version || operatorSummary.integration_version || this._state?.integration_version || '—'}</p>
+        <p><strong>Config entry version:</strong> ${entry?.config_entry_version ?? operatorSummary.config_entry_version ?? '—'}</p>
         <p><strong>Panel schema version:</strong> ${this._state?.panel_schema_version ?? '—'}</p>
         ${linkItems ? `<ul>${linkItems}</ul>` : '<p>No support links available.</p>'}
       </section>

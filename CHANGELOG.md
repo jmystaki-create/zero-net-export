@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.16] - 2026-04-03
+
+### Fixed
+- Fixed panel and diagnostics release metadata so Zero Net Export now reports the packaged integration version instead of incorrectly showing the Home Assistant config-entry schema version as if it were the release version.
+
+### Changed
+- Panel Settings now shows both the packaged integration version and the Home Assistant config-entry version, making release support and runtime debugging less confusing during the panel-app rebuild.
+- Panel schema advanced to `13` and integration version advanced to `0.1.16` for the release-metadata/runtime support fix.
+
 ## [0.1.15] - 2026-04-03
 
 ### Added

@@ -32,6 +32,7 @@ from .const import (
     CONF_SOLAR_POWER_ENTITY,
     CONF_TARGET_EXPORT_W,
     DOMAIN,
+    INTEGRATION_VERSION,
     MODES,
 )
 from .device_model import (
@@ -58,7 +59,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 12
+PANEL_SCHEMA_VERSION = 13
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -706,7 +707,8 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         },
         "operator_summary": {
             "entry_title": coordinator.entry.title,
-            "entry_version": coordinator.entry.version,
+            "config_entry_version": coordinator.entry.version,
+            "integration_version": INTEGRATION_VERSION,
             "device_count": state.device_count,
             "enabled_device_count": state.enabled_device_count,
             "usable_device_count": state.usable_device_count,
@@ -740,7 +742,8 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
         "entry_id": entry_id,
         "title": coordinator.entry.title,
         "loaded": True,
-        "version": coordinator.entry.version,
+        "config_entry_version": coordinator.entry.version,
+        "integration_version": INTEGRATION_VERSION,
         "overview": overview,
         "setup": setup,
         "devices": devices,
@@ -765,6 +768,7 @@ def _build_panel_state(hass: HomeAssistant) -> dict[str, Any]:
 
     return {
         "domain": DOMAIN,
+        "integration_version": INTEGRATION_VERSION,
         "panel_schema_version": PANEL_SCHEMA_VERSION,
         "generated_at": dt_util.now().isoformat(),
         "entry_count": len(panel_entries),

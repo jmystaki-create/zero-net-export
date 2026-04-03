@@ -147,6 +147,7 @@ The backend control engine is substantially built, but the project is now in an 
 - [x] Add runtime operator controls to the panel for controller tuning and per-device override management
 - [x] Add richer in-panel diagnostics and explanation views for recent actions, source health, and per-device control reasoning
 - [x] Keep the panel state live enough for daily operation via automatic in-panel refresh while visible
+- [x] Keep release metadata visible and accurate in-panel so operators/support can distinguish packaged integration version from HA config-entry schema version
 - [ ] Real-world validation of the rebuilt operator flow
 
 ---

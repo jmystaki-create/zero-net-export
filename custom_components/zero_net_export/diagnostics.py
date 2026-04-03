@@ -25,6 +25,7 @@ from .const import (
     CONF_SOLAR_POWER_ENTITY,
     CONF_TARGET_EXPORT_W,
     DOMAIN,
+    INTEGRATION_VERSION,
 )
 
 REDACT_CONFIG_KEYS = {
@@ -89,7 +90,8 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "entry_id": entry.entry_id,
             "title": entry.title,
             "domain": entry.domain,
-            "version": entry.version,
+            "config_entry_version": entry.version,
+            "integration_version": INTEGRATION_VERSION,
         },
         "config": async_redact_data(dict(entry.data), REDACT_CONFIG_KEYS),
         "options": async_redact_data(dict(entry.options), REDACT_CONFIG_KEYS),

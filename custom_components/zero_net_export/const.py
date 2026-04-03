@@ -1,7 +1,25 @@
 """Constants for Zero Net Export."""
+from __future__ import annotations
+
+import json
+from pathlib import Path
 
 DOMAIN = "zero_net_export"
 PLATFORMS = ["sensor", "switch", "select", "number", "binary_sensor", "button"]
+
+
+def _read_integration_version() -> str:
+    """Return the packaged integration version from manifest.json."""
+    manifest_path = Path(__file__).with_name("manifest.json")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "unknown"
+    version = manifest.get("version")
+    return str(version) if version is not None else "unknown"
+
+
+INTEGRATION_VERSION = _read_integration_version()
 
 CONF_NAME = "name"
 CONF_SOLAR_POWER_ENTITY = "solar_power_entity"
