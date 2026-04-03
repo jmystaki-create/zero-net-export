@@ -77,6 +77,7 @@
 - add operator diagnostics/explanation UX ✅ panel diagnostics now exposes recent action history, source health, calibration hints, and per-device guard/result explanations from the existing backend state
 - add operator settings/release UX ✅ Settings tab now exposes configured defaults, fleet health summary, panel-first workflow guidance, and direct docs/release/support links
 - keep panel runtime state live enough for real daily operation ✅ panel frontend now auto-refreshes while visible and refreshes again on browser-focus return so operators are less likely to act on stale state
+- publish explicit onboarding/readiness guidance in-panel ✅ Setup and Settings now surface a readiness phase, checklist, and recommended next step so operators can see what still blocks panel-first completion
 - replace JSON/YAML-first operator workflow with panel-first workflow
 - retain YAML dashboard as fallback/debugging surface
 

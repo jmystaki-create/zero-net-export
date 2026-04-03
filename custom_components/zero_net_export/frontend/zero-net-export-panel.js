@@ -468,6 +468,7 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _renderSetup(entry) {
     const setup = entry?.setup || {};
+    const readiness = setup.operator_readiness || {};
     const validation = setup.validation || {};
     const sourceMapping = setup.source_mapping || {};
     const sourceDiagnostics = setup.source_diagnostics || validation.source_diagnostics || {};
@@ -520,6 +521,9 @@ class ZeroNetExportPanel extends HTMLElement {
     const hintItems = calibrationHints
       .map((item) => `<li>${item}</li>`)
       .join('');
+    const readinessItems = (readiness.checklist || [])
+      .map((item) => `<li><strong>${item.complete ? '✅' : '⬜'} ${item.label}</strong><br /><span class="muted">${item.detail || ''}</span></li>`)
+      .join('');
 
     return `
       <section class="panel-section">
@@ -529,6 +533,13 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Source mismatch:</strong> ${setup.source_mismatch ? 'Yes' : 'No'}</p>
         <p><strong>Stale source summary:</strong> ${setup.stale_source_summary || '—'}</p>
         <p class="muted">Save source mappings here to reload the integration with validated panel-first setup data.</p>
+      </section>
+      <section class="panel-section">
+        <h3>Operator Readiness</h3>
+        <p><strong>Current phase:</strong> ${readiness.phase || '—'}</p>
+        <p><strong>Status:</strong> ${readiness.summary || 'No readiness summary published yet.'}</p>
+        <p><strong>Next step:</strong> ${readiness.next_step || 'No next-step guidance available yet.'}</p>
+        ${readinessItems ? `<div class="hint-list"><ul>${readinessItems}</ul></div>` : '<p class="muted">No readiness checklist available yet.</p>'}
       </section>
       ${hintItems ? `
       <section class="panel-section">
@@ -841,6 +852,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const configuredDefaults = settings.controller_defaults || {};
     const operatorSummary = settings.operator_summary || {};
     const workflow = settings.workflow || {};
+    const readiness = workflow.readiness || {};
     const links = settings.links || {};
     const modeOptions = MODES.map((mode) => `<option value="${mode.value}" ${overview.mode === mode.value ? 'selected' : ''}>${mode.label}</option>`).join('');
     const workflowItems = (workflow.normal_operator_path || [])
@@ -902,6 +914,9 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Primary operator surface:</strong> ${workflow.panel_primary ? 'Panel app' : 'Not declared'}</p>
         <p><strong>YAML dashboard:</strong> ${workflow.dashboard_fallback_only ? 'Fallback/debug only' : 'Primary surface'}</p>
         <p><strong>JSON options flow:</strong> ${workflow.json_options_fallback_only ? 'Advanced fallback only' : 'Normal path'}</p>
+        <p><strong>Readiness phase:</strong> ${readiness.phase || '—'}</p>
+        <p><strong>Readiness summary:</strong> ${readiness.summary || '—'}</p>
+        <p><strong>Recommended next step:</strong> ${readiness.next_step || '—'}</p>
         ${workflowItems ? `<ul>${workflowItems}</ul>` : '<p>No workflow guidance published yet.</p>'}
       </section>
       <section class="panel-section">

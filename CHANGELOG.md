@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.17] - 2026-04-03
+
+### Added
+- Added an in-panel operator-readiness checklist and next-step summary so the Setup tab now tells operators whether they are blocked on source mapping, source remediation, device onboarding, device usability, or final runtime validation.
+
+### Changed
+- Settings now mirrors the same readiness phase/summary guidance so support and release triage can see the current panel-first onboarding state without inferring it from scattered diagnostics.
+- Panel schema advanced to `14` and integration version advanced to `0.1.17` for the panel onboarding/readiness guidance refresh.
+
 ### Changed
 - README and UX docs now describe the shipped Home Assistant panel as the primary operator path and demote the Lovelace dashboard to fallback/debug status so release-state documentation matches the current panel-app product shape.
 

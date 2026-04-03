@@ -58,6 +58,7 @@ Add / rebuild:
 - source-mapping UI with inline validation
 - operator dashboard optimized for daily use
 - diagnostics / history / explanation views inside the panel
+- explicit setup-readiness / next-step guidance inside the panel so onboarding blockers are visible without reading raw backend state
 - clear separation between onboarding, live operations, warnings, and advanced settings
 
 ## Phases

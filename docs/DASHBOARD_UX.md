@@ -70,6 +70,8 @@ The shipped operator product now centers on the custom Home Assistant panel app 
 
 Those tabs are now the intended normal operator workflow for source setup, device onboarding, daily operation, troubleshooting, and release/support context.
 
+The panel now also publishes an explicit readiness phase, checklist, and recommended next step so operators can tell whether they are blocked on source mapping, source health, device onboarding, or runtime eligibility without mentally stitching together multiple diagnostics sections.
+
 A first importable Lovelace scaffold now exists at `examples/lovelace/zero_net_export_dashboard.yaml`.
 
 It currently provides:

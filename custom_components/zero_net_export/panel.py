@@ -59,7 +59,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 13
+PANEL_SCHEMA_VERSION = 14
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -561,6 +561,122 @@ def _serialize_value(value: Any) -> Any:
     return value
 
 
+def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
+    source_mapping = {
+        CONF_SOLAR_POWER_ENTITY: entry.data.get(CONF_SOLAR_POWER_ENTITY),
+        CONF_SOLAR_ENERGY_ENTITY: entry.data.get(CONF_SOLAR_ENERGY_ENTITY),
+        CONF_GRID_IMPORT_POWER_ENTITY: entry.data.get(CONF_GRID_IMPORT_POWER_ENTITY),
+        CONF_GRID_EXPORT_POWER_ENTITY: entry.data.get(CONF_GRID_EXPORT_POWER_ENTITY),
+        CONF_GRID_IMPORT_ENERGY_ENTITY: entry.data.get(CONF_GRID_IMPORT_ENERGY_ENTITY),
+        CONF_GRID_EXPORT_ENERGY_ENTITY: entry.data.get(CONF_GRID_EXPORT_ENERGY_ENTITY),
+        CONF_HOME_LOAD_POWER_ENTITY: entry.data.get(CONF_HOME_LOAD_POWER_ENTITY),
+        CONF_BATTERY_SOC_ENTITY: entry.data.get(CONF_BATTERY_SOC_ENTITY),
+        CONF_BATTERY_CHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_CHARGE_POWER_ENTITY),
+        CONF_BATTERY_DISCHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY),
+    }
+    required_source_keys = (
+        CONF_SOLAR_POWER_ENTITY,
+        CONF_SOLAR_ENERGY_ENTITY,
+        CONF_GRID_IMPORT_POWER_ENTITY,
+        CONF_GRID_EXPORT_POWER_ENTITY,
+        CONF_GRID_IMPORT_ENERGY_ENTITY,
+        CONF_GRID_EXPORT_ENERGY_ENTITY,
+        CONF_HOME_LOAD_POWER_ENTITY,
+    )
+    missing_required_sources = [key for key in required_source_keys if not source_mapping.get(key)]
+    validation_issues = state.validation_details.get("issues", [])
+    blocking_validation_issues = [
+        issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
+    ]
+
+    checklist = [
+        {
+            "key": "sources_mapped",
+            "label": "Required source mapping complete",
+            "complete": not missing_required_sources,
+            "detail": (
+                "All required solar, grid, and home-load sources are configured."
+                if not missing_required_sources
+                else f"Missing required sources: {', '.join(missing_required_sources)}"
+            ),
+        },
+        {
+            "key": "sources_validated",
+            "label": "Source validation healthy",
+            "complete": not blocking_validation_issues and not state.stale_data,
+            "detail": (
+                "Mapped sources currently validate cleanly enough for runtime control."
+                if not blocking_validation_issues and not state.stale_data
+                else (
+                    f"Blocking validation issues: {len(blocking_validation_issues)}"
+                    if blocking_validation_issues
+                    else "One or more mapped sources are stale."
+                )
+            ),
+        },
+        {
+            "key": "devices_configured",
+            "label": "Controllable devices onboarded",
+            "complete": bool(configured_devices) and not device_parse_issues,
+            "detail": (
+                f"{len(configured_devices)} device(s) configured."
+                if configured_devices and not device_parse_issues
+                else (
+                    f"Device inventory issues: {'; '.join(device_parse_issues[:3])}"
+                    if device_parse_issues
+                    else "No controllable devices configured yet."
+                )
+            ),
+        },
+        {
+            "key": "devices_usable",
+            "label": "At least one device currently usable",
+            "complete": bool(state.usable_device_count),
+            "detail": (
+                f"{state.usable_device_count} usable device(s) available right now."
+                if state.usable_device_count
+                else "No managed devices are currently usable for control."
+            ),
+        },
+    ]
+
+    if missing_required_sources:
+        phase = "source_setup"
+        next_step = "Finish required source mapping in the Setup tab, then save and reload the integration."
+        summary = "Panel onboarding is blocked on missing required source mappings."
+    elif blocking_validation_issues or state.stale_data:
+        phase = "source_remediation"
+        next_step = "Use Setup diagnostics and calibration hints to fix source validation or stale-data issues."
+        summary = "Panel onboarding is waiting on healthy validated source data."
+    elif device_parse_issues:
+        phase = "device_remediation"
+        next_step = "Fix device inventory issues in the Devices tab so the configured fleet parses cleanly."
+        summary = "Panel onboarding is blocked on device inventory validation issues."
+    elif not configured_devices:
+        phase = "device_onboarding"
+        next_step = "Add the first controllable device from the Devices tab using a guided template or custom form."
+        summary = "Sources are ready; the next milestone is guided device onboarding."
+    elif not state.usable_device_count:
+        phase = "runtime_readiness"
+        next_step = "Review per-device explanations in Devices and Diagnostics to unblock at least one usable device."
+        summary = "Configured devices exist, but none are currently eligible for control."
+    elif state.safe_mode:
+        phase = "runtime_readiness"
+        next_step = "Clear the current safe-mode condition before treating the panel as production-ready."
+        summary = "The operator flow is mostly built, but runtime is still held in safe mode."
+    else:
+        phase = "operator_ready"
+        next_step = "Validate the panel-first workflow in a real Home Assistant install and capture any runtime hardening gaps."
+        summary = "Panel onboarding and daily operator controls are available in-app."
+
+    return {
+        "phase": phase,
+        "summary": summary,
+        "next_step": next_step,
+        "checklist": checklist,
+    }
+
+
 def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
     state = coordinator.data
     if state is None:
@@ -627,6 +743,13 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
     }
 
     configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
+    operator_readiness = _build_operator_checklist(
+        state,
+        coordinator.entry,
+        configured_devices,
+        device_parse_issues,
+    )
+    setup["operator_readiness"] = operator_readiness
 
     devices = {
         "device_count": state.device_count,
@@ -728,6 +851,7 @@ def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
                 "Overview tab for daily operation",
                 "Diagnostics tab for explanation and troubleshooting",
             ],
+            "readiness": operator_readiness,
         },
         "links": {
             "documentation": "https://github.com/jmystaki-create/zero-net-export#readme",

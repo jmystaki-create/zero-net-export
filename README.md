@@ -159,6 +159,7 @@ The backend control engine is substantially built, and the project is now in a l
 - [x] Add richer in-panel diagnostics and explanation views for recent actions, source health, and per-device control reasoning
 - [x] Keep the panel state live enough for daily operation via automatic in-panel refresh while visible
 - [x] Keep release metadata visible and accurate in-panel so operators/support can distinguish packaged integration version from HA config-entry schema version
+- [x] Publish in-panel readiness guidance so operators can see the current setup phase, blockers, and highest-value next step without piecing it together from raw diagnostics
 - [ ] Real-world validation of the rebuilt operator flow
 - [ ] Final install/runtime hardening based on real HA feedback
 
