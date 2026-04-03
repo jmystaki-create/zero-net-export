@@ -157,6 +157,9 @@ Use this checklist to validate Zero Net Export in a real Home Assistant environm
 
 ## Dashboard Validation
 
+- [ ] Zero Net Export panel opens from the Home Assistant sidebar without a websocket/bootstrap error
+- [ ] Setup tab loads available source entities and ranked source suggestions
+- [ ] Devices tab loads available device entities and guided entity suggestions
 - [ ] Lovelace YAML imports without errors
 - [ ] All entity IDs resolve to real entities
 - [ ] Controller controls persist across reloads

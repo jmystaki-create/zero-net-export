@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.20] - 2026-04-04
+
+### Fixed
+- Fixed a panel runtime regression in the backend bootstrap path: `zero_net_export/panel/get_state` now builds entry payloads with the active Home Assistant instance instead of throwing a `NameError` when assembling available entities and suggestions.
+
+### Changed
+- Integration version advanced to `0.1.20` for the panel websocket/bootstrap runtime stability fix.
+
 ## [0.1.19] - 2026-04-04
 
 ### Added

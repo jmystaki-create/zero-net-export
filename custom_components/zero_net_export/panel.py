@@ -779,7 +779,7 @@ def _build_support_snapshot(
     return "\n".join(sections)
 
 
-def _entry_panel_payload(entry_id: str, coordinator: Any) -> dict[str, Any]:
+def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -> dict[str, Any]:
     state = coordinator.data
     if state is None:
         return {
@@ -996,7 +996,7 @@ def _build_panel_state(hass: HomeAssistant) -> dict[str, Any]:
     }
 
     panel_entries = [
-        _entry_panel_payload(entry_id, coordinator)
+        _entry_panel_payload(hass, entry_id, coordinator)
         for entry_id, coordinator in coordinators.items()
     ]
     active_entry = panel_entries[0] if panel_entries else None
