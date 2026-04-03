@@ -60,6 +60,16 @@ For each device:
 
 ## Current scaffold status
 
+The shipped operator product now centers on the custom Home Assistant panel app with the following primary sections:
+
+- Overview
+- Setup
+- Devices
+- Diagnostics
+- Settings
+
+Those tabs are now the intended normal operator workflow for source setup, device onboarding, daily operation, troubleshooting, and release/support context.
+
 A first importable Lovelace scaffold now exists at `examples/lovelace/zero_net_export_dashboard.yaml`.
 
 It currently provides:
@@ -69,4 +79,4 @@ It currently provides:
 - fleet summary metrics
 - example fixed-load and variable-load device cards
 
-This plain YAML dashboard is now considered a transitional operator surface only. The project direction has shifted toward a custom panel / app-like frontend, with the YAML dashboard retained as a fallback and debugging surface until the panel experience is ready.
+This plain YAML dashboard is now considered a transitional operator surface only. The project direction has shifted toward a custom panel / app-like frontend, with the YAML dashboard retained as a fallback and debugging surface while real-world panel validation and final runtime hardening continue.

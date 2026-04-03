@@ -23,7 +23,8 @@
 | :--- | :--- |
 | **Install via HACS** | [Add as Custom Repository](https://hacs.xyz/docs/faq/custom_repositories) → `jmystaki-create/zero-net-export` |
 | **Install Manually** | [Copy to `custom_components`](#manual-installation) |
-| **Set up the Dashboard** | [Dashboard Setup Guide](docs/DASHBOARD_SETUP.md) |
+| **Open the Operator App** | Install the integration, restart Home Assistant, then open **Zero Net Export** from the sidebar |
+| **Use the fallback dashboard** | [Dashboard Setup Guide](docs/DASHBOARD_SETUP.md) |
 | **Understand the Logic** | [Control Loop Architecture](docs/CONTROL_LOOP.md) |
 
 ---
@@ -87,14 +88,23 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## ⚙️ Configuration
 
+### Primary operator path: panel app
+
 1.  Add the **Zero Net Export** integration.
-2.  **Map your source entities**:
+2.  Open **Zero Net Export** from the Home Assistant sidebar.
+3.  Use the **Setup** tab to map your source entities:
     - Solar Power
     - Grid Import/Export Power
     - Home Load Power
     - (Optional) Battery Entities
-3.  Set your **Target Export** (e.g., `0W`) and **Deadband**.
-4.  Configure your **controllable devices** (fixed or variable loads).
+4.  Use the **Devices** tab to add and manage controllable devices with the guided panel editor.
+5.  Use the **Settings** tab to review runtime defaults and release/support information.
+6.  Use **Overview** and **Diagnostics** for daily operation, warnings, and explanation.
+
+### Advanced / fallback paths
+
+- The Home Assistant config flow still establishes the backend entry and core source mapping.
+- The Lovelace YAML dashboard remains available as a fallback/debugging surface, not the primary intended operator UX.
 
 ---
 
@@ -104,12 +114,12 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | :--- | :--- |
 | [Architecture](docs/ARCHITECTURE.md) | System design and component overview |
 | [Control Loop](docs/CONTROL_LOOP.md) | How the optimization logic works |
-| [Dashboard Setup](docs/DASHBOARD_SETUP.md) | How to install the Lovelace UI |
+| [Panel-App Rebuild Plan](docs/PANEL_APP_REBUILD_PLAN.md) | New app-first direction and rebuild phases |
+| [Panel App Technical Design](docs/PANEL_APP_TECHNICAL_DESIGN.md) | App sections, backend contract, and delivery milestones |
+| [Dashboard Setup](docs/DASHBOARD_SETUP.md) | How to install the fallback/debug Lovelace UI |
 | [Entity Model](docs/ENTITY_MODEL.md) | List of all created entities |
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
-| [Panel-App Rebuild Plan](docs/PANEL_APP_REBUILD_PLAN.md) | New app-first direction and rebuild phases |
-| [Panel App Technical Design](docs/PANEL_APP_TECHNICAL_DESIGN.md) | App sections, backend contract, and delivery milestones |
 | [Release Process](docs/RELEASE_PROCESS.md) | Versioning, changelog, tags, and release workflow |
 | [Branding](docs/BRANDING.md) | Logo usage and HACS / Home Assistant branding notes |
 | [Changelog](CHANGELOG.md) | User-visible changes by version |
@@ -129,7 +139,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, but the project is now in an active **stabilization + app-first rebuild** phase focused on delivering a comprehensive UI for setup, device management, operation, and diagnostics.
+The backend control engine is substantially built, and the project is now in a late **stabilization + app-first rebuild** phase focused on validating and hardening the shipped panel-first operator workflow in real Home Assistant installs.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
@@ -139,6 +149,7 @@ The backend control engine is substantially built, but the project is now in an 
 - [x] MIT license
 - [ ] Stabilize install/runtime behavior in real Home Assistant environments
 - [x] Ship the first panel-style app shell in Home Assistant
+- [x] Make the panel the primary intended operator UX for setup, devices, operation, diagnostics, and release/support context
 - [x] Add full add/edit/remove device workflows to the panel so operators no longer need raw JSON for normal setup
 - [x] Add guided device onboarding presets and direct edit flows so normal device setup feels panel-native instead of form spelunking
 - [x] Add guided source mapping to the panel so operators can complete source setup in the app
@@ -149,6 +160,7 @@ The backend control engine is substantially built, but the project is now in an 
 - [x] Keep the panel state live enough for daily operation via automatic in-panel refresh while visible
 - [x] Keep release metadata visible and accurate in-panel so operators/support can distinguish packaged integration version from HA config-entry schema version
 - [ ] Real-world validation of the rebuilt operator flow
+- [ ] Final install/runtime hardening based on real HA feedback
 
 ---
 

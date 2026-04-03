@@ -9,6 +9,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+### Changed
+- README and UX docs now describe the shipped Home Assistant panel as the primary operator path and demote the Lovelace dashboard to fallback/debug status so release-state documentation matches the current panel-app product shape.
+
 ## [0.1.16] - 2026-04-03
 
 ### Fixed
