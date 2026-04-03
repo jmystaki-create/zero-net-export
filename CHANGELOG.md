@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.19] - 2026-04-04
+
+### Added
+- Added template-aware device entity suggestions in the panel Devices editor so operators can pick likely switch/number targets for hot water, pool, EV charger, battery-charge, and smart-plug workflows without hunting through a flat entity list.
+
+### Changed
+- Device onboarding in the panel now ranks likely entity matches by device kind plus template keywords, making the panel-first add/edit flow more guided and reducing fallback to raw JSON/options spelunking.
+- Panel schema advanced to `16` and integration version advanced to `0.1.19` for the guided device-entity suggestion refresh.
+
 ## [0.1.18] - 2026-04-04
 
 ### Added

@@ -71,6 +71,7 @@
 - add panel registration and frontend shell ✅ first sidebar panel shell and websocket bootstrap state delivered
 - add runtime operator mutations in-panel ✅ controller runtime overrides and per-device enable/priority overrides now flow through panel websocket commands instead of staying read-only
 - create guided source/device setup UX ✅ initial panel source-mapping save flow now validates and persists source entities plus refresh interval from the Setup tab
+- guided device entity suggestions ✅ Devices tab now ranks likely switch/number targets using kind + template hints so guided onboarding does not depend on scanning a flat entity list
 - guided source remediation detail ✅ Setup now also surfaces mapped-source readings, units, device/state class metadata, and validation issues so operators can debug bad mappings inside the panel
 - guided source suggestions ✅ Setup now ranks likely Home Assistant sensors per source role so panel-first onboarding does not depend on scanning a flat entity list manually
 - replace raw device inventory JSON for normal setup ✅ first panel-side add/edit/remove device inventory management now persists validated fixed/variable devices through structured panel forms

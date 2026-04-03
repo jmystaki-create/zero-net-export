@@ -16,6 +16,7 @@ const DEVICE_TEMPLATES = [
     key: 'hot_water',
     label: 'Hot Water Diverter',
     description: 'Fixed resistive load such as a hot water service or relay-controlled heater.',
+    entity_terms: ['hot water', 'heater', 'boost', 'tank', 'immersion'],
     values: {
       name: 'Hot Water',
       kind: 'fixed',
@@ -36,6 +37,7 @@ const DEVICE_TEMPLATES = [
     key: 'pool_pump',
     label: 'Pool Pump',
     description: 'Fixed load with longer run windows and anti-flap protection.',
+    entity_terms: ['pool', 'pump', 'filtration', 'circulation'],
     values: {
       name: 'Pool Pump',
       kind: 'fixed',
@@ -56,6 +58,7 @@ const DEVICE_TEMPLATES = [
     key: 'ev_charger',
     label: 'EV Charger',
     description: 'Variable charger current/power target exposed through a number entity.',
+    entity_terms: ['ev', 'charger', 'charging', 'charge limit', 'current limit', 'amps'],
     values: {
       name: 'EV Charger',
       kind: 'variable',
@@ -76,6 +79,7 @@ const DEVICE_TEMPLATES = [
     key: 'battery_charge_sink',
     label: 'Battery Charge Sink',
     description: 'Variable battery/inverter charge target used to absorb surplus while respecting reserve rules.',
+    entity_terms: ['battery', 'charge', 'charging', 'inverter', 'target', 'limit'],
     values: {
       name: 'Battery Charge Sink',
       kind: 'variable',
@@ -96,6 +100,7 @@ const DEVICE_TEMPLATES = [
     key: 'smart_plug_load',
     label: 'Smart Plug Load',
     description: 'Small fixed discretionary load such as a dryer, dehumidifier, or heater on a smart plug.',
+    entity_terms: ['plug', 'smart plug', 'dryer', 'heater', 'dehumidifier', 'load'],
     values: {
       name: 'Smart Plug Load',
       kind: 'fixed',
@@ -441,6 +446,44 @@ class ZeroNetExportPanel extends HTMLElement {
     return (entry?.devices?.available_entities || []).filter((item) => domains.includes(item.domain));
   }
 
+  _scoreDeviceEntity(entity, kind, template) {
+    let score = 0;
+    const haystack = `${entity?.entity_id || ''} ${entity?.label || ''}`.toLowerCase();
+
+    if (kind === 'variable') {
+      if (['number', 'input_number'].includes(entity?.domain)) {
+        score += 40;
+      }
+      if (haystack.includes('power') || haystack.includes('current') || haystack.includes('limit') || haystack.includes('target')) {
+        score += 12;
+      }
+    } else {
+      if (['switch', 'input_boolean'].includes(entity?.domain)) {
+        score += 40;
+      }
+      if (haystack.includes('switch') || haystack.includes('relay') || haystack.includes('plug')) {
+        score += 12;
+      }
+    }
+
+    for (const term of template?.entity_terms || []) {
+      if (haystack.includes(term.toLowerCase())) {
+        score += 10;
+      }
+    }
+
+    return score;
+  }
+
+  _deviceEntitySuggestions(entry, kind) {
+    const template = this._deviceTemplate();
+    return this._deviceEntityOptions(entry, kind)
+      .map((item) => ({ ...item, score: this._scoreDeviceEntity(item, kind, template) }))
+      .filter((item) => item.score > 0)
+      .sort((a, b) => (b.score - a.score) || a.entity_id.localeCompare(b.entity_id))
+      .slice(0, 6);
+  }
+
   _readNumber(selector, fallback = 0) {
     const raw = this.shadowRoot.querySelector(selector)?.value;
     if (raw === '' || raw === null || raw === undefined) {
@@ -603,9 +646,11 @@ class ZeroNetExportPanel extends HTMLElement {
     const adapterOptions = this._deviceAdapterOptions(entry, selectedKind)
       .map((item) => `<option value="${item.key}" ${this._deviceFormValue(entry, 'adapter', '') === item.key ? 'selected' : ''}>${item.label}</option>`)
       .join('');
-    const entityOptions = this._deviceEntityOptions(entry, selectedKind)
+    const deviceEntityOptions = this._deviceEntityOptions(entry, selectedKind);
+    const entityOptions = deviceEntityOptions
       .map((item) => `<option value="${item.entity_id}">${item.label}</option>`)
       .join('');
+    const entitySuggestions = this._deviceEntitySuggestions(entry, selectedKind);
     const deviceChooser = configured
       .map((item) => `<option value="${item.key}" ${this._editingDeviceKey === item.key ? 'selected' : ''}>${item.name}</option>`)
       .join('');
@@ -688,6 +733,14 @@ class ZeroNetExportPanel extends HTMLElement {
           <label>
             <span>Entity</span>
             <input list="device-entity-options" id="device-entity-id" value="${this._deviceFormValue(entry, 'entity_id', '')}" placeholder="switch.hot_water" ${this._busy ? 'disabled' : ''} />
+            ${entitySuggestions.length
+              ? `<div class="suggestion-block">
+                  <div class="suggestion-label">Suggested ${selectedKind === 'variable' ? 'control targets' : 'switchable loads'}${template ? ` for ${template.label}` : ''}</div>
+                  <div class="chip-row">
+                    ${entitySuggestions.map((item) => `<button type="button" class="suggestion-chip" data-device-entity="${item.entity_id}" ${this._busy ? 'disabled' : ''}>${item.label}</button>`).join('')}
+                  </div>
+                </div>`
+              : `<div class="suggestion-block muted">No obvious ${selectedKind === 'variable' ? 'number' : 'switch'} entity matches detected yet.</div>`}
           </label>
           <label>
             <span>Adapter</span>
@@ -1099,6 +1152,15 @@ class ZeroNetExportPanel extends HTMLElement {
         const input = this.shadowRoot.querySelector(`#source-${button.dataset.sourceField}`);
         if (input) {
           input.value = button.dataset.sourceEntity || '';
+        }
+      });
+    });
+
+    this.shadowRoot.querySelectorAll('[data-device-entity]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const input = this.shadowRoot.querySelector('#device-entity-id');
+        if (input) {
+          input.value = button.dataset.deviceEntity || '';
         }
       });
     });
