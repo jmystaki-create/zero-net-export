@@ -250,6 +250,31 @@ class ZeroNetExportPanel extends HTMLElement {
     }
   }
 
+  _copyTextFallback(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'readonly');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    textarea.style.pointerEvents = 'none';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+
+    let copied = false;
+    try {
+      copied = document.execCommand('copy');
+    } catch (err) {
+      copied = false;
+    } finally {
+      document.body.removeChild(textarea);
+    }
+
+    return copied;
+  }
+
   async _copySupportSnapshot() {
     const snapshot = this._entry()?.settings?.support_snapshot;
     if (!snapshot) {
@@ -258,10 +283,20 @@ class ZeroNetExportPanel extends HTMLElement {
       return;
     }
     try {
-      await navigator.clipboard.writeText(snapshot);
-      this._copyStatus = 'Support snapshot copied to clipboard.';
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(snapshot);
+        this._copyStatus = 'Support snapshot copied to clipboard.';
+      } else if (this._copyTextFallback(snapshot)) {
+        this._copyStatus = 'Support snapshot copied to clipboard.';
+      } else {
+        this._copyStatus = 'Clipboard access is blocked here. Copy manually from the preview below.';
+      }
     } catch (err) {
-      this._copyStatus = `Failed to copy support snapshot: ${err?.message || String(err)}`;
+      if (this._copyTextFallback(snapshot)) {
+        this._copyStatus = 'Support snapshot copied to clipboard.';
+      } else {
+        this._copyStatus = `Failed to copy support snapshot automatically: ${err?.message || String(err)}. Copy manually from the preview below.`;
+      }
     }
     this._render();
   }

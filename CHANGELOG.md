@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.24] - 2026-04-05
+
+### Fixed
+- Hardened the panel support-snapshot copy action for real Home Assistant/browser contexts by falling back to legacy clipboard copy when `navigator.clipboard` is unavailable or blocked, so operators can more reliably copy a diagnostics summary into Discord and issue reports from the panel.
+
+### Changed
+- Panel schema advanced to `19` and integration version advanced to `0.1.24` for the panel support-copy reliability refresh.
+
 ## [0.1.23] - 2026-04-04
 
 ### Fixed
