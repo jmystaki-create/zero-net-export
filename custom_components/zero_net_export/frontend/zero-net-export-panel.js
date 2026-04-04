@@ -302,9 +302,22 @@ class ZeroNetExportPanel extends HTMLElement {
     return this._entry()?.entry_id;
   }
 
+  _escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  _escapeAttr(value) {
+    return this._escapeHtml(value);
+  }
+
   _metric(label, value, suffix = '') {
     const safeValue = value === null || value === undefined || value === '' ? '—' : `${value}${suffix}`;
-    return `<div class="metric"><div class="label">${label}</div><div class="value">${safeValue}</div></div>`;
+    return `<div class="metric"><div class="label">${this._escapeHtml(label)}</div><div class="value">${this._escapeHtml(safeValue)}</div></div>`;
   }
 
   _formatDateTime(value) {
@@ -521,15 +534,15 @@ class ZeroNetExportPanel extends HTMLElement {
       </section>
       <section class="panel-section">
         <h3>Controller</h3>
-        <p><strong>Mode:</strong> ${overview.mode || '—'}</p>
-        <p><strong>Status:</strong> ${overview.status || '—'}</p>
-        <p><strong>Health:</strong> ${overview.health_status || '—'}</p>
+        <p><strong>Mode:</strong> ${this._escapeHtml(overview.mode || '—')}</p>
+        <p><strong>Status:</strong> ${this._escapeHtml(overview.status || '—')}</p>
+        <p><strong>Health:</strong> ${this._escapeHtml(overview.health_status || '—')}</p>
         <p><strong>Enabled:</strong> ${overview.enabled ? 'Yes' : 'No'}</p>
-        <p><strong>Target export:</strong> ${overview.target_export_w ?? '—'} W</p>
-        <p><strong>Deadband:</strong> ${overview.deadband_w ?? '—'} W</p>
-        <p><strong>Battery reserve:</strong> ${overview.battery_reserve_soc ?? '—'} %</p>
-        <p><strong>Reason:</strong> ${overview.reason || '—'}</p>
-        <p><strong>Recommendation:</strong> ${overview.recommendation || '—'}</p>
+        <p><strong>Target export:</strong> ${this._escapeHtml(overview.target_export_w ?? '—')} W</p>
+        <p><strong>Deadband:</strong> ${this._escapeHtml(overview.deadband_w ?? '—')} W</p>
+        <p><strong>Battery reserve:</strong> ${this._escapeHtml(overview.battery_reserve_soc ?? '—')} %</p>
+        <p><strong>Reason:</strong> ${this._escapeHtml(overview.reason || '—')}</p>
+        <p><strong>Recommendation:</strong> ${this._escapeHtml(overview.recommendation || '—')}</p>
       </section>
       <section class="panel-section">
         <h3>Quick Actions</h3>
@@ -551,7 +564,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const sourceSuggestions = setup.entity_suggestions || {};
     const calibrationHints = setup.calibration_hints || validation.calibration_hints || [];
     const entityOptions = (setup.available_entities || [])
-      .map((item) => `<option value="${item.entity_id}">${item.label}</option>`)
+      .map((item) => `<option value="${this._escapeAttr(item.entity_id)}">${this._escapeHtml(item.label)}</option>`)
       .join('');
     const sourceInputs = SOURCE_FIELDS.map((field) => `
       <label>
@@ -559,15 +572,15 @@ class ZeroNetExportPanel extends HTMLElement {
         <input
           list="source-entity-options"
           id="source-${field.key}"
-          value="${sourceMapping[field.key] || ''}"
+          value="${this._escapeAttr(sourceMapping[field.key] || '')}"
           placeholder="sensor.example_${field.key}"
           ${this._busy ? 'disabled' : ''}
         />
         ${((sourceSuggestions[field.key]?.items || []).length)
           ? `<div class="suggestion-block">
-              <div class="suggestion-label">Suggested matches · ${sourceSuggestions[field.key]?.description || ''}</div>
+              <div class="suggestion-label">Suggested matches · ${this._escapeHtml(sourceSuggestions[field.key]?.description || '')}</div>
               <div class="chip-row">
-                ${(sourceSuggestions[field.key].items || []).map((item) => `<button type="button" class="suggestion-chip" data-source-field="${field.key}" data-source-entity="${item.entity_id}" ${this._busy ? 'disabled' : ''}>${item.label}</button>`).join('')}
+                ${(sourceSuggestions[field.key].items || []).map((item) => `<button type="button" class="suggestion-chip" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(item.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(item.label)}</button>`).join('')}
               </div>
             </div>`
           : `<div class="suggestion-block muted">No obvious ${field.label.toLowerCase()} candidates detected yet.</div>`}
@@ -575,27 +588,27 @@ class ZeroNetExportPanel extends HTMLElement {
     `).join('');
     const sourceFreshness = validation.source_freshness || {};
     const freshnessRows = Object.entries(sourceFreshness)
-      .map(([key, item]) => `<tr><td>${key}</td><td>${item.entity_id || '—'}</td><td>${item.stale ? 'Stale' : 'OK'}</td><td>${item.age_seconds ?? '—'}</td></tr>`)
+      .map(([key, item]) => `<tr><td>${this._escapeHtml(key)}</td><td>${this._escapeHtml(item.entity_id || '—')}</td><td>${item.stale ? 'Stale' : 'OK'}</td><td>${this._escapeHtml(item.age_seconds ?? '—')}</td></tr>`)
       .join('');
     const diagnosticRows = Object.entries(sourceDiagnostics)
       .map(([key, item]) => {
         const issueSummary = Array.isArray(item.issues) && item.issues.length
-          ? item.issues.map((issue) => `${issue.severity}: ${issue.message}`).join(' · ')
+          ? item.issues.map((issue) => `${this._escapeHtml(issue.severity)}: ${this._escapeHtml(issue.message)}`).join(' · ')
           : 'No issues reported';
         return `<tr>
-          <td>${key}</td>
-          <td>${item.entity_id || '—'}</td>
-          <td>${item.status || '—'}</td>
-          <td>${item.value ?? item.raw_state ?? '—'}</td>
-          <td>${item.unit || '—'}</td>
-          <td>${item.device_class || '—'}</td>
-          <td>${item.state_class || '—'}</td>
+          <td>${this._escapeHtml(key)}</td>
+          <td>${this._escapeHtml(item.entity_id || '—')}</td>
+          <td>${this._escapeHtml(item.status || '—')}</td>
+          <td>${this._escapeHtml(item.value ?? item.raw_state ?? '—')}</td>
+          <td>${this._escapeHtml(item.unit || '—')}</td>
+          <td>${this._escapeHtml(item.device_class || '—')}</td>
+          <td>${this._escapeHtml(item.state_class || '—')}</td>
           <td>${issueSummary}</td>
         </tr>`;
       })
       .join('');
     const hintItems = calibrationHints
-      .map((item) => `<li>${item}</li>`)
+      .map((item) => `<li>${this._escapeHtml(item)}</li>`)
       .join('');
     const readinessItems = (readiness.checklist || [])
       .map((item) => `<li><strong>${item.complete ? '✅' : '⬜'} ${item.label}</strong><br /><span class="muted">${item.detail || ''}</span></li>`)
@@ -604,17 +617,17 @@ class ZeroNetExportPanel extends HTMLElement {
     return `
       <section class="panel-section">
         <h3>Setup & Validation</h3>
-        <p><strong>Diagnostic summary:</strong> ${setup.diagnostic_summary || '—'}</p>
+        <p><strong>Diagnostic summary:</strong> ${this._escapeHtml(setup.diagnostic_summary || '—')}</p>
         <p><strong>Stale data:</strong> ${setup.stale_data ? 'Yes' : 'No'}</p>
         <p><strong>Source mismatch:</strong> ${setup.source_mismatch ? 'Yes' : 'No'}</p>
-        <p><strong>Stale source summary:</strong> ${setup.stale_source_summary || '—'}</p>
+        <p><strong>Stale source summary:</strong> ${this._escapeHtml(setup.stale_source_summary || '—')}</p>
         <p class="muted">Save source mappings here to reload the integration with validated panel-first setup data.</p>
       </section>
       <section class="panel-section">
         <h3>Operator Readiness</h3>
-        <p><strong>Current phase:</strong> ${readiness.phase || '—'}</p>
-        <p><strong>Status:</strong> ${readiness.summary || 'No readiness summary published yet.'}</p>
-        <p><strong>Next step:</strong> ${readiness.next_step || 'No next-step guidance available yet.'}</p>
+        <p><strong>Current phase:</strong> ${this._escapeHtml(readiness.phase || '—')}</p>
+        <p><strong>Status:</strong> ${this._escapeHtml(readiness.summary || 'No readiness summary published yet.')}</p>
+        <p><strong>Next step:</strong> ${this._escapeHtml(readiness.next_step || 'No next-step guidance available yet.')}</p>
         ${readinessItems ? `<div class="hint-list"><ul>${readinessItems}</ul></div>` : '<p class="muted">No readiness checklist available yet.</p>'}
       </section>
       ${hintItems ? `
@@ -660,21 +673,21 @@ class ZeroNetExportPanel extends HTMLElement {
     const template = this._deviceTemplate();
     const selectedKind = this._deviceKindValue(entry);
     const adapterOptions = this._deviceAdapterOptions(entry, selectedKind)
-      .map((item) => `<option value="${item.key}" ${this._deviceFormValue(entry, 'adapter', '') === item.key ? 'selected' : ''}>${item.label}</option>`)
+      .map((item) => `<option value="${this._escapeAttr(item.key)}" ${this._deviceFormValue(entry, 'adapter', '') === item.key ? 'selected' : ''}>${this._escapeHtml(item.label)}</option>`)
       .join('');
     const deviceEntityOptions = this._deviceEntityOptions(entry, selectedKind);
     const entityOptions = deviceEntityOptions
-      .map((item) => `<option value="${item.entity_id}">${item.label}</option>`)
+      .map((item) => `<option value="${this._escapeAttr(item.entity_id)}">${this._escapeHtml(item.label)}</option>`)
       .join('');
     const entitySuggestions = this._deviceEntitySuggestions(entry, selectedKind);
     const deviceChooser = configured
-      .map((item) => `<option value="${item.key}" ${this._editingDeviceKey === item.key ? 'selected' : ''}>${item.name}</option>`)
+      .map((item) => `<option value="${this._escapeAttr(item.key)}" ${this._editingDeviceKey === item.key ? 'selected' : ''}>${this._escapeHtml(item.name)}</option>`)
       .join('');
     const rows = (devices.items || [])
       .map((item) => `
         <tr>
-          <td>${item.name || item.key || '—'}</td>
-          <td>${item.kind || '—'}</td>
+          <td>${this._escapeHtml(item.name || item.key || '—')}</td>
+          <td>${this._escapeHtml(item.kind || '—')}</td>
           <td>${item.usable ? 'Usable' : 'Blocked'}</td>
           <td>${item.current_power_w ?? '—'}</td>
           <td>
@@ -692,7 +705,7 @@ class ZeroNetExportPanel extends HTMLElement {
               <span>${item.effective_enabled ? 'Enabled' : 'Disabled'}</span>
             </label>
           </td>
-          <td>${item.reason || '—'}</td>
+          <td>${this._escapeHtml(item.reason || '—')}</td>
           <td>
             <button class="small-button" data-edit-device="${item.key}" ${this._busy ? 'disabled' : ''}>Edit</button>
             <button class="small-button secondary" data-reset-device="${item.key}" ${this._busy ? 'disabled' : ''}>Reset</button>
@@ -701,7 +714,7 @@ class ZeroNetExportPanel extends HTMLElement {
       .join('');
 
     const templateOptions = DEVICE_TEMPLATES
-      .map((item) => `<option value="${item.key}" ${this._selectedTemplateKey === item.key ? 'selected' : ''}>${item.label}</option>`)
+      .map((item) => `<option value="${this._escapeAttr(item.key)}" ${this._selectedTemplateKey === item.key ? 'selected' : ''}>${this._escapeHtml(item.label)}</option>`)
       .join('');
 
     const activeConfig = this._activeDeviceConfig(entry);
@@ -714,7 +727,7 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Devices:</strong> ${devices.device_count ?? 0} total / ${devices.usable_device_count ?? 0} usable</p>
         <p><strong>Nominal power:</strong> ${devices.controllable_nominal_power_w ?? '—'} W</p>
         <p class="muted">Add, edit, and remove devices here so normal setup no longer depends on raw JSON in the options flow.</p>
-        ${(devices.parse_issues || []).length ? `<p class="error"><strong>Inventory issues:</strong> ${(devices.parse_issues || []).join(' · ')}</p>` : ''}
+        ${(devices.parse_issues || []).length ? `<p class="error"><strong>Inventory issues:</strong> ${(devices.parse_issues || []).map((issue) => this._escapeHtml(issue)).join(' · ')}</p>` : ''}
       </section>
       <section class="panel-section">
         <h3>Device Editor</h3>
@@ -728,7 +741,7 @@ class ZeroNetExportPanel extends HTMLElement {
             </select>
           </label>
         </div>
-        ${template ? `<div class="hint-list"><strong>${template.label}</strong><p class="muted">${template.description}</p></div>` : '<p class="muted">Pick a template to prefill a common device profile, then point it at the correct Home Assistant entity.</p>'}
+        ${template ? `<div class="hint-list"><strong>${this._escapeHtml(template.label)}</strong><p class="muted">${this._escapeHtml(template.description)}</p></div>` : '<p class="muted">Pick a template to prefill a common device profile, then point it at the correct Home Assistant entity.</p>'}
         <div class="form-grid">
           <label>
             <span>Edit Device</span>
@@ -749,12 +762,12 @@ class ZeroNetExportPanel extends HTMLElement {
           </label>
           <label>
             <span>Entity</span>
-            <input list="device-entity-options" id="device-entity-id" value="${this._deviceFormValue(entry, 'entity_id', '')}" placeholder="switch.hot_water" ${this._busy ? 'disabled' : ''} />
+            <input list="device-entity-options" id="device-entity-id" value="${this._escapeAttr(this._deviceFormValue(entry, 'entity_id', ''))}" placeholder="switch.hot_water" ${this._busy ? 'disabled' : ''} />
             ${entitySuggestions.length
               ? `<div class="suggestion-block">
                   <div class="suggestion-label">Suggested ${selectedKind === 'variable' ? 'control targets' : 'switchable loads'}${template ? ` for ${template.label}` : ''}</div>
                   <div class="chip-row">
-                    ${entitySuggestions.map((item) => `<button type="button" class="suggestion-chip" data-device-entity="${item.entity_id}" ${this._busy ? 'disabled' : ''}>${item.label}</button>`).join('')}
+                    ${entitySuggestions.map((item) => `<button type="button" class="suggestion-chip" data-device-entity="${this._escapeAttr(item.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(item.label)}</button>`).join('')}
                   </div>
                 </div>`
               : `<div class="suggestion-block muted">No obvious ${selectedKind === 'variable' ? 'number' : 'switch'} entity matches detected yet.</div>`}
@@ -819,9 +832,9 @@ class ZeroNetExportPanel extends HTMLElement {
       ${activeConfig ? `
       <section class="panel-section">
         <h3>Selected Device Configuration</h3>
-        <p><strong>Name:</strong> ${activeConfig.name || '—'}</p>
-        <p><strong>Entity:</strong> ${activeConfig.entity_id || '—'}</p>
-        <p><strong>Kind / Adapter:</strong> ${activeConfig.kind || '—'} / ${activeConfig.adapter || '—'}</p>
+        <p><strong>Name:</strong> ${this._escapeHtml(activeConfig.name || '—')}</p>
+        <p><strong>Entity:</strong> ${this._escapeHtml(activeConfig.entity_id || '—')}</p>
+        <p><strong>Kind / Adapter:</strong> ${this._escapeHtml(activeConfig.kind || '—')} / ${this._escapeHtml(activeConfig.adapter || '—')}</p>
         <p><strong>Configured enabled:</strong> ${activeConfig.enabled ? 'Yes' : 'No'}${activeRuntime && activeRuntime.operator_enabled_override !== null && activeRuntime.operator_enabled_override !== undefined ? ` · runtime override ${activeRuntime.operator_enabled_override ? 'enabled' : 'disabled'}` : ''}</p>
         <p><strong>Configured priority:</strong> ${activeConfig.priority ?? '—'}${activeRuntime && activeRuntime.operator_priority_override !== null && activeRuntime.operator_priority_override !== undefined ? ` · runtime override ${activeRuntime.operator_priority_override}` : ''}</p>
         <p><strong>Power model:</strong> nominal ${activeConfig.nominal_power_w ?? '—'} W · min ${activeConfig.min_power_w ?? '—'} W · max ${activeConfig.max_power_w ?? '—'} W · step ${activeConfig.step_w ?? '—'} W</p>
@@ -831,17 +844,17 @@ class ZeroNetExportPanel extends HTMLElement {
       ${activeRuntime ? `
       <section class="panel-section">
         <h3>Selected Device Runtime</h3>
-        <p><strong>Status:</strong> ${activeRuntime.status || '—'}</p>
+        <p><strong>Status:</strong> ${this._escapeHtml(activeRuntime.status || '—')}</p>
         <p><strong>Usable:</strong> ${activeRuntime.usable ? 'Yes' : 'No'}</p>
-        <p><strong>Reason:</strong> ${activeRuntime.reason || '—'}</p>
+        <p><strong>Reason:</strong> ${this._escapeHtml(activeRuntime.reason || '—')}</p>
         <p><strong>Observed active:</strong> ${activeRuntime.observed_active ? 'Yes' : 'No'}</p>
         <p><strong>Effective enabled / priority:</strong> ${activeRuntime.effective_enabled ? 'Enabled' : 'Disabled'} / ${activeRuntime.effective_priority ?? '—'}</p>
         <p><strong>Current power:</strong> ${activeRuntime.current_power_w ?? '—'} W</p>
         <p><strong>Current target:</strong> ${activeRuntime.current_target_power_w ?? '—'} W</p>
         <p><strong>Active runtime:</strong> ${activeRuntime.current_active_seconds ?? '—'} s</p>
         <p><strong>Planned action:</strong> ${activeRuntime.planned_action || 'hold'} (${activeRuntime.planned_requested_power_w ?? '—'} W)</p>
-        <p><strong>Guard:</strong> ${activeRuntime.guard_status || '—'}</p>
-        <p><strong>Last result:</strong> ${activeRuntime.last_action_status || '—'} · ${activeRuntime.last_action_result_message || 'No recorded action yet.'}</p>
+        <p><strong>Guard:</strong> ${this._escapeHtml(activeRuntime.guard_status || '—')}</p>
+        <p><strong>Last result:</strong> ${this._escapeHtml(activeRuntime.last_action_status || '—')} · ${this._escapeHtml(activeRuntime.last_action_result_message || 'No recorded action yet.')}</p>
         <p><strong>Successful actions:</strong> ${activeRuntime.successful_action_count ?? 0} · <strong>Failed actions:</strong> ${activeRuntime.failed_action_count ?? 0}</p>
       </section>` : ''}
       <section class="panel-section">
@@ -858,12 +871,12 @@ class ZeroNetExportPanel extends HTMLElement {
     const actionRows = (diagnostics.action_history || [])
       .map((item) => `
         <tr>
-          <td>${this._formatDateTime(item.at)}</td>
-          <td>${item.name || item.device_key || '—'}</td>
-          <td>${item.action || '—'}</td>
+          <td>${this._escapeHtml(this._formatDateTime(item.at))}</td>
+          <td>${this._escapeHtml(item.name || item.device_key || '—')}</td>
+          <td>${this._escapeHtml(item.action || '—')}</td>
           <td>${item.success ? 'Success' : 'Failed'}</td>
           <td>${item.requested_power_w ?? '—'}</td>
-          <td>${item.message || '—'}</td>
+          <td>${this._escapeHtml(item.message || '—')}</td>
         </tr>`)
       .join('');
     const sourceRows = Object.entries(diagnostics.source_diagnostics || {})
@@ -872,9 +885,9 @@ class ZeroNetExportPanel extends HTMLElement {
         const issues = this._formatIssueList(item.issues);
         return `
           <tr>
-            <td>${key}</td>
-            <td>${item.entity_id || '—'}</td>
-            <td>${item.status || '—'}</td>
+            <td>${this._escapeHtml(key)}</td>
+            <td>${this._escapeHtml(item.entity_id || '—')}</td>
+            <td>${this._escapeHtml(item.status || '—')}</td>
             <td>${freshness.stale ? 'Stale' : 'OK'}</td>
             <td>${freshness.age_seconds ?? '—'}</td>
             <td>${issues || '—'}</td>
@@ -884,42 +897,42 @@ class ZeroNetExportPanel extends HTMLElement {
     const deviceRows = (diagnostics.device_items || [])
       .map((item) => `
         <tr>
-          <td>${item.name || item.key || '—'}</td>
-          <td>${item.planned_action || 'hold'}</td>
-          <td>${item.guard_status || '—'}</td>
+          <td>${this._escapeHtml(item.name || item.key || '—')}</td>
+          <td>${this._escapeHtml(item.planned_action || 'hold')}</td>
+          <td>${this._escapeHtml(item.guard_status || '—')}</td>
           <td>${item.planned_requested_power_w ?? item.current_target_power_w ?? '—'}</td>
-          <td>${item.last_action_status || '—'}</td>
-          <td>${item.last_action_result_message || item.reason || '—'}</td>
+          <td>${this._escapeHtml(item.last_action_status || '—')}</td>
+          <td>${this._escapeHtml(item.last_action_result_message || item.reason || '—')}</td>
         </tr>`)
       .join('');
     const calibrationHints = (diagnostics.calibration_hints || [])
-      .map((item) => `<li>${item}</li>`)
+      .map((item) => `<li>${this._escapeHtml(item)}</li>`)
       .join('');
     return `
       <section class="panel-section">
         <h3>Diagnostics & Explanation</h3>
-        <p><strong>Health:</strong> ${diagnostics.health_status || '—'}</p>
-        <p><strong>Health summary:</strong> ${diagnostics.health_summary || '—'}</p>
-        <p><strong>Control status:</strong> ${diagnostics.control_status || '—'}</p>
-        <p><strong>Control summary:</strong> ${diagnostics.control_summary || '—'}</p>
-        <p><strong>Control reason:</strong> ${diagnostics.control_reason || '—'}</p>
-        <p><strong>Guard summary:</strong> ${diagnostics.control_guard_summary || '—'}</p>
+        <p><strong>Health:</strong> ${this._escapeHtml(diagnostics.health_status || '—')}</p>
+        <p><strong>Health summary:</strong> ${this._escapeHtml(diagnostics.health_summary || '—')}</p>
+        <p><strong>Control status:</strong> ${this._escapeHtml(diagnostics.control_status || '—')}</p>
+        <p><strong>Control summary:</strong> ${this._escapeHtml(diagnostics.control_summary || '—')}</p>
+        <p><strong>Control reason:</strong> ${this._escapeHtml(diagnostics.control_reason || '—')}</p>
+        <p><strong>Guard summary:</strong> ${this._escapeHtml(diagnostics.control_guard_summary || '—')}</p>
         <p><strong>Plan counts:</strong> ${diagnostics.planned_action_count ?? 0} planned / ${diagnostics.executable_action_count ?? 0} executable / ${diagnostics.blocked_planned_action_count ?? 0} blocked</p>
         <p><strong>Planned power delta:</strong> ${diagnostics.planned_power_delta_w ?? '—'} W</p>
-        <p><strong>Last action:</strong> ${diagnostics.last_action_summary || '—'}</p>
-        <p><strong>Last action device:</strong> ${diagnostics.last_action_device || '—'}</p>
-        <p><strong>Last action at:</strong> ${this._formatDateTime(diagnostics.last_action_at)}</p>
-        <p><strong>Recent actions:</strong> ${diagnostics.recent_action_summary || '—'}</p>
-        <p><strong>Last successful action:</strong> ${diagnostics.last_successful_action_summary || '—'}</p>
-        <p><strong>Last successful at:</strong> ${this._formatDateTime(diagnostics.last_successful_action_at)}</p>
-        <p><strong>Recent failures:</strong> ${diagnostics.recent_failure_summary || '—'}</p>
-        <p><strong>Last failed device:</strong> ${diagnostics.last_failed_action_device || '—'}</p>
-        <p><strong>Last failed message:</strong> ${diagnostics.last_failed_action_message || '—'}</p>
-        <p><strong>Last failed at:</strong> ${this._formatDateTime(diagnostics.last_failed_action_at)}</p>
+        <p><strong>Last action:</strong> ${this._escapeHtml(diagnostics.last_action_summary || '—')}</p>
+        <p><strong>Last action device:</strong> ${this._escapeHtml(diagnostics.last_action_device || '—')}</p>
+        <p><strong>Last action at:</strong> ${this._escapeHtml(this._formatDateTime(diagnostics.last_action_at))}</p>
+        <p><strong>Recent actions:</strong> ${this._escapeHtml(diagnostics.recent_action_summary || '—')}</p>
+        <p><strong>Last successful action:</strong> ${this._escapeHtml(diagnostics.last_successful_action_summary || '—')}</p>
+        <p><strong>Last successful at:</strong> ${this._escapeHtml(this._formatDateTime(diagnostics.last_successful_action_at))}</p>
+        <p><strong>Recent failures:</strong> ${this._escapeHtml(diagnostics.recent_failure_summary || '—')}</p>
+        <p><strong>Last failed device:</strong> ${this._escapeHtml(diagnostics.last_failed_action_device || '—')}</p>
+        <p><strong>Last failed message:</strong> ${this._escapeHtml(diagnostics.last_failed_action_message || '—')}</p>
+        <p><strong>Last failed at:</strong> ${this._escapeHtml(this._formatDateTime(diagnostics.last_failed_action_at))}</p>
         <p><strong>Stale data:</strong> ${diagnostics.stale_data ? 'Yes' : 'No'}</p>
         <p><strong>Source mismatch:</strong> ${diagnostics.source_mismatch ? 'Yes' : 'No'}</p>
         <p><strong>Battery below reserve:</strong> ${diagnostics.battery_below_reserve ? 'Yes' : 'No'}</p>
-        <p><strong>Stale source summary:</strong> ${diagnostics.stale_source_summary || '—'}</p>
+        <p><strong>Stale source summary:</strong> ${this._escapeHtml(diagnostics.stale_source_summary || '—')}</p>
       </section>
       <section class="panel-section">
         <h3>Recent Action Timeline</h3>
@@ -961,7 +974,7 @@ class ZeroNetExportPanel extends HTMLElement {
       .map((item) => `<li>${item}</li>`)
       .join('');
     const linkItems = Object.entries(links)
-      .map(([key, value]) => `<li><a href="${value}" target="_blank" rel="noreferrer">${key.replaceAll('_', ' ')}</a></li>`)
+      .map(([key, value]) => `<li><a href="${this._escapeAttr(value)}" target="_blank" rel="noreferrer">${this._escapeHtml(key.replaceAll('_', ' '))}</a></li>`)
       .join('');
     const supportSnapshot = settings.support_snapshot || '';
     return `
@@ -1006,8 +1019,8 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Configured deadband:</strong> ${configuredDefaults.deadband_w ?? '—'} W</p>
         <p><strong>Configured battery reserve:</strong> ${configuredDefaults.battery_reserve_soc ?? '—'} %</p>
         <p><strong>Device fleet:</strong> ${operatorSummary.device_count ?? 0} total / ${operatorSummary.enabled_device_count ?? 0} enabled / ${operatorSummary.usable_device_count ?? 0} usable</p>
-        <p><strong>Health:</strong> ${operatorSummary.health_status || '—'}</p>
-        <p><strong>Health summary:</strong> ${operatorSummary.health_summary || '—'}</p>
+        <p><strong>Health:</strong> ${this._escapeHtml(operatorSummary.health_status || '—')}</p>
+        <p><strong>Health summary:</strong> ${this._escapeHtml(operatorSummary.health_summary || '—')}</p>
         <p><strong>Safe mode:</strong> ${operatorSummary.safe_mode ? 'Yes' : 'No'}</p>
         <p><strong>Stale data:</strong> ${operatorSummary.stale_data ? 'Yes' : 'No'}</p>
         <p><strong>Source mismatch:</strong> ${operatorSummary.source_mismatch ? 'Yes' : 'No'}</p>
@@ -1017,24 +1030,24 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Primary operator surface:</strong> ${workflow.panel_primary ? 'Panel app' : 'Not declared'}</p>
         <p><strong>YAML dashboard:</strong> ${workflow.dashboard_fallback_only ? 'Fallback/debug only' : 'Primary surface'}</p>
         <p><strong>JSON options flow:</strong> ${workflow.json_options_fallback_only ? 'Advanced fallback only' : 'Normal path'}</p>
-        <p><strong>Readiness phase:</strong> ${readiness.phase || '—'}</p>
-        <p><strong>Readiness summary:</strong> ${readiness.summary || '—'}</p>
-        <p><strong>Recommended next step:</strong> ${readiness.next_step || '—'}</p>
+        <p><strong>Readiness phase:</strong> ${this._escapeHtml(readiness.phase || '—')}</p>
+        <p><strong>Readiness summary:</strong> ${this._escapeHtml(readiness.summary || '—')}</p>
+        <p><strong>Recommended next step:</strong> ${this._escapeHtml(readiness.next_step || '—')}</p>
         ${workflowItems ? `<ul>${workflowItems}</ul>` : '<p>No workflow guidance published yet.</p>'}
       </section>
       <section class="panel-section">
         <h3>Release & Support</h3>
-        <p><strong>Entry:</strong> ${operatorSummary.entry_title || entry?.title || 'Not configured'}</p>
-        <p><strong>Integration version:</strong> ${entry?.integration_version || operatorSummary.integration_version || this._state?.integration_version || '—'}</p>
+        <p><strong>Entry:</strong> ${this._escapeHtml(operatorSummary.entry_title || entry?.title || 'Not configured')}</p>
+        <p><strong>Integration version:</strong> ${this._escapeHtml(entry?.integration_version || operatorSummary.integration_version || this._state?.integration_version || '—')}</p>
         <p><strong>Config entry version:</strong> ${entry?.config_entry_version ?? operatorSummary.config_entry_version ?? '—'}</p>
         <p><strong>Panel schema version:</strong> ${this._state?.panel_schema_version ?? '—'}</p>
         <div class="button-row">
           <button class="action-button secondary" data-action="copy-support-snapshot" ${this._busy ? 'disabled' : ''}>Copy Support Snapshot</button>
         </div>
-        ${this._copyStatus ? `<p><strong>Copy status:</strong> ${this._copyStatus}</p>` : ''}
+        ${this._copyStatus ? `<p><strong>Copy status:</strong> ${this._escapeHtml(this._copyStatus)}</p>` : ''}
         <label>
           <span>Support snapshot preview</span>
-          <textarea readonly rows="16">${supportSnapshot}</textarea>
+          <textarea readonly rows="16">${this._escapeHtml(supportSnapshot)}</textarea>
         </label>
         ${linkItems ? `<ul>${linkItems}</ul>` : '<p>No support links available.</p>'}
       </section>
@@ -1046,7 +1059,7 @@ class ZeroNetExportPanel extends HTMLElement {
       return `<div class="empty">Loading Zero Net Export panel…</div>`;
     }
     if (this._error) {
-      return `<div class="empty error">Failed to load panel state: ${this._error}</div>`;
+      return `<div class="empty error">Failed to load panel state: ${this._escapeHtml(this._error)}</div>`;
     }
     const entry = this._entry();
     if (!entry) {
@@ -1287,7 +1300,7 @@ class ZeroNetExportPanel extends HTMLElement {
       <button class="tab ${this._activeTab === tab ? 'active' : ''}" data-tab="${tab}">${tab}</button>
     `).join('');
     const entryOptions = (this._state?.entries || [])
-      .map((entry) => `<option value="${entry.entry_id}" ${this._entryId() === entry.entry_id ? 'selected' : ''}>${entry.title || entry.entry_id}</option>`)
+      .map((entry) => `<option value="${this._escapeAttr(entry.entry_id)}" ${this._entryId() === entry.entry_id ? 'selected' : ''}>${this._escapeHtml(entry.title || entry.entry_id)}</option>`)
       .join('');
     const multipleEntries = (this._state?.entry_count || 0) > 1;
 
@@ -1493,7 +1506,7 @@ class ZeroNetExportPanel extends HTMLElement {
       <div class="header">
         <div class="title">
           <h1>Zero Net Export</h1>
-          <p>${this._state?.top_health_summary || 'Panel-first operator shell'}${this._busy ? ' · Saving…' : ''}</p>
+          <p>${this._escapeHtml(this._state?.top_health_summary || 'Panel-first operator shell')}${this._busy ? ' · Saving…' : ''}</p>
         </div>
         <div class="header-actions">
           <div class="live-chip" title="This panel refreshes automatically while visible and refreshes again when Home Assistant regains focus.">

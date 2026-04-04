@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.23] - 2026-04-04
+
+### Fixed
+- Hardened the panel frontend against HTML-breaking entity names, validation messages, device reasons, and support-snapshot content by escaping dynamic panel text before rendering it into the operator UI.
+
+### Changed
+- Panel schema advanced to `18` and integration version advanced to `0.1.23` for the panel rendering/runtime hardening refresh.
+
 ## [0.1.22] - 2026-04-04
 
 ### Added
