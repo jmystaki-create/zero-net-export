@@ -548,6 +548,13 @@ class ZeroNetExportPanel extends HTMLElement {
     }).join(' · ');
   }
 
+  _text(value, fallback = '—') {
+    if (value === null || value === undefined || value === '') {
+      return this._escapeHtml(fallback);
+    }
+    return this._escapeHtml(value);
+  }
+
   _readNumber(selector, fallback = 0) {
     const raw = this.shadowRoot.querySelector(selector)?.value;
     if (raw === '' || raw === null || raw === undefined) {
@@ -628,7 +635,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const diagnosticRows = Object.entries(sourceDiagnostics)
       .map(([key, item]) => {
         const issueSummary = Array.isArray(item.issues) && item.issues.length
-          ? item.issues.map((issue) => `${this._escapeHtml(issue.severity)}: ${this._escapeHtml(issue.message)}`).join(' · ')
+          ? item.issues.map((issue) => `${issue?.severity ? `${issue.severity}: ` : ''}${issue?.message || JSON.stringify(issue)}`).join(' · ')
           : 'No issues reported';
         return `<tr>
           <td>${this._escapeHtml(key)}</td>
@@ -638,7 +645,7 @@ class ZeroNetExportPanel extends HTMLElement {
           <td>${this._escapeHtml(item.unit || '—')}</td>
           <td>${this._escapeHtml(item.device_class || '—')}</td>
           <td>${this._escapeHtml(item.state_class || '—')}</td>
-          <td>${issueSummary}</td>
+          <td>${this._escapeHtml(issueSummary)}</td>
         </tr>`;
       })
       .join('');
@@ -646,7 +653,7 @@ class ZeroNetExportPanel extends HTMLElement {
       .map((item) => `<li>${this._escapeHtml(item)}</li>`)
       .join('');
     const readinessItems = (readiness.checklist || [])
-      .map((item) => `<li><strong>${item.complete ? '✅' : '⬜'} ${item.label}</strong><br /><span class="muted">${item.detail || ''}</span></li>`)
+      .map((item) => `<li><strong>${item.complete ? '✅' : '⬜'} ${this._escapeHtml(item.label || 'Unnamed step')}</strong><br /><span class="muted">${this._escapeHtml(item.detail || '')}</span></li>`)
       .join('');
 
     return `
@@ -758,7 +765,7 @@ class ZeroNetExportPanel extends HTMLElement {
     return `
       <section class="panel-section">
         <h3>Managed Devices</h3>
-        <p><strong>Summary:</strong> ${devices.summary || '—'}</p>
+        <p><strong>Summary:</strong> ${this._text(devices.summary)}</p>
         <p><strong>Devices:</strong> ${devices.device_count ?? 0} total / ${devices.usable_device_count ?? 0} usable</p>
         <p><strong>Nominal power:</strong> ${devices.controllable_nominal_power_w ?? '—'} W</p>
         <p class="muted">Add, edit, and remove devices here so normal setup no longer depends on raw JSON in the options flow.</p>
@@ -766,7 +773,7 @@ class ZeroNetExportPanel extends HTMLElement {
       </section>
       <section class="panel-section">
         <h3>Device Editor</h3>
-        <p><strong>Editor mode:</strong> ${editorModeLabel}</p>
+        <p><strong>Editor mode:</strong> ${this._escapeHtml(editorModeLabel)}</p>
         <div class="form-grid">
           <label>
             <span>Template</span>
@@ -871,9 +878,9 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Entity:</strong> ${this._escapeHtml(activeConfig.entity_id || '—')}</p>
         <p><strong>Kind / Adapter:</strong> ${this._escapeHtml(activeConfig.kind || '—')} / ${this._escapeHtml(activeConfig.adapter || '—')}</p>
         <p><strong>Configured enabled:</strong> ${activeConfig.enabled ? 'Yes' : 'No'}${activeRuntime && activeRuntime.operator_enabled_override !== null && activeRuntime.operator_enabled_override !== undefined ? ` · runtime override ${activeRuntime.operator_enabled_override ? 'enabled' : 'disabled'}` : ''}</p>
-        <p><strong>Configured priority:</strong> ${activeConfig.priority ?? '—'}${activeRuntime && activeRuntime.operator_priority_override !== null && activeRuntime.operator_priority_override !== undefined ? ` · runtime override ${activeRuntime.operator_priority_override}` : ''}</p>
-        <p><strong>Power model:</strong> nominal ${activeConfig.nominal_power_w ?? '—'} W · min ${activeConfig.min_power_w ?? '—'} W · max ${activeConfig.max_power_w ?? '—'} W · step ${activeConfig.step_w ?? '—'} W</p>
-        <p><strong>Safety timings:</strong> min on ${activeConfig.min_on_seconds ?? '—'} s · min off ${activeConfig.min_off_seconds ?? '—'} s · cooldown ${activeConfig.cooldown_seconds ?? '—'} s · max runtime ${activeConfig.max_active_seconds ?? 'none'}</p>
+        <p><strong>Configured priority:</strong> ${this._escapeHtml(activeConfig.priority ?? '—')}${activeRuntime && activeRuntime.operator_priority_override !== null && activeRuntime.operator_priority_override !== undefined ? ` · runtime override ${this._escapeHtml(activeRuntime.operator_priority_override)}` : ''}</p>
+        <p><strong>Power model:</strong> nominal ${this._escapeHtml(activeConfig.nominal_power_w ?? '—')} W · min ${this._escapeHtml(activeConfig.min_power_w ?? '—')} W · max ${this._escapeHtml(activeConfig.max_power_w ?? '—')} W · step ${this._escapeHtml(activeConfig.step_w ?? '—')} W</p>
+        <p><strong>Safety timings:</strong> min on ${this._escapeHtml(activeConfig.min_on_seconds ?? '—')} s · min off ${this._escapeHtml(activeConfig.min_off_seconds ?? '—')} s · cooldown ${this._escapeHtml(activeConfig.cooldown_seconds ?? '—')} s · max runtime ${this._escapeHtml(activeConfig.max_active_seconds ?? 'none')}</p>
         <p class="muted">This is the operator-facing config summary for the selected device, so normal review and edits no longer require opening raw JSON.</p>
       </section>` : ''}
       ${activeRuntime ? `
@@ -883,11 +890,11 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Usable:</strong> ${activeRuntime.usable ? 'Yes' : 'No'}</p>
         <p><strong>Reason:</strong> ${this._escapeHtml(activeRuntime.reason || '—')}</p>
         <p><strong>Observed active:</strong> ${activeRuntime.observed_active ? 'Yes' : 'No'}</p>
-        <p><strong>Effective enabled / priority:</strong> ${activeRuntime.effective_enabled ? 'Enabled' : 'Disabled'} / ${activeRuntime.effective_priority ?? '—'}</p>
-        <p><strong>Current power:</strong> ${activeRuntime.current_power_w ?? '—'} W</p>
-        <p><strong>Current target:</strong> ${activeRuntime.current_target_power_w ?? '—'} W</p>
-        <p><strong>Active runtime:</strong> ${activeRuntime.current_active_seconds ?? '—'} s</p>
-        <p><strong>Planned action:</strong> ${activeRuntime.planned_action || 'hold'} (${activeRuntime.planned_requested_power_w ?? '—'} W)</p>
+        <p><strong>Effective enabled / priority:</strong> ${activeRuntime.effective_enabled ? 'Enabled' : 'Disabled'} / ${this._escapeHtml(activeRuntime.effective_priority ?? '—')}</p>
+        <p><strong>Current power:</strong> ${this._escapeHtml(activeRuntime.current_power_w ?? '—')} W</p>
+        <p><strong>Current target:</strong> ${this._escapeHtml(activeRuntime.current_target_power_w ?? '—')} W</p>
+        <p><strong>Active runtime:</strong> ${this._escapeHtml(activeRuntime.current_active_seconds ?? '—')} s</p>
+        <p><strong>Planned action:</strong> ${this._escapeHtml(activeRuntime.planned_action || 'hold')} (${this._escapeHtml(activeRuntime.planned_requested_power_w ?? '—')} W)</p>
         <p><strong>Guard:</strong> ${this._escapeHtml(activeRuntime.guard_status || '—')}</p>
         <p><strong>Last result:</strong> ${this._escapeHtml(activeRuntime.last_action_status || '—')} · ${this._escapeHtml(activeRuntime.last_action_result_message || 'No recorded action yet.')}</p>
         <p><strong>Successful actions:</strong> ${activeRuntime.successful_action_count ?? 0} · <strong>Failed actions:</strong> ${activeRuntime.failed_action_count ?? 0}</p>
@@ -924,8 +931,8 @@ class ZeroNetExportPanel extends HTMLElement {
             <td>${this._escapeHtml(item.entity_id || '—')}</td>
             <td>${this._escapeHtml(item.status || '—')}</td>
             <td>${freshness.stale ? 'Stale' : 'OK'}</td>
-            <td>${freshness.age_seconds ?? '—'}</td>
-            <td>${issues || '—'}</td>
+            <td>${this._escapeHtml(freshness.age_seconds ?? '—')}</td>
+            <td>${this._escapeHtml(issues || '—')}</td>
           </tr>`;
       })
       .join('');
@@ -1006,7 +1013,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const links = settings.links || {};
     const modeOptions = MODES.map((mode) => `<option value="${mode.value}" ${overview.mode === mode.value ? 'selected' : ''}>${mode.label}</option>`).join('');
     const workflowItems = (workflow.normal_operator_path || [])
-      .map((item) => `<li>${item}</li>`)
+      .map((item) => `<li>${this._escapeHtml(item)}</li>`)
       .join('');
     const linkItems = Object.entries(links)
       .map(([key, value]) => `<li><a href="${this._escapeAttr(value)}" target="_blank" rel="noreferrer">${this._escapeHtml(key.replaceAll('_', ' '))}</a></li>`)
