@@ -91,7 +91,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 ### Primary operator path: panel app
 
 1.  Add the **Zero Net Export** integration.
-2.  Open **Zero Net Export** from the Home Assistant sidebar.
+2.  Open **Zero Net Export** from the Home Assistant sidebar as a Home Assistant admin user.
 3.  Use the **Setup** tab to map your source entities:
     - Solar Power
     - Grid Import/Export Power

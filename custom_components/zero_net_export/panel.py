@@ -169,7 +169,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
         module_url=_frontend_module_url(),
         sidebar_title=PANEL_TITLE,
         sidebar_icon=PANEL_ICON,
-        require_admin=False,
+        require_admin=True,
         config={"version": PANEL_SCHEMA_VERSION},
     )
 
@@ -206,6 +206,7 @@ async def websocket_get_panel_state(
         vol.Optional("battery_reserve_soc"): vol.All(vol.Coerce(float), vol.Range(min=0, max=100)),
     }
 )
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_save_controller_settings(
     hass: HomeAssistant,
@@ -235,6 +236,7 @@ async def websocket_save_controller_settings(
         vol.Optional("entry_id"): str,
     }
 )
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_reset_controller_overrides(
     hass: HomeAssistant,
@@ -264,6 +266,7 @@ async def websocket_reset_controller_overrides(
         vol.Optional(CONF_REFRESH_SECONDS): vol.All(vol.Coerce(int), vol.Range(min=5, max=300)),
     }
 )
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_save_sources(
     hass: HomeAssistant,
@@ -410,6 +413,7 @@ async def _save_device_inventory(hass: HomeAssistant, entry: Any, payloads: list
         vol.Optional("max_active_seconds"): vol.Any(None, vol.Coerce(int)),
     }
 )
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_add_device(
     hass: HomeAssistant,
@@ -448,6 +452,7 @@ async def websocket_add_device(
         vol.Optional("max_active_seconds"): vol.Any(None, vol.Coerce(int)),
     }
 )
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_update_device(
     hass: HomeAssistant,
@@ -513,6 +518,7 @@ async def websocket_update_device(
         vol.Required("device_key"): str,
     }
 )
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_delete_device(
     hass: HomeAssistant,
@@ -537,6 +543,7 @@ async def websocket_delete_device(
         vol.Required("device_key"): str,
     }
 )
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_reset_device_overrides(
     hass: HomeAssistant,

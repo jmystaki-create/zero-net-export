@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.26] - 2026-04-05
+
+### Fixed
+- Hardened the panel operator path for real Home Assistant permissions by restricting the Zero Net Export sidebar app and all panel-backed write/reload websocket actions to admin users, avoiding non-admin access to config-entry mutations that would otherwise fail mid-workflow.
+
+### Changed
+- Integration version advanced to `0.1.26` for the panel permission/runtime hardening refresh.
+
 ## [0.1.25] - 2026-04-05
 
 ### Fixed
