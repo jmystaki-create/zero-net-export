@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.21] - 2026-04-04
+
+### Fixed
+- Hardened panel-state bootstrap for startup/reload windows where a Zero Net Export config entry exists but its coordinator has not produced runtime state yet, preventing the panel shell from crashing while trying to summarize health before the backend is ready.
+
+### Changed
+- Integration version advanced to `0.1.21` for the panel bootstrap/loading-state stability fix.
+
 ## [0.1.20] - 2026-04-04
 
 ### Fixed

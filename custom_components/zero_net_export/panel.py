@@ -999,7 +999,19 @@ def _build_panel_state(hass: HomeAssistant) -> dict[str, Any]:
         _entry_panel_payload(hass, entry_id, coordinator)
         for entry_id, coordinator in coordinators.items()
     ]
-    active_entry = panel_entries[0] if panel_entries else None
+    active_entry = next((entry for entry in panel_entries if entry.get("loaded")), None)
+    if active_entry is None and panel_entries:
+        active_entry = panel_entries[0]
+
+    if not active_entry:
+        top_health_summary = "Zero Net Export is not configured yet."
+    elif active_entry.get("loaded"):
+        top_health_summary = (
+            active_entry.get("overview", {}).get("health_summary")
+            or "Zero Net Export panel is loading."
+        )
+    else:
+        top_health_summary = active_entry.get("reason") or "Zero Net Export panel is loading."
 
     return {
         "domain": DOMAIN,
@@ -1010,7 +1022,7 @@ def _build_panel_state(hass: HomeAssistant) -> dict[str, Any]:
         "setup_complete": bool(active_entry),
         "active_entry_id": active_entry["entry_id"] if active_entry else None,
         "active_entry_title": active_entry["title"] if active_entry else None,
-        "top_health_summary": active_entry["overview"]["health_summary"] if active_entry else "Zero Net Export is not configured yet.",
+        "top_health_summary": top_health_summary,
         "entries": panel_entries,
     }
 
