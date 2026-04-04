@@ -9,6 +9,17 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.22] - 2026-04-04
+
+### Added
+- Expanded the panel Devices tab with a selected-device configuration summary that exposes entity binding, adapter, configured/effective enable + priority state, power model, and safety timing limits without falling back to raw JSON.
+
+### Fixed
+- Fixed Diagnostics source-issue rendering so structured validation issues now display as readable severity/message text instead of raw object placeholders.
+
+### Changed
+- Panel schema advanced to `17` and integration version advanced to `0.1.22` for the device-management clarity refresh.
+
 ## [0.1.21] - 2026-04-04
 
 ### Fixed

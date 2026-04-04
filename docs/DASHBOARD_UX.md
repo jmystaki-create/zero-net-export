@@ -74,6 +74,8 @@ The panel now also publishes an explicit readiness phase, checklist, and recomme
 
 The Devices tab now also ranks likely switch/number entities for the currently selected device kind and onboarding template, so panel-first device setup is less dependent on scanning a long unstructured entity list.
 
+The Devices tab now also shows a selected-device configuration summary with entity binding, adapter, configured/effective enable + priority state, power model, and safety timing limits, reducing the need to inspect raw JSON when reviewing or editing a device.
+
 The Settings tab now also provides a copyable support snapshot that condenses release metadata, readiness, mapped-source health, configured-device state, and recent validation issues into one operator-facing text block for support and validation triage.
 
 A first importable Lovelace scaffold now exists at `examples/lovelace/zero_net_export_dashboard.yaml`.

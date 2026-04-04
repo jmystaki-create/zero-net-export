@@ -153,6 +153,7 @@ The backend control engine is substantially built, and the project is now in a l
 - [x] Add full add/edit/remove device workflows to the panel so operators no longer need raw JSON for normal setup
 - [x] Add guided device onboarding presets and direct edit flows so normal device setup feels panel-native instead of form spelunking
 - [x] Add template-aware device entity suggestions so panel onboarding can point operators at likely switch/number targets instead of only offering a flat entity list
+- [x] Surface selected-device configuration and effective override details in-panel so operators can review normal device constraints and runtime tuning without opening raw JSON
 - [x] Add guided source mapping to the panel so operators can complete source setup in the app
 - [x] Add role-specific source suggestions in the panel so operators can pick likely solar/grid/home/battery sensors without sifting through every entity manually
 - [x] Add guided source-remediation detail in the panel so operators can inspect per-source metadata and validation issues without dropping into raw entity debugging

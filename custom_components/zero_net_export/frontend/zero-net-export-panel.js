@@ -484,6 +484,22 @@ class ZeroNetExportPanel extends HTMLElement {
       .slice(0, 6);
   }
 
+  _formatIssueList(issues) {
+    if (!Array.isArray(issues) || !issues.length) {
+      return '—';
+    }
+    return issues.map((issue) => {
+      if (typeof issue === 'string') {
+        return issue;
+      }
+      if (issue && typeof issue === 'object') {
+        const severity = issue.severity ? `${issue.severity}: ` : '';
+        return `${severity}${issue.message || JSON.stringify(issue)}`;
+      }
+      return String(issue);
+    }).join(' · ');
+  }
+
   _readNumber(selector, fallback = 0) {
     const raw = this.shadowRoot.querySelector(selector)?.value;
     if (raw === '' || raw === null || raw === undefined) {
@@ -688,6 +704,7 @@ class ZeroNetExportPanel extends HTMLElement {
       .map((item) => `<option value="${item.key}" ${this._selectedTemplateKey === item.key ? 'selected' : ''}>${item.label}</option>`)
       .join('');
 
+    const activeConfig = this._activeDeviceConfig(entry);
     const editorModeLabel = this._editingDeviceKey === 'new' ? 'Add new device' : `Editing ${this._deviceFormValue(entry, 'name', this._editingDeviceKey)}`;
 
     return `
@@ -799,14 +816,29 @@ class ZeroNetExportPanel extends HTMLElement {
         </div>
         <p class="muted">${selectedKind === 'variable' ? 'Variable devices should point at a number/input_number entity that represents a live power or current target.' : 'Fixed loads should point at a switch/input_boolean entity that can be safely toggled by Zero Net Export.'}</p>
       </section>
+      ${activeConfig ? `
+      <section class="panel-section">
+        <h3>Selected Device Configuration</h3>
+        <p><strong>Name:</strong> ${activeConfig.name || '—'}</p>
+        <p><strong>Entity:</strong> ${activeConfig.entity_id || '—'}</p>
+        <p><strong>Kind / Adapter:</strong> ${activeConfig.kind || '—'} / ${activeConfig.adapter || '—'}</p>
+        <p><strong>Configured enabled:</strong> ${activeConfig.enabled ? 'Yes' : 'No'}${activeRuntime && activeRuntime.operator_enabled_override !== null && activeRuntime.operator_enabled_override !== undefined ? ` · runtime override ${activeRuntime.operator_enabled_override ? 'enabled' : 'disabled'}` : ''}</p>
+        <p><strong>Configured priority:</strong> ${activeConfig.priority ?? '—'}${activeRuntime && activeRuntime.operator_priority_override !== null && activeRuntime.operator_priority_override !== undefined ? ` · runtime override ${activeRuntime.operator_priority_override}` : ''}</p>
+        <p><strong>Power model:</strong> nominal ${activeConfig.nominal_power_w ?? '—'} W · min ${activeConfig.min_power_w ?? '—'} W · max ${activeConfig.max_power_w ?? '—'} W · step ${activeConfig.step_w ?? '—'} W</p>
+        <p><strong>Safety timings:</strong> min on ${activeConfig.min_on_seconds ?? '—'} s · min off ${activeConfig.min_off_seconds ?? '—'} s · cooldown ${activeConfig.cooldown_seconds ?? '—'} s · max runtime ${activeConfig.max_active_seconds ?? 'none'}</p>
+        <p class="muted">This is the operator-facing config summary for the selected device, so normal review and edits no longer require opening raw JSON.</p>
+      </section>` : ''}
       ${activeRuntime ? `
       <section class="panel-section">
         <h3>Selected Device Runtime</h3>
         <p><strong>Status:</strong> ${activeRuntime.status || '—'}</p>
         <p><strong>Usable:</strong> ${activeRuntime.usable ? 'Yes' : 'No'}</p>
         <p><strong>Reason:</strong> ${activeRuntime.reason || '—'}</p>
+        <p><strong>Observed active:</strong> ${activeRuntime.observed_active ? 'Yes' : 'No'}</p>
+        <p><strong>Effective enabled / priority:</strong> ${activeRuntime.effective_enabled ? 'Enabled' : 'Disabled'} / ${activeRuntime.effective_priority ?? '—'}</p>
         <p><strong>Current power:</strong> ${activeRuntime.current_power_w ?? '—'} W</p>
         <p><strong>Current target:</strong> ${activeRuntime.current_target_power_w ?? '—'} W</p>
+        <p><strong>Active runtime:</strong> ${activeRuntime.current_active_seconds ?? '—'} s</p>
         <p><strong>Planned action:</strong> ${activeRuntime.planned_action || 'hold'} (${activeRuntime.planned_requested_power_w ?? '—'} W)</p>
         <p><strong>Guard:</strong> ${activeRuntime.guard_status || '—'}</p>
         <p><strong>Last result:</strong> ${activeRuntime.last_action_status || '—'} · ${activeRuntime.last_action_result_message || 'No recorded action yet.'}</p>
@@ -837,7 +869,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const sourceRows = Object.entries(diagnostics.source_diagnostics || {})
       .map(([key, item]) => {
         const freshness = diagnostics.source_freshness?.[key] || {};
-        const issues = Array.isArray(item.issues) ? item.issues.join(' · ') : '—';
+        const issues = this._formatIssueList(item.issues);
         return `
           <tr>
             <td>${key}</td>
