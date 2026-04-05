@@ -266,7 +266,7 @@ def build_recommendation(issues: list[ValidationIssue]) -> str:
             return "Assign distinct Home Assistant entities to each logical role; import and export cannot safely share one source"
         if any(code.endswith("_non_numeric") or code.endswith("_unavailable") for code in issue_codes):
             return "Choose stable numeric sensors for required roles or fix entity availability before enabling control"
-        return "Resolve blocking source errors before moving beyond monitor-only mode"
+        return "Resolve blocking source errors before allowing live control"
 
     if "power_reconciliation_large_error" in issue_codes:
         return "Check sign conventions and source role mapping; one or more power sensors likely uses the opposite import/export direction"
@@ -321,7 +321,7 @@ def build_diagnostic_summary(
             "Source values are numeric but some metadata is off; review units/device_class/state_class for "
             + ", ".join(metadata_warning_sources)
         )
-    return "Source validation warnings remain; keep the controller in monitor-only mode until they are resolved"
+    return "Source validation warnings remain; review them, but only blocking errors or stale required data should hold the controller in safe mode"
 
 
 def build_calibration_hints(
@@ -569,7 +569,7 @@ def validate_sources(
     elif warning_count:
         confidence = "medium"
         status = "degraded"
-        safe_mode = True
+        safe_mode = False
 
     surplus_w = None
     if solar is not None and home is not None:

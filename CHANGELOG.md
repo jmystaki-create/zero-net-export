@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.39] - 2026-04-06
+
+### Fixed
+- Fixed the main backend gating bug in source validation: warning-level source issues no longer force controller safe mode. Required mapping can now progress from installed -> mapped -> operational once the required sources are present and there are no blocking errors or stale required sensors.
+
+### Changed
+- Validation recommendations now distinguish between true blocking conditions and non-blocking warnings, so the save/apply path better matches the intended operator workflow instead of treating every metadata quirk as a hard stop.
+- Integration version advanced to `0.1.39` for the safe-mode gating fix on the source-mapping backend path.
+
 ## [0.1.38] - 2026-04-06
 
 ### Fixed
