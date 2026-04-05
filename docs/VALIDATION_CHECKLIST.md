@@ -33,6 +33,7 @@ Use this checklist to validate Zero Net Export in a real Home Assistant environm
 - [ ] Bootstrap step clearly explains that source mapping and onboarding continue in the panel app
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
 - [ ] Entry can be created without mapping sources during the initial config flow
+- [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Options flow descriptions clearly explain advanced runtime fields and that device-inventory JSON is fallback/debug-only
 - [ ] Entity normalization creates expected entity IDs
 

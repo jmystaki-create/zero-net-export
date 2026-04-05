@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.31] - 2026-04-05
+
+### Fixed
+- Hardened the shipped configure/options flow for upgraded installs by normalizing legacy entry defaults before building selectors, reducing the chance that missing, `None`, or stringly-typed stored values trigger a backend 500 when the operator clicks the integration gear/configure path.
+- Added config-entry migration/normalization so older installs pick up safe numeric defaults and a string device-inventory payload even if earlier entry data was incomplete or loosely typed.
+
+### Changed
+- Integration version advanced to `0.1.31` for the real Home Assistant configure/options-flow crash fix.
+
 ## [0.1.30] - 2026-04-05
 
 ### Changed

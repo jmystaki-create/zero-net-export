@@ -1,6 +1,8 @@
 """Config flow for Zero Net Export."""
 from __future__ import annotations
 
+from typing import Any
+
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -33,6 +35,34 @@ from .const import (
     DOMAIN,
 )
 from .device_model import default_device_blueprint, parse_device_configs
+
+
+def _coerce_number(value: Any, fallback: int | float) -> int | float:
+    if value in (None, ""):
+        return fallback
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return fallback
+    if isinstance(fallback, int) and not isinstance(fallback, bool):
+        return int(parsed)
+    return parsed
+
+
+def _coerce_text(value: Any, fallback: str) -> str:
+    if value is None:
+        return fallback
+    if isinstance(value, str):
+        return value
+    return str(value)
+
+
+def _entry_default_number(config_entry, key: str, fallback: int | float) -> int | float:
+    return _coerce_number(config_entry.options.get(key, config_entry.data.get(key, fallback)), fallback)
+
+
+def _entry_default_text(config_entry, key: str, fallback: str) -> str:
+    return _coerce_text(config_entry.options.get(key, config_entry.data.get(key, fallback)), fallback)
 
 
 def _build_bootstrap_schema(defaults: dict | None = None) -> vol.Schema:
@@ -114,33 +144,50 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Required(
                     CONF_TARGET_EXPORT_W,
-                    default=self.config_entry.options.get(CONF_TARGET_EXPORT_W, self.config_entry.data.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W)),
+                    default=_entry_default_number(
+                        self.config_entry,
+                        CONF_TARGET_EXPORT_W,
+                        DEFAULT_TARGET_EXPORT_W,
+                    ),
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(min=-5000, max=10000, step=10, mode=selector.NumberSelectorMode.BOX)
                 ),
                 vol.Required(
                     CONF_DEADBAND_W,
-                    default=self.config_entry.options.get(CONF_DEADBAND_W, self.config_entry.data.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W)),
+                    default=_entry_default_number(
+                        self.config_entry,
+                        CONF_DEADBAND_W,
+                        DEFAULT_DEADBAND_W,
+                    ),
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(min=0, max=2000, step=10, mode=selector.NumberSelectorMode.BOX)
                 ),
                 vol.Required(
                     CONF_BATTERY_RESERVE_SOC,
-                    default=self.config_entry.options.get(CONF_BATTERY_RESERVE_SOC, self.config_entry.data.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC)),
+                    default=_entry_default_number(
+                        self.config_entry,
+                        CONF_BATTERY_RESERVE_SOC,
+                        DEFAULT_BATTERY_RESERVE_SOC,
+                    ),
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(min=0, max=100, step=1, mode=selector.NumberSelectorMode.BOX)
                 ),
                 vol.Required(
                     CONF_REFRESH_SECONDS,
-                    default=self.config_entry.options.get(CONF_REFRESH_SECONDS, self.config_entry.data.get(CONF_REFRESH_SECONDS, DEFAULT_REFRESH_SECONDS)),
+                    default=_entry_default_number(
+                        self.config_entry,
+                        CONF_REFRESH_SECONDS,
+                        DEFAULT_REFRESH_SECONDS,
+                    ),
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
                 ),
                 vol.Required(
                     CONF_DEVICE_INVENTORY_JSON,
-                    default=self.config_entry.options.get(
+                    default=_entry_default_text(
+                        self.config_entry,
                         CONF_DEVICE_INVENTORY_JSON,
-                        self.config_entry.data.get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
+                        DEFAULT_DEVICE_INVENTORY_JSON,
                     ),
                 ): selector.TextSelector(
                     selector.TextSelectorConfig(
