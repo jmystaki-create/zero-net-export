@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.38] - 2026-04-06
+
+### Fixed
+- Fixed the panel mapping bridge so runtime validation/freshness payloads are normalized back onto the saved config-entry source-role keys (`solar_power_entity`, `grid_import_power_entity`, etc.) before reaching the UI. This makes saved mappings reflect back onto the exact required roles the operator edited instead of showing misleading blank or mismatched per-role health after reload.
+
+### Changed
+- The Setup and Diagnostics tabs now render source-health/freshness rows with operator-facing role labels rather than internal runtime keys, making it much clearer which required mapping is healthy, stale, blocked, or still needs attention.
+- Saving source mappings now gives an explicit in-panel confirmation that the integration reloaded and that readiness/diagnostics should be reviewed to confirm the controller can leave blocked setup state.
+- Panel schema advanced to `26` and integration version advanced to `0.1.38` for the source-mapping status/readiness alignment follow-up.
+
 ## [0.1.37] - 2026-04-06
 
 ### Added

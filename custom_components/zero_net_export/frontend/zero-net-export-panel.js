@@ -642,6 +642,10 @@ class ZeroNetExportPanel extends HTMLElement {
     return SOURCE_FIELDS.find((field) => field.key === key);
   }
 
+  _sourceFieldLabel(key) {
+    return this._sourceField(key)?.label || key;
+  }
+
   _sourceSuggestionItems(sourceSuggestions, fieldKey) {
     return sourceSuggestions?.[fieldKey]?.items || [];
   }
@@ -884,9 +888,9 @@ class ZeroNetExportPanel extends HTMLElement {
         </section>
       `;
     }).join('');
-    const sourceFreshness = validation.source_freshness || {};
+    const sourceFreshness = setup.source_freshness || validation.source_freshness || {};
     const freshnessRows = Object.entries(sourceFreshness)
-      .map(([key, item]) => `<tr><td>${this._escapeHtml(key)}</td><td>${this._escapeHtml(item.entity_id || '—')}</td><td>${item.stale ? 'Stale' : 'OK'}</td><td>${this._escapeHtml(item.age_seconds ?? '—')}</td></tr>`)
+      .map(([key, item]) => `<tr><td>${this._escapeHtml(this._sourceFieldLabel(key))}</td><td>${this._escapeHtml(item.entity_id || '—')}</td><td>${item.stale ? 'Stale' : 'OK'}</td><td>${this._escapeHtml(item.age_seconds ?? '—')}</td></tr>`)
       .join('');
     const diagnosticRows = Object.entries(sourceDiagnostics)
       .map(([key, item]) => {
@@ -894,7 +898,7 @@ class ZeroNetExportPanel extends HTMLElement {
           ? item.issues.map((issue) => `${issue?.severity ? `${issue.severity}: ` : ''}${issue?.message || JSON.stringify(issue)}`).join(' · ')
           : 'No issues reported';
         return `<tr>
-          <td>${this._escapeHtml(key)}</td>
+          <td>${this._escapeHtml(this._sourceFieldLabel(key))}</td>
           <td>${this._escapeHtml(item.entity_id || '—')}</td>
           <td>${this._escapeHtml(item.status || '—')}</td>
           <td>${this._escapeHtml(item.value ?? item.raw_state ?? '—')}</td>
@@ -1202,7 +1206,7 @@ class ZeroNetExportPanel extends HTMLElement {
         const issues = this._formatIssueList(item.issues);
         return `
           <tr>
-            <td>${this._escapeHtml(key)}</td>
+            <td>${this._escapeHtml(this._sourceFieldLabel(key))}</td>
             <td>${this._escapeHtml(item.entity_id || '—')}</td>
             <td>${this._escapeHtml(item.status || '—')}</td>
             <td>${freshness.stale ? 'Stale' : 'OK'}</td>
@@ -1451,6 +1455,9 @@ class ZeroNetExportPanel extends HTMLElement {
     });
 
     await this._callWS(payload);
+    if (!this._error) {
+      this._copyStatus = 'Source mapping saved and the integration reloaded. Review readiness and diagnostics below to confirm the controller can leave blocked setup state.';
+    }
   }
 
   async _saveDeviceFromForm() {

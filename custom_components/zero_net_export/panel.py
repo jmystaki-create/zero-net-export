@@ -60,7 +60,23 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 25
+PANEL_SCHEMA_VERSION = 26
+
+_SOURCE_ROLE_KEY_MAP: dict[str, str] = {
+    CONF_SOLAR_POWER_ENTITY: "solar_power",
+    CONF_SOLAR_ENERGY_ENTITY: "solar_energy",
+    CONF_GRID_IMPORT_POWER_ENTITY: "grid_import_power",
+    CONF_GRID_EXPORT_POWER_ENTITY: "grid_export_power",
+    CONF_GRID_IMPORT_ENERGY_ENTITY: "grid_import_energy",
+    CONF_GRID_EXPORT_ENERGY_ENTITY: "grid_export_energy",
+    CONF_HOME_LOAD_POWER_ENTITY: "home_load_power",
+    CONF_BATTERY_SOC_ENTITY: "battery_soc",
+    CONF_BATTERY_CHARGE_POWER_ENTITY: "battery_charge_power",
+    CONF_BATTERY_DISCHARGE_POWER_ENTITY: "battery_discharge_power",
+}
+_RUNTIME_SOURCE_ROLE_KEY_MAP: dict[str, str] = {
+    runtime_key: config_key for config_key, runtime_key in _SOURCE_ROLE_KEY_MAP.items()
+}
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -570,6 +586,17 @@ def _serialize_value(value: Any) -> Any:
     return value
 
 
+def _panel_source_role_key(key: str) -> str:
+    return _RUNTIME_SOURCE_ROLE_KEY_MAP.get(key, key)
+
+
+def _normalize_source_mapping_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized: dict[str, Any] = {}
+    for key, value in payload.items():
+        normalized[_panel_source_role_key(key)] = _serialize_value(value)
+    return normalized
+
+
 def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
     source_mapping = {
         CONF_SOLAR_POWER_ENTITY: entry.data.get(CONF_SOLAR_POWER_ENTITY),
@@ -696,7 +723,7 @@ def _build_support_snapshot(
 ) -> str:
     release_info = build_release_info(INTEGRATION_VERSION)
     release_update = state.validation_details.get("release_update", {})
-    source_diagnostics = state.validation_details.get("source_diagnostics", {})
+    source_diagnostics = _normalize_source_mapping_payload(state.validation_details.get("source_diagnostics", {}))
     mapped_sources = [
         f"- {key}: {coordinator.entry.data.get(key) or 'not configured'}"
         for key in (
@@ -841,7 +868,8 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
         "stale_source_summary": state.stale_source_summary,
         "diagnostic_summary": state.diagnostic_summary,
         "validation": _serialize_value(state.validation_details),
-        "source_diagnostics": _serialize_value(state.validation_details.get("source_diagnostics", {})),
+        "source_diagnostics": _normalize_source_mapping_payload(state.validation_details.get("source_diagnostics", {})),
+        "source_freshness": _normalize_source_mapping_payload(state.validation_details.get("source_freshness", {})),
         "calibration_hints": list(state.validation_details.get("calibration_hints", [])),
         "source_mapping": {
             CONF_SOLAR_POWER_ENTITY: coordinator.entry.data.get(CONF_SOLAR_POWER_ENTITY),
@@ -934,8 +962,8 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
         "battery_below_reserve": state.battery_below_reserve,
         "action_history_count": state.action_history_count,
         "action_history": _serialize_value(state.validation_details.get("action_history", [])),
-        "source_diagnostics": _serialize_value(state.validation_details.get("source_diagnostics", {})),
-        "source_freshness": _serialize_value(state.validation_details.get("source_freshness", {})),
+        "source_diagnostics": _normalize_source_mapping_payload(state.validation_details.get("source_diagnostics", {})),
+        "source_freshness": _normalize_source_mapping_payload(state.validation_details.get("source_freshness", {})),
         "calibration_hints": list(state.validation_details.get("calibration_hints", [])),
         "device_items": _serialize_value(list(state.device_details.values())),
     }
