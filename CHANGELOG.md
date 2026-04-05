@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.27] - 2026-04-05
+
+### Fixed
+- Restricted the panel bootstrap websocket (`zero_net_export/panel/get_state`) to Home Assistant admin users so the admin-only sidebar app no longer leaves its read-side state, entity suggestions, and support snapshot available through a non-admin websocket call path.
+
+### Changed
+- Integration version advanced to `0.1.27` for the panel permission/runtime hardening follow-up.
+
 ## [0.1.26] - 2026-04-05
 
 ### Fixed

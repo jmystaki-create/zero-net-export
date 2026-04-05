@@ -185,6 +185,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
 
 
 @websocket_api.websocket_command({vol.Required("type"): PANEL_WEBSOCKET_GET_STATE})
+@websocket_api.require_admin
 @websocket_api.async_response
 async def websocket_get_panel_state(
     hass: HomeAssistant,
