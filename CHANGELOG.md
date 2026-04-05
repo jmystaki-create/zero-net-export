@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.28] - 2026-04-05
+
+### Fixed
+- Fixed a panel state regression where the backend exposed validation details under `overview.controller_settings` instead of the actual configured/effective controller defaults and override flags, so the Settings workflow can once again show the operator which controller values are configured versus currently overridden.
+
+### Changed
+- Integration version advanced to `0.1.28` for the panel controller-defaults payload fix.
+
 ## [0.1.27] - 2026-04-05
 
 ### Fixed

@@ -820,7 +820,9 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
         "health_status": state.health_status,
         "health_summary": state.health_summary,
         "confidence": state.confidence,
-        "controller_settings": _serialize_value(state.validation_details),
+        "controller_settings": _serialize_value(
+            coordinator._controller_settings_attributes()
+        ),
     }
 
     setup = {
