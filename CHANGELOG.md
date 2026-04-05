@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.33] - 2026-04-05
+
+### Changed
+- Reworked the panel Setup tab into a more guided source-mapping flow by grouping required solar/grid/load roles separately from optional battery signals, adding inline plain-language role explanations, and surfacing per-group mapping progress so operators can see what is still blocking readiness.
+- Added a one-click "Fill Empty Required Fields With Likely Matches" action plus stronger top-match presentation for each source role, making it easier to get from installed -> mapped without manually hunting raw entity ids for every required field.
+- Added a setup-specific progress summary that explicitly calls out required-vs-optional mapping status and names the remaining missing required roles, so blocked safe-mode state is clearer and less overwhelming.
+- Panel schema advanced to `21` and integration version advanced to `0.1.33` for the guided source-mapping UX release.
+
 ## [0.1.32] - 2026-04-05
 
 ### Fixed

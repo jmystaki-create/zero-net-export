@@ -127,16 +127,99 @@ const MODES = [
 ];
 
 const SOURCE_FIELDS = [
-  { key: 'solar_power_entity', label: 'Solar Power', required: true },
-  { key: 'solar_energy_entity', label: 'Solar Energy', required: true },
-  { key: 'grid_import_power_entity', label: 'Grid Import Power', required: true },
-  { key: 'grid_export_power_entity', label: 'Grid Export Power', required: true },
-  { key: 'grid_import_energy_entity', label: 'Grid Import Energy', required: true },
-  { key: 'grid_export_energy_entity', label: 'Grid Export Energy', required: true },
-  { key: 'home_load_power_entity', label: 'Home Load Power', required: true },
-  { key: 'battery_soc_entity', label: 'Battery SOC', required: false },
-  { key: 'battery_charge_power_entity', label: 'Battery Charge Power', required: false },
-  { key: 'battery_discharge_power_entity', label: 'Battery Discharge Power', required: false },
+  {
+    key: 'solar_power_entity',
+    label: 'Solar Power',
+    required: true,
+    group: 'required_generation',
+    shortHint: 'Live PV generation power.',
+  },
+  {
+    key: 'solar_energy_entity',
+    label: 'Solar Energy',
+    required: true,
+    group: 'required_generation',
+    shortHint: 'Accumulating solar generation energy.',
+  },
+  {
+    key: 'grid_import_power_entity',
+    label: 'Grid Import Power',
+    required: true,
+    group: 'required_grid',
+    shortHint: 'Positive power currently pulled from the grid.',
+  },
+  {
+    key: 'grid_export_power_entity',
+    label: 'Grid Export Power',
+    required: true,
+    group: 'required_grid',
+    shortHint: 'Positive power currently sent to the grid.',
+  },
+  {
+    key: 'grid_import_energy_entity',
+    label: 'Grid Import Energy',
+    required: true,
+    group: 'required_grid',
+    shortHint: 'Accumulating imported grid energy.',
+  },
+  {
+    key: 'grid_export_energy_entity',
+    label: 'Grid Export Energy',
+    required: true,
+    group: 'required_grid',
+    shortHint: 'Accumulating exported grid energy.',
+  },
+  {
+    key: 'home_load_power_entity',
+    label: 'Home Load Power',
+    required: true,
+    group: 'required_load',
+    shortHint: 'Whole-home consumption / house load power.',
+  },
+  {
+    key: 'battery_soc_entity',
+    label: 'Battery SOC',
+    required: false,
+    group: 'optional_battery',
+    shortHint: 'Optional battery percentage for reserve-aware behavior.',
+  },
+  {
+    key: 'battery_charge_power_entity',
+    label: 'Battery Charge Power',
+    required: false,
+    group: 'optional_battery',
+    shortHint: 'Optional positive battery charging power.',
+  },
+  {
+    key: 'battery_discharge_power_entity',
+    label: 'Battery Discharge Power',
+    required: false,
+    group: 'optional_battery',
+    shortHint: 'Optional positive battery discharging power.',
+  },
+];
+
+const SOURCE_GROUPS = [
+  {
+    key: 'required_generation',
+    title: 'Required · Solar generation',
+    description: 'These tell Zero Net Export what your solar system is producing right now and over time.',
+  },
+  {
+    key: 'required_grid',
+    title: 'Required · Grid import/export',
+    description: 'These tell the controller whether energy is coming from the grid or being exported back out.',
+  },
+  {
+    key: 'required_load',
+    title: 'Required · Home consumption',
+    description: 'This gives the controller a whole-home load view so it can reason about surplus and demand.',
+  },
+  {
+    key: 'optional_battery',
+    title: 'Optional · Battery signals',
+    description: 'Helpful for reserve-aware control, but not required to get out of blocked source-setup safe mode.',
+  },
 ];
 
 class ZeroNetExportPanel extends HTMLElement {
@@ -555,6 +638,89 @@ class ZeroNetExportPanel extends HTMLElement {
     return this._escapeHtml(value);
   }
 
+  _sourceField(key) {
+    return SOURCE_FIELDS.find((field) => field.key === key);
+  }
+
+  _sourceSuggestionItems(sourceSuggestions, fieldKey) {
+    return sourceSuggestions?.[fieldKey]?.items || [];
+  }
+
+  _sourceProgress(entry) {
+    const sourceMapping = entry?.setup?.source_mapping || {};
+    const requiredFields = SOURCE_FIELDS.filter((field) => field.required);
+    const mappedRequired = requiredFields.filter((field) => !!sourceMapping[field.key]).length;
+    const missingRequired = requiredFields.filter((field) => !sourceMapping[field.key]);
+    const optionalBatteryMapped = SOURCE_FIELDS
+      .filter((field) => !field.required)
+      .filter((field) => !!sourceMapping[field.key]).length;
+
+    return {
+      requiredTotal: requiredFields.length,
+      mappedRequired,
+      missingRequired,
+      optionalBatteryMapped,
+    };
+  }
+
+  _applySuggestedSourcesToEmptyRequired(entry) {
+    const sourceSuggestions = entry?.setup?.entity_suggestions || {};
+    const sourceMapping = entry?.setup?.source_mapping || {};
+    let appliedCount = 0;
+
+    SOURCE_FIELDS.filter((field) => field.required).forEach((field) => {
+      if (sourceMapping[field.key]) {
+        return;
+      }
+      const topSuggestion = this._sourceSuggestionItems(sourceSuggestions, field.key)[0];
+      if (!topSuggestion?.entity_id) {
+        return;
+      }
+      const input = this.shadowRoot.querySelector(`#source-${field.key}`);
+      if (input && !input.value.trim()) {
+        input.value = topSuggestion.entity_id;
+        appliedCount += 1;
+      }
+    });
+
+    this._copyStatus = appliedCount
+      ? `Filled ${appliedCount} required source field${appliedCount === 1 ? '' : 's'} with the top likely match. Review before saving.`
+      : 'No empty required source fields had a likely match to apply.';
+    this._render();
+  }
+
+  _renderSourceField(field, sourceMapping, sourceSuggestions) {
+    const suggestionItems = this._sourceSuggestionItems(sourceSuggestions, field.key);
+    const topSuggestion = suggestionItems[0];
+    return `
+      <label class="source-field-card ${field.required ? 'required-source' : 'optional-source'}">
+        <span>${field.label}${field.required ? ' *' : ''}</span>
+        <span class="field-help">${this._escapeHtml(field.shortHint || '')}</span>
+        <input
+          list="source-entity-options"
+          id="source-${field.key}"
+          value="${this._escapeAttr(sourceMapping[field.key] || '')}"
+          placeholder="sensor.example_${field.key}"
+          ${this._busy ? 'disabled' : ''}
+        />
+        ${topSuggestion?.entity_id
+          ? `<div class="suggestion-block">
+              <div class="suggestion-label">Top likely match</div>
+              <button type="button" class="suggestion-chip primary-chip" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(topSuggestion.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(topSuggestion.label)}</button>
+            </div>`
+          : `<div class="suggestion-block muted">No likely match detected yet for ${field.label.toLowerCase()}.</div>`}
+        ${suggestionItems.length > 1
+          ? `<div class="suggestion-block">
+              <div class="suggestion-label">Other likely matches</div>
+              <div class="chip-row">
+                ${suggestionItems.slice(1).map((item) => `<button type="button" class="suggestion-chip" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(item.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(item.label)}</button>`).join('')}
+              </div>
+            </div>`
+          : ''}
+      </label>
+    `;
+  }
+
   _readNumber(selector, fallback = 0) {
     const raw = this.shadowRoot.querySelector(selector)?.value;
     if (raw === '' || raw === null || raw === undefined) {
@@ -604,30 +770,29 @@ class ZeroNetExportPanel extends HTMLElement {
     const sourceMapping = setup.source_mapping || {};
     const sourceDiagnostics = setup.source_diagnostics || validation.source_diagnostics || {};
     const sourceSuggestions = setup.entity_suggestions || {};
+    const sourceProgress = this._sourceProgress(entry);
     const calibrationHints = setup.calibration_hints || validation.calibration_hints || [];
     const entityOptions = (setup.available_entities || [])
       .map((item) => `<option value="${this._escapeAttr(item.entity_id)}">${this._escapeHtml(item.label)}</option>`)
       .join('');
-    const sourceInputs = SOURCE_FIELDS.map((field) => `
-      <label>
-        <span>${field.label}${field.required ? ' *' : ''}</span>
-        <input
-          list="source-entity-options"
-          id="source-${field.key}"
-          value="${this._escapeAttr(sourceMapping[field.key] || '')}"
-          placeholder="sensor.example_${field.key}"
-          ${this._busy ? 'disabled' : ''}
-        />
-        ${((sourceSuggestions[field.key]?.items || []).length)
-          ? `<div class="suggestion-block">
-              <div class="suggestion-label">Suggested matches · ${this._escapeHtml(sourceSuggestions[field.key]?.description || '')}</div>
-              <div class="chip-row">
-                ${(sourceSuggestions[field.key].items || []).map((item) => `<button type="button" class="suggestion-chip" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(item.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(item.label)}</button>`).join('')}
-              </div>
-            </div>`
-          : `<div class="suggestion-block muted">No obvious ${field.label.toLowerCase()} candidates detected yet.</div>`}
-      </label>
-    `).join('');
+    const sourceGroups = SOURCE_GROUPS.map((group) => {
+      const fields = SOURCE_FIELDS.filter((field) => field.group === group.key);
+      const mappedCount = fields.filter((field) => !!sourceMapping[field.key]).length;
+      return `
+        <section class="source-group-card ${fields.some((field) => field.required) ? 'source-group-required' : 'source-group-optional'}">
+          <div class="source-group-header">
+            <div>
+              <h4>${this._escapeHtml(group.title)}</h4>
+              <p class="muted">${this._escapeHtml(group.description)}</p>
+            </div>
+            <div class="group-progress ${mappedCount === fields.length ? 'group-progress-complete' : ''}">${mappedCount}/${fields.length} mapped</div>
+          </div>
+          <div class="form-grid source-grid">
+            ${fields.map((field) => this._renderSourceField(field, sourceMapping, sourceSuggestions)).join('')}
+          </div>
+        </section>
+      `;
+    }).join('');
     const sourceFreshness = validation.source_freshness || {};
     const freshnessRows = Object.entries(sourceFreshness)
       .map(([key, item]) => `<tr><td>${this._escapeHtml(key)}</td><td>${this._escapeHtml(item.entity_id || '—')}</td><td>${item.stale ? 'Stale' : 'OK'}</td><td>${this._escapeHtml(item.age_seconds ?? '—')}</td></tr>`)
@@ -666,6 +831,18 @@ class ZeroNetExportPanel extends HTMLElement {
         <p class="muted">Save source mappings here to reload the integration with validated panel-first setup data.</p>
       </section>
       <section class="panel-section">
+        <h3>Source Mapping Progress</h3>
+        <div class="card-grid compact-grid">
+          ${this._metric('Required mapped', `${sourceProgress.mappedRequired}/${sourceProgress.requiredTotal}`)}
+          ${this._metric('Missing required', sourceProgress.missingRequired.length)}
+          ${this._metric('Battery signals mapped', `${sourceProgress.optionalBatteryMapped}/3`)}
+        </div>
+        <p><strong>Status:</strong> ${sourceProgress.missingRequired.length ? 'Blocked on required mappings' : 'Required mappings complete'}</p>
+        <p><strong>Why it matters:</strong> Zero Net Export can load now, but it still needs these required source roles mapped before it can leave source-setup blocked state and make trustworthy control decisions.</p>
+        <p><strong>Missing required sources:</strong> ${sourceProgress.missingRequired.length ? this._escapeHtml(sourceProgress.missingRequired.map((field) => field.label).join(', ')) : 'None'}</p>
+        <p class="muted">Battery signals are helpful but optional. Focus on the required solar, grid, and home-load mappings first.</p>
+      </section>
+      <section class="panel-section">
         <h3>Operator Readiness</h3>
         <p><strong>Current phase:</strong> ${this._escapeHtml(readiness.phase || '—')}</p>
         <p><strong>Status:</strong> ${this._escapeHtml(readiness.summary || 'No readiness summary published yet.')}</p>
@@ -679,7 +856,9 @@ class ZeroNetExportPanel extends HTMLElement {
       </section>` : ''}
       <section class="panel-section">
         <h3>Source Mapping</h3>
-        <div class="form-grid">${sourceInputs}
+        <p class="muted">Work top-to-bottom: map the required solar, grid, and home-load roles first, then add optional battery signals if you have them.</p>
+        ${sourceGroups}
+        <div class="form-grid">
           <label>
             <span>Refresh Seconds</span>
             <input id="source-refresh-seconds" type="number" min="5" max="300" step="5" value="${sourceMapping.refresh_seconds ?? 30}" ${this._busy ? 'disabled' : ''} />
@@ -687,8 +866,10 @@ class ZeroNetExportPanel extends HTMLElement {
         </div>
         <datalist id="source-entity-options">${entityOptions}</datalist>
         <div class="button-row">
+          <button class="action-button secondary" data-action="fill-required-suggestions" ${this._busy ? 'disabled' : ''}>Fill Empty Required Fields With Likely Matches</button>
           <button class="action-button" data-action="save-sources" ${this._busy ? 'disabled' : ''}>Save Source Mapping</button>
         </div>
+        ${this._copyStatus ? `<p><strong>Setup note:</strong> ${this._escapeHtml(this._copyStatus)}</p>` : ''}
       </section>
       <section class="panel-section">
         <h3>Mapped Source Freshness</h3>
@@ -1234,6 +1415,10 @@ class ZeroNetExportPanel extends HTMLElement {
       await this._saveSourcesFromForm();
     });
 
+    this.shadowRoot.querySelector('[data-action="fill-required-suggestions"]')?.addEventListener('click', () => {
+      this._applySuggestedSourcesToEmptyRequired(entry);
+    });
+
     this.shadowRoot.querySelectorAll('[data-source-field]').forEach((button) => {
       button.addEventListener('click', () => {
         const input = this.shadowRoot.querySelector(`#source-${button.dataset.sourceField}`);
@@ -1486,6 +1671,11 @@ class ZeroNetExportPanel extends HTMLElement {
         .hint-list {
           margin-top: 12px;
         }
+        .field-help {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          line-height: 1.4;
+        }
         .suggestion-block {
           margin-top: 8px;
         }
@@ -1507,6 +1697,56 @@ class ZeroNetExportPanel extends HTMLElement {
           padding: 6px 10px;
           cursor: pointer;
           text-align: left;
+        }
+        .primary-chip {
+          border-color: var(--primary-color);
+          background: color-mix(in srgb, var(--primary-color) 14%, var(--card-background-color));
+        }
+        .compact-grid {
+          margin-bottom: 12px;
+        }
+        .source-group-card {
+          margin-top: 14px;
+          padding: 14px;
+          border-radius: 14px;
+          background: var(--secondary-background-color, var(--card-background-color));
+          border: 1px solid var(--divider-color);
+        }
+        .source-group-required {
+          border-left: 4px solid var(--primary-color);
+        }
+        .source-group-header {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          align-items: flex-start;
+          margin-bottom: 12px;
+        }
+        .source-group-header h4 {
+          margin: 0 0 4px;
+        }
+        .group-progress {
+          white-space: nowrap;
+          border-radius: 999px;
+          padding: 6px 10px;
+          border: 1px solid var(--divider-color);
+          color: var(--secondary-text-color);
+        }
+        .group-progress-complete {
+          color: #2e7d32;
+          border-color: rgba(46, 125, 50, 0.35);
+        }
+        .source-grid {
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+        .source-field-card {
+          padding: 12px;
+          border-radius: 12px;
+          border: 1px solid var(--divider-color);
+          background: var(--card-background-color);
+        }
+        .required-source {
+          box-shadow: inset 0 0 0 1px rgba(25, 118, 210, 0.08);
         }
         .live-chip {
           display: inline-flex;

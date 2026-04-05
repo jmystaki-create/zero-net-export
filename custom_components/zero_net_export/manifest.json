@@ -1,7 +1,7 @@
 {
   "domain": "zero_net_export",
   "name": "Zero Net Export",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "documentation": "https://github.com/jmystaki-create/zero-net-export#readme",
   "issue_tracker": "https://github.com/jmystaki-create/zero-net-export/issues",
   "codeowners": ["@jmystaki"],
