@@ -1,6 +1,7 @@
 """Config flow for Zero Net Export."""
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 import voluptuous as vol
@@ -35,6 +36,8 @@ from .const import (
     DOMAIN,
 )
 from .device_model import default_device_blueprint, parse_device_configs
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _coerce_number(value: Any, fallback: int | float) -> int | float:
@@ -120,7 +123,8 @@ class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry):
-        self.config_entry = config_entry
+        super().__init__()
+        self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
         errors = {}
@@ -145,7 +149,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_TARGET_EXPORT_W,
                     default=_entry_default_number(
-                        self.config_entry,
+                        self._config_entry,
                         CONF_TARGET_EXPORT_W,
                         DEFAULT_TARGET_EXPORT_W,
                     ),
@@ -155,7 +159,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_DEADBAND_W,
                     default=_entry_default_number(
-                        self.config_entry,
+                        self._config_entry,
                         CONF_DEADBAND_W,
                         DEFAULT_DEADBAND_W,
                     ),
@@ -165,7 +169,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_BATTERY_RESERVE_SOC,
                     default=_entry_default_number(
-                        self.config_entry,
+                        self._config_entry,
                         CONF_BATTERY_RESERVE_SOC,
                         DEFAULT_BATTERY_RESERVE_SOC,
                     ),
@@ -175,7 +179,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_REFRESH_SECONDS,
                     default=_entry_default_number(
-                        self.config_entry,
+                        self._config_entry,
                         CONF_REFRESH_SECONDS,
                         DEFAULT_REFRESH_SECONDS,
                     ),
@@ -185,7 +189,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_DEVICE_INVENTORY_JSON,
                     default=_entry_default_text(
-                        self.config_entry,
+                        self._config_entry,
                         CONF_DEVICE_INVENTORY_JSON,
                         DEFAULT_DEVICE_INVENTORY_JSON,
                     ),

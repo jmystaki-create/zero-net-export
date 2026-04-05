@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.32] - 2026-04-05
+
+### Fixed
+- Fixed the Home Assistant options/gear flow regression by avoiding assignment to the read-only `config_entry` property in `OptionsFlow`, which previously crashed upgraded installs with `AttributeError: property 'config_entry' of 'ZeroNetExportOptionsFlow' object has no setter`.
+- Fixed coordinator startup on Home Assistant by restoring a real module logger instead of `logger=None`, preventing `AttributeError: 'NoneType' object has no attribute 'isEnabledFor'` during the first refresh/setup path.
+
+### Changed
+- Integration version advanced to `0.1.32` for the real Home Assistant runtime repair release.
+
 ## [0.1.31] - 2026-04-05
 
 ### Fixed

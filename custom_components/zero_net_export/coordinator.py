@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+import logging
 from typing import Any
 
 from homeassistant.util import dt as dt_util
@@ -47,6 +48,8 @@ MAX_DAILY_METRIC_DAYS = 7
 STALE_SOURCE_MIN_SECONDS = 120
 STALE_SOURCE_REFRESH_MULTIPLIER = 3
 COMMAND_FAILURE_ACTIVE_SECONDS = 900
+
+_LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -163,7 +166,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         )
         super().__init__(
             hass,
-            logger=None,
+            logger=_LOGGER,
             name=DOMAIN,
             update_interval=timedelta(
                 seconds=entry.options.get(
