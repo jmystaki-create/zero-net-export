@@ -646,6 +646,44 @@ class ZeroNetExportPanel extends HTMLElement {
     return sourceSuggestions?.[fieldKey]?.items || [];
   }
 
+  _sourceDisplayValue(value) {
+    return value === null || value === undefined || value === '' ? '—' : String(value);
+  }
+
+  _sourceRoleStatus(field, sourceMapping, sourceDiagnostics) {
+    const mappedEntity = sourceMapping?.[field.key];
+    if (!mappedEntity) {
+      return {
+        tone: field.required ? 'blocked' : 'optional',
+        label: field.required ? 'Required and not mapped yet' : 'Optional and not mapped yet',
+        detail: field.required ? 'Pick the closest matching entity to leave source-setup blocked state.' : 'Safe to skip for now.',
+      };
+    }
+
+    const diagnostic = sourceDiagnostics?.[field.key] || {};
+    const issues = diagnostic?.issues || [];
+    const errorCount = issues.filter((issue) => `${issue?.severity || ''}`.toLowerCase() === 'error').length;
+    if (errorCount) {
+      return {
+        tone: 'blocked',
+        label: 'Mapped but still needs attention',
+        detail: `${errorCount} blocking validation issue${errorCount === 1 ? '' : 's'} reported for ${mappedEntity}.`,
+      };
+    }
+    if (diagnostic?.status && diagnostic.status !== 'ok') {
+      return {
+        tone: 'warning',
+        label: 'Mapped, but validate before relying on it',
+        detail: `${mappedEntity} is currently reported as ${diagnostic.status}.`,
+      };
+    }
+    return {
+      tone: 'ready',
+      label: 'Mapped and looks healthy',
+      detail: `${mappedEntity} is available for this role.`,
+    };
+  }
+
   _sourceProgress(entry) {
     const sourceMapping = entry?.setup?.source_mapping || {};
     const requiredFields = SOURCE_FIELDS.filter((field) => field.required);
@@ -689,31 +727,43 @@ class ZeroNetExportPanel extends HTMLElement {
     this._render();
   }
 
-  _renderSourceField(field, sourceMapping, sourceSuggestions) {
+  _renderSourceField(field, sourceMapping, sourceSuggestions, sourceDiagnostics) {
     const suggestionItems = this._sourceSuggestionItems(sourceSuggestions, field.key);
     const topSuggestion = suggestionItems[0];
+    const status = this._sourceRoleStatus(field, sourceMapping, sourceDiagnostics);
+    const mappedEntity = sourceMapping[field.key] || '';
+    const diagnostic = sourceDiagnostics?.[field.key] || {};
     return `
-      <label class="source-field-card ${field.required ? 'required-source' : 'optional-source'}">
-        <span>${field.label}${field.required ? ' *' : ''}</span>
+      <label class="source-field-card ${field.required ? 'required-source' : 'optional-source'} ${status.tone}">
+        <div class="source-field-header">
+          <span>${field.label}${field.required ? ' *' : ''}</span>
+          <span class="status-pill status-${status.tone}">${this._escapeHtml(status.label)}</span>
+        </div>
         <span class="field-help">${this._escapeHtml(field.shortHint || '')}</span>
+        <span class="field-help">${this._escapeHtml(status.detail)}</span>
         <input
           list="source-entity-options"
           id="source-${field.key}"
-          value="${this._escapeAttr(sourceMapping[field.key] || '')}"
+          value="${this._escapeAttr(mappedEntity)}"
           placeholder="sensor.example_${field.key}"
           ${this._busy ? 'disabled' : ''}
         />
+        ${mappedEntity
+          ? `<div class="source-inline-meta">Current mapping: <strong>${this._escapeHtml(mappedEntity)}</strong>${diagnostic?.value !== undefined || diagnostic?.raw_state !== undefined ? ` · reading ${this._escapeHtml(this._sourceDisplayValue(diagnostic.value ?? diagnostic.raw_state))}${diagnostic?.unit ? ` ${this._escapeHtml(diagnostic.unit)}` : ''}` : ''}</div>`
+          : ''}
         ${topSuggestion?.entity_id
           ? `<div class="suggestion-block">
               <div class="suggestion-label">Top likely match</div>
               <button type="button" class="suggestion-chip primary-chip" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(topSuggestion.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(topSuggestion.label)}</button>
+              <div class="suggestion-meta">${this._escapeHtml(topSuggestion.why || 'Likely metadata match.')}${topSuggestion.score ? ` · score ${this._escapeHtml(topSuggestion.score)}` : ''}</div>
+              ${Array.isArray(topSuggestion.penalties) && topSuggestion.penalties.length ? `<div class="suggestion-meta warning-text">Watch out: ${this._escapeHtml(topSuggestion.penalties.join(' · '))}</div>` : ''}
             </div>`
           : `<div class="suggestion-block muted">No likely match detected yet for ${field.label.toLowerCase()}.</div>`}
         ${suggestionItems.length > 1
           ? `<div class="suggestion-block">
               <div class="suggestion-label">Other likely matches</div>
               <div class="chip-row">
-                ${suggestionItems.slice(1).map((item) => `<button type="button" class="suggestion-chip" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(item.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(item.label)}</button>`).join('')}
+                ${suggestionItems.slice(1).map((item) => `<button type="button" class="suggestion-chip" title="${this._escapeAttr(item.why || 'Likely metadata match.')}" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(item.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(item.label)}</button>`).join('')}
               </div>
             </div>`
           : ''}
@@ -775,6 +825,26 @@ class ZeroNetExportPanel extends HTMLElement {
     const entityOptions = (setup.available_entities || [])
       .map((item) => `<option value="${this._escapeAttr(item.entity_id)}">${this._escapeHtml(item.label)}</option>`)
       .join('');
+    const requiredRoleCards = sourceProgress.missingRequired.map((field) => {
+      const suggestions = this._sourceSuggestionItems(sourceSuggestions, field.key);
+      const topSuggestion = suggestions[0];
+      return `
+        <div class="role-card blocked">
+          <div class="role-card-header">
+            <strong>${this._escapeHtml(field.label)}</strong>
+            <span class="status-pill status-blocked">Missing required</span>
+          </div>
+          <div class="muted">${this._escapeHtml(field.shortHint || '')}</div>
+          ${topSuggestion?.entity_id
+            ? `<div class="role-card-body">
+                <div><strong>Best current guess:</strong> ${this._escapeHtml(topSuggestion.label)}</div>
+                <div class="suggestion-meta">${this._escapeHtml(topSuggestion.why || 'Likely metadata match.')}</div>
+                <button type="button" class="small-button" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(topSuggestion.entity_id)}" ${this._busy ? 'disabled' : ''}>Use suggested entity</button>
+              </div>`
+            : '<div class="role-card-body muted">No likely match yet. Use the entity picker below.</div>'}
+        </div>
+      `;
+    }).join('');
     const sourceGroups = SOURCE_GROUPS.map((group) => {
       const fields = SOURCE_FIELDS.filter((field) => field.group === group.key);
       const mappedCount = fields.filter((field) => !!sourceMapping[field.key]).length;
@@ -788,7 +858,7 @@ class ZeroNetExportPanel extends HTMLElement {
             <div class="group-progress ${mappedCount === fields.length ? 'group-progress-complete' : ''}">${mappedCount}/${fields.length} mapped</div>
           </div>
           <div class="form-grid source-grid">
-            ${fields.map((field) => this._renderSourceField(field, sourceMapping, sourceSuggestions)).join('')}
+            ${fields.map((field) => this._renderSourceField(field, sourceMapping, sourceSuggestions, sourceDiagnostics)).join('')}
           </div>
         </section>
       `;
@@ -841,6 +911,7 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Why it matters:</strong> Zero Net Export can load now, but it still needs these required source roles mapped before it can leave source-setup blocked state and make trustworthy control decisions.</p>
         <p><strong>Missing required sources:</strong> ${sourceProgress.missingRequired.length ? this._escapeHtml(sourceProgress.missingRequired.map((field) => field.label).join(', ')) : 'None'}</p>
         <p class="muted">Battery signals are helpful but optional. Focus on the required solar, grid, and home-load mappings first.</p>
+        ${requiredRoleCards ? `<div class="role-card-grid">${requiredRoleCards}</div>` : '<div class="success-banner">All required source roles are mapped. Review diagnostics below, then move on to device onboarding or runtime validation.</div>'}
       </section>
       <section class="panel-section">
         <h3>Operator Readiness</h3>
@@ -1676,7 +1747,51 @@ class ZeroNetExportPanel extends HTMLElement {
           font-size: 12px;
           line-height: 1.4;
         }
+        .source-field-header,
+        .role-card-header {
+          display: flex;
+          justify-content: space-between;
+          gap: 8px;
+          align-items: flex-start;
+        }
+        .status-pill {
+          display: inline-flex;
+          align-items: center;
+          border-radius: 999px;
+          padding: 4px 8px;
+          font-size: 11px;
+          white-space: nowrap;
+          border: 1px solid var(--divider-color);
+        }
+        .status-ready {
+          color: #2e7d32;
+          border-color: rgba(46, 125, 50, 0.35);
+          background: rgba(46, 125, 50, 0.08);
+        }
+        .status-warning {
+          color: #9a6700;
+          border-color: rgba(154, 103, 0, 0.35);
+          background: rgba(154, 103, 0, 0.08);
+        }
+        .status-blocked,
+        .status-optional {
+          color: #b3261e;
+          border-color: rgba(179, 38, 30, 0.35);
+          background: rgba(179, 38, 30, 0.08);
+        }
         .suggestion-block {
+          margin-top: 8px;
+        }
+        .suggestion-meta,
+        .source-inline-meta {
+          margin-top: 6px;
+          font-size: 12px;
+          color: var(--secondary-text-color);
+          line-height: 1.4;
+        }
+        .warning-text {
+          color: #9a6700;
+        }
           margin-top: 8px;
         }
         .suggestion-label {
@@ -1747,6 +1862,38 @@ class ZeroNetExportPanel extends HTMLElement {
         }
         .required-source {
           box-shadow: inset 0 0 0 1px rgba(25, 118, 210, 0.08);
+        }
+        .source-field-card.ready {
+          border-color: rgba(46, 125, 50, 0.35);
+        }
+        .source-field-card.warning {
+          border-color: rgba(154, 103, 0, 0.35);
+        }
+        .source-field-card.blocked {
+          border-color: rgba(179, 38, 30, 0.35);
+        }
+        .role-card-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 12px;
+          margin-top: 14px;
+        }
+        .role-card,
+        .success-banner {
+          border-radius: 14px;
+          padding: 14px;
+          border: 1px solid var(--divider-color);
+          background: var(--secondary-background-color, var(--card-background-color));
+        }
+        .role-card.blocked {
+          border-color: rgba(179, 38, 30, 0.35);
+        }
+        .role-card-body {
+          margin-top: 10px;
+        }
+        .success-banner {
+          color: #2e7d32;
+          border-color: rgba(46, 125, 50, 0.35);
         }
         .live-chip {
           display: inline-flex;

@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.34] - 2026-04-05
+
+### Changed
+- Added a guided required-role checklist at the top of the Setup tab so operators can immediately see which exact solar/grid/home mappings are still blocking readiness and apply a suggested entity per missing role without hunting through the full form first.
+- Enriched source suggestion ranking with plain-language match reasons plus import/export conflict penalties, helping the panel explain *why* an entity is being suggested and reducing the chance of picking the wrong grid direction sensor.
+- Source cards now show per-role mapping health more clearly with mapped/blocked/warning status pills and inline current-mapping context, making the install -> mapped -> operational transition less opaque.
+- Panel schema advanced to `22` and integration version advanced to `0.1.34` for the guided required-mapping/operator-readiness refresh.
+
 ## [0.1.33] - 2026-04-05
 
 ### Changed

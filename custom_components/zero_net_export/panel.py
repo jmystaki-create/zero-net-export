@@ -59,7 +59,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 21
+PANEL_SCHEMA_VERSION = 22
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -1065,8 +1065,14 @@ def _available_sensor_entities(hass: HomeAssistant) -> list[dict[str, str]]:
     return entities
 
 
-def _score_source_candidate(entity: dict[str, Any], quantity: str, preferred_terms: tuple[str, ...]) -> int:
+def _source_candidate_analysis(
+    entity: dict[str, Any],
+    quantity: str,
+    preferred_terms: tuple[str, ...],
+) -> dict[str, Any]:
     score = 0
+    reasons: list[str] = []
+    penalties: list[str] = []
     unit = entity.get("unit")
     device_class = entity.get("device_class")
     state_class = entity.get("state_class")
@@ -1075,30 +1081,57 @@ def _score_source_candidate(entity: dict[str, Any], quantity: str, preferred_ter
     if quantity == "power":
         if unit in {"W", "kW"}:
             score += 50
+            reasons.append(f"power unit {unit}")
         if device_class == "power":
             score += 25
+            reasons.append("power device class")
         if state_class == "measurement":
             score += 10
+            reasons.append("live measurement")
     elif quantity == "energy":
         if unit in {"Wh", "kWh"}:
             score += 50
+            reasons.append(f"energy unit {unit}")
         if device_class == "energy":
             score += 25
+            reasons.append("energy device class")
         if state_class in {"total", "total_increasing"}:
             score += 10
+            reasons.append("accumulating total")
     elif quantity == "percent":
         if unit == "%":
             score += 50
+            reasons.append("percentage unit")
         if device_class in {"battery", "power_factor"}:
             score += 15
+            reasons.append(f"{device_class} device class")
         if state_class == "measurement":
             score += 10
+            reasons.append("live measurement")
 
-    for term in preferred_terms:
-        if term in haystack:
-            score += 8
+    matched_terms = [term for term in preferred_terms if term in haystack]
+    if matched_terms:
+        score += 8 * len(matched_terms)
+        reasons.append(f"name matches: {', '.join(matched_terms[:3])}")
 
-    return score
+    import_terms = {"import", "from grid", "consumption"}
+    export_terms = {"export", "feed", "to grid"}
+    if any(term in preferred_terms for term in import_terms):
+        conflicting = [term for term in export_terms if term in haystack]
+        if conflicting:
+            score -= 24
+            penalties.append(f"mentions export-like term: {conflicting[0]}")
+    if any(term in preferred_terms for term in export_terms):
+        conflicting = [term for term in import_terms if term in haystack]
+        if conflicting:
+            score -= 24
+            penalties.append(f"mentions import-like term: {conflicting[0]}")
+
+    return {
+        "score": score,
+        "why": ", ".join(reasons[:3]) if reasons else "Weak metadata match only.",
+        "penalties": penalties,
+    }
 
 
 def _source_entity_suggestions(hass: HomeAssistant) -> dict[str, Any]:
@@ -1106,16 +1139,18 @@ def _source_entity_suggestions(hass: HomeAssistant) -> dict[str, Any]:
     suggestions: dict[str, Any] = {}
 
     for key, hint in _SOURCE_ROLE_HINTS.items():
-        ranked = sorted(
-            (
+        ranked_items: list[dict[str, Any]] = []
+        for entity in available:
+            analysis = _source_candidate_analysis(entity, hint["quantity"], hint["preferred_terms"])
+            ranked_items.append(
                 {
                     **entity,
-                    "score": _score_source_candidate(entity, hint["quantity"], hint["preferred_terms"]),
+                    "score": analysis["score"],
+                    "why": analysis["why"],
+                    "penalties": analysis["penalties"],
                 }
-                for entity in available
-            ),
-            key=lambda item: (-item["score"], item["entity_id"]),
-        )
+            )
+        ranked = sorted(ranked_items, key=lambda item: (-item["score"], item["entity_id"]))
         suggestions[key] = {
             "description": hint["description"],
             "quantity": hint["quantity"],
