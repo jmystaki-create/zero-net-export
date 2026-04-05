@@ -3,12 +3,17 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
+from homeassistant.helpers.entity import EntityCategory
 
-from .const import DOMAIN
+from .const import DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
+from .release_info import build_release_info
 
 
 SENSOR_DEFS = {
+    "installed_version": "Installed version",
+    "release_summary": "Release summary",
+    "changes_preview": "Changes preview",
     "status": "Status",
     "reason": "Reason",
     "recommendation": "Recommendation",
@@ -83,6 +88,8 @@ SOURCE_LABELS = {
 
 TIMESTAMP_SENSOR_KEYS = {"last_action_at", "last_successful_action_at", "last_failed_action_at"}
 VALIDATION_ATTRIBUTE_SENSOR_KEYS = {
+    "release_summary",
+    "changes_preview",
     "confidence",
     "recommendation",
     "diagnostic_summary",
@@ -169,7 +176,18 @@ def _build_source_entities(coordinator):
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def native_value(self):
+        if self._key == "installed_version":
+            return INTEGRATION_VERSION
+        if self._key in {"release_summary", "changes_preview"}:
+            info = build_release_info(INTEGRATION_VERSION)
+            return info.get(self._key)
         return getattr(self.coordinator.data, self._key)
+
+    @property
+    def entity_category(self):
+        if self._key in {"installed_version", "release_summary", "changes_preview"}:
+            return EntityCategory.DIAGNOSTIC
+        return None
 
     @property
     def native_unit_of_measurement(self):
@@ -192,6 +210,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
+        if self._key == "installed_version":
+            return build_release_info(INTEGRATION_VERSION)
+        if self._key in {"release_summary", "changes_preview"}:
+            return {
+                **build_release_info(INTEGRATION_VERSION),
+                "config_entry_version": self.coordinator.entry.version,
+            }
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:
             return self.coordinator.data.validation_details
         return None

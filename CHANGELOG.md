@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.36] - 2026-04-06
+
+### Added
+- Added diagnostic release entities for the integration device, including an installed-version sensor plus operator-facing release summary and change-preview sensors, so version/change visibility is available directly from normal Home Assistant entity/device surfaces rather than only inside HACS or GitHub.
+- Added a concise installed-release panel section on the Overview tab so the operator can immediately see the installed version and top changes without digging through Settings.
+
+### Changed
+- Expanded parsed release metadata with a short `changes_preview`/headline summary that can be reused across panel, diagnostics, and entity attributes for consistent in-product update messaging.
+- Panel schema advanced to `24` and integration version advanced to `0.1.36` for the in-product release-visibility follow-up.
+
 ## [0.1.35] - 2026-04-05
 
 ### Added

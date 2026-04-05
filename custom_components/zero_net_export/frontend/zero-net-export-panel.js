@@ -781,6 +781,11 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _renderOverview(entry) {
     const overview = entry?.overview || {};
+    const releaseInfo = overview.release_info || entry?.settings?.release_info || {};
+    const releaseHighlights = Array.isArray(releaseInfo.highlights) ? releaseInfo.highlights.slice(0, 3) : [];
+    const releaseHighlightItems = releaseHighlights
+      .map((item) => `<li>${this._escapeHtml(item)}</li>`)
+      .join('');
     return `
       <section class="card-grid">
         ${this._metric('Solar', overview.solar_power_w, ' W')}
@@ -809,6 +814,17 @@ class ZeroNetExportPanel extends HTMLElement {
           <button class="action-button secondary" data-action="controller-enabled" data-value="false" ${this._busy ? 'disabled' : ''}>Disable Control</button>
           <button class="action-button secondary" data-action="reset-controller" ${this._busy ? 'disabled' : ''}>Reset Overrides</button>
         </div>
+      </section>
+      <section class="panel-section">
+        <h3>Installed Release</h3>
+        <p><strong>Version:</strong> ${this._escapeHtml(releaseInfo.current_version || entry?.integration_version || '—')}</p>
+        <p><strong>Released on:</strong> ${this._escapeHtml(releaseInfo.released_on || '—')}</p>
+        <p><strong>Summary:</strong> ${this._escapeHtml(releaseInfo.summary || 'No release summary available yet.')}</p>
+        <p><strong>What changed:</strong> ${this._escapeHtml(releaseInfo.changes_preview || 'No in-product change preview available yet.')}</p>
+        ${releaseHighlightItems
+          ? `<div class="hint-list"><strong>Top changes in this installed version</strong><ul>${releaseHighlightItems}</ul></div>`
+          : ''}
+        <p class="muted">Use Settings for the full support snapshot and previous-release comparison.</p>
       </section>
     `;
   }

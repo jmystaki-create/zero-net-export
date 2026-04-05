@@ -64,6 +64,9 @@ def build_release_info(version: str = INTEGRATION_VERSION) -> dict[str, Any]:
             "current_version": version,
             "released_on": None,
             "highlights": [],
+            "highlight_count": 0,
+            "headline": f"Version {version}",
+            "changes_preview": "No changelog entry matched this installed version.",
             "previous_version": None,
             "previous_released_on": None,
             "previous_highlights": [],
@@ -73,7 +76,8 @@ def build_release_info(version: str = INTEGRATION_VERSION) -> dict[str, Any]:
 
     index = sections.index(current)
     previous = sections[index + 1] if index + 1 < len(sections) else None
-    highlight_count = len(current.get("highlights") or [])
+    highlights = current.get("highlights", [])
+    highlight_count = len(highlights)
     summary = (
         f"Installed version {version}"
         + (f" ({current['released_on']})" if current.get("released_on") else "")
@@ -86,10 +90,15 @@ def build_release_info(version: str = INTEGRATION_VERSION) -> dict[str, Any]:
     if previous:
         summary += f" Previous documented release: {previous['version']}."
 
+    preview = " • ".join(highlights[:3]) if highlights else "No bullet highlights were documented for this release."
+
     return {
         "current_version": version,
         "released_on": current.get("released_on"),
-        "highlights": current.get("highlights", []),
+        "highlights": highlights,
+        "highlight_count": highlight_count,
+        "headline": f"Version {version}" + (f" · {current['released_on']}" if current.get("released_on") else ""),
+        "changes_preview": preview,
         "previous_version": previous.get("version") if previous else None,
         "previous_released_on": previous.get("released_on") if previous else None,
         "previous_highlights": previous.get("highlights", []) if previous else [],

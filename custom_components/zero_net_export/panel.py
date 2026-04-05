@@ -60,7 +60,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 23
+PANEL_SCHEMA_VERSION = 24
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -823,6 +823,7 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
         "health_status": state.health_status,
         "health_summary": state.health_summary,
         "confidence": state.confidence,
+        "release_info": release_info,
         "controller_settings": _serialize_value(
             coordinator._controller_settings_attributes()
         ),
