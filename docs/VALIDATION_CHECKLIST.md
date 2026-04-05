@@ -17,6 +17,8 @@ Use this checklist to validate Zero Net Export in a real Home Assistant environm
 - [ ] Integration downloaded without errors
 - [ ] Home Assistant restart completes successfully
 - [ ] Integration appears in Settings → Devices & Services
+- [ ] HACS shows the expected new version/tag before upgrade
+- [ ] The installed package contents match the expected release (not an older cached/raw form-first build)
 
 ### Manual Install Path
 - [ ] `custom_components/zero_net_export` copied to HA config
@@ -26,6 +28,7 @@ Use this checklist to validate Zero Net Export in a real Home Assistant environm
 ## Configuration Flow Validation
 
 - [ ] Config flow opens when adding integration
+- [ ] The config flow shown in the real HA install matches the currently tagged/published package
 - [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-mapping form
 - [ ] Bootstrap step clearly explains that source mapping and onboarding continue in the panel app
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
@@ -217,6 +220,14 @@ Use this checklist to validate Zero Net Export in a real Home Assistant environm
 - [ ] Handles empty device inventory
 - [ ] Handles single device inventory
 - [ ] Handles many devices (10+) without performance degradation
+
+## Release / Distribution Validation
+
+- [ ] `origin/main` contains the user-visible release commit
+- [ ] Remote git tags include the intended release version
+- [ ] GitHub release exists for the same version when using release-based HACS visibility
+- [ ] `manifest.json`, `CHANGELOG.md`, git tag, and GitHub release version all agree
+- [ ] The Home Assistant install path being tested is confirmed to be serving that same released package
 
 ## Documentation Validation
 

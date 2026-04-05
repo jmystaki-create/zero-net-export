@@ -8,6 +8,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
+- Added explicit release/distribution verification guidance so HACS-visible shipping now requires pushed branch state, matching remote tags/releases, and confirmation that the real HA install path is serving the intended package instead of a stale older build.
 
 ## [0.1.29] - 2026-04-05
 
