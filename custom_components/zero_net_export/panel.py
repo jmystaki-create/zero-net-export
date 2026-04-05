@@ -43,6 +43,7 @@ from .device_model import (
     DEVICE_KIND_VARIABLE,
     parse_device_configs,
 )
+from .release_info import build_release_info
 from .validation import SourceSpec, validate_configured_entities
 
 PANEL_TITLE = "Zero Net Export"
@@ -59,7 +60,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 22
+PANEL_SCHEMA_VERSION = 23
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -744,6 +745,7 @@ def _build_support_snapshot(
         f"Integration version: {INTEGRATION_VERSION}",
         f"Config entry version: {coordinator.entry.version}",
         f"Panel schema version: {PANEL_SCHEMA_VERSION}",
+        f"Release summary: {build_release_info(INTEGRATION_VERSION).get('summary', 'n/a')}",
         "",
         "Readiness",
         f"- phase: {operator_readiness.get('phase')}",
@@ -789,6 +791,7 @@ def _build_support_snapshot(
 
 def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -> dict[str, Any]:
     state = coordinator.data
+    release_info = build_release_info(INTEGRATION_VERSION)
     if state is None:
         return {
             "entry_id": entry_id,
@@ -896,6 +899,7 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
     }
 
     diagnostics = {
+        "release_info": release_info,
         "control_status": state.control_status,
         "control_summary": state.control_summary,
         "control_reason": state.control_reason,
@@ -952,6 +956,7 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
             "entry_title": coordinator.entry.title,
             "config_entry_version": coordinator.entry.version,
             "integration_version": INTEGRATION_VERSION,
+            "release_summary": release_info.get("summary"),
             "device_count": state.device_count,
             "enabled_device_count": state.enabled_device_count,
             "usable_device_count": state.usable_device_count,
@@ -973,9 +978,11 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
             ],
             "readiness": operator_readiness,
         },
+        "release_info": release_info,
         "links": {
             "documentation": "https://github.com/jmystaki-create/zero-net-export#readme",
             "changelog": "https://github.com/jmystaki-create/zero-net-export/blob/main/CHANGELOG.md",
+            "releases": "https://github.com/jmystaki-create/zero-net-export/releases",
             "panel_rebuild_plan": "https://github.com/jmystaki-create/zero-net-export/blob/main/docs/PANEL_APP_REBUILD_PLAN.md",
             "release_process": "https://github.com/jmystaki-create/zero-net-export/blob/main/docs/RELEASE_PROCESS.md",
             "issues": "https://github.com/jmystaki-create/zero-net-export/issues",

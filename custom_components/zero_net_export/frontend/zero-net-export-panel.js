@@ -1256,6 +1256,7 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _renderSettings(entry) {
     const overview = entry?.overview || {};
+    const diagnostics = entry?.diagnostics || {};
     const settings = entry?.settings || {};
     const defaults = this._controllerDefaults(entry);
     const configuredDefaults = settings.controller_defaults || {};
@@ -1263,12 +1264,21 @@ class ZeroNetExportPanel extends HTMLElement {
     const workflow = settings.workflow || {};
     const readiness = workflow.readiness || {};
     const links = settings.links || {};
+    const releaseInfo = settings.release_info || diagnostics.release_info || {};
+    const currentHighlights = Array.isArray(releaseInfo.highlights) ? releaseInfo.highlights : [];
+    const previousHighlights = Array.isArray(releaseInfo.previous_highlights) ? releaseInfo.previous_highlights : [];
     const modeOptions = MODES.map((mode) => `<option value="${mode.value}" ${overview.mode === mode.value ? 'selected' : ''}>${mode.label}</option>`).join('');
     const workflowItems = (workflow.normal_operator_path || [])
       .map((item) => `<li>${this._escapeHtml(item)}</li>`)
       .join('');
     const linkItems = Object.entries(links)
       .map(([key, value]) => `<li><a href="${this._escapeAttr(value)}" target="_blank" rel="noreferrer">${this._escapeHtml(key.replaceAll('_', ' '))}</a></li>`)
+      .join('');
+    const currentHighlightItems = currentHighlights
+      .map((item) => `<li>${this._escapeHtml(item)}</li>`)
+      .join('');
+    const previousHighlightItems = previousHighlights
+      .map((item) => `<li>${this._escapeHtml(item)}</li>`)
       .join('');
     const supportSnapshot = settings.support_snapshot || '';
     return `
@@ -1335,6 +1345,15 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Integration version:</strong> ${this._escapeHtml(entry?.integration_version || operatorSummary.integration_version || this._state?.integration_version || '—')}</p>
         <p><strong>Config entry version:</strong> ${entry?.config_entry_version ?? operatorSummary.config_entry_version ?? '—'}</p>
         <p><strong>Panel schema version:</strong> ${this._state?.panel_schema_version ?? '—'}</p>
+        <p><strong>Release summary:</strong> ${this._escapeHtml(releaseInfo.summary || operatorSummary.release_summary || 'No release summary available.')}</p>
+        <p><strong>Released on:</strong> ${this._escapeHtml(releaseInfo.released_on || '—')}</p>
+        <p><strong>Previous documented release:</strong> ${this._escapeHtml(releaseInfo.previous_version || '—')}</p>
+        ${currentHighlightItems
+          ? `<div class="hint-list"><strong>What changed in ${this._escapeHtml(releaseInfo.current_version || entry?.integration_version || 'this release')}</strong><ul>${currentHighlightItems}</ul></div>`
+          : '<p class="muted">No current-release highlights were parsed from the changelog.</p>'}
+        ${previousHighlightItems
+          ? `<div class="hint-list"><strong>What changed previously (${this._escapeHtml(releaseInfo.previous_version)})</strong><ul>${previousHighlightItems}</ul></div>`
+          : ''}
         <div class="button-row">
           <button class="action-button secondary" data-action="copy-support-snapshot" ${this._busy ? 'disabled' : ''}>Copy Support Snapshot</button>
         </div>

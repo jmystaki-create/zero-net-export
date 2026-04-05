@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.35] - 2026-04-05
+
+### Added
+- Exposed the installed integration version directly on the Home Assistant device page via device info (`sw_version`), so operators can confirm what build is running without leaving Home Assistant.
+- Added parsed release metadata from `CHANGELOG.md` to the panel and diagnostics payloads, creating an in-product "what changed in this release" summary plus previous-release context.
+
+### Changed
+- Expanded the panel Settings release/support section with current release summary, release date, previous documented version, and bullet highlights so the operator can answer "what changed in this update?" from inside Home Assistant.
+- Support snapshots now include release-summary context, and panel schema advanced to `23` alongside integration version `0.1.35` for the in-product version/update visibility refresh.
+
 ## [0.1.34] - 2026-04-05
 
 ### Changed

@@ -27,6 +27,7 @@ from .const import (
     DOMAIN,
     INTEGRATION_VERSION,
 )
+from .release_info import build_release_info
 
 REDACT_CONFIG_KEYS = {
     CONF_NAME,
@@ -85,6 +86,8 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         source_freshness[key] = async_redact_data(detail, {"entity_id"})
     validation_details["source_freshness"] = source_freshness
 
+    release_info = build_release_info(INTEGRATION_VERSION)
+
     return {
         "entry": {
             "entry_id": entry.entry_id,
@@ -92,6 +95,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "domain": entry.domain,
             "config_entry_version": entry.version,
             "integration_version": INTEGRATION_VERSION,
+            "release_summary": release_info.get("summary"),
         },
         "config": async_redact_data(dict(entry.data), REDACT_CONFIG_KEYS),
         "options": async_redact_data(dict(entry.options), REDACT_CONFIG_KEYS),
@@ -164,4 +168,5 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "details": device_details,
         },
         "validation_details": validation_details,
+        "release_info": release_info,
     }
