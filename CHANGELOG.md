@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.29] - 2026-04-05
+
+### Changed
+- Reduced the Home Assistant add-integration flow to a bootstrap-only step so operators can create the backend entry quickly, then complete real onboarding inside the Zero Net Export panel instead of a long raw source-mapping form.
+- Added plain-language field help for the remaining bootstrap field and for the advanced options fields that still exist, including explicit guidance that device-inventory JSON is fallback/debug-only.
+- Updated README, implementation docs, product spec, and validation checklist so the shipped project state now consistently describes the panel-first onboarding model.
+- Integration version advanced to `0.1.29` for the bootstrap-onboarding UX rebuild milestone.
+
 ## [0.1.28] - 2026-04-05
 
 ### Fixed

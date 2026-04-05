@@ -3,28 +3,14 @@
     "step": {
       "user": {
         "title": "Zero Net Export",
-        "description": "Map your Home Assistant energy sources.\n\n{issues}",
+        "description": "Create the Zero Net Export backend entry first, then finish setup inside the Zero Net Export panel in the Home Assistant sidebar. Runtime defaults start in a safe bootstrap state until you map sources and add devices in the panel.",
         "data": {
-          "name": "Name",
-          "solar_power_entity": "Solar power sensor",
-          "solar_energy_entity": "Solar energy sensor",
-          "grid_import_power_entity": "Grid import power sensor",
-          "grid_export_power_entity": "Grid export power sensor",
-          "grid_import_energy_entity": "Grid import energy sensor",
-          "grid_export_energy_entity": "Grid export energy sensor",
-          "home_load_power_entity": "Home load power sensor",
-          "battery_soc_entity": "Battery state of charge sensor",
-          "battery_charge_power_entity": "Battery charge power sensor",
-          "battery_discharge_power_entity": "Battery discharge power sensor",
-          "target_export_w": "Target export (W)",
-          "deadband_w": "Deadband (W)",
-          "battery_reserve_soc": "Battery reserve SOC (%)",
-          "refresh_seconds": "Refresh interval (s)"
+          "name": "System name"
+        },
+        "data_description": {
+          "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. You can finish source mapping, refresh tuning, and device onboarding after entry creation inside the panel app."
         }
       }
-    },
-    "error": {
-      "source_validation_failed": "One or more required source mappings are invalid."
     }
   },
   "options": {
@@ -38,6 +24,13 @@
           "battery_reserve_soc": "Battery reserve SOC (%)",
           "refresh_seconds": "Refresh interval (s)",
           "device_inventory_json": "Device inventory JSON"
+        },
+        "data_description": {
+          "target_export_w": "The export value the controller aims for during normal operation. Leave this at 0 W unless you intentionally want a small export or import bias.",
+          "deadband_w": "How much error Zero Net Export will tolerate before changing devices. Higher values reduce device flapping; lower values chase the target more aggressively.",
+          "battery_reserve_soc": "The minimum battery percentage to protect before discretionary surplus-absorption actions are allowed. Choose the lowest battery level you still want to keep in reserve.",
+          "refresh_seconds": "How often the backend re-reads your source sensors and re-plans control actions. Shorter intervals react faster; longer intervals reduce churn.",
+          "device_inventory_json": "Advanced recovery/debugging fallback only. Normal operators should add and edit devices in the Zero Net Export panel instead of pasting raw JSON here."
         }
       }
     },

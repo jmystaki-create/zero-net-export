@@ -75,7 +75,8 @@ Zero Net Export is evolving from a Home Assistant custom integration / mini app 
 
 ## MVP deliverables
 
-- config flow for source mapping
+- bootstrap-only config flow for fast entry creation
+- panel-first source mapping and onboarding workflow after entry creation
 - source validation and confidence model
 - controller with fixed + variable loads
 - mode select + target export setting

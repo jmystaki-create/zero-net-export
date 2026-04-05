@@ -33,93 +33,53 @@ from .const import (
     DOMAIN,
 )
 from .device_model import default_device_blueprint, parse_device_configs
-from .validation import SourceSpec, validate_configured_entities
 
 
-def _source_specs_from_input(user_input: dict) -> list[SourceSpec]:
-    return [
-        SourceSpec(CONF_SOLAR_POWER_ENTITY, user_input.get(CONF_SOLAR_POWER_ENTITY), "power"),
-        SourceSpec(CONF_SOLAR_ENERGY_ENTITY, user_input.get(CONF_SOLAR_ENERGY_ENTITY), "energy"),
-        SourceSpec(CONF_GRID_IMPORT_POWER_ENTITY, user_input.get(CONF_GRID_IMPORT_POWER_ENTITY), "power"),
-        SourceSpec(CONF_GRID_EXPORT_POWER_ENTITY, user_input.get(CONF_GRID_EXPORT_POWER_ENTITY), "power"),
-        SourceSpec(CONF_GRID_IMPORT_ENERGY_ENTITY, user_input.get(CONF_GRID_IMPORT_ENERGY_ENTITY), "energy"),
-        SourceSpec(CONF_GRID_EXPORT_ENERGY_ENTITY, user_input.get(CONF_GRID_EXPORT_ENERGY_ENTITY), "energy"),
-        SourceSpec(CONF_HOME_LOAD_POWER_ENTITY, user_input.get(CONF_HOME_LOAD_POWER_ENTITY), "power"),
-        SourceSpec(CONF_BATTERY_SOC_ENTITY, user_input.get(CONF_BATTERY_SOC_ENTITY), "percent", required=False),
-        SourceSpec(CONF_BATTERY_CHARGE_POWER_ENTITY, user_input.get(CONF_BATTERY_CHARGE_POWER_ENTITY), "power", required=False),
-        SourceSpec(CONF_BATTERY_DISCHARGE_POWER_ENTITY, user_input.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY), "power", required=False),
-    ]
-
-
-def _entity_selector() -> selector.EntitySelector:
-    return selector.EntitySelector(
-        selector.EntitySelectorConfig(
-            domain=["sensor"],
-        )
-    )
-
-
-def _build_schema(defaults: dict | None = None) -> vol.Schema:
+def _build_bootstrap_schema(defaults: dict | None = None) -> vol.Schema:
     defaults = defaults or {}
 
     return vol.Schema(
         {
             vol.Required(CONF_NAME, default=defaults.get(CONF_NAME, DEFAULT_NAME)): str,
-            vol.Required(CONF_SOLAR_POWER_ENTITY, default=defaults.get(CONF_SOLAR_POWER_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Required(CONF_SOLAR_ENERGY_ENTITY, default=defaults.get(CONF_SOLAR_ENERGY_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Required(CONF_GRID_IMPORT_POWER_ENTITY, default=defaults.get(CONF_GRID_IMPORT_POWER_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Required(CONF_GRID_EXPORT_POWER_ENTITY, default=defaults.get(CONF_GRID_EXPORT_POWER_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Required(CONF_GRID_IMPORT_ENERGY_ENTITY, default=defaults.get(CONF_GRID_IMPORT_ENERGY_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Required(CONF_GRID_EXPORT_ENERGY_ENTITY, default=defaults.get(CONF_GRID_EXPORT_ENERGY_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Required(CONF_HOME_LOAD_POWER_ENTITY, default=defaults.get(CONF_HOME_LOAD_POWER_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Optional(CONF_BATTERY_SOC_ENTITY, default=defaults.get(CONF_BATTERY_SOC_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Optional(CONF_BATTERY_CHARGE_POWER_ENTITY, default=defaults.get(CONF_BATTERY_CHARGE_POWER_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Optional(CONF_BATTERY_DISCHARGE_POWER_ENTITY, default=defaults.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY, vol.UNDEFINED)): _entity_selector(),
-            vol.Required(CONF_TARGET_EXPORT_W, default=defaults.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W)): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=-5000, max=10000, step=10, mode=selector.NumberSelectorMode.BOX)
-            ),
-            vol.Required(CONF_DEADBAND_W, default=defaults.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W)): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=2000, step=10, mode=selector.NumberSelectorMode.BOX)
-            ),
-            vol.Required(CONF_BATTERY_RESERVE_SOC, default=defaults.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC)): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=100, step=1, mode=selector.NumberSelectorMode.BOX)
-            ),
-            vol.Required(CONF_REFRESH_SECONDS, default=defaults.get(CONF_REFRESH_SECONDS, DEFAULT_REFRESH_SECONDS)): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
-            ),
         }
     )
+
+
+def _build_bootstrap_entry_data(user_input: dict[str, str]) -> dict[str, str | int | float | None]:
+    return {
+        CONF_NAME: user_input[CONF_NAME],
+        CONF_SOLAR_POWER_ENTITY: None,
+        CONF_SOLAR_ENERGY_ENTITY: None,
+        CONF_GRID_IMPORT_POWER_ENTITY: None,
+        CONF_GRID_EXPORT_POWER_ENTITY: None,
+        CONF_GRID_IMPORT_ENERGY_ENTITY: None,
+        CONF_GRID_EXPORT_ENERGY_ENTITY: None,
+        CONF_HOME_LOAD_POWER_ENTITY: None,
+        CONF_BATTERY_SOC_ENTITY: None,
+        CONF_BATTERY_CHARGE_POWER_ENTITY: None,
+        CONF_BATTERY_DISCHARGE_POWER_ENTITY: None,
+        CONF_TARGET_EXPORT_W: DEFAULT_TARGET_EXPORT_W,
+        CONF_DEADBAND_W: DEFAULT_DEADBAND_W,
+        CONF_BATTERY_RESERVE_SOC: DEFAULT_BATTERY_RESERVE_SOC,
+        CONF_REFRESH_SECONDS: DEFAULT_REFRESH_SECONDS,
+        CONF_DEVICE_INVENTORY_JSON: DEFAULT_DEVICE_INVENTORY_JSON,
+    }
 
 
 class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     async def async_step_user(self, user_input=None):
-        errors = {}
-        description_placeholders = {}
-
         if user_input is not None:
-            issues = validate_configured_entities(
-                self.hass,
-                user_input,
-                _source_specs_from_input(user_input),
-            )
-            blocking_issues = [issue for issue in issues if issue.severity == "error"]
-            if blocking_issues:
-                errors["base"] = "source_validation_failed"
-                description_placeholders["issues"] = "\n".join(
-                    f"- {issue.message}" for issue in blocking_issues[:6]
-                )
-            else:
-                await self.async_set_unique_id(DOMAIN)
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
+            await self.async_set_unique_id(DOMAIN)
+            self._abort_if_unique_id_configured()
+            entry_data = _build_bootstrap_entry_data(user_input)
+            return self.async_create_entry(title=user_input[CONF_NAME], data=entry_data)
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_build_schema(user_input),
-            errors=errors,
-            description_placeholders=description_placeholders,
+            data_schema=_build_bootstrap_schema(user_input),
+            errors={},
         )
 
     @staticmethod

@@ -26,12 +26,11 @@ Use this checklist to validate Zero Net Export in a real Home Assistant environm
 ## Configuration Flow Validation
 
 - [ ] Config flow opens when adding integration
-- [ ] Source entity mapping UI displays correctly
-- [ ] Validation blocks incomplete mappings (missing required entities)
-- [ ] Validation blocks duplicate entity mappings
-- [ ] Validation blocks non-numeric entities for power roles
-- [ ] Device inventory JSON accepts valid device configurations
-- [ ] Options flow allows re-mapping sources and devices
+- [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-mapping form
+- [ ] Bootstrap step clearly explains that source mapping and onboarding continue in the panel app
+- [ ] Any remaining bootstrap field(s) have plain-language in-context help
+- [ ] Entry can be created without mapping sources during the initial config flow
+- [ ] Options flow descriptions clearly explain advanced runtime fields and that device-inventory JSON is fallback/debug-only
 - [ ] Entity normalization creates expected entity IDs
 
 ## Source Validation Layer

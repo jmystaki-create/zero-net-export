@@ -91,19 +91,21 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 ### Primary operator path: panel app
 
 1.  Add the **Zero Net Export** integration.
-2.  Open **Zero Net Export** from the Home Assistant sidebar as a Home Assistant admin user.
-3.  Use the **Setup** tab to map your source entities:
+2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
+3.  Open **Zero Net Export** from the Home Assistant sidebar as a Home Assistant admin user.
+4.  Use the **Setup** tab to map your source entities:
     - Solar Power
     - Grid Import/Export Power
     - Home Load Power
     - (Optional) Battery Entities
-4.  Use the **Devices** tab to add and manage controllable devices with the guided panel editor.
-5.  Use the **Settings** tab to review runtime defaults and release/support information.
-6.  Use **Overview** and **Diagnostics** for daily operation, warnings, and explanation.
+5.  Use the **Devices** tab to add and manage controllable devices with the guided panel editor.
+6.  Use the **Settings** tab to review runtime defaults and release/support information.
+7.  Use **Overview** and **Diagnostics** for daily operation, warnings, and explanation.
 
 ### Advanced / fallback paths
 
-- The Home Assistant config flow still establishes the backend entry and core source mapping.
+- The Home Assistant config flow is intentionally bootstrap-only; real source mapping and normal onboarding now belong in the panel app.
+- The options flow remains available for advanced defaults and JSON recovery/debugging, but raw JSON is not the primary intended operator path.
 - The Lovelace YAML dashboard remains available as a fallback/debugging surface, not the primary intended operator UX.
 
 ---
@@ -154,6 +156,7 @@ The backend control engine is substantially built, and the project is now in a l
 - [x] Add guided device onboarding presets and direct edit flows so normal device setup feels panel-native instead of form spelunking
 - [x] Add template-aware device entity suggestions so panel onboarding can point operators at likely switch/number targets instead of only offering a flat entity list
 - [x] Surface selected-device configuration and effective override details in-panel so operators can review normal device constraints and runtime tuning without opening raw JSON
+- [x] Reduce add-integration onboarding to a minimal bootstrap step so the panel app, not the raw config-entry form, is the intended setup surface
 - [x] Add guided source mapping to the panel so operators can complete source setup in the app
 - [x] Add role-specific source suggestions in the panel so operators can pick likely solar/grid/home/battery sensors without sifting through every entity manually
 - [x] Add guided source-remediation detail in the panel so operators can inspect per-source metadata and validation issues without dropping into raw entity debugging
