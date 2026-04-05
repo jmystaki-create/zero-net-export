@@ -8,7 +8,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
-- Added explicit release/distribution verification guidance so HACS-visible shipping now requires pushed branch state, matching remote tags/releases, and confirmation that the real HA install path is serving the intended package instead of a stale older build.
+
+## [0.1.30] - 2026-04-05
+
+### Changed
+- Formalized the HACS-visible release path for the bootstrap-onboarding package: the repository now ships a fresh integration version intended specifically to force a real remote update check instead of relying on local commits or manifest-only assumptions.
+- Added explicit release/distribution verification guidance so shipping now requires pushed branch state, matching remote tags/releases, and confirmation that the real Home Assistant install path is serving the intended package instead of a stale older build.
+- Integration version advanced to `0.1.30` so Home Assistant / HACS can surface a clearly newer package than the previously observed stale install path.
 
 ## [0.1.29] - 2026-04-05
 
