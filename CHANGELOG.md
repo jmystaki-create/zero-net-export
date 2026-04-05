@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.37] - 2026-04-06
+
+### Added
+- Added persisted in-product update visibility that remembers the previously installed integration version per config entry and publishes an operator-facing update summary such as `Updated from 0.1.36 to 0.1.37`, so upgrades feel explicit inside Home Assistant instead of opaque.
+- Added new diagnostic update entities/surface data for `previous installed version` and `update summary`, making version/change context available from normal entity/device inspection, panel views, support snapshots, and diagnostics exports.
+
+### Changed
+- Expanded the Overview, Diagnostics, Settings, and support snapshot release sections to include update-state messaging alongside the installed version and changelog preview, so the operator can answer both `what version is installed?` and `what changed when this updated?` without leaving Home Assistant.
+- Panel schema advanced to `25` and integration version advanced to `0.1.37` for the persisted in-product update-visibility follow-up.
+
 ## [0.1.36] - 2026-04-06
 
 ### Added

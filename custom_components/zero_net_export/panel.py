@@ -60,7 +60,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 24
+PANEL_SCHEMA_VERSION = 25
 
 _SOURCE_ROLE_HINTS: dict[str, dict[str, Any]] = {
     CONF_SOLAR_POWER_ENTITY: {
@@ -694,6 +694,8 @@ def _build_support_snapshot(
     configured_devices: list[dict[str, Any]],
     device_parse_issues: list[str],
 ) -> str:
+    release_info = build_release_info(INTEGRATION_VERSION)
+    release_update = state.validation_details.get("release_update", {})
     source_diagnostics = state.validation_details.get("source_diagnostics", {})
     mapped_sources = [
         f"- {key}: {coordinator.entry.data.get(key) or 'not configured'}"
@@ -745,7 +747,8 @@ def _build_support_snapshot(
         f"Integration version: {INTEGRATION_VERSION}",
         f"Config entry version: {coordinator.entry.version}",
         f"Panel schema version: {PANEL_SCHEMA_VERSION}",
-        f"Release summary: {build_release_info(INTEGRATION_VERSION).get('summary', 'n/a')}",
+        f"Release summary: {release_info.get('summary', 'n/a')}",
+        f"Update visibility: {release_update.get('summary', 'n/a')}",
         "",
         "Readiness",
         f"- phase: {operator_readiness.get('phase')}",
@@ -792,6 +795,7 @@ def _build_support_snapshot(
 def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -> dict[str, Any]:
     state = coordinator.data
     release_info = build_release_info(INTEGRATION_VERSION)
+    release_update = _serialize_value((state.validation_details if state else {}).get("release_update", {}))
     if state is None:
         return {
             "entry_id": entry_id,
@@ -824,6 +828,7 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
         "health_summary": state.health_summary,
         "confidence": state.confidence,
         "release_info": release_info,
+        "release_update": release_update,
         "controller_settings": _serialize_value(
             coordinator._controller_settings_attributes()
         ),
@@ -901,6 +906,7 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
 
     diagnostics = {
         "release_info": release_info,
+        "release_update": release_update,
         "control_status": state.control_status,
         "control_summary": state.control_summary,
         "control_reason": state.control_reason,
@@ -980,6 +986,7 @@ def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -
             "readiness": operator_readiness,
         },
         "release_info": release_info,
+        "release_update": release_update,
         "links": {
             "documentation": "https://github.com/jmystaki-create/zero-net-export#readme",
             "changelog": "https://github.com/jmystaki-create/zero-net-export/blob/main/CHANGELOG.md",

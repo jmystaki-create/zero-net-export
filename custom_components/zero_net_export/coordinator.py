@@ -39,6 +39,7 @@ from .const import (
 from .device_model import DeviceRuntime, build_device_summary, parse_device_configs, runtime_as_attributes
 from .executor import ActionResult, execute_action
 from .planner import PlannerContext, PlannedDeviceAction, build_control_plan
+from .release_info import build_release_info
 from .validation import SourceSpec, ValidationIssue, get_source_reading, issues_as_attributes, validate_sources
 
 STORAGE_VERSION = 1
@@ -159,6 +160,9 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         self._total_failed_action_count = 0
         self._last_safe_mode: bool | None = None
         self._last_source_mismatch: bool | None = None
+        self._last_seen_integration_version: str | None = None
+        self._previous_installed_version: str | None = None
+        self._version_update_detected_at: datetime | None = None
         self._store: Store[dict[str, Any]] = Store(
             hass,
             STORAGE_VERSION,
@@ -187,11 +191,61 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         self._last_daily_metrics_update_at = self._parse_iso_datetime(stored.get("last_daily_metrics_update_at"))
         self._total_successful_action_count = int(stored.get("total_successful_action_count") or 0)
         self._total_failed_action_count = int(stored.get("total_failed_action_count") or 0)
+        release_state = dict(stored.get("release") or {})
+        self._last_seen_integration_version = release_state.get("last_seen_integration_version")
+        self._previous_installed_version = release_state.get("previous_installed_version")
+        self._version_update_detected_at = self._parse_iso_datetime(release_state.get("version_update_detected_at"))
         self._mode = str(controller.get("mode") or MODE_ZERO_EXPORT)
         self._enabled = bool(controller.get("enabled", True))
         self._target_export_w_override = self._parse_float(controller.get("target_export_w"))
         self._deadband_w_override = self._parse_float(controller.get("deadband_w"))
         self._battery_reserve_soc_override = self._parse_float(controller.get("battery_reserve_soc"))
+
+    async def async_note_current_integration_version(self, integration_version: str) -> None:
+        """Persist version-update context so the UI can explain what changed after upgrades."""
+        changed = False
+        if not self._last_seen_integration_version:
+            self._last_seen_integration_version = integration_version
+            changed = True
+        elif self._last_seen_integration_version != integration_version:
+            self._previous_installed_version = self._last_seen_integration_version
+            self._last_seen_integration_version = integration_version
+            self._version_update_detected_at = dt_util.now()
+            changed = True
+
+        if changed:
+            await self._save_runtime_store()
+
+    def _release_update_details(self) -> dict[str, Any]:
+        release_info = build_release_info()
+        previous_installed_version = self._previous_installed_version
+        installed_version = release_info.get("current_version")
+        update_detected = bool(
+            previous_installed_version
+            and installed_version
+            and previous_installed_version != installed_version
+        )
+        if update_detected:
+            summary = (
+                f"Updated from {previous_installed_version} to {installed_version}. "
+                f"{release_info.get('changes_preview') or release_info.get('summary') or 'Review the release highlights below.'}"
+            )
+        else:
+            summary = (
+                f"Installed version {installed_version}. "
+                f"{release_info.get('changes_preview') or release_info.get('summary') or 'No update delta is recorded yet.'}"
+            )
+
+        return {
+            "installed_version": installed_version,
+            "last_seen_version": self._last_seen_integration_version,
+            "previous_installed_version": previous_installed_version,
+            "update_detected": update_detected,
+            "version_update_detected_at": self._version_update_detected_at.isoformat()
+            if self._version_update_detected_at
+            else None,
+            "summary": summary,
+        }
 
     def _parse_float(self, value: Any) -> float | None:
         if value is None:
@@ -863,6 +917,13 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 else None,
                 "total_successful_action_count": self._total_successful_action_count,
                 "total_failed_action_count": self._total_failed_action_count,
+                "release": {
+                    "last_seen_integration_version": self._last_seen_integration_version,
+                    "previous_installed_version": self._previous_installed_version,
+                    "version_update_detected_at": self._version_update_detected_at.isoformat()
+                    if self._version_update_detected_at
+                    else None,
+                },
             }
         )
 
@@ -1208,6 +1269,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "health_status": health_status,
                 "health_summary": health_summary,
                 "command_failure_active_window_seconds": COMMAND_FAILURE_ACTIVE_SECONDS,
+                "release_update": self._release_update_details(),
             }
 
             return ZeroNetExportState(

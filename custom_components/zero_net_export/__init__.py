@@ -19,6 +19,7 @@ from .const import (
     DEFAULT_REFRESH_SECONDS,
     DEFAULT_TARGET_EXPORT_W,
     DOMAIN,
+    INTEGRATION_VERSION,
     PLATFORMS,
 )
 from .coordinator import ZeroNetExportCoordinator
@@ -49,6 +50,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     coordinator = ZeroNetExportCoordinator(hass, entry)
     await coordinator.async_initialize()
+    await coordinator.async_note_current_integration_version(INTEGRATION_VERSION)
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator

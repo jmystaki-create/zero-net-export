@@ -12,8 +12,10 @@ from .release_info import build_release_info
 
 SENSOR_DEFS = {
     "installed_version": "Installed version",
+    "previous_installed_version": "Previous installed version",
     "release_summary": "Release summary",
     "changes_preview": "Changes preview",
+    "update_summary": "Update summary",
     "status": "Status",
     "reason": "Reason",
     "recommendation": "Recommendation",
@@ -181,11 +183,18 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key in {"release_summary", "changes_preview"}:
             info = build_release_info(INTEGRATION_VERSION)
             return info.get(self._key)
+        if self._key in {"previous_installed_version", "update_summary"}:
+            update = self.coordinator.data.validation_details.get("release_update", {})
+            mapping = {
+                "previous_installed_version": update.get("previous_installed_version"),
+                "update_summary": update.get("summary"),
+            }
+            return mapping.get(self._key)
         return getattr(self.coordinator.data, self._key)
 
     @property
     def entity_category(self):
-        if self._key in {"installed_version", "release_summary", "changes_preview"}:
+        if self._key in {"installed_version", "previous_installed_version", "release_summary", "changes_preview", "update_summary"}:
             return EntityCategory.DIAGNOSTIC
         return None
 
@@ -212,9 +221,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     def extra_state_attributes(self):
         if self._key == "installed_version":
             return build_release_info(INTEGRATION_VERSION)
-        if self._key in {"release_summary", "changes_preview"}:
+        if self._key in {"previous_installed_version", "release_summary", "changes_preview", "update_summary"}:
             return {
                 **build_release_info(INTEGRATION_VERSION),
+                **(self.coordinator.data.validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:

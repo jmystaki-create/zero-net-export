@@ -782,6 +782,7 @@ class ZeroNetExportPanel extends HTMLElement {
   _renderOverview(entry) {
     const overview = entry?.overview || {};
     const releaseInfo = overview.release_info || entry?.settings?.release_info || {};
+    const releaseUpdate = overview.release_update || entry?.settings?.release_update || {};
     const releaseHighlights = Array.isArray(releaseInfo.highlights) ? releaseInfo.highlights.slice(0, 3) : [];
     const releaseHighlightItems = releaseHighlights
       .map((item) => `<li>${this._escapeHtml(item)}</li>`)
@@ -818,9 +819,13 @@ class ZeroNetExportPanel extends HTMLElement {
       <section class="panel-section">
         <h3>Installed Release</h3>
         <p><strong>Version:</strong> ${this._escapeHtml(releaseInfo.current_version || entry?.integration_version || '—')}</p>
+        <p><strong>Update status:</strong> ${this._escapeHtml(releaseUpdate.summary || 'No recorded in-product update summary yet.')}</p>
         <p><strong>Released on:</strong> ${this._escapeHtml(releaseInfo.released_on || '—')}</p>
         <p><strong>Summary:</strong> ${this._escapeHtml(releaseInfo.summary || 'No release summary available yet.')}</p>
         <p><strong>What changed:</strong> ${this._escapeHtml(releaseInfo.changes_preview || 'No in-product change preview available yet.')}</p>
+        ${releaseUpdate.previous_installed_version
+          ? `<p><strong>Previous installed version:</strong> ${this._escapeHtml(releaseUpdate.previous_installed_version)}</p>`
+          : ''}
         ${releaseHighlightItems
           ? `<div class="hint-list"><strong>Top changes in this installed version</strong><ul>${releaseHighlightItems}</ul></div>`
           : ''}
@@ -1178,6 +1183,8 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _renderDiagnostics(entry) {
     const diagnostics = entry?.diagnostics || {};
+    const releaseInfo = diagnostics.release_info || {};
+    const releaseUpdate = diagnostics.release_update || {};
     const actionRows = (diagnostics.action_history || [])
       .map((item) => `
         <tr>
@@ -1221,6 +1228,8 @@ class ZeroNetExportPanel extends HTMLElement {
     return `
       <section class="panel-section">
         <h3>Diagnostics & Explanation</h3>
+        <p><strong>Installed version:</strong> ${this._escapeHtml(releaseInfo.current_version || entry?.integration_version || '—')}</p>
+        <p><strong>Update status:</strong> ${this._escapeHtml(releaseUpdate.summary || 'No recorded update summary yet.')}</p>
         <p><strong>Health:</strong> ${this._escapeHtml(diagnostics.health_status || '—')}</p>
         <p><strong>Health summary:</strong> ${this._escapeHtml(diagnostics.health_summary || '—')}</p>
         <p><strong>Control status:</strong> ${this._escapeHtml(diagnostics.control_status || '—')}</p>
@@ -1281,6 +1290,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const readiness = workflow.readiness || {};
     const links = settings.links || {};
     const releaseInfo = settings.release_info || diagnostics.release_info || {};
+    const releaseUpdate = settings.release_update || diagnostics.release_update || {};
     const currentHighlights = Array.isArray(releaseInfo.highlights) ? releaseInfo.highlights : [];
     const previousHighlights = Array.isArray(releaseInfo.previous_highlights) ? releaseInfo.previous_highlights : [];
     const modeOptions = MODES.map((mode) => `<option value="${mode.value}" ${overview.mode === mode.value ? 'selected' : ''}>${mode.label}</option>`).join('');
@@ -1362,8 +1372,10 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Config entry version:</strong> ${entry?.config_entry_version ?? operatorSummary.config_entry_version ?? '—'}</p>
         <p><strong>Panel schema version:</strong> ${this._state?.panel_schema_version ?? '—'}</p>
         <p><strong>Release summary:</strong> ${this._escapeHtml(releaseInfo.summary || operatorSummary.release_summary || 'No release summary available.')}</p>
+        <p><strong>Update status:</strong> ${this._escapeHtml(releaseUpdate.summary || 'No recorded update summary available yet.')}</p>
         <p><strong>Released on:</strong> ${this._escapeHtml(releaseInfo.released_on || '—')}</p>
         <p><strong>Previous documented release:</strong> ${this._escapeHtml(releaseInfo.previous_version || '—')}</p>
+        <p><strong>Previous installed version:</strong> ${this._escapeHtml(releaseUpdate.previous_installed_version || '—')}</p>
         ${currentHighlightItems
           ? `<div class="hint-list"><strong>What changed in ${this._escapeHtml(releaseInfo.current_version || entry?.integration_version || 'this release')}</strong><ul>${currentHighlightItems}</ul></div>`
           : '<p class="muted">No current-release highlights were parsed from the changelog.</p>'}

@@ -87,6 +87,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     validation_details["source_freshness"] = source_freshness
 
     release_info = build_release_info(INTEGRATION_VERSION)
+    release_update = deepcopy(data.validation_details.get("release_update") or {})
 
     return {
         "entry": {
@@ -96,6 +97,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "config_entry_version": entry.version,
             "integration_version": INTEGRATION_VERSION,
             "release_summary": release_info.get("summary"),
+            "release_update_summary": release_update.get("summary"),
         },
         "config": async_redact_data(dict(entry.data), REDACT_CONFIG_KEYS),
         "options": async_redact_data(dict(entry.options), REDACT_CONFIG_KEYS),
@@ -169,4 +171,5 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         },
         "validation_details": validation_details,
         "release_info": release_info,
+        "release_update": release_update,
     }
