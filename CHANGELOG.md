@@ -9,6 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.48] - 2026-04-07
+
+### Fixed
+- Wired the Configure -> setup launcher path through a real Home Assistant external-step completion handler, so the options flow can close cleanly after opening the panel instead of leaving the operator stranded in a half-finished Configure state.
+
+### Changed
+- Integration version advanced to `0.1.48` for the Configure external-step completion repair.
+
 ## [0.1.47] - 2026-04-06
 
 ### Fixed

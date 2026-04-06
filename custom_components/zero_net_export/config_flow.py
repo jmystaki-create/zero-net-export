@@ -142,6 +142,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             url=panel_launcher_path(self._config_entry, source="configure"),
         )
 
+    async def async_step_panel_done(self, user_input=None):
+        return self.async_abort(reason="panel_only")
+
     async def async_step_advanced(self, user_input=None):
         errors = {}
         description_placeholders = {
