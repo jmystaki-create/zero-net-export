@@ -238,12 +238,17 @@ class ZeroNetExportPanel extends HTMLElement {
     this._selectedEntryId = undefined;
     this._refreshTimer = undefined;
     this._copyStatus = undefined;
+    this._syncRouteFromLocation();
     this._boundVisibilityRefresh = () => {
       if (!document.hidden) {
         this._loadState({ force: true });
       }
     };
     this._boundWindowFocusRefresh = () => this._loadState({ force: true });
+    this._boundPopState = () => {
+      this._syncRouteFromLocation();
+      this._render();
+    };
   }
 
   set hass(hass) {
@@ -259,6 +264,7 @@ class ZeroNetExportPanel extends HTMLElement {
   connectedCallback() {
     document.addEventListener('visibilitychange', this._boundVisibilityRefresh);
     window.addEventListener('focus', this._boundWindowFocusRefresh);
+    window.addEventListener('popstate', this._boundPopState);
     this._startAutoRefresh();
     if (this._hass && !this._state) {
       this._loadState();
@@ -270,6 +276,7 @@ class ZeroNetExportPanel extends HTMLElement {
   disconnectedCallback() {
     document.removeEventListener('visibilitychange', this._boundVisibilityRefresh);
     window.removeEventListener('focus', this._boundWindowFocusRefresh);
+    window.removeEventListener('popstate', this._boundPopState);
     this._stopAutoRefresh();
   }
 
@@ -384,8 +391,34 @@ class ZeroNetExportPanel extends HTMLElement {
     this._render();
   }
 
+  _syncRouteFromLocation() {
+    const params = new URLSearchParams(window.location.search || '');
+    const requestedTab = params.get('tab');
+    const requestedEntry = params.get('entry');
+    this._activeTab = TABS.includes(requestedTab) ? requestedTab : (this._activeTab || 'overview');
+    if (requestedEntry) {
+      this._selectedEntryId = requestedEntry;
+    }
+  }
+
+  _updateUrlState() {
+    const url = new URL(window.location.href);
+    if (this._activeTab && this._activeTab !== 'overview') {
+      url.searchParams.set('tab', this._activeTab);
+    } else {
+      url.searchParams.delete('tab');
+    }
+    if (this._selectedEntryId) {
+      url.searchParams.set('entry', this._selectedEntryId);
+    } else {
+      url.searchParams.delete('entry');
+    }
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+  }
+
   _setTab(tab) {
-    this._activeTab = tab;
+    this._activeTab = TABS.includes(tab) ? tab : 'overview';
+    this._updateUrlState();
     this._render();
   }
 
@@ -393,12 +426,15 @@ class ZeroNetExportPanel extends HTMLElement {
     const entries = this._state?.entries || [];
     if (!entries.length) {
       this._selectedEntryId = undefined;
+      this._updateUrlState();
       return;
     }
     if (entries.some((item) => item.entry_id === this._selectedEntryId)) {
+      this._updateUrlState();
       return;
     }
     this._selectedEntryId = this._state?.active_entry_id || entries[0]?.entry_id;
+    this._updateUrlState();
   }
 
   _setEntry(entryId) {
@@ -406,6 +442,7 @@ class ZeroNetExportPanel extends HTMLElement {
     this._editingDeviceKey = 'new';
     this._deviceDraft = {};
     this._selectedTemplateKey = 'custom';
+    this._updateUrlState();
     this._render();
   }
 

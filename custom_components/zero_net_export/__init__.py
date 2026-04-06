@@ -41,6 +41,13 @@ def _panel_notification_id(entry: ConfigEntry) -> str:
     return f"{DOMAIN}_{entry.entry_id}_panel_onboarding"
 
 
+def _panel_setup_path(entry: ConfigEntry | None = None) -> str:
+    path = "/zero-net-export?tab=setup"
+    if entry is None:
+        return path
+    return f"{path}&entry={entry.entry_id}"
+
+
 def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
     merged = dict(entry.data)
     merged.update(entry.options)
@@ -69,7 +76,7 @@ async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: Conf
         bullets.append("No controllable devices have been added yet.")
 
     message = (
-        "Finish setup in the Zero Net Export panel: [Open panel](/zero-net-export).\n\n"
+        f"Finish setup in the Zero Net Export panel: [Open setup & mapping panel]({_panel_setup_path(entry)}).\n\n"
         "Use the panel for source mapping, device onboarding, readiness checks, and the installed -> mapped -> operational workflow.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
         + "\n\nThe raw Configure/options path is advanced recovery only."

@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.43] - 2026-04-06
+
+### Fixed
+- Changed the Configure -> **Open setup & mapping panel** path from a dead-end explanatory abort into a real Home Assistant external-step handoff that targets the actual panel route.
+- Deep-linked the panel-first onboarding path to the **Setup** tab and persisted `tab` and `entry` URL state inside the panel app, so operators land on the real mapping interface instead of a generic overview tab and can reopen/share the exact setup surface reliably.
+- Updated onboarding notifications to point straight at the setup/mapping route for the active config entry instead of the panel root.
+
+### Changed
+- Panel schema advanced to `28` and integration version advanced to `0.1.43` for the setup-tab deep-link routing repair.
+
 ## [0.1.42] - 2026-04-06
 
 ### Fixed
