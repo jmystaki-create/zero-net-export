@@ -55,7 +55,7 @@
       <h1>Opening Zero Net Export setup…</h1>
       <p>This launcher is redirecting Home Assistant to the real Zero Net Export setup and mapping panel.</p>
       <p class="muted">If Home Assistant does not switch automatically, use the button below.</p>
-      <a id="open-link" href="/zero-net-export?tab=setup">Open Zero Net Export setup panel</a>
+      <a id="open-link" href="/zero-net-export?tab=setup" target="_top" rel="noopener">Open the real Zero Net Export setup panel in Home Assistant</a>
       <p class="muted">Target: <code id="target-text">/zero-net-export?tab=setup</code></p>
     </main>
     <script>
@@ -72,26 +72,59 @@
           text.textContent = target;
         }
 
-        const navigate = (targetWindow) => {
+        const requestHaNavigation = (targetWindow) => {
+          if (!targetWindow || !targetWindow.history || !targetWindow.dispatchEvent) {
+            return false;
+          }
+          try {
+            targetWindow.history.pushState(null, '', target);
+            targetWindow.dispatchEvent(new targetWindow.CustomEvent('location-changed', {
+              detail: { replace: false },
+            }));
+            return true;
+          } catch (err) {
+            return false;
+          }
+        };
+
+        const hardNavigate = (targetWindow, { replace = false } = {}) => {
           if (!targetWindow?.location) {
             return false;
           }
-          targetWindow.location.assign(target);
-          return true;
+          try {
+            if (replace) {
+              targetWindow.location.replace(target);
+            } else {
+              targetWindow.location.assign(target);
+            }
+            return true;
+          } catch (err) {
+            return false;
+          }
         };
 
-        try {
-          if (window.opener && window.opener !== window && navigate(window.opener)) {
-            window.close();
-            return;
-          }
-        } catch (err) {}
+        const navigate = (targetWindow, { replace = false } = {}) => (
+          requestHaNavigation(targetWindow) || hardNavigate(targetWindow, { replace })
+        );
 
-        try {
-          if (window.parent && window.parent !== window && navigate(window.parent)) {
+        const candidates = [];
+        for (const candidate of [window.top, window.opener, window.parent, window]) {
+          if (candidate && !candidates.includes(candidate)) {
+            candidates.push(candidate);
+          }
+        }
+
+        for (const candidate of candidates) {
+          if (candidate === window && navigate(candidate, { replace: true })) {
             return;
           }
-        } catch (err) {}
+          if (candidate !== window && navigate(candidate)) {
+            try {
+              window.close();
+            } catch (err) {}
+            return;
+          }
+        }
 
         window.location.replace(target);
       })();

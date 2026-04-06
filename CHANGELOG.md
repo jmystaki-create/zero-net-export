@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.46] - 2026-04-06
+
+### Fixed
+- Hardened the Configure -> setup launcher so it now tries Home Assistant router navigation first, then falls back to full top-window navigation, instead of only relying on a simpler location handoff that could leave the operator stranded on the launcher page or in an unclear intermediate surface.
+- Updated the launcher CTA to explicitly open the real Zero Net Export setup panel in the top Home Assistant window, making the last-mile Configure -> mapping-panel path more visible and usable when the browser or HA external-step context is awkward.
+
+### Changed
+- Panel schema advanced to `30` and integration version advanced to `0.1.46` for the stronger Configure -> real panel landing repair.
+
 ## [0.1.45] - 2026-04-06
 
 ### Fixed
