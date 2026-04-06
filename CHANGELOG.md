@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.44] - 2026-04-06
+
+### Fixed
+- Changed the Configure -> **Open setup & mapping panel** handoff to deep-link the active config entry itself, not just the generic panel route, so Home Assistant lands on the real mapping surface for the exact integration the operator is configuring.
+- Added an in-panel Configure-launch banner on the Setup tab so operators can immediately tell they have reached the real setup and mapping interface, not a fallback recovery form.
+
+### Changed
+- Panel schema advanced to `29` and integration version advanced to `0.1.44` for the entry-specific Configure -> panel landing repair.
+
 ## [0.1.43] - 2026-04-06
 
 ### Fixed

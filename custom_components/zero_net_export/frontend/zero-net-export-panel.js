@@ -238,6 +238,7 @@ class ZeroNetExportPanel extends HTMLElement {
     this._selectedEntryId = undefined;
     this._refreshTimer = undefined;
     this._copyStatus = undefined;
+    this._launchSource = undefined;
     this._syncRouteFromLocation();
     this._boundVisibilityRefresh = () => {
       if (!document.hidden) {
@@ -395,7 +396,9 @@ class ZeroNetExportPanel extends HTMLElement {
     const params = new URLSearchParams(window.location.search || '');
     const requestedTab = params.get('tab');
     const requestedEntry = params.get('entry');
+    const requestedSource = params.get('source');
     this._activeTab = TABS.includes(requestedTab) ? requestedTab : (this._activeTab || 'overview');
+    this._launchSource = requestedSource || undefined;
     if (requestedEntry) {
       this._selectedEntryId = requestedEntry;
     }
@@ -412,6 +415,11 @@ class ZeroNetExportPanel extends HTMLElement {
       url.searchParams.set('entry', this._selectedEntryId);
     } else {
       url.searchParams.delete('entry');
+    }
+    if (this._launchSource) {
+      url.searchParams.set('source', this._launchSource);
+    } else {
+      url.searchParams.delete('source');
     }
     window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
   }
@@ -451,6 +459,19 @@ class ZeroNetExportPanel extends HTMLElement {
     return entries.find((item) => item.entry_id === this._selectedEntryId)
       || entries.find((item) => item.entry_id === this._state?.active_entry_id)
       || entries[0];
+  }
+
+  _configureLaunchBanner(entry) {
+    if (this._launchSource !== 'configure' || this._activeTab !== 'setup') {
+      return '';
+    }
+    return `
+      <section class="panel-section configure-launch-banner">
+        <h3>Setup panel opened from Configure</h3>
+        <p><strong>You are in the real setup and mapping panel for:</strong> ${this._escapeHtml(entry?.title || 'Zero Net Export')}</p>
+        <p>Map the required solar, grid, and home-load sources below, then click <strong>Save Source Mapping</strong>. This is the intended operator path, not the JSON recovery form.</p>
+      </section>
+    `;
   }
 
   _entryId() {
@@ -957,6 +978,7 @@ class ZeroNetExportPanel extends HTMLElement {
       .join('');
 
     return `
+      ${this._configureLaunchBanner(entry)}
       <section class="panel-section">
         <h3>Setup & Validation</h3>
         <p><strong>Diagnostic summary:</strong> ${this._escapeHtml(setup.diagnostic_summary || '—')}</p>
@@ -1974,7 +1996,8 @@ class ZeroNetExportPanel extends HTMLElement {
           margin-top: 14px;
         }
         .role-card,
-        .success-banner {
+        .success-banner,
+        .configure-launch-banner {
           border-radius: 14px;
           padding: 14px;
           border: 1px solid var(--divider-color);
@@ -1989,6 +2012,10 @@ class ZeroNetExportPanel extends HTMLElement {
         .success-banner {
           color: #2e7d32;
           border-color: rgba(46, 125, 50, 0.35);
+        }
+        .configure-launch-banner {
+          border-color: rgba(25, 118, 210, 0.35);
+          background: color-mix(in srgb, var(--primary-color) 10%, var(--card-background-color));
         }
         .live-chip {
           display: inline-flex;

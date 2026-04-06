@@ -69,7 +69,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 28
+PANEL_SCHEMA_VERSION = 29
 
 _SOURCE_ROLE_KEY_MAP: dict[str, str] = {
     CONF_SOLAR_POWER_ENTITY: "solar_power",
