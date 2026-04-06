@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.40] - 2026-04-06
+
+### Added
+- Added end-to-end support for required grid import/export mapping from signed net-grid sensors in the panel/backend flow, so operators can complete the required power and energy roles in-product even when Home Assistant exposes one bidirectional grid sensor instead of separate import/export entities.
+
+### Changed
+- The Setup tab now suggests signed-split mappings for likely net-grid sensors and explains when a suggestion derives import/export from a signed source rather than requiring a separate native entity.
+- Source validation/runtime diagnostics now preserve both the underlying entity and the derived binding label, and stale-data tracking now follows the real underlying entity for derived mappings.
+- Panel schema advanced to `27` and integration version advanced to `0.1.40` for the signed grid-split mapping completion step.
+
 ## [0.1.39] - 2026-04-06
 
 ### Fixed

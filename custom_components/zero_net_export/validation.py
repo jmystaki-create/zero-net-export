@@ -17,6 +17,21 @@ TOTAL_STATE_CLASSES = {"total", "total_increasing"}
 MEASUREMENT_STATE_CLASS = "measurement"
 
 
+DERIVED_SOURCE_PREFIX = "znesrc"
+DERIVED_SOURCE_MODE_DIRECT = "direct"
+DERIVED_SOURCE_MODE_POSITIVE = "positive"
+DERIVED_SOURCE_MODE_NEGATIVE_ABS = "negative_abs"
+
+
+@dataclass(slots=True)
+class SourceBinding:
+    raw: str | None
+    entity_id: str | None
+    mode: str
+    valid: bool
+    error: str | None = None
+
+
 @dataclass(slots=True)
 class SourceReading:
     entity_id: str | None
@@ -24,6 +39,9 @@ class SourceReading:
     unit: str | None
     raw_state: str | None
     available: bool
+    binding: str | None = None
+    binding_label: str | None = None
+    raw_value: float | None = None
 
 
 @dataclass(slots=True)
@@ -59,26 +77,79 @@ class SourceSpec:
     allow_negative: bool = False
 
 
-def get_source_reading(hass: HomeAssistant, entity_id: str | None) -> tuple[SourceReading, State | None]:
-    if not entity_id:
-        return SourceReading(entity_id=None, value=None, unit=None, raw_state=None, available=False), None
+def parse_source_binding(raw: str | None) -> SourceBinding:
+    if not raw:
+        return SourceBinding(raw=raw, entity_id=None, mode=DERIVED_SOURCE_MODE_DIRECT, valid=True)
+    if not isinstance(raw, str):
+        return SourceBinding(raw=str(raw), entity_id=None, mode=DERIVED_SOURCE_MODE_DIRECT, valid=False, error="Binding must be a string")
+    if not raw.startswith(f"{DERIVED_SOURCE_PREFIX}:"):
+        return SourceBinding(raw=raw, entity_id=raw, mode=DERIVED_SOURCE_MODE_DIRECT, valid=True)
 
-    state = hass.states.get(entity_id)
+    parts = raw.split(":", 2)
+    if len(parts) != 3:
+        return SourceBinding(raw=raw, entity_id=None, mode=DERIVED_SOURCE_MODE_DIRECT, valid=False, error="Derived binding format must be znesrc:<mode>:<entity_id>")
+
+    _, mode, entity_id = parts
+    if mode not in {DERIVED_SOURCE_MODE_POSITIVE, DERIVED_SOURCE_MODE_NEGATIVE_ABS}:
+        return SourceBinding(raw=raw, entity_id=entity_id or None, mode=mode, valid=False, error=f"Unsupported derived binding mode: {mode}")
+    if not entity_id:
+        return SourceBinding(raw=raw, entity_id=None, mode=mode, valid=False, error="Derived binding is missing an entity id")
+    return SourceBinding(raw=raw, entity_id=entity_id, mode=mode, valid=True)
+
+
+def format_source_binding_label(raw: str | None) -> str:
+    binding = parse_source_binding(raw)
+    if not binding.raw:
+        return "Not configured"
+    if not binding.valid:
+        return binding.raw
+    if binding.mode == DERIVED_SOURCE_MODE_DIRECT:
+        return binding.entity_id or binding.raw or "Not configured"
+    if binding.mode == DERIVED_SOURCE_MODE_POSITIVE:
+        return f"{binding.entity_id} (signed split → positive only)"
+    if binding.mode == DERIVED_SOURCE_MODE_NEGATIVE_ABS:
+        return f"{binding.entity_id} (signed split → negative becomes positive)"
+    return binding.raw or (binding.entity_id or "Not configured")
+
+
+def _apply_binding_mode(value: float | None, mode: str) -> float | None:
+    if value is None:
+        return None
+    if mode == DERIVED_SOURCE_MODE_DIRECT:
+        return value
+    if mode == DERIVED_SOURCE_MODE_POSITIVE:
+        return max(value, 0.0)
+    if mode == DERIVED_SOURCE_MODE_NEGATIVE_ABS:
+        return max(-value, 0.0)
+    return None
+
+
+def get_source_reading(hass: HomeAssistant, entity_id: str | None) -> tuple[SourceReading, State | None]:
+    binding = parse_source_binding(entity_id)
+    if not binding.raw:
+        return SourceReading(entity_id=None, value=None, unit=None, raw_state=None, available=False, binding=entity_id, binding_label=format_source_binding_label(entity_id)), None
+    if not binding.valid or not binding.entity_id:
+        return SourceReading(entity_id=binding.entity_id, value=None, unit=None, raw_state=None, available=False, binding=entity_id, binding_label=format_source_binding_label(entity_id)), None
+
+    state = hass.states.get(binding.entity_id)
     if state is None:
-        return SourceReading(entity_id=entity_id, value=None, unit=None, raw_state=None, available=False), None
+        return SourceReading(entity_id=binding.entity_id, value=None, unit=None, raw_state=None, available=False, binding=entity_id, binding_label=format_source_binding_label(entity_id)), None
 
     try:
-        value = float(state.state)
+        raw_value = float(state.state)
     except (TypeError, ValueError):
-        value = None
+        raw_value = None
 
     return (
         SourceReading(
-            entity_id=entity_id,
-            value=value,
+            entity_id=binding.entity_id,
+            value=_apply_binding_mode(raw_value, binding.mode),
             unit=state.attributes.get(ATTR_UNIT_OF_MEASUREMENT),
             raw_state=state.state,
             available=state.state not in {"unknown", "unavailable"},
+            binding=entity_id,
+            binding_label=format_source_binding_label(entity_id),
+            raw_value=raw_value,
         ),
         state,
     )
@@ -201,14 +272,26 @@ def validate_configured_entities(
             )
             continue
 
+        binding = parse_source_binding(entity_id)
+        if not binding.valid or not binding.entity_id:
+            issues.append(
+                ValidationIssue(
+                    code=f"{spec.key}_invalid_entity_id",
+                    severity="error",
+                    message=f"{spec.key} binding is invalid: {binding.error or 'unknown binding error'}",
+                    entity_id=entity_id,
+                )
+            )
+            continue
+
         previous_key = seen_entities.get(entity_id)
         if previous_key is not None:
             issues.append(
                 ValidationIssue(
                     code=f"{spec.key}_duplicate_entity",
                     severity="error",
-                    message=f"{spec.key} reuses {entity_id}, already assigned to {previous_key}",
-                    entity_id=entity_id,
+                    message=f"{spec.key} reuses {format_source_binding_label(entity_id)}, already assigned to {previous_key}",
+                    entity_id=binding.entity_id,
                 )
             )
             continue
@@ -220,8 +303,8 @@ def validate_configured_entities(
                 ValidationIssue(
                     code=f"{spec.key}_missing_entity",
                     severity="error" if spec.required else "warning",
-                    message=f"{spec.key} entity {entity_id} was not found in Home Assistant",
-                    entity_id=entity_id,
+                    message=f"{spec.key} entity {binding.entity_id} was not found in Home Assistant",
+                    entity_id=binding.entity_id,
                 )
             )
             continue
@@ -423,12 +506,15 @@ def build_source_diagnostics(
             status = "info"
 
         diagnostics[spec.key] = {
-            "entity_id": spec.entity_id,
+            "entity_id": reading.entity_id,
+            "binding": reading.binding,
+            "binding_label": reading.binding_label,
             "required": spec.required,
             "quantity": spec.quantity,
             "status": status,
             "available": reading.available,
             "value": reading.value,
+            "raw_value": reading.raw_value,
             "raw_state": reading.raw_state,
             "unit": reading.unit,
             "state_class": state.attributes.get(ATTR_STATE_CLASS) if state else None,

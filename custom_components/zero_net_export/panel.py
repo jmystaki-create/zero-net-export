@@ -44,7 +44,14 @@ from .device_model import (
     parse_device_configs,
 )
 from .release_info import build_release_info
-from .validation import SourceSpec, validate_configured_entities
+from .validation import (
+    DERIVED_SOURCE_MODE_NEGATIVE_ABS,
+    DERIVED_SOURCE_MODE_POSITIVE,
+    DERIVED_SOURCE_PREFIX,
+    SourceSpec,
+    format_source_binding_label,
+    validate_configured_entities,
+)
 
 PANEL_TITLE = "Zero Net Export"
 PANEL_ICON = "mdi:transmission-tower-export"
@@ -60,7 +67,7 @@ PANEL_WEBSOCKET_ADD_DEVICE = f"{DOMAIN}/panel/add_device"
 PANEL_WEBSOCKET_UPDATE_DEVICE = f"{DOMAIN}/panel/update_device"
 PANEL_WEBSOCKET_DELETE_DEVICE = f"{DOMAIN}/panel/delete_device"
 PANEL_WEBSOCKET_RESET_DEVICE = f"{DOMAIN}/panel/reset_device_overrides"
-PANEL_SCHEMA_VERSION = 26
+PANEL_SCHEMA_VERSION = 27
 
 _SOURCE_ROLE_KEY_MAP: dict[str, str] = {
     CONF_SOLAR_POWER_ENTITY: "solar_power",
@@ -725,7 +732,7 @@ def _build_support_snapshot(
     release_update = state.validation_details.get("release_update", {})
     source_diagnostics = _normalize_source_mapping_payload(state.validation_details.get("source_diagnostics", {}))
     mapped_sources = [
-        f"- {key}: {coordinator.entry.data.get(key) or 'not configured'}"
+        f"- {key}: {format_source_binding_label(coordinator.entry.data.get(key))}"
         for key in (
             CONF_SOLAR_POWER_ENTITY,
             CONF_SOLAR_ENERGY_ENTITY,
@@ -1177,6 +1184,57 @@ def _source_candidate_analysis(
     }
 
 
+def _derived_binding(mode: str, entity_id: str) -> str:
+    return f"{DERIVED_SOURCE_PREFIX}:{mode}:{entity_id}"
+
+
+def _is_signed_grid_candidate(entity: dict[str, Any], quantity: str) -> bool:
+    haystack = f"{entity.get('entity_id', '')} {entity.get('label', '')}".lower()
+    if quantity == "power" and entity.get("unit") not in {"W", "kW"}:
+        return False
+    if quantity == "energy" and entity.get("unit") not in {"Wh", "kWh"}:
+        return False
+    if "grid" not in haystack:
+        return False
+    signed_terms = ("net", "balance", "signed", "bidirectional", "flow")
+    if any(term in haystack for term in signed_terms):
+        return True
+    return "import" not in haystack and "export" not in haystack
+
+
+def _derived_grid_split_suggestions(role_key: str, entity: dict[str, Any], base_score: int) -> list[dict[str, Any]]:
+    hint = _SOURCE_ROLE_HINTS.get(role_key, {})
+    quantity = hint.get("quantity")
+    if role_key not in {
+        CONF_GRID_IMPORT_POWER_ENTITY,
+        CONF_GRID_EXPORT_POWER_ENTITY,
+        CONF_GRID_IMPORT_ENERGY_ENTITY,
+        CONF_GRID_EXPORT_ENERGY_ENTITY,
+    } or not _is_signed_grid_candidate(entity, quantity):
+        return []
+
+    if role_key in {CONF_GRID_IMPORT_POWER_ENTITY, CONF_GRID_IMPORT_ENERGY_ENTITY}:
+        mode = DERIVED_SOURCE_MODE_POSITIVE
+        direction = "import"
+        why = "Use the positive half of a signed net-grid sensor as grid import."
+    else:
+        mode = DERIVED_SOURCE_MODE_NEGATIVE_ABS
+        direction = "export"
+        why = "Use the negative half of a signed net-grid sensor as grid export."
+
+    label = f"{entity.get('label')} → signed split for {direction}"
+    return [{
+        **entity,
+        "entity_id": _derived_binding(mode, entity.get("entity_id")),
+        "display_entity_id": entity.get("entity_id"),
+        "label": label,
+        "score": base_score + 18,
+        "why": why,
+        "penalties": list(entity.get("penalties") or []),
+        "derived": True,
+    }]
+
+
 def _source_entity_suggestions(hass: HomeAssistant) -> dict[str, Any]:
     available = _available_sensor_entities(hass)
     suggestions: dict[str, Any] = {}
@@ -1185,14 +1243,16 @@ def _source_entity_suggestions(hass: HomeAssistant) -> dict[str, Any]:
         ranked_items: list[dict[str, Any]] = []
         for entity in available:
             analysis = _source_candidate_analysis(entity, hint["quantity"], hint["preferred_terms"])
-            ranked_items.append(
-                {
-                    **entity,
-                    "score": analysis["score"],
-                    "why": analysis["why"],
-                    "penalties": analysis["penalties"],
-                }
-            )
+            base_item = {
+                **entity,
+                "score": analysis["score"],
+                "why": analysis["why"],
+                "penalties": analysis["penalties"],
+                "display_entity_id": entity.get("entity_id"),
+                "derived": False,
+            }
+            ranked_items.append(base_item)
+            ranked_items.extend(_derived_grid_split_suggestions(key, base_item, analysis["score"]))
         ranked = sorted(ranked_items, key=lambda item: (-item["score"], item["entity_id"]))
         suggestions[key] = {
             "description": hint["description"],

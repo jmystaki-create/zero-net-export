@@ -737,6 +737,7 @@ class ZeroNetExportPanel extends HTMLElement {
     const status = this._sourceRoleStatus(field, sourceMapping, sourceDiagnostics);
     const mappedEntity = sourceMapping[field.key] || '';
     const diagnostic = sourceDiagnostics?.[field.key] || {};
+    const mappedLabel = diagnostic?.binding_label || mappedEntity;
     return `
       <label class="source-field-card ${field.required ? 'required-source' : 'optional-source'} ${status.tone}">
         <div class="source-field-header">
@@ -753,12 +754,13 @@ class ZeroNetExportPanel extends HTMLElement {
           ${this._busy ? 'disabled' : ''}
         />
         ${mappedEntity
-          ? `<div class="source-inline-meta">Current mapping: <strong>${this._escapeHtml(mappedEntity)}</strong>${diagnostic?.value !== undefined || diagnostic?.raw_state !== undefined ? ` · reading ${this._escapeHtml(this._sourceDisplayValue(diagnostic.value ?? diagnostic.raw_state))}${diagnostic?.unit ? ` ${this._escapeHtml(diagnostic.unit)}` : ''}` : ''}</div>`
+          ? `<div class="source-inline-meta">Current mapping: <strong>${this._escapeHtml(mappedLabel)}</strong>${diagnostic?.value !== undefined || diagnostic?.raw_state !== undefined ? ` · reading ${this._escapeHtml(this._sourceDisplayValue(diagnostic.value ?? diagnostic.raw_state))}${diagnostic?.unit ? ` ${this._escapeHtml(diagnostic.unit)}` : ''}` : ''}</div>`
           : ''}
         ${topSuggestion?.entity_id
           ? `<div class="suggestion-block">
               <div class="suggestion-label">Top likely match</div>
               <button type="button" class="suggestion-chip primary-chip" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(topSuggestion.entity_id)}" ${this._busy ? 'disabled' : ''}>${this._escapeHtml(topSuggestion.label)}</button>
+              ${topSuggestion.derived ? `<div class="suggestion-meta">Uses signed net-sensor splitting so this one source can drive the required ${this._escapeHtml(field.label.toLowerCase())} role cleanly.</div>` : ''}
               <div class="suggestion-meta">${this._escapeHtml(topSuggestion.why || 'Likely metadata match.')}${topSuggestion.score ? ` · score ${this._escapeHtml(topSuggestion.score)}` : ''}</div>
               ${Array.isArray(topSuggestion.penalties) && topSuggestion.penalties.length ? `<div class="suggestion-meta warning-text">Watch out: ${this._escapeHtml(topSuggestion.penalties.join(' · '))}</div>` : ''}
             </div>`
@@ -865,6 +867,7 @@ class ZeroNetExportPanel extends HTMLElement {
                 <div><strong>Best current guess:</strong> ${this._escapeHtml(topSuggestion.label)}</div>
                 <div class="suggestion-meta">${this._escapeHtml(topSuggestion.why || 'Likely metadata match.')}</div>
                 <button type="button" class="small-button" data-source-field="${this._escapeAttr(field.key)}" data-source-entity="${this._escapeAttr(topSuggestion.entity_id)}" ${this._busy ? 'disabled' : ''}>Use suggested entity</button>
+                ${topSuggestion.derived ? '<div class="suggestion-meta">This suggestion derives the required direction from a signed net-grid sensor.</div>' : ''}
               </div>`
             : '<div class="role-card-body muted">No likely match yet. Use the entity picker below.</div>'}
         </div>
@@ -899,7 +902,7 @@ class ZeroNetExportPanel extends HTMLElement {
           : 'No issues reported';
         return `<tr>
           <td>${this._escapeHtml(this._sourceFieldLabel(key))}</td>
-          <td>${this._escapeHtml(item.entity_id || '—')}</td>
+          <td>${this._escapeHtml(item.binding_label || item.entity_id || '—')}</td>
           <td>${this._escapeHtml(item.status || '—')}</td>
           <td>${this._escapeHtml(item.value ?? item.raw_state ?? '—')}</td>
           <td>${this._escapeHtml(item.unit || '—')}</td>
@@ -953,6 +956,7 @@ class ZeroNetExportPanel extends HTMLElement {
       <section class="panel-section">
         <h3>Source Mapping</h3>
         <p class="muted">Work top-to-bottom: map the required solar, grid, and home-load roles first, then add optional battery signals if you have them.</p>
+        <p class="muted">If your inverter only exposes signed net-grid power or energy, use the signed-split suggestions for the required import/export roles instead of hunting for separate native sensors.</p>
         ${sourceGroups}
         <div class="form-grid">
           <label>

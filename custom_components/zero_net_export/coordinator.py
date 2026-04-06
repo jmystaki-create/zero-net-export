@@ -40,7 +40,7 @@ from .device_model import DeviceRuntime, build_device_summary, parse_device_conf
 from .executor import ActionResult, execute_action
 from .planner import PlannerContext, PlannedDeviceAction, build_control_plan
 from .release_info import build_release_info
-from .validation import SourceSpec, ValidationIssue, get_source_reading, issues_as_attributes, validate_sources
+from .validation import SourceSpec, ValidationIssue, get_source_reading, issues_as_attributes, parse_source_binding, validate_sources
 
 STORAGE_VERSION = 1
 STORAGE_KEY_PREFIX = f"{DOMAIN}_runtime"
@@ -692,9 +692,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
 
         for spec in specs:
             state = states.get(spec.key)
-            if state is None or not spec.entity_id:
+            binding = parse_source_binding(spec.entity_id)
+            if state is None or not spec.entity_id or not binding.entity_id:
                 freshness[spec.key] = {
-                    "entity_id": spec.entity_id,
+                    "entity_id": binding.entity_id if binding.entity_id else spec.entity_id,
+                    "binding": spec.entity_id,
                     "required": spec.required,
                     "stale": False,
                     "last_updated": None,
@@ -710,7 +712,8 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             stale = bool(age_seconds is not None and age_seconds > threshold_seconds)
             detail = {
                 "key": spec.key,
-                "entity_id": spec.entity_id,
+                "entity_id": binding.entity_id,
+                "binding": spec.entity_id,
                 "required": spec.required,
                 "stale": stale,
                 "last_updated": last_updated.isoformat() if last_updated else None,
