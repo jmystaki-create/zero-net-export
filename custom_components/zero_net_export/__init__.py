@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
@@ -11,7 +12,14 @@ from .const import (
     CONF_BATTERY_RESERVE_SOC,
     CONF_DEADBAND_W,
     CONF_DEVICE_INVENTORY_JSON,
+    CONF_GRID_EXPORT_ENERGY_ENTITY,
+    CONF_GRID_EXPORT_POWER_ENTITY,
+    CONF_GRID_IMPORT_ENERGY_ENTITY,
+    CONF_GRID_IMPORT_POWER_ENTITY,
+    CONF_HOME_LOAD_POWER_ENTITY,
     CONF_REFRESH_SECONDS,
+    CONF_SOLAR_ENERGY_ENTITY,
+    CONF_SOLAR_POWER_ENTITY,
     CONF_TARGET_EXPORT_W,
     DEFAULT_BATTERY_RESERVE_SOC,
     DEFAULT_DEADBAND_W,
@@ -23,7 +31,61 @@ from .const import (
     PLATFORMS,
 )
 from .coordinator import ZeroNetExportCoordinator
+from .device_model import parse_device_configs
 from .panel import async_setup_panel
+
+
+def _panel_notification_id(entry: ConfigEntry) -> str:
+    return f"{DOMAIN}_{entry.entry_id}_panel_onboarding"
+
+
+def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
+    merged = dict(entry.data)
+    merged.update(entry.options)
+    required_keys = (
+        CONF_SOLAR_POWER_ENTITY,
+        CONF_SOLAR_ENERGY_ENTITY,
+        CONF_GRID_IMPORT_POWER_ENTITY,
+        CONF_GRID_EXPORT_POWER_ENTITY,
+        CONF_GRID_IMPORT_ENERGY_ENTITY,
+        CONF_GRID_EXPORT_ENERGY_ENTITY,
+        CONF_HOME_LOAD_POWER_ENTITY,
+    )
+    return [key for key in required_keys if not merged.get(key)]
+
+
+async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    missing_sources = _missing_required_source_mappings(entry)
+    raw_inventory = entry.options.get(
+        CONF_DEVICE_INVENTORY_JSON,
+        entry.data.get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
+    )
+    devices, device_issues = parse_device_configs(raw_inventory)
+
+    if not missing_sources and devices and not device_issues:
+        persistent_notification.async_dismiss(hass, _panel_notification_id(entry))
+        return
+
+    bullets: list[str] = []
+    if missing_sources:
+        bullets.append("Missing required source mappings: " + ", ".join(missing_sources))
+    if device_issues:
+        bullets.append("Device inventory validation issues: " + "; ".join(device_issues[:3]))
+    elif not devices:
+        bullets.append("No controllable devices have been added yet.")
+
+    message = (
+        "Finish setup in the Zero Net Export panel: [Open panel](/zero-net-export).\n\n"
+        "Use the panel for source mapping, device onboarding, readiness checks, and the installed -> mapped -> operational workflow.\n\n"
+        + "\n".join(f"- {item}" for item in bullets)
+        + "\n\nThe raw Configure/options path is advanced recovery only."
+    )
+    persistent_notification.async_create(
+        hass,
+        message,
+        title=f"{entry.title}: finish setup in Zero Net Export panel",
+        notification_id=_panel_notification_id(entry),
+    )
 
 
 def _coerce_number(value: Any, fallback: int | float) -> int | float:
@@ -47,6 +109,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await async_setup_panel(hass)
+    await _async_update_panel_onboarding_notice(hass, entry)
 
     coordinator = ZeroNetExportCoordinator(hass, entry)
     await coordinator.async_initialize()
@@ -62,6 +125,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id, None)
+        persistent_notification.async_dismiss(hass, _panel_notification_id(entry))
     return unload_ok
 
 
@@ -89,5 +153,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     if changed:
         hass.config_entries.async_update_entry(entry, data=data)
+
+    await _async_update_panel_onboarding_notice(hass, entry)
 
     return True

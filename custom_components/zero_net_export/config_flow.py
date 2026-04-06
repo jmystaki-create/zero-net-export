@@ -37,6 +37,8 @@ from .const import (
 )
 from .device_model import default_device_blueprint, parse_device_configs
 
+PANEL_PATH = "/zero-net-export"
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -127,9 +129,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._config_entry = config_entry
 
     async def async_step_init(self, user_input=None):
+        return self.async_show_menu(
+            step_id="init",
+            menu_options=["panel", "advanced"],
+        )
+
+    async def async_step_panel(self, user_input=None):
+        return self.async_abort(reason="panel_only")
+
+    async def async_step_advanced(self, user_input=None):
         errors = {}
         description_placeholders = {
             "device_blueprint": default_device_blueprint(),
+            "panel_path": PANEL_PATH,
         }
 
         if user_input is not None:

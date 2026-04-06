@@ -17,7 +17,19 @@
     "step": {
       "init": {
         "title": "Zero Net Export options",
-        "description": "Tune advanced defaults here. Normal operators should use the Zero Net Export panel for source setup and device management; the JSON field below is a fallback for advanced recovery/debugging only.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "menu_options": {
+          "panel": "Open setup & mapping panel",
+          "advanced": "Advanced defaults / recovery"
+        }
+      },
+      "panel": {
+        "title": "Use the Zero Net Export panel",
+        "description": "The intended operator workflow now lives in the Zero Net Export panel, not in raw options fields.\n\nOpen the Home Assistant sidebar item **Zero Net Export** or browse directly to `{panel_path}`.\n\nUse that panel to:\n- map required solar/grid/home sources\n- add and edit controllable devices\n- review readiness and diagnostics\n- move from installed -> mapped -> operational\n\nIntegration: **{entry_title}**\n\nIf you still need backend-level recovery controls, go back and choose **Advanced defaults / recovery**.",
+        "data": {}
+      },
+      "advanced": {
+        "title": "Advanced defaults / recovery",
+        "description": "This path is for backend recovery/debugging only. Normal operators should use the Zero Net Export panel at `{panel_path}` for source mapping and device management.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
@@ -36,6 +48,9 @@
     },
     "error": {
       "device_inventory_invalid": "The device inventory JSON is invalid or incomplete."
+    },
+    "abort": {
+      "panel_only": "Open the Zero Net Export sidebar panel to continue setup (direct path: /zero-net-export)."
     }
   }
 }

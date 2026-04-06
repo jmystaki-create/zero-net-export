@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.41] - 2026-04-06
+
+### Fixed
+- Rewired the real Home Assistant Configure/options path so it no longer drops operators directly into raw internal backend fields as the primary setup surface. Configure now lands on a panel-first menu, with a dedicated operator step that points setup to the Zero Net Export panel.
+- Added an in-Home Assistant onboarding notification with a direct `/zero-net-export` link whenever required source mappings or device onboarding are still incomplete, so the intended mapping workflow stays visibly reachable after install/reload.
+
+### Changed
+- Moved raw backend controls (`target_export_w`, `deadband_w`, `battery_reserve_soc`, `refresh_seconds`, `device_inventory_json`) behind an explicit **Advanced defaults / recovery** path instead of presenting them as the default operator-facing configure experience.
+- Integration version advanced to `0.1.41` for the panel-first operator-path restoration follow-up.
+
 ## [0.1.40] - 2026-04-06
 
 ### Added
