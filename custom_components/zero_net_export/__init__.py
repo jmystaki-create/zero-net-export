@@ -29,6 +29,8 @@ from .const import (
     DOMAIN,
     INTEGRATION_VERSION,
     PLATFORMS,
+    REQUIRED_SOURCE_KEYS,
+    SOURCE_ROLE_LABELS,
 )
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
@@ -42,16 +44,7 @@ def _panel_notification_id(entry: ConfigEntry) -> str:
 def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
     merged = dict(entry.data)
     merged.update(entry.options)
-    required_keys = (
-        CONF_SOLAR_POWER_ENTITY,
-        CONF_SOLAR_ENERGY_ENTITY,
-        CONF_GRID_IMPORT_POWER_ENTITY,
-        CONF_GRID_EXPORT_POWER_ENTITY,
-        CONF_GRID_IMPORT_ENERGY_ENTITY,
-        CONF_GRID_EXPORT_ENERGY_ENTITY,
-        CONF_HOME_LOAD_POWER_ENTITY,
-    )
-    return [key for key in required_keys if not merged.get(key)]
+    return [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
 
 
 async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -68,7 +61,8 @@ async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: Conf
 
     bullets: list[str] = []
     if missing_sources:
-        bullets.append("Missing required source mappings: " + ", ".join(missing_sources))
+        readable_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in missing_sources]
+        bullets.append("Missing required source mappings: " + ", ".join(readable_roles))
     if device_issues:
         bullets.append("Device inventory validation issues: " + "; ".join(device_issues[:3]))
     elif not devices:

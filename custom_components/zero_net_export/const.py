@@ -32,6 +32,29 @@ CONF_HOME_LOAD_POWER_ENTITY = "home_load_power_entity"
 CONF_BATTERY_SOC_ENTITY = "battery_soc_entity"
 CONF_BATTERY_CHARGE_POWER_ENTITY = "battery_charge_power_entity"
 CONF_BATTERY_DISCHARGE_POWER_ENTITY = "battery_discharge_power_entity"
+
+SOURCE_ROLE_LABELS = {
+    CONF_SOLAR_POWER_ENTITY: "Solar power",
+    CONF_SOLAR_ENERGY_ENTITY: "Solar energy",
+    CONF_GRID_IMPORT_POWER_ENTITY: "Grid import power",
+    CONF_GRID_EXPORT_POWER_ENTITY: "Grid export power",
+    CONF_GRID_IMPORT_ENERGY_ENTITY: "Grid import energy",
+    CONF_GRID_EXPORT_ENERGY_ENTITY: "Grid export energy",
+    CONF_HOME_LOAD_POWER_ENTITY: "Home load power",
+    CONF_BATTERY_SOC_ENTITY: "Battery state of charge",
+    CONF_BATTERY_CHARGE_POWER_ENTITY: "Battery charge power",
+    CONF_BATTERY_DISCHARGE_POWER_ENTITY: "Battery discharge power",
+}
+
+REQUIRED_SOURCE_KEYS = (
+    CONF_SOLAR_POWER_ENTITY,
+    CONF_SOLAR_ENERGY_ENTITY,
+    CONF_GRID_IMPORT_POWER_ENTITY,
+    CONF_GRID_EXPORT_POWER_ENTITY,
+    CONF_GRID_IMPORT_ENERGY_ENTITY,
+    CONF_GRID_EXPORT_ENERGY_ENTITY,
+    CONF_HOME_LOAD_POWER_ENTITY,
+)
 CONF_TARGET_EXPORT_W = "target_export_w"
 CONF_DEADBAND_W = "deadband_w"
 CONF_BATTERY_RESERVE_SOC = "battery_reserve_soc"

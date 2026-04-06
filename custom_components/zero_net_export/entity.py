@@ -12,7 +12,6 @@ class ZeroNetExportEntity(CoordinatorEntity):
     def __init__(self, coordinator, key: str, name: str) -> None:
         super().__init__(coordinator)
         self._key = key
-        self._attr_translation_key = key
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{key}"
         self._attr_name = name
         self._attr_device_info = {
@@ -21,5 +20,4 @@ class ZeroNetExportEntity(CoordinatorEntity):
             "manufacturer": "OpenClaw",
             "model": "Zero Net Export",
             "sw_version": INTEGRATION_VERSION,
-            "configuration_url": "/zero-net-export",
         }

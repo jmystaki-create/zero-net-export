@@ -34,6 +34,8 @@ from .const import (
     DOMAIN,
     INTEGRATION_VERSION,
     MODES,
+    REQUIRED_SOURCE_KEYS,
+    SOURCE_ROLE_LABELS,
 )
 from .device_model import (
     ADAPTER_FIXED_TOGGLE,
@@ -617,16 +619,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         CONF_BATTERY_CHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_CHARGE_POWER_ENTITY),
         CONF_BATTERY_DISCHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY),
     }
-    required_source_keys = (
-        CONF_SOLAR_POWER_ENTITY,
-        CONF_SOLAR_ENERGY_ENTITY,
-        CONF_GRID_IMPORT_POWER_ENTITY,
-        CONF_GRID_EXPORT_POWER_ENTITY,
-        CONF_GRID_IMPORT_ENERGY_ENTITY,
-        CONF_GRID_EXPORT_ENERGY_ENTITY,
-        CONF_HOME_LOAD_POWER_ENTITY,
-    )
-    missing_required_sources = [key for key in required_source_keys if not source_mapping.get(key)]
+    missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not source_mapping.get(key)]
     validation_issues = state.validation_details.get("issues", [])
     blocking_validation_issues = [
         issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
@@ -640,7 +633,8 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             "detail": (
                 "All required solar, grid, and home-load sources are configured."
                 if not missing_required_sources
-                else f"Missing required sources: {', '.join(missing_required_sources)}"
+                else "Missing required sources: "
+                + ", ".join(SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources)
             ),
         },
         {
@@ -732,7 +726,7 @@ def _build_support_snapshot(
     release_update = state.validation_details.get("release_update", {})
     source_diagnostics = _normalize_source_mapping_payload(state.validation_details.get("source_diagnostics", {}))
     mapped_sources = [
-        f"- {key}: {format_source_binding_label(coordinator.entry.data.get(key))}"
+        f"- {SOURCE_ROLE_LABELS.get(key, key)}: {format_source_binding_label(coordinator.entry.data.get(key))}"
         for key in (
             CONF_SOLAR_POWER_ENTITY,
             CONF_SOLAR_ENERGY_ENTITY,
@@ -748,7 +742,7 @@ def _build_support_snapshot(
     ]
     source_health_lines = [
         (
-            f"- {key}: status={details.get('status') or 'unknown'}, "
+            f"- {SOURCE_ROLE_LABELS.get(key, key)}: status={details.get('status') or 'unknown'}, "
             f"age_s={details.get('age_seconds') if details.get('age_seconds') is not None else 'n/a'}, "
             f"issues={len(details.get('issues') or [])}, "
             f"entity={details.get('entity_id') or 'n/a'}"

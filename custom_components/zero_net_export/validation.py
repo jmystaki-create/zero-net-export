@@ -9,6 +9,7 @@ from homeassistant.const import ATTR_DEVICE_CLASS, ATTR_UNIT_OF_MEASUREMENT
 ATTR_STATE_CLASS = "state_class"
 from homeassistant.core import HomeAssistant, State
 
+from .const import SOURCE_ROLE_LABELS
 
 POWER_UNITS = {"W", "kW"}
 ENERGY_UNITS = {"Wh", "kWh"}
@@ -75,6 +76,10 @@ class SourceSpec:
     quantity: str
     required: bool = True
     allow_negative: bool = False
+
+
+def _role_label(key: str) -> str:
+    return SOURCE_ROLE_LABELS.get(key, key)
 
 
 def parse_source_binding(raw: str | None) -> SourceBinding:
@@ -184,7 +189,7 @@ def _check_metadata(state: State | None, spec: SourceSpec, issues: list[Validati
             ValidationIssue(
                 code=f"{spec.key}_unexpected_unit",
                 severity="warning",
-                message=f"{spec.key} uses unit {unit!r}; expected one of {sorted(expected_units)}",
+                message=f"{_role_label(spec.key)} uses unit {unit!r}; expected one of {sorted(expected_units)}",
                 entity_id=spec.entity_id,
             )
         )
@@ -197,7 +202,7 @@ def _check_metadata(state: State | None, spec: SourceSpec, issues: list[Validati
                 ValidationIssue(
                     code=f"{spec.key}_unexpected_state_class",
                     severity="warning",
-                    message=f"{spec.key} state_class is {state_class!r}; expected one of {sorted(expected_state_class)}",
+                    message=f"{_role_label(spec.key)} state_class is {state_class!r}; expected one of {sorted(expected_state_class)}",
                     entity_id=spec.entity_id,
                 )
             )
@@ -206,7 +211,7 @@ def _check_metadata(state: State | None, spec: SourceSpec, issues: list[Validati
             ValidationIssue(
                 code=f"{spec.key}_unexpected_state_class",
                 severity="warning",
-                message=f"{spec.key} state_class is {state_class!r}; expected {expected_state_class!r}",
+                message=f"{_role_label(spec.key)} state_class is {state_class!r}; expected {expected_state_class!r}",
                 entity_id=spec.entity_id,
             )
         )
@@ -217,7 +222,7 @@ def _check_metadata(state: State | None, spec: SourceSpec, issues: list[Validati
             ValidationIssue(
                 code=f"{spec.key}_unexpected_device_class",
                 severity="warning",
-                message=f"{spec.key} device_class is {device_class!r}; expected 'power'",
+                message=f"{_role_label(spec.key)} device_class is {device_class!r}; expected 'power'",
                 entity_id=spec.entity_id,
             )
         )
@@ -226,7 +231,7 @@ def _check_metadata(state: State | None, spec: SourceSpec, issues: list[Validati
             ValidationIssue(
                 code=f"{spec.key}_unexpected_device_class",
                 severity="warning",
-                message=f"{spec.key} device_class is {device_class!r}; expected 'energy'",
+                message=f"{_role_label(spec.key)} device_class is {device_class!r}; expected 'energy'",
                 entity_id=spec.entity_id,
             )
         )
@@ -235,7 +240,7 @@ def _check_metadata(state: State | None, spec: SourceSpec, issues: list[Validati
             ValidationIssue(
                 code=f"{spec.key}_unexpected_device_class",
                 severity="info",
-                message=f"{spec.key} device_class is {device_class!r}; battery-like percent sensor expected",
+                message=f"{_role_label(spec.key)} device_class is {device_class!r}; battery-like percent sensor expected",
                 entity_id=spec.entity_id,
             )
         )
@@ -257,7 +262,7 @@ def validate_configured_entities(
                     ValidationIssue(
                         code=f"{spec.key}_not_configured",
                         severity="error",
-                        message=f"{spec.key} is required but not configured",
+                        message=f"{_role_label(spec.key)} is required but not configured",
                     )
                 )
             continue
@@ -267,7 +272,7 @@ def validate_configured_entities(
                 ValidationIssue(
                     code=f"{spec.key}_invalid_entity_id",
                     severity="error",
-                    message=f"{spec.key} must be an entity id string",
+                    message=f"{_role_label(spec.key)} must be an entity id string",
                 )
             )
             continue
@@ -278,7 +283,7 @@ def validate_configured_entities(
                 ValidationIssue(
                     code=f"{spec.key}_invalid_entity_id",
                     severity="error",
-                    message=f"{spec.key} binding is invalid: {binding.error or 'unknown binding error'}",
+                    message=f"{_role_label(spec.key)} binding is invalid: {binding.error or 'unknown binding error'}",
                     entity_id=entity_id,
                 )
             )
@@ -290,7 +295,7 @@ def validate_configured_entities(
                 ValidationIssue(
                     code=f"{spec.key}_duplicate_entity",
                     severity="error",
-                    message=f"{spec.key} reuses {format_source_binding_label(entity_id)}, already assigned to {previous_key}",
+                    message=f"{_role_label(spec.key)} reuses {format_source_binding_label(entity_id)}, already assigned to {_role_label(previous_key)}",
                     entity_id=binding.entity_id,
                 )
             )
@@ -303,7 +308,7 @@ def validate_configured_entities(
                 ValidationIssue(
                     code=f"{spec.key}_missing_entity",
                     severity="error" if spec.required else "warning",
-                    message=f"{spec.key} entity {binding.entity_id} was not found in Home Assistant",
+                    message=f"{_role_label(spec.key)} entity {binding.entity_id} was not found in Home Assistant",
                     entity_id=binding.entity_id,
                 )
             )
@@ -314,7 +319,7 @@ def validate_configured_entities(
                 ValidationIssue(
                     code=f"{spec.key}_unavailable",
                     severity="error" if spec.required else "warning",
-                    message=f"{spec.key} entity {entity_id} is unavailable",
+                    message=f"{_role_label(spec.key)} entity {entity_id} is unavailable",
                     entity_id=entity_id,
                 )
             )
@@ -325,7 +330,7 @@ def validate_configured_entities(
                 ValidationIssue(
                     code=f"{spec.key}_non_numeric",
                     severity="error" if spec.required else "warning",
-                    message=f"{spec.key} entity {entity_id} does not currently expose a numeric state",
+                    message=f"{_role_label(spec.key)} entity {entity_id} does not currently expose a numeric state",
                     entity_id=entity_id,
                 )
             )
@@ -384,9 +389,9 @@ def build_diagnostic_summary(
 
     if any(issue.severity == "error" for issue in issues):
         if unavailable:
-            return f"Blocking source outage: {', '.join(unavailable)} is unavailable or missing"
+            return f"Blocking source outage: {', '.join(_role_label(key) for key in unavailable)} is unavailable or missing"
         if non_numeric:
-            return f"Blocking source type issue: {', '.join(non_numeric)} is not exposing a numeric reading"
+            return f"Blocking source type issue: {', '.join(_role_label(key) for key in non_numeric)} is not exposing a numeric reading"
         return "Blocking source validation errors remain; safe mode is preventing control"
 
     if "grid_import_export_overlap" in issue_codes:
@@ -547,7 +552,7 @@ def validate_sources(
                 ValidationIssue(
                     code=f"{spec.key}_not_configured",
                     severity="error",
-                    message=f"{spec.key} is required but not configured",
+                    message=f"{_role_label(spec.key)} is required but not configured",
                 )
             )
             continue
@@ -557,7 +562,7 @@ def validate_sources(
                 ValidationIssue(
                     code=f"{spec.key}_unavailable",
                     severity="error" if spec.required else "warning",
-                    message=f"{spec.key} is unavailable",
+                    message=f"{_role_label(spec.key)} is unavailable",
                     entity_id=spec.entity_id,
                 )
             )
@@ -568,7 +573,7 @@ def validate_sources(
                 ValidationIssue(
                     code=f"{spec.key}_non_numeric",
                     severity="error" if spec.required else "warning",
-                    message=f"{spec.key} does not expose a numeric state",
+                    message=f"{_role_label(spec.key)} does not expose a numeric state",
                     entity_id=spec.entity_id,
                 )
             )
@@ -579,7 +584,7 @@ def validate_sources(
                 ValidationIssue(
                     code=f"{spec.key}_negative_value",
                     severity="warning",
-                    message=f"{spec.key} reported a negative value {reading.value}",
+                    message=f"{_role_label(spec.key)} reported a negative value {reading.value}",
                     entity_id=spec.entity_id,
                 )
             )

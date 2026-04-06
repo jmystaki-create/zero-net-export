@@ -9,6 +9,17 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.42] - 2026-04-06
+
+### Fixed
+- Fixed the shipped Home Assistant options flow wiring so the advanced recovery step now renders as the real `advanced` step instead of incorrectly reusing `init`, which could leave the Configure/options UI with blank or broken menu labels.
+- Added a runtime `translations/en.json` payload for the custom integration so Home Assistant can resolve the actual options-flow labels, descriptions, and abort text in the installed package instead of falling back to raw keys like `panel_only`.
+- Replaced operator-facing onboarding/support text that previously leaked raw internal mapping keys such as `solar_power_entity` and `grid_import_power_entity` with plain-language source-role names.
+- Hardened the shared entity base by removing custom-entity translation-key wiring and the relative `configuration_url` from device info, reducing the chance of cross-platform entity-registration failures in the real Home Assistant entity-add path.
+
+### Changed
+- Integration version advanced to `0.1.42` for the real Home Assistant labels/runtime hardening repair release.
+
 ## [0.1.41] - 2026-04-06
 
 ### Fixed

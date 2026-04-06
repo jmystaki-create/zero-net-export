@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Zero Net Export",
+        "description": "Create the Zero Net Export backend entry first, then finish setup inside the Zero Net Export panel in the Home Assistant sidebar. Runtime defaults start in a safe bootstrap state until you map sources and add devices in the panel.",
+        "data": {
+          "name": "System name"
+        },
+        "data_description": {
+          "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. You can finish source mapping, refresh tuning, and device onboarding after entry creation inside the panel app."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Zero Net Export options",
+        "menu_options": {
+          "panel": "Open setup & mapping panel",
+          "advanced": "Advanced defaults / recovery"
+        }
+      },
+      "panel": {
+        "title": "Use the Zero Net Export panel",
+        "description": "The intended operator workflow now lives in the Zero Net Export panel, not in raw options fields.\n\nOpen the Home Assistant sidebar item **Zero Net Export** or browse directly to `{panel_path}`.\n\nUse that panel to:\n- map required solar/grid/home sources\n- add and edit controllable devices\n- review readiness and diagnostics\n- move from installed -> mapped -> operational\n\nIntegration: **{entry_title}**\n\nIf you still need backend-level recovery controls, go back and choose **Advanced defaults / recovery**.",
+        "data": {}
+      },
+      "advanced": {
+        "title": "Advanced defaults / recovery",
+        "description": "This path is for backend recovery/debugging only. Normal operators should use the Zero Net Export panel at `{panel_path}` for source mapping and device management.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "data": {
+          "target_export_w": "Target export (W)",
+          "deadband_w": "Deadband (W)",
+          "battery_reserve_soc": "Battery reserve SOC (%)",
+          "refresh_seconds": "Refresh interval (s)",
+          "device_inventory_json": "Device inventory JSON"
+        },
+        "data_description": {
+          "target_export_w": "The export value the controller aims for during normal operation. Leave this at 0 W unless you intentionally want a small export or import bias.",
+          "deadband_w": "How much error Zero Net Export will tolerate before changing devices. Higher values reduce device flapping; lower values chase the target more aggressively.",
+          "battery_reserve_soc": "The minimum battery percentage to protect before discretionary surplus-absorption actions are allowed. Choose the lowest battery level you still want to keep in reserve.",
+          "refresh_seconds": "How often the backend re-reads your source sensors and re-plans control actions. Shorter intervals react faster; longer intervals reduce churn.",
+          "device_inventory_json": "Advanced recovery/debugging fallback only. Normal operators should add and edit devices in the Zero Net Export panel instead of pasting raw JSON here."
+        }
+      }
+    },
+    "error": {
+      "device_inventory_invalid": "The device inventory JSON is invalid or incomplete."
+    },
+    "abort": {
+      "panel_only": "Open the Zero Net Export sidebar panel to continue setup (direct path: /zero-net-export)."
+    }
+  }
+}
