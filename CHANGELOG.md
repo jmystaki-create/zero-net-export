@@ -9,6 +9,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.45] - 2026-04-06
+
+### Fixed
+- Replaced the Configure/options external handoff target with a dedicated same-origin launcher page that force-navigates Home Assistant into the real Zero Net Export Setup tab for the active config entry, instead of relying on the options-flow external step to open the custom panel route directly.
+- Added a visible in-browser fallback button on that launcher page so the operator still gets a clean panel-first path even if Home Assistant/browser popup behavior blocks the automatic redirect.
+- Switched onboarding notifications to the same launcher path so the main operator CTA and the Configure CTA now land on the same real setup surface.
+
+### Changed
+- Integration version advanced to `0.1.45` for the launcher-based Configure -> panel landing repair.
+
 ## [0.1.44] - 2026-04-06
 
 ### Fixed

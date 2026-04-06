@@ -35,6 +35,7 @@ from .const import (
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .panel import async_setup_panel
+from .panel_paths import panel_launcher_path, panel_setup_path
 
 
 def _panel_notification_id(entry: ConfigEntry) -> str:
@@ -42,10 +43,11 @@ def _panel_notification_id(entry: ConfigEntry) -> str:
 
 
 def _panel_setup_path(entry: ConfigEntry | None = None) -> str:
-    path = "/zero-net-export?tab=setup"
-    if entry is None:
-        return path
-    return f"{path}&entry={entry.entry_id}"
+    return panel_setup_path(entry)
+
+
+def _panel_launcher_path(entry: ConfigEntry | None = None) -> str:
+    return panel_launcher_path(entry)
 
 
 def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
@@ -76,7 +78,7 @@ async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: Conf
         bullets.append("No controllable devices have been added yet.")
 
     message = (
-        f"Finish setup in the Zero Net Export panel: [Open setup & mapping panel]({_panel_setup_path(entry)}).\n\n"
+        f"Finish setup in the Zero Net Export panel: [Open setup & mapping panel]({_panel_launcher_path(entry)}).\n\n"
         "Use the panel for source mapping, device onboarding, readiness checks, and the installed -> mapped -> operational workflow.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
         + "\n\nThe raw Configure/options path is advanced recovery only."
