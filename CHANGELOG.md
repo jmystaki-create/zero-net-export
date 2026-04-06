@@ -9,6 +9,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Added
 - Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
 
+## [0.1.47] - 2026-04-06
+
+### Fixed
+- Upgraded the Configure -> setup launcher from a thin redirect page into a real last-mile fallback surface that embeds the actual `/zero-net-export?tab=setup...` panel, so the mapping UI stays visibly reachable even when Home Assistant's external-step/top-window navigation is awkward or partially blocked.
+- Added a stronger operator-facing retry path that explicitly re-attempts top-window navigation while keeping the real setup panel loaded below, instead of leaving the operator stranded on a launcher page with only a dead-end explanation.
+
+### Changed
+- Integration version advanced to `0.1.47` for the live Configure -> real mapping-panel visibility/reachability repair.
+
 ## [0.1.46] - 2026-04-06
 
 ### Fixed
