@@ -143,6 +143,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 The backend control engine is substantially built, and the project is now in a late **stabilization + app-first rebuild** phase focused on validating and hardening the shipped panel-first operator workflow in real Home Assistant installs.
 
+**Current highest-value next step:** run a real Home Assistant installation validation pass against the shipped panel-first workflow, then convert any confirmed friction into a release.
+
 - [x] Config flow & source validation
 - [x] Device model & guards
 - [x] Guarded planner & executor

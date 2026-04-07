@@ -7,7 +7,10 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- Real Home Assistant validation of the rebuilt panel workflow remains the highest-value next step.
+- Added an explicit recommended validation run order to the validation checklist so the next project push stays focused on real Home Assistant install proof, panel-first onboarding, and Configure -> setup handoff verification.
+
+### Changed
+- Clarified in the README that the highest-value next step is a real Home Assistant validation pass followed by a release, not more speculative UI churn.
 
 ## [0.1.48] - 2026-04-07
 

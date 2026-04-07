@@ -2,6 +2,23 @@
 
 Use this checklist to validate Zero Net Export in a real Home Assistant environment before considering v1 complete.
 
+## Recommended next validation run
+
+If you are progressing the project right now, do this in order:
+
+1. Install or upgrade the currently shipped package in a real Home Assistant instance.
+2. Verify the intended operator path still works end-to-end:
+   - add integration
+   - complete bootstrap-only config flow
+   - open the Zero Net Export sidebar panel
+   - map required sources
+   - confirm readiness moves from installed -> mapped -> operational
+3. Use at least one real controllable device and verify a real control loop decision/action path.
+4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly lands on the real setup surface.
+5. If the install is good, package the result as the next release. If not, capture the exact failure surface and fix that before doing more UX expansion.
+
+This is the current highest-value path because panel-first onboarding and Configure handoff are the remaining real-world completion gates.
+
 ## Pre-Installation Checks
 
 - [ ] Home Assistant version >= 2024.6.0
