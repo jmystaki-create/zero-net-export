@@ -63,8 +63,9 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
         snapshot = build_native_support_snapshot(self.coordinator)
         message = (
             "Native Zero Net Export diagnostics snapshot\n\n"
-            "This is intended for the Home Assistant device page, Scripts, and button.press automations when the custom panel route is unavailable.\n\n"
-            f"Sidebar setup path: {panel_setup_path(self.coordinator.entry)}\n\n"
+            "This is intended for the Home Assistant device page, Scripts, and button.press automations so diagnostics stay reachable without depending on the custom panel route.\n\n"
+            "Primary setup path: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure\n"
+            f"Optional panel path: {panel_setup_path(self.coordinator.entry)}\n\n"
             f"```\n{snapshot}\n```"
         )
         persistent_notification.async_create(
@@ -104,7 +105,8 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 "Zero Net Export native setup checklist",
                 "",
                 f"Entry: {self.coordinator.entry.title}",
-                f"Panel path: {panel_setup_path(self.coordinator.entry)}",
+                "Primary setup path: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure",
+                f"Optional panel path: {panel_setup_path(self.coordinator.entry)}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
                 f"Summary: {readiness.get('summary') or self.coordinator.data.health_summary}",
                 f"Next step: {readiness.get('next_step') or self.coordinator.data.recommendation}",

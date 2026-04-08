@@ -721,8 +721,8 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         summary = "The operator flow is mostly built, but runtime is still held in safe mode."
     else:
         phase = "operator_ready"
-        next_step = "Validate the panel-first workflow in a real Home Assistant install and capture any runtime hardening gaps."
-        summary = "Panel onboarding and daily operator controls are available in-app."
+        next_step = "Validate the native Configure workflow in a real Home Assistant install and use the optional panel only where it adds value."
+        summary = "Setup is available through native Home Assistant surfaces, with the panel kept as an optional extra UI."
 
     return {
         "phase": phase,

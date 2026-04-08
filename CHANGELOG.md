@@ -6,6 +6,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.52] - 2026-04-08
+
+### Changed
+- Moved the primary setup path into native Home Assistant surfaces. The integration Configure flow now exposes a native source-mapping step, a native managed-devices step, and a controller-tuning step, so normal onboarding no longer depends on `/zero-net-export` loading successfully.
+- Reframed the custom panel as optional. Configure text, onboarding notifications, and native diagnostic/checklist buttons now point operators to Home Assistant's normal Configure path first, with the panel route kept only as an optional extra surface.
+- Updated README and validation/docs wording to match the new product direction: native HA configuration is the required path, while the panel remains optional when available.
+- Integration version advanced to `0.1.52` for the native-configuration product pivot.
+
 ## [0.1.51] - 2026-04-08
 
 ### Fixed

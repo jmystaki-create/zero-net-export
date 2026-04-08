@@ -3,12 +3,12 @@
     "step": {
       "user": {
         "title": "Zero Net Export",
-        "description": "Create the Zero Net Export backend entry first, then finish setup inside the Zero Net Export panel in the Home Assistant sidebar. Runtime defaults start in a safe bootstrap state until you map sources and add devices in the panel.",
+        "description": "Create the Zero Net Export backend entry first, then finish setup from Home Assistant's normal Configure flow. Runtime defaults start in a safe bootstrap state until you map sources and add devices.",
         "data": {
           "name": "System name"
         },
         "data_description": {
-          "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. You can finish source mapping, refresh tuning, and device onboarding after entry creation inside the panel app."
+          "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. You can finish source mapping, refresh tuning, and device onboarding after entry creation from the integration's Configure screens."
         }
       }
     }
@@ -18,39 +18,80 @@
       "init": {
         "title": "Zero Net Export options",
         "menu_options": {
-          "panel": "Open setup & mapping panel",
-          "advanced": "Advanced defaults / recovery"
+          "native_setup": "Native setup, source mapping, and refresh interval",
+          "devices": "Managed devices",
+          "advanced": "Controller tuning",
+          "panel": "Optional panel app"
+        }
+      },
+      "native_setup": {
+        "title": "Native setup and source mapping",
+        "description": "This is now the primary setup path. Use Home Assistant's Configure flow to map required entities and set the refresh interval.\n\nCurrently missing required sources: {missing_sources}\n\nOptional panel path, if available in your install: `{panel_path}`.",
+        "data": {
+          "solar_power_entity": "Solar power entity",
+          "solar_energy_entity": "Solar energy entity",
+          "grid_import_power_entity": "Grid import power entity",
+          "grid_export_power_entity": "Grid export power entity",
+          "grid_import_energy_entity": "Grid import energy entity",
+          "grid_export_energy_entity": "Grid export energy entity",
+          "home_load_power_entity": "Home load power entity",
+          "battery_soc_entity": "Battery state of charge entity",
+          "battery_charge_power_entity": "Battery charge power entity",
+          "battery_discharge_power_entity": "Battery discharge power entity",
+          "refresh_seconds": "Refresh interval (s)"
+        },
+        "data_description": {
+          "solar_power_entity": "Live solar generation power sensor.",
+          "solar_energy_entity": "Accumulating solar energy sensor.",
+          "grid_import_power_entity": "Grid import power sensor. Use a signed split helper if your hardware exposes a single net-grid sensor.",
+          "grid_export_power_entity": "Grid export power sensor. Use a signed split helper if your hardware exposes a single net-grid sensor.",
+          "grid_import_energy_entity": "Grid import energy sensor.",
+          "grid_export_energy_entity": "Grid export energy sensor.",
+          "home_load_power_entity": "Whole-home load power sensor.",
+          "battery_soc_entity": "Optional battery SOC sensor for reserve-aware control.",
+          "battery_charge_power_entity": "Optional battery charging power sensor.",
+          "battery_discharge_power_entity": "Optional battery discharge power sensor.",
+          "refresh_seconds": "How often the backend re-reads source sensors and re-plans device actions."
+        }
+      },
+      "devices": {
+        "title": "Managed devices",
+        "description": "Use this native Configure screen to persist the controllable device inventory. The optional panel app can still be used if it loads cleanly, but it is no longer required.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "data": {
+          "device_inventory_json": "Device inventory JSON"
+        },
+        "data_description": {
+          "device_inventory_json": "Current practical native path for managed devices. Paste a JSON array of controllable devices here, then save to reload the integration."
         }
       },
       "panel": {
-        "title": "Use the Zero Net Export panel",
-        "description": "The intended operator workflow now lives in the Zero Net Export panel, not in raw options fields.\n\nOpen the Home Assistant sidebar item **Zero Net Export** or browse directly to `{panel_path}`.\n\nUse that panel to:\n- map required solar/grid/home sources\n- add and edit controllable devices\n- review readiness and diagnostics\n- move from installed -> mapped -> operational\n\nIntegration: **{entry_title}**\n\nIf you still need backend-level recovery controls, go back and choose **Advanced defaults / recovery**.",
+        "title": "Optional Zero Net Export panel",
+        "description": "The panel app is now optional. Normal setup should work from the native Configure flow and device-page diagnostics.\n\nIf you want the richer custom UI and it loads cleanly in your Home Assistant install, open the sidebar item **Zero Net Export** or browse directly to `{panel_path}`.\n\nIntegration: **{entry_title}**",
         "data": {}
       },
       "advanced": {
-        "title": "Advanced defaults / recovery",
-        "description": "This path is for backend recovery/debugging only. Normal operators should use the Zero Net Export panel at `{panel_path}` for source mapping and device management.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "title": "Controller tuning",
+        "description": "Adjust controller defaults and runtime tuning here. Use the native setup and managed-device steps for normal onboarding.",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
           "battery_reserve_soc": "Battery reserve SOC (%)",
-          "refresh_seconds": "Refresh interval (s)",
-          "device_inventory_json": "Device inventory JSON"
+          "refresh_seconds": "Refresh interval (s)"
         },
         "data_description": {
           "target_export_w": "The export value the controller aims for during normal operation. Leave this at 0 W unless you intentionally want a small export or import bias.",
           "deadband_w": "How much error Zero Net Export will tolerate before changing devices. Higher values reduce device flapping; lower values chase the target more aggressively.",
           "battery_reserve_soc": "The minimum battery percentage to protect before discretionary surplus-absorption actions are allowed. Choose the lowest battery level you still want to keep in reserve.",
-          "refresh_seconds": "How often the backend re-reads your source sensors and re-plans control actions. Shorter intervals react faster; longer intervals reduce churn.",
-          "device_inventory_json": "Advanced recovery/debugging fallback only. Normal operators should add and edit devices in the Zero Net Export panel instead of pasting raw JSON here."
+          "refresh_seconds": "How often the backend re-reads your source sensors and re-plans control actions. Shorter intervals react faster; longer intervals reduce churn."
         }
       }
     },
     "error": {
-      "device_inventory_invalid": "The device inventory JSON is invalid or incomplete."
+      "device_inventory_invalid": "The device inventory JSON is invalid or incomplete.",
+      "source_entities_invalid": "One or more source entities are missing, duplicated, or invalid."
     },
     "abort": {
-      "panel_only": "Open the Zero Net Export sidebar panel to continue setup (direct path: /zero-net-export)."
+      "panel_only": "The panel app is optional. Return to Configure for native setup, managed devices, and tuning."
     }
   }
 }

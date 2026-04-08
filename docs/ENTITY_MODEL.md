@@ -171,7 +171,7 @@ Native Home Assistant diagnostics surfaces now also include scriptable device-pa
 - support snapshot notification publishing
 - setup checklist notification publishing
 
-These are intended to reduce dependence on the custom panel route during live-install troubleshooting.
+These are intended to support the native Home Assistant setup and troubleshooting path and to reduce dependence on the custom panel route during live-install troubleshooting.
 
 Current diagnostics payload includes:
 - redacted config-entry data and options
@@ -179,7 +179,7 @@ Current diagnostics payload includes:
 - source readings, validation details, and per-source freshness/issue diagnostics
 - fleet/device runtime details with entity ids and operator-facing names redacted
 - recent action history and daily metrics for support/debugging
-- native-surface guidance including the panel setup path and the current operator-readiness block
+- native-surface guidance including the primary Configure path, optional panel setup path, and the current operator-readiness block
 
 This is intended to make real-install validation easier without requiring operators to manually copy raw entity attributes from Developer Tools.
 

@@ -59,8 +59,9 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
-- **Operator Panel App**: Home Assistant sidebar panel shell for overview, setup, devices, diagnostics, and settings, though the custom route still requires real-install hardening.
-- **Operator Dashboard / native HA surfaces**: fallback/debugging/operator surfaces retained for real-world installs, especially when the custom panel route is unavailable or awkward.
+- **Native Home Assistant setup path**: normal source mapping, managed-device configuration, and controller tuning now live in the integration's Configure flow instead of depending on a custom route.
+- **Operator Panel App**: optional Home Assistant sidebar panel shell for overview, setup, devices, diagnostics, and settings when the custom route loads cleanly.
+- **Operator Dashboard / native HA surfaces**: first-class operator and fallback surfaces for real-world installs.
 - **Native Diagnostics Buttons**: device-page diagnostic buttons can raise a support snapshot and setup checklist as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 
 ---
@@ -89,28 +90,31 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## ⚙️ Configuration
 
-### Primary operator path: panel app
-
-> Current real-world note: the custom panel route still needs live-install hardening. If the panel path is unavailable or returns 404 in a real Home Assistant install, use the native integration/device diagnostics plus fallback HA surfaces while the route issue is being fixed.
+### Primary operator path: native Home Assistant Configure flow
 
 1.  Add the **Zero Net Export** integration.
 2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
-3.  Open **Zero Net Export** from the Home Assistant sidebar as a Home Assistant admin user.
-4.  Use the **Setup** tab to map your source entities:
+3.  Open **Settings** -> **Devices & Services** -> **Integrations** -> **Zero Net Export** -> **Configure**.
+4.  Use **Native setup, source mapping, and refresh interval** to map your source entities:
     - Solar Power
     - Grid Import/Export Power
     - Home Load Power
     - (Optional) Battery Entities
-5.  Use the **Devices** tab to add and manage controllable devices with the guided panel editor.
-6.  Use the **Settings** tab to review runtime defaults and release/support information.
-7.  Use **Overview** and **Diagnostics** for daily operation, warnings, and explanation.
+5.  Use **Managed devices** in Configure to save your controllable device inventory.
+6.  Use **Controller tuning** in Configure for target/deadband/reserve defaults.
+7.  Use the integration device page buttons, entities, and diagnostics for normal runtime verification and troubleshooting.
+
+### Optional panel path
+
+- If the custom panel route works in your Home Assistant install, you can still open **Zero Net Export** from the sidebar for the richer custom UI.
+- The panel is now optional and no longer required for onboarding.
 
 ### Advanced / fallback paths
 
-- The Home Assistant config flow is intentionally bootstrap-only; real source mapping and normal onboarding now belong in the panel app.
-- The options flow remains available for advanced defaults and JSON recovery/debugging, but raw JSON is not the primary intended operator path.
-- The Lovelace YAML dashboard remains available as a fallback/debugging surface, not the primary intended operator UX.
-- The integration device page now exposes native diagnostic buttons, **Show native diagnostics snapshot** and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
+- The initial add-integration flow remains bootstrap-only, but the normal post-install path is now the native Configure flow rather than `/zero-net-export`.
+- Managed devices are currently persisted through the native Configure flow using the device inventory JSON field, which is now a supported native path instead of panel-only recovery.
+- The Lovelace YAML dashboard remains available as a fallback/debugging surface.
+- The integration device page exposes native diagnostic buttons, **Show native diagnostics snapshot** and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 
 ---
 
@@ -145,9 +149,9 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + app-first rebuild** phase focused on validating and hardening the shipped panel-first operator workflow in real Home Assistant installs.
+The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface pivot** phase focused on validating and hardening the shipped Home Assistant Configure workflow in real installs.
 
-**Current highest-value next step:** run a real Home Assistant installation validation pass against the shipped panel-first workflow, then convert any confirmed friction into a release.
+**Current highest-value next step:** run a real Home Assistant installation validation pass against the shipped native Configure workflow, then convert any confirmed friction into a release.
 
 - [x] Config flow & source validation
 - [x] Device model & guards

@@ -35,7 +35,7 @@ from .const import (
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .panel import async_setup_panel
-from .panel_paths import panel_launcher_path, panel_setup_path
+from .panel_paths import panel_setup_path
 
 
 def _panel_notification_id(entry: ConfigEntry) -> str:
@@ -44,10 +44,6 @@ def _panel_notification_id(entry: ConfigEntry) -> str:
 
 def _panel_setup_path(entry: ConfigEntry | None = None) -> str:
     return panel_setup_path(entry)
-
-
-def _panel_launcher_path(entry: ConfigEntry | None = None) -> str:
-    return panel_launcher_path(entry)
 
 
 def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
@@ -78,15 +74,15 @@ async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: Conf
         bullets.append("No controllable devices have been added yet.")
 
     message = (
-        f"Finish setup in the Zero Net Export panel: [Open setup & mapping panel]({_panel_launcher_path(entry)}).\n\n"
-        "Use the panel for source mapping, device onboarding, readiness checks, and the installed -> mapped -> operational workflow.\n\n"
+        "Finish setup from Home Assistant's native integration surfaces. Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure for source mapping, managed devices, and controller tuning.\n\n"
+        f"Optional panel path, if it loads cleanly in your install: {_panel_setup_path(entry)}.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
-        + "\n\nThe raw Configure/options path is advanced recovery only."
+        + "\n\nUse the integration device page diagnostic buttons for setup checklists and support snapshots without relying on the custom panel route."
     )
     persistent_notification.async_create(
         hass,
         message,
-        title=f"{entry.title}: finish setup in Zero Net Export panel",
+        title=f"{entry.title}: finish native Zero Net Export setup",
         notification_id=_panel_notification_id(entry),
     )
 

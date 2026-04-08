@@ -34,9 +34,13 @@ from .const import (
     DEFAULT_REFRESH_SECONDS,
     DEFAULT_TARGET_EXPORT_W,
     DOMAIN,
+    REQUIRED_SOURCE_KEYS,
+    SOURCE_ROLE_LABELS,
 )
 from .device_model import default_device_blueprint, parse_device_configs
 from .panel_paths import panel_launcher_path, panel_setup_path
+from .panel import _source_specs_from_config
+from .validation import validate_configured_entities
 
 
 PANEL_PATH = panel_setup_path()
@@ -133,7 +137,189 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         return self.async_show_menu(
             step_id="init",
-            menu_options=["panel", "advanced"],
+            menu_options=["native_setup", "devices", "advanced", "panel"],
+        )
+
+    async def async_step_native_setup(self, user_input=None):
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            merged_data = dict(self._config_entry.data)
+            merged_options = dict(self._config_entry.options)
+
+            for key in (
+                CONF_SOLAR_POWER_ENTITY,
+                CONF_SOLAR_ENERGY_ENTITY,
+                CONF_GRID_IMPORT_POWER_ENTITY,
+                CONF_GRID_EXPORT_POWER_ENTITY,
+                CONF_GRID_IMPORT_ENERGY_ENTITY,
+                CONF_GRID_EXPORT_ENERGY_ENTITY,
+                CONF_HOME_LOAD_POWER_ENTITY,
+                CONF_BATTERY_SOC_ENTITY,
+                CONF_BATTERY_CHARGE_POWER_ENTITY,
+                CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+            ):
+                merged_data[key] = user_input.get(key) or None
+
+            merged_options[CONF_REFRESH_SECONDS] = int(
+                _coerce_number(user_input.get(CONF_REFRESH_SECONDS), DEFAULT_REFRESH_SECONDS)
+            )
+
+            issues = validate_configured_entities(
+                self.hass,
+                merged_data,
+                _source_specs_from_config(merged_data),
+            )
+            blocking_issues = [issue.message for issue in issues if issue.severity == "error"]
+            if blocking_issues:
+                errors["base"] = "source_entities_invalid"
+            else:
+                self.hass.config_entries.async_update_entry(
+                    self._config_entry,
+                    data=merged_data,
+                    options=merged_options,
+                )
+                await self.hass.config_entries.async_reload(self._config_entry.entry_id)
+                return self.async_create_entry(title="", data=merged_options)
+
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_SOLAR_POWER_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_SOLAR_POWER_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Required(
+                    CONF_SOLAR_ENERGY_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_SOLAR_ENERGY_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Required(
+                    CONF_GRID_IMPORT_POWER_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Required(
+                    CONF_GRID_EXPORT_POWER_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_GRID_EXPORT_POWER_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Required(
+                    CONF_GRID_IMPORT_ENERGY_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Required(
+                    CONF_GRID_EXPORT_ENERGY_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_GRID_EXPORT_ENERGY_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Required(
+                    CONF_HOME_LOAD_POWER_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_HOME_LOAD_POWER_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Optional(
+                    CONF_BATTERY_SOC_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Optional(
+                    CONF_BATTERY_CHARGE_POWER_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Optional(
+                    CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+                    default=_entry_default_text(self._config_entry, CONF_BATTERY_DISCHARGE_POWER_ENTITY, ""),
+                ): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain=["sensor"])
+                ),
+                vol.Required(
+                    CONF_REFRESH_SECONDS,
+                    default=_entry_default_number(
+                        self._config_entry,
+                        CONF_REFRESH_SECONDS,
+                        DEFAULT_REFRESH_SECONDS,
+                    ),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
+                ),
+            }
+        )
+
+        missing_sources = [
+            SOURCE_ROLE_LABELS.get(key, key)
+            for key in REQUIRED_SOURCE_KEYS
+            if not self._config_entry.options.get(key, self._config_entry.data.get(key))
+        ]
+        return self.async_show_form(
+            step_id="native_setup",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders={
+                "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
+                "panel_path": panel_setup_path(self._config_entry),
+            },
+        )
+
+    async def async_step_devices(self, user_input=None):
+        errors = {}
+        description_placeholders = {
+            "device_blueprint": default_device_blueprint(),
+            "panel_path": panel_setup_path(self._config_entry),
+            "device_issues": "",
+        }
+
+        if user_input is not None:
+            raw_inventory = user_input.get(CONF_DEVICE_INVENTORY_JSON)
+            _, device_issues = parse_device_configs(raw_inventory)
+            if device_issues:
+                errors["base"] = "device_inventory_invalid"
+                description_placeholders["device_issues"] = "\n".join(
+                    f"- {issue}" for issue in device_issues[:6]
+                )
+            else:
+                merged_options = dict(self._config_entry.options)
+                merged_options[CONF_DEVICE_INVENTORY_JSON] = _coerce_text(
+                    raw_inventory,
+                    DEFAULT_DEVICE_INVENTORY_JSON,
+                )
+                self.hass.config_entries.async_update_entry(self._config_entry, options=merged_options)
+                await self.hass.config_entries.async_reload(self._config_entry.entry_id)
+                return self.async_create_entry(title="", data=merged_options)
+
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_DEVICE_INVENTORY_JSON,
+                    default=_entry_default_text(
+                        self._config_entry,
+                        CONF_DEVICE_INVENTORY_JSON,
+                        DEFAULT_DEVICE_INVENTORY_JSON,
+                    ),
+                ): selector.TextSelector(
+                    selector.TextSelectorConfig(
+                        multiline=True,
+                        type=selector.TextSelectorType.TEXT,
+                    )
+                ),
+            }
+        )
+        return self.async_show_form(
+            step_id="devices",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders=description_placeholders,
         )
 
     async def async_step_panel(self, user_input=None):
@@ -147,22 +333,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_advanced(self, user_input=None):
         errors = {}
-        description_placeholders = {
-            "device_blueprint": default_device_blueprint(),
-            "panel_path": panel_setup_path(self._config_entry),
-        }
 
         if user_input is not None:
-            _, device_issues = parse_device_configs(user_input.get(CONF_DEVICE_INVENTORY_JSON))
-            if device_issues:
-                errors["base"] = "device_inventory_invalid"
-                description_placeholders["device_issues"] = "\n".join(
-                    f"- {issue}" for issue in device_issues[:6]
-                )
-            else:
-                return self.async_create_entry(title="", data=user_input)
-        else:
-            description_placeholders["device_issues"] = ""
+            return self.async_create_entry(title="", data=user_input)
 
         schema = vol.Schema(
             {
@@ -206,24 +379,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
                 ),
-                vol.Required(
-                    CONF_DEVICE_INVENTORY_JSON,
-                    default=_entry_default_text(
-                        self._config_entry,
-                        CONF_DEVICE_INVENTORY_JSON,
-                        DEFAULT_DEVICE_INVENTORY_JSON,
-                    ),
-                ): selector.TextSelector(
-                    selector.TextSelectorConfig(
-                        multiline=True,
-                        type=selector.TextSelectorType.TEXT,
-                    )
-                ),
             }
         )
         return self.async_show_form(
             step_id="advanced",
             data_schema=schema,
             errors=errors,
-            description_placeholders=description_placeholders,
         )

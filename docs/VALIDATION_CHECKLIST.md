@@ -10,14 +10,15 @@ If you are progressing the project right now, do this in order:
 2. Verify the intended operator path still works end-to-end:
    - add integration
    - complete bootstrap-only config flow
-   - open the Zero Net Export sidebar panel
-   - map required sources
+   - open Configure from the integration card
+   - map required sources in native setup
+   - save managed devices in Configure
    - confirm readiness moves from installed -> mapped -> operational
 3. Use at least one real controllable device and verify a real control loop decision/action path.
-4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly lands on the real setup surface.
+4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without depending on `/zero-net-export`.
 5. If the install is good, package the result as the next release. If not, capture the exact failure surface and fix that before doing more UX expansion.
 
-This is the current highest-value path because panel-first onboarding and Configure handoff are the remaining real-world completion gates.
+This is the current highest-value path because native onboarding must now succeed cleanly even when the custom panel route is missing or unreliable.
 
 ## Pre-Installation Checks
 
@@ -47,11 +48,11 @@ This is the current highest-value path because panel-first onboarding and Config
 - [ ] Config flow opens when adding integration
 - [ ] The config flow shown in the real HA install matches the currently tagged/published package
 - [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-mapping form
-- [ ] Bootstrap step clearly explains that source mapping and onboarding continue in the panel app
+- [ ] Bootstrap step clearly explains that source mapping and onboarding continue in the native Configure flow
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
-- [ ] Options flow descriptions clearly explain advanced runtime fields and that device-inventory JSON is fallback/debug-only
+- [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
 - [ ] Entity normalization creates expected entity IDs
 
 ## Source Validation Layer

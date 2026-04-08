@@ -1004,7 +1004,7 @@ class ZeroNetExportPanel extends HTMLElement {
         <p><strong>Stale data:</strong> ${setup.stale_data ? 'Yes' : 'No'}</p>
         <p><strong>Source mismatch:</strong> ${setup.source_mismatch ? 'Yes' : 'No'}</p>
         <p><strong>Stale source summary:</strong> ${this._escapeHtml(setup.stale_source_summary || '—')}</p>
-        <p class="muted">Save source mappings here to reload the integration with validated panel-first setup data.</p>
+        <p class="muted">Save source mappings here to reload the integration with validated setup data. The native Configure flow is now the primary onboarding path.</p>
       </section>
       <section class="panel-section">
         <h3>Source Mapping Progress</h3>
