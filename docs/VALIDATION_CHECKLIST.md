@@ -256,7 +256,7 @@ This is the current highest-value path because native onboarding is now the only
 ## Documentation Validation
 
 - [ ] README installation steps work
-- [ ] CONFIG_FLOW.md matches actual UI
+- [ ] README configuration guidance matches the actual Configure UI
 - [ ] CONTROL_LOOP.md matches actual behavior
 - [ ] DASHBOARD_SETUP.md entity IDs are accurate
 - [ ] ENTITY_MODEL.md lists all entities
