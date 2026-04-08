@@ -6,6 +6,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.55] - 2026-04-08
+
+### Added
+- Added a native managed-device edit-in-place path in Configure, including a picker for existing devices and prefilled fixed/variable forms so operators can change entity bindings and runtime limits without dropping into JSON.
+
+### Changed
+- Reused the native managed-device form for both add and edit flows, preserving stable device keys during edits so existing per-device runtime state and overrides remain attached.
+- Integration version advanced to `0.1.55` for the native managed-device edit-in-place pass.
+
 ## [0.1.54] - 2026-04-08
 
 ### Added

@@ -60,7 +60,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
 - **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live in the integration's Configure flow.
-- **Native managed-device workspace**: day-to-day device onboarding now has native add/remove flows for fixed and variable devices, with raw JSON kept as an advanced recovery path instead of the default operator experience.
+- **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, with raw JSON kept as an advanced recovery path instead of the default operator experience.
 - **Operator Dashboard / native HA surfaces**: first-class operator and fallback surfaces for real-world installs.
 - **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 
@@ -107,7 +107,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 ### Advanced / fallback paths
 
 - The initial add-integration flow remains bootstrap-only, and the normal post-install path is the native Configure flow.
-- Managed devices are still persisted internally as structured inventory JSON, but the primary native Configure flow now hides most of that behind add/remove forms for fixed and variable devices.
+- Managed devices are still persisted internally as structured inventory JSON, but the primary native Configure flow now hides most of that behind add/edit/remove forms for fixed and variable devices.
 - The Lovelace YAML dashboard remains available as a fallback/debugging surface.
 - The integration device page exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 
@@ -157,7 +157,7 @@ The backend control engine is substantially built, and the project is now in a l
 - [ ] Stabilize install/runtime behavior in real Home Assistant environments
 - [x] Reduce add-integration onboarding to a minimal bootstrap step so the native Configure flow is the intended setup surface
 - [x] Keep source mapping, managed devices, and controller tuning available from native Home Assistant surfaces
-- [x] Reduce normal managed-device onboarding JSON leakage by adding native add/remove device flows while keeping JSON as an advanced recovery path
+- [x] Reduce normal managed-device onboarding JSON leakage by adding native add/edit/remove device flows while keeping JSON as an advanced recovery path
 - [x] Publish native readiness guidance so operators can see the current setup phase, blockers, and highest-value next step from Home Assistant notifications and diagnostics
 - [x] Publish a native support center and support snapshot so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
 - [x] Remove the custom panel route and related launcher/frontend code from the shipped integration

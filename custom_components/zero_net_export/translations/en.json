@@ -60,12 +60,19 @@
           "device_action": "Managed-device action"
         },
         "data_description": {
-          "device_action": "Choose whether to add a fixed load, add a variable load, remove a device, or open the advanced JSON editor."
+          "device_action": "Choose whether to add a fixed load, add a variable load, edit an existing device, remove a device, or open the advanced JSON editor."
+        }
+      },
+      "device_edit_pick": {
+        "title": "Edit managed device",
+        "description": "Pick an existing managed device to edit in place from native Home Assistant selectors.",
+        "data": {
+          "device_key": "Configured device"
         }
       },
       "device_add": {
-        "title": "Add managed device",
-        "description": "Add a {device_kind} through native Home Assistant selectors. This keeps day-to-day onboarding out of raw JSON while staying panel-free.\n\nPrimary path: {configure_path}.",
+        "title": "{device_mode} managed device",
+        "description": "{device_mode} a {device_kind} through native Home Assistant selectors. This keeps day-to-day device management out of raw JSON while staying panel-free.\n\nPrimary path: {configure_path}.",
         "data": {
           "name": "Device name",
           "entity_id": "Entity",

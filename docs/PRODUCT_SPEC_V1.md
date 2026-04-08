@@ -89,7 +89,7 @@ The HA-first direction is correct, but the shipped implementation is still trans
 
 - bootstrap-only config flow for fast entry creation
 - native Configure workflow for source mapping and managed devices
-- native add/remove managed-device flow for common fixed and variable devices, with JSON reserved for recovery/bulk edits
+- native add/edit/remove managed-device flow for common fixed and variable devices, with JSON reserved for recovery/bulk edits
 - source validation and confidence model
 - controller with fixed + variable loads
 - mode select + target export setting

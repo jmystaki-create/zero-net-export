@@ -70,14 +70,14 @@
 - remove the custom sidebar/panel route from the shipped integration ✅ `/zero-net-export` route, launcher assets, and panel registration removed
 - keep bootstrap onboarding minimal ✅ add-integration flow still creates the backend entry with safe defaults
 - keep Configure as the supported setup path ✅ source mapping, managed devices, and controller tuning stay in native Configure
-- reduce native-flow JSON leakage ✅ managed-device Configure now supports native add/remove flows for fixed and variable devices, with the raw inventory editor kept as an advanced recovery path
+- reduce native-flow JSON leakage ✅ managed-device Configure now supports native add/edit/remove flows for fixed and variable devices, with the raw inventory editor kept as an advanced recovery path
 - improve support-surface coherence ✅ device-page support actions now include a combined support-center notification alongside setup checklist and detailed diagnostics snapshot actions
 - be explicit about project maturity ✅ current guidance now treats the HA-first approach as correct but still transitional pending broader real-world validation
 - reduce custom frontend dependency for normal operation ✅ no custom panel assets are required for setup or troubleshooting
 - update repo guidance and validation docs ✅ active planning/docs now center native Home Assistant surfaces instead of the removed panel route
 
 ## Phase 8 — Future enhancements
-- replace remaining internal JSON persistence with richer native fleet editing once the current native add/remove flow proves stable on larger mixed-device installs
+- keep tightening native fleet management next, especially around polish, larger mixed-device installs, and any remaining cases that still push operators back into raw JSON
 - converge setup, diagnostics, and support into fewer operator surfaces as real-user feedback shows which notifications/entities remain redundant
 - forecast-aware optimization
 - tariff-aware strategy

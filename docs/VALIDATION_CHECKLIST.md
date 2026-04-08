@@ -12,7 +12,7 @@ If you are progressing the project right now, do this in order:
    - complete bootstrap-only config flow
    - open Configure from the integration card
    - map required sources in native setup
-   - add at least one managed device through the native add/remove flow in Configure
+   - add at least one managed device through the native add/edit/remove flow in Configure, then edit it in place once
   - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational
 3. Use at least one real controllable device and verify a real control loop decision/action path.
