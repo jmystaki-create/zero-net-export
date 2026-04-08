@@ -63,7 +63,7 @@
 - per-source diagnostics entity slice ✅ each mapped source now exposes direct status/reading/age/issue-count sensors plus a stale binary sensor, so dashboard work no longer depends on digging through controller attributes
 - Home Assistant diagnostics export ✅ redacted config-entry diagnostics now capture controller/runtime/validation/device state for support and real-install debugging
 - per-device runtime reporting ✅ current active runtime plus active-runtime-today telemetry now persist through the daily metrics store and surface as first-class per-device sensors for dashboards and runtime-cap review
-- next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, and confirm the new per-device runtime telemetry is trustworthy enough before expanding longer-horizon reporting
+- next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, confirm the new per-device runtime telemetry is trustworthy enough, and shift more operator-facing diagnostics into native Home Assistant surfaces when the custom panel route proves unreliable in live installs
 
 ## Phase 7 — Panel-app rebuild
 - stabilize install/runtime behavior in Home Assistant
@@ -82,8 +82,8 @@
 - publish explicit onboarding/readiness guidance in-panel ✅ Setup and Settings now surface a readiness phase, checklist, and recommended next step so operators can see what still blocks panel-first completion
 - publish a panel-native support snapshot ✅ Settings now generates a copyable runtime/setup/release summary for Discord and issue triage without reconstructing state from multiple diagnostics views
 - surface full selected-device configuration detail in-panel ✅ Devices now exposes the selected device's bound entity, adapter, configured/effective enable and priority state, power model, and safety timing limits so normal review/edit flows no longer depend on raw JSON
-- replace JSON/YAML-first operator workflow with panel-first workflow
-- retain YAML dashboard as fallback/debugging surface
+- replace JSON/YAML-first operator workflow with panel-first workflow where viable
+- retain YAML dashboard and native Home Assistant surfaces as fallback/debugging/operator surfaces when the custom panel route is unreliable in real installs
 
 ## Phase 8 — Future enhancements
 - forecast-aware optimization

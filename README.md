@@ -59,8 +59,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
-- **Operator Panel App**: Home Assistant sidebar panel shell for overview, setup, devices, diagnostics, and settings.
-- **Operator Dashboard**: Lovelace dashboard scaffold retained as a fallback/debugging surface.
+- **Operator Panel App**: Home Assistant sidebar panel shell for overview, setup, devices, diagnostics, and settings, though the custom route still requires real-install hardening.
+- **Operator Dashboard / native HA surfaces**: fallback/debugging/operator surfaces retained for real-world installs, especially when the custom panel route is unavailable or awkward.
 
 ---
 
@@ -89,6 +89,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 ## ⚙️ Configuration
 
 ### Primary operator path: panel app
+
+> Current real-world note: the custom panel route still needs live-install hardening. If the panel path is unavailable or returns 404 in a real Home Assistant install, use the native integration/device diagnostics plus fallback HA surfaces while the route issue is being fixed.
 
 1.  Add the **Zero Net Export** integration.
 2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
