@@ -868,6 +868,18 @@ class ZeroNetExportPanel extends HTMLElement {
         ${this._metric('Surplus', overview.surplus_w, ' W')}
       </section>
       <section class="panel-section">
+        <h3>Diagnostics at a glance</h3>
+        <p><strong>Health:</strong> ${this._escapeHtml(overview.health_status || '—')}</p>
+        <p><strong>Status:</strong> ${this._escapeHtml(overview.status || '—')}</p>
+        <p><strong>Reason:</strong> ${this._escapeHtml(overview.reason || '—')}</p>
+        <p><strong>Recommendation:</strong> ${this._escapeHtml(overview.recommendation || '—')}</p>
+        <p><strong>Action history:</strong> ${this._escapeHtml(overview.action_history_count ?? '0')}</p>
+        <div class="button-row">
+          <button class="action-button secondary" data-tab-jump="diagnostics" ${this._busy ? 'disabled' : ''}>Open full Diagnostics</button>
+          <button class="action-button secondary" data-tab-jump="setup" ${this._busy ? 'disabled' : ''}>Open Setup</button>
+        </div>
+      </section>
+      <section class="panel-section">
         <h3>Controller</h3>
         <p><strong>Mode:</strong> ${this._escapeHtml(overview.mode || '—')}</p>
         <p><strong>Status:</strong> ${this._escapeHtml(overview.status || '—')}</p>
@@ -1258,6 +1270,7 @@ class ZeroNetExportPanel extends HTMLElement {
   _renderDiagnostics(entry) {
     const diagnostics = entry?.diagnostics || {};
     const releaseInfo = diagnostics.release_info || {};
+     const supportSnapshot = entry?.settings?.support_snapshot || '';
     const releaseUpdate = diagnostics.release_update || {};
     const actionRows = (diagnostics.action_history || [])
       .map((item) => `
@@ -1302,6 +1315,7 @@ class ZeroNetExportPanel extends HTMLElement {
     return `
       <section class="panel-section">
         <h3>Diagnostics & Explanation</h3>
+         <p class="muted">This is the main troubleshooting view for runtime health, source validation, action history, and per-device control reasoning.</p>
         <p><strong>Installed version:</strong> ${this._escapeHtml(releaseInfo.current_version || entry?.integration_version || '—')}</p>
         <p><strong>Update status:</strong> ${this._escapeHtml(releaseUpdate.summary || 'No recorded update summary yet.')}</p>
         <p><strong>Health:</strong> ${this._escapeHtml(diagnostics.health_status || '—')}</p>
@@ -1349,6 +1363,15 @@ class ZeroNetExportPanel extends HTMLElement {
           <thead><tr><th>Device</th><th>Planned Action</th><th>Guard</th><th>Requested/Target W</th><th>Last Result</th><th>Explanation</th></tr></thead>
           <tbody>${deviceRows || '<tr><td colspan="6">No managed devices available yet.</td></tr>'}</tbody>
         </table>
+      </section>
+      <section class="panel-section">
+        <h3>Support Snapshot</h3>
+        <p class="muted">Copy this when reporting runtime or setup problems. It keeps the important diagnostic state together in one place.</p>
+        <div class="button-row">
+          <button class="action-button secondary" data-copy-support ${this._busy ? 'disabled' : ''}>Copy support snapshot</button>
+          <button class="action-button secondary" data-tab-jump="settings" ${this._busy ? 'disabled' : ''}>Open Settings</button>
+        </div>
+        <pre class="snapshot-preview">${this._escapeHtml(supportSnapshot || 'No support snapshot available yet.')}</pre>
       </section>
     `;
   }
@@ -1604,6 +1627,18 @@ class ZeroNetExportPanel extends HTMLElement {
 
     this.shadowRoot.querySelector('[data-action="copy-support-snapshot"]')?.addEventListener('click', async () => {
       await this._copySupportSnapshot();
+    });
+
+    this.shadowRoot.querySelectorAll('[data-copy-support]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        await this._copySupportSnapshot();
+      });
+    });
+
+    this.shadowRoot.querySelectorAll('[data-tab-jump]').forEach((button) => {
+      button.addEventListener('click', () => {
+        this._setTab(button.dataset.tabJump);
+      });
     });
 
     this.shadowRoot.querySelector('[data-action="save-sources"]')?.addEventListener('click', async () => {

@@ -8,11 +8,22 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Added
 - Added an explicit recommended validation run order to the validation checklist so the next project push stays focused on real Home Assistant install proof, panel-first onboarding, and Configure -> setup handoff verification.
+- Added a new overview-level **Diagnostics at a glance** section plus direct jumps into **Diagnostics** and **Setup**, so runtime health and troubleshooting are visible from the main operator surface instead of being easy to miss.
+- Added a diagnostics-tab **Support Snapshot** block with in-place copy action, so setup/runtime evidence is easier to grab without hunting through Settings first.
 
 ### Changed
 - Clarified in the README that the highest-value next step is a real Home Assistant validation pass followed by a release, not more speculative UI churn.
 - Simplified the Configure -> setup handoff path back to the real `/zero-net-export?...` panel route instead of the launcher trampoline, because the launcher was triggering bad `open website` UX on real clients and its iframe fallback was visibly failing with a 404.
 - Normalized the panel tab labels so **Diagnostics** is surfaced with a clean operator-facing label instead of a lowercase internal tab key.
+
+## [0.1.49] - 2026-04-08
+
+### Fixed
+- Removed the broken Configure -> setup launcher trampoline and sent Home Assistant back to the real in-app Zero Net Export setup route, avoiding the bad `Open website` flow and the failing 404 fallback launcher surface seen in real testing.
+- Promoted diagnostics visibility inside the panel with an overview summary block, direct navigation actions, and an in-tab support snapshot section for faster troubleshooting.
+
+### Changed
+- Integration version advanced to `0.1.49` for the real-world setup handoff and diagnostics discoverability follow-up.
 
 ## [0.1.48] - 2026-04-07
 
