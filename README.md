@@ -61,6 +61,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
 - **Operator Panel App**: Home Assistant sidebar panel shell for overview, setup, devices, diagnostics, and settings, though the custom route still requires real-install hardening.
 - **Operator Dashboard / native HA surfaces**: fallback/debugging/operator surfaces retained for real-world installs, especially when the custom panel route is unavailable or awkward.
+- **Native Diagnostics Buttons**: device-page diagnostic buttons can raise a support snapshot and setup checklist as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 
 ---
 
@@ -109,6 +110,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - The Home Assistant config flow is intentionally bootstrap-only; real source mapping and normal onboarding now belong in the panel app.
 - The options flow remains available for advanced defaults and JSON recovery/debugging, but raw JSON is not the primary intended operator path.
 - The Lovelace YAML dashboard remains available as a fallback/debugging surface, not the primary intended operator UX.
+- The integration device page now exposes native diagnostic buttons, **Show native diagnostics snapshot** and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 
 ---
 

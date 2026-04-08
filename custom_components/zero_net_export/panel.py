@@ -820,6 +820,38 @@ def _build_support_snapshot(
     return "\n".join(sections)
 
 
+def build_native_support_snapshot(coordinator: Any) -> str:
+    """Return the operator support snapshot for native HA surfaces."""
+    state = coordinator.data
+    configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
+    operator_readiness = _build_operator_checklist(
+        state,
+        coordinator.entry,
+        configured_devices,
+        device_parse_issues,
+    )
+    return _build_support_snapshot(
+        coordinator.entry.entry_id,
+        coordinator,
+        state,
+        operator_readiness,
+        configured_devices,
+        device_parse_issues,
+    )
+
+
+def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
+    """Return the operator readiness block for native HA surfaces."""
+    state = coordinator.data
+    configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
+    return _build_operator_checklist(
+        state,
+        coordinator.entry,
+        configured_devices,
+        device_parse_issues,
+    )
+
+
 def _entry_panel_payload(hass: HomeAssistant, entry_id: str, coordinator: Any) -> dict[str, Any]:
     state = coordinator.data
     release_info = build_release_info(INTEGRATION_VERSION)

@@ -27,6 +27,8 @@ from .const import (
     DOMAIN,
     INTEGRATION_VERSION,
 )
+from .panel import build_native_operator_readiness
+from .panel_paths import panel_setup_path
 from .release_info import build_release_info
 
 REDACT_CONFIG_KEYS = {
@@ -88,6 +90,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
 
     release_info = build_release_info(INTEGRATION_VERSION)
     release_update = deepcopy(data.validation_details.get("release_update") or {})
+    operator_readiness = deepcopy(build_native_operator_readiness(coordinator))
 
     return {
         "entry": {
@@ -168,6 +171,14 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "usable_nominal_power_w": data.usable_nominal_power_w,
             "device_status_summary": data.device_status_summary,
             "details": device_details,
+        },
+        "native_surfaces": {
+            "panel_setup_path": panel_setup_path(entry),
+            "device_page_buttons": [
+                "Show native diagnostics snapshot",
+                "Show setup checklist",
+            ],
+            "operator_readiness": operator_readiness,
         },
         "validation_details": validation_details,
         "release_info": release_info,

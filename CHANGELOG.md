@@ -6,16 +6,21 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.50] - 2026-04-08
+
 ### Added
 - Added an explicit recommended validation run order to the validation checklist so the next project push stays focused on real Home Assistant install proof, panel-first onboarding, and Configure -> setup handoff verification.
 - Added a new overview-level **Diagnostics at a glance** section plus direct jumps into **Diagnostics** and **Setup**, so runtime health and troubleshooting are visible from the main operator surface instead of being easy to miss.
 - Added a diagnostics-tab **Support Snapshot** block with in-place copy action, so setup/runtime evidence is easier to grab without hunting through Settings first.
+- Added native Home Assistant diagnostic buttons on the integration device page, **Show native diagnostics snapshot** and **Show setup checklist**, so operators can surface troubleshooting state without relying on the custom `/zero-net-export` route.
+- Added native-surface operator-readiness detail to the config-entry diagnostics export, so exported diagnostics now reflect the same next-step guidance exposed by the device-page fallback path.
 
 ### Changed
 - Clarified in the README that the highest-value next step is a real Home Assistant validation pass followed by a release, not more speculative UI churn.
 - Simplified the Configure -> setup handoff path back to the real `/zero-net-export?...` panel route instead of the launcher trampoline, because the launcher was triggering bad `open website` UX on real clients and its iframe fallback was visibly failing with a 404.
 - Normalized the panel tab labels so **Diagnostics** is surfaced with a clean operator-facing label instead of a lowercase internal tab key.
 - Updated project docs to explicitly reflect the new live-install reality: native Home Assistant diagnostics and fallback HA surfaces must be treated as first-class operator paths whenever the custom panel route is unreliable in real environments.
+- Integration version advanced to `0.1.50` for the native diagnostics-surface shift.
 
 ## [0.1.49] - 2026-04-08
 

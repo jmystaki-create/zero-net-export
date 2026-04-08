@@ -21,6 +21,10 @@
 ### Buttons
 - `button.zero_net_export_reset_controller_overrides`
   - clears persisted target-export and deadband runtime overrides so the controller falls back to the options-flow defaults
+- `button.zero_net_export_show_native_diagnostics_snapshot`
+  - publishes a persistent-notification support snapshot from the integration device page so diagnostics stay reachable from native Home Assistant surfaces and Scripts even if `/zero-net-export` is unavailable
+- `button.zero_net_export_show_setup_checklist`
+  - publishes the current readiness phase, checklist, and next step as a persistent notification from native Home Assistant surfaces
 - `button.zero_net_export_<device_key>_reset_overrides`
   - clears persisted per-device enable / priority overrides so a device falls back to its JSON-defined defaults
 
@@ -163,12 +167,19 @@ Options now also include:
 
 The integration now also supports Home Assistant config-entry diagnostics download.
 
+Native Home Assistant diagnostics surfaces now also include scriptable device-page buttons for:
+- support snapshot notification publishing
+- setup checklist notification publishing
+
+These are intended to reduce dependence on the custom panel route during live-install troubleshooting.
+
 Current diagnostics payload includes:
 - redacted config-entry data and options
 - controller runtime state and planning summary
 - source readings, validation details, and per-source freshness/issue diagnostics
 - fleet/device runtime details with entity ids and operator-facing names redacted
 - recent action history and daily metrics for support/debugging
+- native-surface guidance including the panel setup path and the current operator-readiness block
 
 This is intended to make real-install validation easier without requiring operators to manually copy raw entity attributes from Developer Tools.
 
