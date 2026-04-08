@@ -40,6 +40,7 @@ from .device_model import DeviceRuntime, build_device_summary, parse_device_conf
 from .executor import ActionResult, execute_action
 from .planner import PlannerContext, PlannedDeviceAction, build_control_plan
 from .release_info import build_release_info
+from .repairs import async_sync_repairs_issues
 from .validation import SourceSpec, ValidationIssue, get_source_reading, issues_as_attributes, parse_source_binding, validate_sources
 
 STORAGE_VERSION = 1
@@ -1275,7 +1276,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "release_update": self._release_update_details(),
             }
 
-            return ZeroNetExportState(
+            state = ZeroNetExportState(
                 mode=self._mode,
                 enabled=self._enabled,
                 active=active,
@@ -1351,5 +1352,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 fixed_planned_power_delta_w=control_plan.fixed_power_delta_w,
                 device_details=device_details,
             )
+            async_sync_repairs_issues(self.hass, self.entry, self, state=state)
+            return state
         except Exception as err:
             raise UpdateFailed(str(err)) from err

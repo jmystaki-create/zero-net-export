@@ -13,6 +13,20 @@
       }
     }
   },
+  "issues": {
+    "setup_incomplete": {
+      "title": "Finish native Zero Net Export setup",
+      "description": "Zero Net Export is still mid-setup in Home Assistant's native surfaces.\n\nSummary: {summary}\nMissing required sources: {missing_sources}\nConfigured devices: {device_count}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
+    },
+    "device_inventory_invalid": {
+      "title": "Managed-device inventory needs repair",
+      "description": "One or more managed devices could not be parsed cleanly. Open the native Configure flow and fix the affected devices or use the advanced JSON recovery editor if needed.\n\nIssue count: {issue_count}\nExamples: {issue_examples}\n\nPrimary path: {configure_path}."
+    },
+    "runtime_attention": {
+      "title": "Runtime attention needed",
+      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
+    }
+  },
   "options": {
     "step": {
       "init": {

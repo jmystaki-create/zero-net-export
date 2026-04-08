@@ -63,6 +63,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, with raw JSON kept as an advanced recovery path instead of the default operator experience.
 - **Operator Dashboard / native HA surfaces**: first-class operator and fallback surfaces for real-world installs.
 - **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
+- **Native Repairs guidance**: Home Assistant's Repairs surface now flags incomplete setup, invalid managed-device inventory, and runtime attention states with actionable next steps.
 
 ---
 
@@ -110,6 +111,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - Managed devices are still persisted internally as structured inventory JSON, but the primary native Configure flow now hides most of that behind add/edit/remove forms for fixed and variable devices.
 - The Lovelace YAML dashboard remains available as a fallback/debugging surface.
 - The integration device page exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
+- Home Assistant **Repairs** now mirrors the most important setup/runtime blockers, which gives operators one more built-in native surface for triage without hunting through multiple entity sections first.
 
 ---
 
@@ -144,7 +146,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The HA-first direction is correct, but the shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, diagnostics/support are improved but not fully unified, and larger heterogeneous fleets still need more real-world validation.
+The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The HA-first direction is correct, but the shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and larger heterogeneous fleets still need more real-world validation.
 
 **Current highest-value next step:** keep validating the shipped native Configure workflow in real Home Assistant installs, then convert confirmed friction into targeted releases instead of widening scope.
 

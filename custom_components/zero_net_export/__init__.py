@@ -35,6 +35,7 @@ from .const import (
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .native_support import PRIMARY_CONFIGURE_PATH
+from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
 
 def _setup_notification_id(entry: ConfigEntry) -> str:
@@ -106,6 +107,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_initialize()
     await coordinator.async_note_current_integration_version(INTEGRATION_VERSION)
     await coordinator.async_config_entry_first_refresh()
+    async_sync_repairs_issues(hass, entry, coordinator)
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -117,6 +119,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id, None)
         persistent_notification.async_dismiss(hass, _setup_notification_id(entry))
+        async_clear_repairs_issues(hass, entry)
     return unload_ok
 
 
@@ -146,5 +149,6 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.config_entries.async_update_entry(entry, data=data)
 
     await _async_update_native_setup_notice(hass, entry)
+    async_sync_repairs_issues(hass, entry)
 
     return True

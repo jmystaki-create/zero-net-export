@@ -6,6 +6,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.56] - 2026-04-08
+
+### Added
+- Added native Home Assistant Repairs issues for the highest-friction operator states, so incomplete setup, invalid managed-device inventory, and runtime attention conditions now surface in HA's built-in issue workflow instead of relying only on scattered notifications and diagnostics.
+
+### Changed
+- Wired Repairs issue syncing into setup, migration, unload, and coordinator refresh cycles so the native operator guidance stays current as sources recover, devices become usable, or setup blockers are fixed.
+- Integration version advanced to `0.1.56` for the native Repairs and operator-coherence pass.
+
 ## [0.1.55] - 2026-04-08
 
 ### Added
