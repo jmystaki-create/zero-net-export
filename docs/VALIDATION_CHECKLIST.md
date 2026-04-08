@@ -12,7 +12,8 @@ If you are progressing the project right now, do this in order:
    - complete bootstrap-only config flow
    - open Configure from the integration card
    - map required sources in native setup
-   - save managed devices in Configure
+   - add at least one managed device through the native add/remove flow in Configure
+  - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational
 3. Use at least one real controllable device and verify a real control loop decision/action path.
 4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel handoff.
@@ -53,6 +54,9 @@ This is the current highest-value path because native onboarding is now the supp
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
+- [ ] Managed-device flow supports adding a common fixed load without pasting JSON
+- [ ] Managed-device flow supports adding a common variable load without pasting JSON
+- [ ] Advanced JSON editor remains available for recovery or bulk edits
 - [ ] Entity normalization creates expected entity IDs
 
 ## Source Validation Layer

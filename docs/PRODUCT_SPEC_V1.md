@@ -12,8 +12,17 @@ Zero Net Export is a Home Assistant custom integration that keeps grid export ne
 - validate source entities before acting
 - explain every control decision
 - make native Home Assistant surfaces sufficient for setup and troubleshooting
-- support guided setup with minimal reliance on raw YAML and only limited JSON where still necessary
+- reduce operator exposure to raw inventory JSON, even if JSON-backed persistence still exists internally for now
 - keep installation stable so the integration does not negatively affect the wider Home Assistant UI
+- stay honest that real-world validation is still in progress and treat confirmed install/operator friction as the main release driver
+
+## Product reality for the current release line
+
+The HA-first direction is correct, but the shipped implementation is still transitional:
+- managed devices still persist through `device_inventory_json` under the hood
+- native Configure can still become clumsy for larger or more heterogeneous fleets
+- diagnostics/support are stronger than before but still span notifications, device buttons, entities, and Configure steps
+- real-install validation is still incomplete and must continue to shape the roadmap
 
 ## Non-goals for v1
 
@@ -32,6 +41,8 @@ Zero Net Export is a Home Assistant custom integration that keeps grid export ne
 5. As an operator, I want warnings when the mapped energy sources do not reconcile.
 6. As an operator, I want to disable or override devices manually.
 7. As an operator, I want normal setup to succeed through Home Assistant's built-in Configure path.
+8. As an operator, I want to add common managed devices without hand-authoring raw JSON.
+9. As an operator, I want support/checklist/diagnostics guidance to feel like one coherent native workflow.
 
 ## Primary modes
 
@@ -78,9 +89,10 @@ Zero Net Export is a Home Assistant custom integration that keeps grid export ne
 
 - bootstrap-only config flow for fast entry creation
 - native Configure workflow for source mapping and managed devices
+- native add/remove managed-device flow for common fixed and variable devices, with JSON reserved for recovery/bulk edits
 - source validation and confidence model
 - controller with fixed + variable loads
 - mode select + target export setting
 - explanation / status sensors
-- native diagnostics/support surfaces inside Home Assistant
+- native diagnostics/support surfaces inside Home Assistant, including a combined support-center summary
 - daily action/reporting skeleton

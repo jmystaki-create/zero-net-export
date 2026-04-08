@@ -6,6 +6,18 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.54] - 2026-04-08
+
+### Added
+- Added a native managed-device add/remove flow in Configure for common fixed and variable devices, so normal onboarding no longer requires hand-editing `device_inventory_json`.
+- Added a native **Show support center** device-page action that publishes one combined readiness/checklist/support snapshot notification for faster operator triage.
+
+### Changed
+- Reframed README, product spec, implementation plan, and validation guidance around the current reality: the HA-first path is correct but still transitional, managed-device JSON still exists under the hood, and real-world validation remains in progress.
+- Repositioned the raw managed-device JSON editor as an advanced recovery/bulk-edit path instead of the default Configure experience.
+- Tightened native support messaging so setup notices point operators at the combined support-center/checklist/diagnostics surfaces.
+- Integration version advanced to `0.1.54` for the native managed-device UX and support-surface coherence pass.
+
 ## [0.1.53] - 2026-04-08
 
 ### Changed

@@ -21,8 +21,10 @@
 ### Buttons
 - `button.zero_net_export_reset_controller_overrides`
   - clears persisted target-export and deadband runtime overrides so the controller falls back to the options-flow defaults
+- `button.zero_net_export_show_support_center`
+  - publishes a combined native support-center notification with readiness, next-step guidance, checklist, and an embedded support snapshot
 - `button.zero_net_export_show_native_diagnostics_snapshot`
-- publishes a persistent-notification support snapshot from the integration device page so diagnostics stay reachable from native Home Assistant surfaces and Scripts
+  - publishes a persistent-notification support snapshot from the integration device page so diagnostics stay reachable from native Home Assistant surfaces and Scripts
 - `button.zero_net_export_show_setup_checklist`
   - publishes the current readiness phase, checklist, and next step as a persistent notification from native Home Assistant surfaces
 - `button.zero_net_export_<device_key>_reset_overrides`
@@ -168,6 +170,7 @@ Options now also include:
 The integration now also supports Home Assistant config-entry diagnostics download.
 
 Native Home Assistant diagnostics surfaces now also include scriptable device-page buttons for:
+- support-center notification publishing
 - support snapshot notification publishing
 - setup checklist notification publishing
 

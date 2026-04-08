@@ -71,7 +71,7 @@ async def _async_update_native_setup_notice(hass: HomeAssistant, entry: ConfigEn
     message = (
         f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} for source mapping, managed devices, and controller tuning.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
-        + "\n\nUse the integration device page diagnostic buttons for setup checklists and support snapshots."
+        + "\n\nUse the integration device page support actions for a combined support center, setup checklist, and detailed diagnostics snapshot."
     )
     persistent_notification.async_create(
         hass,

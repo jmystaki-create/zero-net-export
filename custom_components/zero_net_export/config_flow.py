@@ -37,7 +37,14 @@ from .const import (
     REQUIRED_SOURCE_KEYS,
     SOURCE_ROLE_LABELS,
 )
-from .device_model import default_device_blueprint, parse_device_configs
+from .device_model import (
+    ADAPTER_FIXED_TOGGLE,
+    ADAPTER_VARIABLE_NUMBER,
+    DEVICE_KIND_FIXED,
+    DEVICE_KIND_VARIABLE,
+    default_device_blueprint,
+    parse_device_configs,
+)
 from .native_support import PRIMARY_CONFIGURE_PATH, _source_specs_from_config
 from .validation import validate_configured_entities
 
@@ -103,6 +110,12 @@ def _build_bootstrap_entry_data(user_input: dict[str, str]) -> dict[str, str | i
     }
 
 
+def _device_options_json(devices: list[dict[str, Any]]) -> str:
+    import json
+
+    return json.dumps(devices, indent=2)
+
+
 class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
@@ -129,6 +142,42 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry):
         super().__init__()
         self._config_entry = config_entry
+        self._pending_device_kind: str | None = None
+
+    def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
+        raw_inventory = _entry_default_text(
+            self._config_entry,
+            CONF_DEVICE_INVENTORY_JSON,
+            DEFAULT_DEVICE_INVENTORY_JSON,
+        )
+        devices, issues = parse_device_configs(raw_inventory)
+        return [
+            {
+                "key": device.key,
+                "name": device.name,
+                "kind": device.kind,
+                "entity_id": device.entity_id,
+                "adapter": device.adapter,
+                "nominal_power_w": device.nominal_power_w,
+                "min_power_w": device.min_power_w,
+                "max_power_w": device.max_power_w,
+                "step_w": device.step_w,
+                "priority": device.priority,
+                "enabled": device.enabled,
+                "min_on_seconds": device.min_on_seconds,
+                "min_off_seconds": device.min_off_seconds,
+                "cooldown_seconds": device.cooldown_seconds,
+                "max_active_seconds": device.max_active_seconds,
+            }
+            for device in devices
+        ], issues
+
+    async def _save_devices(self, devices: list[dict[str, Any]]):
+        merged_options = dict(self._config_entry.options)
+        merged_options[CONF_DEVICE_INVENTORY_JSON] = _device_options_json(devices)
+        self.hass.config_entries.async_update_entry(self._config_entry, options=merged_options)
+        await self.hass.config_entries.async_reload(self._config_entry.entry_id)
+        return self.async_create_entry(title="", data=merged_options)
 
     async def async_step_init(self, user_input=None):
         return self.async_show_menu(
@@ -269,6 +318,156 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
 
     async def async_step_devices(self, user_input=None):
+        devices, issues = self._load_devices()
+        if user_input is not None:
+            choice = user_input.get("device_action")
+            if choice == "add_fixed":
+                self._pending_device_kind = DEVICE_KIND_FIXED
+                return await self.async_step_device_add()
+            if choice == "add_variable":
+                self._pending_device_kind = DEVICE_KIND_VARIABLE
+                return await self.async_step_device_add()
+            if choice == "remove" and devices:
+                return await self.async_step_device_remove()
+            if choice == "json":
+                return await self.async_step_devices_json()
+
+        choices = [
+            selector.SelectOptionDict(value="add_fixed", label="Add fixed load device"),
+            selector.SelectOptionDict(value="add_variable", label="Add variable load device"),
+        ]
+        if devices:
+            choices.append(selector.SelectOptionDict(value="remove", label="Remove configured device"))
+        choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))
+        summary = ", ".join(f"{item['name']} ({item['kind']})" for item in devices[:5]) if devices else "None"
+        return self.async_show_form(
+            step_id="devices",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("device_action"): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=choices, mode=selector.SelectSelectorMode.LIST)
+                    )
+                }
+            ),
+            errors={"base": "device_inventory_invalid"} if issues else {},
+            description_placeholders={
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "device_count": str(len(devices)),
+                "device_summary": summary,
+                "device_issues": "\n".join(f"- {issue}" for issue in issues[:6]) if issues else "None",
+            },
+        )
+
+    async def async_step_device_add(self, user_input=None):
+        errors: dict[str, str] = {}
+        kind = self._pending_device_kind or DEVICE_KIND_FIXED
+
+        if user_input is not None:
+            devices, _ = self._load_devices()
+            name = str(user_input["name"]).strip()
+            new_device = {
+                "name": name,
+                "kind": kind,
+                "entity_id": user_input["entity_id"],
+                "adapter": ADAPTER_FIXED_TOGGLE if kind == DEVICE_KIND_FIXED else ADAPTER_VARIABLE_NUMBER,
+                "nominal_power_w": float(user_input["nominal_power_w"]),
+                "priority": int(user_input["priority"]),
+                "enabled": bool(user_input.get("enabled", True)),
+                "min_on_seconds": int(user_input["min_on_seconds"]),
+                "min_off_seconds": int(user_input["min_off_seconds"]),
+                "cooldown_seconds": int(user_input["cooldown_seconds"]),
+                "max_active_seconds": int(user_input["max_active_seconds"]) or None,
+            }
+            if kind == DEVICE_KIND_FIXED:
+                new_device["min_power_w"] = new_device["nominal_power_w"]
+                new_device["max_power_w"] = new_device["nominal_power_w"]
+                new_device["step_w"] = new_device["nominal_power_w"]
+            else:
+                new_device["min_power_w"] = float(user_input["min_power_w"])
+                new_device["max_power_w"] = float(user_input["max_power_w"])
+                new_device["step_w"] = float(user_input["step_w"])
+
+            candidate_devices = [*devices, new_device]
+            raw_inventory = _device_options_json(candidate_devices)
+            _, device_issues = parse_device_configs(raw_inventory)
+            if device_issues:
+                errors["base"] = "device_inventory_invalid"
+            else:
+                return await self._save_devices(candidate_devices)
+
+        entity_domain = ["switch", "input_boolean"] if kind == DEVICE_KIND_FIXED else ["number", "input_number"]
+        schema_dict: dict[Any, Any] = {
+            vol.Required("name"): selector.TextSelector(selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)),
+            vol.Required("entity_id"): selector.EntitySelector(selector.EntitySelectorConfig(domain=entity_domain)),
+            vol.Required("nominal_power_w", default=2400 if kind == DEVICE_KIND_FIXED else 3600): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("priority", default=100): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=1000, step=1, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("enabled", default=True): selector.BooleanSelector(),
+            vol.Required("min_on_seconds", default=900 if kind == DEVICE_KIND_FIXED else 300): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=86400, step=30, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("min_off_seconds", default=900 if kind == DEVICE_KIND_FIXED else 60): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=86400, step=30, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("cooldown_seconds", default=60 if kind == DEVICE_KIND_FIXED else 30): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=3600, step=5, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("max_active_seconds", default=14400 if kind == DEVICE_KIND_FIXED else 28800): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=172800, step=60, mode=selector.NumberSelectorMode.BOX)
+            ),
+        }
+        if kind == DEVICE_KIND_VARIABLE:
+            schema_dict.update(
+                {
+                    vol.Required("min_power_w", default=1400): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                    vol.Required("max_power_w", default=7200): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                    vol.Required("step_w", default=100): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=5000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                }
+            )
+
+        return self.async_show_form(
+            step_id="device_add",
+            data_schema=vol.Schema(schema_dict),
+            errors=errors,
+            description_placeholders={
+                "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+            },
+        )
+
+    async def async_step_device_remove(self, user_input=None):
+        devices, _ = self._load_devices()
+        if user_input is not None:
+            remove_name = user_input["device_key"]
+            remaining = [device for device in devices if device.get("key") != remove_name]
+            return await self._save_devices(remaining)
+
+        options = [
+            selector.SelectOptionDict(value=device["key"], label=f"{device['name']} ({device['kind']})")
+            for device in devices
+        ]
+        return self.async_show_form(
+            step_id="device_remove",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("device_key"): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=options, mode=selector.SelectSelectorMode.DROPDOWN)
+                    )
+                }
+            ),
+            errors={},
+        )
+
+    async def async_step_devices_json(self, user_input=None):
         errors = {}
         description_placeholders = {
             "device_blueprint": default_device_blueprint(),
@@ -312,7 +511,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             }
         )
         return self.async_show_form(
-            step_id="devices",
+            step_id="devices_json",
             data_schema=schema,
             errors=errors,
             description_placeholders=description_placeholders,

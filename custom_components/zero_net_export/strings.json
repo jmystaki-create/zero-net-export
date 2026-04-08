@@ -55,12 +55,47 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen to persist the controllable device inventory. This is now the supported setup path.\n\nPrimary path: {configure_path}.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. Add fixed or variable devices here first, and only drop into JSON editing for recovery or bulk changes.\n\nPrimary path: {configure_path}.\n\nConfigured devices: {device_count}\nCurrent fleet: {device_summary}\n\nDevice issues:\n{device_issues}",
+        "data": {
+          "device_action": "Managed-device action"
+        },
+        "data_description": {
+          "device_action": "Choose whether to add a fixed load, add a variable load, remove a device, or open the advanced JSON editor."
+        }
+      },
+      "device_add": {
+        "title": "Add managed device",
+        "description": "Add a {device_kind} through native Home Assistant selectors. This keeps day-to-day onboarding out of raw JSON while staying panel-free.\n\nPrimary path: {configure_path}.",
+        "data": {
+          "name": "Device name",
+          "entity_id": "Entity",
+          "nominal_power_w": "Nominal power (W)",
+          "priority": "Priority",
+          "enabled": "Enabled",
+          "min_on_seconds": "Minimum on-time (s)",
+          "min_off_seconds": "Minimum off-time (s)",
+          "cooldown_seconds": "Cooldown (s)",
+          "max_active_seconds": "Maximum active time (s, 0 = no cap)",
+          "min_power_w": "Minimum power (W)",
+          "max_power_w": "Maximum power (W)",
+          "step_w": "Adjustment step (W)"
+        }
+      },
+      "device_remove": {
+        "title": "Remove managed device",
+        "description": "Remove a configured managed device from the native inventory.",
+        "data": {
+          "device_key": "Configured device"
+        }
+      },
+      "devices_json": {
+        "title": "Managed devices JSON editor",
+        "description": "Advanced recovery and bulk-edit path for managed devices. Use the native add/remove flow for normal onboarding.\n\nPrimary path: {configure_path}.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
         "data": {
           "device_inventory_json": "Device inventory JSON"
         },
         "data_description": {
-          "device_inventory_json": "Current practical native path for managed devices. Paste a JSON array of controllable devices here, then save to reload the integration."
+          "device_inventory_json": "Advanced recovery path. Paste a JSON array of controllable devices here when you need bulk edits or to repair invalid inventory."
         }
       },
       "advanced": {
@@ -81,7 +116,7 @@
       }
     },
     "error": {
-      "device_inventory_invalid": "The device inventory JSON is invalid or incomplete.",
+      "device_inventory_invalid": "The managed-device inventory is invalid or incomplete.",
       "source_entities_invalid": "One or more source entities are missing, duplicated, or invalid."
     }
   }

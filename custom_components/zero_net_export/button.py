@@ -10,6 +10,7 @@ from .entity import ZeroNetExportEntity
 from .native_support import (
     PRIMARY_CONFIGURE_PATH,
     build_native_operator_readiness,
+    build_native_support_center,
     build_native_support_snapshot,
 )
 
@@ -18,6 +19,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     entities = [
         ZeroNetExportResetControllerOverridesButton(coordinator),
+        ZeroNetExportShowNativeSupportCenterButton(coordinator),
         ZeroNetExportShowNativeDiagnosticsButton(coordinator),
         ZeroNetExportShowSetupChecklistButton(coordinator),
     ]
@@ -26,6 +28,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
         for device_key, details in coordinator.data.device_details.items()
     )
     async_add_entities(entities)
+
+
+def _support_notification_id(entry_id: str) -> str:
+    return f"{DOMAIN}_{entry_id}_native_support"
 
 
 def _diagnostics_notification_id(entry_id: str) -> str:
@@ -46,6 +52,33 @@ class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEnt
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_controller_overrides()
+
+
+class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEntity):
+    def __init__(self, coordinator):
+        super().__init__(coordinator, "show_native_support_center", "Show support center")
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+        self._attr_icon = "mdi:lifebuoy"
+
+    @property
+    def extra_state_attributes(self):
+        readiness = build_native_operator_readiness(self.coordinator)
+        return {
+            "configure_path": PRIMARY_CONFIGURE_PATH,
+            "phase": readiness.get("phase"),
+            "next_step": readiness.get("next_step"),
+            "diagnostic_summary": self.coordinator.data.diagnostic_summary,
+            "health_summary": self.coordinator.data.health_summary,
+        }
+
+    async def async_press(self) -> None:
+        support_center = build_native_support_center(self.coordinator)
+        persistent_notification.async_create(
+            self.hass,
+            f"```\n{support_center}\n```",
+            title=f"{self.coordinator.entry.title}: support center",
+            notification_id=_support_notification_id(self.coordinator.entry.entry_id),
+        )
 
 
 class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity):

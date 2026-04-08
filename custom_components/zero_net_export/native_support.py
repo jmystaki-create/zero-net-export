@@ -180,8 +180,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     }
 
 
-def build_native_support_snapshot(coordinator: Any) -> str:
-    """Return the operator support snapshot for native HA surfaces."""
+def _build_support_sections(coordinator: Any) -> tuple[Any, list[dict[str, Any]], list[str], dict[str, Any]]:
     state = coordinator.data
     configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
     operator_readiness = _build_operator_checklist(
@@ -190,6 +189,12 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         configured_devices,
         device_parse_issues,
     )
+    return state, configured_devices, device_parse_issues, operator_readiness
+
+
+def build_native_support_snapshot(coordinator: Any) -> str:
+    """Return the operator support snapshot for native HA surfaces."""
+    state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
     release_info = build_release_info(INTEGRATION_VERSION)
     release_update = state.validation_details.get("release_update", {})
     source_diagnostics = state.validation_details.get("source_diagnostics", {})
@@ -292,11 +297,31 @@ def build_native_support_snapshot(coordinator: Any) -> str:
 
 def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
     """Return the operator readiness block for native HA surfaces."""
-    state = coordinator.data
-    configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
-    return _build_operator_checklist(
-        state,
-        coordinator.entry,
-        configured_devices,
-        device_parse_issues,
+    _, _, _, operator_readiness = _build_support_sections(coordinator)
+    return operator_readiness
+
+
+def build_native_support_center(coordinator: Any) -> str:
+    """Return a single operator-facing support bundle for native HA surfaces."""
+    _, _, _, operator_readiness = _build_support_sections(coordinator)
+    snapshot = build_native_support_snapshot(coordinator)
+    checklist_lines = [
+        f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
+        for item in operator_readiness.get('checklist', [])
+    ]
+    return "\n".join(
+        [
+            "Zero Net Export native support center",
+            "",
+            f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
+            f"Readiness phase: {operator_readiness.get('phase')}",
+            f"Summary: {operator_readiness.get('summary')}",
+            f"Next step: {operator_readiness.get('next_step')}",
+            "",
+            "Checklist",
+            *(checklist_lines or ["- No checklist available yet."]),
+            "",
+            "Support snapshot",
+            snapshot,
+        ]
     )
