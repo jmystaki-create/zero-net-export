@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -54,6 +55,8 @@ from .validation import (
     format_source_binding_label,
     validate_configured_entities,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 PANEL_TITLE = "Zero Net Export"
 PANEL_ICON = "mdi:transmission-tower-export"
@@ -175,29 +178,44 @@ def _get_coordinator(hass: HomeAssistant, entry_id: str | None = None) -> Any:
 async def async_setup_panel(hass: HomeAssistant) -> None:
     """Register the Zero Net Export panel shell and websocket API."""
     domain_data = hass.data.setdefault(DOMAIN, {})
-    if domain_data.get("panel_registered"):
-        return
 
-    await hass.http.async_register_static_paths(
-        [
-            StaticPathConfig(
-                url_path=f"/api/{DOMAIN}",
-                path=str(_frontend_dir()),
-                cache_headers=False,
+    if not domain_data.get("panel_static_registered"):
+        try:
+            await hass.http.async_register_static_paths(
+                [
+                    StaticPathConfig(
+                        url_path=f"/api/{DOMAIN}",
+                        path=str(_frontend_dir()),
+                        cache_headers=False,
+                    )
+                ]
             )
-        ]
-    )
+        except Exception as err:  # pragma: no cover - depends on HA runtime internals
+            if "already" not in str(err).lower():
+                raise
+            _LOGGER.debug("Zero Net Export static path already registered: %s", err)
+        domain_data["panel_static_registered"] = True
 
-    panel_custom.async_register_panel(
-        hass,
-        webcomponent_name=PANEL_COMPONENT_NAME,
-        frontend_url_path=PANEL_URL_PATH,
-        module_url=_frontend_module_url(),
-        sidebar_title=PANEL_TITLE,
-        sidebar_icon=PANEL_ICON,
-        require_admin=True,
-        config={"version": PANEL_SCHEMA_VERSION},
-    )
+    if not domain_data.get("panel_registered"):
+        try:
+            panel_custom.async_register_panel(
+                hass,
+                webcomponent_name=PANEL_COMPONENT_NAME,
+                frontend_url_path=PANEL_URL_PATH,
+                module_url=_frontend_module_url(),
+                sidebar_title=PANEL_TITLE,
+                sidebar_icon=PANEL_ICON,
+                require_admin=True,
+                config={"version": PANEL_SCHEMA_VERSION},
+            )
+        except Exception as err:  # pragma: no cover - depends on HA runtime internals
+            if "already" not in str(err).lower():
+                raise
+            _LOGGER.debug("Zero Net Export panel already registered: %s", err)
+        domain_data["panel_registered"] = True
+
+    if domain_data.get("panel_websocket_registered"):
+        return
 
     websocket_api.async_register_command(hass, websocket_get_panel_state)
     websocket_api.async_register_command(hass, websocket_save_controller_settings)
@@ -207,7 +225,7 @@ async def async_setup_panel(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, websocket_update_device)
     websocket_api.async_register_command(hass, websocket_delete_device)
     websocket_api.async_register_command(hass, websocket_reset_device_overrides)
-    domain_data["panel_registered"] = True
+    domain_data["panel_websocket_registered"] = True
 
 
 @websocket_api.websocket_command({vol.Required("type"): PANEL_WEBSOCKET_GET_STATE})

@@ -194,7 +194,42 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def entity_category(self):
-        if self._key in {"installed_version", "previous_installed_version", "release_summary", "changes_preview", "update_summary"}:
+        if self._key in {
+            "installed_version",
+            "previous_installed_version",
+            "release_summary",
+            "changes_preview",
+            "update_summary",
+            "diagnostic_summary",
+            "health_status",
+            "health_summary",
+            "recommendation",
+            "control_status",
+            "control_summary",
+            "control_reason",
+            "control_guard_summary",
+            "last_action_status",
+            "last_action_summary",
+            "last_action_at",
+            "last_successful_action_at",
+            "last_failed_action_at",
+            "last_action_device",
+            "last_failed_action_device",
+            "last_failed_action_message",
+            "recent_action_summary",
+            "recent_failure_summary",
+            "last_successful_action_summary",
+            "stale_source_count",
+            "stale_source_summary",
+            "action_history_count",
+            "successful_action_count",
+            "failed_action_count",
+            "total_successful_action_count",
+            "total_failed_action_count",
+            "planned_action_count",
+            "executable_action_count",
+            "blocked_planned_action_count",
+        }:
             return EntityCategory.DIAGNOSTIC
         return None
 
@@ -239,6 +274,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
 
 
 class ZeroNetExportSourceBaseSensor(ZeroNetExportEntity, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, source_key: str, source_label: str, suffix_key: str, suffix_name: str):
         super().__init__(coordinator, f"source_{source_key}_{suffix_key}", f"{source_label} {suffix_name}")
         self._source_key = source_key

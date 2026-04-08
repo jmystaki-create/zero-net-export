@@ -6,6 +6,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.51] - 2026-04-08
+
+### Fixed
+- Hardened panel registration across partial setup and reload paths by tracking static-path, custom-panel, and websocket registration separately instead of treating the whole panel stack as a single one-shot flag. This is the main backend-side fix for live installs where `/zero-net-export` could still fall back to 404 after a stale or partial registration state.
+- Reclassified the main health, action-history, and per-source diagnostic sensors into native Home Assistant diagnostic categories so the existing device and entity surfaces expose troubleshooting data more prominently without adding a new interface.
+
+### Changed
+- Integration version advanced to `0.1.51` for the backend route and diagnostics wiring hardening pass.
+
 ## [0.1.50] - 2026-04-08
 
 ### Added
