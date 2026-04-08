@@ -63,27 +63,16 @@
 - per-source diagnostics entity slice ✅ each mapped source now exposes direct status/reading/age/issue-count sensors plus a stale binary sensor, so dashboard work no longer depends on digging through controller attributes
 - Home Assistant diagnostics export ✅ redacted config-entry diagnostics now capture controller/runtime/validation/device state for support and real-install debugging
 - per-device runtime reporting ✅ current active runtime plus active-runtime-today telemetry now persist through the daily metrics store and surface as first-class per-device sensors for dashboards and runtime-cap review
-- next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, confirm the new per-device runtime telemetry is trustworthy enough, and shift more operator-facing diagnostics into native Home Assistant surfaces when the custom panel route proves unreliable in live installs
+- next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, confirm the new per-device runtime telemetry is trustworthy enough, and keep shifting operator-facing guidance into native Home Assistant surfaces where it improves reliability
 
-## Phase 7 — Panel-app rebuild
+## Phase 7 — Native-surface consolidation
 - stabilize install/runtime behavior in Home Assistant
-- remove UI-breaking integration packaging behaviors ✅ manifest icon packaging issue removed
-- add panel registration and frontend shell ✅ first sidebar panel shell and websocket bootstrap state delivered
-- add runtime operator mutations in-panel ✅ controller runtime overrides and per-device enable/priority overrides now flow through panel websocket commands instead of staying read-only
-- reduce config-entry onboarding to bootstrap-only ✅ initial add-integration flow now creates the backend entry with safe defaults and leaves real onboarding to the panel app
-- create guided source/device setup UX ✅ initial panel source-mapping save flow now validates and persists source entities plus refresh interval from the Setup tab
-- guided device entity suggestions ✅ Devices tab now ranks likely switch/number targets using kind + template hints so guided onboarding does not depend on scanning a flat entity list
-- guided source remediation detail ✅ Setup now also surfaces mapped-source readings, units, device/state class metadata, and validation issues so operators can debug bad mappings inside the panel
-- guided source suggestions ✅ Setup now ranks likely Home Assistant sensors per source role so panel-first onboarding does not depend on scanning a flat entity list manually
-- replace raw device inventory JSON for normal setup ✅ first panel-side add/edit/remove device inventory management now persists validated fixed/variable devices through structured panel forms
-- add operator diagnostics/explanation UX ✅ panel diagnostics now exposes recent action history, source health, calibration hints, and per-device guard/result explanations from the existing backend state
-- add operator settings/release UX ✅ Settings tab now exposes configured defaults, fleet health summary, panel-first workflow guidance, and direct docs/release/support links
-- keep panel runtime state live enough for real daily operation ✅ panel frontend now auto-refreshes while visible and refreshes again on browser-focus return so operators are less likely to act on stale state
-- publish explicit onboarding/readiness guidance in-panel ✅ Setup and Settings now surface a readiness phase, checklist, and recommended next step so operators can see what still blocks panel-first completion
-- publish a panel-native support snapshot ✅ Settings now generates a copyable runtime/setup/release summary for Discord and issue triage without reconstructing state from multiple diagnostics views
-- surface full selected-device configuration detail in-panel ✅ Devices now exposes the selected device's bound entity, adapter, configured/effective enable and priority state, power model, and safety timing limits so normal review/edit flows no longer depend on raw JSON
-- replace JSON/YAML-first operator workflow with panel-first workflow where viable
-- retain YAML dashboard and native Home Assistant surfaces as fallback/debugging/operator surfaces when the custom panel route is unreliable in real installs
+- remove the custom sidebar/panel route from the shipped integration ✅ `/zero-net-export` route, launcher assets, and panel registration removed
+- keep bootstrap onboarding minimal ✅ add-integration flow still creates the backend entry with safe defaults
+- keep Configure as the supported setup path ✅ source mapping, managed devices, and controller tuning stay in native Configure
+- keep native diagnostics/support surfaces strong ✅ device-page buttons continue to expose setup checklist and support snapshot paths
+- reduce custom frontend dependency for normal operation ✅ no custom panel assets are required for setup or troubleshooting
+- update repo guidance and validation docs ✅ active planning/docs now center native Home Assistant surfaces instead of the removed panel route
 
 ## Phase 8 — Future enhancements
 - forecast-aware optimization

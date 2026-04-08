@@ -6,6 +6,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.53] - 2026-04-08
+
+### Changed
+- Removed the shipped custom panel route and its related launcher/frontend code. Zero Net Export no longer registers the `/zero-net-export` sidebar/custom-panel path or ships the panel websocket/bootstrap layer.
+- Simplified the supported operator path to native Home Assistant surfaces only: **Configure** for source mapping, managed devices, and controller tuning, plus the integration device page for setup checklist and diagnostics snapshot actions.
+- Rewrote active project guidance and validation/docs around the new native-first goal, replacing panel-first rebuild direction with native-surface consolidation guidance.
+- Integration version advanced to `0.1.53` for the panel-route removal and native-surface consolidation pass.
+
 ## [0.1.52] - 2026-04-08
 
 ### Changed

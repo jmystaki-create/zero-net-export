@@ -20,13 +20,12 @@
         "menu_options": {
           "native_setup": "Native setup, source mapping, and refresh interval",
           "devices": "Managed devices",
-          "advanced": "Controller tuning",
-          "panel": "Optional panel app"
+          "advanced": "Controller tuning"
         }
       },
       "native_setup": {
         "title": "Native setup and source mapping",
-        "description": "This is now the primary setup path. Use Home Assistant's Configure flow to map required entities and set the refresh interval.\n\nCurrently missing required sources: {missing_sources}\n\nOptional panel path, if available in your install: `{panel_path}`.",
+        "description": "This is now the primary setup path. Use Home Assistant's Configure flow to map required entities and set the refresh interval.\n\nCurrently missing required sources: {missing_sources}\n\nPrimary path: {configure_path}.",
         "data": {
           "solar_power_entity": "Solar power entity",
           "solar_energy_entity": "Solar energy entity",
@@ -56,18 +55,13 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen to persist the controllable device inventory. The optional panel app can still be used if it loads cleanly, but it is no longer required.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
+        "description": "Use this native Configure screen to persist the controllable device inventory. This is now the supported setup path.\n\nPrimary path: {configure_path}.\n\nExample device inventory:\n{device_blueprint}\n\n{device_issues}",
         "data": {
           "device_inventory_json": "Device inventory JSON"
         },
         "data_description": {
           "device_inventory_json": "Current practical native path for managed devices. Paste a JSON array of controllable devices here, then save to reload the integration."
         }
-      },
-      "panel": {
-        "title": "Optional Zero Net Export panel",
-        "description": "The panel app is now optional. Normal setup should work from the native Configure flow and device-page diagnostics.\n\nIf you want the richer custom UI and it loads cleanly in your Home Assistant install, open the sidebar item **Zero Net Export** or browse directly to `{panel_path}`.\n\nIntegration: **{entry_title}**",
-        "data": {}
       },
       "advanced": {
         "title": "Controller tuning",
@@ -89,9 +83,6 @@
     "error": {
       "device_inventory_invalid": "The device inventory JSON is invalid or incomplete.",
       "source_entities_invalid": "One or more source entities are missing, duplicated, or invalid."
-    },
-    "abort": {
-      "panel_only": "The panel app is optional. Return to Configure for native setup, managed devices, and tuning."
     }
   }
 }

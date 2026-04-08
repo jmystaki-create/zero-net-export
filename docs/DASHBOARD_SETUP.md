@@ -150,4 +150,4 @@ Mapped entity ids, device entity ids, and operator-facing names are redacted in 
 After this scaffold, the next useful UX increment is:
 
 - a more compact action-history / failure timeline card once real installations show what operators actually watch most
-- optional packaged dashboard assets or a custom panel when the entity model stabilizes
+- optional packaged dashboard assets when the entity model stabilizes

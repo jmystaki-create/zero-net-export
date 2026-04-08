@@ -23,7 +23,7 @@
 | :--- | :--- |
 | **Install via HACS** | [Add as Custom Repository](https://hacs.xyz/docs/faq/custom_repositories) → `jmystaki-create/zero-net-export` |
 | **Install Manually** | [Copy to `custom_components`](#manual-installation) |
-| **Open the Operator App** | Install the integration, restart Home Assistant, then open **Zero Net Export** from the sidebar |
+| **Configure the integration** | Install the integration, restart Home Assistant, then open **Settings → Devices & Services → Integrations → Zero Net Export → Configure** |
 | **Use the fallback dashboard** | [Dashboard Setup Guide](docs/DASHBOARD_SETUP.md) |
 | **Understand the Logic** | [Control Loop Architecture](docs/CONTROL_LOOP.md) |
 
@@ -59,8 +59,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
-- **Native Home Assistant setup path**: normal source mapping, managed-device configuration, and controller tuning now live in the integration's Configure flow instead of depending on a custom route.
-- **Operator Panel App**: optional Home Assistant sidebar panel shell for overview, setup, devices, diagnostics, and settings when the custom route loads cleanly.
+- **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live in the integration's Configure flow.
 - **Operator Dashboard / native HA surfaces**: first-class operator and fallback surfaces for real-world installs.
 - **Native Diagnostics Buttons**: device-page diagnostic buttons can raise a support snapshot and setup checklist as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 
@@ -104,15 +103,10 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 6.  Use **Controller tuning** in Configure for target/deadband/reserve defaults.
 7.  Use the integration device page buttons, entities, and diagnostics for normal runtime verification and troubleshooting.
 
-### Optional panel path
-
-- If the custom panel route works in your Home Assistant install, you can still open **Zero Net Export** from the sidebar for the richer custom UI.
-- The panel is now optional and no longer required for onboarding.
-
 ### Advanced / fallback paths
 
-- The initial add-integration flow remains bootstrap-only, but the normal post-install path is now the native Configure flow rather than `/zero-net-export`.
-- Managed devices are currently persisted through the native Configure flow using the device inventory JSON field, which is now a supported native path instead of panel-only recovery.
+- The initial add-integration flow remains bootstrap-only, and the normal post-install path is the native Configure flow.
+- Managed devices are currently persisted through the native Configure flow using the device inventory JSON field.
 - The Lovelace YAML dashboard remains available as a fallback/debugging surface.
 - The integration device page exposes native diagnostic buttons, **Show native diagnostics snapshot** and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 
@@ -124,8 +118,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | :--- | :--- |
 | [Architecture](docs/ARCHITECTURE.md) | System design and component overview |
 | [Control Loop](docs/CONTROL_LOOP.md) | How the optimization logic works |
-| [Panel-App Rebuild Plan](docs/PANEL_APP_REBUILD_PLAN.md) | New app-first direction and rebuild phases |
-| [Panel App Technical Design](docs/PANEL_APP_TECHNICAL_DESIGN.md) | App sections, backend contract, and delivery milestones |
+| [Native Surface Plan](docs/PANEL_APP_REBUILD_PLAN.md) | Current native-first operator direction |
+| [Native Surface Technical Direction](docs/PANEL_APP_TECHNICAL_DESIGN.md) | Supported HA surfaces and backend contract |
 | [Dashboard Setup](docs/DASHBOARD_SETUP.md) | How to install the fallback/debug Lovelace UI |
 | [Entity Model](docs/ENTITY_MODEL.md) | List of all created entities |
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
@@ -149,7 +143,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface pivot** phase focused on validating and hardening the shipped Home Assistant Configure workflow in real installs.
+The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase focused on validating and hardening the shipped Home Assistant Configure workflow in real installs.
 
 **Current highest-value next step:** run a real Home Assistant installation validation pass against the shipped native Configure workflow, then convert any confirmed friction into a release.
 
@@ -160,22 +154,11 @@ The backend control engine is substantially built, and the project is now in a l
 - [x] Dashboard scaffold
 - [x] MIT license
 - [ ] Stabilize install/runtime behavior in real Home Assistant environments
-- [x] Ship the first panel-style app shell in Home Assistant
-- [x] Make the panel the primary intended operator UX for setup, devices, operation, diagnostics, and release/support context
-- [x] Add full add/edit/remove device workflows to the panel so operators no longer need raw JSON for normal setup
-- [x] Add guided device onboarding presets and direct edit flows so normal device setup feels panel-native instead of form spelunking
-- [x] Add template-aware device entity suggestions so panel onboarding can point operators at likely switch/number targets instead of only offering a flat entity list
-- [x] Surface selected-device configuration and effective override details in-panel so operators can review normal device constraints and runtime tuning without opening raw JSON
-- [x] Reduce add-integration onboarding to a minimal bootstrap step so the panel app, not the raw config-entry form, is the intended setup surface
-- [x] Add guided source mapping to the panel so operators can complete source setup in the app
-- [x] Add role-specific source suggestions in the panel so operators can pick likely solar/grid/home/battery sensors without sifting through every entity manually
-- [x] Add guided source-remediation detail in the panel so operators can inspect per-source metadata and validation issues without dropping into raw entity debugging
-- [x] Add runtime operator controls to the panel for controller tuning and per-device override management
-- [x] Add richer in-panel diagnostics and explanation views for recent actions, source health, and per-device control reasoning
-- [x] Keep the panel state live enough for daily operation via automatic in-panel refresh while visible
-- [x] Keep release metadata visible and accurate in-panel so operators/support can distinguish packaged integration version from HA config-entry schema version
-- [x] Publish in-panel readiness guidance so operators can see the current setup phase, blockers, and highest-value next step without piecing it together from raw diagnostics
-- [x] Publish an in-panel support snapshot so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
+- [x] Reduce add-integration onboarding to a minimal bootstrap step so the native Configure flow is the intended setup surface
+- [x] Keep source mapping, managed devices, and controller tuning available from native Home Assistant surfaces
+- [x] Publish native readiness guidance so operators can see the current setup phase, blockers, and highest-value next step from Home Assistant notifications and diagnostics
+- [x] Publish a native support snapshot so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
+- [x] Remove the custom panel route and related launcher/frontend code from the shipped integration
 - [ ] Real-world validation of the rebuilt operator flow
 - [ ] Final install/runtime hardening based on real HA feedback
 

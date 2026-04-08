@@ -38,12 +38,8 @@ from .const import (
     SOURCE_ROLE_LABELS,
 )
 from .device_model import default_device_blueprint, parse_device_configs
-from .panel_paths import panel_launcher_path, panel_setup_path
-from .panel import _source_specs_from_config
+from .native_support import PRIMARY_CONFIGURE_PATH, _source_specs_from_config
 from .validation import validate_configured_entities
-
-
-PANEL_PATH = panel_setup_path()
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -137,7 +133,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         return self.async_show_menu(
             step_id="init",
-            menu_options=["native_setup", "devices", "advanced", "panel"],
+            menu_options=["native_setup", "devices", "advanced"],
         )
 
     async def async_step_native_setup(self, user_input=None):
@@ -268,7 +264,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders={
                 "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
-                "panel_path": panel_setup_path(self._config_entry),
+                "configure_path": PRIMARY_CONFIGURE_PATH,
             },
         )
 
@@ -276,7 +272,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         errors = {}
         description_placeholders = {
             "device_blueprint": default_device_blueprint(),
-            "panel_path": panel_setup_path(self._config_entry),
+            "configure_path": PRIMARY_CONFIGURE_PATH,
             "device_issues": "",
         }
 
@@ -321,15 +317,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders=description_placeholders,
         )
-
-    async def async_step_panel(self, user_input=None):
-        return self.async_external_step(
-            step_id="panel",
-            url=panel_launcher_path(self._config_entry, source="configure"),
-        )
-
-    async def async_step_panel_done(self, user_input=None):
-        return self.async_abort(reason="panel_only")
 
     async def async_step_advanced(self, user_input=None):
         errors = {}

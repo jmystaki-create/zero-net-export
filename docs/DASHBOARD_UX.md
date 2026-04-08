@@ -41,7 +41,7 @@ For each device:
 - missing mapped sensors
 - device command failures
 - health summary showing whether the current top issue is stale data, safe mode, or a recent command failure
-- in-panel source diagnostics and recent action history for operator troubleshooting ✅ first panel diagnostics milestone delivered
+- native source diagnostics and recent action history for operator troubleshooting ✅ first native diagnostics milestone delivered
 
 ### 5. Reporting Widgets
 - export avoided today
@@ -60,23 +60,17 @@ For each device:
 
 ## Current scaffold status
 
-The shipped operator product now centers on the custom Home Assistant panel app with the following primary sections:
+The shipped operator product now centers on native Home Assistant surfaces:
 
-- Overview
-- Setup
-- Devices
-- Diagnostics
-- Settings
+- Configure for source setup, managed devices, and controller tuning
+- integration device page buttons/entities for diagnostics and setup guidance
+- Lovelace/dashboard views for optional operator visibility
 
-Those tabs are now the intended normal operator workflow for source setup, device onboarding, daily operation, troubleshooting, and release/support context.
+The native setup path now publishes an explicit readiness phase, checklist, and recommended next step so operators can tell whether they are blocked on source mapping, source health, device onboarding, or runtime eligibility without mentally stitching together multiple diagnostics sections.
 
-The panel now also publishes an explicit readiness phase, checklist, and recommended next step so operators can tell whether they are blocked on source mapping, source health, device onboarding, or runtime eligibility without mentally stitching together multiple diagnostics sections.
+The device inventory path is still JSON-backed today, but it is now intentionally framed as a native Configure workflow rather than a custom panel workflow.
 
-The Devices tab now also ranks likely switch/number entities for the currently selected device kind and onboarding template, so panel-first device setup is less dependent on scanning a long unstructured entity list.
-
-The Devices tab now also shows a selected-device configuration summary with entity binding, adapter, configured/effective enable + priority state, power model, and safety timing limits, reducing the need to inspect raw JSON when reviewing or editing a device.
-
-The Settings tab now also provides a copyable support snapshot that condenses release metadata, readiness, mapped-source health, configured-device state, and recent validation issues into one operator-facing text block for support and validation triage.
+The support snapshot remains available as a native device-page action that condenses release metadata, readiness, mapped-source health, configured-device state, and recent validation issues into one operator-facing text block for support and validation triage.
 
 A first importable Lovelace scaffold now exists at `examples/lovelace/zero_net_export_dashboard.yaml`.
 
@@ -87,4 +81,4 @@ It currently provides:
 - fleet summary metrics
 - example fixed-load and variable-load device cards
 
-This plain YAML dashboard is now considered a transitional operator surface only. The project direction has shifted toward a custom panel / app-like frontend, with the YAML dashboard retained as a fallback and debugging surface while real-world panel validation and final runtime hardening continue.
+This plain YAML dashboard is now considered a fallback/debugging operator surface. The project direction has shifted toward reliable native Home Assistant setup and troubleshooting surfaces, with Lovelace retained as optional visibility rather than the primary setup path.

@@ -1,0 +1,302 @@
+"""Native Home Assistant operator support helpers for Zero Net Export."""
+from __future__ import annotations
+
+from datetime import datetime
+import json
+from typing import Any
+
+from homeassistant.util import dt as dt_util
+
+from .const import (
+    CONF_BATTERY_CHARGE_POWER_ENTITY,
+    CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+    CONF_BATTERY_SOC_ENTITY,
+    CONF_DEVICE_INVENTORY_JSON,
+    CONF_GRID_EXPORT_ENERGY_ENTITY,
+    CONF_GRID_EXPORT_POWER_ENTITY,
+    CONF_GRID_IMPORT_ENERGY_ENTITY,
+    CONF_GRID_IMPORT_POWER_ENTITY,
+    CONF_HOME_LOAD_POWER_ENTITY,
+    CONF_SOLAR_ENERGY_ENTITY,
+    CONF_SOLAR_POWER_ENTITY,
+    INTEGRATION_VERSION,
+    REQUIRED_SOURCE_KEYS,
+    SOURCE_ROLE_LABELS,
+)
+from .device_model import parse_device_configs
+from .release_info import build_release_info
+from .validation import SourceSpec, format_source_binding_label
+
+PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure"
+
+
+def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
+    return [
+        SourceSpec(CONF_SOLAR_POWER_ENTITY, config.get(CONF_SOLAR_POWER_ENTITY), "power"),
+        SourceSpec(CONF_SOLAR_ENERGY_ENTITY, config.get(CONF_SOLAR_ENERGY_ENTITY), "energy"),
+        SourceSpec(CONF_GRID_IMPORT_POWER_ENTITY, config.get(CONF_GRID_IMPORT_POWER_ENTITY), "power"),
+        SourceSpec(CONF_GRID_EXPORT_POWER_ENTITY, config.get(CONF_GRID_EXPORT_POWER_ENTITY), "power"),
+        SourceSpec(CONF_GRID_IMPORT_ENERGY_ENTITY, config.get(CONF_GRID_IMPORT_ENERGY_ENTITY), "energy"),
+        SourceSpec(CONF_GRID_EXPORT_ENERGY_ENTITY, config.get(CONF_GRID_EXPORT_ENERGY_ENTITY), "energy"),
+        SourceSpec(CONF_HOME_LOAD_POWER_ENTITY, config.get(CONF_HOME_LOAD_POWER_ENTITY), "power"),
+        SourceSpec(CONF_BATTERY_SOC_ENTITY, config.get(CONF_BATTERY_SOC_ENTITY), "percent", required=False),
+        SourceSpec(CONF_BATTERY_CHARGE_POWER_ENTITY, config.get(CONF_BATTERY_CHARGE_POWER_ENTITY), "power", required=False),
+        SourceSpec(CONF_BATTERY_DISCHARGE_POWER_ENTITY, config.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY), "power", required=False),
+    ]
+
+
+def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[str]]:
+    raw = entry.options.get(CONF_DEVICE_INVENTORY_JSON, entry.data.get(CONF_DEVICE_INVENTORY_JSON))
+    devices, issues = parse_device_configs(raw)
+    payloads: list[dict[str, Any]] = []
+    for device in devices:
+        payloads.append(
+            {
+                "key": device.key,
+                "name": device.name,
+                "kind": device.kind,
+                "entity_id": device.entity_id,
+                "adapter": device.adapter,
+                "nominal_power_w": device.nominal_power_w,
+                "min_power_w": device.min_power_w,
+                "max_power_w": device.max_power_w,
+                "step_w": device.step_w,
+                "priority": device.priority,
+                "enabled": device.enabled,
+                "min_on_seconds": device.min_on_seconds,
+                "min_off_seconds": device.min_off_seconds,
+                "cooldown_seconds": device.cooldown_seconds,
+                "max_active_seconds": device.max_active_seconds,
+            }
+        )
+    return payloads, issues
+
+
+def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
+    source_mapping = {
+        CONF_SOLAR_POWER_ENTITY: entry.data.get(CONF_SOLAR_POWER_ENTITY),
+        CONF_SOLAR_ENERGY_ENTITY: entry.data.get(CONF_SOLAR_ENERGY_ENTITY),
+        CONF_GRID_IMPORT_POWER_ENTITY: entry.data.get(CONF_GRID_IMPORT_POWER_ENTITY),
+        CONF_GRID_EXPORT_POWER_ENTITY: entry.data.get(CONF_GRID_EXPORT_POWER_ENTITY),
+        CONF_GRID_IMPORT_ENERGY_ENTITY: entry.data.get(CONF_GRID_IMPORT_ENERGY_ENTITY),
+        CONF_GRID_EXPORT_ENERGY_ENTITY: entry.data.get(CONF_GRID_EXPORT_ENERGY_ENTITY),
+        CONF_HOME_LOAD_POWER_ENTITY: entry.data.get(CONF_HOME_LOAD_POWER_ENTITY),
+        CONF_BATTERY_SOC_ENTITY: entry.data.get(CONF_BATTERY_SOC_ENTITY),
+        CONF_BATTERY_CHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_CHARGE_POWER_ENTITY),
+        CONF_BATTERY_DISCHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY),
+    }
+    missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not source_mapping.get(key)]
+    validation_issues = state.validation_details.get("issues", [])
+    blocking_validation_issues = [
+        issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
+    ]
+
+    checklist = [
+        {
+            "key": "sources_mapped",
+            "label": "Required source mapping complete",
+            "complete": not missing_required_sources,
+            "detail": (
+                "All required solar, grid, and home-load sources are configured."
+                if not missing_required_sources
+                else "Missing required sources: "
+                + ", ".join(SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources)
+            ),
+        },
+        {
+            "key": "sources_validated",
+            "label": "Source validation healthy",
+            "complete": not blocking_validation_issues and not state.stale_data,
+            "detail": (
+                "Mapped sources currently validate cleanly enough for runtime control."
+                if not blocking_validation_issues and not state.stale_data
+                else (
+                    f"Blocking validation issues: {len(blocking_validation_issues)}"
+                    if blocking_validation_issues
+                    else "One or more mapped sources are stale."
+                )
+            ),
+        },
+        {
+            "key": "devices_configured",
+            "label": "Controllable devices onboarded",
+            "complete": bool(configured_devices) and not device_parse_issues,
+            "detail": (
+                f"{len(configured_devices)} device(s) configured."
+                if configured_devices and not device_parse_issues
+                else (
+                    f"Device inventory issues: {'; '.join(device_parse_issues[:3])}"
+                    if device_parse_issues
+                    else "No controllable devices configured yet."
+                )
+            ),
+        },
+        {
+            "key": "devices_usable",
+            "label": "At least one device currently usable",
+            "complete": bool(state.usable_device_count),
+            "detail": (
+                f"{state.usable_device_count} usable device(s) available right now."
+                if state.usable_device_count
+                else "No managed devices are currently usable for control."
+            ),
+        },
+    ]
+
+    if missing_required_sources:
+        phase = "source_setup"
+        next_step = "Finish required source mapping in Configure, then save and reload the integration."
+        summary = "Native setup is blocked on missing required source mappings."
+    elif blocking_validation_issues or state.stale_data:
+        phase = "source_remediation"
+        next_step = "Use native diagnostics and calibration hints to fix source validation or stale-data issues."
+        summary = "Native setup is waiting on healthy validated source data."
+    elif device_parse_issues:
+        phase = "device_remediation"
+        next_step = "Fix device inventory issues in Configure so the configured fleet parses cleanly."
+        summary = "Native setup is blocked on device inventory validation issues."
+    elif not configured_devices:
+        phase = "device_onboarding"
+        next_step = "Add the first controllable device from Configure."
+        summary = "Sources are ready; the next milestone is adding controllable devices."
+    elif not state.usable_device_count:
+        phase = "runtime_readiness"
+        next_step = "Review per-device diagnostics to unblock at least one usable device."
+        summary = "Configured devices exist, but none are currently eligible for control."
+    elif state.safe_mode:
+        phase = "runtime_readiness"
+        next_step = "Clear the current safe-mode condition before treating the integration as production-ready."
+        summary = "The native operator flow is mostly built, but runtime is still held in safe mode."
+    else:
+        phase = "operator_ready"
+        next_step = "Validate the native Configure workflow in a real Home Assistant install and refine any remaining friction there."
+        summary = "Setup and troubleshooting are available through native Home Assistant surfaces."
+
+    return {
+        "phase": phase,
+        "summary": summary,
+        "next_step": next_step,
+        "checklist": checklist,
+    }
+
+
+def build_native_support_snapshot(coordinator: Any) -> str:
+    """Return the operator support snapshot for native HA surfaces."""
+    state = coordinator.data
+    configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
+    operator_readiness = _build_operator_checklist(
+        state,
+        coordinator.entry,
+        configured_devices,
+        device_parse_issues,
+    )
+    release_info = build_release_info(INTEGRATION_VERSION)
+    release_update = state.validation_details.get("release_update", {})
+    source_diagnostics = state.validation_details.get("source_diagnostics", {})
+    mapped_sources = [
+        f"- {SOURCE_ROLE_LABELS.get(key, key)}: {format_source_binding_label(coordinator.entry.data.get(key))}"
+        for key in (
+            CONF_SOLAR_POWER_ENTITY,
+            CONF_SOLAR_ENERGY_ENTITY,
+            CONF_GRID_IMPORT_POWER_ENTITY,
+            CONF_GRID_EXPORT_POWER_ENTITY,
+            CONF_GRID_IMPORT_ENERGY_ENTITY,
+            CONF_GRID_EXPORT_ENERGY_ENTITY,
+            CONF_HOME_LOAD_POWER_ENTITY,
+            CONF_BATTERY_SOC_ENTITY,
+            CONF_BATTERY_CHARGE_POWER_ENTITY,
+            CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+        )
+    ]
+    source_health_lines = [
+        (
+            f"- {SOURCE_ROLE_LABELS.get(key, key)}: status={details.get('status') or 'unknown'}, "
+            f"age_s={details.get('age_seconds') if details.get('age_seconds') is not None else 'n/a'}, "
+            f"issues={len(details.get('issues') or [])}, "
+            f"entity={details.get('entity_id') or 'n/a'}"
+        )
+        for key, details in source_diagnostics.items()
+    ]
+    device_lines = [
+        (
+            f"- {item.get('key')}: enabled={item.get('enabled')}, usable={item.get('usable')}, "
+            f"kind={item.get('kind')}, adapter={item.get('adapter')}, "
+            f"priority={item.get('priority')}, entity={item.get('entity_id')}"
+        )
+        for item in configured_devices
+    ]
+    recent_issues = list(state.validation_details.get("issues", []))[:5]
+    issue_lines = [
+        f"- {issue.get('severity', 'info')}: {issue.get('message', issue)}"
+        for issue in recent_issues
+    ]
+    checklist_lines = [
+        f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
+        for item in operator_readiness.get("checklist", [])
+    ]
+
+    sections = [
+        "Zero Net Export support snapshot",
+        f"Generated: {dt_util.now().isoformat()}",
+        f"Entry title: {coordinator.entry.title}",
+        f"Entry id: {coordinator.entry.entry_id}",
+        f"Integration version: {INTEGRATION_VERSION}",
+        f"Config entry version: {coordinator.entry.version}",
+        f"Release summary: {release_info.get('summary', 'n/a')}",
+        f"Update visibility: {release_update.get('summary', 'n/a')}",
+        "",
+        "Primary setup path",
+        f"- {PRIMARY_CONFIGURE_PATH}",
+        "",
+        "Readiness",
+        f"- phase: {operator_readiness.get('phase')}",
+        f"- summary: {operator_readiness.get('summary')}",
+        f"- next_step: {operator_readiness.get('next_step')}",
+        *checklist_lines,
+        "",
+        "Runtime summary",
+        f"- control_status: {state.control_status}",
+        f"- control_summary: {state.control_summary}",
+        f"- health_status: {state.health_status}",
+        f"- health_summary: {state.health_summary}",
+        f"- safe_mode: {state.safe_mode}",
+        f"- stale_data: {state.stale_data}",
+        f"- source_mismatch: {state.source_mismatch}",
+        f"- battery_below_reserve: {state.battery_below_reserve}",
+        f"- confidence: {state.confidence}",
+        f"- recommendation: {state.recommendation}",
+        f"- last_action_status: {state.last_action_status}",
+        f"- last_action_summary: {state.last_action_summary}",
+        f"- recent_failure_summary: {state.recent_failure_summary}",
+        "",
+        "Mapped sources",
+        *mapped_sources,
+        "",
+        "Source health",
+        *(source_health_lines or ["- none"]),
+        "",
+        "Configured devices",
+        f"- total: {state.device_count}",
+        f"- enabled: {state.enabled_device_count}",
+        f"- usable: {state.usable_device_count}",
+        *(device_lines or ["- none configured"]),
+        "",
+        "Device parse issues",
+        *([f"- {issue}" for issue in device_parse_issues] or ["- none"]),
+        "",
+        "Recent validation issues",
+        *(issue_lines or ["- none"]),
+    ]
+    return "\n".join(sections)
+
+
+def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
+    """Return the operator readiness block for native HA surfaces."""
+    state = coordinator.data
+    configured_devices, device_parse_issues = _configured_device_payloads(coordinator.entry)
+    return _build_operator_checklist(
+        state,
+        coordinator.entry,
+        configured_devices,
+        device_parse_issues,
+    )

@@ -34,16 +34,11 @@ from .const import (
 )
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
-from .panel import async_setup_panel
-from .panel_paths import panel_setup_path
+from .native_support import PRIMARY_CONFIGURE_PATH
 
 
-def _panel_notification_id(entry: ConfigEntry) -> str:
-    return f"{DOMAIN}_{entry.entry_id}_panel_onboarding"
-
-
-def _panel_setup_path(entry: ConfigEntry | None = None) -> str:
-    return panel_setup_path(entry)
+def _setup_notification_id(entry: ConfigEntry) -> str:
+    return f"{DOMAIN}_{entry.entry_id}_native_setup"
 
 
 def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
@@ -52,7 +47,7 @@ def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
     return [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
 
 
-async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: ConfigEntry) -> None:
+async def _async_update_native_setup_notice(hass: HomeAssistant, entry: ConfigEntry) -> None:
     missing_sources = _missing_required_source_mappings(entry)
     raw_inventory = entry.options.get(
         CONF_DEVICE_INVENTORY_JSON,
@@ -61,7 +56,7 @@ async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: Conf
     devices, device_issues = parse_device_configs(raw_inventory)
 
     if not missing_sources and devices and not device_issues:
-        persistent_notification.async_dismiss(hass, _panel_notification_id(entry))
+        persistent_notification.async_dismiss(hass, _setup_notification_id(entry))
         return
 
     bullets: list[str] = []
@@ -74,16 +69,15 @@ async def _async_update_panel_onboarding_notice(hass: HomeAssistant, entry: Conf
         bullets.append("No controllable devices have been added yet.")
 
     message = (
-        "Finish setup from Home Assistant's native integration surfaces. Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure for source mapping, managed devices, and controller tuning.\n\n"
-        f"Optional panel path, if it loads cleanly in your install: {_panel_setup_path(entry)}.\n\n"
+        f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} for source mapping, managed devices, and controller tuning.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
-        + "\n\nUse the integration device page diagnostic buttons for setup checklists and support snapshots without relying on the custom panel route."
+        + "\n\nUse the integration device page diagnostic buttons for setup checklists and support snapshots."
     )
     persistent_notification.async_create(
         hass,
         message,
         title=f"{entry.title}: finish native Zero Net Export setup",
-        notification_id=_panel_notification_id(entry),
+        notification_id=_setup_notification_id(entry),
     )
 
 
@@ -100,15 +94,13 @@ def _coerce_number(value: Any, fallback: int | float) -> int | float:
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up the integration domain and panel shell."""
+    """Set up the integration domain."""
     hass.data.setdefault(DOMAIN, {})
-    await async_setup_panel(hass)
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    await async_setup_panel(hass)
-    await _async_update_panel_onboarding_notice(hass, entry)
+    await _async_update_native_setup_notice(hass, entry)
 
     coordinator = ZeroNetExportCoordinator(hass, entry)
     await coordinator.async_initialize()
@@ -124,7 +116,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id, None)
-        persistent_notification.async_dismiss(hass, _panel_notification_id(entry))
+        persistent_notification.async_dismiss(hass, _setup_notification_id(entry))
     return unload_ok
 
 
@@ -153,6 +145,6 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if changed:
         hass.config_entries.async_update_entry(entry, data=data)
 
-    await _async_update_panel_onboarding_notice(hass, entry)
+    await _async_update_native_setup_notice(hass, entry)
 
     return True

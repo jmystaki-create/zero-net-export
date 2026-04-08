@@ -27,8 +27,7 @@ from .const import (
     DOMAIN,
     INTEGRATION_VERSION,
 )
-from .panel import build_native_operator_readiness
-from .panel_paths import panel_setup_path
+from .native_support import PRIMARY_CONFIGURE_PATH, build_native_operator_readiness
 from .release_info import build_release_info
 
 REDACT_CONFIG_KEYS = {
@@ -173,7 +172,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "details": device_details,
         },
         "native_surfaces": {
-            "panel_setup_path": panel_setup_path(entry),
+            "configure_path": PRIMARY_CONFIGURE_PATH,
             "device_page_buttons": [
                 "Show native diagnostics snapshot",
                 "Show setup checklist",

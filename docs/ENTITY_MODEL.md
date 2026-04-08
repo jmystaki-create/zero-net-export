@@ -22,7 +22,7 @@
 - `button.zero_net_export_reset_controller_overrides`
   - clears persisted target-export and deadband runtime overrides so the controller falls back to the options-flow defaults
 - `button.zero_net_export_show_native_diagnostics_snapshot`
-  - publishes a persistent-notification support snapshot from the integration device page so diagnostics stay reachable from native Home Assistant surfaces and Scripts even if `/zero-net-export` is unavailable
+- publishes a persistent-notification support snapshot from the integration device page so diagnostics stay reachable from native Home Assistant surfaces and Scripts
 - `button.zero_net_export_show_setup_checklist`
   - publishes the current readiness phase, checklist, and next step as a persistent notification from native Home Assistant surfaces
 - `button.zero_net_export_<device_key>_reset_overrides`
@@ -139,7 +139,7 @@ Daily reporting notes:
 Planned next:
 - richer last-action diagnostics entity set beyond the current daily/reporting slice
 - longer-horizon reporting once live installs prove which aggregates are actually useful
-- optional packaged dashboard assets or a bespoke panel once real installs confirm which controls deserve first-class UI treatment
+- optional packaged dashboard assets once real installs confirm which controls deserve first-class UI treatment
 
 ## Config entities / options
 
@@ -171,7 +171,7 @@ Native Home Assistant diagnostics surfaces now also include scriptable device-pa
 - support snapshot notification publishing
 - setup checklist notification publishing
 
-These are intended to support the native Home Assistant setup and troubleshooting path and to reduce dependence on the custom panel route during live-install troubleshooting.
+These are intended to support the native Home Assistant setup and troubleshooting path directly during live-install troubleshooting.
 
 Current diagnostics payload includes:
 - redacted config-entry data and options
@@ -179,7 +179,7 @@ Current diagnostics payload includes:
 - source readings, validation details, and per-source freshness/issue diagnostics
 - fleet/device runtime details with entity ids and operator-facing names redacted
 - recent action history and daily metrics for support/debugging
-- native-surface guidance including the primary Configure path, optional panel setup path, and the current operator-readiness block
+- native-surface guidance including the primary Configure path and the current operator-readiness block
 
 This is intended to make real-install validation easier without requiring operators to manually copy raw entity attributes from Developer Tools.
 

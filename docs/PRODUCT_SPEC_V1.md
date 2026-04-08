@@ -2,7 +2,7 @@
 
 ## Product statement
 
-Zero Net Export is evolving from a Home Assistant custom integration / mini app into an **app-first Home Assistant energy control product**: a custom integration backend paired with a **panel-style operator app** that keeps grid export near a configured target, ideally **0 W**, using battery-aware logic and controllable loads.
+Zero Net Export is a Home Assistant custom integration that keeps grid export near a configured target, ideally **0 W**, using battery-aware logic and controllable loads.
 
 ## Product goals
 
@@ -11,18 +11,17 @@ Zero Net Export is evolving from a Home Assistant custom integration / mini app 
 - keep operator control and visibility high
 - validate source entities before acting
 - explain every control decision
-- expose a useful dashboard and control surface inside Home Assistant
-- evolve toward an app-first operator experience rather than a form-first integration workflow
-- support a guided setup flow that reduces reliance on raw JSON and YAML for normal operators
-- stabilize installation so the integration does not negatively affect the wider Home Assistant UI
+- make native Home Assistant surfaces sufficient for setup and troubleshooting
+- support guided setup with minimal reliance on raw YAML and only limited JSON where still necessary
+- keep installation stable so the integration does not negatively affect the wider Home Assistant UI
 
 ## Non-goals for v1
 
 - full forecasting optimization
 - deep tariff arbitrage
 - vendor-specific inverter control integrations beyond generic abstractions
-- reverting to a devices/forms-first UX as the intended final product experience
-- full standalone add-on rewrite before proving the chosen panel-app path
+- reintroducing a custom sidebar/panel route as the supported setup UX
+- full standalone add-on rewrite
 
 ## Core user stories
 
@@ -32,6 +31,7 @@ Zero Net Export is evolving from a Home Assistant custom integration / mini app 
 4. As an operator, I want to know why the controller turned something on or off.
 5. As an operator, I want warnings when the mapped energy sources do not reconcile.
 6. As an operator, I want to disable or override devices manually.
+7. As an operator, I want normal setup to succeed through Home Assistant's built-in Configure path.
 
 ## Primary modes
 
@@ -72,14 +72,15 @@ Zero Net Export is evolving from a Home Assistant custom integration / mini app 
 - operator dashboard and status model
 - action explanation as a first-class feature
 - health and mismatch reporting
+- native Home Assistant setup/troubleshooting path
 
 ## MVP deliverables
 
 - bootstrap-only config flow for fast entry creation
-- panel-first source mapping and onboarding workflow after entry creation
+- native Configure workflow for source mapping and managed devices
 - source validation and confidence model
 - controller with fixed + variable loads
 - mode select + target export setting
 - explanation / status sensors
-- simple dashboard view / panel definition
+- native diagnostics/support surfaces inside Home Assistant
 - daily action/reporting skeleton

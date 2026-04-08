@@ -15,10 +15,10 @@ If you are progressing the project right now, do this in order:
    - save managed devices in Configure
    - confirm readiness moves from installed -> mapped -> operational
 3. Use at least one real controllable device and verify a real control loop decision/action path.
-4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without depending on `/zero-net-export`.
+4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel handoff.
 5. If the install is good, package the result as the next release. If not, capture the exact failure surface and fix that before doing more UX expansion.
 
-This is the current highest-value path because native onboarding must now succeed cleanly even when the custom panel route is missing or unreliable.
+This is the current highest-value path because native onboarding is now the supported product path.
 
 ## Pre-Installation Checks
 
@@ -176,11 +176,10 @@ This is the current highest-value path because native onboarding must now succee
 - [ ] Failed actions today resets daily
 - [ ] Energy redirected today estimates correctly
 
-## Dashboard Validation
+## Dashboard / Native Surface Validation
 
-- [ ] Zero Net Export panel opens from the Home Assistant sidebar without a websocket/bootstrap error
-- [ ] Setup tab loads available source entities and ranked source suggestions
-- [ ] Devices tab loads available device entities and guided entity suggestions
+- [ ] Configure opens and saves without any custom panel handoff
+- [ ] Device-page diagnostic buttons create the expected native notifications
 - [ ] Lovelace YAML imports without errors
 - [ ] All entity IDs resolve to real entities
 - [ ] Controller controls persist across reloads

@@ -1,111 +1,48 @@
-# Panel-App Rebuild Plan
+# Native Home Assistant Operator Plan
 
-## Why this rebuild exists
+## Status
 
-The current backend logic is valuable, but the current delivery shape is too integration-centric for the intended operator experience.
+The custom Zero Net Export panel route has been removed.
 
-Observed problems:
-- install/runtime polish issues need tightening
-- the current setup experience is too dependent on Devices & Services forms
-- the original device configuration experience was poor and not acceptable as the long-term product UX
-- raw JSON device inventory editing is too fragile and too technical for normal operation
-- the operator experience feels like a collection of entities and YAML instead of a coherent app
-- the product should feel closer to an in-Home-Assistant app or control center
+The project now treats these as the supported operator surfaces:
+- Home Assistant **Configure** flow for source mapping, managed devices, and controller tuning
+- integration device page entities/buttons for diagnostics and setup guidance
+- optional Lovelace/dashboard examples as fallback operator views
 
-## Chosen product direction
+## Why the direction changed
 
-Zero Net Export is now explicitly committed to a:
+Real installs showed that the sidebar/custom-panel route added packaging, routing, and reliability risk without being required for the core product outcome. The next major milestone is to make the native Home Assistant path boring, reliable, and easy to validate.
 
-- **custom integration backend** for runtime state, validation, planning, and execution
-- **custom panel frontend** as the primary operator product surface for onboarding, control, diagnostics, and workflow
+## Current goals
 
-This preserves the backend work already completed while replacing the operator-facing UX with an app-like experience. The panel app is the chosen path; a full standalone add-on rewrite is not the current target.
-
-## New goals
-
-1. Stabilize install/runtime behavior in Home Assistant
-2. Prevent the integration from negatively affecting broader HA UI rendering
-3. Replace the current integration-first operator workflow with a panel-first workflow
-4. Deliver a comprehensive UI for setup, configuration, operation, and diagnostics
-5. Keep setup guided and visual instead of JSON-heavy wherever possible
-6. Replace poor device configuration UX with a first-class device onboarding and management experience
-7. Preserve explainability, source validation, and safe control behavior
-8. Maintain release discipline while the rebuild is underway
+1. Keep install and reload behavior stable in real Home Assistant environments
+2. Make **Configure** the single supported setup/configuration path
+3. Keep diagnostics and support snapshots reachable from native HA surfaces
+4. Reduce dependence on custom frontend code for core operator workflows
+5. Preserve release discipline and validation proof in real installs
 
 ## What stays
 
-Keep these backend pieces:
 - source mapping and validation engine
-- confidence / mismatch / stale-data logic
-- device model and adapters
-- planner and control policy logic
-- guarded executor
+- controller/planner/runtime logic
+- device inventory model and guards
 - diagnostics export and action history
-- persisted runtime state
+- native device-page diagnostic buttons
+- Lovelace/dashboard examples where useful
 
-## What changes
+## What was removed from scope
 
-Replace or significantly reduce reliance on:
-- config-entry-first setup as the primary operator path
-- plain Lovelace YAML as the main product UI
-- raw JSON device inventory as the main operator configuration tool
+- custom sidebar panel registration
+- `/zero-net-export` routing as a supported setup path
+- custom panel launcher/fallback pages
+- panel-first product positioning in active planning docs
 
-Add / rebuild:
-- panel route and panel frontend
-- guided setup wizard
-- guided device onboarding
-- full device management UI (edit, enable/disable, priority, capabilities, constraints, runtime limits)
-- source-mapping UI with inline validation
-- operator dashboard optimized for daily use
-- diagnostics / history / explanation views inside the panel
-- explicit setup-readiness / next-step guidance inside the panel so onboarding blockers are visible without reading raw backend state
-- clear separation between onboarding, live operations, warnings, and advanced settings
+## Near-term completion criteria
 
-## Phases
-
-### Phase 1 — Stabilization
-- remove risky manifest/icon behavior
-- verify HA install does not break broader UI
-- fix runtime compatibility issues revealed by real install
-- keep HACS/manual install path working
-
-### Phase 2 — App shell
-- create panel registration ✅ first sidebar panel registered
-- establish frontend asset structure ✅ frontend bundle now ships under the integration
-- define backend-to-panel API or websocket contract ✅ initial websocket bootstrap via `zero_net_export/panel/get_state`
-- use `docs/PANEL_APP_TECHNICAL_DESIGN.md` as the panel-shell implementation blueprint
-- ship first panel shell with placeholder sections ✅ Overview / Setup / Devices / Diagnostics / Settings shell delivered
-
-### Phase 3 — Guided setup
-- source role mapping UI ✅ first Setup-tab source mapping editor now saves validated source entities and refresh interval
-- guided source suggestions ✅ Setup now ranks likely sensors for each source role so operators can map common solar/grid/home/battery entities faster from the panel
-- validation feedback in-panel ✅ source mapping saves are blocked on the same validation engine used by config flow
-- operator-safe defaults
-- options editing without raw JSON as the primary path ✅ for source mapping and normal device inventory changes
-- guided device onboarding wizard with templates for fixed and variable devices ✅ first device editor now supports fixed/variable templates with entity suggestions
-- human-friendly editing for device constraints, priorities, and safety settings ✅ first structured form fields now cover normal device constraints and safety timings
-
-### Phase 4 — Operator workflow
-- live overview
-- controller mode/target controls ✅ first runtime control mutations now available in-panel
-- managed device list ✅ runtime overrides plus structured add/edit/remove management now available in-panel
-- rich device detail pages or panels
-- warnings and diagnostics ✅ panel diagnostics now surfaces health, mapped-source issues, and stale-data context
-- action history / explanation timeline ✅ recent action history and per-device planned-action / guard / result explanations now surface in-panel
-- comprehensive settings views for controller, sources, devices, and health state ✅ first settings/release surface now shows configured defaults, fleet health, workflow guidance, and support links in-panel
-- panel-native support/export summary ✅ Settings now provides a copyable support snapshot for Discord and issue triage during real-install validation
-
-### Phase 5 — Completion
-- confirm panel is the primary operator surface
-- keep backend entities for automation and power users
-- update docs and release notes to reflect app-first delivery
-
-## Completion criteria
-
-The rebuild can be considered complete when:
-- install no longer causes broader HA UI regressions
-- a usable panel exists in Home Assistant sidebar/navigation
-- source setup and device setup can be completed through the app surface
-- device management is comprehensive enough that operators do not need to edit raw JSON for normal use
-- operator workflow no longer depends on raw YAML or JSON-first interaction
-- docs and release notes reflect the new app-first product shape
+The current native-surface pivot is successful when:
+- a fresh install can be completed through **Add Integration** plus **Configure**
+- required source mapping works entirely in Configure
+- managed devices can be persisted through Configure
+- controller tuning works through Configure/native entities
+- setup checklist and support snapshot remain reachable from the device page
+- release notes and validation docs all describe the same native-first path

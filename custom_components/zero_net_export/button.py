@@ -7,8 +7,11 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
-from .panel import build_native_operator_readiness, build_native_support_snapshot
-from .panel_paths import panel_setup_path
+from .native_support import (
+    PRIMARY_CONFIGURE_PATH,
+    build_native_operator_readiness,
+    build_native_support_snapshot,
+)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -54,7 +57,7 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
     @property
     def extra_state_attributes(self):
         return {
-            "panel_path": panel_setup_path(self.coordinator.entry),
+            "configure_path": PRIMARY_CONFIGURE_PATH,
             "diagnostic_summary": self.coordinator.data.diagnostic_summary,
             "health_summary": self.coordinator.data.health_summary,
         }
@@ -63,9 +66,8 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
         snapshot = build_native_support_snapshot(self.coordinator)
         message = (
             "Native Zero Net Export diagnostics snapshot\n\n"
-            "This is intended for the Home Assistant device page, Scripts, and button.press automations so diagnostics stay reachable without depending on the custom panel route.\n\n"
-            "Primary setup path: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure\n"
-            f"Optional panel path: {panel_setup_path(self.coordinator.entry)}\n\n"
+            "This is intended for the Home Assistant device page, Scripts, and button.press automations so diagnostics stay reachable from native Home Assistant surfaces.\n\n"
+            f"Primary setup path: {PRIMARY_CONFIGURE_PATH}\n\n"
             f"```\n{snapshot}\n```"
         )
         persistent_notification.async_create(
@@ -86,7 +88,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
     def extra_state_attributes(self):
         readiness = build_native_operator_readiness(self.coordinator)
         return {
-            "panel_path": panel_setup_path(self.coordinator.entry),
+            "configure_path": PRIMARY_CONFIGURE_PATH,
             "diagnostic_summary": self.coordinator.data.diagnostic_summary,
             "source_mismatch": self.coordinator.data.source_mismatch,
             "stale_data": self.coordinator.data.stale_data,
@@ -105,8 +107,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 "Zero Net Export native setup checklist",
                 "",
                 f"Entry: {self.coordinator.entry.title}",
-                "Primary setup path: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure",
-                f"Optional panel path: {panel_setup_path(self.coordinator.entry)}",
+                f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
                 f"Summary: {readiness.get('summary') or self.coordinator.data.health_summary}",
                 f"Next step: {readiness.get('next_step') or self.coordinator.data.recommendation}",
