@@ -60,7 +60,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
 - **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live in the integration's Configure flow.
-- **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, with raw JSON kept as an advanced recovery path instead of the default operator experience.
+- **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, plus guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, with raw JSON kept as an advanced recovery path instead of the default operator experience.
 - **Operator Dashboard / native HA surfaces**: first-class operator and fallback surfaces for real-world installs.
 - **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 - **Native Repairs guidance**: Home Assistant's Repairs surface now flags incomplete setup, invalid managed-device inventory, and runtime attention states with actionable next steps.

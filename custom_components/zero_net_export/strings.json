@@ -84,9 +84,16 @@
           "device_key": "Configured device"
         }
       },
+      "device_template": {
+        "title": "Choose managed-device preset",
+        "description": "Start this {device_kind} from a preset so common Home Assistant loads get safer defaults without dropping into raw JSON.\n\nAvailable presets:\n{template_summary}",
+        "data": {
+          "device_template": "Preset"
+        }
+      },
       "device_add": {
         "title": "{device_mode} managed device",
-        "description": "{device_mode} a {device_kind} through native Home Assistant selectors. This keeps day-to-day device management out of raw JSON while staying panel-free.\n\nPrimary path: {configure_path}.",
+        "description": "{device_mode} a {device_kind} through native Home Assistant selectors. This keeps day-to-day device management out of raw JSON while staying panel-free.\n\nPreset: {device_template}\n{template_description}\n\nPrimary path: {configure_path}.",
         "data": {
           "name": "Device name",
           "entity_id": "Entity",

@@ -6,6 +6,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.57] - 2026-04-08
+
+### Added
+- Added a native managed-device preset picker before the add-device form, so common Home Assistant loads can start from safer defaults instead of every operator rebuilding timings and power settings from scratch.
+- Shipped built-in presets for generic fixed/variable loads plus hot water, pool pump, smart plug, EV charger, and battery charge sink workflows.
+
+### Changed
+- The native add-device form now shows which preset seeded the defaults, keeping the Configure workspace more coherent for larger mixed-device fleets while still allowing manual edits before save.
+- Integration version advanced to `0.1.57` for the native managed-device preset pass.
+
 ## [0.1.56] - 2026-04-08
 
 ### Added

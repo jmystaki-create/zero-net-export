@@ -31,6 +31,17 @@ class DeviceAdapterSpec:
     description: str
 
 
+@dataclass(frozen=True, slots=True)
+class DeviceTemplate:
+    """Preset defaults for common operator device workflows."""
+
+    key: str
+    label: str
+    kind: str
+    description: str
+    defaults: dict[str, Any]
+
+
 ADAPTER_SPECS: dict[str, DeviceAdapterSpec] = {
     ADAPTER_FIXED_TOGGLE: DeviceAdapterSpec(
         key=ADAPTER_FIXED_TOGGLE,
@@ -107,6 +118,148 @@ class DeviceModelSummary:
     variable_devices: int
     total_nominal_power_w: float
     usable_nominal_power_w: float
+
+
+DEVICE_TEMPLATES: dict[str, tuple[DeviceTemplate, ...]] = {
+    DEVICE_KIND_FIXED: (
+        DeviceTemplate(
+            key="generic_fixed",
+            label="Generic fixed load",
+            kind=DEVICE_KIND_FIXED,
+            description="A simple on or off load such as a relay-controlled heater or element.",
+            defaults={
+                "name": "Fixed Load",
+                "nominal_power_w": 2400,
+                "priority": 100,
+                "enabled": True,
+                "min_on_seconds": 900,
+                "min_off_seconds": 900,
+                "cooldown_seconds": 60,
+                "max_active_seconds": 14400,
+            },
+        ),
+        DeviceTemplate(
+            key="hot_water",
+            label="Hot water element",
+            kind=DEVICE_KIND_FIXED,
+            description="Good for resistive hot-water loads that should avoid short cycling.",
+            defaults={
+                "name": "Hot Water",
+                "nominal_power_w": 2400,
+                "priority": 120,
+                "enabled": True,
+                "min_on_seconds": 1800,
+                "min_off_seconds": 1800,
+                "cooldown_seconds": 120,
+                "max_active_seconds": 14400,
+            },
+        ),
+        DeviceTemplate(
+            key="pool_pump",
+            label="Pool pump",
+            kind=DEVICE_KIND_FIXED,
+            description="A steady fixed load that usually wants longer run windows and fewer toggles.",
+            defaults={
+                "name": "Pool Pump",
+                "nominal_power_w": 1100,
+                "priority": 90,
+                "enabled": True,
+                "min_on_seconds": 1800,
+                "min_off_seconds": 900,
+                "cooldown_seconds": 120,
+                "max_active_seconds": 21600,
+            },
+        ),
+        DeviceTemplate(
+            key="smart_plug",
+            label="Smart plug dump load",
+            kind=DEVICE_KIND_FIXED,
+            description="A small discretionary plug load for simple solar soak experiments.",
+            defaults={
+                "name": "Smart Plug Load",
+                "nominal_power_w": 300,
+                "priority": 70,
+                "enabled": True,
+                "min_on_seconds": 300,
+                "min_off_seconds": 300,
+                "cooldown_seconds": 30,
+                "max_active_seconds": 7200,
+            },
+        ),
+    ),
+    DEVICE_KIND_VARIABLE: (
+        DeviceTemplate(
+            key="generic_variable",
+            label="Generic variable load",
+            kind=DEVICE_KIND_VARIABLE,
+            description="A number entity that accepts a controllable power target.",
+            defaults={
+                "name": "Variable Load",
+                "nominal_power_w": 3600,
+                "priority": 80,
+                "enabled": True,
+                "min_on_seconds": 300,
+                "min_off_seconds": 60,
+                "cooldown_seconds": 30,
+                "max_active_seconds": 28800,
+                "min_power_w": 1400,
+                "max_power_w": 7200,
+                "step_w": 100,
+            },
+        ),
+        DeviceTemplate(
+            key="ev_charger",
+            label="EV charger current limit",
+            kind=DEVICE_KIND_VARIABLE,
+            description="For EV chargers exposed through a number or input_number current or power limit.",
+            defaults={
+                "name": "EV Charger",
+                "nominal_power_w": 7200,
+                "priority": 50,
+                "enabled": True,
+                "min_on_seconds": 600,
+                "min_off_seconds": 120,
+                "cooldown_seconds": 30,
+                "max_active_seconds": 43200,
+                "min_power_w": 1400,
+                "max_power_w": 7200,
+                "step_w": 100,
+            },
+        ),
+        DeviceTemplate(
+            key="battery_charge_sink",
+            label="Battery charge sink",
+            kind=DEVICE_KIND_VARIABLE,
+            description="For integrations that expose a safe number-based charge limit or sink target.",
+            defaults={
+                "name": "Battery Charge Sink",
+                "nominal_power_w": 5000,
+                "priority": 60,
+                "enabled": True,
+                "min_on_seconds": 300,
+                "min_off_seconds": 60,
+                "cooldown_seconds": 15,
+                "max_active_seconds": 43200,
+                "min_power_w": 500,
+                "max_power_w": 5000,
+                "step_w": 100,
+            },
+        ),
+    ),
+}
+
+
+def get_device_templates(kind: str) -> tuple[DeviceTemplate, ...]:
+    return DEVICE_TEMPLATES.get(kind, ())
+
+
+def get_device_template(kind: str, key: str | None) -> DeviceTemplate | None:
+    if not key:
+        return None
+    for template in get_device_templates(kind):
+        if template.key == key:
+            return template
+    return None
 
 
 def default_device_blueprint() -> str:

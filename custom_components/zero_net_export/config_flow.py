@@ -43,6 +43,8 @@ from .device_model import (
     DEVICE_KIND_FIXED,
     DEVICE_KIND_VARIABLE,
     default_device_blueprint,
+    get_device_template,
+    get_device_templates,
     parse_device_configs,
 )
 from .native_support import PRIMARY_CONFIGURE_PATH, _source_specs_from_config
@@ -144,6 +146,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._config_entry = config_entry
         self._pending_device_kind: str | None = None
         self._pending_device_key: str | None = None
+        self._pending_device_template_key: str | None = None
 
     def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
         raw_inventory = _entry_default_text(
@@ -209,36 +212,46 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return payload
 
     @staticmethod
-    def _device_form_defaults(device: dict[str, Any] | None, kind: str) -> dict[str, Any]:
-        if device is None:
-            return {
-                "name": "",
-                "entity_id": "",
-                "nominal_power_w": 2400 if kind == DEVICE_KIND_FIXED else 3600,
-                "priority": 100,
-                "enabled": True,
-                "min_on_seconds": 900 if kind == DEVICE_KIND_FIXED else 300,
-                "min_off_seconds": 900 if kind == DEVICE_KIND_FIXED else 60,
-                "cooldown_seconds": 60 if kind == DEVICE_KIND_FIXED else 30,
-                "max_active_seconds": 14400 if kind == DEVICE_KIND_FIXED else 28800,
-                "min_power_w": 1400,
-                "max_power_w": 7200,
-                "step_w": 100,
-            }
-        return {
-            "name": device.get("name", ""),
-            "entity_id": device.get("entity_id", ""),
-            "nominal_power_w": device.get("nominal_power_w", 2400 if kind == DEVICE_KIND_FIXED else 3600),
-            "priority": device.get("priority", 100),
-            "enabled": device.get("enabled", True),
-            "min_on_seconds": device.get("min_on_seconds", 900 if kind == DEVICE_KIND_FIXED else 300),
-            "min_off_seconds": device.get("min_off_seconds", 900 if kind == DEVICE_KIND_FIXED else 60),
-            "cooldown_seconds": device.get("cooldown_seconds", 60 if kind == DEVICE_KIND_FIXED else 30),
-            "max_active_seconds": device.get("max_active_seconds") or 0,
-            "min_power_w": device.get("min_power_w", 1400),
-            "max_power_w": device.get("max_power_w", 7200),
-            "step_w": device.get("step_w", 100),
+    def _device_form_defaults(
+        device: dict[str, Any] | None,
+        kind: str,
+        template_defaults: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        defaults = {
+            "name": "",
+            "entity_id": "",
+            "nominal_power_w": 2400 if kind == DEVICE_KIND_FIXED else 3600,
+            "priority": 100,
+            "enabled": True,
+            "min_on_seconds": 900 if kind == DEVICE_KIND_FIXED else 300,
+            "min_off_seconds": 900 if kind == DEVICE_KIND_FIXED else 60,
+            "cooldown_seconds": 60 if kind == DEVICE_KIND_FIXED else 30,
+            "max_active_seconds": 14400 if kind == DEVICE_KIND_FIXED else 28800,
+            "min_power_w": 1400,
+            "max_power_w": 7200,
+            "step_w": 100,
         }
+        if template_defaults:
+            defaults.update(template_defaults)
+        if device is None:
+            return defaults
+        defaults.update(
+            {
+                "name": device.get("name", defaults["name"]),
+                "entity_id": device.get("entity_id", defaults["entity_id"]),
+                "nominal_power_w": device.get("nominal_power_w", defaults["nominal_power_w"]),
+                "priority": device.get("priority", defaults["priority"]),
+                "enabled": device.get("enabled", defaults["enabled"]),
+                "min_on_seconds": device.get("min_on_seconds", defaults["min_on_seconds"]),
+                "min_off_seconds": device.get("min_off_seconds", defaults["min_off_seconds"]),
+                "cooldown_seconds": device.get("cooldown_seconds", defaults["cooldown_seconds"]),
+                "max_active_seconds": device.get("max_active_seconds") or 0,
+                "min_power_w": device.get("min_power_w", defaults["min_power_w"]),
+                "max_power_w": device.get("max_power_w", defaults["max_power_w"]),
+                "step_w": device.get("step_w", defaults["step_w"]),
+            }
+        )
+        return defaults
 
     async def async_step_init(self, user_input=None):
         return self.async_show_menu(
@@ -385,11 +398,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if choice == "add_fixed":
                 self._pending_device_kind = DEVICE_KIND_FIXED
                 self._pending_device_key = None
-                return await self.async_step_device_add()
+                self._pending_device_template_key = None
+                return await self.async_step_device_template()
             if choice == "add_variable":
                 self._pending_device_kind = DEVICE_KIND_VARIABLE
                 self._pending_device_key = None
-                return await self.async_step_device_add()
+                self._pending_device_template_key = None
+                return await self.async_step_device_template()
             if choice == "edit" and devices:
                 return await self.async_step_device_edit_pick()
             if choice == "remove" and devices:
@@ -424,6 +439,38 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             },
         )
 
+    async def async_step_device_template(self, user_input=None):
+        kind = self._pending_device_kind or DEVICE_KIND_FIXED
+        templates = get_device_templates(kind)
+        if user_input is not None:
+            self._pending_device_template_key = user_input.get("device_template")
+            return await self.async_step_device_add()
+
+        options = [
+            selector.SelectOptionDict(value=template.key, label=template.label)
+            for template in templates
+        ]
+        return self.async_show_form(
+            step_id="device_template",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "device_template",
+                        default=self._pending_device_template_key or (templates[0].key if templates else ""),
+                    ): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=options, mode=selector.SelectSelectorMode.LIST)
+                    )
+                }
+            ),
+            errors={},
+            description_placeholders={
+                "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "template_summary": "\n".join(
+                    f"- {template.label}: {template.description}" for template in templates
+                ),
+            },
+        )
+
     async def async_step_device_add(self, user_input=None):
         errors: dict[str, str] = {}
         kind = self._pending_device_kind or DEVICE_KIND_FIXED
@@ -447,9 +494,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 errors["base"] = "device_inventory_invalid"
             else:
                 self._pending_device_key = None
+                self._pending_device_template_key = None
                 return await self._save_devices(candidate_devices)
 
-        defaults = self._device_form_defaults(existing_device, kind)
+        selected_template = get_device_template(kind, self._pending_device_template_key)
+        defaults = self._device_form_defaults(
+            existing_device,
+            kind,
+            template_defaults=selected_template.defaults if selected_template and not editing_key else None,
+        )
         entity_domain = ["switch", "input_boolean"] if kind == DEVICE_KIND_FIXED else ["number", "input_number"]
         schema_dict: dict[Any, Any] = {
             vol.Required("name", default=defaults["name"]): selector.TextSelector(
@@ -501,6 +554,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "device_mode": "Edit" if editing_key else "Add",
+                "device_template": selected_template.label if selected_template else "Custom",
+                "template_description": selected_template.description if selected_template else "Use manual values for this device.",
             },
         )
 
@@ -513,6 +568,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_devices()
             self._pending_device_key = selected_key
             self._pending_device_kind = str(selected_device.get("kind", DEVICE_KIND_FIXED))
+            self._pending_device_template_key = None
             return await self.async_step_device_add()
 
         options = [
