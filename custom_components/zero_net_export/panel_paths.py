@@ -7,7 +7,6 @@ from homeassistant.config_entries import ConfigEntry
 
 
 PANEL_ROUTE = "/zero-net-export"
-PANEL_LAUNCHER_ROUTE = "/api/zero_net_export/panel-launch.html"
 
 
 def panel_setup_path(entry: ConfigEntry | None = None, *, source: str | None = None) -> str:
@@ -21,6 +20,10 @@ def panel_setup_path(entry: ConfigEntry | None = None, *, source: str | None = N
 
 
 def panel_launcher_path(entry: ConfigEntry | None = None, *, source: str | None = None) -> str:
-    """Return a same-origin launcher page that redirects into the panel route."""
-    target = panel_setup_path(entry, source=source)
-    return f"{PANEL_LAUNCHER_ROUTE}?{urlencode({'target': target})}"
+    """Return the direct in-app setup route.
+
+    Older builds used a launcher HTML trampoline here, but Home Assistant can treat
+    that as an external-site handoff on some clients. Returning the real panel route
+    keeps Configure -> setup inside Home Assistant.
+    """
+    return panel_setup_path(entry, source=source)

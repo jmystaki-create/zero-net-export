@@ -7,6 +7,13 @@ const PANEL_UPDATE_DEVICE = 'zero_net_export/panel/update_device';
 const PANEL_DELETE_DEVICE = 'zero_net_export/panel/delete_device';
 const PANEL_RESET_DEVICE = 'zero_net_export/panel/reset_device_overrides';
 const TABS = ['overview', 'setup', 'devices', 'diagnostics', 'settings'];
+const TAB_LABELS = {
+  overview: 'Overview',
+  setup: 'Setup',
+  devices: 'Devices',
+  diagnostics: 'Diagnostics',
+  settings: 'Settings',
+};
 const DEVICE_KINDS = [
   { value: 'fixed', label: 'Fixed Load' },
   { value: 'variable', label: 'Variable Load' },
@@ -1712,7 +1719,7 @@ class ZeroNetExportPanel extends HTMLElement {
 
   _render() {
     const tabs = TABS.map((tab) => `
-      <button class="tab ${this._activeTab === tab ? 'active' : ''}" data-tab="${tab}">${tab}</button>
+      <button class="tab ${this._activeTab === tab ? 'active' : ''}" data-tab="${tab}">${TAB_LABELS[tab] || tab}</button>
     `).join('');
     const entryOptions = (this._state?.entries || [])
       .map((entry) => `<option value="${this._escapeAttr(entry.entry_id)}" ${this._entryId() === entry.entry_id ? 'selected' : ''}>${this._escapeHtml(entry.title || entry.entry_id)}</option>`)

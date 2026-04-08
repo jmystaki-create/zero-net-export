@@ -11,6 +11,8 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Changed
 - Clarified in the README that the highest-value next step is a real Home Assistant validation pass followed by a release, not more speculative UI churn.
+- Simplified the Configure -> setup handoff path back to the real `/zero-net-export?...` panel route instead of the launcher trampoline, because the launcher was triggering bad `open website` UX on real clients and its iframe fallback was visibly failing with a 404.
+- Normalized the panel tab labels so **Diagnostics** is surfaced with a clean operator-facing label instead of a lowercase internal tab key.
 
 ## [0.1.48] - 2026-04-07
 
