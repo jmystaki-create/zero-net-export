@@ -1,5 +1,7 @@
 # Implementation Plan
 
+> Supervisor note: `docs/SUPERVISOR.md` is now the active steering layer for current goals, risk/gap tracking, release gates, and the next-action queue. This file remains the implementation history and phase trail.
+
 ## Phase 1 — Spec and scaffold
 - create repo scaffold
 - freeze v1 product scope
@@ -83,3 +85,7 @@
 - tariff-aware strategy
 - direct inverter/export-limiter adapters
 - richer analytics UI
+
+## Current execution note
+
+If this file and `docs/SUPERVISOR.md` appear to disagree, follow the supervisor document for what should happen next and use this file to understand how the repo got here.

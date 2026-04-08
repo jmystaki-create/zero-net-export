@@ -119,6 +119,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 | Document | Description |
 | :--- | :--- |
+| [Supervisor](docs/SUPERVISOR.md) | Active steering layer: product state, gaps, release gates, and next actions |
 | [Architecture](docs/ARCHITECTURE.md) | System design and component overview |
 | [Control Loop](docs/CONTROL_LOOP.md) | How the optimization logic works |
 | [Native Surface Plan](docs/PANEL_APP_REBUILD_PLAN.md) | Current native-first operator direction |
@@ -147,6 +148,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 ## 🚧 Development Status
 
 The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The HA-first direction is correct, but the shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and larger heterogeneous fleets still need more real-world validation.
+
+The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). It is the source of truth for the current product state, gap register, release gates, and prioritized next actions.
 
 **Current highest-value next step:** keep validating the shipped native Configure workflow in real Home Assistant installs, then convert confirmed friction into targeted releases instead of widening scope.
 

@@ -2,6 +2,8 @@
 
 This document describes how Zero Net Export releases are managed.
 
+This process is downstream of `docs/SUPERVISOR.md`. If the supervisor release gates are not met, the release should be treated as not ready even if packaging steps are mechanically complete.
+
 ## Goals
 
 - Keep `manifest.json` version aligned with the current intended release version.

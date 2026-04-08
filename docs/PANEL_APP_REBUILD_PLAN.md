@@ -1,5 +1,7 @@
 # Native Home Assistant Operator Plan
 
+> Steering note: this document explains the native-HA-first direction. `docs/SUPERVISOR.md` is now the active steering layer for current goals, risks, release gates, and next actions.
+
 ## Status
 
 The custom Zero Net Export panel route has been removed.

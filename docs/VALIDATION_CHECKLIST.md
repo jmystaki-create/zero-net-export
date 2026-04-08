@@ -2,6 +2,8 @@
 
 Use this checklist to validate Zero Net Export in a real Home Assistant environment before considering v1 complete.
 
+Supervisor note: this document is the evidence ledger for the release gates defined in `docs/SUPERVISOR.md`.
+
 ## Recommended next validation run
 
 If you are progressing the project right now, do this in order:
@@ -281,4 +283,4 @@ This is the current highest-value path because native onboarding is now the supp
 
 ---
 
-**Note:** This checklist should be completed at least once on a real Home Assistant installation before marking v1 complete. The supervisor cron job can be disabled once validation confirms the project meets all MVP deliverables.
+**Note:** This checklist should be completed at least once on a real Home Assistant installation before marking v1 complete. Treat the associated release as blocked until the supervisor release gates in `docs/SUPERVISOR.md` are satisfied.
