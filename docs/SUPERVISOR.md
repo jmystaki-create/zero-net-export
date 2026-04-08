@@ -2,7 +2,7 @@
 
 This is the active steering layer for Zero Net Export.
 
-Use this document to decide what the project should do next, what is currently blocking release confidence, and what must be true before calling the native-HA-first operator experience ready.
+Use this document to decide what the project should do next, what is currently blocking release confidence, and what must be true before calling the native-HA-only operator experience ready.
 
 Supporting detail lives in the spec, implementation, validation, and release docs. This file is the place that turns those into a current operating stance.
 
@@ -15,7 +15,7 @@ Zero Net Export is in **late stabilization and native-surface consolidation**.
 What is already true:
 - the control engine, guard layer, explainability, and diagnostics model are substantially built
 - the custom panel route has been removed from the shipped product
-- the intended operator path is now native Home Assistant: bootstrap install, then Configure for setup and tuning
+- the only supported operator path is now native Home Assistant integration/device surfaces: bootstrap install, then Configure for setup and tuning, plus the integration device page, entities, notifications, and Repairs for troubleshooting
 - managed-device onboarding now has native add/edit/remove flows plus presets and fleet review
 - support center, setup checklist, support snapshot, and Repairs guidance now exist as real native HA support surfaces
 
@@ -33,7 +33,7 @@ That means:
 1. fix confirmed friction before expanding scope
 2. treat real-install evidence as the primary roadmap signal
 3. keep shrinking the gap between the intended native workflow and the actually shipped package
-4. avoid reintroducing custom frontend complexity unless native HA proves insufficient
+4. do not reintroduce any supported custom frontend, sidebar, panel, or external UI path unless project direction is explicitly re-decided with fresh evidence
 
 ## Current goals
 
@@ -56,7 +56,7 @@ That means:
 
 ## Acceptance criteria
 
-The current native-HA-first release line is acceptable when all of the following are true:
+The current native-HA-only release line is acceptable when all of the following are true:
 
 ### A. Operator workflow acceptance
 - a fresh install can be completed through Add Integration plus Configure
@@ -121,6 +121,6 @@ When deciding what to do next:
 
 - Product scope: `docs/PRODUCT_SPEC_V1.md`
 - Current implementation trail: `docs/IMPLEMENTATION_PLAN.md`
-- Native operator direction: `docs/PANEL_APP_REBUILD_PLAN.md`
+- Native operator direction: `docs/NATIVE_OPERATOR_PLAN.md`
 - Validation proof: `docs/VALIDATION_CHECKLIST.md`
 - Release discipline: `docs/RELEASE_PROCESS.md`

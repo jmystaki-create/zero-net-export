@@ -1,10 +1,10 @@
-# Dashboard Setup
+# Optional Lovelace Dashboard Setup
 
 This project now includes a first operator dashboard scaffold at:
 
 - `examples/lovelace/zero_net_export_dashboard.yaml`
 
-It is intentionally plain Lovelace YAML, not a custom frontend, so the integration can ship a useful operator surface before any bespoke panel work.
+It is intentionally plain Lovelace YAML, not a custom frontend. It exists as an optional fallback/debugging view inside Home Assistant, not as a separate supported product path.
 
 ## What this scaffold covers
 
@@ -43,7 +43,7 @@ Because of that, treat the example YAML as a scaffold:
 
 ## Runtime override behavior
 
-The controller cards are now intended to be used as a real operator surface, not just a read-only demo.
+The controller cards can be used as a practical fallback operator view, not just a read-only demo.
 
 From the dashboard:
 - the main **Enabled** switch persists across reloads
@@ -131,7 +131,7 @@ Per-device `active_runtime_today_seconds` is likewise operational telemetry deri
 
 The guarded planner and executor already produce explanation-rich state, but that state is hard to use until it is grouped into an operator-first control surface.
 
-This scaffold turns the current backend work into something installable and reviewable inside Home Assistant now, while leaving room for a richer future panel.
+This scaffold turns the current backend work into something installable and reviewable inside Home Assistant now, without creating a separate supported UI path beyond native Home Assistant surfaces.
 
 ## Troubleshooting support
 
@@ -147,7 +147,7 @@ Mapped entity ids, device entity ids, and operator-facing names are redacted in 
 
 ## Next likely dashboard step
 
-After this scaffold, the next useful UX increment is:
+After this scaffold, the next useful increment is:
 
 - a more compact action-history / failure timeline card once real installations show what operators actually watch most
-- optional packaged dashboard assets when the entity model stabilizes
+- optional packaged dashboard assets when the entity model stabilizes, still as Lovelace fallback assets rather than a separate UI product

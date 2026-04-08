@@ -18,10 +18,10 @@ If you are progressing the project right now, do this in order:
   - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational
 3. Use at least one real controllable device and verify a real control loop decision/action path.
-4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel handoff.
+4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel, sidebar, or external UI handoff.
 5. If the install is good, package the result as the next release. If not, capture the exact failure surface and fix that before doing more UX expansion.
 
-This is the current highest-value path because native onboarding is now the supported product path.
+This is the current highest-value path because native onboarding is now the only supported product path.
 
 ## Pre-Installation Checks
 
@@ -182,9 +182,9 @@ This is the current highest-value path because native onboarding is now the supp
 - [ ] Failed actions today resets daily
 - [ ] Energy redirected today estimates correctly
 
-## Dashboard / Native Surface Validation
+## Optional Lovelace / Native Surface Validation
 
-- [ ] Configure opens and saves without any custom panel handoff
+- [ ] Configure opens and saves without any custom panel, sidebar, or external UI handoff
 - [ ] Device-page diagnostic buttons create the expected native notifications
 - [ ] Lovelace YAML imports without errors
 - [ ] All entity IDs resolve to real entities

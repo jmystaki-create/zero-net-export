@@ -76,7 +76,7 @@ Treat these checks as mandatory before claiming a release is shipped:
 3. `git tag --sort=-creatordate` includes the new version tag.
 4. `git ls-remote --heads --tags origin` shows both the updated default branch commit and the new version tag on the remote.
 5. A GitHub Release exists for the same version tag if the repo is using release-based discovery/visibility.
-6. The packaged files on the remote include the intended onboarding/config-flow and frontend bundle changes.
+6. The packaged files on the remote include the intended onboarding/config-flow and native-surface documentation/runtime changes.
 
 If any of those checks fail, treat the release as **not yet user-visible**.
 

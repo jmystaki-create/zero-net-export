@@ -550,8 +550,8 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [0.1.1] - 2026-03-31
 
 ### Added
-- `docs/PANEL_APP_REBUILD_PLAN.md` defining the app-first rebuild strategy.
-- `docs/PANEL_APP_TECHNICAL_DESIGN.md` defining app sections, backend contract, and phased panel delivery.
+- `docs/NATIVE_OPERATOR_PLAN.md` defining the current native-operator direction (this later replaced the original app-first rebuild plan).
+- `docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md` defining the current native-surface backend contract (this later replaced the original panel-oriented design doc).
 - New project goals and implementation direction focused on a panel-style operator experience.
 - A 4-hour supervision direction for finishing the project against the new app-first goals.
 - Comprehensive UI goals covering setup, device management, operation, and diagnostics.

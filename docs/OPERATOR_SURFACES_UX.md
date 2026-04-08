@@ -1,14 +1,15 @@
-# Dashboard and UX
+# Operator Surfaces and UX
 
-## Primary dashboard / app goals
+## Primary operator-surface goals
 - show current energy picture clearly
 - show controller state clearly
 - show active decisions clearly
 - keep operator override simple
-- provide a comprehensive UI for setup, configuration, operation, and diagnostics
+- make native Home Assistant surfaces sufficient for setup, configuration, operation, and diagnostics
 - eliminate dependence on poor raw device configuration UX for normal operators
+- avoid any requirement for a separate custom or external UI
 
-## Main dashboard sections
+## Optional Lovelace fallback sections
 
 ### 1. Live Overview
 - solar now
@@ -60,15 +61,16 @@ For each device:
 
 ## Current scaffold status
 
-The shipped operator product now centers on native Home Assistant surfaces:
+The shipped operator product now uses only native Home Assistant surfaces:
 
 - Configure for source setup, managed devices, and controller tuning
 - integration device page buttons/entities for diagnostics and setup guidance
-- Lovelace/dashboard views for optional operator visibility
+- entities, notifications, automations/scripts, and Repairs for runtime and support workflows
+- Lovelace/dashboard views only for optional operator visibility inside Home Assistant
 
 The native setup path now publishes an explicit readiness phase, checklist, and recommended next step so operators can tell whether they are blocked on source mapping, source health, device onboarding, or runtime eligibility without mentally stitching together multiple diagnostics sections.
 
-The device inventory path is still JSON-backed today, but it is now intentionally framed as a native Configure workflow rather than a custom panel workflow.
+The device inventory path is still JSON-backed today, but it is now intentionally framed as a native Configure workflow rather than any custom panel or external workflow.
 
 The support snapshot remains available as a native device-page action that condenses release metadata, readiness, mapped-source health, configured-device state, and recent validation issues into one operator-facing text block for support and validation triage.
 
@@ -81,4 +83,4 @@ It currently provides:
 - fleet summary metrics
 - example fixed-load and variable-load device cards
 
-This plain YAML dashboard is now considered a fallback/debugging operator surface. The project direction has shifted toward reliable native Home Assistant setup and troubleshooting surfaces, with Lovelace retained as optional visibility rather than the primary setup path.
+This plain YAML dashboard is now considered a fallback/debugging operator surface. The project direction is explicitly native-only: reliable Home Assistant setup and troubleshooting surfaces are the supported UX, with Lovelace retained as optional visibility rather than a separate supported UI path.

@@ -80,11 +80,11 @@
 
 ## Phase 8 — Future enhancements
 - keep tightening native fleet management next, especially around polish, larger mixed-device installs, and any remaining cases that still push operators back into raw JSON
-- converge setup, diagnostics, and support into fewer operator surfaces as real-user feedback shows which notifications/entities remain redundant
+- converge setup, diagnostics, and support into fewer native operator surfaces as real-user feedback shows which notifications/entities remain redundant
 - forecast-aware optimization
 - tariff-aware strategy
 - direct inverter/export-limiter adapters
-- richer analytics UI
+- richer analytics within native Home Assistant surfaces or optional Lovelace assets, not a separate supported UI
 
 ## Current execution note
 

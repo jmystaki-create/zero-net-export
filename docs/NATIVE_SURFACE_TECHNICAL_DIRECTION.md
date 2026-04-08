@@ -2,7 +2,7 @@
 
 ## Current design decision
 
-Zero Net Export keeps the Home Assistant integration backend, but its supported operator UX now centers on native Home Assistant surfaces instead of a custom sidebar panel.
+Zero Net Export keeps the Home Assistant integration backend, and its supported operator UX is limited to native Home Assistant surfaces. There is no supported custom sidebar, custom panel, or external UI path.
 
 ## Supported surfaces
 
@@ -20,7 +20,7 @@ Primary troubleshooting path for:
 - normal entity/status inspection
 
 ### 3. Dashboard examples
-Optional fallback/operator views for people who want Lovelace visibility.
+Optional fallback/operator views for people who want Lovelace visibility inside Home Assistant. These are supplementary, not a separate supported product surface.
 
 ## Backend contract that still matters
 
@@ -39,4 +39,4 @@ The backend should continue to provide:
 
 ## Practical implication for future work
 
-If a workflow is required for normal install, setup, or troubleshooting, it should land in native Home Assistant surfaces first. Custom UI work is out of scope unless the project direction changes again with fresh evidence.
+If a workflow is required for normal install, setup, or troubleshooting, it should land in native Home Assistant surfaces. Custom UI work is out of scope unless the project direction changes again with fresh evidence.

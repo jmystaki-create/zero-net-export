@@ -11,7 +11,7 @@ Zero Net Export is a Home Assistant custom integration that keeps grid export ne
 - keep operator control and visibility high
 - validate source entities before acting
 - explain every control decision
-- make native Home Assistant surfaces sufficient for setup and troubleshooting
+- make native Home Assistant integration/device surfaces sufficient for setup and troubleshooting, with no supported UI outside Home Assistant
 - reduce operator exposure to raw inventory JSON, even if JSON-backed persistence still exists internally for now
 - keep installation stable so the integration does not negatively affect the wider Home Assistant UI
 - stay honest that real-world validation is still in progress and treat confirmed install/operator friction as the main release driver
@@ -29,7 +29,7 @@ The HA-first direction is correct, but the shipped implementation is still trans
 - full forecasting optimization
 - deep tariff arbitrage
 - vendor-specific inverter control integrations beyond generic abstractions
-- reintroducing a custom sidebar/panel route as the supported setup UX
+- reintroducing a custom sidebar/panel route or any external/custom UI as the supported setup UX
 - full standalone add-on rewrite
 
 ## Core user stories
@@ -80,7 +80,7 @@ The HA-first direction is correct, but the shipped implementation is still trans
 
 - source reconciliation and confidence scoring
 - explicit export-target control
-- operator dashboard and status model
+- operator status model and optional Lovelace fallback visibility
 - action explanation as a first-class feature
 - health and mismatch reporting
 - native Home Assistant setup/troubleshooting path
