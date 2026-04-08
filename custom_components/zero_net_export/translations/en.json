@@ -69,12 +69,19 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen as the main managed-device workspace. Add fixed or variable devices here first, and only drop into JSON editing for recovery or bulk changes.\n\nPrimary path: {configure_path}.\n\nConfigured devices: {device_count}\nCurrent fleet: {device_summary}\n\nDevice issues:\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. Add fixed or variable devices here first, use the fleet review to quickly enable or disable existing devices, and only drop into JSON editing for recovery or bulk changes.\n\nPrimary path: {configure_path}.\n\nConfigured devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nDevice issues:\n{device_issues}",
         "data": {
           "device_action": "Managed-device action"
         },
         "data_description": {
-          "device_action": "Choose whether to add a fixed load, add a variable load, edit an existing device, remove a device, or open the advanced JSON editor."
+          "device_action": "Choose whether to add a fixed load, add a variable load, review the fleet and toggle which devices stay enabled, edit an existing device, remove a device, or open the advanced JSON editor."
+        }
+      },
+      "device_bulk_enable": {
+        "title": "Review fleet and enabled devices",
+        "description": "Use this native fleet review to temporarily stage larger installs without raw JSON. Select the devices that should stay enabled for control right now.\n\nEnabled now: {enabled_count} of {device_count}\n\nCurrent fleet:\n{device_summary}",
+        "data": {
+          "enabled_devices": "Enabled managed devices"
         }
       },
       "device_edit_pick": {

@@ -60,7 +60,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
 - **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live in the integration's Configure flow.
-- **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, plus guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, with raw JSON kept as an advanced recovery path instead of the default operator experience.
+- **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, plus a fleet-review enable/disable step for staging larger installs without dropping into raw JSON.
 - **Operator Dashboard / native HA surfaces**: first-class operator and fallback surfaces for real-world installs.
 - **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 - **Native Repairs guidance**: Home Assistant's Repairs surface now flags incomplete setup, invalid managed-device inventory, and runtime attention states with actionable next steps.
@@ -101,7 +101,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
     - Grid Import/Export Power
     - Home Load Power
     - (Optional) Battery Entities
-5.  Use **Managed devices** in Configure to add fixed or variable controllable devices through native selectors. Use the JSON editor there only for bulk edits or recovery.
+5.  Use **Managed devices** in Configure to add fixed or variable controllable devices through native selectors. Use the fleet review there to quickly enable or disable devices across a larger install. Use the JSON editor only for bulk structural edits or recovery.
 6.  Use **Controller tuning** in Configure for target/deadband/reserve defaults.
 7.  Use the integration device page buttons, entities, and diagnostics for normal runtime verification and troubleshooting.
 

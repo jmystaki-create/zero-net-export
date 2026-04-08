@@ -148,6 +148,28 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._pending_device_key: str | None = None
         self._pending_device_template_key: str | None = None
 
+    @staticmethod
+    def _device_status_label(device: dict[str, Any]) -> str:
+        state = "enabled" if device.get("enabled", True) else "disabled"
+        priority = int(device.get("priority", 0) or 0)
+        return (
+            f"{device.get('name', 'Unnamed device')} "
+            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, {device.get('entity_id', 'unknown entity')})"
+        )
+
+    def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
+        if not devices:
+            return ["- None"]
+        ordered = sorted(
+            devices,
+            key=lambda item: (
+                0 if item.get("enabled", True) else 1,
+                int(item.get("priority", 0) or 0),
+                str(item.get("name", "")).lower(),
+            ),
+        )
+        return [f"- {self._device_status_label(device)}" for device in ordered]
+
     def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
         raw_inventory = _entry_default_text(
             self._config_entry,
@@ -405,6 +427,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 self._pending_device_key = None
                 self._pending_device_template_key = None
                 return await self.async_step_device_template()
+            if choice == "bulk_enable" and devices:
+                return await self.async_step_device_bulk_enable()
             if choice == "edit" and devices:
                 return await self.async_step_device_edit_pick()
             if choice == "remove" and devices:
@@ -417,10 +441,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value="add_variable", label="Add variable load device"),
         ]
         if devices:
+            choices.append(selector.SelectOptionDict(value="bulk_enable", label="Review fleet / enable or disable devices"))
             choices.append(selector.SelectOptionDict(value="edit", label="Edit configured device"))
             choices.append(selector.SelectOptionDict(value="remove", label="Remove configured device"))
         choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))
-        summary = ", ".join(f"{item['name']} ({item['kind']})" for item in devices[:5]) if devices else "None"
+        summary = "\n".join(self._fleet_summary_lines(devices))
         return self.async_show_form(
             step_id="devices",
             data_schema=vol.Schema(
@@ -559,6 +584,45 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             },
         )
 
+    async def async_step_device_bulk_enable(self, user_input=None):
+        devices, _ = self._load_devices()
+        if not devices:
+            return await self.async_step_devices()
+
+        enabled_keys = [device["key"] for device in devices if device.get("enabled", True)]
+        if user_input is not None:
+            selected_keys = {str(key) for key in user_input.get("enabled_devices", [])}
+            updated_devices = [
+                {**device, "enabled": device.get("key") in selected_keys}
+                for device in devices
+            ]
+            return await self._save_devices(updated_devices)
+
+        options = [
+            selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
+            for device in sorted(devices, key=lambda item: str(item.get("name", "")).lower())
+        ]
+        return self.async_show_form(
+            step_id="device_bulk_enable",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("enabled_devices", default=enabled_keys): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=options,
+                            multiple=True,
+                            mode=selector.SelectSelectorMode.DROPDOWN,
+                        )
+                    )
+                }
+            ),
+            errors={},
+            description_placeholders={
+                "device_summary": "\n".join(self._fleet_summary_lines(devices)),
+                "enabled_count": str(len(enabled_keys)),
+                "device_count": str(len(devices)),
+            },
+        )
+
     async def async_step_device_edit_pick(self, user_input=None):
         devices, _ = self._load_devices()
         if user_input is not None:
@@ -572,10 +636,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_device_add()
 
         options = [
-            selector.SelectOptionDict(
-                value=device["key"],
-                label=f"{device['name']} ({device['kind']}, {device['entity_id']})",
-            )
+            selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
             for device in devices
         ]
         return self.async_show_form(
@@ -598,7 +659,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return await self._save_devices(remaining)
 
         options = [
-            selector.SelectOptionDict(value=device["key"], label=f"{device['name']} ({device['kind']})")
+            selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
             for device in devices
         ]
         return self.async_show_form(

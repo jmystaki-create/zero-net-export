@@ -6,6 +6,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.58] - 2026-04-08
+
+### Added
+- Added a native managed-device fleet review step in Configure so larger installs can quickly toggle which devices stay enabled for control without editing raw inventory JSON.
+
+### Changed
+- Expanded the managed-device workspace summaries and picker labels to show enabled state, priority, kind, and entity id, making bigger mixed-device fleets easier to audit from native Home Assistant selectors.
+- README guidance now points operators at the new native fleet-staging path for larger installs.
+- Integration version advanced to `0.1.58` for the native fleet review and staging pass.
+
 ## [0.1.57] - 2026-04-08
 
 ### Added
