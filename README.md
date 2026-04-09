@@ -109,7 +109,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 - The initial add-integration flow remains bootstrap-only, and the normal post-install path is the native Configure flow.
 - Managed devices are still persisted internally as structured inventory JSON, but the primary native Configure flow now hides most of that behind add/edit/remove forms for fixed and variable devices.
-- The Lovelace YAML dashboard remains available only as an optional fallback/debugging surface, not as a separate supported product path.
+- The Lovelace YAML dashboard remains available only as optional debug visibility inside Home Assistant, not as part of the supported operator path.
 - The integration device page exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 - Home Assistant **Repairs** now mirrors the most important setup/runtime blockers, which gives operators one more built-in native surface for triage without hunting through multiple entity sections first.
 
@@ -147,7 +147,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The project now explicitly supports only native Home Assistant integration/device surfaces plus optional Lovelace fallback views. There is no supported custom panel, sidebar app, or external UI path. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and larger heterogeneous fleets still need more real-world validation.
+The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The only supported operator path is native Home Assistant integration/device surfaces. There is no supported custom panel, sidebar app, or external UI path, and Lovelace remains only optional debug visibility inside Home Assistant. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and larger heterogeneous fleets still need more real-world validation.
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). It is the source of truth for the current product state, gap register, release gates, and prioritized next actions.
 

@@ -10,7 +10,8 @@ The project now treats these as the only supported operator surfaces:
 - Home Assistant **Configure** flow for source mapping, managed devices, and controller tuning
 - integration device page entities/buttons for diagnostics and setup guidance
 - Home Assistant entities, notifications, automations/scripts, and Repairs for normal runtime/support workflows
-- optional Lovelace/dashboard examples as fallback operator views inside Home Assistant
+
+Optional Lovelace/dashboard examples may still exist as supplementary debug visibility inside Home Assistant, but they are not part of the supported operator path.
 
 ## Why the direction changed
 
@@ -32,7 +33,7 @@ Real installs showed that the sidebar/custom-panel route added packaging, routin
 - device inventory model and guards
 - diagnostics export and action history
 - native device-page support actions
-- Lovelace/dashboard examples where useful as optional fallback visibility inside Home Assistant
+- Lovelace/dashboard examples where useful as optional debug visibility inside Home Assistant, not as part of the supported operator path
 
 ## What was removed from scope
 

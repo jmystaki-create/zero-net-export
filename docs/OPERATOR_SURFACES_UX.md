@@ -61,12 +61,13 @@ For each device:
 
 ## Current scaffold status
 
-The shipped operator product now uses only native Home Assistant surfaces:
+The shipped operator product now uses only native Home Assistant integration and device surfaces for the supported path:
 
 - Configure for source setup, managed devices, and controller tuning
 - integration device page buttons/entities for diagnostics and setup guidance
 - entities, notifications, automations/scripts, and Repairs for runtime and support workflows
-- Lovelace/dashboard views only for optional operator visibility inside Home Assistant
+
+Lovelace/dashboard views remain optional debug visibility inside Home Assistant, but they are not part of the supported operator path.
 
 The native setup path now publishes an explicit readiness phase, checklist, and recommended next step so operators can tell whether they are blocked on source mapping, source health, device onboarding, or runtime eligibility without mentally stitching together multiple diagnostics sections.
 
@@ -83,4 +84,4 @@ It currently provides:
 - fleet summary metrics
 - example fixed-load and variable-load device cards
 
-This plain YAML dashboard is now considered a fallback/debugging operator surface. The project direction is explicitly native-only: reliable Home Assistant setup and troubleshooting surfaces are the supported UX, with Lovelace retained as optional visibility rather than a separate supported UI path.
+This plain YAML dashboard is now considered optional debug visibility, not a supported operator surface. The project direction is explicitly native-only: reliable Home Assistant integration/device setup and troubleshooting surfaces are the supported UX, with Lovelace retained only as supplementary visibility rather than a separate supported UI path.

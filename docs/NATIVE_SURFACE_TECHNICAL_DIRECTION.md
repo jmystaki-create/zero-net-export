@@ -20,7 +20,7 @@ Primary troubleshooting path for:
 - normal entity/status inspection
 
 ### 3. Dashboard examples
-Optional fallback/operator views for people who want Lovelace visibility inside Home Assistant. These are supplementary, not a separate supported product surface.
+Optional debug visibility for people who want Lovelace cards inside Home Assistant. These are supplementary and explicitly not part of the supported operator path.
 
 ## Backend contract that still matters
 

@@ -14,6 +14,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Reworded the startup/setup notification so managed-device parse problems are described as native Configure issues first, with JSON called out only as an advanced recovery fallback.
 - Reworded Repairs and options-flow error labels so the user-facing title/error now says managed-device configuration, not managed-device inventory.
 - Reworded the managed-device removal and advanced JSON editor copy so native Configure keeps talking about managed-device configuration first, with JSON reserved for recovery and bulk edits.
+- Tightened README and native-surface planning docs so Lovelace is described only as optional debug visibility, not as part of the supported operator path.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 
 ## [0.1.58] - 2026-04-08
