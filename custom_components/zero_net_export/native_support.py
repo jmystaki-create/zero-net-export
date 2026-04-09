@@ -222,14 +222,21 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         )
         for key, details in source_diagnostics.items()
     ]
-    device_lines = [
-        (
-            f"- {item.get('key')}: enabled={item.get('enabled')}, usable={item.get('usable')}, "
-            f"kind={item.get('kind')}, adapter={item.get('adapter')}, "
-            f"priority={item.get('priority')}, entity={item.get('entity_id')}"
+    runtime_device_details = state.device_details or {}
+    device_lines = []
+    for item in configured_devices:
+        runtime = runtime_device_details.get(item.get("key"), {})
+        device_lines.append(
+            (
+                f"- {item.get('key')}: enabled={item.get('enabled')}, "
+                f"usable={runtime.get('usable', 'n/a')}, "
+                f"status={runtime.get('status', 'n/a')}, "
+                f"planned={runtime.get('planned_action', 'n/a')}, "
+                f"guard={runtime.get('guard_status', 'n/a')}, "
+                f"kind={item.get('kind')}, adapter={item.get('adapter')}, "
+                f"priority={item.get('priority')}, entity={item.get('entity_id')}"
+            )
         )
-        for item in configured_devices
-    ]
     recent_issues = list(state.validation_details.get("issues", []))[:5]
     issue_lines = [
         f"- {issue.get('severity', 'info')}: {issue.get('message', issue)}"

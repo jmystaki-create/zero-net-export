@@ -8,6 +8,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Fixed
 - Stopped the native **Controller tuning** Configure step from overwriting the entire options payload. Saving target/deadband/reserve settings now preserves the managed-device inventory and reloads the integration, instead of silently dropping devices from the native operator path.
+- Tightened the native support snapshot so per-device lines now include real runtime usability, status, planned action, and guard state from the coordinator instead of reporting misleading `usable=None` placeholders.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 
 ## [0.1.58] - 2026-04-08
