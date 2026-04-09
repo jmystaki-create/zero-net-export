@@ -63,7 +63,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, plus a fleet-review enable/disable step for staging larger installs without dropping into raw JSON.
 - **Native Home Assistant operator surfaces**: Configure, the integration device page, entities, notifications, and Repairs are the supported operator path.
 - **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
-- **Native Repairs guidance**: Home Assistant's Repairs surface now flags incomplete setup, invalid managed-device inventory, and runtime attention states with actionable next steps.
+- **Native Repairs guidance**: Home Assistant's Repairs surface now flags incomplete setup, invalid managed-device configuration, and runtime attention states with actionable next steps.
 
 ---
 
