@@ -65,7 +65,11 @@ async def _async_update_native_setup_notice(hass: HomeAssistant, entry: ConfigEn
         readable_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in missing_sources]
         bullets.append("Missing required source mappings: " + ", ".join(readable_roles))
     if device_issues:
-        bullets.append("Device inventory validation issues: " + "; ".join(device_issues[:3]))
+        bullets.append(
+            "Managed-device configuration issues in Configure: "
+            + "; ".join(device_issues[:3])
+            + ". Use the advanced JSON recovery editor only if the native forms cannot repair it."
+        )
     elif not devices:
         bullets.append("No controllable devices have been added yet.")
 
