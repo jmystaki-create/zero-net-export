@@ -1138,7 +1138,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     reason = "Sources validated; configure controllable devices to start control"
                 elif device_summary.usable_devices == 0:
                     status = "waiting_for_devices"
-                    reason = "Sources validated; device inventory exists but no devices are currently usable"
+                    reason = "Sources validated; configured devices exist but no devices are currently usable"
                 else:
                     status = "ready"
                     reason = f"Sources validated; {device_summary.usable_devices} controllable device(s) are ready"
@@ -1155,7 +1155,10 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             elif not configured_devices and not device_parse_issues and validation.status == "validated":
                 recommendation = "Add fixed and variable controllable devices next; source validation is already healthy"
             elif device_parse_issues:
-                recommendation = "Fix the device inventory JSON so Zero Net Export can reason about controllable loads"
+                recommendation = (
+                    "Fix the managed-device configuration in Configure so Zero Net Export can reason about controllable loads; "
+                    "use the advanced JSON recovery editor only if the native forms cannot repair it"
+                )
 
             battery_below_reserve = bool(
                 readings["battery_soc"].value is not None
