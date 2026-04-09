@@ -13,7 +13,7 @@ If you are progressing the project right now, do this in order:
    - add integration
    - complete bootstrap-only config flow
    - open Configure from the integration card
-   - map required sources in native setup
+   - map required sources in native setup, including the correct combined-versus-separate grid sensor layout
    - add at least one managed device through the native add/edit/remove flow in Configure, then edit it in place once
   - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational
@@ -56,6 +56,7 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
+- [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
 - [ ] Advanced JSON editor remains available for recovery or bulk edits
@@ -64,8 +65,9 @@ This is the current highest-value path because native onboarding is now the only
 ## Source Validation Layer
 
 - [ ] Solar power entity shows valid reading
-- [ ] Grid export power entity shows valid reading
-- [ ] Grid import power entity shows valid reading
+- [ ] Grid source layout selection matches the real install, combined/net or separate import/export
+- [ ] Grid export power reading is valid, whether derived from a combined/net source or mapped from a separate export entity
+- [ ] Grid import power reading is valid, whether derived from a combined/net source or mapped from a separate import entity
 - [ ] Home load power entity shows valid reading
 - [ ] Battery SOC entity shows valid reading (if configured)
 - [ ] Confidence sensor reports "high" when all sources valid
