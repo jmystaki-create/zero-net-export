@@ -39,10 +39,22 @@
       },
       "native_setup": {
         "title": "Native setup and source mapping",
-        "description": "This is now the primary setup path. Use Home Assistant's Configure flow to map required entities and set the refresh interval.\n\nCurrently missing required sources: {missing_sources}\n\nPrimary path: {configure_path}.",
+        "description": "This is now the primary setup path. First choose whether your grid sensors are exposed as one combined signed/net source or as separate import/export entities.\n\nCurrently missing required sources: {missing_sources}\n\nPrimary path: {configure_path}.",
+        "data": {
+          "grid_sensor_mode": "Grid import/export sensor layout"
+        },
+        "data_description": {
+          "grid_sensor_mode": "Choose Combined when your hardware exposes one signed/net grid sensor. Choose Separate when Home Assistant already has dedicated import and export entities."
+        }
+      },
+      "native_setup_sources": {
+        "title": "Native setup and source mapping",
+        "description": "Map the required entities and set the refresh interval. Grid mode: {grid_mode}.\n\nCurrently missing required sources: {missing_sources}\n\nPrimary path: {configure_path}.",
         "data": {
           "solar_power_entity": "Solar power entity",
           "solar_energy_entity": "Solar energy entity",
+          "grid_power_entity": "Combined / net grid power entity",
+          "grid_energy_entity": "Combined / net grid energy entity",
           "grid_import_power_entity": "Grid import power entity",
           "grid_export_power_entity": "Grid export power entity",
           "grid_import_energy_entity": "Grid import energy entity",
@@ -56,8 +68,10 @@
         "data_description": {
           "solar_power_entity": "Live solar generation power sensor.",
           "solar_energy_entity": "Accumulating solar energy sensor.",
-          "grid_import_power_entity": "Grid import power sensor. Use a signed split helper if your hardware exposes a single net-grid sensor.",
-          "grid_export_power_entity": "Grid export power sensor. Use a signed split helper if your hardware exposes a single net-grid sensor.",
+          "grid_power_entity": "Single signed/net grid power sensor. Positive values are treated as import and negative values are treated as export.",
+          "grid_energy_entity": "Single signed/net grid energy sensor. Positive values are treated as import and negative values are treated as export.",
+          "grid_import_power_entity": "Dedicated grid import power sensor.",
+          "grid_export_power_entity": "Dedicated grid export power sensor.",
           "grid_import_energy_entity": "Grid import energy sensor.",
           "grid_export_energy_entity": "Grid export energy sensor.",
           "home_load_power_entity": "Whole-home load power sensor.",

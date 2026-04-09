@@ -7,6 +7,8 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Added an up-front native source-mapping selector for combined versus separate grid sensors. The Configure flow now defaults to combined/net mapping, stores the combined selection, and derives import/export bindings from one signed grid power and one signed grid energy entity instead of forcing four separate grid fields.
+- Reworded native source-mapping helper text so combined/net grid hardware is a first-class path in product, not a detour through external split helpers.
 - Stopped the native **Controller tuning** Configure step from overwriting the entire options payload. Saving target/deadband/reserve settings now preserves the managed-device inventory and reloads the integration, instead of silently dropping devices from the native operator path.
 - Tightened the native support snapshot so per-device lines now include real runtime usability, status, planned action, and guard state from the coordinator instead of reporting misleading `usable=None` placeholders.
 - Reworded runtime reason and recommendation text to keep the operator path native-first: Home Assistant now points people back to **Configure** for managed-device repair instead of prematurely talking about internal inventory JSON.

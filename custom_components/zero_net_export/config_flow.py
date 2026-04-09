@@ -21,6 +21,7 @@ from .const import (
     CONF_GRID_EXPORT_POWER_ENTITY,
     CONF_GRID_IMPORT_ENERGY_ENTITY,
     CONF_GRID_IMPORT_POWER_ENTITY,
+    CONF_GRID_SENSOR_MODE,
     CONF_HOME_LOAD_POWER_ENTITY,
     CONF_NAME,
     CONF_REFRESH_SECONDS,
@@ -30,11 +31,13 @@ from .const import (
     DEFAULT_BATTERY_RESERVE_SOC,
     DEFAULT_DEADBAND_W,
     DEFAULT_DEVICE_INVENTORY_JSON,
+    DEFAULT_GRID_SENSOR_MODE,
     DEFAULT_NAME,
     DEFAULT_REFRESH_SECONDS,
     DEFAULT_TARGET_EXPORT_W,
     DOMAIN,
-    REQUIRED_SOURCE_KEYS,
+    GRID_SENSOR_MODE_COMBINED,
+    GRID_SENSOR_MODE_SEPARATE,
     SOURCE_ROLE_LABELS,
 )
 from .device_model import (
@@ -48,7 +51,14 @@ from .device_model import (
     parse_device_configs,
 )
 from .native_support import PRIMARY_CONFIGURE_PATH, _source_specs_from_config
-from .validation import validate_configured_entities
+from .validation import (
+    DERIVED_SOURCE_MODE_DIRECT,
+    DERIVED_SOURCE_MODE_NEGATIVE_ABS,
+    DERIVED_SOURCE_MODE_POSITIVE,
+    DERIVED_SOURCE_PREFIX,
+    parse_source_binding,
+    validate_configured_entities,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -118,6 +128,92 @@ def _device_options_json(devices: list[dict[str, Any]]) -> str:
     return json.dumps(devices, indent=2)
 
 
+def _build_derived_binding(mode: str, entity_id: str | None) -> str | None:
+    if not entity_id:
+        return None
+    return f"{DERIVED_SOURCE_PREFIX}:{mode}:{entity_id}"
+
+
+def _selector_entity_default(raw: str | None, *, allow_derived: bool = False) -> str:
+    binding = parse_source_binding(raw)
+    if not binding.valid or not binding.entity_id:
+        return ""
+    if binding.mode == DERIVED_SOURCE_MODE_DIRECT:
+        return binding.entity_id
+    return binding.entity_id if allow_derived else ""
+
+
+def _infer_grid_sensor_mode(config: dict[str, Any]) -> str:
+    import_power = parse_source_binding(config.get(CONF_GRID_IMPORT_POWER_ENTITY))
+    export_power = parse_source_binding(config.get(CONF_GRID_EXPORT_POWER_ENTITY))
+    import_energy = parse_source_binding(config.get(CONF_GRID_IMPORT_ENERGY_ENTITY))
+    export_energy = parse_source_binding(config.get(CONF_GRID_EXPORT_ENERGY_ENTITY))
+
+    power_combined = (
+        import_power.valid
+        and export_power.valid
+        and import_power.entity_id
+        and import_power.entity_id == export_power.entity_id
+        and import_power.mode == DERIVED_SOURCE_MODE_POSITIVE
+        and export_power.mode == DERIVED_SOURCE_MODE_NEGATIVE_ABS
+    )
+    energy_combined = (
+        import_energy.valid
+        and export_energy.valid
+        and import_energy.entity_id
+        and import_energy.entity_id == export_energy.entity_id
+        and import_energy.mode == DERIVED_SOURCE_MODE_POSITIVE
+        and export_energy.mode == DERIVED_SOURCE_MODE_NEGATIVE_ABS
+    )
+    if power_combined and energy_combined:
+        return GRID_SENSOR_MODE_COMBINED
+    if not any(
+        config.get(key)
+        for key in (
+            CONF_GRID_IMPORT_POWER_ENTITY,
+            CONF_GRID_EXPORT_POWER_ENTITY,
+            CONF_GRID_IMPORT_ENERGY_ENTITY,
+            CONF_GRID_EXPORT_ENERGY_ENTITY,
+        )
+    ):
+        return DEFAULT_GRID_SENSOR_MODE
+    return GRID_SENSOR_MODE_SEPARATE
+
+
+def _grid_mode_default(config_entry) -> str:
+    configured = config_entry.options.get(CONF_GRID_SENSOR_MODE, config_entry.data.get(CONF_GRID_SENSOR_MODE))
+    if configured in {GRID_SENSOR_MODE_COMBINED, GRID_SENSOR_MODE_SEPARATE}:
+        return str(configured)
+    snapshot = dict(config_entry.data)
+    snapshot.update(config_entry.options)
+    return _infer_grid_sensor_mode(snapshot)
+
+
+def _grid_mode_missing_sources(config: dict[str, Any], grid_mode: str) -> list[str]:
+    required_keys = [
+        CONF_SOLAR_POWER_ENTITY,
+        CONF_SOLAR_ENERGY_ENTITY,
+        CONF_HOME_LOAD_POWER_ENTITY,
+    ]
+    if grid_mode == GRID_SENSOR_MODE_COMBINED:
+        required_keys.extend(
+            [
+                CONF_GRID_IMPORT_POWER_ENTITY,
+                CONF_GRID_IMPORT_ENERGY_ENTITY,
+            ]
+        )
+    else:
+        required_keys.extend(
+            [
+                CONF_GRID_IMPORT_POWER_ENTITY,
+                CONF_GRID_EXPORT_POWER_ENTITY,
+                CONF_GRID_IMPORT_ENERGY_ENTITY,
+                CONF_GRID_EXPORT_ENERGY_ENTITY,
+            ]
+        )
+    return [SOURCE_ROLE_LABELS.get(key, key) for key in required_keys if not config.get(key)]
+
+
 class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
@@ -144,6 +240,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def __init__(self, config_entry):
         super().__init__()
         self._config_entry = config_entry
+        self._pending_grid_sensor_mode: str | None = None
         self._pending_device_kind: str | None = None
         self._pending_device_key: str | None = None
         self._pending_device_template_key: str | None = None
@@ -282,26 +379,70 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
 
     async def async_step_native_setup(self, user_input=None):
+        current_mode = self._pending_grid_sensor_mode or _grid_mode_default(self._config_entry)
+        if user_input is not None:
+            self._pending_grid_sensor_mode = user_input[CONF_GRID_SENSOR_MODE]
+            return await self.async_step_native_setup_sources()
+
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_GRID_SENSOR_MODE,
+                    default=current_mode,
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(value=GRID_SENSOR_MODE_COMBINED, label="Combined / net sensors"),
+                            selector.SelectOptionDict(value=GRID_SENSOR_MODE_SEPARATE, label="Separate import and export sensors"),
+                        ],
+                        mode=selector.SelectSelectorMode.LIST,
+                    )
+                ),
+            }
+        )
+
+        effective_config = dict(self._config_entry.data)
+        effective_config.update(self._config_entry.options)
+        missing_sources = _grid_mode_missing_sources(effective_config, current_mode)
+        return self.async_show_form(
+            step_id="native_setup",
+            data_schema=schema,
+            errors={},
+            description_placeholders={
+                "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+            },
+        )
+
+    async def async_step_native_setup_sources(self, user_input=None):
         errors: dict[str, str] = {}
+        grid_mode = self._pending_grid_sensor_mode or _grid_mode_default(self._config_entry)
 
         if user_input is not None:
             merged_data = dict(self._config_entry.data)
             merged_options = dict(self._config_entry.options)
 
-            for key in (
-                CONF_SOLAR_POWER_ENTITY,
-                CONF_SOLAR_ENERGY_ENTITY,
-                CONF_GRID_IMPORT_POWER_ENTITY,
-                CONF_GRID_EXPORT_POWER_ENTITY,
-                CONF_GRID_IMPORT_ENERGY_ENTITY,
-                CONF_GRID_EXPORT_ENERGY_ENTITY,
-                CONF_HOME_LOAD_POWER_ENTITY,
-                CONF_BATTERY_SOC_ENTITY,
-                CONF_BATTERY_CHARGE_POWER_ENTITY,
-                CONF_BATTERY_DISCHARGE_POWER_ENTITY,
-            ):
-                merged_data[key] = user_input.get(key) or None
+            merged_data[CONF_SOLAR_POWER_ENTITY] = user_input.get(CONF_SOLAR_POWER_ENTITY) or None
+            merged_data[CONF_SOLAR_ENERGY_ENTITY] = user_input.get(CONF_SOLAR_ENERGY_ENTITY) or None
+            merged_data[CONF_HOME_LOAD_POWER_ENTITY] = user_input.get(CONF_HOME_LOAD_POWER_ENTITY) or None
+            merged_data[CONF_BATTERY_SOC_ENTITY] = user_input.get(CONF_BATTERY_SOC_ENTITY) or None
+            merged_data[CONF_BATTERY_CHARGE_POWER_ENTITY] = user_input.get(CONF_BATTERY_CHARGE_POWER_ENTITY) or None
+            merged_data[CONF_BATTERY_DISCHARGE_POWER_ENTITY] = user_input.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY) or None
 
+            if grid_mode == GRID_SENSOR_MODE_COMBINED:
+                combined_power = user_input.get("grid_power_entity") or None
+                combined_energy = user_input.get("grid_energy_entity") or None
+                merged_data[CONF_GRID_IMPORT_POWER_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_POSITIVE, combined_power)
+                merged_data[CONF_GRID_EXPORT_POWER_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_NEGATIVE_ABS, combined_power)
+                merged_data[CONF_GRID_IMPORT_ENERGY_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_POSITIVE, combined_energy)
+                merged_data[CONF_GRID_EXPORT_ENERGY_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_NEGATIVE_ABS, combined_energy)
+            else:
+                merged_data[CONF_GRID_IMPORT_POWER_ENTITY] = user_input.get(CONF_GRID_IMPORT_POWER_ENTITY) or None
+                merged_data[CONF_GRID_EXPORT_POWER_ENTITY] = user_input.get(CONF_GRID_EXPORT_POWER_ENTITY) or None
+                merged_data[CONF_GRID_IMPORT_ENERGY_ENTITY] = user_input.get(CONF_GRID_IMPORT_ENERGY_ENTITY) or None
+                merged_data[CONF_GRID_EXPORT_ENERGY_ENTITY] = user_input.get(CONF_GRID_EXPORT_ENERGY_ENTITY) or None
+
+            merged_options[CONF_GRID_SENSOR_MODE] = grid_mode
             merged_options[CONF_REFRESH_SECONDS] = int(
                 _coerce_number(user_input.get(CONF_REFRESH_SECONDS), DEFAULT_REFRESH_SECONDS)
             )
@@ -321,93 +462,112 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     options=merged_options,
                 )
                 await self.hass.config_entries.async_reload(self._config_entry.entry_id)
+                self._pending_grid_sensor_mode = None
                 return self.async_create_entry(title="", data=merged_options)
 
-        schema = vol.Schema(
-            {
+        grid_import_power_raw = _entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, "")
+        grid_import_energy_raw = _entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, "")
+
+        fields: dict[Any, Any] = {
+            vol.Required(
+                CONF_SOLAR_POWER_ENTITY,
+                default=_entry_default_text(self._config_entry, CONF_SOLAR_POWER_ENTITY, ""),
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain=["sensor"])
+            ),
+            vol.Required(
+                CONF_SOLAR_ENERGY_ENTITY,
+                default=_entry_default_text(self._config_entry, CONF_SOLAR_ENERGY_ENTITY, ""),
+            ): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain=["sensor"])
+            ),
+        }
+        if grid_mode == GRID_SENSOR_MODE_COMBINED:
+            fields[
                 vol.Required(
-                    CONF_SOLAR_POWER_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_SOLAR_POWER_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
+                    "grid_power_entity",
+                    default=_selector_entity_default(grid_import_power_raw, allow_derived=True),
+                )
+            ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+            fields[
                 vol.Required(
-                    CONF_SOLAR_ENERGY_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_SOLAR_ENERGY_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
+                    "grid_energy_entity",
+                    default=_selector_entity_default(grid_import_energy_raw, allow_derived=True),
+                )
+            ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+        else:
+            fields[
                 vol.Required(
                     CONF_GRID_IMPORT_POWER_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
+                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, "")),
+                )
+            ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+            fields[
                 vol.Required(
                     CONF_GRID_EXPORT_POWER_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_GRID_EXPORT_POWER_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
+                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_EXPORT_POWER_ENTITY, "")),
+                )
+            ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+            fields[
                 vol.Required(
                     CONF_GRID_IMPORT_ENERGY_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
+                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, "")),
+                )
+            ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+            fields[
                 vol.Required(
                     CONF_GRID_EXPORT_ENERGY_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_GRID_EXPORT_ENERGY_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
-                vol.Required(
-                    CONF_HOME_LOAD_POWER_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_HOME_LOAD_POWER_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
-                vol.Optional(
-                    CONF_BATTERY_SOC_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
-                vol.Optional(
-                    CONF_BATTERY_CHARGE_POWER_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
-                vol.Optional(
-                    CONF_BATTERY_DISCHARGE_POWER_ENTITY,
-                    default=_entry_default_text(self._config_entry, CONF_BATTERY_DISCHARGE_POWER_ENTITY, ""),
-                ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor"])
-                ),
-                vol.Required(
+                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_EXPORT_ENERGY_ENTITY, "")),
+                )
+            ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+        fields[
+            vol.Required(
+                CONF_HOME_LOAD_POWER_ENTITY,
+                default=_entry_default_text(self._config_entry, CONF_HOME_LOAD_POWER_ENTITY, ""),
+            )
+        ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+        fields[
+            vol.Optional(
+                CONF_BATTERY_SOC_ENTITY,
+                default=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, ""),
+            )
+        ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+        fields[
+            vol.Optional(
+                CONF_BATTERY_CHARGE_POWER_ENTITY,
+                default=_entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
+            )
+        ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+        fields[
+            vol.Optional(
+                CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+                default=_entry_default_text(self._config_entry, CONF_BATTERY_DISCHARGE_POWER_ENTITY, ""),
+            )
+        ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
+        fields[
+            vol.Required(
+                CONF_REFRESH_SECONDS,
+                default=_entry_default_number(
+                    self._config_entry,
                     CONF_REFRESH_SECONDS,
-                    default=_entry_default_number(
-                        self._config_entry,
-                        CONF_REFRESH_SECONDS,
-                        DEFAULT_REFRESH_SECONDS,
-                    ),
-                ): selector.NumberSelector(
-                    selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
+                    DEFAULT_REFRESH_SECONDS,
                 ),
-            }
+            )
+        ] = selector.NumberSelector(
+            selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
         )
 
-        missing_sources = [
-            SOURCE_ROLE_LABELS.get(key, key)
-            for key in REQUIRED_SOURCE_KEYS
-            if not self._config_entry.options.get(key, self._config_entry.data.get(key))
-        ]
+        schema = vol.Schema(fields)
+
+        effective_config = dict(self._config_entry.data)
+        effective_config.update(self._config_entry.options)
+        missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
         return self.async_show_form(
-            step_id="native_setup",
+            step_id="native_setup_sources",
             data_schema=schema,
             errors=errors,
             description_placeholders={
+                "grid_mode": "Combined / net sensors" if grid_mode == GRID_SENSOR_MODE_COMBINED else "Separate import and export sensors",
                 "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
                 "configure_path": PRIMARY_CONFIGURE_PATH,
             },

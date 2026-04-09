@@ -28,10 +28,14 @@ CONF_GRID_IMPORT_POWER_ENTITY = "grid_import_power_entity"
 CONF_GRID_EXPORT_POWER_ENTITY = "grid_export_power_entity"
 CONF_GRID_IMPORT_ENERGY_ENTITY = "grid_import_energy_entity"
 CONF_GRID_EXPORT_ENERGY_ENTITY = "grid_export_energy_entity"
+CONF_GRID_SENSOR_MODE = "grid_sensor_mode"
 CONF_HOME_LOAD_POWER_ENTITY = "home_load_power_entity"
 CONF_BATTERY_SOC_ENTITY = "battery_soc_entity"
 CONF_BATTERY_CHARGE_POWER_ENTITY = "battery_charge_power_entity"
 CONF_BATTERY_DISCHARGE_POWER_ENTITY = "battery_discharge_power_entity"
+
+GRID_SENSOR_MODE_COMBINED = "combined"
+GRID_SENSOR_MODE_SEPARATE = "separate"
 
 SOURCE_ROLE_LABELS = {
     CONF_SOLAR_POWER_ENTITY: "Solar power",
@@ -62,6 +66,7 @@ CONF_REFRESH_SECONDS = "refresh_seconds"
 CONF_DEVICE_INVENTORY_JSON = "device_inventory_json"
 
 DEFAULT_NAME = "Zero Net Export"
+DEFAULT_GRID_SENSOR_MODE = GRID_SENSOR_MODE_COMBINED
 DEFAULT_TARGET_EXPORT_W = 0
 DEFAULT_DEADBAND_W = 100
 DEFAULT_BATTERY_RESERVE_SOC = 20
