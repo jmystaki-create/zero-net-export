@@ -349,7 +349,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
 
     def _device_status_summary(self, runtimes: list[DeviceRuntime], safe_mode: bool, parse_issues: list[str]) -> str:
         if parse_issues:
-            return "Device inventory needs correction before control actions can start"
+            return "Managed-device configuration needs correction before control actions can start"
         if not runtimes:
             return "No controllable devices configured yet"
         usable = sum(1 for runtime in runtimes if runtime.usable)

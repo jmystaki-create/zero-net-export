@@ -10,6 +10,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Stopped the native **Controller tuning** Configure step from overwriting the entire options payload. Saving target/deadband/reserve settings now preserves the managed-device inventory and reloads the integration, instead of silently dropping devices from the native operator path.
 - Tightened the native support snapshot so per-device lines now include real runtime usability, status, planned action, and guard state from the coordinator instead of reporting misleading `usable=None` placeholders.
 - Reworded runtime reason and recommendation text to keep the operator path native-first: Home Assistant now points people back to **Configure** for managed-device repair instead of prematurely talking about internal inventory JSON.
+- Reworded readiness and device-status summaries so native support surfaces now describe parse failures as managed-device configuration issues instead of internal inventory problems.
 - Reworded the startup/setup notification so managed-device parse problems are described as native Configure issues first, with JSON called out only as an advanced recovery fallback.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 

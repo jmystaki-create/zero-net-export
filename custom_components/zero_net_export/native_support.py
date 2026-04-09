@@ -125,7 +125,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
                 f"{len(configured_devices)} device(s) configured."
                 if configured_devices and not device_parse_issues
                 else (
-                    f"Device inventory issues: {'; '.join(device_parse_issues[:3])}"
+                    f"Managed-device configuration issues: {'; '.join(device_parse_issues[:3])}"
                     if device_parse_issues
                     else "No controllable devices configured yet."
                 )
@@ -153,8 +153,8 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         summary = "Native setup is waiting on healthy validated source data."
     elif device_parse_issues:
         phase = "device_remediation"
-        next_step = "Fix device inventory issues in Configure so the configured fleet parses cleanly."
-        summary = "Native setup is blocked on device inventory validation issues."
+        next_step = "Fix the managed-device configuration in Configure so the configured fleet parses cleanly."
+        summary = "Native setup is blocked on managed-device configuration issues."
     elif not configured_devices:
         phase = "device_onboarding"
         next_step = "Add the first controllable device from Configure."
