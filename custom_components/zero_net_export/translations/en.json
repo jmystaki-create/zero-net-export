@@ -19,7 +19,7 @@
       "description": "Zero Net Export is still mid-setup in Home Assistant's native surfaces.\n\nSummary: {summary}\nMissing required sources: {missing_sources}\nConfigured devices: {device_count}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
     },
     "device_inventory_invalid": {
-      "title": "Managed-device inventory needs repair",
+      "title": "Managed-device configuration needs repair",
       "description": "One or more managed devices could not be parsed cleanly. Open the native Configure flow and fix the affected devices or use the advanced JSON recovery editor if needed.\n\nIssue count: {issue_count}\nExamples: {issue_examples}\n\nPrimary path: {configure_path}."
     },
     "runtime_attention": {
@@ -151,7 +151,7 @@
       }
     },
     "error": {
-      "device_inventory_invalid": "The managed-device inventory is invalid or incomplete.",
+      "device_inventory_invalid": "The managed-device configuration is invalid or incomplete.",
       "source_entities_invalid": "One or more source entities are missing, duplicated, or invalid."
     }
   }

@@ -12,6 +12,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Reworded runtime reason and recommendation text to keep the operator path native-first: Home Assistant now points people back to **Configure** for managed-device repair instead of prematurely talking about internal inventory JSON.
 - Reworded readiness and device-status summaries so native support surfaces now describe parse failures as managed-device configuration issues instead of internal inventory problems.
 - Reworded the startup/setup notification so managed-device parse problems are described as native Configure issues first, with JSON called out only as an advanced recovery fallback.
+- Reworded Repairs and options-flow error labels so the user-facing title/error now says managed-device configuration, not managed-device inventory.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 
 ## [0.1.58] - 2026-04-08
