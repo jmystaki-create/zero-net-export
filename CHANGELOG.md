@@ -7,9 +7,10 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Added
-- Promoted the native Lovelace operator dashboard scaffold to the recommended in-Home-Assistant expert control surface, covering controller intent, battery/grid/solar telemetry, fleet planning, guard/support actions, and recent control activity without reviving any external panel path.
+- Expanded the optional Lovelace debug dashboard scaffold inside Home Assistant with controller intent, battery/grid/solar telemetry, fleet planning, guard/support actions, and recent control activity, while keeping it outside the supported operator path.
 
 ### Fixed
+- Reverted README and dashboard docs that had drifted into presenting Lovelace as a supported operator surface. The supervisor-aligned position is again explicit: the supported operator path is native Home Assistant integration/device surfaces only, with Lovelace kept optional for debug visibility.
 - Taught release metadata helpers to fall back to the current `Unreleased` changelog notes when the manifest version advances ahead of a tagged changelog heading, so native support/release surfaces stop showing a false "no changelog entry matched" warning during active stabilization.
 - Normalized native selector values before validation so Home Assistant picker payloads that arrive as structured objects no longer trip fake "valid entity ID or valid UUID" errors on submit.
 - Restored native entity pickers after the temporary text-field workaround regressed selection UX; picker-based mapping is available again while deeper HA selector issues continue to be investigated.

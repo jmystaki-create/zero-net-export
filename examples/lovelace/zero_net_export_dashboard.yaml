@@ -14,12 +14,12 @@ views:
       - type: grid
         cards:
           - type: heading
-            heading: Zero Net Export expert control panel
+            heading: Zero Net Export optional debug dashboard
             heading_style: title
             icon: mdi:home-lightning-bolt-outline
           - type: markdown
             content: |
-              This dashboard is the expert operator surface inside Home Assistant.
+              This dashboard is optional debug visibility inside Home Assistant, not part of the supported operator path.
 
               Use it for live state, controller intent, guard visibility, and managed-load review.
 

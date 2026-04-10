@@ -1,16 +1,16 @@
-# Native Lovelace Operator Dashboard Setup
+# Optional Lovelace Debug Dashboard Setup
 
-This project includes a native Home Assistant operator dashboard scaffold at:
+This project includes an optional Lovelace dashboard scaffold at:
 
 - `examples/lovelace/zero_net_export_dashboard.yaml`
 
-It is intentionally plain Lovelace YAML, not a custom frontend. It lives fully inside Home Assistant and is the recommended expert live-visibility surface for operators who want to see what the controller, battery, grid, and managed loads are doing in one place.
+It is intentionally plain Lovelace YAML, not a custom frontend. It lives fully inside Home Assistant and is supplementary debug visibility for operators who want to see controller, battery, grid, and managed-load state in one place.
 
-This dashboard complements, rather than replaces, the integration's native Configure, Repairs, device-page entities, and support buttons.
+This dashboard complements, rather than replaces, the integration's native Configure, Repairs, device-page entities, and support buttons. It is not part of the supported operator path.
 
 ## What this scaffold covers
 
-The dashboard is structured as an expert control panel around the native operator workflow:
+The dashboard is structured as optional debug visibility around the native operator workflow:
 
 1. **Live power picture** — solar, home load, grid import/export, battery SOC, controlled load, surplus, export error
 2. **Controller intent and overrides** — enable switch, mode, target export, deadband, battery reserve, override visibility, and controller reasoning
@@ -48,7 +48,7 @@ Because of that, treat the example YAML as a scaffold:
 
 ## Runtime override behavior
 
-The controller cards can be used as a practical fallback operator view, not just a read-only demo.
+The controller cards can be used as an optional debug/control surface inside Home Assistant, not just a read-only demo.
 
 From the dashboard:
 - the main **Enabled** switch persists across reloads
@@ -140,7 +140,7 @@ Per-device `active_runtime_today_seconds` is likewise operational telemetry deri
 
 The guarded planner and executor already produce explanation-rich state, but that state is hard to use until it is grouped into an operator-first control surface.
 
-This scaffold turns the current backend work into a practical native Home Assistant operator UI, without reviving the removed external panel path.
+This scaffold turns the current backend work into optional in-Home-Assistant debug visibility, without reviving the removed external panel path or changing the supported native operator path.
 
 ## Troubleshooting support
 
@@ -158,6 +158,5 @@ Mapped entity ids, device entity ids, and operator-facing names are redacted in 
 
 After this scaffold, the next useful increment is:
 
-- optional packaged dashboard assets or generated dashboard helpers so operators do not have to paste YAML manually
+- optional packaged dashboard assets or generated dashboard helpers for people who want easier debug visibility without pasting YAML manually
 - more compact per-device cards once real installs show which load attributes matter most on one screen
-- a clearer first-run handoff from the integration device page into this dashboard view
