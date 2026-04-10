@@ -49,15 +49,15 @@ If GitHub does not yet show the new release correctly, stop there and fix releas
 
 ### 4. Refresh HACS metadata in Home Assistant
 In Home Assistant:
-- open **HACS**
-- use the HACS search box to filter for `zero` or `Zero Net Export` if needed
-- confirm **Zero Net Export** is visible in the HACS list, often under **Pending update** when an update path already exists
-- open the three-dot menu on the right side of the **Zero Net Export** row
-- click **Update information**
+1. click **HACS**
+2. in the HACS search bar, search for **Zero Net Export**
+3. confirm the **Zero Net Export** row is visible in the HACS list, often under **Pending update** when an update path already exists
+4. click the three-dot menu on the right side of the **Zero Net Export** row
+5. click **Update information**
 
 This forces HACS to refresh package metadata instead of waiting passively.
 
-Practical note from real use: the reliable visual path is the HACS list row for **Zero Net Export** itself, with the right-side three-dot overflow menu open. Do not rely on guessing a repository id or navigating by a fabricated direct HACS repository URL.
+Practical note from real use: the reliable visual path is the HACS list row for **Zero Net Export** itself, found through HACS search, with the right-side three-dot overflow menu open. Do not rely on guessing a repository id or navigating by a fabricated direct HACS repository URL.
 
 ### 5. Wait for HACS to surface the new package version
 Do not assume the update is visible immediately.

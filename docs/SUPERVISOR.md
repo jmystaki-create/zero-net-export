@@ -10,7 +10,7 @@ Supporting detail lives in the spec, implementation, validation, and release doc
 
 ### Current release-line position
 
-Zero Net Export is in **late stabilization and native-surface consolidation**.
+Zero Net Export is in **late stabilization and native-surface consolidation**, but the next update must deliver visible progress in the user's real Home Assistant instance, not just repo-side hardening.
 
 What is already true:
 - the control engine, guard layer, explainability, and diagnostics model are substantially built
@@ -24,6 +24,8 @@ What is not yet true:
 - larger or more heterogeneous fleets still need more proof
 - the product still uses JSON-backed inventory persistence internally, which is acceptable for now but remains a design pressure point
 - release confidence still depends on screenshots, real installs, and package-distribution verification rather than repo-local confidence alone
+- the integration still fails too early in real HA for native entities/services to populate consistently, most recently with setup errors moving from `validation_details` to `stale_data`
+- native managed-device add flow is still not acceptable if ordinary controllable entities like a light or switch do not appear as selectable entries in Configure
 
 ### Steering stance
 
@@ -43,6 +45,22 @@ That means:
 4. Reduce operator dependence on raw JSON for normal device onboarding and editing
 5. Prove release quality with real-install validation and package-distribution checks
 
+## Next-update definition of real progress
+
+The next update only counts as real progress if it produces visible improvement in the user's actual Home Assistant install.
+
+Minimum real-progress outcomes for the next update:
+1. Zero Net Export finishes setup, meaning the config entry is no longer stuck in `setup_retry` and the current `stale_data` startup crash is gone
+2. The integration page no longer shows an effectively empty operator surface, and native entries/services/buttons/entities populate instead of `No entries`
+3. Native managed-device add flow shows real selectable Home Assistant entities for ordinary controllable loads, including common light/switch style entities where appropriate
+4. At least one real controllable device can be added and saved end-to-end from native Configure in the user's HA instance
+5. Reload/restart verification proves the integration stays alive after install instead of only shifting to another early null-state crash
+
+What does not count as enough progress for the next update:
+- repo-only cleanup with no HA-visible improvement
+- another release that merely changes the traceback but still leaves the integration unusable
+- dashboard/support polish while setup and device onboarding remain broken
+
 ## Gap and risk register
 
 | ID | Gap / risk | Why it matters | Current signal | Exit condition |
@@ -53,6 +71,8 @@ That means:
 | G4 | JSON-backed inventory remains an internal dependency | Internal structure can leak back into operator experience | Docs already acknowledge the transitional design | Normal operator tasks do not require JSON except recovery or bulk surgery |
 | G5 | Release visibility can drift from local repo state | HACS/manual installs only reflect what is actually packaged and published | Past validation already exposed version/changelog mismatch in a real install | Tagged release, changelog, manifest, and tested package all match the same shipped build |
 | G6 | Runtime safety features need more field proof | Safety logic is only trustworthy if behavior matches real devices | Guards, reserve gating, runtime caps, and action history exist, but real-install coverage is incomplete | At least one real install confirms expected behavior for core control and safety paths |
+| G7 | Setup is still failing before native entries populate | If setup dies early, the operator sees `No entries` and cannot meaningfully validate native HA surfaces | Real HA currently moved from a `validation_details` null crash to a `stale_data` null crash under manual v0.1.69 install | The config entry loads successfully and native entities/services/buttons appear in HA |
+| G8 | Native add-device picker does not show ordinary controllable entities | If lights/switches/plugs do not appear, the native operator path is still blocked for real users | User screenshot and direct feedback say add flow shows no entries for a light switch style device | Configure shows real selectable entities and one real device can be added successfully |
 
 ## Acceptance criteria
 
@@ -64,6 +84,8 @@ The current native-HA-only release line is acceptable when all of the following 
 - at least one common fixed load and one common variable load can be onboarded through native flows
 - edit-in-place device updates work without JSON for normal cases
 - the setup path does not depend on removed panel/launcher behavior
+- setup completes far enough that the integration page does not stall at `No entries`
+- ordinary controllable entities appear in the native add-device picker when the operator tries to add a light/switch/load
 
 ### B. Support and diagnostics acceptance
 - readiness, recommendation, checklist, support center, and support snapshot tell a consistent story
@@ -92,14 +114,19 @@ Do not call the native-operator release line ready unless all gates below pass.
 - [ ] Gate 5: Larger-fleet usability has at least one concrete validation pass, or is explicitly deferred in release notes
 - [ ] Gate 6: Release metadata, tag, changelog, and distributed package are all aligned
 - [ ] Gate 7: Release execution followed `RELEASE_MANAGEMENT.md`, including post-restart Zero Net Export log review and roll-forward capture of project-specific errors for the next release
+- [ ] Gate 8: The next release removes the current early startup blocker so the config entry no longer dies in `setup_retry`
+- [ ] Gate 9: The integration page no longer shows `No entries` for Zero Net Export after setup
+- [ ] Gate 10: The native add-device picker shows real selectable entities and one real controllable device can be saved in the user's HA instance
 
 ## Prioritized next-action queue
 
 ### P0, do next
-1. Continue the current real Home Assistant validation pass against the shipped native Configure workflow, using temporary operator workarounds where needed so broader runtime/device validation can continue
-2. Capture exact friction in that run, especially around Configure, managed-device onboarding, and support-surface coherence
-3. Fix only the confirmed friction that blocks a normal operator path, except for the currently deferred combined/net grid energy field bug which is documented below and may be revisited after broader operator validation
-4. Re-run validation and record whether each issue is fully closed
+1. Fix the current real HA startup blocker so Zero Net Export no longer fails setup on null-state access, now specifically the `stale_data` crash exposed after manual v0.1.69 install
+2. Ensure the native integration page populates entries/services/buttons again instead of showing `No entries`
+3. Fix native managed-device add flow so ordinary controllable entities appear as selectable entries for real operator choices like a light or switch
+4. Prove one real controllable device can be added and saved end-to-end in the user's HA instance
+5. Re-run restart and reload validation and record whether the integration stays alive after install
+6. Only after those pass, continue broader runtime/device validation
 
 ### Deferred but explicitly tracked
 1. Investigate the combined/net grid energy field bug in the native Configure flow: in at least one real Home Assistant install, selecting a valid energy entity still produces the field-level error `Entity is neither a valid entity ID nor a valid UUID`
