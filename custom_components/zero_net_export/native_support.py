@@ -98,6 +98,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not source_mapping.get(key)]
     validation_details = _validation_details(state)
     validation_issues = validation_details.get("issues", [])
+    source_diagnostics = validation_details.get("source_diagnostics", {})
     blocking_validation_issues = [
         issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
     ]
@@ -155,16 +156,39 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         },
     ]
 
+    unavailable_source_roles = [
+        SOURCE_ROLE_LABELS.get(key, key)
+        for key, detail in source_diagnostics.items()
+        if detail.get("status") == "unavailable"
+    ]
+    stale_source_roles = [
+        SOURCE_ROLE_LABELS.get(key, key)
+        for key, detail in source_diagnostics.items()
+        if (detail.get("age_seconds") or 0) > 120
+    ]
+
     if missing_required_sources:
         phase = "source_setup"
-        next_step = "Finish required source mapping in Configure, then save and reload the integration."
+        next_step = (
+            "Open Configure -> Sources and source mapping, finish the missing required source roles, then save and reload the integration."
+        )
         summary = "Native setup is blocked on missing required source mappings."
     elif blocking_validation_issues or state_stale_data:
         phase = "source_remediation"
-        if state_stale_data and stale_summary:
+        if unavailable_source_roles:
+            listed = ", ".join(unavailable_source_roles[:6])
+            next_step = (
+                f"Open Configure -> Sources and source mapping, then repair the unavailable mapped source roles: {listed}."
+            )
+        elif state_stale_data and stale_source_roles:
+            listed = ", ".join(stale_source_roles[:6])
+            next_step = (
+                f"Open Configure -> Sources and source mapping or the diagnostics snapshot, then fix the stale mapped source roles: {listed}."
+            )
+        elif state_stale_data and stale_summary:
             next_step = f"Open Configure or the diagnostics snapshot and fix the stale mapped sources. {stale_summary}."
         else:
-            next_step = "Use native diagnostics and calibration hints to fix source validation or stale-data issues."
+            next_step = "Open Configure -> Sources and source mapping, then use native diagnostics and calibration hints to fix source validation issues."
         summary = "Native setup is waiting on healthy validated source data."
     elif device_parse_issues:
         phase = "device_remediation"
@@ -238,6 +262,16 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         )
         for key, details in source_diagnostics.items()
     ]
+    unavailable_source_roles = [
+        SOURCE_ROLE_LABELS.get(key, key)
+        for key, details in source_diagnostics.items()
+        if details.get("status") == "unavailable"
+    ]
+    stale_source_roles = [
+        SOURCE_ROLE_LABELS.get(key, key)
+        for key, details in source_diagnostics.items()
+        if (details.get("age_seconds") or 0) > 120
+    ]
     runtime_device_details = getattr(state, "device_details", None) or {}
     device_lines = []
     for item in configured_devices:
@@ -302,6 +336,8 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         "",
         "Source health",
         *(source_health_lines or ["- none"]),
+        f"- unavailable roles: {', '.join(unavailable_source_roles) if unavailable_source_roles else 'none'}",
+        f"- stale roles: {', '.join(stale_source_roles) if stale_source_roles else 'none'}",
         "",
         "Configured devices",
         f"- total: {getattr(state, 'device_count', 0)}",

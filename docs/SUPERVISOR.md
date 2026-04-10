@@ -132,7 +132,7 @@ Do not call the native-operator release line ready unless all gates below pass.
 2. Make managed-device review/add/edit/remove feel like a first-class native operator workflow instead of buried capability
 3. Make policy/settings clearly discoverable as a distinct native path for mode, target export, deadband, reserve, and related controller behavior
 4. Re-run restart and reload validation and record whether the integration stays alive after install, now that `0.1.72` has crossed the startup-stability line
-5. Use the live source-validation blockers in the user's HA install to improve operator-facing remediation clarity
+5. Use the live source-validation blockers in the user's HA install to improve operator-facing remediation clarity, especially by naming the unavailable/stale mapped source roles and pointing operators back to Configure -> Sources
 6. Then continue broader runtime/device validation
 
 ### Deferred but explicitly tracked
