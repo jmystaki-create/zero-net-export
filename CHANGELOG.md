@@ -10,6 +10,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Expanded the optional Lovelace debug dashboard scaffold inside Home Assistant with controller intent, battery/grid/solar telemetry, fleet planning, guard/support actions, and recent control activity, while keeping it outside the supported operator path.
 
 ### Fixed
+- Made stale-source remediation more explicit in native support surfaces by naming the affected mapped source roles and backing entity ids in the stale summary, then reusing that exact summary in the checklist and next-step guidance so live HA installs point operators at the specific stale sources to fix.
 - Finished the remaining null-safety pass for native support and diagnostics helpers so helper surfaces no longer dereference `state.validation_details` while coordinator state is still unavailable during startup or reload.
 - Hardened the native support checklist and snapshot surfaces against startup windows where coordinator state is still `None`, targeting the live Home Assistant `setup_retry` crash `'NoneType' object has no attribute 'stale_data'`.
 - Expanded fixed-load onboarding so native managed-device add/edit now accepts `light` entities alongside `switch` and `input_boolean`, matching ordinary controllable Home Assistant loads that operators expect to see in the picker.

@@ -732,11 +732,14 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             return "No required mapped sources currently look stale"
         parts = []
         for item in stale_sources[:3]:
+            label = SOURCE_ROLE_LABELS.get(str(item.get("key")), str(item.get("key")))
+            entity_id = item.get("entity_id")
             age = item.get("age_seconds")
+            entity_suffix = f" via {entity_id}" if entity_id else ""
             if age is None:
-                parts.append(str(item.get("key")))
+                parts.append(f"{label}{entity_suffix}")
             else:
-                parts.append(f"{item.get('key')} ({round(float(age))} s old)")
+                parts.append(f"{label}{entity_suffix} ({round(float(age))} s old)")
         summary = ", ".join(parts)
         if len(stale_sources) > 3:
             summary += f", +{len(stale_sources) - 3} more"
