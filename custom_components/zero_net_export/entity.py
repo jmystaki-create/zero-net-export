@@ -21,3 +21,18 @@ class ZeroNetExportEntity(CoordinatorEntity):
             "model": "Zero Net Export",
             "sw_version": INTEGRATION_VERSION,
         }
+
+    @property
+    def _state(self):
+        return self.coordinator.data
+
+    @property
+    def _validation_details(self) -> dict:
+        state = self._state
+        if state is None:
+            return {}
+        return state.validation_details or {}
+
+    @property
+    def available(self) -> bool:
+        return self._state is not None

@@ -10,21 +10,26 @@ from .entity import ZeroNetExportEntity
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     entities = [ZeroNetExportEnabledSwitch(coordinator, "enabled", "Enabled")]
-    entities.extend(
-        ZeroNetExportDeviceEnabledSwitch(coordinator, device_key, details["name"])
-        for device_key, details in coordinator.data.device_details.items()
-    )
+    state = coordinator.data
+    if state is not None:
+        entities.extend(
+            ZeroNetExportDeviceEnabledSwitch(coordinator, device_key, details["name"])
+            for device_key, details in state.device_details.items()
+        )
     async_add_entities(entities)
 
 
 class ZeroNetExportEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
     @property
     def is_on(self):
-        return self.coordinator.data.enabled
+        state = self._state
+        if state is None:
+            return None
+        return state.enabled
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.validation_details
+        return self._validation_details
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.async_set_enabled(True)
@@ -40,11 +45,17 @@ class ZeroNetExportDeviceEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
 
     @property
     def is_on(self):
-        return bool(self.coordinator.data.device_details[self._device_key]["effective_enabled"])
+        state = self._state
+        if state is None:
+            return None
+        return bool(state.device_details.get(self._device_key, {}).get("effective_enabled"))
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.async_set_device_enabled_override(self._device_key, True)

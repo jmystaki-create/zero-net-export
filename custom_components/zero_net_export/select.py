@@ -19,11 +19,14 @@ class ZeroNetExportModeSelect(ZeroNetExportEntity, SelectEntity):
 
     @property
     def current_option(self):
-        return self.coordinator.data.mode
+        state = self._state
+        if state is None:
+            return None
+        return state.mode
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.validation_details
+        return self._validation_details
 
     async def async_select_option(self, option: str):
         await self.coordinator.async_set_mode(option)

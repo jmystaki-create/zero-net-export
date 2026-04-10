@@ -32,10 +32,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ZeroNetExportBinarySensor(coordinator, "battery_below_reserve", "Battery below reserve"),
     ]
 
-    entities.extend(
-        ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, details["name"])
-        for device_key, details in coordinator.data.device_details.items()
-    )
+    state = coordinator.data
+    if state is not None:
+        entities.extend(
+            ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, details["name"])
+            for device_key, details in state.device_details.items()
+        )
     entities.extend(
         ZeroNetExportSourceStaleBinarySensor(coordinator, source_key, label)
         for source_key, label in SOURCE_LABELS.items()
@@ -46,7 +48,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
 class ZeroNetExportBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
     @property
     def is_on(self):
-        return getattr(self.coordinator.data, self._key)
+        state = self._state
+        if state is None:
+            return None
+        return getattr(state, self._key)
 
 
 class ZeroNetExportSourceStaleBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
@@ -56,13 +61,13 @@ class ZeroNetExportSourceStaleBinarySensor(ZeroNetExportEntity, BinarySensorEnti
 
     @property
     def is_on(self):
-        freshness = self.coordinator.data.validation_details.get("source_freshness", {}).get(self._source_key, {})
+        freshness = self._validation_details.get("source_freshness", {}).get(self._source_key, {})
         return bool(freshness.get("stale"))
 
     @property
     def extra_state_attributes(self):
-        diagnostic = self.coordinator.data.validation_details.get("source_diagnostics", {}).get(self._source_key, {})
-        freshness = self.coordinator.data.validation_details.get("source_freshness", {}).get(self._source_key, {})
+        diagnostic = self._validation_details.get("source_diagnostics", {}).get(self._source_key, {})
+        freshness = self._validation_details.get("source_freshness", {}).get(self._source_key, {})
         return {
             **diagnostic,
             "freshness": freshness,
@@ -76,8 +81,14 @@ class ZeroNetExportDeviceUsableBinarySensor(ZeroNetExportEntity, BinarySensorEnt
 
     @property
     def is_on(self):
-        return bool(self.coordinator.data.device_details[self._device_key]["usable"])
+        state = self._state
+        if state is None:
+            return None
+        return bool(state.device_details.get(self._device_key, {}).get("usable"))
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})

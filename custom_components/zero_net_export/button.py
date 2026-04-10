@@ -23,10 +23,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ZeroNetExportShowNativeDiagnosticsButton(coordinator),
         ZeroNetExportShowSetupChecklistButton(coordinator),
     ]
-    entities.extend(
-        ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, details["name"])
-        for device_key, details in coordinator.data.device_details.items()
-    )
+    state = coordinator.data
+    if state is not None:
+        entities.extend(
+            ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, details["name"])
+            for device_key, details in state.device_details.items()
+        )
     async_add_entities(entities)
 
 
@@ -48,7 +50,7 @@ class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEnt
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.validation_details
+        return self._validation_details
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_controller_overrides()
@@ -67,8 +69,8 @@ class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEnti
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "phase": readiness.get("phase"),
             "next_step": readiness.get("next_step"),
-            "diagnostic_summary": self.coordinator.data.diagnostic_summary,
-            "health_summary": self.coordinator.data.health_summary,
+            "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
+            "health_summary": self._state.health_summary if self._state else None,
         }
 
     async def async_press(self) -> None:
@@ -91,8 +93,8 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
     def extra_state_attributes(self):
         return {
             "configure_path": PRIMARY_CONFIGURE_PATH,
-            "diagnostic_summary": self.coordinator.data.diagnostic_summary,
-            "health_summary": self.coordinator.data.health_summary,
+            "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
+            "health_summary": self._state.health_summary if self._state else None,
         }
 
     async def async_press(self) -> None:
@@ -122,9 +124,9 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
         readiness = build_native_operator_readiness(self.coordinator)
         return {
             "configure_path": PRIMARY_CONFIGURE_PATH,
-            "diagnostic_summary": self.coordinator.data.diagnostic_summary,
-            "source_mismatch": self.coordinator.data.source_mismatch,
-            "stale_data": self.coordinator.data.stale_data,
+            "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
+            "source_mismatch": self._state.source_mismatch if self._state else None,
+            "stale_data": self._state.stale_data if self._state else None,
             "checklist": readiness.get("checklist"),
         }
 
@@ -142,8 +144,8 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 f"Entry: {self.coordinator.entry.title}",
                 f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
-                f"Summary: {readiness.get('summary') or self.coordinator.data.health_summary}",
-                f"Next step: {readiness.get('next_step') or self.coordinator.data.recommendation}",
+                f"Summary: {readiness.get('summary') or (self._state.health_summary if self._state else None)}",
+                f"Next step: {readiness.get('next_step') or (self._state.recommendation if self._state else None)}",
                 "",
                 "Checklist",
                 *(checklist_lines or ["- No checklist available yet."]),
@@ -164,7 +166,10 @@ class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity)
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_device_overrides(self._device_key)

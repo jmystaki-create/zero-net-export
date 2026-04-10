@@ -10,6 +10,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Expanded the optional Lovelace debug dashboard scaffold inside Home Assistant with controller intent, battery/grid/solar telemetry, fleet planning, guard/support actions, and recent control activity, while keeping it outside the supported operator path.
 
 ### Fixed
+- Hardened native platform setup and entity attribute access against startup windows where `coordinator.data` is still `None`, preventing Zero Net Export from crashing early in Home Assistant with `'NoneType' object has no attribute 'validation_details'` before entities can finish loading.
 - Normalized combined-grid entity selector payload handling more defensively, including nested `*.entity_id` option-flow payloads, to target the still-open Home Assistant combined/net grid energy submit bug.
 - Reverted README and dashboard docs that had drifted into presenting Lovelace as a supported operator surface. The supervisor-aligned position is again explicit: the supported operator path is native Home Assistant integration/device surfaces only, with Lovelace kept optional for debug visibility.
 - Tightened IMPLEMENTATION_PLAN and REFERENCE_MATRIX language so roadmap/reference docs no longer describe a Home Assistant mini-app or operator dashboard as the supported direction.
@@ -34,6 +35,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Updated ENTITY_MODEL and ARCHITECTURE docs so source-role descriptions now reflect the combined/net grid mapping path instead of assuming separate import/export entities only.
 - Updated README, native setup field copy, and validation checklist so the optional home-load sensor path now matches the shipped native setup behavior.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
+
+## [0.1.68] - 2026-04-10
+
+### Fixed
+- Hardened native platform setup and entity attribute access against startup windows where `coordinator.data` is still `None`, preventing Zero Net Export from crashing early in Home Assistant with `'NoneType' object has no attribute 'validation_details'` before entities can finish loading.
 
 ## [0.1.67] - 2026-04-10
 

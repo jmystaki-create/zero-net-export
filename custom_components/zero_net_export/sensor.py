@@ -129,34 +129,36 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities = [ZeroNetExportSensor(coordinator, key, name) for key, name in SENSOR_DEFS.items()]
     entities.extend(_build_source_entities(coordinator))
 
-    for device_key, details in coordinator.data.device_details.items():
-        entities.extend(
-            [
-                ZeroNetExportDeviceStatusSensor(coordinator, device_key, details["name"]),
-                ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "current_power_w", "Current power"),
-                ZeroNetExportDevicePlanSensor(coordinator, device_key, details["name"]),
-                ZeroNetExportDeviceGuardSensor(coordinator, device_key, details["name"]),
-                ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "planned_power_delta_w", "Planned power delta"),
-                ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_requested_power_w", "Last requested power"),
-                ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_applied_power_w", "Last applied power"),
-                ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "current_active_seconds", "Current active runtime"),
-                ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "active_runtime_today_seconds", "Active runtime today"),
-                ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_action_at", "Last action at"),
-                ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_applied_at", "Last applied at"),
-                ZeroNetExportDeviceDetailSensor(coordinator, device_key, details["name"], "last_action_status", "Last action status"),
-                ZeroNetExportDeviceDetailSensor(coordinator, device_key, details["name"], "last_action_result_message", "Last action result"),
-            ]
-        )
-        if details["kind"] == "variable":
-            entities.append(
-                ZeroNetExportDevicePowerSensor(
-                    coordinator,
-                    device_key,
-                    details["name"],
-                    "current_target_power_w",
-                    "Target power",
-                )
+    state = coordinator.data
+    if state is not None:
+        for device_key, details in state.device_details.items():
+            entities.extend(
+                [
+                    ZeroNetExportDeviceStatusSensor(coordinator, device_key, details["name"]),
+                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "current_power_w", "Current power"),
+                    ZeroNetExportDevicePlanSensor(coordinator, device_key, details["name"]),
+                    ZeroNetExportDeviceGuardSensor(coordinator, device_key, details["name"]),
+                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "planned_power_delta_w", "Planned power delta"),
+                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_requested_power_w", "Last requested power"),
+                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_applied_power_w", "Last applied power"),
+                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "current_active_seconds", "Current active runtime"),
+                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "active_runtime_today_seconds", "Active runtime today"),
+                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_action_at", "Last action at"),
+                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_applied_at", "Last applied at"),
+                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, details["name"], "last_action_status", "Last action status"),
+                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, details["name"], "last_action_result_message", "Last action result"),
+                ]
             )
+            if details["kind"] == "variable":
+                entities.append(
+                    ZeroNetExportDevicePowerSensor(
+                        coordinator,
+                        device_key,
+                        details["name"],
+                        "current_target_power_w",
+                        "Target power",
+                    )
+                )
 
     async_add_entities(entities)
 
@@ -184,13 +186,16 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             info = build_release_info(INTEGRATION_VERSION)
             return info.get(self._key)
         if self._key in {"previous_installed_version", "update_summary"}:
-            update = self.coordinator.data.validation_details.get("release_update", {})
+            update = self._validation_details.get("release_update", {})
             mapping = {
                 "previous_installed_version": update.get("previous_installed_version"),
                 "update_summary": update.get("summary"),
             }
             return mapping.get(self._key)
-        return getattr(self.coordinator.data, self._key)
+        state = self._state
+        if state is None:
+            return None
+        return getattr(state, self._key)
 
     @property
     def entity_category(self):
@@ -259,11 +264,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key in {"previous_installed_version", "release_summary", "changes_preview", "update_summary"}:
             return {
                 **build_release_info(INTEGRATION_VERSION),
-                **(self.coordinator.data.validation_details.get("release_update", {}) or {}),
+                **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:
-            return self.coordinator.data.validation_details
+            return self._validation_details
         return None
 
     @property
@@ -282,11 +287,11 @@ class ZeroNetExportSourceBaseSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def _source_diagnostic(self):
-        return self.coordinator.data.validation_details.get("source_diagnostics", {}).get(self._source_key, {})
+        return self._validation_details.get("source_diagnostics", {}).get(self._source_key, {})
 
     @property
     def _source_freshness(self):
-        return self.coordinator.data.validation_details.get("source_freshness", {}).get(self._source_key, {})
+        return self._validation_details.get("source_freshness", {}).get(self._source_key, {})
 
     @property
     def extra_state_attributes(self):
@@ -348,11 +353,17 @@ class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key]["status"]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get("status")
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
 
 class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
@@ -362,11 +373,17 @@ class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key]["planned_action"]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get("planned_action")
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
 
 class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
@@ -376,11 +393,17 @@ class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key]["guard_status"]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get("guard_status")
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
 
 class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
@@ -391,7 +414,10 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key][self._value_key]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get(self._value_key)
 
     @property
     def native_unit_of_measurement(self):
@@ -399,7 +425,10 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
 
 class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
@@ -410,7 +439,10 @@ class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key][self._value_key]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get(self._value_key)
 
     @property
     def native_unit_of_measurement(self):
@@ -418,7 +450,10 @@ class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
 
 class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
@@ -431,11 +466,17 @@ class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key][self._value_key]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get(self._value_key)
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
 
 class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
@@ -446,8 +487,14 @@ class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key][self._value_key]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get(self._value_key)
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})

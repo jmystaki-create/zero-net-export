@@ -15,12 +15,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ZeroNetExportNumber(coordinator, "deadband_w", "Deadband", 0, 2000, 10),
         ZeroNetExportNumber(coordinator, "battery_reserve_soc", "Battery reserve SOC", 0, 100, 1),
     ]
-    entities.extend(
-        [
-            ZeroNetExportDevicePriorityNumber(coordinator, device_key, details["name"])
-            for device_key, details in coordinator.data.device_details.items()
-        ]
-    )
+    state = coordinator.data
+    if state is not None:
+        entities.extend(
+            [
+                ZeroNetExportDevicePriorityNumber(coordinator, device_key, details["name"])
+                for device_key, details in state.device_details.items()
+            ]
+        )
     async_add_entities(entities)
 
 
@@ -33,11 +35,14 @@ class ZeroNetExportNumber(ZeroNetExportEntity, NumberEntity):
 
     @property
     def native_value(self):
-        return getattr(self.coordinator.data, self._key)
+        state = self._state
+        if state is None:
+            return None
+        return getattr(state, self._key)
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.validation_details
+        return self._validation_details
 
     async def async_set_native_value(self, value: float):
         if self._key == "target_export_w":
@@ -67,11 +72,17 @@ class ZeroNetExportDevicePriorityNumber(ZeroNetExportEntity, NumberEntity):
 
     @property
     def native_value(self):
-        return self.coordinator.data.device_details[self._device_key]["effective_priority"]
+        state = self._state
+        if state is None:
+            return None
+        return state.device_details.get(self._device_key, {}).get("effective_priority")
 
     @property
     def extra_state_attributes(self):
-        return self.coordinator.data.device_details[self._device_key]
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
 
     async def async_set_native_value(self, value: float):
         await self.coordinator.async_set_device_priority_override(self._device_key, int(value))
