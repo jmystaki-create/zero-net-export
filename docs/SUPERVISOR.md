@@ -47,7 +47,7 @@ That means:
 
 | ID | Gap / risk | Why it matters | Current signal | Exit condition |
 |---|---|---|---|---|
-| G1 | Native Configure flow may still contain real-world friction | This is now the primary product path | Recent real-install screenshots already caught broken setup handoff behavior | A fresh install and post-install Configure flow work end-to-end in a real HA instance without workaround |
+| G1 | Native Configure flow may still contain real-world friction | This is now the primary product path | Recent real-install screenshots already caught broken setup handoff behavior, and combined/net grid energy selection still throws a Home Assistant field-level `Entity is neither a valid entity ID nor a valid UUID` error in at least one real install | A fresh install and post-install Configure flow work end-to-end in a real HA instance without workaround |
 | G2 | Native support surfaces are improved but still somewhat fragmented | Operators need one clear troubleshooting path | Support center, snapshot, checklist, device actions, entities, and Repairs now coexist | Real validation shows operators can diagnose setup/runtime state without hunting across unrelated surfaces |
 | G3 | Managed-device UX is better, but larger mixed fleets may still feel clumsy | Fleet installs are where native flows most often regress into friction | Native presets, edit flow, and fleet review exist, but broader real-world proof is limited | A 5-10+ device mixed install can be onboarded, reviewed, and adjusted without JSON for normal work |
 | G4 | JSON-backed inventory remains an internal dependency | Internal structure can leak back into operator experience | Docs already acknowledge the transitional design | Normal operator tasks do not require JSON except recovery or bulk surgery |
@@ -94,10 +94,15 @@ Do not call the native-operator release line ready unless all gates below pass.
 ## Prioritized next-action queue
 
 ### P0, do next
-1. Run the next real Home Assistant validation pass against the currently shipped native Configure workflow
+1. Continue the current real Home Assistant validation pass against the shipped native Configure workflow, using temporary operator workarounds where needed so broader runtime/device validation can continue
 2. Capture exact friction in that run, especially around Configure, managed-device onboarding, and support-surface coherence
-3. Fix only the confirmed friction that blocks a normal operator path
-4. Re-run validation and record whether the issue is fully closed
+3. Fix only the confirmed friction that blocks a normal operator path, except for the currently deferred combined/net grid energy field bug which is documented below and may be revisited after broader operator validation
+4. Re-run validation and record whether each issue is fully closed
+
+### Deferred but explicitly tracked
+1. Investigate the combined/net grid energy field bug in the native Configure flow: in at least one real Home Assistant install, selecting a valid energy entity still produces the field-level error `Entity is neither a valid entity ID nor a valid UUID`
+2. Treat the current workaround, supplying a different working value to proceed, as temporary and acceptable only to unblock broader product validation
+3. Highest-probability next investigation path: simplify the combined-grid energy form handling so the field validates as a plain selected entity before conversion into derived import/export bindings
 
 ### P1, next after the validation pass
 1. Validate a mixed-device fleet scenario, not just a single-device happy path

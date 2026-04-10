@@ -77,6 +77,7 @@
 - be explicit about project maturity ✅ current guidance now treats the HA-first approach as correct but still transitional pending broader real-world validation
 - reduce custom frontend dependency for normal operation ✅ no custom panel assets are required for setup or troubleshooting
 - update repo guidance and validation docs ✅ active planning/docs now center native Home Assistant surfaces instead of the removed panel route
+- known combined-grid energy options-flow bug ⚠️ deferred for now: in at least one real HA install, the combined/net grid energy selector still throws a field-level `Entity is neither a valid entity ID nor a valid UUID` error despite showing a selected entity; current plan is to document the workaround, continue broader validation, then revisit this path with a simpler field-to-binding conversion strategy
 
 ## Phase 8 — Future enhancements
 - keep tightening native fleet management next, especially around polish, larger mixed-device installs, and any remaining cases that still push operators back into raw JSON
