@@ -4,22 +4,22 @@ This project includes a native Home Assistant operator dashboard scaffold at:
 
 - `examples/lovelace/zero_net_export_dashboard.yaml`
 
-It is intentionally plain Lovelace YAML, not a custom frontend. It lives fully inside Home Assistant and is the recommended live-visibility surface for operators who want to see what the controller, battery, grid, and managed loads are doing in one place.
+It is intentionally plain Lovelace YAML, not a custom frontend. It lives fully inside Home Assistant and is the recommended expert live-visibility surface for operators who want to see what the controller, battery, grid, and managed loads are doing in one place.
 
 This dashboard complements, rather than replaces, the integration's native Configure, Repairs, device-page entities, and support buttons.
 
 ## What this scaffold covers
 
-The dashboard is structured around the native operator workflow:
+The dashboard is structured as an expert control panel around the native operator workflow:
 
 1. **Live power picture** — solar, home load, grid import/export, battery SOC, controlled load, surplus, export error
-2. **Controller state** — enable switch, mode, target export, deadband, battery reserve, and controller reasoning
-3. **Health and support** — safe mode, source mismatch, stale data, command failure, health summary, and native support buttons
-4. **Source diagnostics** — quick visibility into mapped source status/readings
-5. **Device fleet summary** — configured/usable devices and current planned vs blocked control state
-6. **Recent control activity** — last action, failures, and operator-facing summaries
+2. **Controller intent and overrides** — enable switch, mode, target export, deadband, battery reserve, override visibility, and controller reasoning
+3. **Health, guards, and support** — safe mode, source mismatch, stale data, command failure, reserve gating, health summary, and native support buttons
+4. **Source-level diagnostics** — mapped source status, readings, age, and staleness
+5. **Fleet and planning summary** — configured/usable devices and current planned vs blocked control state
+6. **Action and failure timeline** — last action, last success, recent failure, and cycle totals
 7. **Daily impact** — daily action counts and redirected-energy estimate
-8. **Managed loads guidance** — how to add one native card per configured load using the existing per-device entities
+8. **Managed-load card template** — how to add one serious per-device control card per configured load using the existing per-device entities
 
 ## Importing it into Home Assistant
 
@@ -119,9 +119,9 @@ For each configured device, the current integration exposes a per-device set inc
 
 Per-device state now also includes runtime-cap visibility in attributes such as `max_active_seconds`, `current_active_seconds`, and `planned_action_policy`, so operators can distinguish ordinary balancing from protective runtime-cap shedding.
 
-The scaffold no longer hardcodes example device cards because real installs differ too much.
+The scaffold no longer hardcodes fake example device cards because real installs differ too much.
 
-Instead, add one section/card per configured load using your real device keys derived from the managed-device inventory.
+Instead, add one serious per-device control section/card per configured load using your real device keys derived from the managed-device inventory.
 
 Common examples might look like:
 
