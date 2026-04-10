@@ -134,6 +134,19 @@ def _build_derived_binding(mode: str, entity_id: str | None) -> str | None:
     return f"{DERIVED_SOURCE_PREFIX}:{mode}:{entity_id}"
 
 
+def _normalize_selector_entity_value(value: Any) -> str | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, str):
+        return value
+    if isinstance(value, dict):
+        for key in ("entity_id", "value", "id"):
+            candidate = value.get(key)
+            if isinstance(candidate, str) and candidate:
+                return candidate
+    return str(value)
+
+
 def _selector_entity_default(raw: str | None, *, allow_derived: bool = False) -> str:
     binding = parse_source_binding(raw)
     if not binding.valid or not binding.entity_id:
@@ -421,25 +434,25 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             merged_data = dict(self._config_entry.data)
             merged_options = dict(self._config_entry.options)
 
-            merged_data[CONF_SOLAR_POWER_ENTITY] = user_input.get(CONF_SOLAR_POWER_ENTITY) or None
-            merged_data[CONF_SOLAR_ENERGY_ENTITY] = user_input.get(CONF_SOLAR_ENERGY_ENTITY) or None
-            merged_data[CONF_HOME_LOAD_POWER_ENTITY] = user_input.get(CONF_HOME_LOAD_POWER_ENTITY) or None
-            merged_data[CONF_BATTERY_SOC_ENTITY] = user_input.get(CONF_BATTERY_SOC_ENTITY) or None
-            merged_data[CONF_BATTERY_CHARGE_POWER_ENTITY] = user_input.get(CONF_BATTERY_CHARGE_POWER_ENTITY) or None
-            merged_data[CONF_BATTERY_DISCHARGE_POWER_ENTITY] = user_input.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY) or None
+            merged_data[CONF_SOLAR_POWER_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_SOLAR_POWER_ENTITY))
+            merged_data[CONF_SOLAR_ENERGY_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_SOLAR_ENERGY_ENTITY))
+            merged_data[CONF_HOME_LOAD_POWER_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_HOME_LOAD_POWER_ENTITY))
+            merged_data[CONF_BATTERY_SOC_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_BATTERY_SOC_ENTITY))
+            merged_data[CONF_BATTERY_CHARGE_POWER_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_BATTERY_CHARGE_POWER_ENTITY))
+            merged_data[CONF_BATTERY_DISCHARGE_POWER_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY))
 
             if grid_mode == GRID_SENSOR_MODE_COMBINED:
-                combined_power = user_input.get("grid_power_entity") or None
-                combined_energy = user_input.get("grid_energy_entity") or None
+                combined_power = _normalize_selector_entity_value(user_input.get("grid_power_entity"))
+                combined_energy = _normalize_selector_entity_value(user_input.get("grid_energy_entity"))
                 merged_data[CONF_GRID_IMPORT_POWER_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_POSITIVE, combined_power)
                 merged_data[CONF_GRID_EXPORT_POWER_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_NEGATIVE_ABS, combined_power)
                 merged_data[CONF_GRID_IMPORT_ENERGY_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_POSITIVE, combined_energy)
                 merged_data[CONF_GRID_EXPORT_ENERGY_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_NEGATIVE_ABS, combined_energy)
             else:
-                merged_data[CONF_GRID_IMPORT_POWER_ENTITY] = user_input.get(CONF_GRID_IMPORT_POWER_ENTITY) or None
-                merged_data[CONF_GRID_EXPORT_POWER_ENTITY] = user_input.get(CONF_GRID_EXPORT_POWER_ENTITY) or None
-                merged_data[CONF_GRID_IMPORT_ENERGY_ENTITY] = user_input.get(CONF_GRID_IMPORT_ENERGY_ENTITY) or None
-                merged_data[CONF_GRID_EXPORT_ENERGY_ENTITY] = user_input.get(CONF_GRID_EXPORT_ENERGY_ENTITY) or None
+                merged_data[CONF_GRID_IMPORT_POWER_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_GRID_IMPORT_POWER_ENTITY))
+                merged_data[CONF_GRID_EXPORT_POWER_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_GRID_EXPORT_POWER_ENTITY))
+                merged_data[CONF_GRID_IMPORT_ENERGY_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_GRID_IMPORT_ENERGY_ENTITY))
+                merged_data[CONF_GRID_EXPORT_ENERGY_ENTITY] = _normalize_selector_entity_value(user_input.get(CONF_GRID_EXPORT_ENERGY_ENTITY))
 
             merged_options[CONF_GRID_SENSOR_MODE] = grid_mode
             merged_options[CONF_REFRESH_SECONDS] = int(

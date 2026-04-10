@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Normalized native selector values before validation so Home Assistant picker payloads that arrive as structured objects no longer trip fake "valid entity ID or valid UUID" errors on submit.
 - Restored native entity pickers after the temporary text-field workaround regressed selection UX; picker-based mapping is available again while deeper HA selector issues continue to be investigated.
 - Switched native source mapping fields to plain text entity-id inputs to bypass a Home Assistant selector validation bug that was rejecting valid selected entities with misleading "valid entity ID or valid UUID" errors.
 - Tightened native source selectors so combined grid energy only accepts energy-class sensors and power-only slots reject energy sensors, preventing invalid mixed-type selections from failing late with confusing entity-id errors.
