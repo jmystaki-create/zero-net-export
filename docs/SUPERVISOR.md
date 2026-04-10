@@ -79,6 +79,7 @@ The current native-HA-only release line is acceptable when all of the following 
 - `manifest.json`, `CHANGELOG.md`, release tag, and tested package version all agree
 - tested install path is confirmed to be serving that exact package
 - validation evidence is recorded before release claims are made
+- release execution follows the approved release-management workflow in `RELEASE_MANAGEMENT.md`, including approval, GitHub latest-release verification, forced HACS metadata refresh, HA restart, and post-release project-specific log review
 
 ## Release gate checklist
 
@@ -90,6 +91,7 @@ Do not call the native-operator release line ready unless all gates below pass.
 - [ ] Gate 4: Support/checklist/diagnostics/Repairs surfaces are coherent enough for operator triage
 - [ ] Gate 5: Larger-fleet usability has at least one concrete validation pass, or is explicitly deferred in release notes
 - [ ] Gate 6: Release metadata, tag, changelog, and distributed package are all aligned
+- [ ] Gate 7: Release execution followed `RELEASE_MANAGEMENT.md`, including post-restart Zero Net Export log review and roll-forward capture of project-specific errors for the next release
 
 ## Prioritized next-action queue
 
@@ -121,6 +123,8 @@ When deciding what to do next:
 - prefer release-proofing and validation over roadmap expansion
 - treat JSON reduction as a means, not the end goal
 - do not reintroduce a custom panel as the default answer to native UX rough edges
+- treat `RELEASE_MANAGEMENT.md` as the operational release procedure for this project, not an optional suggestion
+- after each release/restart, inspect Home Assistant logs for Zero Net Export specific errors and carry those findings into the next release by default, without waiting for the user to restate them
 
 ## Source documents
 
@@ -128,4 +132,4 @@ When deciding what to do next:
 - Current implementation trail: `docs/IMPLEMENTATION_PLAN.md`
 - Native operator direction: `docs/NATIVE_OPERATOR_PLAN.md`
 - Validation proof: `docs/VALIDATION_CHECKLIST.md`
-- Release discipline: `docs/RELEASE_PROCESS.md`
+- Release discipline: `RELEASE_MANAGEMENT.md`
