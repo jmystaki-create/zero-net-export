@@ -280,9 +280,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def _device_status_label(device: dict[str, Any]) -> str:
         state = "enabled" if device.get("enabled", True) else "disabled"
         priority = int(device.get("priority", 0) or 0)
+        power = int(float(device.get("nominal_power_w", 0) or 0))
         return (
             f"{device.get('name', 'Unnamed device')} "
-            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, {device.get('entity_id', 'unknown entity')})"
+            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, {power} W, {device.get('entity_id', 'unknown entity')})"
         )
 
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
@@ -296,7 +297,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 str(item.get("name", "")).lower(),
             ),
         )
-        return [f"- {self._device_status_label(device)}" for device in ordered]
+        enabled_count = sum(1 for device in devices if device.get("enabled", True))
+        fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
+        variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
+        total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
+        lines = [
+            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power",
+        ]
+        lines.extend(f"- {self._device_status_label(device)}" for device in ordered)
+        return lines
 
     def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
         raw_inventory = _entry_default_text(

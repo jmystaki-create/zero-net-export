@@ -39,6 +39,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Updated README, native setup field copy, and validation checklist so the optional home-load sensor path now matches the shipped native setup behavior.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 
+## [0.1.73] - 2026-04-10
+
+### Changed
+- Reworked the native Configure flow into a clearer command-center layout with explicit Sources, Policy, Managed devices, and Advanced recovery sections.
+- Improved managed-device summaries and wording so the installed UI better explains where operators tag controllable loads and where controller policy is tuned.
+
 ## [0.1.72] - 2026-04-10
 
 ### Fixed

@@ -85,7 +85,7 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen as the main managed-device workspace. Add, review, edit, enable, disable, and remove fixed or variable devices here first, and only drop into JSON editing for recovery or bulk changes.\n\nPrimary path: {configure_path}.\n\nConfigured devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nDevice issues:\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. Add, review, edit, enable, disable, and remove fixed or variable devices here first, and only drop into JSON editing for recovery or bulk changes.\n\nThis is where operators tag controllable loads into the Zero Net Export fleet.\n\nPrimary path: {configure_path}.\n\nConfigured devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nDevice issues:\n{device_issues}",
         "data": {
           "device_action": "Managed-device action"
         },
@@ -116,7 +116,7 @@
       },
       "device_add": {
         "title": "{device_mode} managed device",
-        "description": "{device_mode} a {device_kind} through native Home Assistant selectors. This keeps day-to-day device management out of raw JSON while staying panel-free.\n\nPreset: {device_template}\n{template_description}\n\nPrimary path: {configure_path}.",
+        "description": "{device_mode} a {device_kind} through native Home Assistant selectors. This is the main native tagging flow for controllable loads, keeping day-to-day device management out of raw JSON while staying panel-free.\n\nPreset: {device_template}\n{template_description}\n\nPrimary path: {configure_path}.",
         "data": {
           "name": "Device name",
           "entity_id": "Entity",
@@ -151,7 +151,7 @@
       },
       "policy": {
         "title": "Policy and controller settings",
-        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. Use the sources and managed-device sections for normal onboarding.",
+        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. This is where operators set how aggressively Zero Net Export behaves once source mapping is healthy and managed devices are ready.",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
