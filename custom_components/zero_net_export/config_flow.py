@@ -193,7 +193,6 @@ def _grid_mode_missing_sources(config: dict[str, Any], grid_mode: str) -> list[s
     required_keys = [
         CONF_SOLAR_POWER_ENTITY,
         CONF_SOLAR_ENERGY_ENTITY,
-        CONF_HOME_LOAD_POWER_ENTITY,
     ]
     if grid_mode == GRID_SENSOR_MODE_COMBINED:
         required_keys.extend(
@@ -521,7 +520,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 )
             ] = selector.EntitySelector(selector.EntitySelectorConfig(domain=["sensor"]))
         fields[
-            vol.Required(
+            vol.Optional(
                 CONF_HOME_LOAD_POWER_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_HOME_LOAD_POWER_ENTITY, ""),
             )

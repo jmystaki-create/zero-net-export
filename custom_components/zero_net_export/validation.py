@@ -61,6 +61,7 @@ class ValidationResult:
     safe_mode: bool
     source_mismatch: bool
     last_reconciliation_error_w: float | None
+    inferred_home_load_w: float | None
     surplus_w: float | None
     recommendation: str
     diagnostic_summary: str
@@ -599,9 +600,14 @@ def validate_sources(
     battery_discharge = readings["battery_discharge_power"].value or 0.0
     battery_soc = readings["battery_soc"].value
 
-    reconciliation_error = None
-    if solar is not None and home is not None:
+    inferred_home = None
+    if solar is not None:
         inferred_home = solar + grid_import + battery_discharge - grid_export - battery_charge
+        if inferred_home < 0:
+            inferred_home = 0.0
+
+    reconciliation_error = None
+    if inferred_home is not None and home is not None:
         reconciliation_error = home - inferred_home
         if abs(reconciliation_error) > 250:
             issues.append(
@@ -663,8 +669,10 @@ def validate_sources(
         safe_mode = False
 
     surplus_w = None
-    if solar is not None and home is not None:
-        surplus_w = solar + grid_import + battery_discharge - home - battery_charge - grid_export
+    if solar is not None:
+        effective_home = home if home is not None else inferred_home
+        if effective_home is not None:
+            surplus_w = solar + grid_import + battery_discharge - effective_home - battery_charge - grid_export
 
     if error_count:
         top_issue = next(issue for issue in issues if issue.severity == "error")
@@ -682,6 +690,7 @@ def validate_sources(
         safe_mode=safe_mode,
         source_mismatch=error_count > 0 or warning_count > 0,
         last_reconciliation_error_w=reconciliation_error,
+        inferred_home_load_w=inferred_home,
         surplus_w=surplus_w,
         recommendation=build_recommendation(issues),
         diagnostic_summary=build_diagnostic_summary(issues, reconciliation_error, source_diagnostics),

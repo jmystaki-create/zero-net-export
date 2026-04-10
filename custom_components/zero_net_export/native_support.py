@@ -38,7 +38,7 @@ def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
         SourceSpec(CONF_GRID_EXPORT_POWER_ENTITY, config.get(CONF_GRID_EXPORT_POWER_ENTITY), "power"),
         SourceSpec(CONF_GRID_IMPORT_ENERGY_ENTITY, config.get(CONF_GRID_IMPORT_ENERGY_ENTITY), "energy"),
         SourceSpec(CONF_GRID_EXPORT_ENERGY_ENTITY, config.get(CONF_GRID_EXPORT_ENERGY_ENTITY), "energy"),
-        SourceSpec(CONF_HOME_LOAD_POWER_ENTITY, config.get(CONF_HOME_LOAD_POWER_ENTITY), "power"),
+        SourceSpec(CONF_HOME_LOAD_POWER_ENTITY, config.get(CONF_HOME_LOAD_POWER_ENTITY), "power", required=False),
         SourceSpec(CONF_BATTERY_SOC_ENTITY, config.get(CONF_BATTERY_SOC_ENTITY), "percent", required=False),
         SourceSpec(CONF_BATTERY_CHARGE_POWER_ENTITY, config.get(CONF_BATTERY_CHARGE_POWER_ENTITY), "power", required=False),
         SourceSpec(CONF_BATTERY_DISCHARGE_POWER_ENTITY, config.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY), "power", required=False),
@@ -97,7 +97,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             "label": "Required source mapping complete",
             "complete": not missing_required_sources,
             "detail": (
-                "All required solar, grid, and home-load sources are configured."
+                "All required solar and grid sources are configured."
                 if not missing_required_sources
                 else "Missing required sources: "
                 + ", ".join(SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources)

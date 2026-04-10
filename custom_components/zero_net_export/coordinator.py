@@ -318,7 +318,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             SourceSpec("grid_export_power", self.entry.data.get(CONF_GRID_EXPORT_POWER_ENTITY), "power"),
             SourceSpec("grid_import_energy", self.entry.data.get(CONF_GRID_IMPORT_ENERGY_ENTITY), "energy"),
             SourceSpec("grid_export_energy", self.entry.data.get(CONF_GRID_EXPORT_ENERGY_ENTITY), "energy"),
-            SourceSpec("home_load_power", self.entry.data.get(CONF_HOME_LOAD_POWER_ENTITY), "power"),
+            SourceSpec("home_load_power", self.entry.data.get(CONF_HOME_LOAD_POWER_ENTITY), "power", required=False),
             SourceSpec("battery_soc", self.entry.data.get(CONF_BATTERY_SOC_ENTITY), "percent", required=False),
             SourceSpec("battery_charge_power", self.entry.data.get(CONF_BATTERY_CHARGE_POWER_ENTITY), "power", required=False),
             SourceSpec("battery_discharge_power", self.entry.data.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY), "power", required=False),
@@ -1268,6 +1268,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "daily_metrics": self._daily_metrics,
                 "daily_metrics_basis": "Energy redirected today is an estimate derived from observed active managed-device power integrated over coordinator refresh time, not a revenue-grade meter total.",
                 "diagnostic_summary": validation.diagnostic_summary,
+                "inferred_home_load_w": validation.inferred_home_load_w,
                 "calibration_hints": list(validation.calibration_hints),
                 "source_diagnostics": validation.source_diagnostics,
                 "source_freshness": source_freshness,
@@ -1299,7 +1300,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 grid_export_power_w=readings["grid_export_power"].value,
                 grid_import_energy_kwh=readings["grid_import_energy"].value,
                 grid_export_energy_kwh=readings["grid_export_energy"].value,
-                home_load_power_w=readings["home_load_power"].value,
+                home_load_power_w=(
+                    readings["home_load_power"].value
+                    if readings["home_load_power"].value is not None
+                    else validation.inferred_home_load_w
+                ),
                 battery_soc=readings["battery_soc"].value,
                 battery_charge_power_w=readings["battery_charge_power"].value,
                 battery_discharge_power_w=readings["battery_discharge_power"].value,
