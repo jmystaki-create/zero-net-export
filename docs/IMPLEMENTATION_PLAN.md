@@ -68,7 +68,7 @@
 - next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, confirm the new per-device runtime telemetry is trustworthy enough, and keep shifting operator-facing guidance into native Home Assistant surfaces where it improves reliability
 
 ## Phase 7 — Native-surface consolidation
-- stabilize install/runtime behavior in Home Assistant ✅ live HA now reaches a loaded state on the current `0.1.75` repo release line, with native entities present again after the startup crash chain was narrowed and deferred release-metadata reads were fixed on hot paths
+- stabilize install/runtime behavior in Home Assistant ✅ live HA now reaches a loaded state on the current `0.1.76` repo release line, with native entities present again after the startup crash chain was narrowed and deferred release-metadata reads were fixed on hot paths
 - remove the custom sidebar/panel route from the shipped integration ✅ `/zero-net-export` route, launcher assets, and panel registration removed
 - keep bootstrap onboarding minimal ✅ add-integration flow still creates the backend entry with safe defaults
 - keep Configure as the supported setup path ✅ source mapping, managed devices, and controller tuning stay in native Configure
@@ -78,7 +78,7 @@
 - reduce custom frontend dependency for normal operation ✅ no custom panel assets are required for setup or troubleshooting
 - update repo guidance and validation docs ✅ active planning/docs now center native Home Assistant surfaces instead of the removed panel route
 - next operator-UI gap now exposed by real HA validation ⚠️ the installed integration behaves more like a large entity pack than a clear operator product UI, so the next implementation focus is to make Configure the obvious command center for sources, policy, managed devices, and support
-- known combined-grid energy options-flow bug ⚠️ deferred for now: in at least one real HA install, the combined/net grid energy selector still throws a field-level `Entity is neither a valid entity ID nor a valid UUID` error despite showing a selected entity; current plan is to document the workaround, continue broader validation, then revisit this path with a simpler field-to-binding conversion strategy
+- known combined-grid energy options-flow bug ⚠️ partially mitigated: `0.1.76` adds a native manual fallback field so operators can paste the same combined/net grid energy entity ID when the selector still throws a field-level `Entity is neither a valid entity ID nor a valid UUID` error; next step is to validate that native fallback in real HA, then keep simplifying the field-to-binding path until the picker no longer misfires
 
 ## Phase 8 — Future enhancements
 - keep tightening native fleet management next, especially around polish, larger mixed-device installs, and any remaining cases that still push operators back into raw JSON

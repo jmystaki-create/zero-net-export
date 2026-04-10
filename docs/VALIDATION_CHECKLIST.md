@@ -58,7 +58,7 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
-- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; workaround use is acceptable temporarily while broader validation continues
+- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; validate that the new native manual fallback field in `0.1.76` lets the same entity ID complete setup while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
 - [ ] Managed-device flow makes it obvious where to review, edit, enable/disable, and remove devices
@@ -70,7 +70,7 @@ This is the current highest-value path because native onboarding is now the only
 
 - [ ] Solar power entity shows valid reading
 - [ ] Grid source layout selection matches the real install, combined/net or separate import/export
-- [ ] If combined/net grid energy selection still throws the known HA field-level entity/UUID error, record the exact screenshot and workaround used, then continue broader validation instead of blocking the whole run
+- [ ] If combined/net grid energy selection still throws the known HA field-level entity/UUID error, record the exact screenshot and then retry using the new native manual fallback field with the same entity ID before continuing broader validation
 - [ ] Grid export power reading is valid, whether derived from a combined/net source or mapped from a separate export entity
 - [ ] Grid import power reading is valid, whether derived from a combined/net source or mapped from a separate import entity
 - [ ] Home load power entity shows valid reading when configured, or inferred home load behaves plausibly when no dedicated home-load sensor is mapped
