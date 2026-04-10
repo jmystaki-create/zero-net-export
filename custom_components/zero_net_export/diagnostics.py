@@ -88,7 +88,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         source_freshness[key] = async_redact_data(detail, {"entity_id"})
     validation_details["source_freshness"] = source_freshness
 
-    release_info = build_release_info(INTEGRATION_VERSION)
+    release_info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
     release_update = deepcopy(safe_validation_details.get("release_update") or {})
     operator_readiness = deepcopy(build_native_operator_readiness(coordinator))
 

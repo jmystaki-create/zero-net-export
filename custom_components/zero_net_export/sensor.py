@@ -183,7 +183,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key == "installed_version":
             return INTEGRATION_VERSION
         if self._key in {"release_summary", "changes_preview"}:
-            info = build_release_info(INTEGRATION_VERSION)
+            info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
             return info.get(self._key)
         if self._key in {"previous_installed_version", "update_summary"}:
             update = self._validation_details.get("release_update", {})
@@ -260,10 +260,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def extra_state_attributes(self):
         if self._key == "installed_version":
-            return build_release_info(INTEGRATION_VERSION)
+            return build_release_info(INTEGRATION_VERSION, include_changelog=False)
         if self._key in {"previous_installed_version", "release_summary", "changes_preview", "update_summary"}:
             return {
-                **build_release_info(INTEGRATION_VERSION),
+                **build_release_info(INTEGRATION_VERSION, include_changelog=False),
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }

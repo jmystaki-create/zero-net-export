@@ -39,6 +39,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Updated README, native setup field copy, and validation checklist so the optional home-load sensor path now matches the shipped native setup behavior.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 
+## [0.1.72] - 2026-04-10
+
+### Fixed
+- Stopped Zero Net Export runtime sensor, diagnostics, and native-support surfaces from parsing `CHANGELOG.md` on hot paths by using deferred release metadata outside diagnostics-heavy contexts.
+
 ## [0.1.71] - 2026-04-10
 
 ### Fixed

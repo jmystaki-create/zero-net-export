@@ -205,7 +205,7 @@ def _build_support_sections(coordinator: Any) -> tuple[Any, list[dict[str, Any]]
 def build_native_support_snapshot(coordinator: Any) -> str:
     """Return the operator support snapshot for native HA surfaces."""
     state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
-    release_info = build_release_info(INTEGRATION_VERSION)
+    release_info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
     validation_details = _validation_details(state)
     release_update = validation_details.get("release_update", {})
     source_diagnostics = validation_details.get("source_diagnostics", {})
