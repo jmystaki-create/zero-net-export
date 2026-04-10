@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Tightened native source selectors so combined grid energy only accepts energy-class sensors and power-only slots reject energy sensors, preventing invalid mixed-type selections from failing late with confusing entity-id errors.
 - Made the native home-load power sensor optional when solar and grid sources are already mapped. Native Configure no longer blocks combined/net-grid installs that can infer household load from solar, grid, and battery flows.
 - Taught runtime validation to derive effective home load from solar, grid import/export, and battery charge/discharge when no dedicated whole-home load sensor exists, avoiding unnecessary setup dead-ends for common real-world installs.
 - Added an up-front native source-mapping selector for combined versus separate grid sensors. The Configure flow now defaults to combined/net mapping, stores the combined selection, and derives import/export bindings from one signed grid power and one signed grid energy entity instead of forcing four separate grid fields.
