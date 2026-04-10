@@ -68,7 +68,7 @@
 - next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, confirm the new per-device runtime telemetry is trustworthy enough, and keep shifting operator-facing guidance into native Home Assistant surfaces where it improves reliability
 
 ## Phase 7 — Native-surface consolidation
-- stabilize install/runtime behavior in Home Assistant ✅ live HA now reaches a loaded `0.1.72` state with native entities present again after the startup crash chain was narrowed and deferred release-metadata reads were fixed on hot paths
+- stabilize install/runtime behavior in Home Assistant ✅ live HA now reaches a loaded state on the current `0.1.75` repo release line, with native entities present again after the startup crash chain was narrowed and deferred release-metadata reads were fixed on hot paths
 - remove the custom sidebar/panel route from the shipped integration ✅ `/zero-net-export` route, launcher assets, and panel registration removed
 - keep bootstrap onboarding minimal ✅ add-integration flow still creates the backend entry with safe defaults
 - keep Configure as the supported setup path ✅ source mapping, managed devices, and controller tuning stay in native Configure
