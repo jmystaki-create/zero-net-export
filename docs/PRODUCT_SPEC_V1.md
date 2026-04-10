@@ -12,16 +12,19 @@ Zero Net Export is a Home Assistant custom integration that keeps grid export ne
 - validate source entities before acting
 - explain every control decision
 - make native Home Assistant integration/device surfaces sufficient for setup and troubleshooting, with no supported UI outside Home Assistant
+- make Configure the obvious native command center for source mapping, policy, managed devices, and support
+- make it obvious to a normal operator where to tag/manage devices, where to set policy, and where to review health without requiring support guidance
 - reduce operator exposure to raw inventory JSON, even if JSON-backed persistence still exists internally for now
 - keep installation stable so the integration does not negatively affect the wider Home Assistant UI
 - stay honest that real-world validation is still in progress and treat confirmed install/operator friction as the main release driver
 
 ## Product reality for the current release line
 
-The HA-first direction is correct, but the shipped implementation is still transitional:
+The HA-first direction is correct, and the live install has now crossed the startup-stability threshold, but the shipped implementation is still transitional:
 - managed devices still persist through `device_inventory_json` under the hood
 - native Configure can still become clumsy for larger or more heterogeneous fleets
 - diagnostics/support are stronger than before but still span notifications, device buttons, entities, and Configure steps
+- the installed experience still behaves more like a large entity pack than a polished operator UI, even when technically healthy
 - real-install validation is still incomplete and must continue to shape the roadmap
 
 ## Non-goals for v1
@@ -43,6 +46,7 @@ The HA-first direction is correct, but the shipped implementation is still trans
 7. As an operator, I want normal setup to succeed through Home Assistant's built-in Configure path.
 8. As an operator, I want to add common managed devices without hand-authoring raw JSON.
 9. As an operator, I want support/checklist/diagnostics guidance to feel like one coherent native workflow.
+10. As an operator, I want the installed UI to clearly show where device management lives and where policy/settings live.
 
 ## Primary modes
 
@@ -88,11 +92,12 @@ The HA-first direction is correct, but the shipped implementation is still trans
 ## MVP deliverables
 
 - bootstrap-only config flow for fast entry creation
-- native Configure workflow for source mapping and managed devices
+- native Configure workflow for source mapping, policy, and managed devices
 - native add/edit/remove managed-device flow for common fixed and variable devices, with JSON reserved for recovery/bulk edits
 - source validation and confidence model
 - controller with fixed + variable loads
 - mode select + target export setting
 - explanation / status sensors
 - native diagnostics/support surfaces inside Home Assistant, including a combined support-center summary
+- a clearly discoverable native operator path so a user can tell where to manage devices and where to set policy after install
 - daily action/reporting skeleton

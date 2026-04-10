@@ -60,6 +60,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
 - **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live in the integration's Configure flow.
+- **Configure is the intended command center**: the product direction is for operators to find sources, policy, managed devices, and support from one obvious native path.
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, plus a fleet-review enable/disable step for staging larger installs without dropping into raw JSON.
 - **Native Home Assistant operator surfaces**: Configure, the integration device page, entities, notifications, and Repairs are the supported operator path.
 - **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
@@ -102,8 +103,9 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
     - Home Load Power (optional if solar and grid sources are already mapped)
     - (Optional) Battery Entities
 5.  Use **Managed devices** in Configure to add fixed or variable controllable devices through native selectors. Use the fleet review there to quickly enable or disable devices across a larger install. Use the JSON editor only for bulk structural edits or recovery.
-6.  Use **Controller tuning** in Configure for target/deadband/reserve defaults.
-7.  Use the integration device page buttons, entities, and diagnostics for normal runtime verification and troubleshooting.
+6.  Use **Controller tuning / policy** in Configure for target/deadband/reserve defaults and related control behavior.
+7.  Use the managed-device steps in Configure to review, add, edit, enable/disable, and remove controllable loads.
+8.  Use the integration device page buttons, entities, and diagnostics for normal runtime verification and troubleshooting.
 
 ### Advanced / fallback paths
 
@@ -147,11 +149,11 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The only supported operator path is native Home Assistant integration/device surfaces. There is no supported custom panel, sidebar app, or external UI path, and Lovelace remains optional debug visibility inside Home Assistant. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and larger heterogeneous fleets still need more real-world validation.
+The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The only supported operator path is native Home Assistant integration/device surfaces. There is no supported custom panel, sidebar app, or external UI path, and Lovelace remains optional debug visibility inside Home Assistant. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and the current real-world UI gap is operator clarity, making it obvious where to manage devices, where to set policy, and where to review health from the installed native surfaces.
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). It is the source of truth for the current product state, gap register, release gates, and prioritized next actions.
 
-**Current highest-value next step:** keep validating the shipped native Configure workflow in real Home Assistant installs, then convert confirmed friction into targeted releases instead of widening scope.
+**Current highest-value next step:** turn Configure into the clearly signposted native command center for sources, policy, managed devices, and support, then keep validating that flow in real Home Assistant installs and convert confirmed friction into targeted releases.
 
 - [x] Config flow & source validation
 - [x] Device model & guards

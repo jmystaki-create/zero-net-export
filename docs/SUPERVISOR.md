@@ -10,7 +10,7 @@ Supporting detail lives in the spec, implementation, validation, and release doc
 
 ### Current release-line position
 
-Zero Net Export is in **late stabilization and native-surface consolidation**, but the next update must deliver visible progress in the user's real Home Assistant instance, not just repo-side hardening.
+Zero Net Export has now crossed an important line in the user's real Home Assistant instance: the integration loads, native entities are present again, and the product is no longer blocked primarily by startup crashes. The project is still in **late stabilization and native-surface consolidation**, but the center of gravity has shifted from startup survival to operator-UI coherence.
 
 What is already true:
 - the control engine, guard layer, explainability, and diagnostics model are substantially built
@@ -18,48 +18,53 @@ What is already true:
 - the only supported operator path is now native Home Assistant integration/device surfaces: bootstrap install, then Configure for setup and tuning, plus the integration device page, entities, notifications, and Repairs for troubleshooting
 - managed-device onboarding now has native add/edit/remove flows plus presets and fleet review
 - support center, setup checklist, support snapshot, and Repairs guidance now exist as real native HA support surfaces
+- the integration now loads in the user's HA instance on `0.1.72`, exposes native entities again, and no longer appears to be dying in the early startup crash chain
+- at least one real managed device is now present in the live HA install
 
 What is not yet true:
-- the native operator path has not yet been validated enough in real Home Assistant installs to call it boring and release-safe
+- the native operator path is still not coherent enough that an operator can instantly tell where to manage devices, where to set policy, and where to review health from one obvious native surface
+- the integration page still behaves more like a large entity pack than a polished operator product UI
 - larger or more heterogeneous fleets still need more proof
 - the product still uses JSON-backed inventory persistence internally, which is acceptable for now but remains a design pressure point
 - release confidence still depends on screenshots, real installs, and package-distribution verification rather than repo-local confidence alone
-- the integration still fails too early in real HA for native entities/services to populate consistently, most recently with setup errors moving from `validation_details` to `stale_data`
-- native managed-device add flow is still not acceptable if ordinary controllable entities like a light or switch do not appear as selectable entries in Configure
+- the current live blocker has shifted from startup failure to source validation and operator discoverability: the controller is loaded, but safe mode is blocking action because required mapped sources are unavailable or unknown in the real HA install
 
 ### Steering stance
 
 The project should optimize for **real operator success in native Home Assistant**, not for adding more surfaces.
 
-That means:
-1. fix confirmed friction before expanding scope
-2. treat real-install evidence as the primary roadmap signal
-3. keep shrinking the gap between the intended native workflow and the actually shipped package
-4. do not reintroduce any supported custom frontend, sidebar, panel, or external UI path unless project direction is explicitly re-decided with fresh evidence
+That now means two things at once:
+1. keep fixing confirmed runtime/source friction in the real install
+2. turn the existing native capabilities into a clearer operator workflow, with Configure becoming the obvious command center for sources, policy, managed devices, and support
+3. treat real-install evidence as the primary roadmap signal
+4. keep shrinking the gap between the intended native workflow and the actually shipped package
+5. do not reintroduce any supported custom frontend, sidebar, panel, or external UI path unless project direction is explicitly re-decided with fresh evidence
 
 ## Current goals
 
-1. Make the native Configure workflow reliably complete for a normal operator
+1. Make Configure the clear native command center for sources, policy, managed devices, and support
 2. Keep install, upgrade, and reload behavior stable in real Home Assistant environments
-3. Make setup/support/diagnostics feel like one coherent native workflow
+3. Make setup/support/diagnostics feel like one coherent native workflow instead of a scattered entity collection
 4. Reduce operator dependence on raw JSON for normal device onboarding and editing
-5. Prove release quality with real-install validation and package-distribution checks
+5. Provide a clearly discoverable native device-management path for tagging, reviewing, enabling, disabling, and editing managed devices
+6. Provide a clearly discoverable native policy/settings path for mode, target export, deadband, reserve thresholds, and related controller behavior
+7. Prove release quality with real-install validation and package-distribution checks
 
 ## Next-update definition of real progress
 
 The next update only counts as real progress if it produces visible improvement in the user's actual Home Assistant install.
 
 Minimum real-progress outcomes for the next update:
-1. Zero Net Export finishes setup, meaning the config entry is no longer stuck in `setup_retry` and the current `stale_data` startup crash is gone
-2. The integration page no longer shows an effectively empty operator surface, and native entries/services/buttons/entities populate instead of `No entries`
-3. Native managed-device add flow shows real selectable Home Assistant entities for ordinary controllable loads, including common light/switch style entities where appropriate
-4. At least one real controllable device can be added and saved end-to-end from native Configure in the user's HA instance
-5. Reload/restart verification proves the integration stays alive after install instead of only shifting to another early null-state crash
+1. Zero Net Export stays loaded after install/restart and continues exposing native entities, not just during a brief success window
+2. Configure becomes more self-explanatory as the place for source mapping, policy, and managed-device work
+3. Native managed-device management becomes easier to discover and use for ordinary controllable loads, including common light/switch style entities where appropriate
+4. The currently installed UI makes it obvious where to set policy and where to manage devices, even before the full expert dashboard pass is complete
+5. Reload/restart verification proves the integration stays alive after install, and live source validation blockers are surfaced clearly enough that the operator can tell what to fix next
 
 What does not count as enough progress for the next update:
 - repo-only cleanup with no HA-visible improvement
-- another release that merely changes the traceback but still leaves the integration unusable
-- dashboard/support polish while setup and device onboarding remain broken
+- another release that merely changes the traceback but still leaves the operator unsure where configuration and device management live
+- dashboard/support polish that ignores the current discoverability and workflow gaps
 
 ## Gap and risk register
 
@@ -71,8 +76,9 @@ What does not count as enough progress for the next update:
 | G4 | JSON-backed inventory remains an internal dependency | Internal structure can leak back into operator experience | Docs already acknowledge the transitional design | Normal operator tasks do not require JSON except recovery or bulk surgery |
 | G5 | Release visibility can drift from local repo state | HACS/manual installs only reflect what is actually packaged and published | Past validation already exposed version/changelog mismatch in a real install | Tagged release, changelog, manifest, and tested package all match the same shipped build |
 | G6 | Runtime safety features need more field proof | Safety logic is only trustworthy if behavior matches real devices | Guards, reserve gating, runtime caps, and action history exist, but real-install coverage is incomplete | At least one real install confirms expected behavior for core control and safety paths |
-| G7 | Setup is still failing before native entries populate | If setup dies early, the operator sees `No entries` and cannot meaningfully validate native HA surfaces | Real HA currently moved from a `validation_details` null crash to a `stale_data` null crash under manual v0.1.69 install | The config entry loads successfully and native entities/services/buttons appear in HA |
-| G8 | Native add-device picker does not show ordinary controllable entities | If lights/switches/plugs do not appear, the native operator path is still blocked for real users | User screenshot and direct feedback say add flow shows no entries for a light switch style device | Configure shows real selectable entities and one real device can be added successfully |
+| G7 | Native operator workflow is still hard to discover | If the user installs successfully but still has to ask where to manage devices and set policy, the product UI is not coherent enough yet | Real HA now loads and exposes 144 entities, but the user still cannot easily tell where the main UI lives for tagging/managing devices and policy | Configure and the integration/device surfaces make those paths obvious without explanation from support |
+| G8 | Native managed-device workflow still needs stronger fleet/product presentation | If lights/switches/plugs appear but the workflow still feels buried or fragmented, the native operator path remains weak | One real device is now present in HA, but the installed UI still behaves more like an entity pack than a clear fleet-management surface | Configure shows real selectable entities, one real device can be added successfully, and managed-device review/editing feels like a first-class native flow |
+| G9 | Source validation now blocks control in the live install | Runtime safety is working, but the operator still needs a clearer path to understand and fix missing/unavailable mapped sources | Live HA now reports controller `blocked` because required mapped sources are unavailable or unknown | Source blockers are surfaced in a way that tells the operator exactly what to fix and where to fix it |
 
 ## Acceptance criteria
 
@@ -86,6 +92,7 @@ The current native-HA-only release line is acceptable when all of the following 
 - the setup path does not depend on removed panel/launcher behavior
 - setup completes far enough that the integration page does not stall at `No entries`
 - ordinary controllable entities appear in the native add-device picker when the operator tries to add a light/switch/load
+- the installed UI makes it obvious where to manage devices, where to set policy, and where to review runtime health without needing verbal guidance
 
 ### B. Support and diagnostics acceptance
 - readiness, recommendation, checklist, support center, and support snapshot tell a consistent story
@@ -121,12 +128,12 @@ Do not call the native-operator release line ready unless all gates below pass.
 ## Prioritized next-action queue
 
 ### P0, do next
-1. Fix the current real HA startup blocker so Zero Net Export no longer fails setup on null-state access, now specifically the `stale_data` crash exposed after manual v0.1.69 install
-2. Ensure the native integration page populates entries/services/buttons again instead of showing `No entries`
-3. Fix native managed-device add flow so ordinary controllable entities appear as selectable entries for real operator choices like a light or switch
-4. Prove one real controllable device can be added and saved end-to-end in the user's HA instance
-5. Re-run restart and reload validation and record whether the integration stays alive after install
-6. Only after those pass, continue broader runtime/device validation
+1. Turn Configure into the clearly signposted native command center for sources, policy, managed devices, and support
+2. Make managed-device review/add/edit/remove feel like a first-class native operator workflow instead of buried capability
+3. Make policy/settings clearly discoverable as a distinct native path for mode, target export, deadband, reserve, and related controller behavior
+4. Re-run restart and reload validation and record whether the integration stays alive after install, now that `0.1.72` has crossed the startup-stability line
+5. Use the live source-validation blockers in the user's HA install to improve operator-facing remediation clarity
+6. Then continue broader runtime/device validation
 
 ### Deferred but explicitly tracked
 1. Investigate the combined/net grid energy field bug in the native Configure flow: in at least one real Home Assistant install, selecting a valid energy entity still produces the field-level error `Entity is neither a valid entity ID nor a valid UUID`

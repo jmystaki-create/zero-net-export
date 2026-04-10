@@ -406,7 +406,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         return self.async_show_menu(
             step_id="init",
-            menu_options=["native_setup", "devices", "advanced"],
+            menu_options=["native_setup", "policy", "devices", "advanced"],
+            description_placeholders={
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+            },
         )
 
     async def async_step_native_setup(self, user_input=None):
@@ -921,7 +924,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders=description_placeholders,
         )
 
-    async def async_step_advanced(self, user_input=None):
+    async def async_step_policy(self, user_input=None):
         errors = {}
 
         if user_input is not None:
@@ -976,7 +979,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             }
         )
         return self.async_show_form(
-            step_id="advanced",
+            step_id="policy",
             data_schema=schema,
             errors=errors,
+            description_placeholders={
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+            },
         )
+
+    async def async_step_advanced(self, user_input=None):
+        return await self.async_step_devices_json(user_input)

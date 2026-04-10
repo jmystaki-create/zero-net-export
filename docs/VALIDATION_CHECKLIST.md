@@ -13,9 +13,10 @@ If you are progressing the project right now, do this in order:
    - add integration
    - complete bootstrap-only config flow
    - open Configure from the integration card
+   - confirm it is obvious where sources live, where policy/settings live, and where managed-device work lives
    - map required sources in native setup, including the correct combined-versus-separate grid sensor layout
    - add at least one managed device through the native add/edit/remove flow in Configure, then edit it in place once
-  - verify the JSON editor is no longer required for a normal single-device onboarding path
+   - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational
 3. Use at least one real controllable device and verify a real control loop decision/action path.
 4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel, sidebar, or external UI handoff.
@@ -60,6 +61,8 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; workaround use is acceptable temporarily while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
+- [ ] Managed-device flow makes it obvious where to review, edit, enable/disable, and remove devices
+- [ ] Policy/settings flow makes it obvious where to tune mode, target export, deadband, reserve, and related behavior
 - [ ] Advanced JSON editor remains available for recovery or bulk edits
 - [ ] Entity normalization creates expected entity IDs
 
@@ -189,6 +192,7 @@ This is the current highest-value path because native onboarding is now the only
 ## Optional Lovelace / Native Surface Validation
 
 - [ ] Configure opens and saves without any custom panel, sidebar, or external UI handoff
+- [ ] Configure clearly communicates where sources, policy, managed devices, and support actions live
 - [ ] Device-page diagnostic buttons create the expected native notifications
 - [ ] Lovelace YAML imports without errors
 - [ ] All entity IDs resolve to real entities

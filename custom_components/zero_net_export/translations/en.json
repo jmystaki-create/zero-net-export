@@ -30,16 +30,18 @@
   "options": {
     "step": {
       "init": {
-        "title": "Zero Net Export options",
+        "title": "Zero Net Export command center",
+        "description": "Use this command center to map sources, tune policy, manage devices, and access advanced recovery.",
         "menu_options": {
-          "native_setup": "Native setup, source mapping, and refresh interval",
+          "native_setup": "Sources and source mapping",
+          "policy": "Policy and controller settings",
           "devices": "Managed devices",
-          "advanced": "Controller tuning"
+          "advanced": "Advanced JSON editor and recovery"
         }
       },
       "native_setup": {
-        "title": "Native setup and source mapping",
-        "description": "This is now the primary setup path. First choose whether your grid sensors are exposed as one combined signed/net source or as separate import/export entities.\n\nCurrently missing required sources: {missing_sources}\n\nPrimary path: {configure_path}.",
+        "title": "Sources",
+        "description": "This is the source-mapping section of the Zero Net Export command center. First choose whether your grid sensors are exposed as one combined signed/net source or as separate import/export entities.\n\nCurrently missing required sources: {missing_sources}\n\nPrimary path: {configure_path}.",
         "data": {
           "grid_sensor_mode": "Grid import/export sensor layout"
         },
@@ -48,7 +50,7 @@
         }
       },
       "native_setup_sources": {
-        "title": "Native setup and source mapping",
+        "title": "Source mapping",
         "description": "Map the required entities and set the refresh interval. Grid mode: {grid_mode}.\n\nCurrently missing required sources: {missing_sources}\n\nPrimary path: {configure_path}.",
         "data": {
           "solar_power_entity": "Solar power entity",
@@ -83,7 +85,7 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen as the main managed-device workspace. Add fixed or variable devices here first, use the fleet review to quickly enable or disable existing devices, and only drop into JSON editing for recovery or bulk changes.\n\nPrimary path: {configure_path}.\n\nConfigured devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nDevice issues:\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. Add, review, edit, enable, disable, and remove fixed or variable devices here first, and only drop into JSON editing for recovery or bulk changes.\n\nPrimary path: {configure_path}.\n\nConfigured devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nDevice issues:\n{device_issues}",
         "data": {
           "device_action": "Managed-device action"
         },
@@ -147,9 +149,9 @@
           "device_inventory_json": "Advanced recovery path. Paste a JSON array of controllable devices here when you need bulk edits or to repair invalid managed-device configuration."
         }
       },
-      "advanced": {
-        "title": "Controller tuning",
-        "description": "Adjust controller defaults and runtime tuning here. Use the native setup and managed-device steps for normal onboarding.",
+      "policy": {
+        "title": "Policy and controller settings",
+        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. Use the sources and managed-device sections for normal onboarding.",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
@@ -162,6 +164,11 @@
           "battery_reserve_soc": "The minimum battery percentage to protect before discretionary surplus-absorption actions are allowed. Choose the lowest battery level you still want to keep in reserve.",
           "refresh_seconds": "How often the backend re-reads your source sensors and re-plans control actions. Shorter intervals react faster; longer intervals reduce churn."
         }
+      },
+      "advanced": {
+        "title": "Advanced JSON editor and recovery",
+        "description": "Use the raw JSON editor only for advanced recovery or bulk inventory surgery, not for normal device onboarding.",
+        "data": {}
       }
     },
     "error": {
