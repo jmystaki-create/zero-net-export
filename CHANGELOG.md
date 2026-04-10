@@ -18,6 +18,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Reworded the managed-device removal and advanced JSON editor copy so native Configure keeps talking about managed-device configuration first, with JSON reserved for recovery and bulk edits.
 - Tightened README and native-surface planning docs so Lovelace is described only as optional debug visibility, not as part of the supported operator path.
 - Updated the validation checklist so real-install source-mapping validation now explicitly covers combined/net versus separate grid sensor layouts.
+- Updated ENTITY_MODEL and ARCHITECTURE docs so source-role descriptions now reflect the combined/net grid mapping path instead of assuming separate import/export entities only.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 
 ## [0.1.58] - 2026-04-08

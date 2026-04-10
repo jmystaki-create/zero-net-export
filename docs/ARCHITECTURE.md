@@ -13,7 +13,7 @@ Responsible for:
 ### 2. State Model Layer
 Builds a normalized runtime model:
 - solar power / energy
-- grid import / export power and energy
+- grid source: either one combined/net signed power/energy pair or separate import/export power/energy pairs, depending on the operator's grid layout selection
 - home load
 - battery SOC / charge / discharge
 - surplus / deficit relative to export target

@@ -148,10 +148,7 @@ Planned next:
 Mapped logical roles should include:
 - solar power sensor
 - solar energy sensor
-- grid import power sensor
-- grid export power sensor
-- grid import energy sensor
-- grid export energy sensor
+- grid source: either one combined/net signed power sensor plus one combined/net signed energy sensor, or separate import and export power/energy sensors depending on the operator's grid layout selection
 - home load / net consumption sensor
 - battery SOC sensor
 - battery charge power sensor
