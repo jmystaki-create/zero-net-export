@@ -99,7 +99,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 4.  Use **Native setup, source mapping, and refresh interval** to map your source entities:
     - Solar Power
     - Grid sensors, either as one combined/net pair or as separate import/export entities
-    - Home Load Power
+    - Home Load Power (optional if solar and grid sources are already mapped)
     - (Optional) Battery Entities
 5.  Use **Managed devices** in Configure to add fixed or variable controllable devices through native selectors. Use the fleet review there to quickly enable or disable devices across a larger install. Use the JSON editor only for bulk structural edits or recovery.
 6.  Use **Controller tuning** in Configure for target/deadband/reserve defaults.

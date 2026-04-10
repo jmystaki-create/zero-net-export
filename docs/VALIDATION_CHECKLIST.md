@@ -68,7 +68,7 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Grid source layout selection matches the real install, combined/net or separate import/export
 - [ ] Grid export power reading is valid, whether derived from a combined/net source or mapped from a separate export entity
 - [ ] Grid import power reading is valid, whether derived from a combined/net source or mapped from a separate import entity
-- [ ] Home load power entity shows valid reading
+- [ ] Home load power entity shows valid reading when configured, or inferred home load behaves plausibly when no dedicated home-load sensor is mapped
 - [ ] Battery SOC entity shows valid reading (if configured)
 - [ ] Confidence sensor reports "high" when all sources valid
 - [ ] Safe mode activates when required source missing
