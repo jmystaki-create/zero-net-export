@@ -35,6 +35,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Updated README, native setup field copy, and validation checklist so the optional home-load sensor path now matches the shipped native setup behavior.
 - Updated the validation checklist to point at the shipped README configuration guidance instead of the removed `CONFIG_FLOW.md` file.
 
+## [0.1.67] - 2026-04-10
+
+### Fixed
+- Normalized combined-grid entity selector payload handling more defensively, including nested `*.entity_id` option-flow payloads, to target the still-open Home Assistant combined/net grid energy submit bug.
+- Kept the Lovelace dashboard explicitly outside the supported operator path in README, dashboard docs, and roadmap/reference docs so the shipped product stays aligned to native Home Assistant integration/device surfaces only.
+
 ## [0.1.58] - 2026-04-08
 
 ### Added
