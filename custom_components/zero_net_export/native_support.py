@@ -30,6 +30,12 @@ from .validation import SourceSpec, format_source_binding_label
 PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure"
 
 
+def _validation_details(state: Any) -> dict[str, Any]:
+    if state is None:
+        return {}
+    return state.validation_details or {}
+
+
 def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
     return [
         SourceSpec(CONF_SOLAR_POWER_ENTITY, config.get(CONF_SOLAR_POWER_ENTITY), "power"),
@@ -86,7 +92,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         CONF_BATTERY_DISCHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY),
     }
     missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not source_mapping.get(key)]
-    validation_issues = state.validation_details.get("issues", [])
+    validation_issues = _validation_details(state).get("issues", [])
     blocking_validation_issues = [
         issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
     ]
@@ -196,8 +202,9 @@ def build_native_support_snapshot(coordinator: Any) -> str:
     """Return the operator support snapshot for native HA surfaces."""
     state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
     release_info = build_release_info(INTEGRATION_VERSION)
-    release_update = state.validation_details.get("release_update", {})
-    source_diagnostics = state.validation_details.get("source_diagnostics", {})
+    validation_details = _validation_details(state)
+    release_update = validation_details.get("release_update", {})
+    source_diagnostics = validation_details.get("source_diagnostics", {})
     mapped_sources = [
         f"- {SOURCE_ROLE_LABELS.get(key, key)}: {format_source_binding_label(coordinator.entry.data.get(key))}"
         for key in (
@@ -237,7 +244,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
                 f"priority={item.get('priority')}, entity={item.get('entity_id')}"
             )
         )
-    recent_issues = list(state.validation_details.get("issues", []))[:5]
+    recent_issues = list(validation_details.get("issues", []))[:5]
     issue_lines = [
         f"- {issue.get('severity', 'info')}: {issue.get('message', issue)}"
         for issue in recent_issues
