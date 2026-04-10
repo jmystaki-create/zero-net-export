@@ -112,11 +112,11 @@ A HACS add-on described as helping optimize controlled loads, solar, and battery
 - battery optimizers
 
 ### Gap to fill
-A cohesive Home Assistant mini app that combines:
+A cohesive native Home Assistant operator workflow that combines:
 - source validation
 - export-target control
 - fixed + variable device orchestration
-- operator dashboard
+- optional dashboard debug visibility
 - explainable decisions
 - safety / degraded modes
 - reporting

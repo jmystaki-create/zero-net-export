@@ -11,6 +11,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Fixed
 - Reverted README and dashboard docs that had drifted into presenting Lovelace as a supported operator surface. The supervisor-aligned position is again explicit: the supported operator path is native Home Assistant integration/device surfaces only, with Lovelace kept optional for debug visibility.
+- Tightened IMPLEMENTATION_PLAN and REFERENCE_MATRIX language so roadmap/reference docs no longer describe a Home Assistant mini-app or operator dashboard as the supported direction.
 - Taught release metadata helpers to fall back to the current `Unreleased` changelog notes when the manifest version advances ahead of a tagged changelog heading, so native support/release surfaces stop showing a false "no changelog entry matched" warning during active stabilization.
 - Normalized native selector values before validation so Home Assistant picker payloads that arrive as structured objects no longer trip fake "valid entity ID or valid UUID" errors on submit.
 - Restored native entity pickers after the temporary text-field workaround regressed selection UX; picker-based mapping is available again while deeper HA selector issues continue to be investigated.
