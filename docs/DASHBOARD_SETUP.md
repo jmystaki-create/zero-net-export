@@ -1,20 +1,25 @@
-# Optional Lovelace Dashboard Setup
+# Native Lovelace Operator Dashboard Setup
 
-This project now includes a first operator dashboard scaffold at:
+This project includes a native Home Assistant operator dashboard scaffold at:
 
 - `examples/lovelace/zero_net_export_dashboard.yaml`
 
-It is intentionally plain Lovelace YAML, not a custom frontend. It exists as an optional fallback/debugging view inside Home Assistant, not as a separate supported product path.
+It is intentionally plain Lovelace YAML, not a custom frontend. It lives fully inside Home Assistant and is the recommended live-visibility surface for operators who want to see what the controller, battery, grid, and managed loads are doing in one place.
+
+This dashboard complements, rather than replaces, the integration's native Configure, Repairs, device-page entities, and support buttons.
 
 ## What this scaffold covers
 
-The dashboard is structured around the v1 operator workflow:
+The dashboard is structured around the native operator workflow:
 
-1. **Live overview** — solar, home load, grid import/export, battery SOC, surplus, export error
-2. **Controller** — enable switch, mode, target export, deadband, controller reason/summary
-3. **Validation and diagnostics** — confidence, source mismatch, safe mode, battery reserve state, reconciliation error, recent action outcome state
-4. **Device fleet summary** — configured/usable devices and current planned vs blocked control state
-5. **Managed devices** — example per-device cards for one fixed load and one variable load, now including current active runtime and active runtime today sensors
+1. **Live power picture** — solar, home load, grid import/export, battery SOC, controlled load, surplus, export error
+2. **Controller state** — enable switch, mode, target export, deadband, battery reserve, and controller reasoning
+3. **Health and support** — safe mode, source mismatch, stale data, command failure, health summary, and native support buttons
+4. **Source diagnostics** — quick visibility into mapped source status/readings
+5. **Device fleet summary** — configured/usable devices and current planned vs blocked control state
+6. **Recent control activity** — last action, failures, and operator-facing summaries
+7. **Daily impact** — daily action counts and redirected-energy estimate
+8. **Managed loads guidance** — how to add one native card per configured load using the existing per-device entities
 
 ## Importing it into Home Assistant
 
@@ -29,7 +34,7 @@ The dashboard is structured around the v1 operator workflow:
 
 1. Open the example YAML.
 2. Copy the cards or whole view into your existing Lovelace dashboard.
-3. Replace the example device cards with cards for your actual configured devices.
+3. Add one per-device card section for each real managed load using that device's actual entity ids.
 
 ## Important entity-id note
 
@@ -114,12 +119,16 @@ For each configured device, the current integration exposes a per-device set inc
 
 Per-device state now also includes runtime-cap visibility in attributes such as `max_active_seconds`, `current_active_seconds`, and `planned_action_policy`, so operators can distinguish ordinary balancing from protective runtime-cap shedding.
 
-The example YAML uses two sample device keys:
+The scaffold no longer hardcodes example device cards because real installs differ too much.
+
+Instead, add one section/card per configured load using your real device keys derived from the managed-device inventory.
+
+Common examples might look like:
 
 - `hot_water`
 - `ev_charger`
-
-Replace those with the real device keys derived from your device inventory JSON.
+- `pool_pump`
+- `battery_sink`
 
 ## Reporting caveat
 
@@ -131,7 +140,7 @@ Per-device `active_runtime_today_seconds` is likewise operational telemetry deri
 
 The guarded planner and executor already produce explanation-rich state, but that state is hard to use until it is grouped into an operator-first control surface.
 
-This scaffold turns the current backend work into something installable and reviewable inside Home Assistant now, without creating a separate supported UI path beyond native Home Assistant surfaces.
+This scaffold turns the current backend work into a practical native Home Assistant operator UI, without reviving the removed external panel path.
 
 ## Troubleshooting support
 
@@ -149,5 +158,6 @@ Mapped entity ids, device entity ids, and operator-facing names are redacted in 
 
 After this scaffold, the next useful increment is:
 
-- a more compact action-history / failure timeline card once real installations show what operators actually watch most
-- optional packaged dashboard assets when the entity model stabilizes, still as Lovelace fallback assets rather than a separate UI product
+- optional packaged dashboard assets or generated dashboard helpers so operators do not have to paste YAML manually
+- more compact per-device cards once real installs show which load attributes matter most on one screen
+- a clearer first-run handoff from the integration device page into this dashboard view

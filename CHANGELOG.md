@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Added
+- Promoted the native Lovelace operator dashboard scaffold to the recommended in-Home-Assistant live visibility surface, covering controller state, battery/grid/solar telemetry, fleet summary, health/support actions, and recent control activity without reviving any external panel path.
+
 ### Fixed
 - Taught release metadata helpers to fall back to the current `Unreleased` changelog notes when the manifest version advances ahead of a tagged changelog heading, so native support/release surfaces stop showing a false "no changelog entry matched" warning during active stabilization.
 - Normalized native selector values before validation so Home Assistant picker payloads that arrive as structured objects no longer trip fake "valid entity ID or valid UUID" errors on submit.
