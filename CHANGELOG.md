@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Taught release metadata helpers to fall back to the current `Unreleased` changelog notes when the manifest version advances ahead of a tagged changelog heading, so native support/release surfaces stop showing a false "no changelog entry matched" warning during active stabilization.
 - Normalized native selector values before validation so Home Assistant picker payloads that arrive as structured objects no longer trip fake "valid entity ID or valid UUID" errors on submit.
 - Restored native entity pickers after the temporary text-field workaround regressed selection UX; picker-based mapping is available again while deeper HA selector issues continue to be investigated.
 - Switched native source mapping fields to plain text entity-id inputs to bypass a Home Assistant selector validation bug that was rejecting valid selected entities with misleading "valid entity ID or valid UUID" errors.

@@ -59,6 +59,10 @@ def build_release_info(version: str = INTEGRATION_VERSION) -> dict[str, Any]:
     """Return current release metadata plus a previous-release comparison when available."""
     sections = _parse_changelog_sections()
     current = next((item for item in sections if item.get("version") == version), None)
+    using_unreleased_fallback = False
+    if current is None:
+        current = next((item for item in sections if item.get("version") == "Unreleased"), None)
+        using_unreleased_fallback = current is not None
     if current is None:
         return {
             "current_version": version,
@@ -80,6 +84,7 @@ def build_release_info(version: str = INTEGRATION_VERSION) -> dict[str, Any]:
     highlight_count = len(highlights)
     summary = (
         f"Installed version {version}"
+        + (" using current Unreleased changelog notes" if using_unreleased_fallback else "")
         + (f" ({current['released_on']})" if current.get("released_on") else "")
         + (
             f" with {highlight_count} documented change{'s' if highlight_count != 1 else ''}."
@@ -97,7 +102,11 @@ def build_release_info(version: str = INTEGRATION_VERSION) -> dict[str, Any]:
         "released_on": current.get("released_on"),
         "highlights": highlights,
         "highlight_count": highlight_count,
-        "headline": f"Version {version}" + (f" · {current['released_on']}" if current.get("released_on") else ""),
+        "headline": (
+            f"Version {version}"
+            + (" · pending release notes" if using_unreleased_fallback else "")
+            + (f" · {current['released_on']}" if current.get("released_on") else "")
+        ),
         "changes_preview": preview,
         "previous_version": previous.get("version") if previous else None,
         "previous_released_on": previous.get("released_on") if previous else None,
