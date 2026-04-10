@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Switched native source mapping fields to plain text entity-id inputs to bypass a Home Assistant selector validation bug that was rejecting valid selected entities with misleading "valid entity ID or valid UUID" errors.
 - Tightened native source selectors so combined grid energy only accepts energy-class sensors and power-only slots reject energy sensors, preventing invalid mixed-type selections from failing late with confusing entity-id errors.
 - Made the native home-load power sensor optional when solar and grid sources are already mapped. Native Configure no longer blocks combined/net-grid installs that can infer household load from solar, grid, and battery flows.
 - Taught runtime validation to derive effective home load from solar, grid import/export, and battery charge/discharge when no dedicated whole-home load sensor exists, avoiding unnecessary setup dead-ends for common real-world installs.

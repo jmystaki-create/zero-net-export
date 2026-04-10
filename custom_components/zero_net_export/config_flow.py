@@ -467,25 +467,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         grid_import_power_raw = _entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, "")
         grid_import_energy_raw = _entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, "")
 
-        power_selector = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain=["sensor"], device_class=["power"])
-        )
-        energy_selector = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain=["sensor"], device_class=["energy"])
-        )
-        battery_soc_selector = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain=["sensor"], device_class=["battery"])
-        )
+        text_selector = selector.TextSelector()
 
         fields: dict[Any, Any] = {
             vol.Required(
                 CONF_SOLAR_POWER_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_SOLAR_POWER_ENTITY, ""),
-            ): power_selector,
+            ): text_selector,
             vol.Required(
                 CONF_SOLAR_ENERGY_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_SOLAR_ENERGY_ENTITY, ""),
-            ): energy_selector,
+            ): text_selector,
         }
         if grid_mode == GRID_SENSOR_MODE_COMBINED:
             fields[
@@ -493,62 +485,62 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     "grid_power_entity",
                     default=_selector_entity_default(grid_import_power_raw, allow_derived=True),
                 )
-            ] = power_selector
+            ] = text_selector
             fields[
                 vol.Required(
                     "grid_energy_entity",
                     default=_selector_entity_default(grid_import_energy_raw, allow_derived=True),
                 )
-            ] = energy_selector
+            ] = text_selector
         else:
             fields[
                 vol.Required(
                     CONF_GRID_IMPORT_POWER_ENTITY,
                     default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, "")),
                 )
-            ] = power_selector
+            ] = text_selector
             fields[
                 vol.Required(
                     CONF_GRID_EXPORT_POWER_ENTITY,
                     default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_EXPORT_POWER_ENTITY, "")),
                 )
-            ] = power_selector
+            ] = text_selector
             fields[
                 vol.Required(
                     CONF_GRID_IMPORT_ENERGY_ENTITY,
                     default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, "")),
                 )
-            ] = energy_selector
+            ] = text_selector
             fields[
                 vol.Required(
                     CONF_GRID_EXPORT_ENERGY_ENTITY,
                     default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_EXPORT_ENERGY_ENTITY, "")),
                 )
-            ] = energy_selector
+            ] = text_selector
         fields[
             vol.Optional(
                 CONF_HOME_LOAD_POWER_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_HOME_LOAD_POWER_ENTITY, ""),
             )
-        ] = power_selector
+        ] = text_selector
         fields[
             vol.Optional(
                 CONF_BATTERY_SOC_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, ""),
             )
-        ] = battery_soc_selector
+        ] = text_selector
         fields[
             vol.Optional(
                 CONF_BATTERY_CHARGE_POWER_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
             )
-        ] = power_selector
+        ] = text_selector
         fields[
             vol.Optional(
                 CONF_BATTERY_DISCHARGE_POWER_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_BATTERY_DISCHARGE_POWER_ENTITY, ""),
             )
-        ] = power_selector
+        ] = text_selector
         fields[
             vol.Required(
                 CONF_REFRESH_SECONDS,
