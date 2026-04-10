@@ -79,6 +79,10 @@ def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[
 
 
 def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
+    state_stale_data = bool(getattr(state, "stale_data", False)) if state is not None else False
+    state_usable_device_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
+    state_safe_mode = bool(getattr(state, "safe_mode", False)) if state is not None else False
+
     source_mapping = {
         CONF_SOLAR_POWER_ENTITY: entry.data.get(CONF_SOLAR_POWER_ENTITY),
         CONF_SOLAR_ENERGY_ENTITY: entry.data.get(CONF_SOLAR_ENERGY_ENTITY),
@@ -112,10 +116,10 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         {
             "key": "sources_validated",
             "label": "Source validation healthy",
-            "complete": not blocking_validation_issues and not state.stale_data,
+            "complete": not blocking_validation_issues and not state_stale_data,
             "detail": (
                 "Mapped sources currently validate cleanly enough for runtime control."
-                if not blocking_validation_issues and not state.stale_data
+                if not blocking_validation_issues and not state_stale_data
                 else (
                     f"Blocking validation issues: {len(blocking_validation_issues)}"
                     if blocking_validation_issues
@@ -140,10 +144,10 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         {
             "key": "devices_usable",
             "label": "At least one device currently usable",
-            "complete": bool(state.usable_device_count),
+            "complete": bool(state_usable_device_count),
             "detail": (
-                f"{state.usable_device_count} usable device(s) available right now."
-                if state.usable_device_count
+                f"{state_usable_device_count} usable device(s) available right now."
+                if state_usable_device_count
                 else "No managed devices are currently usable for control."
             ),
         },
@@ -153,7 +157,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         phase = "source_setup"
         next_step = "Finish required source mapping in Configure, then save and reload the integration."
         summary = "Native setup is blocked on missing required source mappings."
-    elif blocking_validation_issues or state.stale_data:
+    elif blocking_validation_issues or state_stale_data:
         phase = "source_remediation"
         next_step = "Use native diagnostics and calibration hints to fix source validation or stale-data issues."
         summary = "Native setup is waiting on healthy validated source data."
@@ -165,11 +169,11 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         phase = "device_onboarding"
         next_step = "Add the first controllable device from Configure."
         summary = "Sources are ready; the next milestone is adding controllable devices."
-    elif not state.usable_device_count:
+    elif not state_usable_device_count:
         phase = "runtime_readiness"
         next_step = "Review per-device diagnostics to unblock at least one usable device."
         summary = "Configured devices exist, but none are currently eligible for control."
-    elif state.safe_mode:
+    elif state_safe_mode:
         phase = "runtime_readiness"
         next_step = "Clear the current safe-mode condition before treating the integration as production-ready."
         summary = "The native operator flow is mostly built, but runtime is still held in safe mode."
@@ -229,7 +233,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         )
         for key, details in source_diagnostics.items()
     ]
-    runtime_device_details = state.device_details or {}
+    runtime_device_details = getattr(state, "device_details", None) or {}
     device_lines = []
     for item in configured_devices:
         runtime = runtime_device_details.get(item.get("key"), {})
@@ -274,19 +278,19 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         *checklist_lines,
         "",
         "Runtime summary",
-        f"- control_status: {state.control_status}",
-        f"- control_summary: {state.control_summary}",
-        f"- health_status: {state.health_status}",
-        f"- health_summary: {state.health_summary}",
-        f"- safe_mode: {state.safe_mode}",
-        f"- stale_data: {state.stale_data}",
-        f"- source_mismatch: {state.source_mismatch}",
-        f"- battery_below_reserve: {state.battery_below_reserve}",
-        f"- confidence: {state.confidence}",
-        f"- recommendation: {state.recommendation}",
-        f"- last_action_status: {state.last_action_status}",
-        f"- last_action_summary: {state.last_action_summary}",
-        f"- recent_failure_summary: {state.recent_failure_summary}",
+        f"- control_status: {getattr(state, 'control_status', None)}",
+        f"- control_summary: {getattr(state, 'control_summary', None)}",
+        f"- health_status: {getattr(state, 'health_status', None)}",
+        f"- health_summary: {getattr(state, 'health_summary', None)}",
+        f"- safe_mode: {getattr(state, 'safe_mode', None)}",
+        f"- stale_data: {getattr(state, 'stale_data', None)}",
+        f"- source_mismatch: {getattr(state, 'source_mismatch', None)}",
+        f"- battery_below_reserve: {getattr(state, 'battery_below_reserve', None)}",
+        f"- confidence: {getattr(state, 'confidence', None)}",
+        f"- recommendation: {getattr(state, 'recommendation', None)}",
+        f"- last_action_status: {getattr(state, 'last_action_status', None)}",
+        f"- last_action_summary: {getattr(state, 'last_action_summary', None)}",
+        f"- recent_failure_summary: {getattr(state, 'recent_failure_summary', None)}",
         "",
         "Mapped sources",
         *mapped_sources,
@@ -295,9 +299,9 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         *(source_health_lines or ["- none"]),
         "",
         "Configured devices",
-        f"- total: {state.device_count}",
-        f"- enabled: {state.enabled_device_count}",
-        f"- usable: {state.usable_device_count}",
+        f"- total: {getattr(state, 'device_count', 0)}",
+        f"- enabled: {getattr(state, 'enabled_device_count', 0)}",
+        f"- usable: {getattr(state, 'usable_device_count', 0)}",
         *(device_lines or ["- none configured"]),
         "",
         "Device parse issues",

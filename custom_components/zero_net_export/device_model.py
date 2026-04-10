@@ -47,7 +47,7 @@ ADAPTER_SPECS: dict[str, DeviceAdapterSpec] = {
         key=ADAPTER_FIXED_TOGGLE,
         label="Fixed toggle entity",
         kind=DEVICE_KIND_FIXED,
-        entity_domains=("switch", "input_boolean"),
+        entity_domains=("switch", "input_boolean", "light"),
         actions=("turn_on", "turn_off"),
         description="Uses the entity domain's turn_on/turn_off services for fixed loads.",
     ),

@@ -725,7 +725,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             kind,
             template_defaults=selected_template.defaults if selected_template and not editing_key else None,
         )
-        entity_domain = ["switch", "input_boolean"] if kind == DEVICE_KIND_FIXED else ["number", "input_number"]
+        entity_domain = ["switch", "input_boolean", "light"] if kind == DEVICE_KIND_FIXED else ["number", "input_number"]
         schema_dict: dict[Any, Any] = {
             vol.Required("name", default=defaults["name"]): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
