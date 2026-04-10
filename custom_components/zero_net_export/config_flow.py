@@ -128,6 +128,9 @@ def _device_options_json(devices: list[dict[str, Any]]) -> str:
     return json.dumps(devices, indent=2)
 
 
+COMBINED_GRID_ENERGY_FALLBACK_KEY = "grid_energy_entity_manual"
+
+
 def _build_derived_binding(mode: str, entity_id: str | None) -> str | None:
     if not entity_id:
         return None
@@ -474,7 +477,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
             if grid_mode == GRID_SENSOR_MODE_COMBINED:
                 combined_power = _normalize_entity_selector_input(user_input, "grid_power_entity")
-                combined_energy = _normalize_entity_selector_input(user_input, "grid_energy_entity")
+                combined_energy = (
+                    _normalize_entity_selector_input(user_input, COMBINED_GRID_ENERGY_FALLBACK_KEY)
+                    or _normalize_entity_selector_input(user_input, "grid_energy_entity")
+                )
                 merged_data[CONF_GRID_IMPORT_POWER_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_POSITIVE, combined_power)
                 merged_data[CONF_GRID_EXPORT_POWER_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_NEGATIVE_ABS, combined_power)
                 merged_data[CONF_GRID_IMPORT_ENERGY_ENTITY] = _build_derived_binding(DERIVED_SOURCE_MODE_POSITIVE, combined_energy)
@@ -544,6 +550,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     default=_selector_entity_default(grid_import_energy_raw, allow_derived=True),
                 )
             ] = energy_selector
+            fields[
+                vol.Optional(
+                    COMBINED_GRID_ENERGY_FALLBACK_KEY,
+                    default="",
+                )
+            ] = selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            )
         else:
             fields[
                 vol.Required(
