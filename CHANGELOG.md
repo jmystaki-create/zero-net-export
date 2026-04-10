@@ -10,6 +10,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Expanded the optional Lovelace debug dashboard scaffold inside Home Assistant with controller intent, battery/grid/solar telemetry, fleet planning, guard/support actions, and recent control activity, while keeping it outside the supported operator path.
 
 ### Fixed
+- Normalized combined-grid entity selector payload handling more defensively, including nested `*.entity_id` option-flow payloads, to target the still-open Home Assistant combined/net grid energy submit bug.
 - Reverted README and dashboard docs that had drifted into presenting Lovelace as a supported operator surface. The supervisor-aligned position is again explicit: the supported operator path is native Home Assistant integration/device surfaces only, with Lovelace kept optional for debug visibility.
 - Tightened IMPLEMENTATION_PLAN and REFERENCE_MATRIX language so roadmap/reference docs no longer describe a Home Assistant mini-app or operator dashboard as the supported direction.
 - Taught release metadata helpers to fall back to the current `Unreleased` changelog notes when the manifest version advances ahead of a tagged changelog heading, so native support/release surfaces stop showing a false "no changelog entry matched" warning during active stabilization.
