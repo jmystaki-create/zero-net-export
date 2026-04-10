@@ -218,7 +218,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             await self._save_runtime_store()
 
     def _release_update_details(self) -> dict[str, Any]:
-        release_info = build_release_info()
+        release_info = build_release_info(include_changelog=False)
         previous_installed_version = self._previous_installed_version
         installed_version = release_info.get("current_version")
         update_detected = bool(

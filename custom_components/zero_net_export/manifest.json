@@ -1,14 +1,18 @@
 {
   "domain": "zero_net_export",
   "name": "Zero Net Export",
-  "version": "0.1.70",
+  "version": "0.1.71",
   "documentation": "https://github.com/jmystaki-create/zero-net-export#readme",
   "issue_tracker": "https://github.com/jmystaki-create/zero-net-export/issues",
-  "codeowners": ["@jmystaki"],
+  "codeowners": [
+    "@jmystaki"
+  ],
   "config_flow": true,
   "iot_class": "local_polling",
   "integration_type": "service",
   "requirements": [],
   "dependencies": [],
-  "after_dependencies": ["energy"]
+  "after_dependencies": [
+    "energy"
+  ]
 }
