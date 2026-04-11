@@ -988,6 +988,20 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             await self.hass.config_entries.async_reload(self._config_entry.entry_id)
             return self.async_create_entry(title="", data=merged_options)
 
+        effective_config = dict(self._config_entry.data)
+        effective_config.update(self._config_entry.options)
+        devices, device_issues = self._load_devices()
+        grid_mode = _grid_mode_default(self._config_entry)
+        missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
+        if missing_sources:
+            policy_readiness = "Finish source mapping first: " + ", ".join(missing_sources)
+        elif device_issues:
+            policy_readiness = f"Managed-device issues still need repair before policy tuning can be trusted ({len(device_issues)} issue(s))."
+        elif not devices:
+            policy_readiness = "No managed devices are configured yet. You can tune policy now, but control will not act until devices are added."
+        else:
+            policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
+
         schema = vol.Schema(
             {
                 vol.Required(
@@ -1038,6 +1052,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
+                "policy_readiness": policy_readiness,
             },
         )
 

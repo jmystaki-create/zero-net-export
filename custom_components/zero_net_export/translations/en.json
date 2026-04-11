@@ -153,7 +153,7 @@
       },
       "policy": {
         "title": "Policy and controller settings",
-        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. This is where operators set how aggressively Zero Net Export behaves once source mapping is healthy and managed devices are ready.",
+        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. This is where operators set how aggressively Zero Net Export behaves once source mapping is healthy and managed devices are ready.\n\nCurrent readiness: {policy_readiness}",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
