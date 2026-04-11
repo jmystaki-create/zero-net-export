@@ -31,7 +31,7 @@
     "step": {
       "init": {
         "title": "Zero Net Export command center",
-        "description": "Use this command center to map sources, tune policy, manage devices, and reach native support.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Support: {support_status}\n\nRecommended next section: {recommended_section}.\nNative support path: {support_path}.",
+        "description": "Use this command center to map sources, tune policy, manage devices, and reach native support.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Support: {support_status}\n\nRecommended next section: {recommended_section}.\nWhat to do next: {next_action_summary}\nNative support path: {support_path}.",
         "menu_options": {
           "native_setup": "Sources and source mapping",
           "policy": "Policy and controller settings",

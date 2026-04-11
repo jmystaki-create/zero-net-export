@@ -419,6 +419,72 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def _coordinator(self):
         return self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)
 
+    @staticmethod
+    def _format_source_role_names(source_keys: list[str]) -> str:
+        named_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_keys if key]
+        return ", ".join(named_roles[:6]) if named_roles else "None"
+
+    def _source_placeholders(
+        self,
+        *,
+        effective_config: dict[str, Any] | None = None,
+        grid_mode: str | None = None,
+    ) -> dict[str, str]:
+        effective = effective_config or {**self._config_entry.data, **self._config_entry.options}
+        resolved_grid_mode = grid_mode or _grid_mode_default(self._config_entry)
+        missing_source_keys = _grid_mode_missing_sources(effective, resolved_grid_mode)
+        coordinator = self._coordinator()
+        state = getattr(coordinator, "data", None) if coordinator is not None else None
+        readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+        validation_details = getattr(state, "validation_details", {}) or {}
+        source_diagnostics = validation_details.get("source_diagnostics", {}) or {}
+        unavailable_source_keys = [
+            key for key, details in source_diagnostics.items() if details.get("status") == "unavailable"
+        ]
+        stale_source_keys = [
+            key for key, details in source_diagnostics.items() if details.get("stale") or (details.get("age_seconds") or 0) > 120
+        ]
+
+        missing_sources = self._format_source_role_names(missing_source_keys)
+        unavailable_sources = self._format_source_role_names(unavailable_source_keys)
+        stale_sources = self._format_source_role_names(stale_source_keys)
+
+        if missing_source_keys:
+            source_health = f"Missing required sources: {missing_sources}"
+            source_next_step = "Finish the missing required source roles here, then save and reload the integration."
+        elif unavailable_source_keys or stale_source_keys:
+            issue_parts = []
+            if unavailable_source_keys:
+                issue_parts.append(f"unavailable: {unavailable_sources}")
+            if stale_source_keys:
+                issue_parts.append(f"stale: {stale_sources}")
+            source_health = "Mapped source roles need attention, " + "; ".join(issue_parts)
+            source_next_step = str(
+                readiness.get("next_step")
+                or "Repair the unavailable or stale mapped source roles, then save and reload the integration."
+            )
+        elif state is None:
+            source_health = "Source health will appear here after the integration loads."
+            source_next_step = "Save source mapping, reload the integration, then reopen Configure to confirm live source health."
+        else:
+            source_health = str(
+                readiness.get("summary")
+                or state.health_summary
+                or state.diagnostic_summary
+                or "Mapped sources currently look healthy."
+            )
+            source_next_step = str(
+                readiness.get("next_step") or "Source mapping looks healthy; continue to managed devices or policy."
+            )
+
+        return {
+            "missing_sources": missing_sources,
+            "source_health": source_health,
+            "source_next_step": source_next_step,
+            "unavailable_sources": unavailable_sources,
+            "stale_sources": stale_sources,
+        }
+
     def _support_placeholders(self) -> dict[str, str]:
         coordinator = self._coordinator()
         state = getattr(coordinator, "data", None) if coordinator is not None else None
@@ -439,13 +505,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         effective_config.update(self._config_entry.options)
         devices, device_issues = self._load_devices()
         grid_mode = _grid_mode_default(self._config_entry)
+        source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
         missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
 
         if missing_sources:
-            source_status = "Missing required sources: " + ", ".join(missing_sources)
+            source_status = source_placeholders["source_health"]
             recommended_section = "Sources and source mapping"
         else:
-            source_status = "Required source mapping complete"
+            source_status = source_placeholders["source_health"]
             recommended_section = "Managed devices" if not devices else "Policy and controller settings"
 
         if device_issues:
@@ -458,6 +525,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if not missing_sources:
                 recommended_section = "Managed devices"
 
+        next_action_summary = "Open Sources and source mapping first to finish required entity mapping."
+        if missing_sources:
+            next_action_summary = "Finish source mapping first, then return here to add devices and tune policy."
+        elif device_issues:
+            next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
+        elif not devices:
+            next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
+        else:
+            next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
+
         placeholders = {
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "source_status": source_status,
@@ -468,6 +545,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%"
             ),
             "recommended_section": recommended_section,
+            "next_action_summary": next_action_summary,
         }
         placeholders.update(self._support_placeholders())
 
@@ -502,14 +580,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         effective_config = dict(self._config_entry.data)
         effective_config.update(self._config_entry.options)
-        missing_sources = _grid_mode_missing_sources(effective_config, current_mode)
+        source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=current_mode)
         return self.async_show_form(
             step_id="native_setup",
             data_schema=schema,
             errors={},
             description_placeholders={
-                "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
                 "configure_path": PRIMARY_CONFIGURE_PATH,
+                **source_placeholders,
             },
         )
 
@@ -688,7 +766,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         effective_config = dict(self._config_entry.data)
         effective_config.update(self._config_entry.options)
-        missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
+        source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
         fallback_guidance = (
             "If Home Assistant rejects a valid combined grid energy or battery SOC picker choice, leave the selector as-is and paste the same entity ID into the matching fallback field below."
         )
@@ -698,9 +776,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders={
                 "grid_mode": "Combined / net sensors" if grid_mode == GRID_SENSOR_MODE_COMBINED else "Separate import and export sensors",
-                "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "fallback_guidance": fallback_guidance,
+                **source_placeholders,
             },
         )
 
