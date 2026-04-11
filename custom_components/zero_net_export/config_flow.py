@@ -499,12 +499,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         named_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_keys if key]
         return ", ".join(named_roles[:6]) if named_roles else "None"
 
-    def _source_placeholders(
+    def _source_attention_state(
         self,
         *,
         effective_config: dict[str, Any] | None = None,
         grid_mode: str | None = None,
-    ) -> dict[str, str]:
+    ) -> dict[str, Any]:
         effective = effective_config or {**self._config_entry.data, **self._config_entry.options}
         resolved_grid_mode = grid_mode or _grid_mode_default(self._config_entry)
         missing_source_keys = _grid_mode_missing_sources(effective, resolved_grid_mode)
@@ -519,6 +519,28 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         stale_source_keys = [
             key for key, details in source_diagnostics.items() if details.get("stale") or (details.get("age_seconds") or 0) > 120
         ]
+        return {
+            "coordinator": coordinator,
+            "state": state,
+            "readiness": readiness,
+            "missing_source_keys": missing_source_keys,
+            "unavailable_source_keys": unavailable_source_keys,
+            "stale_source_keys": stale_source_keys,
+            "has_runtime_source_attention": bool(unavailable_source_keys or stale_source_keys),
+        }
+
+    def _source_placeholders(
+        self,
+        *,
+        effective_config: dict[str, Any] | None = None,
+        grid_mode: str | None = None,
+    ) -> dict[str, str]:
+        attention = self._source_attention_state(effective_config=effective_config, grid_mode=grid_mode)
+        state = attention["state"]
+        readiness = attention["readiness"]
+        missing_source_keys = attention["missing_source_keys"]
+        unavailable_source_keys = attention["unavailable_source_keys"]
+        stale_source_keys = attention["stale_source_keys"]
 
         missing_sources = self._format_source_role_names(missing_source_keys)
         unavailable_sources = self._format_source_role_names(unavailable_source_keys)
@@ -581,9 +603,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, device_issues = self._load_devices()
         grid_mode = _grid_mode_default(self._config_entry)
         source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
-        missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
+        source_attention = self._source_attention_state(effective_config=effective_config, grid_mode=grid_mode)
+        missing_sources = source_attention["missing_source_keys"]
+        runtime_source_attention = source_attention["has_runtime_source_attention"]
 
-        if missing_sources:
+        if missing_sources or runtime_source_attention:
             source_status = source_placeholders["source_health"]
             recommended_section = "Sources and source mapping"
         else:
@@ -597,12 +621,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             device_status = f"{len(devices)} configured"
         else:
             device_status = "No managed devices configured yet"
-            if not missing_sources:
+            if not missing_sources and not runtime_source_attention:
                 recommended_section = "Managed devices"
 
         next_action_summary = "Open Sources and source mapping first to finish required entity mapping."
         if missing_sources:
             next_action_summary = "Finish source mapping first, then return here to add devices and tune policy."
+        elif runtime_source_attention:
+            next_action_summary = source_placeholders["source_next_step"]
         elif device_issues:
             next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
         elif not devices:
@@ -1261,9 +1287,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         effective_config.update(self._config_entry.options)
         devices, device_issues = self._load_devices()
         grid_mode = _grid_mode_default(self._config_entry)
-        missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
+        source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
+        source_attention = self._source_attention_state(effective_config=effective_config, grid_mode=grid_mode)
+        missing_sources = source_attention["missing_source_keys"]
+        runtime_source_attention = source_attention["has_runtime_source_attention"]
         if missing_sources:
-            policy_readiness = "Finish source mapping first: " + ", ".join(missing_sources)
+            policy_readiness = "Finish source mapping first: " + self._format_source_role_names(missing_sources)
+        elif runtime_source_attention:
+            policy_readiness = source_placeholders["source_health"] + ". " + source_placeholders["source_next_step"]
         elif device_issues:
             policy_readiness = f"Managed-device issues still need repair before policy tuning can be trusted ({len(device_issues)} issue(s))."
         elif not devices:
