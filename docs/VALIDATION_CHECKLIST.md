@@ -57,8 +57,9 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
+- [ ] Command-center landing screen shows current source status, managed-device status, policy summary, and a recommended next section that matches the real entry state
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
-- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; validate that the new native manual fallback field in `0.1.76` lets the same entity ID complete setup while broader validation continues
+- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; validate that the new native manual fallback field in `0.1.77` lets the same entity ID complete setup while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
 - [ ] Managed-device flow makes it obvious where to review, edit, enable/disable, and remove devices
