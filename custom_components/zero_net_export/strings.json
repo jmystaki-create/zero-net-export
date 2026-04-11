@@ -168,7 +168,7 @@
       },
       "policy": {
         "title": "Policy and controller settings",
-        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. If you are looking for where Zero Net Export behaviour is adjusted, this is it once source mapping is healthy and managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}",
+        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. If you are looking for where Zero Net Export behaviour is adjusted, this is it once source mapping is healthy and managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}\n\nNative paths around this screen:\n- Policy: {policy_path}\n- Sources and source mapping: {sources_path}\n- Managed devices: {devices_path}\n- Health and support: {support_path}",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",

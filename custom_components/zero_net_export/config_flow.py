@@ -1586,6 +1586,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
+                "sources_path": SOURCES_CONFIGURE_PATH,
+                "devices_path": DEVICES_CONFIGURE_PATH,
+                "policy_path": POLICY_CONFIGURE_PATH,
+                "support_path": SUPPORT_CONFIGURE_PATH,
                 "policy_readiness": policy_readiness,
                 "policy_summary": policy_summary,
                 "policy_next_step": policy_next_step,
