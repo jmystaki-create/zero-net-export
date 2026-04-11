@@ -79,6 +79,8 @@ SENSOR_DEFS = {
     "top_unmanaged_candidate": "Top unmanaged candidate",
     "top_candidate_fit": "Top candidate fit",
     "top_candidate_warnings": "Top candidate warnings",
+    "candidate_shortlist": "Candidate shortlist",
+    "candidate_shortlist_fit": "Candidate shortlist fit",
     "fleet_console_next_step": "Fleet console next step",
 }
 
@@ -293,6 +295,24 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             fit = _candidate_fit_details(candidates[0])
             warnings = fit.get('warnings') or []
             return "; ".join(warnings) if warnings else "No immediate warnings"
+        if self._key == "candidate_shortlist":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            if not candidates:
+                return "No additional candidates"
+            shortlist = candidates[:3]
+            return "; ".join(f"{item['name']} ({item['entity_id']})" for item in shortlist)
+        if self._key == "candidate_shortlist_fit":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            if not candidates:
+                return "No shortlist fit guidance"
+            shortlist = candidates[:3]
+            parts = []
+            for item in shortlist:
+                fit = _candidate_fit_details(item)
+                parts.append(f"{item['name']}: {fit['confidence']}")
+            return "; ".join(parts)
         if self._key == "fleet_console_next_step":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
@@ -373,7 +393,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
-        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "fleet_console_next_step"}:
+        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "candidate_shortlist", "candidate_shortlist_fit", "fleet_console_next_step"}:
             state = self._state
             if state is None:
                 return None
