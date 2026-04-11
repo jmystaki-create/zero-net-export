@@ -121,8 +121,8 @@ Do not call the native-operator release line ready unless all gates below pass.
 - [ ] Gate 5: Larger-fleet usability has at least one concrete validation pass, or is explicitly deferred in release notes
 - [ ] Gate 6: Release metadata, tag, changelog, and distributed package are all aligned
 - [ ] Gate 7: Release execution followed `RELEASE_MANAGEMENT.md`, including post-restart Zero Net Export log review and roll-forward capture of project-specific errors for the next release
-- [ ] Gate 8: The next release removes the current early startup blocker so the config entry no longer dies in `setup_retry`
-- [ ] Gate 9: The integration page no longer shows `No entries` for Zero Net Export after setup
+- [ ] Gate 8: Restart and reload validation confirm the config entry stays healthy without regressing into `setup_retry`, entity loss, or post-start coordinator crashes
+- [ ] Gate 9: The integration page and Configure flow make it obvious where to manage devices, set policy, and review health instead of reading like an undifferentiated entity pack
 - [ ] Gate 10: The native add-device picker shows real selectable entities and one real controllable device can be saved in the user's HA instance
 
 ## Prioritized next-action queue
