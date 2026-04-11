@@ -121,7 +121,7 @@
       },
       "device_vetting": {
         "title": "Review candidate for promotion",
-        "description": "Review this unmanaged candidate before it enters the managed fleet.\n\nCandidate: {candidate_name}\nEntity: {candidate_entity_id}\nDetected kind: {candidate_kind}\nDomain: {candidate_domain}\nCurrent state: {candidate_state}\nUnit: {candidate_unit}\nDevice class: {candidate_device_class}\n\nSuggested preset: {suggested_template}\n{suggested_template_description}",
+        "description": "Review this unmanaged candidate before it enters the managed fleet.\n\nCandidate: {candidate_name}\nEntity: {candidate_entity_id}\nDetected kind: {candidate_kind}\nDomain: {candidate_domain}\nCurrent state: {candidate_state}\nUnit: {candidate_unit}\nDevice class: {candidate_device_class}\n\nFit confidence: {candidate_fit_confidence}\nFit summary: {candidate_fit_summary}\nWarnings:\n{candidate_warnings}\n\nSuggested preset: {suggested_template}\n{suggested_template_description}",
         "data": {}
       },
       "device_template": {

@@ -369,21 +369,55 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         kind = DEVICE_KIND_FIXED if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else DEVICE_KIND_VARIABLE
         templates = get_device_templates(kind)
         suggested_template = templates[0] if templates else None
+        confidence = "medium"
+        fit_summary = "Looks like a plausible controllable candidate, but review before promotion."
+        warnings: list[str] = []
+
         if domain == 'switch' and kind == DEVICE_KIND_FIXED:
             suggested_template = next((item for item in templates if item.key in {'hot_water', 'smart_plug', 'pool_pump'}), suggested_template)
+            confidence = 'high'
+            fit_summary = 'Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.'
+        elif domain == 'light' and kind == DEVICE_KIND_FIXED:
+            confidence = 'medium'
+            fit_summary = 'Light entities can be controllable, but many are comfort or presence loads rather than discretionary energy sinks.'
+            warnings.append('Confirm this light is a real discretionary load, not a normal lighting circuit people expect to stay manual.')
+        elif domain == 'input_boolean' and kind == DEVICE_KIND_FIXED:
+            confidence = 'low'
+            fit_summary = 'Helpers can represent automation intent, not a physical load.'
+            warnings.append('This is an input_boolean helper. Verify it really drives a safe controllable load before promoting it.')
         if domain in {'number', 'input_number'} and kind == DEVICE_KIND_VARIABLE:
             suggested_template = next((item for item in templates if item.key in {'ev_charger', 'battery_charge_sink'}), suggested_template)
+            confidence = 'high' if domain == 'number' else 'medium'
+            fit_summary = 'Number-style entities are strong variable-load candidates when they represent a real power or current target.'
+            if domain == 'input_number':
+                warnings.append('This is an input_number helper. Check that changing it actually drives a real device, not just a dashboard helper.')
+
+        raw_state = str(state.state).strip().lower()
+        if raw_state in {'unknown', 'unavailable'}:
+            warnings.append(f'Entity state is currently {raw_state}. Promotion is risky until it reports cleanly.')
+            confidence = 'low'
+        unit = str(state.attributes.get('unit_of_measurement') or '')
+        device_class = str(state.attributes.get('device_class') or '')
+        if kind == DEVICE_KIND_VARIABLE and not unit:
+            warnings.append('Variable candidates are safer when the entity exposes a meaningful unit such as A, W, or %.')
+        if kind == DEVICE_KIND_VARIABLE and device_class == 'battery':
+            warnings.append('Battery-class entities are often telemetry, not safe control targets. Confirm this is a writable control entity.')
+            confidence = 'low'
+
         return {
             'entity_id': entity_id,
             'name': str(state.attributes.get('friendly_name') or entity_id),
             'domain': domain,
             'kind': kind,
             'state': str(state.state),
-            'unit': str(state.attributes.get('unit_of_measurement') or ''),
-            'device_class': str(state.attributes.get('device_class') or ''),
+            'unit': unit,
+            'device_class': device_class,
             'suggested_template_key': suggested_template.key if suggested_template else None,
             'suggested_template_label': suggested_template.label if suggested_template else 'Custom',
             'suggested_template_description': suggested_template.description if suggested_template else 'Use a custom configuration for this entity.',
+            'fit_confidence': confidence,
+            'fit_summary': fit_summary,
+            'warnings': warnings,
         }
 
     def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
@@ -994,6 +1028,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "candidate_state": str(summary.get('state') or 'unknown'),
                 "candidate_unit": str(summary.get('unit') or 'none'),
                 "candidate_device_class": str(summary.get('device_class') or 'none'),
+                "candidate_fit_confidence": str(summary.get('fit_confidence') or 'unknown'),
+                "candidate_fit_summary": str(summary.get('fit_summary') or 'No fit guidance available.'),
+                "candidate_warnings": "\n".join(f"- {item}" for item in (summary.get('warnings') or [])) or "- No immediate warnings detected.",
                 "suggested_template": str(summary.get('suggested_template_label') or 'Custom'),
                 "suggested_template_description": str(summary.get('suggested_template_description') or 'Use a custom configuration for this entity.'),
             },
