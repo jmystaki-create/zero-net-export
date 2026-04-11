@@ -681,14 +681,25 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         source_attention = build_source_attention_details(state)
         unavailable_source_keys = source_attention["unavailable_source_keys"]
         stale_source_keys = source_attention["stale_source_keys"]
+        blocking_validation_details = summarize_validation_issue_messages(
+            state,
+            severities={"error"},
+            limit=3,
+        )
+        has_blocking_validation_errors = blocking_validation_details != "None"
         return {
             "coordinator": coordinator,
             "state": state,
             "readiness": readiness,
+            "effective_config": effective,
             "missing_source_keys": missing_source_keys,
             "unavailable_source_keys": unavailable_source_keys,
             "stale_source_keys": stale_source_keys,
-            "has_runtime_source_attention": bool(unavailable_source_keys or stale_source_keys),
+            "blocking_validation_details": blocking_validation_details,
+            "has_blocking_validation_errors": has_blocking_validation_errors,
+            "has_runtime_source_attention": bool(
+                unavailable_source_keys or stale_source_keys or has_blocking_validation_errors
+            ),
         }
 
     def _source_placeholders(
@@ -700,19 +711,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         attention = self._source_attention_state(effective_config=effective_config, grid_mode=grid_mode)
         state = attention["state"]
         readiness = attention["readiness"]
+        effective = attention["effective_config"]
         missing_source_keys = attention["missing_source_keys"]
         unavailable_source_keys = attention["unavailable_source_keys"]
         stale_source_keys = attention["stale_source_keys"]
+        blocking_validation_details = attention["blocking_validation_details"]
         source_attention_roles = build_source_attention_role_summary(state, effective, limit=4)
 
         missing_sources = self._format_source_role_names(missing_source_keys)
         unavailable_sources = self._format_source_role_names(unavailable_source_keys)
         stale_sources = self._format_source_role_names(stale_source_keys)
-        blocking_validation_details = summarize_validation_issue_messages(
-            state,
-            severities={"error"},
-            limit=3,
-        )
 
         if missing_source_keys:
             source_health = f"Missing required sources: {missing_sources}"
@@ -727,6 +735,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             source_next_step = str(
                 readiness.get("next_step")
                 or "Repair the unavailable or stale mapped source roles, then save and reload the integration."
+            )
+        elif blocking_validation_details != "None":
+            source_health = "Mapped source validation still has blocking errors: " + blocking_validation_details
+            source_next_step = str(
+                readiness.get("next_step")
+                or "Repair the blocking source validation errors here, then save and reload the integration."
             )
         elif state is None:
             source_health = "Source health will appear here after the integration loads."
