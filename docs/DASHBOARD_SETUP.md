@@ -154,9 +154,10 @@ That diagnostics payload is designed to help review:
 
 Mapped entity ids, device entity ids, and operator-facing names are redacted in the diagnostics export so the payload is easier to share during debugging.
 
-## Next likely dashboard step
+## Next likely follow-up
 
-After this scaffold, the next useful increment is:
+After this scaffold, the next useful increment is not more packaged dashboard surface area. The higher-value follow-up is to keep the native Home Assistant operator path clearer and easier to validate:
 
-- optional packaged dashboard assets or generated dashboard helpers for people who want easier debug visibility without pasting YAML manually
-- more compact per-device cards once real installs show which load attributes matter most on one screen
+- make Configure, Repairs, and the integration/device surfaces more self-explanatory as the command center for sources, policy, managed devices, and support
+- keep validating that native path in real Home Assistant installs, then turn confirmed operator friction into targeted fixes
+- only revisit optional dashboard ergonomics later if real installs show a specific debug-visibility gap that native surfaces still do not cover

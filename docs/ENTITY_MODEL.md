@@ -141,7 +141,7 @@ Daily reporting notes:
 Planned next:
 - richer last-action diagnostics entity set beyond the current daily/reporting slice
 - longer-horizon reporting once live installs prove which aggregates are actually useful
-- optional packaged dashboard assets once real installs confirm which controls deserve first-class UI treatment
+- keep using these entities to strengthen the native Configure, device-page, diagnostics, and Repairs workflow before considering any further optional dashboard polish
 
 ## Config entities / options
 

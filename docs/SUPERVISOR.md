@@ -58,7 +58,7 @@ Minimum real-progress outcomes for the next update:
 1. Zero Net Export stays loaded after install/restart and continues exposing native entities, not just during a brief success window
 2. Configure becomes more self-explanatory as the place for source mapping, policy, and managed-device work
 3. Native managed-device management becomes easier to discover and use for ordinary controllable loads, including common light/switch style entities where appropriate
-4. The currently installed UI makes it obvious where to set policy and where to manage devices, even before the full expert dashboard pass is complete
+4. The currently installed UI makes it obvious where to set policy and where to manage devices without depending on any later optional dashboard polish
 5. Reload/restart verification proves the integration stays alive after install, and live source validation blockers are surfaced clearly enough that the operator can tell what to fix next
 
 What does not count as enough progress for the next update:
