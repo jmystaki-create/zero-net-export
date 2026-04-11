@@ -72,6 +72,32 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
     }
 
 
+
+def summarize_validation_issue_messages(
+    state: Any,
+    *,
+    severities: set[str] | None = None,
+    limit: int = 3,
+) -> str:
+    """Return a concise deduplicated summary of validation issue messages."""
+    validation_details = _validation_details(state)
+    raw_issues = list(validation_details.get("issues", []) or [])
+    allowed = {severity.lower() for severity in severities} if severities else None
+
+    messages: list[str] = []
+    for issue in raw_issues:
+        severity = str(issue.get("severity", "")).lower()
+        if allowed is not None and severity not in allowed:
+            continue
+        message = str(issue.get("message") or "").strip()
+        if message and message not in messages:
+            messages.append(message)
+        if len(messages) >= limit:
+            break
+
+    return "; ".join(messages) if messages else "None"
+
+
 def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
     return [
         SourceSpec(CONF_SOLAR_POWER_ENTITY, config.get(CONF_SOLAR_POWER_ENTITY), "power"),

@@ -52,7 +52,7 @@
       },
       "native_setup_sources": {
         "title": "Source mapping",
-        "description": "Map the required entities and set the refresh interval. Grid mode: {grid_mode}.\n\nCurrently missing required sources: {missing_sources}\nCurrent source health: {source_health}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nRecommended next step: {source_next_step}\n\nPicker fallback: {fallback_guidance}\n\nPrimary path: {configure_path}.",
+        "description": "Map the required entities and set the refresh interval. Grid mode: {grid_mode}.\n\nCurrently missing required sources: {missing_sources}\nCurrent source health: {source_health}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nBlocking validation details: {blocking_validation_details}\nRecommended next step: {source_next_step}\n\nPicker fallback: {fallback_guidance}\n\nPrimary path: {configure_path}.",
         "data": {
           "solar_power_entity": "Solar power entity",
           "solar_energy_entity": "Solar energy entity",
@@ -184,7 +184,7 @@
       },
       "support": {
         "title": "Support and troubleshooting",
-        "description": "Use this support section when you need the next native troubleshooting path, not more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nRecommended next step: {support_next_step}\n\nNative support path: {support_path}.\nPrimary setup path: {configure_path}."
+        "description": "Use this support section when you need the next native troubleshooting path, not more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nUnavailable mapped roles: {support_unavailable_sources}\nStale mapped roles: {support_stale_sources}\nBlocking validation details: {support_blocking_details}\nRecommended next step: {support_next_step}\n\nNative support path: {support_path}.\nPrimary setup path: {configure_path}."
       },
       "advanced": {
         "title": "Advanced JSON editor and recovery",

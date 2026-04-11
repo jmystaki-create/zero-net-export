@@ -58,6 +58,7 @@ from .native_support import (
     _source_specs_from_config,
     build_native_operator_readiness,
     build_source_attention_details,
+    summarize_validation_issue_messages,
 )
 from .validation import (
     DERIVED_SOURCE_MODE_DIRECT,
@@ -579,6 +580,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         missing_sources = self._format_source_role_names(missing_source_keys)
         unavailable_sources = self._format_source_role_names(unavailable_source_keys)
         stale_sources = self._format_source_role_names(stale_source_keys)
+        blocking_validation_details = summarize_validation_issue_messages(
+            state,
+            severities={"error"},
+            limit=3,
+        )
 
         if missing_source_keys:
             source_health = f"Missing required sources: {missing_sources}"
@@ -614,12 +620,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "source_next_step": source_next_step,
             "unavailable_sources": unavailable_sources,
             "stale_sources": stale_sources,
+            "blocking_validation_details": blocking_validation_details,
         }
 
     def _support_placeholders(self) -> dict[str, str]:
         coordinator = self._coordinator()
         state = getattr(coordinator, "data", None) if coordinator is not None else None
         readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+        source_attention = build_source_attention_details(state)
+        unavailable_sources = self._format_source_role_names(source_attention["unavailable_source_keys"])
+        stale_sources = self._format_source_role_names(source_attention["stale_source_keys"])
         health_summary = "Integration state not loaded yet"
         if state is not None:
             health_summary = state.health_summary or state.diagnostic_summary or health_summary
@@ -629,6 +639,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_path": "Configure -> Support and troubleshooting; deeper support: integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; Settings -> Repairs",
             "readiness_phase": str(readiness.get("phase") or "unknown"),
             "health_status": health_summary,
+            "support_unavailable_sources": unavailable_sources or "None",
+            "support_stale_sources": stale_sources or "None",
+            "support_blocking_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
         }
 
     async def async_step_init(self, user_input=None):
