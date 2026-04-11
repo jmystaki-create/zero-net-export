@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Compare the strongest discovered Home Assistant / energy-management references against the proposed **Zero Net Export** app.
+Compare the strongest discovered Home Assistant / energy-management references against the current **Zero Net Export** native Home Assistant integration direction.
 
 ---
 
@@ -25,7 +25,7 @@ A mature Home Assistant integration focused on maximizing solar self-consumption
 ### What it does not appear to solve fully
 - strict zero-export / export-target control as the product identity
 - operator-grade source validation and reconciliation
-- mini-app style dashboard / control console
+- a clear native Configure-driven command center for sources, policy, managed devices, and support
 - explicit confidence and mismatch reporting
 - grid-boundary-first modeling
 
@@ -57,14 +57,14 @@ Battery prediction and charging automation / optimization for Home Assistant.
 
 ### Relevance to Zero Net Export
 - useful for future advanced strategy layer
-- less relevant for the immediate HA mini-app control loop
+- less relevant for the immediate native Home Assistant control workflow
 
 ### What to borrow
 - prediction / planning concepts
 - tariff-aware strategy concepts
 
 ### What not to rely on as the core product shape
-- dashboard / mini-app UX
+- optional dashboard debug visibility inside Home Assistant, not the supported operator path
 - direct zero-export device orchestration
 
 ---
@@ -130,6 +130,6 @@ The best direct reference is **`jmcollin78/solar_optimizer`**, but it should be 
 **Zero Net Export** should borrow its operational maturity while differentiating on:
 - export-target-first behavior
 - source-of-truth validation
-- operator UX
+- native operator workflow clarity
 - explainability
 - health / mismatch reporting
