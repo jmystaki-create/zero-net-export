@@ -31,7 +31,7 @@
     "step": {
       "init": {
         "title": "Zero Net Export command center",
-        "description": "Start here after install. Use this command center to map sources, tune policy, manage devices, and review runtime health from native Home Assistant surfaces.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Health and support: {support_status}\n\nCurrent mapped-source blockers: {source_attention_summary}\nRecommended next section: {recommended_section}.\nRecommended path right now: {recommended_path}.\nWhat to do next: {next_action_summary}\n{recommended_menu_hint}\n\nWhere each native path lives:\n- Sources: {sources_path}\n- Managed devices: {devices_path}\n- Policy: {policy_path}\n- Health and support: {support_path}.",
+        "description": "Start here after install. Use this command center to map sources, tune policy, manage devices, and review runtime health from native Home Assistant surfaces.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Health and support: {support_status}\n\nLive control mode: {current_mode}\nMode summary: {mode_summary}\nLive mode path: {mode_path}\n\nCurrent mapped-source blockers: {source_attention_summary}\nRecommended next section: {recommended_section}.\nRecommended path right now: {recommended_path}.\nWhat to do next: {next_action_summary}\n{recommended_menu_hint}\n\nWhere each native path lives:\n- Sources: {sources_path}\n- Managed devices: {devices_path}\n- Policy: {policy_path}\n- Health and support: {support_path}.",
         "menu_options": {
           "native_setup": "Sources and source mapping",
           "policy": "Policy and controller settings",
@@ -168,7 +168,7 @@
       },
       "policy": {
         "title": "Policy and controller settings",
-        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. If you are looking for where Zero Net Export behaviour is adjusted, this is it once source mapping is healthy and managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}\n\nNative paths around this screen:\n- Policy: {policy_path}\n- Sources and source mapping: {sources_path}\n- Managed devices: {devices_path}\n- Health and support: {support_path}",
+        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. If you are looking for where Zero Net Export behaviour is adjusted, this is it once source mapping is healthy and managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nLive control mode: {current_mode}\nMode summary: {mode_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}\n\nNative paths around this screen:\n- Policy defaults and thresholds: {policy_path}\n- Live mode control: {mode_path}\n- Sources and source mapping: {sources_path}\n- Managed devices: {devices_path}\n- Health and support: {support_path}",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
@@ -184,7 +184,7 @@
       },
       "support": {
         "title": "Health, support, and troubleshooting",
-        "description": "Use this native section when you need to review runtime health, confirm the current blocker, or follow the next troubleshooting path, not make more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nMapped-source blocker summary: {support_attention_summary}\nUnavailable mapped roles: {support_unavailable_sources}\nStale mapped roles: {support_stale_sources}\nAffected mapped sources: {support_source_attention_roles}\nBlocking validation details: {support_blocking_details}\nRecommended next step: {support_next_step}\n\nNative health and support path: {support_path}.\nPrimary setup path: {configure_path}."
+        "description": "Use this native section when you need to review runtime health, confirm the current blocker, or follow the next troubleshooting path, not make more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nLive control mode: {current_mode}\nMode summary: {mode_summary}\nMapped-source blocker summary: {support_attention_summary}\nUnavailable mapped roles: {support_unavailable_sources}\nStale mapped roles: {support_stale_sources}\nAffected mapped sources: {support_source_attention_roles}\nBlocking validation details: {support_blocking_details}\nRecommended next step: {support_next_step}\n\nNative health and support path: {support_path}.\nLive mode control path: {mode_path}.\nPrimary setup path: {configure_path}."
       },
       "advanced": {
         "title": "Advanced JSON editor and recovery",

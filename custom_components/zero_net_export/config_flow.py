@@ -41,6 +41,9 @@ from .const import (
     DOMAIN,
     GRID_SENSOR_MODE_COMBINED,
     GRID_SENSOR_MODE_SEPARATE,
+    MODE_DESCRIPTIONS,
+    MODE_LABELS,
+    MODE_ZERO_EXPORT,
     SOURCE_ROLE_LABELS,
 )
 from .device_model import (
@@ -56,6 +59,7 @@ from .device_model import (
 from .native_support import (
     ADVANCED_DEVICES_CONFIGURE_PATH,
     DEVICES_CONFIGURE_PATH,
+    MODE_CONTROL_PATH,
     POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
@@ -106,6 +110,14 @@ def _entry_default_number(config_entry, key: str, fallback: int | float) -> int 
 
 def _entry_default_text(config_entry, key: str, fallback: str) -> str:
     return _coerce_text(config_entry.options.get(key, config_entry.data.get(key, fallback)), fallback)
+
+
+def _live_mode_details(coordinator: Any) -> tuple[str, str]:
+    state = getattr(coordinator, "data", None) if coordinator is not None else None
+    raw_mode = str(getattr(state, "mode", "") or MODE_ZERO_EXPORT)
+    mode_label = MODE_LABELS.get(raw_mode, raw_mode)
+    mode_description = MODE_DESCRIPTIONS.get(raw_mode, "Use the integration device page Mode entity to adjust live controller behaviour.")
+    return mode_label, mode_description
 
 
 def _build_bootstrap_schema(defaults: dict | None = None) -> vol.Schema:
@@ -795,10 +807,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         health_summary = "Integration state not loaded yet"
         if state is not None:
             health_summary = state.health_summary or state.diagnostic_summary or health_summary
+        mode_label, mode_description = _live_mode_details(coordinator)
         return {
             "support_status": readiness.get("summary") or health_summary,
             "support_next_step": readiness.get("next_step") or "Open the device page support actions or Repairs to continue troubleshooting.",
             "support_path": SUPPORT_CONFIGURE_PATH,
+            "mode_path": MODE_CONTROL_PATH,
+            "current_mode": mode_label,
+            "mode_summary": mode_description,
             "readiness_phase": str(readiness.get("phase") or "unknown"),
             "health_status": health_summary,
             "support_unavailable_sources": unavailable_sources or "None",
@@ -811,6 +827,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(self, user_input=None):
         command_center = build_native_command_center_summary(self._coordinator())
 
+        mode_label, mode_description = _live_mode_details(self._coordinator())
         placeholders = {
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "source_status": command_center["source_status"],
@@ -822,6 +839,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "sources_path": SOURCES_CONFIGURE_PATH,
             "devices_path": DEVICES_CONFIGURE_PATH,
             "policy_path": POLICY_CONFIGURE_PATH,
+            "mode_path": MODE_CONTROL_PATH,
+            "current_mode": mode_label,
+            "mode_summary": mode_description,
             "next_action_summary": command_center["next_action_summary"],
             "recommended_menu_hint": (
                 f"The first menu item below now matches the recommended next section: {command_center['recommended_section']}."
@@ -1583,8 +1603,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
             policy_next_step = "Adjust behaviour here, then use the integration device page, entities, and support surfaces to verify runtime health."
 
+        mode_label, mode_description = _live_mode_details(self._coordinator())
         policy_summary = (
-            f"Target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
+            f"Live mode {mode_label}; target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
             f"deadband {int(_entry_default_number(self._config_entry, CONF_DEADBAND_W, DEFAULT_DEADBAND_W))} W, "
             f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%, "
             f"refresh {int(_entry_default_number(self._config_entry, CONF_REFRESH_SECONDS, DEFAULT_REFRESH_SECONDS))} s"
@@ -1643,6 +1664,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "sources_path": SOURCES_CONFIGURE_PATH,
                 "devices_path": DEVICES_CONFIGURE_PATH,
                 "policy_path": POLICY_CONFIGURE_PATH,
+                "mode_path": MODE_CONTROL_PATH,
+                "current_mode": mode_label,
+                "mode_summary": mode_description,
                 "support_path": SUPPORT_CONFIGURE_PATH,
                 "policy_readiness": policy_readiness,
                 "policy_summary": policy_summary,

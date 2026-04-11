@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.select import SelectEntity
 
-from .const import DOMAIN, MODES
+from .const import DOMAIN, MODE_LABELS, MODES
 from .entity import ZeroNetExportEntity
 
 
@@ -15,18 +15,19 @@ async def async_setup_entry(hass, entry, async_add_entities):
 class ZeroNetExportModeSelect(ZeroNetExportEntity, SelectEntity):
     @property
     def options(self):
-        return MODES
+        return [MODE_LABELS.get(mode, mode) for mode in MODES]
 
     @property
     def current_option(self):
         state = self._state
         if state is None:
             return None
-        return state.mode
+        return MODE_LABELS.get(state.mode, state.mode)
 
     @property
     def extra_state_attributes(self):
         return self._validation_details
 
     async def async_select_option(self, option: str):
-        await self.coordinator.async_set_mode(option)
+        selected_mode = next((mode for mode, label in MODE_LABELS.items() if label == option), option)
+        await self.coordinator.async_set_mode(selected_mode)

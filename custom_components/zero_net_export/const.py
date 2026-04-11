@@ -82,6 +82,22 @@ MODE_SELF_CONSUMPTION_MAX = "self_consumption_max"
 MODE_IMPORT_MIN = "import_min"
 MODE_MANUAL_HOLD = "manual_hold"
 
+MODE_LABELS = {
+    MODE_ZERO_EXPORT: "Zero export",
+    MODE_SOFT_ZERO_EXPORT: "Soft zero export",
+    MODE_SELF_CONSUMPTION_MAX: "Max self-consumption",
+    MODE_IMPORT_MIN: "Minimise import",
+    MODE_MANUAL_HOLD: "Manual hold",
+}
+
+MODE_DESCRIPTIONS = {
+    MODE_ZERO_EXPORT: "Balances controllable loads around the configured export target.",
+    MODE_SOFT_ZERO_EXPORT: "Keeps a small export buffer so the controller reacts less aggressively.",
+    MODE_SELF_CONSUMPTION_MAX: "Prefers soaking up surplus generation even if brief export still occurs.",
+    MODE_IMPORT_MIN: "Biases control toward avoiding grid import when power is tight.",
+    MODE_MANUAL_HOLD: "Freezes automatic control changes until you switch back to an active mode.",
+}
+
 MODES = [
     MODE_ZERO_EXPORT,
     MODE_SOFT_ZERO_EXPORT,

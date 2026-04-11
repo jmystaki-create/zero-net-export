@@ -26,6 +26,7 @@ from .const import (
     DEFAULT_DEADBAND_W,
     DEFAULT_TARGET_EXPORT_W,
     INTEGRATION_VERSION,
+    MODE_LABELS,
     REQUIRED_SOURCE_KEYS,
     SOURCE_ROLE_LABELS,
 )
@@ -38,6 +39,7 @@ SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mappin
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
+MODE_CONTROL_PATH = "integration device page -> Mode"
 SUPPORT_CONFIGURE_PATH = (
     f"{PRIMARY_CONFIGURE_PATH} -> Health, support, and troubleshooting; deeper health review: "
     "integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
@@ -586,8 +588,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     else:
         next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
 
+    current_mode = MODE_LABELS.get(str(getattr(state, "mode", "") or ""), str(getattr(state, "mode", "") or "Unknown mode"))
     policy_status = (
-        f"Target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W, "
+        f"Mode {current_mode}; target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W, "
         f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
         f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
     )
@@ -617,6 +620,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "sources_path": SOURCES_CONFIGURE_PATH,
         "devices_path": DEVICES_CONFIGURE_PATH,
         "policy_path": POLICY_CONFIGURE_PATH,
+        "mode_path": MODE_CONTROL_PATH,
         "support_path": SUPPORT_CONFIGURE_PATH,
     }
 
