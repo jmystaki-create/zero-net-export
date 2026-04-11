@@ -4,7 +4,7 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
-## [Unreleased]
+## [0.1.78] - 2026-04-11
 
 ### Added
 - Expanded the optional Lovelace debug dashboard scaffold inside Home Assistant with controller intent, battery/grid/solar telemetry, fleet planning, guard/support actions, and recent control activity, while keeping it outside the supported operator path.
