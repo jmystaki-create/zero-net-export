@@ -329,7 +329,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             return {
-                "configure_path": "Settings -> Devices & services -> Integrations -> Zero Net Export -> Configure -> Managed devices",
+                "configure_path": "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed devices",
                 "managed_devices": list((state.device_details or {}).values()),
                 "candidate_devices": candidates[:12],
                 "candidate_count": len(candidates),
