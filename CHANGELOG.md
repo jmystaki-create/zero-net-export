@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Added native device-page diagnostic sensors for mapped-source blocker summary and mapped-source next step, so operators can see the current source blocker and the exact Configure -> Sources remediation path directly from the integration's entity surface while safe mode is holding control.
 - Corrected the new full managed-device candidate picker wording so it no longer implies the dropdown itself accepts a typed manual path, and instead tells operators to choose the explicit manual-selection option when the right entity is not listed.
 - Replaced the remaining vague `integration device page` runtime wording with the full native Home Assistant device path for Mode, diagnostics, and support actions, so command-center guidance no longer leaks a fuzzy non-path while the supervisor is pushing exact native operator discoverability.
 - Replaced the last shorthand `Open Configure` operator next-step prompts in Repairs, support readiness, and fleet guidance with exact native Home Assistant paths, so the shipped runtime surfaces stay aligned with the command-center discoverability push.

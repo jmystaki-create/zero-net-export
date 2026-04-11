@@ -12,6 +12,11 @@ from .native_support import (
     POLICY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
     build_native_command_center_summary,
+    build_native_operator_readiness,
+    build_source_attention_details,
+    build_source_attention_role_summary,
+    build_source_attention_summary,
+    summarize_validation_issue_messages,
 )
 from .release_info import build_release_info
 
@@ -88,6 +93,8 @@ SENSOR_DEFS = {
     "candidate_shortlist": "Candidate shortlist",
     "candidate_shortlist_fit": "Candidate shortlist fit",
     "fleet_console_next_step": "Fleet console next step",
+    "mapped_source_blocker_summary": "Mapped-source blocker summary",
+    "mapped_source_blocker_next_step": "Mapped-source blocker next step",
     "command_center_status": "Command center status",
     "command_center_recommended_path": "Command center recommended path",
     "command_center_next_step": "Command center next step",
@@ -330,6 +337,24 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if candidates:
                 return f"Review unmanaged candidates, then promote the next controllable device from {DEVICES_CONFIGURE_PATH}"
             return f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
+        if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
+            merged = dict(self.coordinator.entry.data)
+            merged.update(self.coordinator.entry.options)
+            summary = build_source_attention_summary(state, merged, limit=4)
+            if self._key == "mapped_source_blocker_summary":
+                blocking_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
+                if summary != "None":
+                    return summary
+                if blocking_details != "None":
+                    return blocking_details
+                return "None"
+            readiness = build_native_operator_readiness(self.coordinator)
+            if summary != "None" or summarize_validation_issue_messages(state, severities={"error"}, limit=3) != "None":
+                return str(
+                    readiness.get("next_step")
+                    or f"Open {SOURCES_CONFIGURE_PATH}, repair the affected mapped sources, then save and reload the integration"
+                )
+            return f"Mapped sources currently look healthy; continue in {DEVICES_CONFIGURE_PATH} or {POLICY_CONFIGURE_PATH}"
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
             mapping = {
@@ -377,6 +402,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             "planned_action_count",
             "executable_action_count",
             "blocked_planned_action_count",
+            "mapped_source_blocker_summary",
+            "mapped_source_blocker_next_step",
             "command_center_status",
             "command_center_recommended_path",
             "command_center_next_step",
@@ -427,6 +454,24 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "candidate_count": len(candidates),
                 "top_candidate": top_candidate,
                 "top_candidate_fit": _candidate_fit_details(top_candidate) if top_candidate else None,
+            }
+        if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
+            state = self._state
+            if state is None:
+                return None
+            merged = dict(self.coordinator.entry.data)
+            merged.update(self.coordinator.entry.options)
+            readiness = build_native_operator_readiness(self.coordinator)
+            attention = build_source_attention_details(state)
+            return {
+                "configure_path": SOURCES_CONFIGURE_PATH,
+                "support_path": build_native_command_center_summary(self.coordinator).get("support_path"),
+                "source_attention_summary": build_source_attention_summary(state, merged, limit=4),
+                "affected_mapped_sources": build_source_attention_role_summary(state, merged, limit=6),
+                "blocking_validation_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+                "unavailable_source_keys": attention.get("unavailable_source_keys"),
+                "stale_source_keys": attention.get("stale_source_keys"),
+                "recommended_next_step": readiness.get("next_step"),
             }
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
