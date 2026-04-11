@@ -524,7 +524,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
         recommended_section = "Managed devices"
     elif configured_devices:
-        device_status = f"{len(configured_devices)} configured"
+        runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
+        device_status = runtime_device_status or f"{len(configured_devices)} configured"
     else:
         device_status = "No managed devices configured yet"
         if not missing_required_sources and not runtime_source_attention:
@@ -544,20 +545,30 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     else:
         next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
 
+    policy_status = (
+        f"Target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W, "
+        f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
+        f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
+    )
+    support_status = str(
+        readiness.get("summary")
+        or getattr(state, "health_summary", None)
+        or getattr(state, "diagnostic_summary", None)
+        or "Integration state not loaded yet"
+    )
+    status_summary_map = {
+        "Sources and source mapping": source_status,
+        "Managed devices": device_status,
+        "Policy and controller settings": policy_status,
+        "Health, support, and troubleshooting": support_status,
+    }
+
     return {
         "source_status": source_status,
         "device_status": device_status,
-        "policy_status": (
-            f"Target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W, "
-            f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
-            f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
-        ),
-        "support_status": str(
-            readiness.get("summary")
-            or getattr(state, "health_summary", None)
-            or getattr(state, "diagnostic_summary", None)
-            or "Integration state not loaded yet"
-        ),
+        "policy_status": policy_status,
+        "support_status": support_status,
+        "status_summary": status_summary_map.get(recommended_section, support_status),
         "recommended_section": recommended_section,
         "recommended_path": f"{PRIMARY_CONFIGURE_PATH} -> {recommended_section}",
         "next_action_summary": next_action_summary,

@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Fixed the native command-center diagnostic sensor so **Command center status** now reports the current status of the recommended native section instead of incorrectly echoing the section name, and made the managed-device status read from live runtime usability when available.
 - Made the native Configure policy screen name the exact native paths back to sources, managed devices, and health/support, so operators do not have to infer where to go next from the command center once they start adjusting controller behaviour.
 - Made the native Configure source/support screens and startup setup notice name the exact mapped source roles and entity ids that are unavailable or stale, so live Home Assistant installs can see which source binding is holding safe mode without digging through raw diagnostics.
 - Made the native Configure copy more explicit about where to start after install and where device management versus policy tuning live, reducing the current operator-discoverability gap without adding any new surfaces.

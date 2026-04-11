@@ -328,7 +328,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
             mapping = {
-                "command_center_status": command_center.get("recommended_section"),
+                "command_center_status": command_center.get("status_summary"),
                 "command_center_recommended_path": command_center.get("recommended_path"),
                 "command_center_next_step": command_center.get("next_action_summary"),
             }
@@ -430,6 +430,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "device_status": command_center.get("device_status"),
                 "policy_status": command_center.get("policy_status"),
                 "support_status": command_center.get("support_status"),
+                "status_summary": command_center.get("status_summary"),
                 "recommended_section": command_center.get("recommended_section"),
                 "recommended_path": command_center.get("recommended_path"),
                 "sources_path": command_center.get("sources_path"),
