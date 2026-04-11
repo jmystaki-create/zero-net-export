@@ -97,13 +97,13 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 1.  Add the **Zero Net Export** integration.
 2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
 3.  Open **Settings** -> **Devices & Services** -> **Integrations** -> **Zero Net Export** -> **Configure**.
-4.  Use **Native setup, source mapping, and refresh interval** to map your source entities:
+4.  Use **Sources and source mapping** to map your source entities:
     - Solar Power
     - Grid sensors, either as one combined/net pair or as separate import/export entities
     - Home Load Power (optional if solar and grid sources are already mapped)
     - (Optional) Battery Entities
 5.  Use **Managed devices** in Configure to add fixed or variable controllable devices through native selectors. Use the fleet review there to quickly enable or disable devices across a larger install. Use the JSON editor only for bulk structural edits or recovery.
-6.  Use **Controller tuning / policy** in Configure for target/deadband/reserve defaults and related control behavior.
+6.  Use **Policy and controller settings** in Configure for target/deadband/reserve defaults and related control behavior.
 7.  Use the managed-device steps in Configure to review, add, edit, enable/disable, and remove controllable loads.
 8.  Use **Support and troubleshooting** in Configure for the next native triage step, then use the integration device page buttons, entities, diagnostics, and **Repairs** for deeper runtime verification and troubleshooting.
 
@@ -130,7 +130,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Entity Model](docs/ENTITY_MODEL.md) | List of all created entities |
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
-| [Release Process](docs/RELEASE_PROCESS.md) | Versioning, changelog, tags, and release workflow |
+| [Release Management](RELEASE_MANAGEMENT.md) | Operational release workflow, including GitHub visibility, HACS refresh, Home Assistant restart, and post-release log review |
 | [Branding](docs/BRANDING.md) | Logo usage and HACS / Home Assistant branding notes |
 | [Changelog](CHANGELOG.md) | User-visible changes by version |
 

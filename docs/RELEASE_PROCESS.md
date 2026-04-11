@@ -1,6 +1,8 @@
 # Release Process
 
-This document describes how Zero Net Export releases are managed.
+This document describes the versioning and packaging background for Zero Net Export releases.
+
+Operational release execution lives in `../RELEASE_MANAGEMENT.md`. Use that file for the actual ship checklist, including approval, GitHub latest-release verification, forced HACS metadata refresh, Home Assistant restart, and post-release log review.
 
 This process is downstream of `docs/SUPERVISOR.md`. If the supervisor release gates are not met, the release should be treated as not ready even if packaging steps are mechanically complete.
 
