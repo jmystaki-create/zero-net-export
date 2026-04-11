@@ -31,11 +31,12 @@
     "step": {
       "init": {
         "title": "Zero Net Export command center",
-        "description": "Use this command center to map sources, tune policy, manage devices, and access advanced recovery.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n\nRecommended next section: {recommended_section}.",
+        "description": "Use this command center to map sources, tune policy, manage devices, and reach native support.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Support: {support_status}\n\nRecommended next section: {recommended_section}.\nNative support path: {support_path}.",
         "menu_options": {
           "native_setup": "Sources and source mapping",
           "policy": "Policy and controller settings",
           "devices": "Managed devices",
+          "support": "Support and troubleshooting",
           "advanced": "Advanced JSON editor and recovery"
         }
       },
@@ -168,6 +169,10 @@
           "battery_reserve_soc": "The minimum battery percentage to protect before discretionary surplus-absorption actions are allowed. Choose the lowest battery level you still want to keep in reserve.",
           "refresh_seconds": "How often the backend re-reads your source sensors and re-plans control actions. Shorter intervals react faster; longer intervals reduce churn."
         }
+      },
+      "support": {
+        "title": "Support and troubleshooting",
+        "description": "Use this support section when you need the next native troubleshooting path, not more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nRecommended next step: {support_next_step}\n\nNative support path: {support_path}.\nPrimary setup path: {configure_path}."
       },
       "advanced": {
         "title": "Advanced JSON editor and recovery",

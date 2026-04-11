@@ -50,7 +50,7 @@ from .device_model import (
     get_device_templates,
     parse_device_configs,
 )
-from .native_support import PRIMARY_CONFIGURE_PATH, _source_specs_from_config
+from .native_support import PRIMARY_CONFIGURE_PATH, _source_specs_from_config, build_native_operator_readiness
 from .validation import (
     DERIVED_SOURCE_MODE_DIRECT,
     DERIVED_SOURCE_MODE_NEGATIVE_ABS,
@@ -416,6 +416,24 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         return defaults
 
+    def _coordinator(self):
+        return self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)
+
+    def _support_placeholders(self) -> dict[str, str]:
+        coordinator = self._coordinator()
+        state = getattr(coordinator, "data", None) if coordinator is not None else None
+        readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+        health_summary = "Integration state not loaded yet"
+        if state is not None:
+            health_summary = state.health_summary or state.diagnostic_summary or health_summary
+        return {
+            "support_status": readiness.get("summary") or health_summary,
+            "support_next_step": readiness.get("next_step") or "Open the device page support actions or Repairs to continue troubleshooting.",
+            "support_path": "Integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; Settings -> Repairs",
+            "readiness_phase": str(readiness.get("phase") or "unknown"),
+            "health_status": health_summary,
+        }
+
     async def async_step_init(self, user_input=None):
         effective_config = dict(self._config_entry.data)
         effective_config.update(self._config_entry.options)
@@ -440,20 +458,23 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if not missing_sources:
                 recommended_section = "Managed devices"
 
+        placeholders = {
+            "configure_path": PRIMARY_CONFIGURE_PATH,
+            "source_status": source_status,
+            "device_status": device_status,
+            "policy_status": (
+                f"Target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
+                f"deadband {int(_entry_default_number(self._config_entry, CONF_DEADBAND_W, DEFAULT_DEADBAND_W))} W, "
+                f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%"
+            ),
+            "recommended_section": recommended_section,
+        }
+        placeholders.update(self._support_placeholders())
+
         return self.async_show_menu(
             step_id="init",
-            menu_options=["native_setup", "policy", "devices", "advanced"],
-            description_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
-                "source_status": source_status,
-                "device_status": device_status,
-                "policy_status": (
-                    f"Target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
-                    f"deadband {int(_entry_default_number(self._config_entry, CONF_DEADBAND_W, DEFAULT_DEADBAND_W))} W, "
-                    f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%"
-                ),
-                "recommended_section": recommended_section,
-            },
+            menu_options=["native_setup", "policy", "devices", "support", "advanced"],
+            description_placeholders=placeholders,
         )
 
     async def async_step_native_setup(self, user_input=None):
@@ -1069,6 +1090,20 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "policy_readiness": policy_readiness,
+            },
+        )
+
+    async def async_step_support(self, user_input=None):
+        if user_input is not None:
+            return await self.async_step_init()
+
+        return self.async_show_form(
+            step_id="support",
+            data_schema=vol.Schema({}),
+            errors={},
+            description_placeholders={
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+                **self._support_placeholders(),
             },
         )
 
