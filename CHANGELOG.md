@@ -4,6 +4,12 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [0.1.79] - 2026-04-11
+
+### Added
+- Native fleet-promotion workflow improvements inside Home Assistant, including unmanaged candidate discovery, device-page fleet-console summaries, candidate pick/vetting steps, fit warnings, and smarter defaults carried into managed-device setup.
+- Device-page candidate guidance now surfaces top-candidate fit, warnings, and a shortlist to guide promotion from unmanaged to managed devices.
+
 ## [0.1.78] - 2026-04-11
 
 ### Added
