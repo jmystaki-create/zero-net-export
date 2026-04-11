@@ -54,8 +54,13 @@ from .device_model import (
     parse_device_configs,
 )
 from .native_support import (
+    DEVICES_CONFIGURE_PATH,
+    POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
+    SOURCES_CONFIGURE_PATH,
+    SUPPORT_CONFIGURE_PATH,
     _source_specs_from_config,
+    build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
     summarize_validation_issue_messages,
@@ -757,7 +762,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return {
             "support_status": readiness.get("summary") or health_summary,
             "support_next_step": readiness.get("next_step") or "Open the device page support actions or Repairs to continue troubleshooting.",
-            "support_path": "Configure -> Health, support, and troubleshooting; deeper health review: integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; Settings -> Repairs",
+            "support_path": SUPPORT_CONFIGURE_PATH,
             "readiness_phase": str(readiness.get("phase") or "unknown"),
             "health_status": health_summary,
             "support_unavailable_sources": unavailable_sources or "None",
@@ -766,59 +771,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         }
 
     async def async_step_init(self, user_input=None):
-        effective_config = dict(self._config_entry.data)
-        effective_config.update(self._config_entry.options)
-        devices, device_issues = self._load_devices()
-        grid_mode = _grid_mode_default(self._config_entry)
-        source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
-        source_attention = self._source_attention_state(effective_config=effective_config, grid_mode=grid_mode)
-        missing_sources = source_attention["missing_source_keys"]
-        runtime_source_attention = source_attention["has_runtime_source_attention"]
-
-        if missing_sources or runtime_source_attention:
-            source_status = source_placeholders["source_health"]
-            recommended_section = "Sources and source mapping"
-        else:
-            source_status = source_placeholders["source_health"]
-            recommended_section = "Managed devices" if not devices else "Policy and controller settings"
-
-        if device_issues:
-            device_status = f"{len(devices)} configured, with {len(device_issues)} issue(s) to repair"
-            recommended_section = "Managed devices"
-        elif devices:
-            device_status = f"{len(devices)} configured"
-        else:
-            device_status = "No managed devices configured yet"
-            if not missing_sources and not runtime_source_attention:
-                recommended_section = "Managed devices"
-
-        next_action_summary = "Open Sources and source mapping first to finish required entity mapping."
-        if missing_sources:
-            next_action_summary = "Finish source mapping first, then return here to add devices and tune policy."
-        elif runtime_source_attention:
-            next_action_summary = source_placeholders["source_next_step"]
-        elif device_issues:
-            next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
-        elif not devices:
-            next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
-        else:
-            next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
+        command_center = build_native_command_center_summary(self._coordinator())
 
         placeholders = {
             "configure_path": PRIMARY_CONFIGURE_PATH,
-            "source_status": source_status,
-            "device_status": device_status,
-            "policy_status": (
-                f"Target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
-                f"deadband {int(_entry_default_number(self._config_entry, CONF_DEADBAND_W, DEFAULT_DEADBAND_W))} W, "
-                f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%"
-            ),
-            "recommended_section": recommended_section,
-            "recommended_path": f"{PRIMARY_CONFIGURE_PATH} -> {recommended_section}",
-            "sources_path": f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping",
-            "devices_path": f"{PRIMARY_CONFIGURE_PATH} -> Managed devices",
-            "policy_path": f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings",
-            "next_action_summary": next_action_summary,
+            "source_status": command_center["source_status"],
+            "device_status": command_center["device_status"],
+            "policy_status": command_center["policy_status"],
+            "recommended_section": command_center["recommended_section"],
+            "recommended_path": command_center["recommended_path"],
+            "sources_path": SOURCES_CONFIGURE_PATH,
+            "devices_path": DEVICES_CONFIGURE_PATH,
+            "policy_path": POLICY_CONFIGURE_PATH,
+            "next_action_summary": command_center["next_action_summary"],
         }
         placeholders.update(self._support_placeholders())
 

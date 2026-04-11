@@ -7,6 +7,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS, DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
+from .native_support import build_native_command_center_summary
 from .release_info import build_release_info
 
 
@@ -82,6 +83,9 @@ SENSOR_DEFS = {
     "candidate_shortlist": "Candidate shortlist",
     "candidate_shortlist_fit": "Candidate shortlist fit",
     "fleet_console_next_step": "Fleet console next step",
+    "command_center_status": "Command center status",
+    "command_center_recommended_path": "Command center recommended path",
+    "command_center_next_step": "Command center next step",
 }
 
 SOURCE_LABELS = {
@@ -321,6 +325,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if candidates:
                 return "Review unmanaged candidates, then promote the next controllable device in Configure"
             return "Open Configure -> Policy and controller settings to tune behaviour, or Configure -> Sources and source mapping if runtime health still needs work"
+        if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
+            command_center = build_native_command_center_summary(self.coordinator)
+            mapping = {
+                "command_center_status": command_center.get("recommended_section"),
+                "command_center_recommended_path": command_center.get("recommended_path"),
+                "command_center_next_step": command_center.get("next_action_summary"),
+            }
+            return mapping.get(self._key)
         return getattr(state, self._key)
 
     @property
@@ -360,6 +372,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             "planned_action_count",
             "executable_action_count",
             "blocked_planned_action_count",
+            "command_center_status",
+            "command_center_recommended_path",
+            "command_center_next_step",
         }:
             return EntityCategory.DIAGNOSTIC
         return None
@@ -407,6 +422,20 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "candidate_count": len(candidates),
                 "top_candidate": top_candidate,
                 "top_candidate_fit": _candidate_fit_details(top_candidate) if top_candidate else None,
+            }
+        if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
+            command_center = build_native_command_center_summary(self.coordinator)
+            return {
+                "source_status": command_center.get("source_status"),
+                "device_status": command_center.get("device_status"),
+                "policy_status": command_center.get("policy_status"),
+                "support_status": command_center.get("support_status"),
+                "recommended_section": command_center.get("recommended_section"),
+                "recommended_path": command_center.get("recommended_path"),
+                "sources_path": command_center.get("sources_path"),
+                "devices_path": command_center.get("devices_path"),
+                "policy_path": command_center.get("policy_path"),
+                "support_path": command_center.get("support_path"),
             }
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:
             return self._validation_details

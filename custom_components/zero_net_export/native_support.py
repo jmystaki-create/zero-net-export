@@ -8,9 +8,11 @@ from typing import Any
 from homeassistant.util import dt as dt_util
 
 from .const import (
+    CONF_BATTERY_RESERVE_SOC,
     CONF_BATTERY_CHARGE_POWER_ENTITY,
     CONF_BATTERY_DISCHARGE_POWER_ENTITY,
     CONF_BATTERY_SOC_ENTITY,
+    CONF_DEADBAND_W,
     CONF_DEVICE_INVENTORY_JSON,
     CONF_GRID_EXPORT_ENERGY_ENTITY,
     CONF_GRID_EXPORT_POWER_ENTITY,
@@ -19,6 +21,10 @@ from .const import (
     CONF_HOME_LOAD_POWER_ENTITY,
     CONF_SOLAR_ENERGY_ENTITY,
     CONF_SOLAR_POWER_ENTITY,
+    CONF_TARGET_EXPORT_W,
+    DEFAULT_BATTERY_RESERVE_SOC,
+    DEFAULT_DEADBAND_W,
+    DEFAULT_TARGET_EXPORT_W,
     INTEGRATION_VERSION,
     REQUIRED_SOURCE_KEYS,
     SOURCE_ROLE_LABELS,
@@ -28,6 +34,14 @@ from .release_info import build_release_info
 from .validation import SourceSpec, format_source_binding_label
 
 PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure"
+SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping"
+DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
+POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
+SUPPORT_CONFIGURE_PATH = (
+    "Configure -> Health, support, and troubleshooting; deeper health review: "
+    "integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
+    "Settings -> Repairs"
+)
 
 
 def _validation_details(state: Any) -> dict[str, Any]:
@@ -418,6 +432,99 @@ def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
     """Return the operator readiness block for native HA surfaces."""
     _, _, _, operator_readiness = _build_support_sections(coordinator)
     return operator_readiness
+
+
+def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
+    """Return the command-center summary shown in Configure and device surfaces."""
+    state = getattr(coordinator, "data", None) if coordinator is not None else None
+    readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+
+    entry = getattr(coordinator, "entry", None)
+    merged: dict[str, Any] = {}
+    if entry is not None:
+        merged.update(entry.data)
+        merged.update(entry.options)
+
+    configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
+
+    missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
+    source_attention = build_source_attention_details(state)
+    unavailable_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["unavailable_source_keys"]]
+    stale_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["stale_source_keys"]]
+    blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
+    runtime_source_attention = bool(unavailable_source_roles or stale_source_roles or blocking_validation_details != "None")
+
+    if missing_required_sources:
+        source_status = "Missing required source roles: " + ", ".join(
+            SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
+        )
+        recommended_section = "Sources and source mapping"
+    elif runtime_source_attention:
+        source_status = str(
+            readiness.get("summary")
+            or getattr(state, "health_summary", None)
+            or getattr(state, "diagnostic_summary", None)
+            or "Mapped sources need attention."
+        )
+        recommended_section = "Sources and source mapping"
+    elif state is None:
+        source_status = "Source health will appear here after the integration loads."
+        recommended_section = "Sources and source mapping"
+    else:
+        source_status = str(
+            readiness.get("summary")
+            or getattr(state, "health_summary", None)
+            or getattr(state, "diagnostic_summary", None)
+            or "Mapped sources currently look healthy."
+        )
+        recommended_section = "Managed devices" if not configured_devices else "Policy and controller settings"
+
+    if device_parse_issues:
+        device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
+        recommended_section = "Managed devices"
+    elif configured_devices:
+        device_status = f"{len(configured_devices)} configured"
+    else:
+        device_status = "No managed devices configured yet"
+        if not missing_required_sources and not runtime_source_attention:
+            recommended_section = "Managed devices"
+
+    if missing_required_sources:
+        next_action_summary = "Finish source mapping first, then return here to add devices and tune policy."
+    elif runtime_source_attention:
+        next_action_summary = str(
+            readiness.get("next_step")
+            or "Repair the unavailable or stale mapped source roles, then save and reload the integration."
+        )
+    elif device_parse_issues:
+        next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
+    elif not configured_devices:
+        next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
+    else:
+        next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
+
+    return {
+        "source_status": source_status,
+        "device_status": device_status,
+        "policy_status": (
+            f"Target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W, "
+            f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
+            f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
+        ),
+        "support_status": str(
+            readiness.get("summary")
+            or getattr(state, "health_summary", None)
+            or getattr(state, "diagnostic_summary", None)
+            or "Integration state not loaded yet"
+        ),
+        "recommended_section": recommended_section,
+        "recommended_path": f"{PRIMARY_CONFIGURE_PATH} -> {recommended_section}",
+        "next_action_summary": next_action_summary,
+        "sources_path": SOURCES_CONFIGURE_PATH,
+        "devices_path": DEVICES_CONFIGURE_PATH,
+        "policy_path": POLICY_CONFIGURE_PATH,
+        "support_path": SUPPORT_CONFIGURE_PATH,
+    }
 
 
 def build_native_support_center(coordinator: Any) -> str:
