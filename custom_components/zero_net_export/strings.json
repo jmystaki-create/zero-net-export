@@ -31,12 +31,12 @@
     "step": {
       "init": {
         "title": "Zero Net Export command center",
-        "description": "Use this command center to map sources, tune policy, manage devices, and reach native support.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Support: {support_status}\n\nRecommended next section: {recommended_section}.\nRecommended path right now: {recommended_path}.\nWhat to do next: {next_action_summary}\n\nWhere each native path lives:\n- Sources: {sources_path}\n- Managed devices: {devices_path}\n- Policy: {policy_path}\n- Support: {support_path}.",
+        "description": "Use this command center to map sources, tune policy, manage devices, and review runtime health from native Home Assistant surfaces.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Health and support: {support_status}\n\nRecommended next section: {recommended_section}.\nRecommended path right now: {recommended_path}.\nWhat to do next: {next_action_summary}\n\nWhere each native path lives:\n- Sources: {sources_path}\n- Managed devices: {devices_path}\n- Policy: {policy_path}\n- Health and support: {support_path}.",
         "menu_options": {
           "native_setup": "Sources and source mapping",
           "policy": "Policy and controller settings",
           "devices": "Managed devices",
-          "support": "Support and troubleshooting",
+          "support": "Health, support, and troubleshooting",
           "advanced": "Advanced JSON editor and recovery"
         }
       },
@@ -183,8 +183,8 @@
         }
       },
       "support": {
-        "title": "Support and troubleshooting",
-        "description": "Use this support section when you need the next native troubleshooting path, not more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nUnavailable mapped roles: {support_unavailable_sources}\nStale mapped roles: {support_stale_sources}\nBlocking validation details: {support_blocking_details}\nRecommended next step: {support_next_step}\n\nNative support path: {support_path}.\nPrimary setup path: {configure_path}."
+        "title": "Health, support, and troubleshooting",
+        "description": "Use this native section when you need to review runtime health, confirm the current blocker, or follow the next troubleshooting path, not make more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nUnavailable mapped roles: {support_unavailable_sources}\nStale mapped roles: {support_stale_sources}\nBlocking validation details: {support_blocking_details}\nRecommended next step: {support_next_step}\n\nNative health and support path: {support_path}.\nPrimary setup path: {configure_path}."
       },
       "advanced": {
         "title": "Advanced JSON editor and recovery",
