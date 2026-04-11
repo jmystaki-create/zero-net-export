@@ -563,7 +563,7 @@ def validate_sources(
                 ValidationIssue(
                     code=f"{spec.key}_unavailable",
                     severity="error" if spec.required else "warning",
-                    message=f"{_role_label(spec.key)} is unavailable",
+                    message=f"{_role_label(spec.key)} entity {spec.entity_id} is unavailable",
                     entity_id=spec.entity_id,
                 )
             )
@@ -574,7 +574,9 @@ def validate_sources(
                 ValidationIssue(
                     code=f"{spec.key}_non_numeric",
                     severity="error" if spec.required else "warning",
-                    message=f"{_role_label(spec.key)} does not expose a numeric state",
+                    message=(
+                        f"{_role_label(spec.key)} entity {spec.entity_id} does not expose a numeric state"
+                    ),
                     entity_id=spec.entity_id,
                 )
             )
