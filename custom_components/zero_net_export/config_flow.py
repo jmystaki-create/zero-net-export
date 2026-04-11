@@ -243,6 +243,16 @@ def _format_candidate_label(entity_id: str, state: Any) -> str:
     return f"{label} ({entity_id}, {domain}, state {state_value})"
 
 
+def _format_source_option_label(entity_id: str, state: Any) -> str:
+    friendly = state.attributes.get("friendly_name") if state is not None else None
+    unit = state.attributes.get("unit_of_measurement") if state is not None else None
+    state_value = state.state if state is not None else "unknown"
+    label = str(friendly or entity_id)
+    if unit:
+        return f"{label} ({entity_id}, state {state_value} {unit})"
+    return f"{label} ({entity_id}, state {state_value})"
+
+
 def _grid_mode_missing_sources(config: dict[str, Any], grid_mode: str) -> list[str]:
     required_keys = [
         CONF_SOLAR_POWER_ENTITY,
@@ -401,6 +411,43 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value=item["entity_id"], label=item["label"])
             for item in candidates[:100]
         ]
+
+    def _source_entity_options(
+        self,
+        *,
+        device_class: str,
+        current_entity_id: str | None = None,
+        optional: bool = False,
+        none_label: str = "Not configured",
+    ) -> list[selector.SelectOptionDict]:
+        options: list[selector.SelectOptionDict] = []
+        seen: set[str] = set()
+
+        if optional:
+            options.append(selector.SelectOptionDict(value="", label=none_label))
+            seen.add("")
+
+        if current_entity_id:
+            state = self.hass.states.get(current_entity_id)
+            current_label = _format_source_option_label(current_entity_id, state)
+            options.append(selector.SelectOptionDict(value=current_entity_id, label=f"Current mapping: {current_label}"))
+            seen.add(current_entity_id)
+
+        for state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
+            if state.entity_id.split(".", 1)[0] != "sensor":
+                continue
+            if str(state.attributes.get("device_class") or "") != device_class:
+                continue
+            entity_id = state.entity_id
+            if entity_id in seen:
+                continue
+            options.append(
+                selector.SelectOptionDict(value=entity_id, label=_format_source_option_label(entity_id, state))
+            )
+            seen.add(entity_id)
+            if len(options) >= 150:
+                break
+        return options
 
     def _candidate_summary(self, entity_id: str | None) -> dict[str, Any] | None:
         if not entity_id:
@@ -902,8 +949,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         energy_selector = selector.EntitySelector(
             selector.EntitySelectorConfig(domain=["sensor"], device_class=["energy"])
         )
-        battery_soc_selector = selector.EntitySelector(
-            selector.EntitySelectorConfig(domain=["sensor"], device_class=["battery"])
+        combined_energy_options = self._source_entity_options(
+            device_class="energy",
+            current_entity_id=_selector_entity_default(grid_import_energy_raw, allow_derived=True) or None,
+            optional=True,
+            none_label="Select combined / net grid energy entity",
+        )
+        battery_soc_options = self._source_entity_options(
+            device_class="battery",
+            current_entity_id=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, "") or None,
+            optional=True,
+            none_label="Battery SOC not configured",
         )
 
         fields: dict[Any, Any] = {
@@ -928,7 +984,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     "grid_energy_entity",
                     default=_selector_entity_default(grid_import_energy_raw, allow_derived=True),
                 )
-            ] = energy_selector
+            ] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=combined_energy_options,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
             fields[
                 vol.Optional(
                     COMBINED_GRID_ENERGY_FALLBACK_KEY,
@@ -973,7 +1034,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 CONF_BATTERY_SOC_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, ""),
             )
-        ] = battery_soc_selector
+        ] = selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=battery_soc_options,
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        )
         fields[
             vol.Optional(
                 BATTERY_SOC_FALLBACK_KEY,
@@ -1014,7 +1080,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             effective_config.update(self._config_entry.options)
             source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
         fallback_guidance = (
-            "If Home Assistant rejects a valid combined grid energy or battery SOC picker choice, clear that selector and paste the same entity ID into the matching fallback field below instead."
+            "Combined grid energy and battery SOC now use native dropdowns to avoid Home Assistant's picker validation bug on some installs. If the right entity still is not listed, paste its entity ID into the matching fallback field below instead."
         )
         return self.async_show_form(
             step_id="native_setup_sources",
