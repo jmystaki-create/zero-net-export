@@ -17,6 +17,7 @@ from .const import (
 from .device_model import parse_device_configs
 from .native_support import (
     PRIMARY_CONFIGURE_PATH,
+    SOURCES_CONFIGURE_PATH,
     build_native_operator_readiness,
     build_source_attention_details,
 )
@@ -153,10 +154,10 @@ def async_sync_repairs_issues(
 
     runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
     if missing_source_keys:
-        runtime_next_step = "Open Configure -> Sources and source mapping, finish the missing required source roles, then save and reload the integration."
+        runtime_next_step = f"Open {SOURCES_CONFIGURE_PATH}, finish the missing required source roles, then save and reload the integration."
     elif unavailable_sources or stale_sources or data.stale_data:
         runtime_next_step = (
-            "Open Configure -> Sources and source mapping, then repair the unavailable or stale mapped source roles before retrying control."
+            f"Open {SOURCES_CONFIGURE_PATH}, then repair the unavailable or stale mapped source roles before retrying control."
         )
 
     if runtime_reasons:

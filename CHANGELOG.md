@@ -17,6 +17,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Clarified the README native Configure walkthrough so the main managed-device workspace is described once, in sequence, instead of splitting device management guidance across duplicated steps that obscured the intended operator flow.
 - Made the native managed-device edit and remove pickers self-orienting by showing the current fleet, the main Configure path, and the recommended next device action instead of dropping operators into bare selector-only screens.
 - Corrected the release-process background doc so it no longer claims the first formal GitHub release may still be unpublished, and instead reflects the current tagged-release line plus the requirement to complete the full `RELEASE_MANAGEMENT.md` ship path before calling work shipped.
+- Normalized the remaining native operator next-step guidance so notifications, repairs, sensors, and Configure screens now point to the full Home Assistant path for Sources, Managed devices, and Policy instead of shorthand `Open Configure -> ...` wording that made the command-center path less discoverable in live installs.
 
 ## [0.1.79] - 2026-04-11
 

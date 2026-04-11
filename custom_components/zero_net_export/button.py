@@ -8,7 +8,10 @@ from homeassistant.helpers.entity import EntityCategory
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
+    DEVICES_CONFIGURE_PATH,
+    POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
+    SOURCES_CONFIGURE_PATH,
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_native_support_center,
@@ -150,7 +153,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'candidate_count': len(candidates),
             'candidate_devices': candidates[:12],
             'top_candidate': candidates[0] if candidates else None,
-            'promotion_handoff': 'Open Configure -> Managed devices, choose Add fixed/variable, then pick this candidate in the candidate-pick step.' if candidates else None,
+            'promotion_handoff': f'Open {DEVICES_CONFIGURE_PATH}, choose Add fixed/variable, then pick this candidate in the candidate-pick step.' if candidates else None,
         }
 
     async def async_press(self) -> None:
@@ -189,7 +192,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 '',
                 f'Top candidate: {top_name} ({top_entity_id}, {top_domain}, state {top_value})',
                 'Next step:',
-                '- Open Configure -> Managed devices.',
+                f'- Open {DEVICES_CONFIGURE_PATH}.',
                 f'- Choose Add {top_add_label}.',
                 f'- In Pick unmanaged candidate, select {top_entity_id}.',
             ])
@@ -198,7 +201,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 '- No unmanaged candidate devices discovered right now',
                 '',
                 'Next step:',
-                '- Open Configure -> Policy and controller settings to tune controller behaviour, or Configure -> Sources and source mapping if runtime health still needs work.',
+                f'- Open {POLICY_CONFIGURE_PATH} to tune controller behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work.',
             ])
         persistent_notification.async_create(
             self.hass,

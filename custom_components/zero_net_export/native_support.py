@@ -324,7 +324,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     if missing_required_sources:
         phase = "source_setup"
         next_step = (
-            "Open Configure -> Sources and source mapping, finish the missing required source roles, then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, finish the missing required source roles, then save and reload the integration."
         )
         summary = "Native setup is blocked on missing required source mappings."
     elif blocking_validation_issues or state_stale_data:
@@ -332,17 +332,17 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         if unavailable_source_roles:
             listed = source_attention_roles if source_attention_roles != "None" else ", ".join(unavailable_source_roles[:6])
             next_step = (
-                f"Open Configure -> Sources and source mapping, then repair these unavailable mapped sources: {listed}."
+                f"Open {SOURCES_CONFIGURE_PATH}, then repair these unavailable mapped sources: {listed}."
             )
         elif state_stale_data and stale_source_roles:
             listed = source_attention_roles if source_attention_roles != "None" else ", ".join(stale_source_roles[:6])
             next_step = (
-                f"Open Configure -> Sources and source mapping or the diagnostics snapshot, then fix these stale mapped sources: {listed}."
+                f"Open {SOURCES_CONFIGURE_PATH} or the diagnostics snapshot, then fix these stale mapped sources: {listed}."
             )
         elif state_stale_data and stale_summary:
             next_step = f"Open Configure or the diagnostics snapshot and fix the stale mapped sources. {stale_summary}."
         else:
-            next_step = "Open Configure -> Sources and source mapping, then use native diagnostics and calibration hints to fix source validation issues."
+            next_step = f"Open {SOURCES_CONFIGURE_PATH}, then use native diagnostics and calibration hints to fix source validation issues."
         summary = "Native setup is waiting on healthy validated source data."
     elif device_parse_issues:
         phase = "device_remediation"

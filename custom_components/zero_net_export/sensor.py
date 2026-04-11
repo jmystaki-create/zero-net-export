@@ -7,7 +7,12 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS, DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
-from .native_support import build_native_command_center_summary
+from .native_support import (
+    DEVICES_CONFIGURE_PATH,
+    POLICY_CONFIGURE_PATH,
+    SOURCES_CONFIGURE_PATH,
+    build_native_command_center_summary,
+)
 from .release_info import build_release_info
 
 
@@ -321,10 +326,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             if not state.device_details and candidates:
-                return "Open Configure -> Managed devices and tag the first candidate into the fleet"
+                return f"Open {DEVICES_CONFIGURE_PATH} and tag the first candidate into the fleet"
             if candidates:
                 return "Review unmanaged candidates, then promote the next controllable device in Configure"
-            return "Open Configure -> Policy and controller settings to tune behaviour, or Configure -> Sources and source mapping if runtime health still needs work"
+            return f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
             mapping = {
@@ -416,7 +421,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             top_candidate = candidates[0] if candidates else None
             return {
-                "configure_path": "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed devices",
+                "configure_path": DEVICES_CONFIGURE_PATH,
                 "managed_devices": list((state.device_details or {}).values()),
                 "candidate_devices": candidates[:12],
                 "candidate_count": len(candidates),

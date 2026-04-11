@@ -1550,16 +1550,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         runtime_source_attention = source_attention["has_runtime_source_attention"]
         if missing_sources:
             policy_readiness = "Finish source mapping first: " + self._format_source_role_names(missing_sources)
-            policy_next_step = "Open Configure -> Sources and source mapping before changing controller behaviour."
+            policy_next_step = f"Open {SOURCES_CONFIGURE_PATH} before changing controller behaviour."
         elif runtime_source_attention:
             policy_readiness = source_placeholders["source_health"] + ". " + source_placeholders["source_next_step"]
             policy_next_step = source_placeholders["source_next_step"]
         elif device_issues:
             policy_readiness = f"Managed-device issues still need repair before policy tuning can be trusted ({len(device_issues)} issue(s))."
-            policy_next_step = "Open Configure -> Managed devices and repair the fleet before trusting policy changes."
+            policy_next_step = f"Open {DEVICES_CONFIGURE_PATH} and repair the fleet before trusting policy changes."
         elif not devices:
             policy_readiness = "No managed devices are configured yet. You can tune policy now, but control will not act until devices are added."
-            policy_next_step = "After tuning defaults here, open Configure -> Managed devices and add the first controllable load."
+            policy_next_step = f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} and add the first controllable load."
         else:
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
             policy_next_step = "Adjust behaviour here, then use the integration device page, entities, and support surfaces to verify runtime health."
