@@ -16,8 +16,11 @@ from .const import (
 )
 from .device_model import parse_device_configs
 from .native_support import (
+    ADVANCED_DEVICES_CONFIGURE_PATH,
+    DEVICES_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
+    SUPPORT_CONFIGURE_PATH,
     build_native_operator_readiness,
     build_source_attention_details,
 )
@@ -121,7 +124,8 @@ def async_sync_repairs_issues(
             issue_key=ISSUE_DEVICE_INVENTORY_INVALID,
             severity=ir.IssueSeverity.ERROR,
             translation_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": DEVICES_CONFIGURE_PATH,
+                "advanced_recovery_path": ADVANCED_DEVICES_CONFIGURE_PATH,
                 "issue_count": str(len(device_issues)),
                 "issue_examples": "; ".join(device_issues[:3]),
             },
@@ -171,6 +175,7 @@ def async_sync_repairs_issues(
             severity=ir.IssueSeverity.WARNING,
             translation_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
+                "support_path": SOURCES_CONFIGURE_PATH if (missing_source_keys or unavailable_sources or stale_sources or data.stale_data) else SUPPORT_CONFIGURE_PATH,
                 "health_summary": str(data.health_summary or summary),
                 "reason_summary": " ".join(runtime_reasons[:3]),
                 "unavailable_sources": unavailable_sources or "None",

@@ -20,11 +20,11 @@
     },
     "device_inventory_invalid": {
       "title": "Managed-device configuration needs repair",
-      "description": "One or more managed devices could not be parsed cleanly. Open the native Configure flow and fix the affected devices or use the advanced JSON recovery editor if needed.\n\nIssue count: {issue_count}\nExamples: {issue_examples}\n\nPrimary path: {configure_path}."
+      "description": "One or more managed devices could not be parsed cleanly. Open {configure_path} to repair the affected fleet entries, or use {advanced_recovery_path} if the normal native device editor is no longer enough.\n\nIssue count: {issue_count}\nExamples: {issue_examples}\n\nPrimary repair path: {configure_path}.\nAdvanced recovery path: {advanced_recovery_path}."
     },
     "runtime_attention": {
       "title": "Runtime attention needed",
-      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
+      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nNext step: {next_step}\n\nPrimary setup path: {configure_path}.\nBest native troubleshooting path right now: {support_path}."
     }
   },
   "options": {

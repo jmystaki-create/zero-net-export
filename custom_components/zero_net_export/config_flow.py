@@ -819,7 +819,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         mode_label, mode_description = _live_mode_details(coordinator)
         return {
             "support_status": readiness.get("summary") or health_summary,
-            "support_next_step": readiness.get("next_step") or "Open the device page support actions or Repairs to continue troubleshooting.",
+            "support_next_step": readiness.get("next_step") or (
+                f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
+                f"{INTEGRATION_DEVICE_PATH} support actions or Settings -> Repairs if deeper triage is still needed."
+            ),
             "support_path": SUPPORT_CONFIGURE_PATH,
             "mode_path": MODE_CONTROL_PATH,
             "current_mode": mode_label,
