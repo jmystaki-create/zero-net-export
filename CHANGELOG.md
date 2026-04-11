@@ -15,6 +15,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Aligned the native support-path wording so the Configure command center and README both point operators to the full **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Health, support, and troubleshooting** path before deeper device-page and Repairs triage.
 - Clarified the README native Configure walkthrough so the main managed-device workspace is described once, in sequence, instead of splitting device management guidance across duplicated steps that obscured the intended operator flow.
 - Made the native managed-device edit and remove pickers self-orienting by showing the current fleet, the main Configure path, and the recommended next device action instead of dropping operators into bare selector-only screens.
+- Corrected the release-process background doc so it no longer claims the first formal GitHub release may still be unpublished, and instead reflects the current tagged-release line plus the requirement to complete the full `RELEASE_MANAGEMENT.md` ship path before calling work shipped.
 
 ## [0.1.79] - 2026-04-11
 

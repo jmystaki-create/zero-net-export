@@ -105,8 +105,8 @@ Use this structure when creating a GitHub release:
 ## Current State
 
 As of this document:
-- the repository is under active versioned maintenance
-- the first formal GitHub release may still need to be published manually if no tag exists yet
+- the repository is under active versioned maintenance with tagged releases already published through the current release line
+- future work under `## [Unreleased]` is not shipped until the matching version is tagged, published on GitHub, surfaced in HACS, installed in Home Assistant, and verified through the `RELEASE_MANAGEMENT.md` flow
 
 ## Responsibility
 
