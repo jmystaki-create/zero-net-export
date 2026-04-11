@@ -15,7 +15,11 @@ from .const import (
     SOURCE_ROLE_LABELS,
 )
 from .device_model import parse_device_configs
-from .native_support import PRIMARY_CONFIGURE_PATH, build_native_operator_readiness
+from .native_support import (
+    PRIMARY_CONFIGURE_PATH,
+    build_native_operator_readiness,
+    build_source_attention_details,
+)
 
 ISSUE_SETUP_INCOMPLETE = "setup_incomplete"
 ISSUE_DEVICE_INVENTORY_INVALID = "device_inventory_invalid"
@@ -128,11 +132,10 @@ def async_sync_repairs_issues(
 
     data = runtime_state
     runtime_reasons: list[str] = []
-    validation_details = getattr(data, "validation_details", {}) or {}
-    source_diagnostics = validation_details.get("source_diagnostics", {}) or {}
-    unavailable_source_keys = [key for key, detail in source_diagnostics.items() if detail.get("status") == "unavailable"]
+    source_attention = build_source_attention_details(data)
+    unavailable_source_keys = source_attention["unavailable_source_keys"]
     unavailable_sources = _format_named_source_roles(unavailable_source_keys)
-    stale_source_keys = [key for key, detail in source_diagnostics.items() if detail.get("stale")]
+    stale_source_keys = source_attention["stale_source_keys"]
     stale_sources = _format_named_source_roles(stale_source_keys)
 
     if data.stale_data:

@@ -53,7 +53,12 @@ from .device_model import (
     get_device_templates,
     parse_device_configs,
 )
-from .native_support import PRIMARY_CONFIGURE_PATH, _source_specs_from_config, build_native_operator_readiness
+from .native_support import (
+    PRIMARY_CONFIGURE_PATH,
+    _source_specs_from_config,
+    build_native_operator_readiness,
+    build_source_attention_details,
+)
 from .validation import (
     DERIVED_SOURCE_MODE_DIRECT,
     DERIVED_SOURCE_MODE_NEGATIVE_ABS,
@@ -545,14 +550,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         coordinator = self._coordinator()
         state = getattr(coordinator, "data", None) if coordinator is not None else None
         readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
-        validation_details = getattr(state, "validation_details", {}) or {}
-        source_diagnostics = validation_details.get("source_diagnostics", {}) or {}
-        unavailable_source_keys = [
-            key for key, details in source_diagnostics.items() if details.get("status") == "unavailable"
-        ]
-        stale_source_keys = [
-            key for key, details in source_diagnostics.items() if details.get("stale") or (details.get("age_seconds") or 0) > 120
-        ]
+        source_attention = build_source_attention_details(state)
+        unavailable_source_keys = source_attention["unavailable_source_keys"]
+        stale_source_keys = source_attention["stale_source_keys"]
         return {
             "coordinator": coordinator,
             "state": state,

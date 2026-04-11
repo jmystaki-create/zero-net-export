@@ -36,6 +36,42 @@ def _validation_details(state: Any) -> dict[str, Any]:
     return state.validation_details or {}
 
 
+def build_source_attention_details(state: Any) -> dict[str, Any]:
+    """Return merged source diagnostics plus freshness metadata for operator surfaces."""
+    validation_details = _validation_details(state)
+    source_diagnostics = dict(validation_details.get("source_diagnostics", {}) or {})
+    source_freshness = validation_details.get("source_freshness", {}) or {}
+
+    unavailable_source_keys: list[str] = []
+    stale_source_keys: list[str] = []
+    enriched_source_diagnostics: dict[str, dict[str, Any]] = {}
+
+    for key, details in source_diagnostics.items():
+        freshness = source_freshness.get(key, {}) or {}
+        merged = dict(details)
+        if "stale" not in merged:
+            merged["stale"] = bool(freshness.get("stale", False))
+        if merged.get("age_seconds") is None:
+            merged["age_seconds"] = freshness.get("age_seconds")
+        if merged.get("last_updated") is None:
+            merged["last_updated"] = freshness.get("last_updated")
+        if merged.get("stale_threshold_seconds") is None:
+            merged["stale_threshold_seconds"] = freshness.get("stale_threshold_seconds")
+        enriched_source_diagnostics[key] = merged
+        if merged.get("status") == "unavailable":
+            unavailable_source_keys.append(key)
+        if merged.get("stale") or (merged.get("age_seconds") or 0) > 120:
+            stale_source_keys.append(key)
+
+    return {
+        "validation_details": validation_details,
+        "source_diagnostics": enriched_source_diagnostics,
+        "source_freshness": source_freshness,
+        "unavailable_source_keys": unavailable_source_keys,
+        "stale_source_keys": stale_source_keys,
+    }
+
+
 def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
     return [
         SourceSpec(CONF_SOLAR_POWER_ENTITY, config.get(CONF_SOLAR_POWER_ENTITY), "power"),
@@ -96,9 +132,10 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         CONF_BATTERY_DISCHARGE_POWER_ENTITY: entry.data.get(CONF_BATTERY_DISCHARGE_POWER_ENTITY),
     }
     missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not source_mapping.get(key)]
-    validation_details = _validation_details(state)
+    source_attention = build_source_attention_details(state)
+    validation_details = source_attention["validation_details"]
     validation_issues = validation_details.get("issues", [])
-    source_diagnostics = validation_details.get("source_diagnostics", {})
+    source_diagnostics = source_attention["source_diagnostics"]
     blocking_validation_issues = [
         issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
     ]
@@ -158,13 +195,11 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
 
     unavailable_source_roles = [
         SOURCE_ROLE_LABELS.get(key, key)
-        for key, detail in source_diagnostics.items()
-        if detail.get("status") == "unavailable"
+        for key in source_attention["unavailable_source_keys"]
     ]
     stale_source_roles = [
         SOURCE_ROLE_LABELS.get(key, key)
-        for key, detail in source_diagnostics.items()
-        if (detail.get("age_seconds") or 0) > 120
+        for key in source_attention["stale_source_keys"]
     ]
 
     if missing_required_sources:
@@ -235,9 +270,10 @@ def build_native_support_snapshot(coordinator: Any) -> str:
     """Return the operator support snapshot for native HA surfaces."""
     state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
     release_info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
-    validation_details = _validation_details(state)
+    source_attention = build_source_attention_details(state)
+    validation_details = source_attention["validation_details"]
     release_update = validation_details.get("release_update", {})
-    source_diagnostics = validation_details.get("source_diagnostics", {})
+    source_diagnostics = source_attention["source_diagnostics"]
     mapped_sources = [
         f"- {SOURCE_ROLE_LABELS.get(key, key)}: {format_source_binding_label(coordinator.entry.data.get(key))}"
         for key in (
@@ -264,13 +300,11 @@ def build_native_support_snapshot(coordinator: Any) -> str:
     ]
     unavailable_source_roles = [
         SOURCE_ROLE_LABELS.get(key, key)
-        for key, details in source_diagnostics.items()
-        if details.get("status") == "unavailable"
+        for key in source_attention["unavailable_source_keys"]
     ]
     stale_source_roles = [
         SOURCE_ROLE_LABELS.get(key, key)
-        for key, details in source_diagnostics.items()
-        if (details.get("age_seconds") or 0) > 120
+        for key in source_attention["stale_source_keys"]
     ]
     runtime_device_details = getattr(state, "device_details", None) or {}
     device_lines = []
