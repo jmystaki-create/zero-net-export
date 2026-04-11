@@ -169,6 +169,8 @@ def async_sync_repairs_issues(
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "health_summary": str(data.health_summary or summary),
                 "reason_summary": " ".join(runtime_reasons[:3]),
+                "unavailable_sources": unavailable_sources or "None",
+                "stale_sources": stale_sources or "None",
                 "next_step": runtime_next_step,
             },
         )

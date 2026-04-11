@@ -24,7 +24,7 @@
     },
     "runtime_attention": {
       "title": "Runtime attention needed",
-      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
+      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
     }
   },
   "options": {
