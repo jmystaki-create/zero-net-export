@@ -114,9 +114,9 @@
       },
       "device_pick_candidate": {
         "title": "Pick unmanaged candidate",
-        "description": "Start by choosing which discovered unmanaged {device_kind} should be reviewed for promotion into the managed fleet.\n\nDiscovered candidates: {candidate_count}",
+        "description": "Start by choosing which discovered unmanaged {device_kind} should be reviewed for promotion into the managed fleet. If the right entity is not listed yet, choose the manual option and continue with the normal native form.\n\nDiscovered candidates: {candidate_count}",
         "data": {
-          "candidate_entity_id": "Unmanaged candidate entity"
+          "candidate_entity_id": "Unmanaged candidate entity or manual path"
         }
       },
       "device_vetting": {

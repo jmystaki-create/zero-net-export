@@ -139,6 +139,7 @@ def _device_options_json(devices: list[dict[str, Any]]) -> str:
 
 COMBINED_GRID_ENERGY_FALLBACK_KEY = "grid_energy_entity_manual"
 BATTERY_SOC_FALLBACK_KEY = "battery_soc_entity_manual"
+MANUAL_CANDIDATE_SELECTION = "__manual__"
 
 
 def _build_derived_binding(mode: str, entity_id: str | None) -> str | None:
@@ -977,12 +978,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 self._pending_device_key = None
                 self._pending_device_template_key = None
                 self._pending_candidate_entity_id = None
+                self._pending_candidate_summary = None
                 return await self.async_step_device_pick_candidate()
             if choice == "add_variable":
                 self._pending_device_kind = DEVICE_KIND_VARIABLE
                 self._pending_device_key = None
                 self._pending_device_template_key = None
                 self._pending_candidate_entity_id = None
+                self._pending_candidate_summary = None
                 return await self.async_step_device_pick_candidate()
             if choice == "bulk_enable" and devices:
                 return await self.async_step_device_bulk_enable()
@@ -1031,6 +1034,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         options = self._candidate_options(kind=kind)
         if user_input is not None:
             selected = str(user_input.get("candidate_entity_id") or "")
+            if selected == MANUAL_CANDIDATE_SELECTION:
+                self._pending_candidate_entity_id = None
+                self._pending_candidate_summary = None
+                return await self.async_step_device_template()
             self._pending_candidate_entity_id = selected or None
             self._pending_candidate_summary = self._candidate_summary(self._pending_candidate_entity_id)
             return await self.async_step_device_vetting()
@@ -1040,12 +1047,20 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             self._pending_candidate_summary = None
             return await self.async_step_device_template()
 
+        picker_options = [
+            selector.SelectOptionDict(
+                value=MANUAL_CANDIDATE_SELECTION,
+                label="Manual entity selection / entity not listed",
+            ),
+            *options,
+        ]
+        default_candidate = self._pending_candidate_entity_id or MANUAL_CANDIDATE_SELECTION
         return self.async_show_form(
             step_id="device_pick_candidate",
             data_schema=vol.Schema(
                 {
-                    vol.Required("candidate_entity_id", default=self._pending_candidate_entity_id or options[0]["value"]): selector.SelectSelector(
-                        selector.SelectSelectorConfig(options=options, mode=selector.SelectSelectorMode.DROPDOWN)
+                    vol.Required("candidate_entity_id", default=default_candidate): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=picker_options, mode=selector.SelectSelectorMode.DROPDOWN)
                     )
                 }
             ),
@@ -1146,6 +1161,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             else:
                 self._pending_device_key = None
                 self._pending_device_template_key = None
+                self._pending_candidate_entity_id = None
+                self._pending_candidate_summary = None
                 return await self._save_devices(candidate_devices)
 
         selected_template = get_device_template(kind, self._pending_device_template_key)
@@ -1155,12 +1172,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             template_defaults=selected_template.defaults if selected_template and not editing_key else None,
             candidate_summary=self._pending_candidate_summary if not editing_key else None,
         )
-        if not editing_key:
-            selected_candidate = None
-            if self._pending_candidate_entity_id:
-                selected_candidate = next((item for item in candidates if item["entity_id"] == self._pending_candidate_entity_id), None)
-            if selected_candidate is None:
-                selected_candidate = next((item for item in candidates if item["kind"] == kind), None)
+        if not editing_key and self._pending_candidate_entity_id:
+            selected_candidate = next((item for item in candidates if item["entity_id"] == self._pending_candidate_entity_id), None)
             if selected_candidate is not None:
                 defaults["entity_id"] = selected_candidate["entity_id"]
                 defaults["name"] = selected_candidate["name"]
@@ -1271,6 +1284,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             self._pending_device_key = selected_key
             self._pending_device_kind = str(selected_device.get("kind", DEVICE_KIND_FIXED))
             self._pending_device_template_key = None
+            self._pending_candidate_entity_id = None
+            self._pending_candidate_summary = None
             return await self.async_step_device_add()
 
         options = [
