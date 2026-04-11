@@ -59,6 +59,7 @@ from .device_model import (
 from .native_support import (
     ADVANCED_DEVICES_CONFIGURE_PATH,
     DEVICES_CONFIGURE_PATH,
+    INTEGRATION_DEVICE_PATH,
     MODE_CONTROL_PATH,
     POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
@@ -117,7 +118,7 @@ def _live_mode_details(coordinator: Any) -> tuple[str, str]:
     state = getattr(coordinator, "data", None) if coordinator is not None else None
     raw_mode = str(getattr(state, "mode", "") or MODE_ZERO_EXPORT)
     mode_label = MODE_LABELS.get(raw_mode, raw_mode)
-    mode_description = MODE_DESCRIPTIONS.get(raw_mode, "Use the integration device page Mode entity to adjust live controller behaviour.")
+    mode_description = MODE_DESCRIPTIONS.get(raw_mode, f"Use {MODE_CONTROL_PATH} to adjust live controller behaviour.")
     return mode_label, mode_description
 
 
@@ -1605,7 +1606,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             policy_next_step = f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} and add the first controllable load."
         else:
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
-            policy_next_step = "Adjust behaviour here, then use the integration device page, entities, and support surfaces to verify runtime health."
+            policy_next_step = (
+                f"Adjust behaviour here, then use {INTEGRATION_DEVICE_PATH}, its entities, and support actions to verify runtime health."
+            )
 
         mode_label, mode_description = _live_mode_details(self._coordinator())
         policy_summary = (

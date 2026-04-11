@@ -35,14 +35,17 @@ from .release_info import build_release_info
 from .validation import SourceSpec, format_source_binding_label
 
 PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure"
+INTEGRATION_DEVICE_PATH = (
+    "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device"
+)
 SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
-MODE_CONTROL_PATH = "integration device page -> Mode"
+MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
     f"{PRIMARY_CONFIGURE_PATH} -> Health, support, and troubleshooting; deeper health review: "
-    "integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
+    f"{INTEGRATION_DEVICE_PATH} -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
     "Settings -> Repairs"
 )
 
@@ -366,7 +369,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             )
         elif state_stale_data and stale_summary:
             next_step = (
-                f"Open {SOURCES_CONFIGURE_PATH} or the integration device page diagnostics snapshot, "
+                f"Open {SOURCES_CONFIGURE_PATH} or {INTEGRATION_DEVICE_PATH} -> Show native diagnostics snapshot, "
                 f"then fix the stale mapped sources. {stale_summary}."
             )
         else:
@@ -386,7 +389,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     elif not state_usable_device_count:
         phase = "runtime_readiness"
         next_step = (
-            f"Use the integration device page diagnostics snapshot, then return to {DEVICES_CONFIGURE_PATH} "
+            f"Use {INTEGRATION_DEVICE_PATH} -> Show native diagnostics snapshot, then return to {DEVICES_CONFIGURE_PATH} "
             "to unblock at least one usable device."
         )
         summary = "Configured devices exist, but none are currently eligible for control."
@@ -400,7 +403,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     else:
         phase = "operator_ready"
         next_step = (
-            f"Validate {PRIMARY_CONFIGURE_PATH} plus the integration device page support actions in a real "
+            f"Validate {PRIMARY_CONFIGURE_PATH} plus {INTEGRATION_DEVICE_PATH} support actions in a real "
             "Home Assistant install and refine any remaining friction there."
         )
         summary = "Setup and troubleshooting are available through native Home Assistant surfaces."

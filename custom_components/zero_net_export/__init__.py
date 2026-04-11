@@ -34,7 +34,7 @@ from .const import (
 )
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
-from .native_support import PRIMARY_CONFIGURE_PATH
+from .native_support import INTEGRATION_DEVICE_PATH, PRIMARY_CONFIGURE_PATH
 from .native_support import build_native_operator_readiness, build_source_attention_role_summary
 from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
@@ -91,7 +91,7 @@ async def _async_update_native_setup_notice(
         f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} for Sources, Managed devices, and Policy and controller settings.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
         + f"\n\nNext step: {next_step}"
-        + "\n\nUse the integration device page support actions for a combined support center, setup checklist, and detailed diagnostics snapshot."
+        + f"\n\nUse {INTEGRATION_DEVICE_PATH} support actions for a combined support center, setup checklist, and detailed diagnostics snapshot."
     )
     persistent_notification.async_create(
         hass,
