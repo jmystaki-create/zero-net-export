@@ -17,6 +17,9 @@ from .const import (
     CONF_BATTERY_SOC_ENTITY,
     CONF_DEADBAND_W,
     CONF_DEVICE_INVENTORY_JSON,
+    DEVICE_CANDIDATE_DOMAINS,
+    DEVICE_CANDIDATE_FIXED_DOMAINS,
+    DEVICE_CANDIDATE_VARIABLE_DOMAINS,
     CONF_GRID_EXPORT_ENERGY_ENTITY,
     CONF_GRID_EXPORT_POWER_ENTITY,
     CONF_GRID_IMPORT_ENERGY_ENTITY,
@@ -225,6 +228,14 @@ def _grid_mode_default(config_entry) -> str:
     return _infer_grid_sensor_mode(snapshot)
 
 
+def _format_candidate_label(entity_id: str, state: Any) -> str:
+    friendly = state.attributes.get("friendly_name") if state is not None else None
+    state_value = state.state if state is not None else "unknown"
+    domain = entity_id.split(".", 1)[0] if "." in entity_id else "unknown"
+    label = str(friendly or entity_id)
+    return f"{label} ({entity_id}, {domain}, state {state_value})"
+
+
 def _grid_mode_missing_sources(config: dict[str, Any], grid_mode: str) -> list[str]:
     required_keys = [
         CONF_SOLAR_POWER_ENTITY,
@@ -310,6 +321,32 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ]
         lines.extend(f"- {self._device_status_label(device)}" for device in ordered)
         return lines
+
+    def _device_candidates(self) -> list[dict[str, Any]]:
+        devices, _ = self._load_devices()
+        managed_ids = {str(device.get("entity_id")) for device in devices if device.get("entity_id")}
+        candidates: list[dict[str, Any]] = []
+        for state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
+            entity_id = state.entity_id
+            domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
+            if domain not in DEVICE_CANDIDATE_DOMAINS:
+                continue
+            if entity_id in managed_ids:
+                continue
+            if str(state.state).lower() in {"unavailable", "unknown"}:
+                continue
+            kind = DEVICE_KIND_FIXED if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else DEVICE_KIND_VARIABLE
+            candidates.append(
+                {
+                    "entity_id": entity_id,
+                    "label": _format_candidate_label(entity_id, state),
+                    "name": str(state.attributes.get("friendly_name") or entity_id),
+                    "kind": kind,
+                    "domain": domain,
+                    "state": str(state.state),
+                }
+            )
+        return candidates
 
     def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
         raw_inventory = _entry_default_text(
@@ -784,6 +821,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_devices(self, user_input=None):
         devices, issues = self._load_devices()
+        candidates = self._device_candidates()
         if user_input is not None:
             choice = user_input.get("device_action")
             if choice == "add_fixed":
@@ -815,6 +853,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             choices.append(selector.SelectOptionDict(value="remove", label="Remove configured device"))
         choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))
         summary = "\n".join(self._fleet_summary_lines(devices))
+        candidate_summary = "\n".join(
+            f"- {item['name']} ({item['entity_id']}, {item['kind']})" for item in candidates[:12]
+        ) if candidates else "- No unmanaged candidate devices discovered right now"
         return self.async_show_form(
             step_id="devices",
             data_schema=vol.Schema(
@@ -829,6 +870,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
                 "device_summary": summary,
+                "candidate_count": str(len(candidates)),
+                "candidate_summary": candidate_summary,
                 "device_issues": "\n".join(f"- {issue}" for issue in issues[:6]) if issues else "None",
             },
         )
@@ -870,6 +913,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         kind = self._pending_device_kind or DEVICE_KIND_FIXED
         editing_key = self._pending_device_key
         devices, _ = self._load_devices()
+        candidates = self._device_candidates()
         existing_device = next((device for device in devices if device.get("key") == editing_key), None)
 
         if editing_key and existing_device is None:
@@ -897,7 +941,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             kind,
             template_defaults=selected_template.defaults if selected_template and not editing_key else None,
         )
-        entity_domain = ["switch", "input_boolean", "light"] if kind == DEVICE_KIND_FIXED else ["number", "input_number"]
+        if not editing_key:
+            selected_candidate = next((item for item in candidates if item["kind"] == kind), None)
+            if selected_candidate is not None:
+                defaults["entity_id"] = selected_candidate["entity_id"]
+                if not defaults.get("name"):
+                    defaults["name"] = selected_candidate["name"]
+        entity_domain = list(DEVICE_CANDIDATE_FIXED_DOMAINS) if kind == DEVICE_KIND_FIXED else list(DEVICE_CANDIDATE_VARIABLE_DOMAINS)
         schema_dict: dict[Any, Any] = {
             vol.Required("name", default=defaults["name"]): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
@@ -950,6 +1000,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_mode": "Edit" if editing_key else "Add",
                 "device_template": selected_template.label if selected_template else "Custom",
                 "template_description": selected_template.description if selected_template else "Use manual values for this device.",
+                "candidate_hint": next((item["label"] for item in candidates if item["entity_id"] == defaults.get("entity_id")), "Pick an unmanaged candidate entity from the selector or choose a manual entity."),
             },
         )
 

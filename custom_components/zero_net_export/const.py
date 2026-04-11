@@ -7,6 +7,10 @@ from pathlib import Path
 DOMAIN = "zero_net_export"
 PLATFORMS = ["sensor", "switch", "select", "number", "binary_sensor", "button"]
 
+DEVICE_CANDIDATE_FIXED_DOMAINS = ("switch", "input_boolean", "light")
+DEVICE_CANDIDATE_VARIABLE_DOMAINS = ("number", "input_number")
+DEVICE_CANDIDATE_DOMAINS = DEVICE_CANDIDATE_FIXED_DOMAINS + DEVICE_CANDIDATE_VARIABLE_DOMAINS
+
 
 def _read_integration_version() -> str:
     """Return the packaged integration version from manifest.json."""
