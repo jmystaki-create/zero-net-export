@@ -31,7 +31,7 @@
     "step": {
       "init": {
         "title": "Zero Net Export command center",
-        "description": "Use this command center to map sources, tune policy, manage devices, and review runtime health from native Home Assistant surfaces.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Health and support: {support_status}\n\nRecommended next section: {recommended_section}.\nRecommended path right now: {recommended_path}.\nWhat to do next: {next_action_summary}\n\nWhere each native path lives:\n- Sources: {sources_path}\n- Managed devices: {devices_path}\n- Policy: {policy_path}\n- Health and support: {support_path}.",
+        "description": "Start here after install. Use this command center to map sources, tune policy, manage devices, and review runtime health from native Home Assistant surfaces.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n- Health and support: {support_status}\n\nRecommended next section: {recommended_section}.\nRecommended path right now: {recommended_path}.\nWhat to do next: {next_action_summary}\n\nWhere each native path lives:\n- Sources: {sources_path}\n- Managed devices: {devices_path}\n- Policy: {policy_path}\n- Health and support: {support_path}.",
         "menu_options": {
           "native_setup": "Sources and source mapping",
           "policy": "Policy and controller settings",
@@ -90,7 +90,7 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen as the main managed-device workspace. Add, review, edit, enable, disable, and remove fixed or variable devices here first, and only drop into JSON editing for recovery or bulk changes.\n\nThis is where operators tag controllable loads into the Zero Net Export fleet.\n\nPrimary path: {configure_path}.\n\nManaged devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged candidate devices: {candidate_count}\nCandidate snapshot:\n{candidate_summary}\nTop candidate right now: {top_candidate}\nRecommended next device action: {device_next_step}\n\nDevice issues:\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. If you are looking for where to tag, review, edit, enable, disable, or remove controllable loads, this is it. Only drop into JSON editing for recovery or bulk changes.\n\nThis is where operators tag controllable loads into the Zero Net Export fleet.\n\nPrimary path: {configure_path}.\n\nManaged devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged candidate devices: {candidate_count}\nCandidate snapshot:\n{candidate_summary}\nTop candidate right now: {top_candidate}\nRecommended next device action: {device_next_step}\n\nDevice issues:\n{device_issues}",
         "data": {
           "device_action": "Managed-device action"
         },
@@ -168,7 +168,7 @@
       },
       "policy": {
         "title": "Policy and controller settings",
-        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. This is where operators set how aggressively Zero Net Export behaves once source mapping is healthy and managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}",
+        "description": "Tune controller policy here, including target export, deadband, reserve threshold, and refresh interval. If you are looking for where Zero Net Export behaviour is adjusted, this is it once source mapping is healthy and managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
