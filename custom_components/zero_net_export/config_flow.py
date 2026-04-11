@@ -449,6 +449,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             for item in candidates[:100]
         ]
 
+    def _top_candidates_for_kind(self, kind: str, *, limit: int = 3) -> list[dict[str, Any]]:
+        return [item for item in self._device_candidates() if item["kind"] == kind][:limit]
+
+    def _candidate_quick_picks(self, kind: str) -> list[dict[str, Any]]:
+        return self._top_candidates_for_kind(kind, limit=3)
+
     def _source_entity_options(
         self,
         *,
@@ -1181,9 +1187,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             choices.append(selector.SelectOptionDict(value="remove", label="Remove configured device"))
         choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))
         summary = "\n".join(self._fleet_summary_lines(devices))
+        fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
+        variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
         candidate_summary = "\n".join(
             f"- {item['name']} ({item['entity_id']}, {item['kind']})" for item in candidates[:12]
         ) if candidates else "- No unmanaged candidate devices discovered right now"
+        fixed_candidate_summary = "\n".join(
+            f"- {item['name']} ({item['entity_id']})" for item in fixed_candidates[:6]
+        ) if fixed_candidates else "- No fixed-load candidates discovered right now"
+        variable_candidate_summary = "\n".join(
+            f"- {item['name']} ({item['entity_id']})" for item in variable_candidates[:6]
+        ) if variable_candidates else "- No variable-load candidates discovered right now"
         top_candidate = candidates[0] if candidates else None
         device_next_step = self._device_next_step(devices, issues, candidates)
         return self.async_show_form(
@@ -1202,6 +1216,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": summary,
                 "candidate_count": str(len(candidates)),
                 "candidate_summary": candidate_summary,
+                "fixed_candidate_count": str(len(fixed_candidates)),
+                "fixed_candidate_summary": fixed_candidate_summary,
+                "variable_candidate_count": str(len(variable_candidates)),
+                "variable_candidate_summary": variable_candidate_summary,
                 "top_candidate": (
                     f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -1214,32 +1232,73 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_device_pick_candidate(self, user_input=None):
         kind = self._pending_device_kind or DEVICE_KIND_FIXED
+        quick_picks = self._candidate_quick_picks(kind)
         options = self._candidate_options(kind=kind)
         if user_input is not None:
-            selected = str(user_input.get("candidate_entity_id") or "")
-            if selected == MANUAL_CANDIDATE_SELECTION:
+            quick_pick = str(user_input.get("quick_pick") or "")
+            if quick_pick == MANUAL_CANDIDATE_SELECTION:
                 self._pending_candidate_entity_id = None
                 self._pending_candidate_summary = None
+                self._pending_device_template_key = None
                 return await self.async_step_device_template()
-            self._pending_candidate_entity_id = selected or None
-            self._pending_candidate_summary = self._candidate_summary(self._pending_candidate_entity_id)
-            return await self.async_step_device_vetting()
+            if quick_pick == "more":
+                return await self.async_step_device_pick_candidate_full()
+            if quick_pick:
+                self._pending_candidate_entity_id = quick_pick
+                self._pending_candidate_summary = self._candidate_summary(self._pending_candidate_entity_id)
+                return await self.async_step_device_vetting()
 
         if not options:
             self._pending_candidate_entity_id = None
             self._pending_candidate_summary = None
             return await self.async_step_device_template()
 
-        picker_options = [
-            selector.SelectOptionDict(
-                value=MANUAL_CANDIDATE_SELECTION,
-                label="Manual entity selection / entity not listed",
+        quick_pick_options = [
+            *(selector.SelectOptionDict(value=item["entity_id"], label=item["label"]) for item in quick_picks),
+            selector.SelectOptionDict(value="more", label="Show full candidate list"),
+            selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
+        ]
+        top_candidate_summary = "\n".join(
+            f"- {item['name']} ({item['entity_id']}, state {item['state']})" for item in quick_picks
+        ) if quick_picks else "- No suggested candidates right now"
+        return self.async_show_form(
+            step_id="device_pick_candidate",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("quick_pick", default=quick_pick_options[0]["value"]): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=quick_pick_options, mode=selector.SelectSelectorMode.LIST)
+                    )
+                }
             ),
+            errors={},
+            description_placeholders={
+                "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "candidate_count": str(len(options)),
+                "top_candidates": top_candidate_summary,
+            },
+        )
+
+    async def async_step_device_pick_candidate_full(self, user_input=None):
+        kind = self._pending_device_kind or DEVICE_KIND_FIXED
+        options = self._candidate_options(kind=kind)
+        if user_input is not None:
+            selected = str(user_input.get("candidate_entity_id") or "")
+            if selected == MANUAL_CANDIDATE_SELECTION:
+                self._pending_candidate_entity_id = None
+                self._pending_candidate_summary = None
+                self._pending_device_template_key = None
+                return await self.async_step_device_template()
+            self._pending_candidate_entity_id = selected or None
+            self._pending_candidate_summary = self._candidate_summary(self._pending_candidate_entity_id)
+            return await self.async_step_device_vetting()
+
+        picker_options = [
+            selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
             *options,
         ]
         default_candidate = self._pending_candidate_entity_id or MANUAL_CANDIDATE_SELECTION
         return self.async_show_form(
-            step_id="device_pick_candidate",
+            step_id="device_pick_candidate_full",
             data_schema=vol.Schema(
                 {
                     vol.Required("candidate_entity_id", default=default_candidate): selector.SelectSelector(
@@ -1264,6 +1323,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 self._pending_device_template_key = str(summary['suggested_template_key'])
             return await self.async_step_device_template()
 
+        next_step = (
+            "Continue to choose the suggested preset and then confirm the final device settings before saving into the managed fleet."
+            if summary.get("fit_confidence") != "low"
+            else "Continue only if this entity really drives a controllable device. If not, go back and choose manual selection or a different candidate."
+        )
         return self.async_show_form(
             step_id="device_vetting",
             data_schema=vol.Schema({}),
@@ -1281,6 +1345,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "candidate_warnings": "\n".join(f"- {item}" for item in (summary.get('warnings') or [])) or "- No immediate warnings detected.",
                 "suggested_template": str(summary.get('suggested_template_label') or 'Custom'),
                 "suggested_template_description": str(summary.get('suggested_template_description') or 'Use a custom configuration for this entity.'),
+                "candidate_next_step": next_step,
             },
         )
 

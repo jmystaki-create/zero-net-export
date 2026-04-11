@@ -90,7 +90,7 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen as the main managed-device workspace. If you are looking for where to tag, review, edit, enable, disable, or remove controllable loads, this is it. Only drop into JSON editing for recovery or bulk changes.\n\nThis is where operators tag controllable loads into the Zero Net Export fleet.\n\nPrimary path: {configure_path}.\n\nManaged devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged candidate devices: {candidate_count}\nCandidate snapshot:\n{candidate_summary}\nTop candidate right now: {top_candidate}\nRecommended next device action: {device_next_step}\n\nDevice issues:\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. If you are looking for where to tag, review, edit, enable, disable, or remove controllable loads, this is it. Only drop into JSON editing for recovery or bulk changes.\n\nThis is where operators tag controllable loads into the Zero Net Export fleet.\n\nPrimary path: {configure_path}.\n\nManaged devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged candidate devices: {candidate_count}\nFixed-load candidates: {fixed_candidate_count}\n{fixed_candidate_summary}\nVariable-load candidates: {variable_candidate_count}\n{variable_candidate_summary}\n\nCandidate snapshot:\n{candidate_summary}\nTop candidate right now: {top_candidate}\nRecommended next device action: {device_next_step}\n\nDevice issues:\n{device_issues}",
         "data": {
           "device_action": "Managed-device action"
         },
@@ -114,14 +114,21 @@
       },
       "device_pick_candidate": {
         "title": "Pick unmanaged candidate",
-        "description": "Start by choosing which discovered unmanaged {device_kind} should be reviewed for promotion into the managed fleet. If the right entity is not listed yet, choose the manual option and continue with the normal native form.\n\nDiscovered candidates: {candidate_count}",
+        "description": "Start with the best suggested unmanaged {device_kind} candidates below. This first step is now a short, opinionated pick list instead of a long hard-to-scan dropdown. If the right entity is not shown, open the full candidate list or use manual entity selection.\n\nDiscovered candidates: {candidate_count}\nSuggested shortlist:\n{top_candidates}",
+        "data": {
+          "quick_pick": "Suggested candidate action"
+        }
+      },
+      "device_pick_candidate_full": {
+        "title": "Full unmanaged candidate list",
+        "description": "Choose from the full discovered unmanaged {device_kind} list when the quick shortlist does not contain the right entity.\n\nDiscovered candidates: {candidate_count}",
         "data": {
           "candidate_entity_id": "Unmanaged candidate entity or manual path"
         }
       },
       "device_vetting": {
         "title": "Review candidate for promotion",
-        "description": "Review this unmanaged candidate before it enters the managed fleet.\n\nCandidate: {candidate_name}\nEntity: {candidate_entity_id}\nDetected kind: {candidate_kind}\nDomain: {candidate_domain}\nCurrent state: {candidate_state}\nUnit: {candidate_unit}\nDevice class: {candidate_device_class}\n\nFit confidence: {candidate_fit_confidence}\nFit summary: {candidate_fit_summary}\nWarnings:\n{candidate_warnings}\n\nSuggested preset: {suggested_template}\n{suggested_template_description}",
+        "description": "Review this unmanaged candidate before it enters the managed fleet.\n\nCandidate: {candidate_name}\nEntity: {candidate_entity_id}\nDetected kind: {candidate_kind}\nDomain: {candidate_domain}\nCurrent state: {candidate_state}\nUnit: {candidate_unit}\nDevice class: {candidate_device_class}\n\nFit confidence: {candidate_fit_confidence}\nFit summary: {candidate_fit_summary}\nWarnings:\n{candidate_warnings}\n\nSuggested preset: {suggested_template}\n{suggested_template_description}\n\nRecommended next step: {candidate_next_step}",
         "data": {}
       },
       "device_template": {
