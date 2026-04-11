@@ -175,8 +175,11 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         "native_surfaces": {
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "device_page_buttons": [
+                "Show command center guide",
+                "Show support center",
                 "Show native diagnostics snapshot",
                 "Show setup checklist",
+                "Show fleet console",
             ],
             "operator_readiness": operator_readiness,
         },

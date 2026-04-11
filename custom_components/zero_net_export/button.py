@@ -9,6 +9,7 @@ from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
     PRIMARY_CONFIGURE_PATH,
+    build_native_command_center_summary,
     build_native_operator_readiness,
     build_native_support_center,
     build_native_support_snapshot,
@@ -19,6 +20,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     entities = [
         ZeroNetExportResetControllerOverridesButton(coordinator),
+        ZeroNetExportShowNativeCommandCenterButton(coordinator),
         ZeroNetExportShowFleetConsoleButton(coordinator),
         ZeroNetExportShowNativeSupportCenterButton(coordinator),
         ZeroNetExportShowNativeDiagnosticsButton(coordinator),
@@ -49,6 +51,10 @@ def _fleet_console_notification_id(entry_id: str) -> str:
     return f"{DOMAIN}_{entry_id}_fleet_console"
 
 
+def _command_center_notification_id(entry_id: str) -> str:
+    return f"{DOMAIN}_{entry_id}_command_center"
+
+
 class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "reset_controller_overrides", "Reset controller overrides")
@@ -59,6 +65,58 @@ class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEnt
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_controller_overrides()
+
+
+class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEntity):
+    def __init__(self, coordinator):
+        super().__init__(coordinator, "show_native_command_center", "Show command center guide")
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+        self._attr_icon = "mdi:map-marker-path"
+
+    @property
+    def extra_state_attributes(self):
+        command_center = build_native_command_center_summary(self.coordinator)
+        return {
+            "configure_path": PRIMARY_CONFIGURE_PATH,
+            "recommended_section": command_center.get("recommended_section"),
+            "recommended_path": command_center.get("recommended_path"),
+            "next_step": command_center.get("next_action_summary"),
+            "source_status": command_center.get("source_status"),
+            "device_status": command_center.get("device_status"),
+            "policy_status": command_center.get("policy_status"),
+            "support_status": command_center.get("support_status"),
+        }
+
+    async def async_press(self) -> None:
+        command_center = build_native_command_center_summary(self.coordinator)
+        message = "\n".join(
+            [
+                "Zero Net Export native command center guide",
+                "",
+                f"Primary path: {PRIMARY_CONFIGURE_PATH}",
+                f"Recommended section right now: {command_center.get('recommended_section')}",
+                f"Recommended path right now: {command_center.get('recommended_path')}",
+                f"What to do next: {command_center.get('next_action_summary')}",
+                "",
+                "Current status",
+                f"- Sources: {command_center.get('source_status')}",
+                f"- Managed devices: {command_center.get('device_status')}",
+                f"- Policy: {command_center.get('policy_status')}",
+                f"- Health and support: {command_center.get('support_status')}",
+                "",
+                "Where each native path lives",
+                f"- Sources: {command_center.get('sources_path')}",
+                f"- Managed devices: {command_center.get('devices_path')}",
+                f"- Policy: {command_center.get('policy_path')}",
+                f"- Health and support: {command_center.get('support_path')}",
+            ]
+        )
+        persistent_notification.async_create(
+            self.hass,
+            message,
+            title=f"{self.coordinator.entry.title}: command center guide",
+            notification_id=_command_center_notification_id(self.coordinator.entry.entry_id),
+        )
 
 
 class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
