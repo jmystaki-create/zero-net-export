@@ -319,6 +319,7 @@ views:
           - type: markdown
             content: |
               - This stays fully inside Home Assistant, no external panel.
-              - Use the integration device page for Configure, Repairs, and setup support.
-              - Use this dashboard as the expert operator console.
+              - Use Configure as the command center for sources, policy, managed devices, and support.
+              - Use the integration device page for Repairs plus setup and diagnostics actions.
+              - Use this dashboard only for optional debug visibility after the native workflow is in place.
               - If a load is not acting, check fleet summary, control summary, guard summary, per-source staleness, and the recent failure timeline before changing mappings.
