@@ -86,6 +86,14 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
     }
 
 
+def _ordered_source_attention_keys(source_attention: dict[str, Any]) -> list[str]:
+    ordered_keys: list[str] = []
+    for key in source_attention["unavailable_source_keys"] + source_attention["stale_source_keys"]:
+        if key not in ordered_keys:
+            ordered_keys.append(key)
+    return ordered_keys
+
+
 def build_source_attention_role_summary(
     state: Any,
     config: dict[str, Any] | None = None,
@@ -97,13 +105,8 @@ def build_source_attention_role_summary(
     source_diagnostics = source_attention["source_diagnostics"]
     configured = config or {}
 
-    ordered_keys: list[str] = []
-    for key in source_attention["unavailable_source_keys"] + source_attention["stale_source_keys"]:
-        if key not in ordered_keys:
-            ordered_keys.append(key)
-
     details_lines: list[str] = []
-    for key in ordered_keys[:limit]:
+    for key in _ordered_source_attention_keys(source_attention)[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
         entity_label = str(details.get("entity_id") or configured_label or "not resolved")
@@ -126,6 +129,40 @@ def build_source_attention_role_summary(
 
     return "; ".join(details_lines) if details_lines else "None"
 
+
+def build_source_attention_summary(
+    state: Any,
+    config: dict[str, Any] | None = None,
+    *,
+    limit: int = 4,
+) -> str:
+    """Return a concise operator-facing summary of current mapped-source blockers."""
+    source_attention = build_source_attention_details(state)
+    source_diagnostics = source_attention["source_diagnostics"]
+    configured = config or {}
+
+    if not _ordered_source_attention_keys(source_attention):
+        return "None"
+
+    parts: list[str] = []
+    for key in _ordered_source_attention_keys(source_attention)[:limit]:
+        details = source_diagnostics.get(key, {})
+        configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
+        entity_label = str(details.get("entity_id") or configured_label or "not resolved")
+        status_bits: list[str] = []
+        if details.get("status") == "unavailable":
+            status_bits.append("unavailable")
+        if details.get("stale"):
+            age_seconds = details.get("age_seconds")
+            status_bits.append(f"stale {int(age_seconds)} s" if age_seconds is not None else "stale")
+        if not status_bits:
+            status_bits.append("needs attention")
+        parts.append(f"{SOURCE_ROLE_LABELS.get(key, key)} ({entity_label}, {', '.join(status_bits)})")
+
+    remaining = len(_ordered_source_attention_keys(source_attention)) - len(parts)
+    if remaining > 0:
+        parts.append(f"+{remaining} more")
+    return "; ".join(parts)
 
 
 def summarize_validation_issue_messages(
@@ -493,6 +530,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     source_attention = build_source_attention_details(state)
     unavailable_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["unavailable_source_keys"]]
     stale_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["stale_source_keys"]]
+    source_attention_summary = build_source_attention_summary(state, merged, limit=4)
     blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
     runtime_source_attention = bool(unavailable_source_roles or stale_source_roles or blocking_validation_details != "None")
 
@@ -502,12 +540,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
         recommended_section = "Sources and source mapping"
     elif runtime_source_attention:
-        source_status = str(
-            readiness.get("summary")
-            or getattr(state, "health_summary", None)
-            or getattr(state, "diagnostic_summary", None)
-            or "Mapped sources need attention."
+        attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
+        validation_suffix = (
+            f" Blocking validation details: {blocking_validation_details}"
+            if blocking_validation_details != "None"
+            else ""
         )
+        source_status = attention_prefix + validation_suffix
         recommended_section = "Sources and source mapping"
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
@@ -566,6 +605,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     return {
         "source_status": source_status,
+        "source_attention_summary": source_attention_summary,
         "device_status": device_status,
         "policy_status": policy_status,
         "support_status": support_status,

@@ -64,6 +64,7 @@ from .native_support import (
     build_native_operator_readiness,
     build_source_attention_details,
     build_source_attention_role_summary,
+    build_source_attention_summary,
     summarize_validation_issue_messages,
 )
 from .validation import (
@@ -787,6 +788,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_unavailable_sources": unavailable_sources or "None",
             "support_stale_sources": stale_sources or "None",
             "support_source_attention_roles": build_source_attention_role_summary(state, merged, limit=4),
+            "support_attention_summary": build_source_attention_summary(state, merged, limit=4),
             "support_blocking_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
         }
 
@@ -796,6 +798,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         placeholders = {
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "source_status": command_center["source_status"],
+            "source_attention_summary": command_center["source_attention_summary"],
             "device_status": command_center["device_status"],
             "policy_status": command_center["policy_status"],
             "recommended_section": command_center["recommended_section"],
