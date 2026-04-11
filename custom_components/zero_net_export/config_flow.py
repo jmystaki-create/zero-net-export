@@ -129,6 +129,7 @@ def _device_options_json(devices: list[dict[str, Any]]) -> str:
 
 
 COMBINED_GRID_ENERGY_FALLBACK_KEY = "grid_energy_entity_manual"
+BATTERY_SOC_FALLBACK_KEY = "battery_soc_entity_manual"
 
 
 def _build_derived_binding(mode: str, entity_id: str | None) -> str | None:
@@ -502,7 +503,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             merged_data[CONF_SOLAR_POWER_ENTITY] = _normalize_entity_selector_input(user_input, CONF_SOLAR_POWER_ENTITY)
             merged_data[CONF_SOLAR_ENERGY_ENTITY] = _normalize_entity_selector_input(user_input, CONF_SOLAR_ENERGY_ENTITY)
             merged_data[CONF_HOME_LOAD_POWER_ENTITY] = _normalize_entity_selector_input(user_input, CONF_HOME_LOAD_POWER_ENTITY)
-            merged_data[CONF_BATTERY_SOC_ENTITY] = _normalize_entity_selector_input(user_input, CONF_BATTERY_SOC_ENTITY)
+            merged_data[CONF_BATTERY_SOC_ENTITY] = (
+                _normalize_entity_selector_input(user_input, BATTERY_SOC_FALLBACK_KEY)
+                or _normalize_entity_selector_input(user_input, CONF_BATTERY_SOC_ENTITY)
+            )
             merged_data[CONF_BATTERY_CHARGE_POWER_ENTITY] = _normalize_entity_selector_input(user_input, CONF_BATTERY_CHARGE_POWER_ENTITY)
             merged_data[CONF_BATTERY_DISCHARGE_POWER_ENTITY] = _normalize_entity_selector_input(user_input, CONF_BATTERY_DISCHARGE_POWER_ENTITY)
 
@@ -628,6 +632,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ] = battery_soc_selector
         fields[
             vol.Optional(
+                BATTERY_SOC_FALLBACK_KEY,
+                default="",
+            )
+        ] = selector.TextSelector(
+            selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+        )
+        fields[
+            vol.Optional(
                 CONF_BATTERY_CHARGE_POWER_ENTITY,
                 default=_entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
             )
@@ -656,6 +668,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         effective_config = dict(self._config_entry.data)
         effective_config.update(self._config_entry.options)
         missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
+        fallback_guidance = (
+            "If Home Assistant rejects a valid combined grid energy or battery SOC picker choice, leave the selector as-is and paste the same entity ID into the matching fallback field below."
+        )
         return self.async_show_form(
             step_id="native_setup_sources",
             data_schema=schema,
@@ -664,6 +679,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "grid_mode": "Combined / net sensors" if grid_mode == GRID_SENSOR_MODE_COMBINED else "Separate import and export sensors",
                 "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
                 "configure_path": PRIMARY_CONFIGURE_PATH,
+                "fallback_guidance": fallback_guidance,
             },
         )
 
