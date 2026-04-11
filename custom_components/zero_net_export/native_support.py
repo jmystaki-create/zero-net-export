@@ -38,7 +38,7 @@ SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mappin
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
 SUPPORT_CONFIGURE_PATH = (
-    "Configure -> Health, support, and troubleshooting; deeper health review: "
+    f"{PRIMARY_CONFIGURE_PATH} -> Health, support, and troubleshooting; deeper health review: "
     "integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
     "Settings -> Repairs"
 )

@@ -105,7 +105,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 5.  Use **Managed devices** in Configure to add fixed or variable controllable devices through native selectors. When Configure shows unmanaged candidate entities, start there and promote the best-fit candidate into the managed fleet before fine-tuning the form. Use the fleet review there to quickly enable or disable devices across a larger install. Use the JSON editor only for bulk structural edits or recovery.
 6.  Use **Policy and controller settings** in Configure for target/deadband/reserve defaults and related control behavior.
 7.  Use the managed-device steps in Configure to review unmanaged candidates, promote them into the fleet, then edit, enable/disable, and remove controllable loads.
-8.  Use **Support and troubleshooting** in Configure for the next native triage step, then use the integration device page buttons, entities, diagnostics, and **Repairs** for deeper runtime verification and troubleshooting.
+8.  Use **Health, support, and troubleshooting** in Configure for the next native triage step, then use the integration device page buttons, entities, diagnostics, and **Repairs** for deeper runtime verification and troubleshooting.
 
 ### Advanced / fallback paths
 
