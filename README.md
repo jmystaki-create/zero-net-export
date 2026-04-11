@@ -102,10 +102,10 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
     - Grid sensors, either as one combined/net pair or as separate import/export entities
     - Home Load Power (optional if solar and grid sources are already mapped)
     - (Optional) Battery Entities
-5.  Use **Managed devices** in Configure to add fixed or variable controllable devices through native selectors. When Configure shows unmanaged candidate entities, start there and promote the best-fit candidate into the managed fleet before fine-tuning the form. Use the fleet review there to quickly enable or disable devices across a larger install. Use the JSON editor only for bulk structural edits or recovery.
-6.  Use **Policy and controller settings** in Configure for target/deadband/reserve defaults and related control behavior.
-7.  Use the managed-device steps in Configure to review unmanaged candidates, promote them into the fleet, then edit, enable/disable, and remove controllable loads.
-8.  Use **Health, support, and troubleshooting** in Configure for the next native triage step, then use the integration device page buttons, entities, diagnostics, and **Repairs** for deeper runtime verification and troubleshooting.
+5.  Use **Managed devices** in Configure as the main device workspace: add fixed or variable controllable devices, review unmanaged candidates, promote the best-fit candidate into the managed fleet, then edit, enable or disable, and remove devices from that same native path. Use the fleet review there to stage larger installs. Use the JSON editor only for bulk structural edits or recovery.
+6.  Use **Policy and controller settings** in Configure for target/deadband/reserve defaults and related control behavior once sources and managed devices are in place.
+7.  Use **Health, support, and troubleshooting** in Configure for the next native triage step when runtime is blocked or unclear.
+8.  For deeper verification, use the integration device page buttons, entities, diagnostics, and **Repairs** after Configure points you to the next blocker.
 
 ### Advanced / fallback paths
 

@@ -13,6 +13,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Made the native Configure copy more explicit about where to start after install and where device management versus policy tuning live, reducing the current operator-discoverability gap without adding any new surfaces.
 - Aligned the implementation trail with the supervisor's native-HA-only release stance so optional Lovelace/dashboard work is no longer presented as a near-term priority ahead of Configure, native diagnostics, and real-install validation.
 - Aligned the native support-path wording so the Configure command center and README both point operators to the full **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Health, support, and troubleshooting** path before deeper device-page and Repairs triage.
+- Clarified the README native Configure walkthrough so the main managed-device workspace is described once, in sequence, instead of splitting device management guidance across duplicated steps that obscured the intended operator flow.
 
 ## [0.1.79] - 2026-04-11
 
