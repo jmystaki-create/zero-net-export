@@ -44,7 +44,7 @@ Wraps supported device classes:
 
 Current v1 adapter boundary:
 - devices can declare an explicit `adapter`, or let the integration infer one only for known-safe cases
-- `fixed_toggle` supports `switch` / `input_boolean` entities via `<entity domain>.turn_on` / `<entity domain>.turn_off`
+- `fixed_toggle` supports `switch` / `input_boolean` / `light` entities via `<entity domain>.turn_on` / `<entity domain>.turn_off`
 - `variable_number` supports `number` / `input_number` entities via `set_value`
 - unsupported domains fail closed with explicit runtime adapter status instead of guessing service behavior
 

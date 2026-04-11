@@ -29,7 +29,7 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Home Assistant version >= 2024.6.0
 - [ ] HACS installed (if using HACS install path)
 - [ ] Energy dashboard configured with solar/grid entities
-- [ ] At least one controllable load available (switch or number entity)
+- [ ] At least one controllable load available (switch, light, or number entity)
 - [ ] Battery system available (optional but recommended for full validation)
 
 ## Installation Validation
@@ -87,7 +87,7 @@ This is the current highest-value path because native onboarding is now the only
 
 ## Device Model Validation
 
-- [ ] Fixed device (switch/input_boolean) parses correctly
+- [ ] Fixed device (switch/input_boolean/light) parses correctly
 - [ ] Variable device (number/input_number) parses correctly
 - [ ] Device adapter resolves automatically for known domains
 - [ ] Invalid entity domains fail closed with clear error

@@ -34,7 +34,7 @@
 - controllable device inventory ✅ JSON-backed fixed/variable device model with runtime usability evaluation
 - per-device explainability ✅ device status and usability entities now reflect why a device is or is not eligible
 - runtime control guards ✅ per-device observed state, min-on / min-off timing, cooldown timing, and guard-approved-vs-blocked planned action state are now tracked and exposed
-- guarded HA service executor ✅ guard-approved plans now attempt narrow live HA service calls for supported switch/number devices only
+- guarded HA service executor ✅ guard-approved plans now attempt narrow live HA service calls for supported switch/light/number devices only
 - explicit adapter metadata ✅ devices now resolve to a safe fixed/variable adapter model instead of relying only on raw entity-domain inference
 - action outcome reporting ✅ controller state now reports last execution status/summary plus recent action-history attributes
 - durable runtime control memory ✅ per-device last requested / last applied control targets plus cumulative action counters now persist across reloads
