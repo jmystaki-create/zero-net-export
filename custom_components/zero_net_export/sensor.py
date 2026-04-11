@@ -76,6 +76,7 @@ SENSOR_DEFS = {
     "managed_fleet_overview": "Managed fleet overview",
     "unmanaged_candidate_count": "Unmanaged candidate devices",
     "unmanaged_candidate_overview": "Unmanaged candidate overview",
+    "top_unmanaged_candidate": "Top unmanaged candidate",
     "fleet_console_next_step": "Fleet console next step",
 }
 
@@ -242,6 +243,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if len(candidates) > 4:
                 preview += f", +{len(candidates) - 4} more"
             return preview
+        if self._key == "top_unmanaged_candidate":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            if not candidates:
+                return "None"
+            top = candidates[0]
+            return f"{top['name']} ({top['entity_id']})"
         if self._key == "fleet_console_next_step":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
@@ -322,7 +330,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
-        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "fleet_console_next_step"}:
+        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "fleet_console_next_step"}:
             state = self._state
             if state is None:
                 return None

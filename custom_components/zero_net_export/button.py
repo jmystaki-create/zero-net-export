@@ -91,6 +91,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'managed_count': len(managed),
             'candidate_count': len(candidates),
             'candidate_devices': candidates[:12],
+            'top_candidate': candidates[0] if candidates else None,
+            'promotion_handoff': 'Open Configure -> Managed devices, choose Add fixed/variable, then pick this candidate in the candidate-pick step.' if candidates else None,
         }
 
     async def async_press(self) -> None:
@@ -123,7 +125,16 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         lines.extend(['', f'Unmanaged candidate devices: {len(candidates)}'])
         if candidates:
             lines.extend(f'- {name} ({entity_id}, {domain}, state {value})' for name, entity_id, domain, value in candidates[:12])
-            lines.extend(['', 'Next step:', '- Open Configure -> Managed devices and tag the next candidate into the managed fleet.'])
+            top_name, top_entity_id, top_domain, top_value = candidates[0]
+            top_add_label = 'fixed load device' if top_domain in {'switch', 'input_boolean', 'light'} else 'variable load device'
+            lines.extend([
+                '',
+                f'Top candidate: {top_name} ({top_entity_id}, {top_domain}, state {top_value})',
+                'Next step:',
+                '- Open Configure -> Managed devices.',
+                f'- Choose Add {top_add_label}.',
+                f'- In Pick unmanaged candidate, select {top_entity_id}.',
+            ])
         else:
             lines.extend([
                 '- No unmanaged candidate devices discovered right now',
