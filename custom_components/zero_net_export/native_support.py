@@ -343,29 +343,44 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
                 f"Open {SOURCES_CONFIGURE_PATH} or the diagnostics snapshot, then fix these stale mapped sources: {listed}."
             )
         elif state_stale_data and stale_summary:
-            next_step = f"Open Configure or the diagnostics snapshot and fix the stale mapped sources. {stale_summary}."
+            next_step = (
+                f"Open {SOURCES_CONFIGURE_PATH} or the integration device page diagnostics snapshot, "
+                f"then fix the stale mapped sources. {stale_summary}."
+            )
         else:
             next_step = f"Open {SOURCES_CONFIGURE_PATH}, then use native diagnostics and calibration hints to fix source validation issues."
         summary = "Native setup is waiting on healthy validated source data."
     elif device_parse_issues:
         phase = "device_remediation"
-        next_step = "Fix the managed-device configuration in Configure so the configured fleet parses cleanly."
+        next_step = (
+            f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration, "
+            f"or use {ADVANCED_DEVICES_CONFIGURE_PATH} only if the native forms cannot fix it."
+        )
         summary = "Native setup is blocked on managed-device configuration issues."
     elif not configured_devices:
         phase = "device_onboarding"
-        next_step = "Add the first controllable device from Configure."
+        next_step = f"Open {DEVICES_CONFIGURE_PATH} and add the first controllable device."
         summary = "Sources are ready; the next milestone is adding controllable devices."
     elif not state_usable_device_count:
         phase = "runtime_readiness"
-        next_step = "Review per-device diagnostics to unblock at least one usable device."
+        next_step = (
+            f"Use the integration device page diagnostics snapshot, then return to {DEVICES_CONFIGURE_PATH} "
+            "to unblock at least one usable device."
+        )
         summary = "Configured devices exist, but none are currently eligible for control."
     elif state_safe_mode:
         phase = "runtime_readiness"
-        next_step = "Clear the current safe-mode condition before treating the integration as production-ready."
+        next_step = (
+            f"Open {SOURCES_CONFIGURE_PATH} and {SUPPORT_CONFIGURE_PATH}, then clear the current safe-mode condition "
+            "before treating the integration as production-ready."
+        )
         summary = "The native operator flow is mostly built, but runtime is still held in safe mode."
     else:
         phase = "operator_ready"
-        next_step = "Validate the native Configure workflow in a real Home Assistant install and refine any remaining friction there."
+        next_step = (
+            f"Validate {PRIMARY_CONFIGURE_PATH} plus the integration device page support actions in a real "
+            "Home Assistant install and refine any remaining friction there."
+        )
         summary = "Setup and troubleshooting are available through native Home Assistant surfaces."
 
     return {

@@ -87,7 +87,10 @@ def async_sync_repairs_issues(
     devices, device_issues = parse_device_configs(raw_inventory)
 
     readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
-    next_step = str(readiness.get("next_step") or "Open Configure and continue the guided native setup flow.")
+    next_step = str(
+        readiness.get("next_step")
+        or f"Open {PRIMARY_CONFIGURE_PATH} and continue the guided native setup flow."
+    )
     summary = str(readiness.get("summary") or "Zero Net Export still needs attention before it is fully operator-ready.")
 
     setup_issue_id = _entry_issue_id(entry, ISSUE_SETUP_INCOMPLETE)

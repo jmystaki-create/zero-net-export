@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Replaced the last shorthand `Open Configure` operator next-step prompts in Repairs, support readiness, and fleet guidance with exact native Home Assistant paths, so the shipped runtime surfaces stay aligned with the command-center discoverability push.
 - Fixed the native source-mapping validation redisplay so the Configure screen now always supplies the **Affected mapped sources** summary when blocking source errors send operators back through the form, instead of dropping that command-center guidance right at the point of failure.
 - Fixed the native command-center diagnostic sensor so **Command center status** now reports the current status of the recommended native section instead of incorrectly echoing the section name, and made the managed-device status read from live runtime usability when available.
 - Made the native Configure policy screen name the exact native paths back to sources, managed devices, and health/support, so operators do not have to infer where to go next from the command center once they start adjusting controller behaviour.

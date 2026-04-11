@@ -328,7 +328,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if not state.device_details and candidates:
                 return f"Open {DEVICES_CONFIGURE_PATH} and tag the first candidate into the fleet"
             if candidates:
-                return "Review unmanaged candidates, then promote the next controllable device in Configure"
+                return f"Review unmanaged candidates, then promote the next controllable device from {DEVICES_CONFIGURE_PATH}"
             return f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
