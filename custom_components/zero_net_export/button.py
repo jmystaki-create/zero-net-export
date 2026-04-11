@@ -19,6 +19,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     entities = [
         ZeroNetExportResetControllerOverridesButton(coordinator),
+        ZeroNetExportShowFleetConsoleButton(coordinator),
         ZeroNetExportShowNativeSupportCenterButton(coordinator),
         ZeroNetExportShowNativeDiagnosticsButton(coordinator),
         ZeroNetExportShowSetupChecklistButton(coordinator),
@@ -44,6 +45,10 @@ def _setup_notification_id(entry_id: str) -> str:
     return f"{DOMAIN}_{entry_id}_native_setup"
 
 
+def _fleet_console_notification_id(entry_id: str) -> str:
+    return f"{DOMAIN}_{entry_id}_fleet_console"
+
+
 class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "reset_controller_overrides", "Reset controller overrides")
@@ -54,6 +59,79 @@ class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEnt
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_controller_overrides()
+
+
+class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
+    def __init__(self, coordinator):
+        super().__init__(coordinator, "show_fleet_console", "Show fleet console")
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC
+        self._attr_icon = "mdi:format-list-group"
+
+    @property
+    def extra_state_attributes(self):
+        state = self._state
+        managed = list((state.device_details or {}).values()) if state is not None else []
+        managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
+        candidates = []
+        for entity_state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
+            entity_id = entity_state.entity_id
+            domain = entity_id.split('.', 1)[0] if '.' in entity_id else ''
+            if domain not in {'switch', 'input_boolean', 'light', 'number', 'input_number'}:
+                continue
+            if entity_id in managed_ids or str(entity_state.state).lower() in {'unknown', 'unavailable'}:
+                continue
+            candidates.append({
+                'entity_id': entity_id,
+                'name': str(entity_state.attributes.get('friendly_name') or entity_id),
+                'domain': domain,
+                'state': str(entity_state.state),
+            })
+        return {
+            'configure_path': PRIMARY_CONFIGURE_PATH,
+            'managed_count': len(managed),
+            'candidate_count': len(candidates),
+            'candidate_devices': candidates[:12],
+        }
+
+    async def async_press(self) -> None:
+        state = self._state
+        managed = list((state.device_details or {}).values()) if state is not None else []
+        managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
+        candidates = []
+        for entity_state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
+            entity_id = entity_state.entity_id
+            domain = entity_id.split('.', 1)[0] if '.' in entity_id else ''
+            if domain not in {'switch', 'input_boolean', 'light', 'number', 'input_number'}:
+                continue
+            if entity_id in managed_ids or str(entity_state.state).lower() in {'unknown', 'unavailable'}:
+                continue
+            candidates.append((str(entity_state.attributes.get('friendly_name') or entity_id), entity_id, domain, str(entity_state.state)))
+        lines = [
+            'Zero Net Export native fleet console',
+            '',
+            f'Primary path: {PRIMARY_CONFIGURE_PATH}',
+            '',
+            f'Managed devices: {len(managed)}',
+        ]
+        if managed:
+            lines.extend(
+                f"- {detail.get('name')}: {detail.get('status')} | enabled={detail.get('effective_enabled')} | entity={detail.get('entity_id')}"
+                for detail in managed[:12]
+            )
+        else:
+            lines.append('- No managed devices configured yet')
+        lines.extend(['', f'Unmanaged candidate devices: {len(candidates)}'])
+        if candidates:
+            lines.extend(f'- {name} ({entity_id}, {domain}, state {value})' for name, entity_id, domain, value in candidates[:12])
+            lines.extend(['', 'Next step:', '- Open Configure -> Managed devices and tag the next candidate into the managed fleet.'])
+        else:
+            lines.extend(['- No unmanaged candidate devices discovered right now', '', 'Next step:', '- Review managed-device settings on this page or continue in Configure for edits.'])
+        persistent_notification.async_create(
+            self.hass,
+            '\n'.join(lines),
+            title=f"{self.coordinator.entry.title}: fleet console",
+            notification_id=_fleet_console_notification_id(self.coordinator.entry.entry_id),
+        )
 
 
 class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEntity):

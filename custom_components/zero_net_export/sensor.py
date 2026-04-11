@@ -5,7 +5,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
-from .const import DOMAIN, INTEGRATION_VERSION
+from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS, DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
 from .release_info import build_release_info
 
@@ -73,6 +73,10 @@ SENSOR_DEFS = {
     "planned_power_delta_w": "Planned power delta",
     "variable_planned_power_delta_w": "Variable planned power delta",
     "fixed_planned_power_delta_w": "Fixed planned power delta",
+    "managed_fleet_overview": "Managed fleet overview",
+    "unmanaged_candidate_count": "Unmanaged candidate devices",
+    "unmanaged_candidate_overview": "Unmanaged candidate overview",
+    "fleet_console_next_step": "Fleet console next step",
 }
 
 SOURCE_LABELS = {
@@ -177,6 +181,30 @@ def _build_source_entities(coordinator):
     return entities
 
 
+def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict[str, str]]:
+    candidates: list[dict[str, str]] = []
+    for state in sorted(hass.states.async_all(), key=lambda item: item.entity_id):
+        entity_id = state.entity_id
+        domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
+        if domain not in DEVICE_CANDIDATE_DOMAINS:
+            continue
+        if entity_id in managed_entity_ids:
+            continue
+        state_value = str(state.state).lower()
+        if state_value in {"unknown", "unavailable"}:
+            continue
+        candidates.append(
+            {
+                "entity_id": entity_id,
+                "name": str(state.attributes.get("friendly_name") or entity_id),
+                "domain": domain,
+                "kind": "fixed" if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else "variable",
+                "state": str(state.state),
+            }
+        )
+    return candidates
+
+
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def native_value(self):
@@ -195,6 +223,33 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return None
+        if self._key == "managed_fleet_overview":
+            device_details = list((state.device_details or {}).values())
+            if not device_details:
+                return "No managed devices yet"
+            enabled = sum(1 for detail in device_details if detail.get("effective_enabled"))
+            usable = sum(1 for detail in device_details if detail.get("usable"))
+            return f"{len(device_details)} managed, {enabled} enabled, {usable} usable"
+        if self._key == "unmanaged_candidate_count":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            return len(_candidate_devices_for_hass(self.hass, managed_ids))
+        if self._key == "unmanaged_candidate_overview":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            if not candidates:
+                return "No unmanaged candidate devices discovered"
+            preview = ", ".join(item['name'] for item in candidates[:4])
+            if len(candidates) > 4:
+                preview += f", +{len(candidates) - 4} more"
+            return preview
+        if self._key == "fleet_console_next_step":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            if not state.device_details and candidates:
+                return "Open Configure -> Managed devices and tag the first candidate into the fleet"
+            if candidates:
+                return "Review unmanaged candidates, then promote the next controllable device in Configure"
+            return "Review managed-device details on this page, then tune policy or source mapping as needed"
         return getattr(state, self._key)
 
     @property
@@ -266,6 +321,18 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **build_release_info(INTEGRATION_VERSION, include_changelog=False),
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
+            }
+        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "fleet_console_next_step"}:
+            state = self._state
+            if state is None:
+                return None
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            return {
+                "configure_path": "Settings -> Devices & services -> Integrations -> Zero Net Export -> Configure -> Managed devices",
+                "managed_devices": list((state.device_details or {}).values()),
+                "candidate_devices": candidates[:12],
+                "candidate_count": len(candidates),
             }
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:
             return self._validation_details
