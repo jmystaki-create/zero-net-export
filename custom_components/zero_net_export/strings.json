@@ -188,7 +188,7 @@
       },
       "advanced": {
         "title": "Advanced JSON editor and recovery",
-        "description": "Use the raw JSON editor only for advanced recovery or bulk inventory surgery, not for normal device onboarding.",
+        "description": "Use the raw JSON editor only for advanced recovery or bulk managed-device repair, not for normal device onboarding.",
         "data": {}
       }
     },

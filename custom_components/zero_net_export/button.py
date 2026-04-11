@@ -125,7 +125,12 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             lines.extend(f'- {name} ({entity_id}, {domain}, state {value})' for name, entity_id, domain, value in candidates[:12])
             lines.extend(['', 'Next step:', '- Open Configure -> Managed devices and tag the next candidate into the managed fleet.'])
         else:
-            lines.extend(['- No unmanaged candidate devices discovered right now', '', 'Next step:', '- Review managed-device settings on this page or continue in Configure for edits.'])
+            lines.extend([
+                '- No unmanaged candidate devices discovered right now',
+                '',
+                'Next step:',
+                '- Open Configure -> Policy and controller settings to tune controller behaviour, or Configure -> Sources and source mapping if runtime health still needs work.',
+            ])
         persistent_notification.async_create(
             self.hass,
             '\n'.join(lines),

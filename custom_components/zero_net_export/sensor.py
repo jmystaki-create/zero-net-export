@@ -249,7 +249,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return "Open Configure -> Managed devices and tag the first candidate into the fleet"
             if candidates:
                 return "Review unmanaged candidates, then promote the next controllable device in Configure"
-            return "Review managed-device details on this page, then tune policy or source mapping as needed"
+            return "Open Configure -> Policy and controller settings to tune behaviour, or Configure -> Sources and source mapping if runtime health still needs work"
         return getattr(state, self._key)
 
     @property
