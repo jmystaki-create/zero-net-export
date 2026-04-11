@@ -31,7 +31,7 @@
     "step": {
       "init": {
         "title": "Zero Net Export command center",
-        "description": "Use this command center to map sources, tune policy, manage devices, and access advanced recovery.",
+        "description": "Use this command center to map sources, tune policy, manage devices, and access advanced recovery.\n\nCurrent status:\n- Sources: {source_status}\n- Managed devices: {device_status}\n- Policy: {policy_status}\n\nRecommended next section: {recommended_section}.",
         "menu_options": {
           "native_setup": "Sources and source mapping",
           "policy": "Policy and controller settings",

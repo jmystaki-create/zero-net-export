@@ -416,11 +416,42 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return defaults
 
     async def async_step_init(self, user_input=None):
+        effective_config = dict(self._config_entry.data)
+        effective_config.update(self._config_entry.options)
+        devices, device_issues = self._load_devices()
+        grid_mode = _grid_mode_default(self._config_entry)
+        missing_sources = _grid_mode_missing_sources(effective_config, grid_mode)
+
+        if missing_sources:
+            source_status = "Missing required sources: " + ", ".join(missing_sources)
+            recommended_section = "Sources and source mapping"
+        else:
+            source_status = "Required source mapping complete"
+            recommended_section = "Managed devices" if not devices else "Policy and controller settings"
+
+        if device_issues:
+            device_status = f"{len(devices)} configured, with {len(device_issues)} issue(s) to repair"
+            recommended_section = "Managed devices"
+        elif devices:
+            device_status = f"{len(devices)} configured"
+        else:
+            device_status = "No managed devices configured yet"
+            if not missing_sources:
+                recommended_section = "Managed devices"
+
         return self.async_show_menu(
             step_id="init",
             menu_options=["native_setup", "policy", "devices", "advanced"],
             description_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
+                "source_status": source_status,
+                "device_status": device_status,
+                "policy_status": (
+                    f"Target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
+                    f"deadband {int(_entry_default_number(self._config_entry, CONF_DEADBAND_W, DEFAULT_DEADBAND_W))} W, "
+                    f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%"
+                ),
+                "recommended_section": recommended_section,
             },
         )
 

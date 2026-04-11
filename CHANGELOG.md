@@ -10,6 +10,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Expanded the optional Lovelace debug dashboard scaffold inside Home Assistant with controller intent, battery/grid/solar telemetry, fleet planning, guard/support actions, and recent control activity, while keeping it outside the supported operator path.
 
 ### Fixed
+- Made the native Zero Net Export command center self-orienting by showing current source status, managed-device status, policy summary, and the recommended next section directly on the Configure landing screen instead of making operators infer where to go first.
 - Added a native manual fallback field for the combined / net grid energy entity in Configure, so operators can still finish source mapping by pasting the same entity ID when Home Assistant's energy picker trips the known `valid entity ID or valid UUID` validation bug.
 - Fixed the new source-remediation guidance pass so native support/checklist code safely reads `source_diagnostics` from validation details before building unavailable/stale role lists, avoiding a runtime `NameError` in the operator-readiness path while preserving the clearer Configure -> Sources remediation messaging.
 - Made stale-source remediation more explicit in native support surfaces by naming the affected mapped source roles and backing entity ids in the stale summary, then reusing that exact summary in the checklist and next-step guidance so live HA installs point operators at the specific stale sources to fix.
