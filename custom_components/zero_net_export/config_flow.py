@@ -264,7 +264,43 @@ def _grid_mode_missing_sources(config: dict[str, Any], grid_mode: str) -> list[s
                 CONF_GRID_EXPORT_ENERGY_ENTITY,
             ]
         )
-    return [SOURCE_ROLE_LABELS.get(key, key) for key in required_keys if not config.get(key)]
+    return [key for key in required_keys if not config.get(key)]
+
+
+def _summarize_issue_messages(
+    issues: list[Any],
+    *,
+    severities: set[str] | None = None,
+    limit: int = 3,
+) -> str:
+    allowed = {severity.lower() for severity in severities} if severities else None
+    messages: list[str] = []
+    for issue in issues:
+        severity = str(getattr(issue, "severity", "") or "").lower()
+        if allowed is not None and severity not in allowed:
+            continue
+        message = str(getattr(issue, "message", "") or "").strip()
+        if message and message not in messages:
+            messages.append(message)
+        if len(messages) >= limit:
+            break
+    return "; ".join(messages) if messages else "None"
+
+
+def _issue_role_keys(issues: list[Any], *, severities: set[str] | None = None) -> list[str]:
+    allowed = {severity.lower() for severity in severities} if severities else None
+    keys: list[str] = []
+    for issue in issues:
+        severity = str(getattr(issue, "severity", "") or "").lower()
+        if allowed is not None and severity not in allowed:
+            continue
+        code = str(getattr(issue, "code", "") or "")
+        if "_" not in code:
+            continue
+        key = code.rsplit("_", 1)[0]
+        if key in SOURCE_ROLE_LABELS and key not in keys:
+            keys.append(key)
+    return keys
 
 
 class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -780,6 +816,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     async def async_step_native_setup_sources(self, user_input=None):
         errors: dict[str, str] = {}
         grid_mode = self._pending_grid_sensor_mode or _grid_mode_default(self._config_entry)
+        source_placeholders: dict[str, str] | None = None
 
         if user_input is not None:
             merged_data = dict(self._config_entry.data)
@@ -821,9 +858,27 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 merged_data,
                 _source_specs_from_config(merged_data),
             )
-            blocking_issues = [issue.message for issue in issues if issue.severity == "error"]
+            blocking_issues = [issue for issue in issues if issue.severity == "error"]
             if blocking_issues:
                 errors["base"] = "source_entities_invalid"
+                issue_role_keys = _issue_role_keys(blocking_issues, severities={"error"})
+                missing_source_keys = _grid_mode_missing_sources(merged_data, grid_mode)
+                source_placeholders = {
+                    "missing_sources": self._format_source_role_names(missing_source_keys),
+                    "source_health": (
+                        "Source mapping still has blocking validation errors: "
+                        + _summarize_issue_messages(blocking_issues, severities={"error"}, limit=3)
+                    ),
+                    "source_next_step": (
+                        f"Repair the highlighted source roles here: {self._format_source_role_names(issue_role_keys)}. "
+                        "If a valid picker choice still fails Home Assistant validation, clear that selector and paste the same entity ID into the matching fallback field."
+                        if issue_role_keys
+                        else "Repair the highlighted source roles here, then save and reload the integration."
+                    ),
+                    "unavailable_sources": "None",
+                    "stale_sources": "None",
+                    "blocking_validation_details": _summarize_issue_messages(blocking_issues, severities={"error"}, limit=4),
+                }
             else:
                 self.hass.config_entries.async_update_entry(
                     self._config_entry,
@@ -950,9 +1005,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         schema = vol.Schema(fields)
 
-        effective_config = dict(self._config_entry.data)
-        effective_config.update(self._config_entry.options)
-        source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
+        if source_placeholders is None:
+            effective_config = dict(self._config_entry.data)
+            effective_config.update(self._config_entry.options)
+            source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
         fallback_guidance = (
             "If Home Assistant rejects a valid combined grid energy or battery SOC picker choice, clear that selector and paste the same entity ID into the matching fallback field below instead."
         )
