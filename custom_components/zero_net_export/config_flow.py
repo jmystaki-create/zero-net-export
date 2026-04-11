@@ -827,7 +827,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 )
             ] = power_selector
             fields[
-                vol.Required(
+                vol.Optional(
                     "grid_energy_entity",
                     default=_selector_entity_default(grid_import_energy_raw, allow_derived=True),
                 )
@@ -916,7 +916,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         effective_config.update(self._config_entry.options)
         source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
         fallback_guidance = (
-            "If Home Assistant rejects a valid combined grid energy or battery SOC picker choice, leave the selector as-is and paste the same entity ID into the matching fallback field below."
+            "If Home Assistant rejects a valid combined grid energy or battery SOC picker choice, clear that selector and paste the same entity ID into the matching fallback field below instead."
         )
         return self.async_show_form(
             step_id="native_setup_sources",
