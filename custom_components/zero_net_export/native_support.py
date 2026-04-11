@@ -282,6 +282,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         SOURCE_ROLE_LABELS.get(key, key)
         for key in source_attention["stale_source_keys"]
     ]
+    source_attention_roles = build_source_attention_role_summary(state, source_mapping, limit=4)
 
     if missing_required_sources:
         phase = "source_setup"
@@ -292,14 +293,14 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     elif blocking_validation_issues or state_stale_data:
         phase = "source_remediation"
         if unavailable_source_roles:
-            listed = ", ".join(unavailable_source_roles[:6])
+            listed = source_attention_roles if source_attention_roles != "None" else ", ".join(unavailable_source_roles[:6])
             next_step = (
-                f"Open Configure -> Sources and source mapping, then repair the unavailable mapped source roles: {listed}."
+                f"Open Configure -> Sources and source mapping, then repair these unavailable mapped sources: {listed}."
             )
         elif state_stale_data and stale_source_roles:
-            listed = ", ".join(stale_source_roles[:6])
+            listed = source_attention_roles if source_attention_roles != "None" else ", ".join(stale_source_roles[:6])
             next_step = (
-                f"Open Configure -> Sources and source mapping or the diagnostics snapshot, then fix the stale mapped source roles: {listed}."
+                f"Open Configure -> Sources and source mapping or the diagnostics snapshot, then fix these stale mapped sources: {listed}."
             )
         elif state_stale_data and stale_summary:
             next_step = f"Open Configure or the diagnostics snapshot and fix the stale mapped sources. {stale_summary}."
