@@ -290,6 +290,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._pending_device_kind: str | None = None
         self._pending_device_key: str | None = None
         self._pending_device_template_key: str | None = None
+        self._pending_candidate_entity_id: str | None = None
 
     @staticmethod
     def _device_status_label(device: dict[str, Any]) -> str:
@@ -347,6 +348,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 }
             )
         return candidates
+
+    def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:
+        candidates = self._device_candidates()
+        if kind:
+            candidates = [item for item in candidates if item["kind"] == kind]
+        return [
+            selector.SelectOptionDict(value=item["entity_id"], label=item["label"])
+            for item in candidates[:100]
+        ]
 
     def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
         raw_inventory = _entry_default_text(
@@ -828,12 +838,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 self._pending_device_kind = DEVICE_KIND_FIXED
                 self._pending_device_key = None
                 self._pending_device_template_key = None
-                return await self.async_step_device_template()
+                self._pending_candidate_entity_id = None
+                return await self.async_step_device_pick_candidate()
             if choice == "add_variable":
                 self._pending_device_kind = DEVICE_KIND_VARIABLE
                 self._pending_device_key = None
                 self._pending_device_template_key = None
-                return await self.async_step_device_template()
+                self._pending_candidate_entity_id = None
+                return await self.async_step_device_pick_candidate()
             if choice == "bulk_enable" and devices:
                 return await self.async_step_device_bulk_enable()
             if choice == "edit" and devices:
@@ -873,6 +885,34 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "candidate_count": str(len(candidates)),
                 "candidate_summary": candidate_summary,
                 "device_issues": "\n".join(f"- {issue}" for issue in issues[:6]) if issues else "None",
+            },
+        )
+
+    async def async_step_device_pick_candidate(self, user_input=None):
+        kind = self._pending_device_kind or DEVICE_KIND_FIXED
+        options = self._candidate_options(kind=kind)
+        if user_input is not None:
+            selected = str(user_input.get("candidate_entity_id") or "")
+            self._pending_candidate_entity_id = selected or None
+            return await self.async_step_device_template()
+
+        if not options:
+            self._pending_candidate_entity_id = None
+            return await self.async_step_device_template()
+
+        return self.async_show_form(
+            step_id="device_pick_candidate",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("candidate_entity_id", default=self._pending_candidate_entity_id or options[0]["value"]): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=options, mode=selector.SelectSelectorMode.DROPDOWN)
+                    )
+                }
+            ),
+            errors={},
+            description_placeholders={
+                "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "candidate_count": str(len(options)),
             },
         )
 
@@ -942,11 +982,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             template_defaults=selected_template.defaults if selected_template and not editing_key else None,
         )
         if not editing_key:
-            selected_candidate = next((item for item in candidates if item["kind"] == kind), None)
+            selected_candidate = None
+            if self._pending_candidate_entity_id:
+                selected_candidate = next((item for item in candidates if item["entity_id"] == self._pending_candidate_entity_id), None)
+            if selected_candidate is None:
+                selected_candidate = next((item for item in candidates if item["kind"] == kind), None)
             if selected_candidate is not None:
                 defaults["entity_id"] = selected_candidate["entity_id"]
-                if not defaults.get("name"):
-                    defaults["name"] = selected_candidate["name"]
+                defaults["name"] = selected_candidate["name"]
         entity_domain = list(DEVICE_CANDIDATE_FIXED_DOMAINS) if kind == DEVICE_KIND_FIXED else list(DEVICE_CANDIDATE_VARIABLE_DOMAINS)
         schema_dict: dict[Any, Any] = {
             vol.Required("name", default=defaults["name"]): selector.TextSelector(
