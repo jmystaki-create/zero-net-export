@@ -44,16 +44,16 @@
 - mode-specific control semantics ✅ Zero Export / Soft Zero Export / Self-Consumption Max / Import Min now alter effective target and absorption policy instead of sharing one generic planner path
 - initial battery reserve policy ✅ a configurable battery reserve SOC threshold now blocks discretionary surplus-absorption actions whenever battery SOC is below reserve, while still allowing import-pressure shedding
 - max-runtime safety preemption ✅ optional per-device `max_active_seconds` limits now let the planner pre-empt normal balancing to wind back overrunning variable devices or turn off overrunning fixed loads, with explainable runtime-cap policy metadata exposed through device state
-- next: validate the new mode semantics, runtime-cap safety preemption, and battery-reserve gating against a real Home Assistant install, then tighten the optional dashboard debug visibility around the operators' most useful diagnostics
+- next: validate the new mode semantics, runtime-cap safety preemption, and battery-reserve gating against a real Home Assistant install, then keep strengthening the native diagnostics/support path around the operators' most useful troubleshooting signals
 
-## Phase 5 — UX entities and dashboard
+## Phase 5 — UX entities and optional dashboard scaffolding
 - controller entities
 - per-device entities ✅ initial status / usability / power entities from configured inventory
 - per-device operator controls ✅ runtime-persisted device enable switches and priority numbers now let operators tune planner participation from Home Assistant
 - basic Lovelace dashboard example ✅ first optional debug dashboard scaffold added under `examples/lovelace/zero_net_export_dashboard.yaml` with setup notes in `docs/DASHBOARD_SETUP.md`
 - controller runtime overrides ✅ dashboard-facing enable/mode/target-export/deadband controls now persist through the integration runtime store instead of relying on in-memory state only
 - dashboard reset controls ✅ controller and per-device override-reset buttons now provide an explicit path back to config defaults, and the main controller controls expose configured-vs-effective attributes for clearer operator UX
-- next: tighten the dashboard against real installed entity ids and validate the override UX on a real Home Assistant install
+- next: validate the override UX and entity discoverability on a real Home Assistant install, while keeping the dashboard scaffold clearly optional and outside the supported operator path
 
 ## Phase 6 — Reporting and hardening
 - packaging metadata ✅ manifest documentation/issue links now point at the real repository and `hacs.json` has been added so the project is easier to install/test as a real custom integration
@@ -84,7 +84,7 @@
 ## Phase 8 — Future enhancements
 - keep tightening native fleet management next, especially around validating the new unmanaged-candidate promotion flow in larger mixed-device installs and removing any remaining cases that still push operators back into raw JSON
 - converge setup, diagnostics, support, and policy management into fewer clearer native operator surfaces as real-user feedback shows which notifications/entities remain redundant
-- ship a stronger expert/operator Lovelace console as an optional native HA surface once Configure and the main operator paths are clearer
+- only revisit optional Lovelace/dashboard ergonomics later if real installs still expose a specific debug-visibility gap after Configure and the main native operator paths are clear
 - forecast-aware optimization
 - tariff-aware strategy
 - direct inverter/export-limiter adapters

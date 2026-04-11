@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Aligned the implementation trail with the supervisor's native-HA-only release stance so optional Lovelace/dashboard work is no longer presented as a near-term priority ahead of Configure, native diagnostics, and real-install validation.
 - Aligned the native support-path wording so the Configure command center and README both point operators to the full **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Health, support, and troubleshooting** path before deeper device-page and Repairs triage.
 
 ## [0.1.79] - 2026-04-11
