@@ -56,6 +56,13 @@ def async_clear_repairs_issues(hass: HomeAssistant, entry: ConfigEntry) -> None:
         _delete_issue(hass, _entry_issue_id(entry, issue_key))
 
 
+def _format_named_source_roles(source_keys: list[str]) -> str:
+    named_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_keys if key]
+    if not named_roles:
+        return ""
+    return ", ".join(named_roles[:6])
+
+
 def async_sync_repairs_issues(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -65,7 +72,8 @@ def async_sync_repairs_issues(
     """Publish actionable setup/runtime issues into Home Assistant Repairs."""
     merged = dict(entry.data)
     merged.update(entry.options)
-    missing_sources = [SOURCE_ROLE_LABELS.get(key, key) for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
+    missing_source_keys = [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
+    missing_sources = [SOURCE_ROLE_LABELS.get(key, key) for key in missing_source_keys]
 
     raw_inventory = entry.options.get(
         CONF_DEVICE_INVENTORY_JSON,
@@ -120,14 +128,33 @@ def async_sync_repairs_issues(
 
     data = runtime_state
     runtime_reasons: list[str] = []
+    validation_details = getattr(data, "validation_details", {}) or {}
+    source_diagnostics = validation_details.get("source_diagnostics", {}) or {}
+    unavailable_source_keys = [key for key, detail in source_diagnostics.items() if detail.get("status") == "unavailable"]
+    unavailable_sources = _format_named_source_roles(unavailable_source_keys)
+    stale_source_keys = [key for key, detail in source_diagnostics.items() if detail.get("stale")]
+    stale_sources = _format_named_source_roles(stale_source_keys)
+
     if data.stale_data:
+        if stale_sources:
+            runtime_reasons.append(f"Stale required mapped sources: {stale_sources}.")
         runtime_reasons.append(data.stale_source_summary or "One or more required source entities are stale.")
     if data.safe_mode:
+        if unavailable_sources:
+            runtime_reasons.append(f"Unavailable mapped sources are holding safe mode: {unavailable_sources}.")
         runtime_reasons.append(data.reason or "Source validation has put the controller into safe mode.")
     if data.command_failure:
         runtime_reasons.append(data.last_failed_action_message or data.recent_failure_summary or "A recent device command failed.")
     if data.device_count > 0 and data.usable_device_count == 0 and not device_issues and not data.stale_data:
         runtime_reasons.append(data.device_status_summary or "Configured devices exist, but none are currently usable.")
+
+    runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
+    if missing_source_keys:
+        runtime_next_step = "Open Configure -> Sources and source mapping, finish the missing required source roles, then save and reload the integration."
+    elif unavailable_sources or stale_sources or data.stale_data:
+        runtime_next_step = (
+            "Open Configure -> Sources and source mapping, then repair the unavailable or stale mapped source roles before retrying control."
+        )
 
     if runtime_reasons:
         _create_issue(
@@ -139,7 +166,7 @@ def async_sync_repairs_issues(
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "health_summary": str(data.health_summary or summary),
                 "reason_summary": " ".join(runtime_reasons[:3]),
-                "next_step": str(readiness.get("next_step") or data.recommendation or next_step),
+                "next_step": runtime_next_step,
             },
         )
     else:
