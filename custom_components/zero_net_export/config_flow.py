@@ -913,6 +913,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     ),
                     "unavailable_sources": "None",
                     "stale_sources": "None",
+                    "source_attention_roles": self._format_source_role_names(issue_role_keys),
                     "blocking_validation_details": _summarize_issue_messages(blocking_issues, severities={"error"}, limit=4),
                 }
             else:
