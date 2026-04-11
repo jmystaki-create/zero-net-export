@@ -767,6 +767,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%"
             ),
             "recommended_section": recommended_section,
+            "recommended_path": f"{PRIMARY_CONFIGURE_PATH} -> {recommended_section}",
+            "sources_path": f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping",
+            "devices_path": f"{PRIMARY_CONFIGURE_PATH} -> Managed devices",
+            "policy_path": f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings",
             "next_action_summary": next_action_summary,
         }
         placeholders.update(self._support_placeholders())
@@ -1065,6 +1069,21 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         candidate_summary = "\n".join(
             f"- {item['name']} ({item['entity_id']}, {item['kind']})" for item in candidates[:12]
         ) if candidates else "- No unmanaged candidate devices discovered right now"
+        top_candidate = candidates[0] if candidates else None
+        if issues:
+            device_next_step = "Repair the managed-device issues first, then return here to review enablement or add another load."
+        elif not devices and top_candidate:
+            device_next_step = (
+                f"Start with {top_candidate['name']} ({top_candidate['entity_id']}) by choosing the matching add action below, then review the candidate and save it into the fleet."
+            )
+        elif not devices:
+            device_next_step = "Choose Add fixed load device or Add variable load device to tag the first controllable load into the fleet."
+        elif top_candidate:
+            device_next_step = (
+                f"Review the current fleet, then consider promoting the next unmanaged candidate: {top_candidate['name']} ({top_candidate['entity_id']})."
+            )
+        else:
+            device_next_step = "Use Review fleet to stage enablement, or edit an existing device if the current fleet still needs tuning."
         return self.async_show_form(
             step_id="devices",
             data_schema=vol.Schema(
@@ -1081,6 +1100,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": summary,
                 "candidate_count": str(len(candidates)),
                 "candidate_summary": candidate_summary,
+                "top_candidate": (
+                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else "None discovered right now"
+                ),
+                "device_next_step": device_next_step,
                 "device_issues": "\n".join(f"- {issue}" for issue in issues[:6]) if issues else "None",
             },
         )
@@ -1453,14 +1478,26 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         runtime_source_attention = source_attention["has_runtime_source_attention"]
         if missing_sources:
             policy_readiness = "Finish source mapping first: " + self._format_source_role_names(missing_sources)
+            policy_next_step = "Open Configure -> Sources and source mapping before changing controller behaviour."
         elif runtime_source_attention:
             policy_readiness = source_placeholders["source_health"] + ". " + source_placeholders["source_next_step"]
+            policy_next_step = source_placeholders["source_next_step"]
         elif device_issues:
             policy_readiness = f"Managed-device issues still need repair before policy tuning can be trusted ({len(device_issues)} issue(s))."
+            policy_next_step = "Open Configure -> Managed devices and repair the fleet before trusting policy changes."
         elif not devices:
             policy_readiness = "No managed devices are configured yet. You can tune policy now, but control will not act until devices are added."
+            policy_next_step = "After tuning defaults here, open Configure -> Managed devices and add the first controllable load."
         else:
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
+            policy_next_step = "Adjust behaviour here, then use the integration device page, entities, and support surfaces to verify runtime health."
+
+        policy_summary = (
+            f"Target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
+            f"deadband {int(_entry_default_number(self._config_entry, CONF_DEADBAND_W, DEFAULT_DEADBAND_W))} W, "
+            f"battery reserve {int(_entry_default_number(self._config_entry, CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC))}%, "
+            f"refresh {int(_entry_default_number(self._config_entry, CONF_REFRESH_SECONDS, DEFAULT_REFRESH_SECONDS))} s"
+        )
 
         schema = vol.Schema(
             {
@@ -1513,6 +1550,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "policy_readiness": policy_readiness,
+                "policy_summary": policy_summary,
+                "policy_next_step": policy_next_step,
             },
         )
 
