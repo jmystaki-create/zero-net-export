@@ -36,6 +36,7 @@ from .validation import SourceSpec, format_source_binding_label
 PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure"
 SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
+ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
 SUPPORT_CONFIGURE_PATH = (
     f"{PRIMARY_CONFIGURE_PATH} -> Health, support, and troubleshooting; deeper health review: "

@@ -54,6 +54,7 @@ from .device_model import (
     parse_device_configs,
 )
 from .native_support import (
+    ADVANCED_DEVICES_CONFIGURE_PATH,
     DEVICES_CONFIGURE_PATH,
     POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
@@ -865,7 +866,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             data_schema=schema,
             errors={},
             description_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": SOURCES_CONFIGURE_PATH,
                 **source_placeholders,
             },
         )
@@ -1095,7 +1096,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders={
                 "grid_mode": "Combined / net sensors" if grid_mode == GRID_SENSOR_MODE_COMBINED else "Separate import and export sensors",
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": SOURCES_CONFIGURE_PATH,
                 "fallback_guidance": fallback_guidance,
                 **source_placeholders,
             },
@@ -1171,7 +1172,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ),
             errors={"base": "device_inventory_invalid"} if issues else {},
             description_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
                 "device_summary": summary,
                 "candidate_count": str(len(candidates)),
@@ -1383,7 +1384,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders={
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_mode": "Edit" if editing_key else "Add",
                 "device_template": selected_template.label if selected_template else "Custom",
                 "template_description": selected_template.description if selected_template else "Use manual values for this device.",
@@ -1461,7 +1462,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ),
             errors={},
             description_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
                 "device_summary": "\n".join(self._fleet_summary_lines(devices)),
                 "device_next_step": self._device_next_step(devices, issues, candidates),
@@ -1491,7 +1492,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ),
             errors={},
             description_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
                 "device_summary": "\n".join(self._fleet_summary_lines(devices)),
                 "device_next_step": self._device_next_step(devices, issues, candidates),
@@ -1502,7 +1503,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         errors = {}
         description_placeholders = {
             "device_blueprint": default_device_blueprint(),
-            "configure_path": PRIMARY_CONFIGURE_PATH,
+            "configure_path": ADVANCED_DEVICES_CONFIGURE_PATH,
             "device_issues": "",
         }
 
@@ -1638,7 +1639,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             data_schema=schema,
             errors=errors,
             description_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": POLICY_CONFIGURE_PATH,
                 "sources_path": SOURCES_CONFIGURE_PATH,
                 "devices_path": DEVICES_CONFIGURE_PATH,
                 "policy_path": POLICY_CONFIGURE_PATH,
@@ -1658,7 +1659,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema({}),
             errors={},
             description_placeholders={
-                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "configure_path": SUPPORT_CONFIGURE_PATH,
                 **self._support_placeholders(),
             },
         )
