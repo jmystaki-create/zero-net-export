@@ -121,9 +121,9 @@
       },
       "device_pick_candidate_full": {
         "title": "Full unmanaged candidate list",
-        "description": "Choose from the full discovered unmanaged {device_kind} list when the quick shortlist does not contain the right entity.\n\nDiscovered candidates: {candidate_count}",
+        "description": "Choose from the full discovered unmanaged {device_kind} list when the quick shortlist does not contain the right entity. If the entity still is not listed, choose the manual entity selection option from this dropdown and continue with the normal native form.\n\nDiscovered candidates: {candidate_count}",
         "data": {
-          "candidate_entity_id": "Unmanaged candidate entity or manual path"
+          "candidate_entity_id": "Unmanaged candidate selection"
         }
       },
       "device_vetting": {

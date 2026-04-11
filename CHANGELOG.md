@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Corrected the new full managed-device candidate picker wording so it no longer implies the dropdown itself accepts a typed manual path, and instead tells operators to choose the explicit manual-selection option when the right entity is not listed.
 - Replaced the remaining vague `integration device page` runtime wording with the full native Home Assistant device path for Mode, diagnostics, and support actions, so command-center guidance no longer leaks a fuzzy non-path while the supervisor is pushing exact native operator discoverability.
 - Replaced the last shorthand `Open Configure` operator next-step prompts in Repairs, support readiness, and fleet guidance with exact native Home Assistant paths, so the shipped runtime surfaces stay aligned with the command-center discoverability push.
 - Fixed the native source-mapping validation redisplay so the Configure screen now always supplies the **Affected mapped sources** summary when blocking source errors send operators back through the form, instead of dropping that command-center guidance right at the point of failure.
