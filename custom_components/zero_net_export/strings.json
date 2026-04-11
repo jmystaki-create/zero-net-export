@@ -107,7 +107,7 @@
       },
       "device_edit_pick": {
         "title": "Edit managed device",
-        "description": "Pick an existing managed device to edit in place from native Home Assistant selectors.",
+        "description": "Choose which managed device to edit from the native fleet list. This is the in-place native edit path for correcting names, priorities, power limits, cooldowns, or enablement without dropping into JSON.\n\nPrimary path: {configure_path}.\nManaged devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action: {device_next_step}",
         "data": {
           "device_key": "Configured device"
         }
@@ -151,7 +151,7 @@
       },
       "device_remove": {
         "title": "Remove managed device",
-        "description": "Remove a configured managed device from the native managed-device configuration.",
+        "description": "Choose which managed device should be removed from the native fleet. Use this only when a controllable load should leave Zero Net Export entirely, not just be disabled temporarily.\n\nPrimary path: {configure_path}.\nManaged devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action after removal: {device_next_step}",
         "data": {
           "device_key": "Configured device"
         }

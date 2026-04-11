@@ -1065,6 +1065,22 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             },
         )
 
+    def _device_next_step(self, devices: list[dict[str, Any]], issues: list[str], candidates: list[dict[str, Any]]) -> str:
+        top_candidate = candidates[0] if candidates else None
+        if issues:
+            return "Repair the managed-device issues first, then return here to review enablement or add another load."
+        if not devices and top_candidate:
+            return (
+                f"Start with {top_candidate['name']} ({top_candidate['entity_id']}) by choosing the matching add action below, then review the candidate and save it into the fleet."
+            )
+        if not devices:
+            return "Choose Add fixed load device or Add variable load device to tag the first controllable load into the fleet."
+        if top_candidate:
+            return (
+                f"Review the current fleet, then consider promoting the next unmanaged candidate: {top_candidate['name']} ({top_candidate['entity_id']})."
+            )
+        return "Use Review fleet to stage enablement, or edit an existing device if the current fleet still needs tuning."
+
     async def async_step_devices(self, user_input=None):
         devices, issues = self._load_devices()
         candidates = self._device_candidates()
@@ -1107,20 +1123,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             f"- {item['name']} ({item['entity_id']}, {item['kind']})" for item in candidates[:12]
         ) if candidates else "- No unmanaged candidate devices discovered right now"
         top_candidate = candidates[0] if candidates else None
-        if issues:
-            device_next_step = "Repair the managed-device issues first, then return here to review enablement or add another load."
-        elif not devices and top_candidate:
-            device_next_step = (
-                f"Start with {top_candidate['name']} ({top_candidate['entity_id']}) by choosing the matching add action below, then review the candidate and save it into the fleet."
-            )
-        elif not devices:
-            device_next_step = "Choose Add fixed load device or Add variable load device to tag the first controllable load into the fleet."
-        elif top_candidate:
-            device_next_step = (
-                f"Review the current fleet, then consider promoting the next unmanaged candidate: {top_candidate['name']} ({top_candidate['entity_id']})."
-            )
-        else:
-            device_next_step = "Use Review fleet to stage enablement, or edit an existing device if the current fleet still needs tuning."
+        device_next_step = self._device_next_step(devices, issues, candidates)
         return self.async_show_form(
             step_id="devices",
             data_schema=vol.Schema(
@@ -1393,7 +1396,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
 
     async def async_step_device_edit_pick(self, user_input=None):
-        devices, _ = self._load_devices()
+        devices, issues = self._load_devices()
+        candidates = self._device_candidates()
         if user_input is not None:
             selected_key = user_input["device_key"]
             selected_device = next((device for device in devices if device.get("key") == selected_key), None)
@@ -1408,7 +1412,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in devices
+            for device in sorted(devices, key=lambda item: str(item.get("name", "")).lower())
         ]
         return self.async_show_form(
             step_id="device_edit_pick",
@@ -1420,10 +1424,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 }
             ),
             errors={},
+            description_placeholders={
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "device_count": str(len(devices)),
+                "device_summary": "\n".join(self._fleet_summary_lines(devices)),
+                "device_next_step": self._device_next_step(devices, issues, candidates),
+            },
         )
 
     async def async_step_device_remove(self, user_input=None):
-        devices, _ = self._load_devices()
+        devices, issues = self._load_devices()
+        candidates = self._device_candidates()
         if user_input is not None:
             remove_name = user_input["device_key"]
             remaining = [device for device in devices if device.get("key") != remove_name]
@@ -1431,7 +1442,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in devices
+            for device in sorted(devices, key=lambda item: str(item.get("name", "")).lower())
         ]
         return self.async_show_form(
             step_id="device_remove",
@@ -1443,6 +1454,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 }
             ),
             errors={},
+            description_placeholders={
+                "configure_path": PRIMARY_CONFIGURE_PATH,
+                "device_count": str(len(devices)),
+                "device_summary": "\n".join(self._fleet_summary_lines(devices)),
+                "device_next_step": self._device_next_step(devices, issues, candidates),
+            },
         )
 
     async def async_step_devices_json(self, user_input=None):
