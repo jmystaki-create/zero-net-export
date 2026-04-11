@@ -15,7 +15,7 @@ If you are progressing the project right now, do this in order:
    - open Configure from the integration card
    - confirm it is obvious where sources live, where policy/settings live, and where managed-device work lives
    - map required sources in native setup, including the correct combined-versus-separate grid sensor layout
-   - add at least one managed device through the native add/edit/remove flow in Configure, then edit it in place once
+   - add at least one managed device through the native add/edit/remove flow in Configure, preferably by promoting a discovered unmanaged candidate when one is offered, then edit it in place once
    - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational
 3. Use at least one real controllable device and verify a real control loop decision/action path.
@@ -59,10 +59,10 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
 - [ ] Command-center landing screen shows current source status, managed-device status, policy summary, and a recommended next section that matches the real entry state
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
-- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; validate that the native manual fallback field shipped in `0.1.78` lets the same entity ID complete setup while broader validation continues
+- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; validate that the native manual fallback field shipped in `0.1.79` lets the same entity ID complete setup while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
-- [ ] Managed-device flow makes it obvious where to review, edit, enable/disable, and remove devices
+- [ ] Managed-device flow makes it obvious where to review, promote unmanaged candidates, edit, enable/disable, and remove devices
 - [ ] Policy/settings flow makes it obvious where to tune mode, target export, deadband, reserve, and related behavior
 - [ ] Policy/settings flow states whether policy tuning is actionable yet, or whether sources/devices need attention first
 - [ ] Advanced JSON editor remains available for recovery or bulk edits
