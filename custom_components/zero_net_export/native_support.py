@@ -86,6 +86,47 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
     }
 
 
+def build_source_attention_role_summary(
+    state: Any,
+    config: dict[str, Any] | None = None,
+    *,
+    limit: int = 6,
+) -> str:
+    """Return concise role -> entity guidance for unavailable or stale mapped sources."""
+    source_attention = build_source_attention_details(state)
+    source_diagnostics = source_attention["source_diagnostics"]
+    configured = config or {}
+
+    ordered_keys: list[str] = []
+    for key in source_attention["unavailable_source_keys"] + source_attention["stale_source_keys"]:
+        if key not in ordered_keys:
+            ordered_keys.append(key)
+
+    details_lines: list[str] = []
+    for key in ordered_keys[:limit]:
+        details = source_diagnostics.get(key, {})
+        configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
+        entity_label = str(details.get("entity_id") or configured_label or "not resolved")
+
+        markers: list[str] = []
+        if details.get("status") == "unavailable":
+            markers.append("unavailable")
+        if details.get("stale"):
+            age_seconds = details.get("age_seconds")
+            if age_seconds is not None:
+                markers.append(f"stale {int(age_seconds)} s")
+            else:
+                markers.append("stale")
+        issue_messages = [str(issue).strip() for issue in (details.get("issues") or []) if str(issue).strip()]
+        if issue_messages:
+            markers.append(issue_messages[0])
+
+        marker_text = "; ".join(markers) if markers else "needs attention"
+        details_lines.append(f"{SOURCE_ROLE_LABELS.get(key, key)} -> {entity_label} ({marker_text})")
+
+    return "; ".join(details_lines) if details_lines else "None"
+
+
 
 def summarize_validation_issue_messages(
     state: Any,

@@ -63,6 +63,7 @@ from .native_support import (
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
+    build_source_attention_role_summary,
     summarize_validation_issue_messages,
 )
 from .validation import (
@@ -702,6 +703,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         missing_source_keys = attention["missing_source_keys"]
         unavailable_source_keys = attention["unavailable_source_keys"]
         stale_source_keys = attention["stale_source_keys"]
+        source_attention_roles = build_source_attention_role_summary(state, effective, limit=4)
 
         missing_sources = self._format_source_role_names(missing_source_keys)
         unavailable_sources = self._format_source_role_names(unavailable_source_keys)
@@ -746,6 +748,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "source_next_step": source_next_step,
             "unavailable_sources": unavailable_sources,
             "stale_sources": stale_sources,
+            "source_attention_roles": source_attention_roles,
             "blocking_validation_details": blocking_validation_details,
         }
 
@@ -756,6 +759,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         source_attention = build_source_attention_details(state)
         unavailable_sources = self._format_source_role_names(source_attention["unavailable_source_keys"])
         stale_sources = self._format_source_role_names(source_attention["stale_source_keys"])
+        merged = dict(self._config_entry.data)
+        merged.update(self._config_entry.options)
         health_summary = "Integration state not loaded yet"
         if state is not None:
             health_summary = state.health_summary or state.diagnostic_summary or health_summary
@@ -767,6 +772,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "health_status": health_summary,
             "support_unavailable_sources": unavailable_sources or "None",
             "support_stale_sources": stale_sources or "None",
+            "support_source_attention_roles": build_source_attention_role_summary(state, merged, limit=4),
             "support_blocking_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
         }
 

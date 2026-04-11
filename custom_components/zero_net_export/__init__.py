@@ -35,6 +35,7 @@ from .const import (
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .native_support import PRIMARY_CONFIGURE_PATH
+from .native_support import build_native_operator_readiness, build_source_attention_role_summary
 from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
 
@@ -48,15 +49,24 @@ def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
     return [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
 
 
-async def _async_update_native_setup_notice(hass: HomeAssistant, entry: ConfigEntry) -> None:
+async def _async_update_native_setup_notice(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    coordinator: ZeroNetExportCoordinator | None = None,
+) -> None:
     missing_sources = _missing_required_source_mappings(entry)
     raw_inventory = entry.options.get(
         CONF_DEVICE_INVENTORY_JSON,
         entry.data.get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
     )
     devices, device_issues = parse_device_configs(raw_inventory)
+    state = coordinator.data if coordinator is not None else None
+    merged = dict(entry.data)
+    merged.update(entry.options)
+    readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+    source_attention_roles = build_source_attention_role_summary(state, merged, limit=4)
 
-    if not missing_sources and devices and not device_issues:
+    if not missing_sources and devices and not device_issues and source_attention_roles == "None":
         persistent_notification.async_dismiss(hass, _setup_notification_id(entry))
         return
 
@@ -72,10 +82,15 @@ async def _async_update_native_setup_notice(hass: HomeAssistant, entry: ConfigEn
         )
     elif not devices:
         bullets.append("No controllable devices have been added yet.")
+    if source_attention_roles != "None":
+        bullets.append("Mapped source blockers right now: " + source_attention_roles)
+
+    next_step = str(readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup.")
 
     message = (
         f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} for Sources, Managed devices, and Policy and controller settings.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
+        + f"\n\nNext step: {next_step}"
         + "\n\nUse the integration device page support actions for a combined support center, setup checklist, and detailed diagnostics snapshot."
     )
     persistent_notification.async_create(
@@ -111,6 +126,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_initialize()
     await coordinator.async_note_current_integration_version(INTEGRATION_VERSION)
     await coordinator.async_config_entry_first_refresh()
+    await _async_update_native_setup_notice(hass, entry, coordinator)
     async_sync_repairs_issues(hass, entry, coordinator)
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
