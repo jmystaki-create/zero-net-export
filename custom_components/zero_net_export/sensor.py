@@ -77,6 +77,8 @@ SENSOR_DEFS = {
     "unmanaged_candidate_count": "Unmanaged candidate devices",
     "unmanaged_candidate_overview": "Unmanaged candidate overview",
     "top_unmanaged_candidate": "Top unmanaged candidate",
+    "top_candidate_fit": "Top candidate fit",
+    "top_candidate_warnings": "Top candidate warnings",
     "fleet_console_next_step": "Fleet console next step",
 }
 
@@ -182,6 +184,32 @@ def _build_source_entities(coordinator):
     return entities
 
 
+def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[str]]:
+    domain = candidate.get("domain") or ""
+    confidence = "medium"
+    summary = "Looks like a plausible candidate, but review before promotion."
+    warnings: list[str] = []
+    if domain == "switch":
+        confidence = "high"
+        summary = "Strong fixed-load candidate when this switch controls a real discretionary appliance or relay."
+    elif domain == "light":
+        confidence = "medium"
+        summary = "Potentially controllable, but many lights are comfort loads rather than discretionary sinks."
+        warnings.append("Confirm this light is appropriate for automated energy control.")
+    elif domain == "input_boolean":
+        confidence = "low"
+        summary = "Likely a helper or intent flag rather than a physical load."
+        warnings.append("Verify this helper actually drives a safe controllable device.")
+    elif domain == "number":
+        confidence = "high"
+        summary = "Strong variable-load candidate if this entity is a writable power/current target."
+    elif domain == "input_number":
+        confidence = "medium"
+        summary = "Possible variable-load candidate, but often just a helper value."
+        warnings.append("Check that changing this helper really affects a physical device.")
+    return {"confidence": confidence, "summary": summary, "warnings": warnings}
+
+
 def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict[str, str]]:
     candidates: list[dict[str, str]] = []
     for state in sorted(hass.states.async_all(), key=lambda item: item.entity_id):
@@ -250,6 +278,21 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return "None"
             top = candidates[0]
             return f"{top['name']} ({top['entity_id']})"
+        if self._key == "top_candidate_fit":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            if not candidates:
+                return "No candidate fit guidance available"
+            fit = _candidate_fit_details(candidates[0])
+            return f"{fit['confidence']}: {fit['summary']}"
+        if self._key == "top_candidate_warnings":
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            if not candidates:
+                return "No warnings"
+            fit = _candidate_fit_details(candidates[0])
+            warnings = fit.get('warnings') or []
+            return "; ".join(warnings) if warnings else "No immediate warnings"
         if self._key == "fleet_console_next_step":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
@@ -330,17 +373,20 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
-        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "fleet_console_next_step"}:
+        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "fleet_console_next_step"}:
             state = self._state
             if state is None:
                 return None
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            top_candidate = candidates[0] if candidates else None
             return {
                 "configure_path": "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed devices",
                 "managed_devices": list((state.device_details or {}).values()),
                 "candidate_devices": candidates[:12],
                 "candidate_count": len(candidates),
+                "top_candidate": top_candidate,
+                "top_candidate_fit": _candidate_fit_details(top_candidate) if top_candidate else None,
             }
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:
             return self._validation_details
