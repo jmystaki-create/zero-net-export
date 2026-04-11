@@ -494,6 +494,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         device: dict[str, Any] | None,
         kind: str,
         template_defaults: dict[str, Any] | None = None,
+        candidate_summary: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         defaults = {
             "name": "",
@@ -512,6 +513,30 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if template_defaults:
             defaults.update(template_defaults)
         if device is None:
+            if candidate_summary:
+                candidate_name = str(candidate_summary.get("name") or "").strip()
+                if candidate_name:
+                    defaults["name"] = candidate_name
+                confidence = str(candidate_summary.get("fit_confidence") or "")
+                domain = str(candidate_summary.get("domain") or "")
+                if kind == DEVICE_KIND_FIXED:
+                    if confidence == "high":
+                        defaults["priority"] = 120 if domain == "switch" else defaults["priority"]
+                        defaults["min_on_seconds"] = max(int(defaults["min_on_seconds"]), 900)
+                        defaults["min_off_seconds"] = max(int(defaults["min_off_seconds"]), 900)
+                    elif confidence == "low":
+                        defaults["priority"] = min(int(defaults["priority"]), 60)
+                else:
+                    if confidence == "high":
+                        defaults["priority"] = 50
+                        defaults["step_w"] = 100
+                        defaults["min_on_seconds"] = max(int(defaults["min_on_seconds"]), 300)
+                    elif confidence == "low":
+                        defaults["priority"] = 70
+                if domain == "light":
+                    defaults["priority"] = min(int(defaults["priority"]), 80)
+                if domain in {"input_boolean", "input_number"}:
+                    defaults["enabled"] = False
             return defaults
         defaults.update(
             {
@@ -530,6 +555,18 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             }
         )
         return defaults
+
+    @staticmethod
+    def _default_guidance_text(kind: str, defaults: dict[str, Any]) -> str:
+        if kind == DEVICE_KIND_FIXED:
+            return (
+                f"Starting defaults: {int(defaults.get('nominal_power_w', 0) or 0)} W nominal, priority {int(defaults.get('priority', 0) or 0)}, "
+                f"min on {int(defaults.get('min_on_seconds', 0) or 0)} s, min off {int(defaults.get('min_off_seconds', 0) or 0)} s."
+            )
+        return (
+            f"Starting defaults: {int(defaults.get('min_power_w', 0) or 0)} to {int(defaults.get('max_power_w', 0) or 0)} W, "
+            f"step {int(defaults.get('step_w', 0) or 0)} W, priority {int(defaults.get('priority', 0) or 0)}."
+        )
 
     def _coordinator(self):
         return self.hass.data.get(DOMAIN, {}).get(self._config_entry.entry_id)
@@ -1116,6 +1153,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             existing_device,
             kind,
             template_defaults=selected_template.defaults if selected_template and not editing_key else None,
+            candidate_summary=self._pending_candidate_summary if not editing_key else None,
         )
         if not editing_key:
             selected_candidate = None
@@ -1180,6 +1218,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_template": selected_template.label if selected_template else "Custom",
                 "template_description": selected_template.description if selected_template else "Use manual values for this device.",
                 "candidate_hint": next((item["label"] for item in candidates if item["entity_id"] == defaults.get("entity_id")), "Pick an unmanaged candidate entity from the selector or choose a manual entity."),
+                "default_guidance": self._default_guidance_text(kind, defaults),
             },
         )
 

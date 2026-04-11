@@ -133,7 +133,7 @@
       },
       "device_add": {
         "title": "{device_mode} managed device",
-        "description": "{device_mode} a {device_kind} through native Home Assistant selectors. This is the main native tagging flow for controllable loads, keeping day-to-day device management out of raw JSON while staying panel-free.\n\nPreset: {device_template}\n{template_description}\n\nSuggested candidate: {candidate_hint}\n\nPrimary path: {configure_path}.",
+        "description": "{device_mode} a {device_kind} through native Home Assistant selectors. This is the main native tagging flow for controllable loads, keeping day-to-day device management out of raw JSON while staying panel-free.\n\nPreset: {device_template}\n{template_description}\n\nSuggested candidate: {candidate_hint}\nSuggested starting values: {default_guidance}\n\nPrimary path: {configure_path}.",
         "data": {
           "name": "Device name",
           "entity_id": "Entity",
