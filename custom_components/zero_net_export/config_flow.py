@@ -70,6 +70,7 @@ from .native_support import (
     build_source_attention_details,
     build_source_attention_role_summary,
     build_source_attention_summary,
+    build_source_mapping_summary,
     summarize_validation_issue_messages,
 )
 from .validation import (
@@ -789,6 +790,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "missing_sources": missing_sources,
             "source_health": source_health,
             "source_next_step": source_next_step,
+            "source_mapping_summary": build_source_mapping_summary(effective),
             "unavailable_sources": unavailable_sources,
             "stale_sources": stale_sources,
             "source_attention_roles": source_attention_roles,
@@ -817,6 +819,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "mode_summary": mode_description,
             "readiness_phase": str(readiness.get("phase") or "unknown"),
             "health_status": health_summary,
+            "support_source_mapping_summary": build_source_mapping_summary(merged),
             "support_unavailable_sources": unavailable_sources or "None",
             "support_stale_sources": stale_sources or "None",
             "support_source_attention_roles": build_source_attention_role_summary(state, merged, limit=4),
@@ -953,6 +956,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                         if issue_role_keys
                         else "Repair the highlighted source roles here, then save and reload the integration."
                     ),
+                    "source_mapping_summary": build_source_mapping_summary(merged_data),
                     "unavailable_sources": "None",
                     "stale_sources": "None",
                     "source_attention_roles": self._format_source_role_names(issue_role_keys),

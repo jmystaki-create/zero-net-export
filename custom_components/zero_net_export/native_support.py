@@ -193,6 +193,28 @@ def summarize_validation_issue_messages(
     return "; ".join(messages) if messages else "None"
 
 
+def build_source_mapping_summary(
+    config: dict[str, Any] | None,
+    *,
+    include_optional: bool = True,
+) -> str:
+    """Return a readable role -> entity summary for the configured source mapping."""
+    merged = config or {}
+    lines: list[str] = []
+    for spec in _source_specs_from_config(merged):
+        if not include_optional and not spec.required:
+            continue
+        raw_value = merged.get(spec.key)
+        if raw_value:
+            mapping = format_source_binding_label(raw_value)
+        elif spec.required:
+            mapping = "Not mapped yet"
+        else:
+            continue
+        lines.append(f"- {SOURCE_ROLE_LABELS.get(spec.key, spec.key)}: {mapping}")
+    return "\n".join(lines) if lines else "- None"
+
+
 def _source_specs_from_config(config: dict[str, Any]) -> list[SourceSpec]:
     return [
         SourceSpec(CONF_SOLAR_POWER_ENTITY, config.get(CONF_SOLAR_POWER_ENTITY), "power"),

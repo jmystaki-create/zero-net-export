@@ -52,7 +52,7 @@
       },
       "native_setup_sources": {
         "title": "Source mapping",
-        "description": "Map the required entities and set the refresh interval. Grid mode: {grid_mode}.\n\nCurrently missing required sources: {missing_sources}\nCurrent source health: {source_health}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nAffected mapped sources: {source_attention_roles}\nBlocking validation details: {blocking_validation_details}\nRecommended next step: {source_next_step}\n\nPicker fallback: {fallback_guidance}\n\nPrimary path: {configure_path}.",
+        "description": "Map the required entities and set the refresh interval. Grid mode: {grid_mode}.\n\nCurrently missing required sources: {missing_sources}\nCurrent source health: {source_health}\nCurrent mapped roles:\n{source_mapping_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nAffected mapped sources: {source_attention_roles}\nBlocking validation details: {blocking_validation_details}\nRecommended next step: {source_next_step}\n\nPicker fallback: {fallback_guidance}\n\nPrimary path: {configure_path}.",
         "data": {
           "solar_power_entity": "Solar power entity",
           "solar_energy_entity": "Solar energy entity",
@@ -184,7 +184,7 @@
       },
       "support": {
         "title": "Health, support, and troubleshooting",
-        "description": "Use this native section when you need to review runtime health, confirm the current blocker, or follow the next troubleshooting path, not make more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nLive control mode: {current_mode}\nMode summary: {mode_summary}\nMapped-source blocker summary: {support_attention_summary}\nUnavailable mapped roles: {support_unavailable_sources}\nStale mapped roles: {support_stale_sources}\nAffected mapped sources: {support_source_attention_roles}\nBlocking validation details: {support_blocking_details}\nRecommended next step: {support_next_step}\n\nNative health and support path: {support_path}.\nLive mode control path: {mode_path}.\nPrimary setup path: {configure_path}."
+        "description": "Use this native section when you need to review runtime health, confirm the current blocker, or follow the next troubleshooting path, not make more setup changes.\n\nReadiness phase: {readiness_phase}\nHealth summary: {health_status}\nLive control mode: {current_mode}\nMode summary: {mode_summary}\nCurrent mapped roles:\n{support_source_mapping_summary}\nMapped-source blocker summary: {support_attention_summary}\nUnavailable mapped roles: {support_unavailable_sources}\nStale mapped roles: {support_stale_sources}\nAffected mapped sources: {support_source_attention_roles}\nBlocking validation details: {support_blocking_details}\nRecommended next step: {support_next_step}\n\nNative health and support path: {support_path}.\nLive mode control path: {mode_path}.\nPrimary setup path: {configure_path}."
       },
       "advanced": {
         "title": "Advanced JSON editor and recovery",
