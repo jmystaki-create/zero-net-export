@@ -320,6 +320,21 @@ def _issue_role_keys(issues: list[Any], *, severities: set[str] | None = None) -
     return keys
 
 
+def _command_center_menu_options(recommended_section: str) -> list[str]:
+    recommended_map = {
+        "Sources and source mapping": "native_setup",
+        "Managed devices": "devices",
+        "Policy and controller settings": "policy",
+        "Health, support, and troubleshooting": "support",
+    }
+    base_options = ["native_setup", "policy", "devices", "support"]
+    recommended_option = recommended_map.get(recommended_section)
+    ordered = [option for option in base_options if option == recommended_option]
+    ordered.extend(option for option in base_options if option != recommended_option)
+    ordered.append("advanced")
+    return ordered
+
+
 class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
@@ -807,12 +822,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "devices_path": DEVICES_CONFIGURE_PATH,
             "policy_path": POLICY_CONFIGURE_PATH,
             "next_action_summary": command_center["next_action_summary"],
+            "recommended_menu_hint": (
+                f"The first menu item below now matches the recommended next section: {command_center['recommended_section']}."
+            ),
         }
         placeholders.update(self._support_placeholders())
 
         return self.async_show_menu(
             step_id="init",
-            menu_options=["native_setup", "policy", "devices", "support", "advanced"],
+            menu_options=_command_center_menu_options(command_center["recommended_section"]),
             description_placeholders=placeholders,
         )
 
