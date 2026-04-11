@@ -291,6 +291,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._pending_device_key: str | None = None
         self._pending_device_template_key: str | None = None
         self._pending_candidate_entity_id: str | None = None
+        self._pending_candidate_summary: dict[str, Any] | None = None
 
     @staticmethod
     def _device_status_label(device: dict[str, Any]) -> str:
@@ -357,6 +358,33 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value=item["entity_id"], label=item["label"])
             for item in candidates[:100]
         ]
+
+    def _candidate_summary(self, entity_id: str | None) -> dict[str, Any] | None:
+        if not entity_id:
+            return None
+        state = self.hass.states.get(entity_id)
+        if state is None:
+            return None
+        domain = entity_id.split('.', 1)[0] if '.' in entity_id else ''
+        kind = DEVICE_KIND_FIXED if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else DEVICE_KIND_VARIABLE
+        templates = get_device_templates(kind)
+        suggested_template = templates[0] if templates else None
+        if domain == 'switch' and kind == DEVICE_KIND_FIXED:
+            suggested_template = next((item for item in templates if item.key in {'hot_water', 'smart_plug', 'pool_pump'}), suggested_template)
+        if domain in {'number', 'input_number'} and kind == DEVICE_KIND_VARIABLE:
+            suggested_template = next((item for item in templates if item.key in {'ev_charger', 'battery_charge_sink'}), suggested_template)
+        return {
+            'entity_id': entity_id,
+            'name': str(state.attributes.get('friendly_name') or entity_id),
+            'domain': domain,
+            'kind': kind,
+            'state': str(state.state),
+            'unit': str(state.attributes.get('unit_of_measurement') or ''),
+            'device_class': str(state.attributes.get('device_class') or ''),
+            'suggested_template_key': suggested_template.key if suggested_template else None,
+            'suggested_template_label': suggested_template.label if suggested_template else 'Custom',
+            'suggested_template_description': suggested_template.description if suggested_template else 'Use a custom configuration for this entity.',
+        }
 
     def _load_devices(self) -> tuple[list[dict[str, Any]], list[str]]:
         raw_inventory = _entry_default_text(
@@ -894,10 +922,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             selected = str(user_input.get("candidate_entity_id") or "")
             self._pending_candidate_entity_id = selected or None
-            return await self.async_step_device_template()
+            self._pending_candidate_summary = self._candidate_summary(self._pending_candidate_entity_id)
+            return await self.async_step_device_vetting()
 
         if not options:
             self._pending_candidate_entity_id = None
+            self._pending_candidate_summary = None
             return await self.async_step_device_template()
 
         return self.async_show_form(
@@ -916,12 +946,42 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             },
         )
 
+    async def async_step_device_vetting(self, user_input=None):
+        summary = self._pending_candidate_summary or self._candidate_summary(self._pending_candidate_entity_id)
+        if summary is None:
+            return await self.async_step_device_template()
+        if user_input is not None:
+            self._pending_candidate_summary = summary
+            if not self._pending_device_template_key and summary.get('suggested_template_key'):
+                self._pending_device_template_key = str(summary['suggested_template_key'])
+            return await self.async_step_device_template()
+
+        return self.async_show_form(
+            step_id="device_vetting",
+            data_schema=vol.Schema({}),
+            errors={},
+            description_placeholders={
+                "candidate_name": str(summary.get('name') or summary.get('entity_id') or 'candidate'),
+                "candidate_entity_id": str(summary.get('entity_id') or ''),
+                "candidate_domain": str(summary.get('domain') or 'unknown'),
+                "candidate_kind": "fixed load" if summary.get('kind') == DEVICE_KIND_FIXED else "variable load",
+                "candidate_state": str(summary.get('state') or 'unknown'),
+                "candidate_unit": str(summary.get('unit') or 'none'),
+                "candidate_device_class": str(summary.get('device_class') or 'none'),
+                "suggested_template": str(summary.get('suggested_template_label') or 'Custom'),
+                "suggested_template_description": str(summary.get('suggested_template_description') or 'Use a custom configuration for this entity.'),
+            },
+        )
+
     async def async_step_device_template(self, user_input=None):
         kind = self._pending_device_kind or DEVICE_KIND_FIXED
         templates = get_device_templates(kind)
         if user_input is not None:
             self._pending_device_template_key = user_input.get("device_template")
             return await self.async_step_device_add()
+
+        if not self._pending_device_template_key and self._pending_candidate_summary and self._pending_candidate_summary.get("suggested_template_key"):
+            self._pending_device_template_key = str(self._pending_candidate_summary["suggested_template_key"])
 
         options = [
             selector.SelectOptionDict(value=template.key, label=template.label)
