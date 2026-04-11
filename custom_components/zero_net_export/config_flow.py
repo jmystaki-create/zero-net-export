@@ -429,7 +429,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return {
             "support_status": readiness.get("summary") or health_summary,
             "support_next_step": readiness.get("next_step") or "Open the device page support actions or Repairs to continue troubleshooting.",
-            "support_path": "Integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; Settings -> Repairs",
+            "support_path": "Configure -> Support and troubleshooting; deeper support: integration device page -> Show support center / Show setup checklist / Show native diagnostics snapshot; Settings -> Repairs",
             "readiness_phase": str(readiness.get("phase") or "unknown"),
             "health_status": health_summary,
         }
