@@ -66,6 +66,7 @@ from .native_support import (
     SOURCES_CONFIGURE_PATH,
     SUPPORT_CONFIGURE_PATH,
     _source_specs_from_config,
+    build_live_source_health_summary,
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
@@ -812,12 +813,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"Save source mapping, reload the integration, then reopen {SOURCES_CONFIGURE_PATH} to confirm live source health."
             )
         else:
-            source_health = str(
-                readiness.get("summary")
-                or state.health_summary
-                or state.diagnostic_summary
-                or "Mapped sources currently look healthy."
-            )
+            source_health = build_live_source_health_summary(state)
             source_next_step = str(
                 readiness.get("next_step") or "Source mapping looks healthy; continue to managed devices or policy."
             )

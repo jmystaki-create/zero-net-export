@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Stopped the command-center and source-mapping screens from echoing whole-integration health summaries in the source-health slot once mappings were valid, so the native source row now stays source-specific instead of misleading operators about where remaining runtime issues live.
 - Wired the native health/support screen, support center, diagnostics snapshot, and setup checklist back to the command-center's recommended Configure section and exact path, so support-first triage now keeps pointing operators to the right native setup surface instead of dead-ending on generic health wording.
 - Tightened the remaining source-mapping remediation copy so Configure now points operators back to the exact **Sources and source mapping** path instead of vague `here` or `reopen Configure` wording while source validation is still blocking progress.
 - Tightened native command-center, fleet-console, diagnostics, support-center, and checklist path guidance so those shipped Home Assistant surfaces now point to the exact Configure section they belong to instead of leaking the generic root Configure path during operator triage.

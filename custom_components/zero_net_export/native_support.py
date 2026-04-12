@@ -196,6 +196,17 @@ def summarize_validation_issue_messages(
     return "; ".join(messages) if messages else "None"
 
 
+def build_live_source_health_summary(state: Any) -> str:
+    """Return source-specific runtime health without leaking whole-integration summaries."""
+    if state is None:
+        return "Live source health will appear here after the integration loads."
+    return str(
+        getattr(state, "reason", None)
+        or getattr(state, "diagnostic_summary", None)
+        or "Mapped sources currently look healthy."
+    )
+
+
 def build_source_mapping_summary(
     config: dict[str, Any] | None,
     *,
@@ -601,12 +612,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_status = "Source health will appear here after the integration loads."
         recommended_section = "Sources and source mapping"
     else:
-        source_status = str(
-            readiness.get("summary")
-            or getattr(state, "health_summary", None)
-            or getattr(state, "diagnostic_summary", None)
-            or "Mapped sources currently look healthy."
-        )
+        source_status = build_live_source_health_summary(state)
         recommended_section = "Managed devices" if not configured_devices else "Policy and controller settings"
 
     if device_parse_issues:
