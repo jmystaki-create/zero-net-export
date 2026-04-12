@@ -23,7 +23,7 @@
 | :--- | :--- |
 | **Install via HACS** | [Add as Custom Repository](https://hacs.xyz/docs/faq/custom_repositories) → `jmystaki-create/zero-net-export` |
 | **Install Manually** | [Copy to `custom_components`](#manual-installation) |
-| **Configure the integration** | Install the integration, restart Home Assistant, then open **Settings → Devices & Services → Integrations → Zero Net Export → Configure** |
+| **Configure the integration** | Install the integration, restart Home Assistant, verify the entry loads cleanly, then open **Settings → Devices & Services → Integrations → Zero Net Export → Configure** |
 | **Use optional Lovelace debug visibility** | [Dashboard Setup Guide](docs/DASHBOARD_SETUP.md) |
 | **Understand the Logic** | [Control Loop Architecture](docs/CONTROL_LOOP.md) |
 
@@ -80,13 +80,15 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 4.  Click **Add**.
 5.  Go to **Integrations**, find **Zero Net Export**, and click **Download**.
 6.  **Restart Home Assistant**.
+7.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
 
 ### Option 2: Manual Installation
 
 1.  Copy the `custom_components/zero_net_export` folder into your Home Assistant `/config/custom_components/` directory.
 2.  **Restart Home Assistant**.
-3.  Go to **Settings** → **Devices & Services** → **Add Integration**.
-4.  Search for **Zero Net Export**.
+3.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
+4.  Go to **Settings** → **Devices & Services** → **Add Integration**.
+5.  Search for **Zero Net Export**.
 
 ---
 
@@ -119,9 +121,19 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 📚 Documentation
 
+### Project control files
+
+| File | Role |
+| :--- | :--- |
+| [project_status.md](project_status.md) | Current execution state for the project: status, next action, blocker, user action, notes, and last modified timestamp |
+| [docs/SUPERVISOR.md](docs/SUPERVISOR.md) | Active project steering guide and source of truth for current direction, goals, risks, and next actions |
+| `WATCHDOG.md` (workspace root) | Central audit guide used by watchdog-style runs to detect drift, stale state, and small safe corrective fixes |
+| [RELEASE_MANAGEMENT.md](RELEASE_MANAGEMENT.md) | Operational release workflow, including GitHub visibility, HACS refresh, Home Assistant restart, and post-release log review |
+
+### Reference and design documents
+
 | Document | Description |
 | :--- | :--- |
-| [Supervisor](docs/SUPERVISOR.md) | Active steering layer: product state, gaps, release gates, and next actions |
 | [Architecture](docs/ARCHITECTURE.md) | System design and component overview |
 | [Control Loop](docs/CONTROL_LOOP.md) | How the optimization logic works |
 | [Native Operator Plan](docs/NATIVE_OPERATOR_PLAN.md) | Current native-only operator direction |
@@ -130,7 +142,10 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Entity Model](docs/ENTITY_MODEL.md) | List of all created entities |
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
-| [Release Management](RELEASE_MANAGEMENT.md) | Operational release workflow, including GitHub visibility, HACS refresh, Home Assistant restart, and post-release log review |
+| [Release Process](docs/RELEASE_PROCESS.md) | Package and release sequence reference |
+| [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) | Current implementation trail and work decomposition |
+| [Operator Surfaces UX](docs/OPERATOR_SURFACES_UX.md) | Operator-facing flow and UX framing |
+| [Reference Matrix](docs/REFERENCE_MATRIX.md) | Cross-reference of implementation/documentation intent |
 | [Branding](docs/BRANDING.md) | Logo usage and HACS / Home Assistant branding notes |
 | [Changelog](CHANGELOG.md) | User-visible changes by version |
 

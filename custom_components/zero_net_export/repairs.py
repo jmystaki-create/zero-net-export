@@ -23,6 +23,9 @@ from .native_support import (
     SUPPORT_CONFIGURE_PATH,
     build_native_operator_readiness,
     build_source_attention_details,
+    build_source_repair_step,
+    build_source_selector_fallback_hint,
+    summarize_validation_issue_messages,
 )
 
 ISSUE_SETUP_INCOMPLETE = "setup_incomplete"
@@ -92,13 +95,18 @@ def async_sync_repairs_issues(
     readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
     next_step = str(
         readiness.get("next_step")
-        or f"Open {PRIMARY_CONFIGURE_PATH} and continue the guided native setup flow."
+        or build_source_repair_step(missing_source_keys=missing_source_keys)
     )
     summary = str(readiness.get("summary") or "Zero Net Export still needs attention before it is fully operator-ready.")
 
     setup_issue_id = _entry_issue_id(entry, ISSUE_SETUP_INCOMPLETE)
     inventory_issue_id = _entry_issue_id(entry, ISSUE_DEVICE_INVENTORY_INVALID)
     runtime_issue_id = _entry_issue_id(entry, ISSUE_RUNTIME_ATTENTION)
+
+    setup_fallback_hint = build_source_selector_fallback_hint(role_keys=missing_source_keys)
+    setup_fallback_text = setup_fallback_hint or "Not needed right now."
+    if setup_fallback_hint and setup_fallback_hint not in next_step:
+        next_step = f"{next_step} {setup_fallback_hint}"
 
     if missing_sources or not devices:
         _create_issue(
@@ -112,6 +120,7 @@ def async_sync_repairs_issues(
                 "device_count": str(len(devices)),
                 "next_step": next_step,
                 "summary": summary,
+                "fallback_hint": setup_fallback_text,
             },
         )
     else:
@@ -145,6 +154,7 @@ def async_sync_repairs_issues(
     unavailable_sources = _format_named_source_roles(unavailable_source_keys)
     stale_source_keys = source_attention["stale_source_keys"]
     stale_sources = _format_named_source_roles(stale_source_keys)
+    blocking_validation_details = summarize_validation_issue_messages(data, severities={"error"}, limit=3)
 
     if data.stale_data:
         if stale_sources:
@@ -153,6 +163,8 @@ def async_sync_repairs_issues(
     if data.safe_mode:
         if unavailable_sources:
             runtime_reasons.append(f"Unavailable mapped sources are holding safe mode: {unavailable_sources}.")
+        if blocking_validation_details != "None":
+            runtime_reasons.append(f"Blocking source validation details: {blocking_validation_details}.")
         runtime_reasons.append(data.reason or "Source validation has put the controller into safe mode.")
     if data.command_failure:
         runtime_reasons.append(data.last_failed_action_message or data.recent_failure_summary or "A recent device command failed.")
@@ -160,20 +172,20 @@ def async_sync_repairs_issues(
         runtime_reasons.append(data.device_status_summary or "Managed devices exist, but none are currently usable.")
 
     runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
-    if missing_source_keys:
-        runtime_next_step = f"Open {SOURCES_CONFIGURE_PATH}, finish the missing required source roles, then save and reload the integration."
-    elif unavailable_sources:
-        runtime_next_step = (
-            f"Open {SOURCES_CONFIGURE_PATH}, then repair these unavailable mapped source roles: {unavailable_sources}."
+    if missing_source_keys or unavailable_source_keys or stale_source_keys or data.stale_data or blocking_validation_details != "None":
+        runtime_next_step = build_source_repair_step(
+            missing_source_keys=missing_source_keys,
+            unavailable_source_keys=unavailable_source_keys,
+            stale_source_keys=stale_source_keys,
+            blocking_validation_details=blocking_validation_details,
         )
-    elif stale_sources:
-        runtime_next_step = (
-            f"Open {SOURCES_CONFIGURE_PATH} or {SUPPORT_CONFIGURE_PATH}, then fix these stale mapped source roles: {stale_sources}."
-        )
-    elif data.stale_data:
-        runtime_next_step = (
-            f"Open {SOURCES_CONFIGURE_PATH} or {SUPPORT_CONFIGURE_PATH}, then fix the stale mapped sources before retrying control."
-        )
+
+    runtime_fallback_hint = build_source_selector_fallback_hint(
+        role_keys=[*missing_source_keys, *unavailable_source_keys, *stale_source_keys]
+    )
+    runtime_fallback_text = runtime_fallback_hint or "Not needed right now."
+    if runtime_fallback_hint and runtime_fallback_hint not in runtime_next_step:
+        runtime_next_step = f"{runtime_next_step} {runtime_fallback_hint}"
 
     if runtime_reasons:
         _create_issue(
@@ -189,6 +201,8 @@ def async_sync_repairs_issues(
                 "unavailable_sources": unavailable_sources or "None",
                 "stale_sources": stale_sources or "None",
                 "next_step": runtime_next_step,
+                "fallback_hint": runtime_fallback_text,
+                "blocking_validation_details": blocking_validation_details,
             },
         )
     else:

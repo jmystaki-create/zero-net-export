@@ -64,7 +64,7 @@ For each device:
 The shipped operator product now uses only native Home Assistant integration and device surfaces for the supported path:
 
 - Configure for source setup, managed devices, and controller tuning
-- integration device page buttons/entities for diagnostics and setup guidance
+- the integration device at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device** for diagnostics and setup/support buttons
 - entities, notifications, automations/scripts, and Repairs for runtime and support workflows
 
 Lovelace/dashboard views remain optional debug visibility inside Home Assistant, but they are not part of the supported operator path.

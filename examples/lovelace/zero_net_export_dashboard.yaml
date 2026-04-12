@@ -320,6 +320,6 @@ views:
             content: |
               - This stays fully inside Home Assistant, no external panel.
               - Use Configure as the command center for sources, policy, managed devices, and support.
-              - Use the integration device page for Repairs plus setup and diagnostics actions.
+              - Use Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device for setup and diagnostics actions, then Home Assistant Repairs for issue remediation.
               - Use this dashboard only for optional debug visibility after the native workflow is in place.
               - If a load is not acting, check fleet summary, control summary, guard summary, per-source staleness, and the recent failure timeline before changing mappings.

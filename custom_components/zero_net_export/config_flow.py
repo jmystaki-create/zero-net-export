@@ -44,6 +44,7 @@ from .const import (
     MODE_DESCRIPTIONS,
     MODE_LABELS,
     MODE_ZERO_EXPORT,
+    REQUIRED_SOURCE_KEYS,
     SOURCE_ROLE_LABELS,
 )
 from .device_model import (
@@ -73,6 +74,7 @@ from .native_support import (
     build_source_attention_role_summary,
     build_source_attention_summary,
     build_source_mapping_summary,
+    build_source_repair_step,
     build_source_selector_fallback_hint,
     summarize_validation_issue_messages,
 )
@@ -279,6 +281,181 @@ def _format_source_option_label(entity_id: str, state: Any) -> str:
     if unit:
         return f"{label} ({entity_id}, state {state_value} {unit})"
     return f"{label} ({entity_id}, state {state_value})"
+
+
+def _source_candidate_reason_bits(state: Any, role_key: str, quantity: str) -> list[str]:
+    if state is None:
+        return []
+
+    blob = _state_search_blob(state)
+    device_class = str(state.attributes.get("device_class") or "")
+    unit = str(state.attributes.get("unit_of_measurement") or "")
+    state_class = str(state.attributes.get("state_class") or "")
+    reasons: list[str] = []
+
+    if quantity == "power" and (device_class == "power" or unit in POWER_UNITS):
+        reasons.append("power-sensor metadata")
+    elif quantity == "energy" and ((device_class == "energy" or unit in ENERGY_UNITS) and state_class in TOTAL_STATE_CLASSES):
+        reasons.append("energy-dashboard-friendly metadata")
+    elif quantity == "energy" and (device_class == "energy" or unit in ENERGY_UNITS):
+        reasons.append("energy-sensor metadata")
+    elif quantity == "percent" and (device_class == "battery" or unit in PERCENT_UNITS):
+        reasons.append("battery/SOC metadata")
+
+    role_match_tokens: dict[str, tuple[str, ...]] = {
+        CONF_SOLAR_POWER_ENTITY: ("solar power", "pv", "generation"),
+        CONF_SOLAR_ENERGY_ENTITY: ("yield total", "energy production", "generated"),
+        CONF_GRID_IMPORT_POWER_ENTITY: ("grid import", "from grid", "import"),
+        CONF_GRID_EXPORT_POWER_ENTITY: ("grid export", "to grid", "feed in", "returned"),
+        CONF_GRID_IMPORT_ENERGY_ENTITY: ("total active energy", "grid import", "import"),
+        CONF_GRID_EXPORT_ENERGY_ENTITY: ("returned energy", "grid export", "export"),
+        CONF_HOME_LOAD_POWER_ENTITY: ("home demand", "house load", "consumption"),
+        CONF_BATTERY_SOC_ENTITY: ("state of charge", "battery soc", "soc"),
+        CONF_BATTERY_CHARGE_POWER_ENTITY: ("charge power", "charging"),
+        CONF_BATTERY_DISCHARGE_POWER_ENTITY: ("discharge power", "discharging"),
+    }
+    matched_token = next((token for token in role_match_tokens.get(role_key, ()) if token in blob), None)
+    if matched_token is not None:
+        reasons.append(f"name matches '{matched_token}'")
+
+    raw_state = str(getattr(state, "state", "") or "").lower()
+    if raw_state not in {"unknown", "unavailable", ""}:
+        reasons.append("currently reporting")
+
+    deduped: list[str] = []
+    for reason in reasons:
+        if reason not in deduped:
+            deduped.append(reason)
+    return deduped[:3]
+
+
+def _format_source_candidate_label(entity_id: str, state: Any, role_key: str, quantity: str) -> str:
+    label = _format_source_option_label(entity_id, state)
+    reasons = _source_candidate_reason_bits(state, role_key, quantity)
+    if not reasons:
+        return label
+    return f"{label} [{'; '.join(reasons)}]"
+
+
+def _state_search_blob(state: Any) -> str:
+    entity_id = str(getattr(state, "entity_id", "") or "")
+    friendly = str(state.attributes.get("friendly_name") or "") if state is not None else ""
+    device_class = str(state.attributes.get("device_class") or "") if state is not None else ""
+    parts = [part for part in (entity_id, friendly, device_class) if part]
+    normalized = [part.replace("_", " ").replace("-", " ") for part in parts]
+    return " ".join(parts + normalized).lower()
+
+
+def _source_role_keywords(role_key: str) -> tuple[set[str], set[str]]:
+    positive: dict[str, set[str]] = {
+        CONF_SOLAR_POWER_ENTITY: {"solar", "pv", "inverter", "generation", "produced", "production"},
+        CONF_SOLAR_ENERGY_ENTITY: {"solar", "pv", "inverter", "generation", "produced", "production", "yield"},
+        CONF_GRID_IMPORT_POWER_ENTITY: {"grid", "import", "consumption", "from_grid", "mains", "purchase", "delivery", "bought"},
+        CONF_GRID_EXPORT_POWER_ENTITY: {"grid", "export", "feed", "feedin", "to_grid", "mains", "return", "returned", "injection", "delivered"},
+        CONF_GRID_IMPORT_ENERGY_ENTITY: {"grid", "import", "consumption", "from_grid", "mains", "purchase", "delivery", "bought"},
+        CONF_GRID_EXPORT_ENERGY_ENTITY: {"grid", "export", "feed", "feedin", "to_grid", "mains", "return", "returned", "injection", "delivered"},
+        CONF_HOME_LOAD_POWER_ENTITY: {"home", "house", "load", "consumption", "demand", "usage", "to_home", "site"},
+        CONF_BATTERY_SOC_ENTITY: {"battery", "soc", "state_of_charge", "charge", "capacity"},
+        CONF_BATTERY_CHARGE_POWER_ENTITY: {"battery", "charge", "charging", "charger"},
+        CONF_BATTERY_DISCHARGE_POWER_ENTITY: {"battery", "discharge", "discharging", "inverter"},
+    }
+    negative: dict[str, set[str]] = {
+        CONF_SOLAR_POWER_ENTITY: {"grid", "battery", "load", "house", "home", "soc", "import", "export"},
+        CONF_SOLAR_ENERGY_ENTITY: {"grid", "battery", "load", "house", "home", "soc", "import", "export"},
+        CONF_GRID_IMPORT_POWER_ENTITY: {"export", "feed", "feedin", "to_grid", "return", "returned", "injection", "solar", "pv", "battery", "soc"},
+        CONF_GRID_EXPORT_POWER_ENTITY: {"import", "consumption", "from_grid", "purchase", "delivery", "bought", "solar", "pv", "battery", "soc"},
+        CONF_GRID_IMPORT_ENERGY_ENTITY: {"export", "feed", "feedin", "to_grid", "return", "returned", "injection", "solar", "pv", "battery", "soc"},
+        CONF_GRID_EXPORT_ENERGY_ENTITY: {"import", "consumption", "from_grid", "purchase", "delivery", "bought", "solar", "pv", "battery", "soc"},
+        CONF_HOME_LOAD_POWER_ENTITY: {"grid", "solar", "pv", "battery", "soc", "export", "import"},
+        CONF_BATTERY_SOC_ENTITY: {"grid", "solar", "pv", "load", "house", "home"},
+        CONF_BATTERY_CHARGE_POWER_ENTITY: {"grid", "solar", "pv", "load", "house", "home", "soc"},
+        CONF_BATTERY_DISCHARGE_POWER_ENTITY: {"grid", "solar", "pv", "load", "house", "home", "soc"},
+    }
+    return positive.get(role_key, set()), negative.get(role_key, set())
+
+
+def _score_source_candidate(state: Any, role_key: str, quantity: str) -> int:
+    blob = _state_search_blob(state)
+    positive, negative = _source_role_keywords(role_key)
+    score = 0
+    for keyword in positive:
+        if keyword in blob:
+            score += 3
+    for keyword in negative:
+        if keyword in blob:
+            score -= 2
+
+    device_class = str(state.attributes.get("device_class") or "") if state is not None else ""
+    unit = str(state.attributes.get("unit_of_measurement") or "") if state is not None else ""
+    entity_id = str(getattr(state, "entity_id", "") or "")
+    friendly_name = str(state.attributes.get("friendly_name") or "") if state is not None else ""
+    state_class = str(state.attributes.get("state_class") or "") if state is not None else ""
+
+    if quantity == "power":
+        if device_class == "power" or unit in POWER_UNITS:
+            score += 2
+    elif quantity == "energy":
+        if device_class == "energy" or unit in ENERGY_UNITS:
+            score += 2
+    elif quantity == "percent":
+        if device_class == "battery" or unit in PERCENT_UNITS:
+            score += 2
+
+    if entity_id.startswith("sensor."):
+        score += 1
+    if role_key in {CONF_GRID_IMPORT_ENERGY_ENTITY, CONF_GRID_EXPORT_ENERGY_ENTITY, CONF_SOLAR_ENERGY_ENTITY} and state_class in TOTAL_STATE_CLASSES:
+        score += 2
+    if role_key in {CONF_GRID_IMPORT_POWER_ENTITY, CONF_GRID_EXPORT_POWER_ENTITY, CONF_HOME_LOAD_POWER_ENTITY, CONF_SOLAR_POWER_ENTITY} and any(token in blob for token in {"power", "watt", "watts"}):
+        score += 1
+
+    # Prefer whole-system live sensors over historical, diagnostic, or per-device telemetry.
+    if "zero_net_export" in entity_id:
+        score -= 20
+    if entity_id.startswith("sensor.inverter_"):
+        score -= 3
+    if any(token in blob for token in {"max reported", "today", "yesterday", "this week", "this month", "lifetime", "estimated"}):
+        score -= 4
+    if any(token in blob for token in {"cost", "compensation"}):
+        score -= 10
+    if any(token in blob for token in {"home demand", "solar power", "state of charge", "grid import", "grid export", "returned energy", "total active energy", "yield total"}):
+        score += 4
+    if any(token in blob for token in {"bedroom", "lounge", "compressor", "estimated consumption"}):
+        score -= 4
+    if role_key == CONF_SOLAR_POWER_ENTITY and "solar power" in blob:
+        score += 6
+    if role_key == CONF_HOME_LOAD_POWER_ENTITY and "home demand" in blob:
+        score += 6
+    if role_key == CONF_BATTERY_SOC_ENTITY and "state of charge" in blob:
+        score += 6
+    if role_key == CONF_BATTERY_CHARGE_POWER_ENTITY and "charge power" in blob:
+        score += 5
+    if role_key == CONF_BATTERY_DISCHARGE_POWER_ENTITY and "discharge power" in blob:
+        score += 5
+    if role_key == CONF_GRID_IMPORT_POWER_ENTITY and "grid import" in blob:
+        score += 6
+    if role_key == CONF_GRID_IMPORT_POWER_ENTITY and "grid export" in blob:
+        score -= 8
+    if role_key == CONF_GRID_EXPORT_POWER_ENTITY and "grid export" in blob:
+        score += 6
+    if role_key == CONF_GRID_EXPORT_POWER_ENTITY and "grid import" in blob:
+        score -= 8
+    if role_key == CONF_GRID_IMPORT_ENERGY_ENTITY and "total active energy" in blob:
+        score += 6
+    if role_key == CONF_GRID_IMPORT_ENERGY_ENTITY and "returned energy" in blob:
+        score -= 8
+    if role_key == CONF_GRID_EXPORT_ENERGY_ENTITY and "returned energy" in blob:
+        score += 8
+    if role_key == CONF_SOLAR_ENERGY_ENTITY and any(token in blob for token in {"yield total", "energy production", "generated"}):
+        score += 4
+    if quantity == "energy" and any(token in blob for token in {"phase a", "phase b", "phase c"}):
+        score -= 2
+    if quantity == "energy" and any(token in friendly_name.lower() for token in {"today", "yesterday", "this week", "this month"}):
+        score -= 3
+
+    raw_state = str(getattr(state, "state", "") or "").lower()
+    if raw_state in {"unknown", "unavailable"}:
+        score -= 3
+    return score
 
 
 def _state_matches_source_quantity(state: Any, quantity: str) -> bool:
@@ -497,6 +674,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         current_entity_id: str | None = None,
         optional: bool = False,
         none_label: str = "Not configured",
+        role_key: str | None = None,
     ) -> list[selector.SelectOptionDict]:
         options: list[selector.SelectOptionDict] = []
         seen: set[str] = set()
@@ -507,25 +685,155 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         if current_entity_id:
             state = self.hass.states.get(current_entity_id)
-            current_label = _format_source_option_label(current_entity_id, state)
+            current_label = (
+                _format_source_candidate_label(current_entity_id, state, role_key, quantity)
+                if role_key
+                else _format_source_option_label(current_entity_id, state)
+            )
             options.append(selector.SelectOptionDict(value=current_entity_id, label=f"Current mapping: {current_label}"))
             seen.add(current_entity_id)
 
-        for state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
+        ranked_states: list[tuple[int, str, Any]] = []
+        for state in self.hass.states.async_all():
             if state.entity_id.split(".", 1)[0] != "sensor":
                 continue
             if not _state_matches_source_quantity(state, quantity):
                 continue
+            score = _score_source_candidate(state, role_key or "", quantity) if role_key else 0
+            ranked_states.append((-score, state.entity_id, state))
+
+        for _, _, state in sorted(ranked_states):
             entity_id = state.entity_id
             if entity_id in seen:
                 continue
-            options.append(
-                selector.SelectOptionDict(value=entity_id, label=_format_source_option_label(entity_id, state))
+            option_label = (
+                _format_source_candidate_label(entity_id, state, role_key, quantity)
+                if role_key
+                else _format_source_option_label(entity_id, state)
             )
+            options.append(selector.SelectOptionDict(value=entity_id, label=option_label))
             seen.add(entity_id)
             if len(options) >= 150:
                 break
         return options
+
+    def _source_role_candidates(self, role_key: str, quantity: str, *, limit: int = 3) -> list[str]:
+        ranked: list[tuple[int, str, str]] = []
+        for state in self.hass.states.async_all():
+            if state.entity_id.split(".", 1)[0] != "sensor":
+                continue
+            if not _state_matches_source_quantity(state, quantity):
+                continue
+            score = _score_source_candidate(state, role_key, quantity)
+            if score < 2:
+                continue
+            ranked.append((score, state.entity_id, _format_source_candidate_label(state.entity_id, state, role_key, quantity)))
+        ranked.sort(key=lambda item: (-item[0], item[1]))
+        return [label for _, _, label in ranked[:limit]]
+
+    def _source_candidate_role_specs(self, grid_mode: str) -> list[tuple[str, str]]:
+        role_specs: list[tuple[str, str]] = [
+            (CONF_SOLAR_POWER_ENTITY, "power"),
+            (CONF_SOLAR_ENERGY_ENTITY, "energy"),
+        ]
+        if grid_mode == GRID_SENSOR_MODE_COMBINED:
+            role_specs.extend(
+                [
+                    (CONF_GRID_IMPORT_POWER_ENTITY, "power"),
+                    (CONF_GRID_IMPORT_ENERGY_ENTITY, "energy"),
+                ]
+            )
+        else:
+            role_specs.extend(
+                [
+                    (CONF_GRID_IMPORT_POWER_ENTITY, "power"),
+                    (CONF_GRID_EXPORT_POWER_ENTITY, "power"),
+                    (CONF_GRID_IMPORT_ENERGY_ENTITY, "energy"),
+                    (CONF_GRID_EXPORT_ENERGY_ENTITY, "energy"),
+                ]
+            )
+        role_specs.extend(
+            [
+                (CONF_HOME_LOAD_POWER_ENTITY, "power"),
+                (CONF_BATTERY_SOC_ENTITY, "percent"),
+                (CONF_BATTERY_CHARGE_POWER_ENTITY, "power"),
+                (CONF_BATTERY_DISCHARGE_POWER_ENTITY, "power"),
+            ]
+        )
+        return role_specs
+
+    @staticmethod
+    def _source_role_display_label(role_key: str, grid_mode: str) -> str:
+        role_labels = {
+            CONF_GRID_IMPORT_POWER_ENTITY: "Combined / net grid power" if grid_mode == GRID_SENSOR_MODE_COMBINED else SOURCE_ROLE_LABELS.get(CONF_GRID_IMPORT_POWER_ENTITY, CONF_GRID_IMPORT_POWER_ENTITY),
+            CONF_GRID_IMPORT_ENERGY_ENTITY: "Combined / net grid energy" if grid_mode == GRID_SENSOR_MODE_COMBINED else SOURCE_ROLE_LABELS.get(CONF_GRID_IMPORT_ENERGY_ENTITY, CONF_GRID_IMPORT_ENERGY_ENTITY),
+            CONF_HOME_LOAD_POWER_ENTITY: "Home load power (optional)",
+            CONF_BATTERY_SOC_ENTITY: "Battery state of charge (optional)",
+            CONF_BATTERY_CHARGE_POWER_ENTITY: "Battery charge power (optional)",
+            CONF_BATTERY_DISCHARGE_POWER_ENTITY: "Battery discharge power (optional)",
+        }
+        return role_labels.get(role_key, SOURCE_ROLE_LABELS.get(role_key, role_key))
+
+    def _source_candidate_hint_summary(self, grid_mode: str, *, role_keys: list[str] | None = None) -> str:
+        role_specs = self._source_candidate_role_specs(grid_mode)
+        if role_keys:
+            prioritized = [item for item in role_specs if item[0] in role_keys]
+            remaining = [item for item in role_specs if item[0] not in role_keys]
+            role_specs = prioritized + remaining
+
+        lines: list[str] = []
+        for role_key, quantity in role_specs:
+            candidates = self._source_role_candidates(role_key, quantity)
+            if not candidates:
+                continue
+            label = self._source_role_display_label(role_key, grid_mode)
+            joined = "; ".join(candidates)
+            lines.append(f"- {label}: {joined}")
+        return "\n".join(lines) if lines else "- No strong live source candidates were detected from current sensor names, units, and device classes yet."
+
+    def _priority_source_candidate_hint_summary(self, grid_mode: str, role_keys: list[str] | None) -> str:
+        if not role_keys:
+            return "- No specific blocked source roles are highlighted right now."
+
+        role_specs = [item for item in self._source_candidate_role_specs(grid_mode) if item[0] in role_keys]
+        lines: list[str] = []
+        for role_key, quantity in role_specs:
+            candidates = self._source_role_candidates(role_key, quantity)
+            label = self._source_role_display_label(role_key, grid_mode)
+            if candidates:
+                lines.append(f"- {label}: {'; '.join(candidates)}")
+            else:
+                lines.append(f"- {label}: no strong live candidates detected yet")
+        return "\n".join(lines)
+
+    def _source_role_guide_summary(self, grid_mode: str) -> str:
+        guide_lines = [
+            "- Solar power: usually a live whole-system PV power sensor, often labelled Solar Power, PV Power, or similar.",
+            "- Solar energy: usually the accumulating PV production total, often labelled Yield Total, Energy Production, or Generated Energy.",
+        ]
+        if grid_mode == GRID_SENSOR_MODE_COMBINED:
+            guide_lines.extend(
+                [
+                    "- Combined / net grid power: use one signed net grid power sensor. Positive values should mean import and negative values should mean export.",
+                    "- Combined / net grid energy: use one signed or net grid energy total when available. If your install instead exposes separate import/export energy totals, switch grid mode to Separate.",
+                ]
+            )
+        else:
+            guide_lines.extend(
+                [
+                    "- Grid import power: usually the live import-only sensor, often labelled Grid Import, From Grid, or Purchased Power.",
+                    "- Grid export power: usually the live export-only sensor, often labelled Grid Export, To Grid, Feed In, or Returned Power.",
+                    "- Grid import energy: often labelled Total Active Energy, Imported Energy, or From Grid.",
+                    "- Grid export energy: often labelled Returned Energy, Exported Energy, or To Grid.",
+                ]
+            )
+        guide_lines.extend(
+            [
+                "- Home load power: usually the whole-home demand sensor, often labelled Home Demand, House Load, or Consumption.",
+                "- Battery state of charge: usually the battery percentage sensor, often labelled State of Charge or Battery SOC.",
+            ]
+        )
+        return "\n".join(guide_lines)
 
     def _candidate_summary(self, entity_id: str | None) -> dict[str, Any] | None:
         if not entity_id:
@@ -764,6 +1072,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "state": state,
             "readiness": readiness,
             "effective_config": effective,
+            "validation_details": source_attention["validation_details"],
+            "source_diagnostics": source_attention["source_diagnostics"],
             "missing_source_keys": missing_source_keys,
             "unavailable_source_keys": unavailable_source_keys,
             "stale_source_keys": stale_source_keys,
@@ -794,16 +1104,24 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
         ]
         blocking_fallback_hint = build_source_selector_fallback_hint(validation_issues=blocking_validation_issues)
+        missing_fallback_hint = build_source_selector_fallback_hint(role_keys=missing_source_keys)
+        runtime_attention_fallback_hint = build_source_selector_fallback_hint(
+            role_keys=[*unavailable_source_keys, *stale_source_keys]
+        )
 
         missing_sources = self._format_source_role_names(missing_source_keys)
         unavailable_sources = self._format_source_role_names(unavailable_source_keys)
         stale_sources = self._format_source_role_names(stale_source_keys)
+        priority_role_keys = missing_source_keys or unavailable_source_keys or stale_source_keys or _issue_role_keys(
+            blocking_validation_issues,
+            severities={"error"},
+        )
 
         if missing_source_keys:
             source_health = f"Missing required sources: {missing_sources}"
-            source_next_step = (
-                f"Open {SOURCES_CONFIGURE_PATH}, finish the missing required source roles, then save and reload the integration."
-            )
+            source_next_step = build_source_repair_step(missing_source_keys=missing_source_keys)
+            if missing_fallback_hint:
+                source_next_step += f" {missing_fallback_hint}"
         elif unavailable_source_keys or stale_source_keys:
             issue_parts = []
             if unavailable_source_keys:
@@ -813,13 +1131,18 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             source_health = "Mapped source roles need attention, " + "; ".join(issue_parts)
             source_next_step = str(
                 readiness.get("next_step")
-                or f"Open {SOURCES_CONFIGURE_PATH}, repair the unavailable or stale mapped source roles, then save and reload the integration."
+                or build_source_repair_step(
+                    unavailable_source_keys=unavailable_source_keys,
+                    stale_source_keys=stale_source_keys,
+                )
             )
+            if runtime_attention_fallback_hint and runtime_attention_fallback_hint not in source_next_step:
+                source_next_step += f" {runtime_attention_fallback_hint}"
         elif blocking_validation_details != "None":
             source_health = "Mapped source validation still has blocking errors: " + blocking_validation_details
             source_next_step = str(
                 readiness.get("next_step")
-                or f"Open {SOURCES_CONFIGURE_PATH}, repair the blocking source validation errors, then save and reload the integration."
+                or build_source_repair_step(blocking_validation_details=blocking_validation_details)
             )
             if blocking_fallback_hint and blocking_fallback_hint not in source_next_step:
                 source_next_step += f" {blocking_fallback_hint}"
@@ -834,6 +1157,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 readiness.get("next_step") or "Source mapping looks healthy; continue to managed devices or policy."
             )
 
+        contextual_fallback_hint = (
+            blocking_fallback_hint or missing_fallback_hint or runtime_attention_fallback_hint
+        )
+
         return {
             "missing_sources": missing_sources,
             "source_health": source_health,
@@ -843,7 +1170,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "stale_sources": stale_sources,
             "source_attention_roles": source_attention_roles,
             "blocking_validation_details": blocking_validation_details,
-            "source_fallback_hint": blocking_fallback_hint,
+            "source_fallback_hint": contextual_fallback_hint,
+            "priority_source_candidate_hints": self._priority_source_candidate_hint_summary(
+                grid_mode or _grid_mode_default(self._config_entry),
+                priority_role_keys,
+            ),
         }
 
     def _support_placeholders(self) -> dict[str, str]:
@@ -859,13 +1190,59 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         health_summary = "Integration state not loaded yet"
         if state is not None:
             health_summary = state.health_summary or state.diagnostic_summary or health_summary
+        blocking_validation_issues = [
+            issue
+            for issue in (source_attention["validation_details"].get("issues", []) or [])
+            if str(issue.get("severity", "")).lower() == "error"
+        ]
+        missing_source_keys = [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
+        support_fallback_hint = build_source_selector_fallback_hint(
+            role_keys=[
+                *missing_source_keys,
+                *source_attention["unavailable_source_keys"],
+                *source_attention["stale_source_keys"],
+            ],
+            validation_issues=blocking_validation_issues,
+        )
+        support_grid_mode = merged.get(CONF_GRID_SENSOR_MODE)
+        if support_grid_mode not in {GRID_SENSOR_MODE_COMBINED, GRID_SENSOR_MODE_SEPARATE}:
+            support_grid_mode = _infer_grid_sensor_mode(merged)
+        support_blocking_role_keys = [
+            *missing_source_keys,
+            *source_attention["unavailable_source_keys"],
+            *source_attention["stale_source_keys"],
+            *_issue_role_keys(blocking_validation_issues, severities={"error"}),
+        ]
+        support_candidate_hints = self._source_candidate_hint_summary(
+            support_grid_mode,
+            role_keys=support_blocking_role_keys,
+        )
+        support_priority_candidate_hints = self._priority_source_candidate_hint_summary(
+            support_grid_mode,
+            support_blocking_role_keys,
+        )
+        support_next_step = str(readiness.get("next_step") or "").strip()
+        if not support_next_step and (
+            missing_source_keys
+            or source_attention["unavailable_source_keys"]
+            or source_attention["stale_source_keys"]
+            or blocking_validation_issues
+        ):
+            support_next_step = build_source_repair_step(
+                missing_source_keys=missing_source_keys,
+                unavailable_source_keys=source_attention["unavailable_source_keys"],
+                stale_source_keys=source_attention["stale_source_keys"],
+                blocking_validation_details=summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+            )
+        if not support_next_step:
+            support_next_step = (
+                f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
+                f"{INTEGRATION_DEVICE_PATH} support actions or Settings -> Repairs if deeper triage is still needed."
+            )
         mode_label, mode_description = _live_mode_details(coordinator)
         return {
             "support_status": readiness.get("summary") or health_summary,
-            "support_next_step": readiness.get("next_step") or (
-                f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
-                f"{INTEGRATION_DEVICE_PATH} support actions or Settings -> Repairs if deeper triage is still needed."
-            ),
+            "support_next_step": support_next_step,
             "support_path": SUPPORT_CONFIGURE_PATH,
             "mode_path": MODE_CONTROL_PATH,
             "current_mode": mode_label,
@@ -878,6 +1255,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_source_attention_roles": build_source_attention_role_summary(state, merged, limit=4),
             "support_attention_summary": build_source_attention_summary(state, merged, limit=4),
             "support_blocking_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+            "support_fallback_hint": support_fallback_hint or "Not needed right now.",
+            "support_candidate_hints": support_candidate_hints,
+            "support_priority_candidate_hints": support_priority_candidate_hints,
             "recommended_section": str(command_center.get("recommended_section") or "Health, support, and troubleshooting"),
             "recommended_path": str(command_center.get("recommended_path") or SUPPORT_CONFIGURE_PATH),
             "next_action_summary": str(command_center.get("next_action_summary") or readiness.get("next_step") or "Review the current blocker, then follow the recommended native Configure path."),
@@ -1025,6 +1405,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     "source_attention_roles": self._format_source_role_names(issue_role_keys),
                     "blocking_validation_details": _summarize_issue_messages(blocking_issues, severities={"error"}, limit=4),
                     "source_fallback_hint": source_fallback_hint,
+                    "priority_source_candidate_hints": self._priority_source_candidate_hint_summary(
+                        grid_mode,
+                        issue_role_keys,
+                    ),
                 }
             else:
                 self.hass.config_entries.async_update_entry(
@@ -1038,6 +1422,58 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         grid_import_power_raw = _entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, "")
         grid_import_energy_raw = _entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, "")
+        source_defaults = {
+            CONF_SOLAR_POWER_ENTITY: _entry_default_text(self._config_entry, CONF_SOLAR_POWER_ENTITY, ""),
+            CONF_SOLAR_ENERGY_ENTITY: _entry_default_text(self._config_entry, CONF_SOLAR_ENERGY_ENTITY, ""),
+            "grid_power_entity": _selector_entity_default(grid_import_power_raw, allow_derived=True),
+            "grid_energy_entity": _selector_entity_default(grid_import_energy_raw, allow_derived=True),
+            COMBINED_GRID_ENERGY_FALLBACK_KEY: "",
+            CONF_GRID_IMPORT_POWER_ENTITY: _selector_entity_default(
+                _entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, "")
+            ),
+            CONF_GRID_EXPORT_POWER_ENTITY: _selector_entity_default(
+                _entry_default_text(self._config_entry, CONF_GRID_EXPORT_POWER_ENTITY, "")
+            ),
+            CONF_GRID_IMPORT_ENERGY_ENTITY: _selector_entity_default(
+                _entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, "")
+            ),
+            CONF_GRID_EXPORT_ENERGY_ENTITY: _selector_entity_default(
+                _entry_default_text(self._config_entry, CONF_GRID_EXPORT_ENERGY_ENTITY, "")
+            ),
+            CONF_HOME_LOAD_POWER_ENTITY: _entry_default_text(self._config_entry, CONF_HOME_LOAD_POWER_ENTITY, ""),
+            CONF_BATTERY_SOC_ENTITY: _entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, ""),
+            BATTERY_SOC_FALLBACK_KEY: "",
+            CONF_BATTERY_CHARGE_POWER_ENTITY: _entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
+            CONF_BATTERY_DISCHARGE_POWER_ENTITY: _entry_default_text(self._config_entry, CONF_BATTERY_DISCHARGE_POWER_ENTITY, ""),
+            CONF_REFRESH_SECONDS: _entry_default_number(
+                self._config_entry,
+                CONF_REFRESH_SECONDS,
+                DEFAULT_REFRESH_SECONDS,
+            ),
+        }
+        if user_input is not None:
+            for key in (
+                CONF_SOLAR_POWER_ENTITY,
+                CONF_SOLAR_ENERGY_ENTITY,
+                "grid_power_entity",
+                "grid_energy_entity",
+                COMBINED_GRID_ENERGY_FALLBACK_KEY,
+                CONF_GRID_IMPORT_POWER_ENTITY,
+                CONF_GRID_EXPORT_POWER_ENTITY,
+                CONF_GRID_IMPORT_ENERGY_ENTITY,
+                CONF_GRID_EXPORT_ENERGY_ENTITY,
+                CONF_HOME_LOAD_POWER_ENTITY,
+                CONF_BATTERY_SOC_ENTITY,
+                BATTERY_SOC_FALLBACK_KEY,
+                CONF_BATTERY_CHARGE_POWER_ENTITY,
+                CONF_BATTERY_DISCHARGE_POWER_ENTITY,
+            ):
+                if key in user_input:
+                    source_defaults[key] = _normalize_entity_selector_input(user_input, key) or ""
+            source_defaults[CONF_REFRESH_SECONDS] = _coerce_number(
+                user_input.get(CONF_REFRESH_SECONDS),
+                DEFAULT_REFRESH_SECONDS,
+            )
 
         power_selector = selector.EntitySelector(
             selector.EntitySelectorConfig(domain=["sensor"], device_class=["power"])
@@ -1047,38 +1483,40 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         combined_energy_options = self._source_entity_options(
             quantity="energy",
-            current_entity_id=_selector_entity_default(grid_import_energy_raw, allow_derived=True) or None,
+            current_entity_id=source_defaults["grid_energy_entity"] or None,
             optional=True,
             none_label="Select combined / net grid energy entity",
+            role_key=CONF_GRID_IMPORT_ENERGY_ENTITY,
         )
         battery_soc_options = self._source_entity_options(
             quantity="percent",
-            current_entity_id=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, "") or None,
+            current_entity_id=source_defaults[CONF_BATTERY_SOC_ENTITY] or None,
             optional=True,
             none_label="Battery SOC not configured",
+            role_key=CONF_BATTERY_SOC_ENTITY,
         )
 
         fields: dict[Any, Any] = {
             vol.Required(
                 CONF_SOLAR_POWER_ENTITY,
-                default=_entry_default_text(self._config_entry, CONF_SOLAR_POWER_ENTITY, ""),
+                default=source_defaults[CONF_SOLAR_POWER_ENTITY],
             ): power_selector,
             vol.Required(
                 CONF_SOLAR_ENERGY_ENTITY,
-                default=_entry_default_text(self._config_entry, CONF_SOLAR_ENERGY_ENTITY, ""),
+                default=source_defaults[CONF_SOLAR_ENERGY_ENTITY],
             ): energy_selector,
         }
         if grid_mode == GRID_SENSOR_MODE_COMBINED:
             fields[
                 vol.Required(
                     "grid_power_entity",
-                    default=_selector_entity_default(grid_import_power_raw, allow_derived=True),
+                    default=source_defaults["grid_power_entity"],
                 )
             ] = power_selector
             fields[
                 vol.Optional(
                     "grid_energy_entity",
-                    default=_selector_entity_default(grid_import_energy_raw, allow_derived=True),
+                    default=source_defaults["grid_energy_entity"],
                 )
             ] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
@@ -1089,7 +1527,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             fields[
                 vol.Optional(
                     COMBINED_GRID_ENERGY_FALLBACK_KEY,
-                    default="",
+                    default=source_defaults[COMBINED_GRID_ENERGY_FALLBACK_KEY],
                 )
             ] = selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
@@ -1098,37 +1536,37 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             fields[
                 vol.Required(
                     CONF_GRID_IMPORT_POWER_ENTITY,
-                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_IMPORT_POWER_ENTITY, "")),
+                    default=source_defaults[CONF_GRID_IMPORT_POWER_ENTITY],
                 )
             ] = power_selector
             fields[
                 vol.Required(
                     CONF_GRID_EXPORT_POWER_ENTITY,
-                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_EXPORT_POWER_ENTITY, "")),
+                    default=source_defaults[CONF_GRID_EXPORT_POWER_ENTITY],
                 )
             ] = power_selector
             fields[
                 vol.Required(
                     CONF_GRID_IMPORT_ENERGY_ENTITY,
-                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_IMPORT_ENERGY_ENTITY, "")),
+                    default=source_defaults[CONF_GRID_IMPORT_ENERGY_ENTITY],
                 )
             ] = energy_selector
             fields[
                 vol.Required(
                     CONF_GRID_EXPORT_ENERGY_ENTITY,
-                    default=_selector_entity_default(_entry_default_text(self._config_entry, CONF_GRID_EXPORT_ENERGY_ENTITY, "")),
+                    default=source_defaults[CONF_GRID_EXPORT_ENERGY_ENTITY],
                 )
             ] = energy_selector
         fields[
             vol.Optional(
                 CONF_HOME_LOAD_POWER_ENTITY,
-                default=_entry_default_text(self._config_entry, CONF_HOME_LOAD_POWER_ENTITY, ""),
+                default=source_defaults[CONF_HOME_LOAD_POWER_ENTITY],
             )
         ] = power_selector
         fields[
             vol.Optional(
                 CONF_BATTERY_SOC_ENTITY,
-                default=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, ""),
+                default=source_defaults[CONF_BATTERY_SOC_ENTITY],
             )
         ] = selector.SelectSelector(
             selector.SelectSelectorConfig(
@@ -1139,7 +1577,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         fields[
             vol.Optional(
                 BATTERY_SOC_FALLBACK_KEY,
-                default="",
+                default=source_defaults[BATTERY_SOC_FALLBACK_KEY],
             )
         ] = selector.TextSelector(
             selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
@@ -1147,23 +1585,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         fields[
             vol.Optional(
                 CONF_BATTERY_CHARGE_POWER_ENTITY,
-                default=_entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
+                default=source_defaults[CONF_BATTERY_CHARGE_POWER_ENTITY],
             )
         ] = power_selector
         fields[
             vol.Optional(
                 CONF_BATTERY_DISCHARGE_POWER_ENTITY,
-                default=_entry_default_text(self._config_entry, CONF_BATTERY_DISCHARGE_POWER_ENTITY, ""),
+                default=source_defaults[CONF_BATTERY_DISCHARGE_POWER_ENTITY],
             )
         ] = power_selector
         fields[
             vol.Required(
                 CONF_REFRESH_SECONDS,
-                default=_entry_default_number(
-                    self._config_entry,
-                    CONF_REFRESH_SECONDS,
-                    DEFAULT_REFRESH_SECONDS,
-                ),
+                default=source_defaults[CONF_REFRESH_SECONDS],
             )
         ] = selector.NumberSelector(
             selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
@@ -1175,8 +1609,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             effective_config = dict(self._config_entry.data)
             effective_config.update(self._config_entry.options)
             source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
+        source_candidate_hints = self._source_candidate_hint_summary(grid_mode)
+        grid_mapping_note = (
+            "Combined / net mode reuses one signed grid power sensor and one signed or net grid energy sensor to derive both grid import and grid export roles."
+            if grid_mode == GRID_SENSOR_MODE_COMBINED
+            else "Separate mode expects distinct import and export power and energy sensors from Home Assistant."
+        )
         fallback_guidance = source_placeholders.get("source_fallback_hint") or (
-            "Combined grid energy and battery SOC now use native dropdowns to avoid Home Assistant's picker validation bug on some installs. If the right entity still is not listed, paste its entity ID into the matching fallback field below instead."
+            "Combined / net grid energy and battery SOC now use native dropdowns to reduce Home Assistant selector validation failures on some installs. If Home Assistant still rejects a valid selection, clear that selector, paste the same entity ID into the matching fallback field below, then save again."
         )
         return self.async_show_form(
             step_id="native_setup_sources",
@@ -1185,7 +1625,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "grid_mode": "Combined / net sensors" if grid_mode == GRID_SENSOR_MODE_COMBINED else "Separate import and export sensors",
                 "configure_path": SOURCES_CONFIGURE_PATH,
+                "grid_mapping_note": grid_mapping_note,
                 "fallback_guidance": fallback_guidance,
+                "source_candidate_hints": source_candidate_hints,
+                "source_role_guide": self._source_role_guide_summary(grid_mode),
                 **source_placeholders,
             },
         )
@@ -1240,8 +1683,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ]
         if devices:
             choices.append(selector.SelectOptionDict(value="bulk_enable", label="Review fleet / enable or disable devices"))
-            choices.append(selector.SelectOptionDict(value="edit", label="Edit configured device"))
-            choices.append(selector.SelectOptionDict(value="remove", label="Remove configured device"))
+            choices.append(selector.SelectOptionDict(value="edit", label="Edit managed device"))
+            choices.append(selector.SelectOptionDict(value="remove", label="Remove managed device"))
         choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))
         summary = "\n".join(self._fleet_summary_lines(devices))
         fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]

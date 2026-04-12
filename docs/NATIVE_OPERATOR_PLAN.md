@@ -8,7 +8,7 @@ The custom Zero Net Export panel route has been removed.
 
 The project now treats these as the only supported operator surfaces:
 - Home Assistant **Configure** flow for source mapping, managed devices, and controller tuning
-- integration device page entities/buttons for diagnostics and setup guidance
+- the integration device at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device** for diagnostics and setup/support buttons
 - Home Assistant entities, notifications, automations/scripts, and Repairs for normal runtime/support workflows
 
 Optional Lovelace/dashboard examples may still exist as supplementary debug visibility inside Home Assistant, but they are not part of the supported operator path.
@@ -49,5 +49,5 @@ The current native-surface pivot is successful when:
 - required source mapping works entirely in Configure
 - managed devices can be persisted through Configure with native add/remove flows for common cases
 - controller tuning works through Configure/native entities
-- setup checklist, support center, and support snapshot remain reachable from the device page
+- setup checklist, support center, and support snapshot remain reachable from the integration device at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device**
 - release notes and validation docs all describe the same native-only but still-in-validation path

@@ -47,6 +47,13 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Home Assistant restart completes successfully
 - [ ] Integration appears in Settings → Devices & Services
 
+### Restart / Reload Regression Check
+- [ ] After a full Home Assistant core restart, the Zero Net Export config entry returns to a healthy loaded state instead of `failed_setup` / retrying setup
+- [ ] Previously saved source mappings are still present after restart
+- [ ] Runtime source entities come back as normal Zero Net Export entities instead of disappearing behind a setup failure
+- [ ] A config-entry reload after saving sources still succeeds when no code change is pending
+- [ ] If a code fix was just installed, note whether only a full core restart, not a config-entry reload, was required to clear the failure
+
 ## Configuration Flow Validation
 
 - [ ] Config flow opens when adding integration
@@ -56,10 +63,11 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
+- [ ] Reopening Configure after restart still shows the previously saved mapped sources and current command-center guidance
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
 - [ ] Command-center landing screen shows current source status, managed-device status, policy summary, and a recommended next section that matches the real entry state
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
-- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; validate that the native manual fallback field shipped in `0.1.80` lets the same entity ID complete setup while broader validation continues
+- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field or the battery SOC picker can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; capture the exact validation error or screenshot first, then validate that the native manual fallback field shipped in `0.1.80` lets the same entity ID complete setup for both paths while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
 - [ ] Managed-device flow makes it obvious where to review, promote unmanaged candidates, edit, enable/disable, and remove devices
@@ -72,12 +80,15 @@ This is the current highest-value path because native onboarding is now the only
 
 - [ ] Solar power entity shows valid reading
 - [ ] Grid source layout selection matches the real install, combined/net or separate import/export
-- [ ] If combined/net grid energy selection still throws the known HA field-level entity/UUID error, record the exact screenshot and then retry using the new native manual fallback field with the same entity ID before continuing broader validation
+- [ ] If combined/net grid energy selection still throws the known HA field-level entity/UUID error, record the exact screenshot or full validation text and then retry using the new native manual fallback field with the same entity ID before continuing broader validation
+- [ ] If battery SOC selection still throws the known HA field-level entity/UUID error, record the exact screenshot or full validation text and then retry using the new native manual fallback field with the same entity ID before continuing broader validation
+- [ ] Record whether each fallback path actually saved successfully after the selector failed, so the next debugging pass can separate selector-only bugs from deeper source validation issues
 - [ ] Grid export power reading is valid, whether derived from a combined/net source or mapped from a separate export entity
 - [ ] Grid import power reading is valid, whether derived from a combined/net source or mapped from a separate import entity
 - [ ] Home load power entity shows valid reading when configured, or inferred home load behaves plausibly when no dedicated home-load sensor is mapped
 - [ ] Battery SOC entity shows valid reading (if configured)
 - [ ] Confidence sensor reports "high" when all sources valid
+- [ ] Once the coordinator loads after restart, required mapped sources recover as healthy runtime entities instead of staying stuck behind a setup failure
 - [ ] Safe mode activates when required source missing
 - [ ] Safe mode activates when source data stale (>120s)
 - [ ] Source mismatch detected when reconciliation fails
