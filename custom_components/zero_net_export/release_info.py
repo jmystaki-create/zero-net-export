@@ -99,6 +99,23 @@ def build_install_consistency_summary(install_provenance: dict[str, Any] | None 
     return "Installed package version metadata matches the running code version."
 
 
+def build_install_repair_step(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return the next operator action when install provenance blocks trustworthy validation."""
+    provenance = install_provenance or build_install_provenance()
+    component_root = provenance.get("component_root") or "the active custom_components/zero_net_export path"
+    if provenance.get("manifest_matches_code_version") is False:
+        return (
+            f"Deploy one exact intended Zero Net Export build to {component_root}, confirm manifest.json and the tracked files all come from that same build, "
+            "then restart Home Assistant core before trusting live validation or source diagnostics."
+        )
+    if provenance.get("manifest_error"):
+        return (
+            f"Confirm the exact live Zero Net Export install path at {component_root}, compare manifest.json and the tracked-file fingerprints from that path, "
+            "then restart Home Assistant core from one synchronized build before trusting live validation or source diagnostics."
+        )
+    return "Installed package provenance looks consistent."
+
+
 def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None = None) -> str:
     """Return a concise multiline summary of the live installed package details."""
     provenance = install_provenance or build_install_provenance()

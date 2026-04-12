@@ -82,6 +82,7 @@ from .release_info import (
     build_install_consistency_summary,
     build_install_fingerprint_summary,
     build_install_provenance,
+    build_install_repair_step,
 )
 from .validation import (
     DERIVED_SOURCE_MODE_DIRECT,
@@ -1228,6 +1229,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             support_blocking_role_keys,
         )
         support_next_step = str(readiness.get("next_step") or "").strip()
+        if not support_next_step and not install_provenance.get("live_validation_safe"):
+            support_next_step = build_install_repair_step(install_provenance)
         if not support_next_step and (
             missing_source_keys
             or source_attention["unavailable_source_keys"]

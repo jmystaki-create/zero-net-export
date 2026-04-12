@@ -35,6 +35,7 @@ from .release_info import (
     build_install_consistency_summary,
     build_install_fingerprint_summary,
     build_install_provenance,
+    build_install_repair_step,
     build_release_info,
 )
 from .validation import SourceSpec, format_source_binding_label
@@ -700,6 +701,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     state = getattr(coordinator, "data", None) if coordinator is not None else None
     readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
     install_provenance = build_install_provenance()
+    install_validation_blocked = not bool(install_provenance.get("live_validation_safe"))
 
     entry = getattr(coordinator, "entry", None)
     merged: dict[str, Any] = {}
@@ -756,7 +758,10 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if not missing_required_sources and not runtime_source_attention:
             recommended_section = "Managed devices"
 
-    if missing_required_sources:
+    if install_validation_blocked:
+        next_action_summary = build_install_repair_step(install_provenance)
+        recommended_section = "Health, support, and troubleshooting"
+    elif missing_required_sources:
         next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
     elif runtime_source_attention:
         next_action_summary = str(
@@ -791,7 +796,12 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
         f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
     )
-    if missing_required_sources:
+    if install_validation_blocked:
+        policy_readiness = (
+            "Deploy one exact intended build and restart Home Assistant core first. Until the installed package is synchronized, "
+            "policy changes and validation results are not trustworthy."
+        )
+    elif missing_required_sources:
         policy_readiness = "Finish source mapping first. Policy tuning is not actionable until the required mapped roles are complete."
     elif runtime_source_attention:
         policy_readiness = f"Repair mapped-source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
