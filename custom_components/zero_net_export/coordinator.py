@@ -35,6 +35,7 @@ from .const import (
     DEFAULT_TARGET_EXPORT_W,
     DOMAIN,
     MODE_ZERO_EXPORT,
+    SOURCE_ROLE_LABELS,
 )
 from .device_model import DeviceRuntime, build_device_summary, parse_device_configs, runtime_as_attributes
 from .executor import ActionResult, execute_action
