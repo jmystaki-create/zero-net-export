@@ -79,6 +79,7 @@ def fingerprint(component_root: Path) -> dict[str, Any]:
 
 def compare(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
     tracked_files: dict[str, Any] = {}
+    mismatches: list[dict[str, Any]] = []
     all_files_match = True
 
     expected_files = expected.get("tracked_files") or {}
@@ -92,6 +93,21 @@ def compare(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
         file_match = bool(sha_match and size_match and exists_match)
         if not file_match:
             all_files_match = False
+            mismatch_reasons: list[str] = []
+            if not exists_match:
+                mismatch_reasons.append("exists")
+            if not size_match:
+                mismatch_reasons.append("size_bytes")
+            if not sha_match:
+                mismatch_reasons.append("sha256_12")
+            mismatches.append(
+                {
+                    "file": name,
+                    "reasons": mismatch_reasons,
+                    "expected": expected_details,
+                    "actual": actual_details,
+                }
+            )
         tracked_files[name] = {
             "matches": file_match,
             "sha256_12_matches": sha_match,
@@ -102,19 +118,29 @@ def compare(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
         }
 
     manifest_version_matches = expected.get("manifest_version") == actual.get("manifest_version")
+    manifest_mismatch: dict[str, Any] | None = None
+    if not manifest_version_matches:
+        manifest_mismatch = {
+            "field": "manifest_version",
+            "expected": expected.get("manifest_version"),
+            "actual": actual.get("manifest_version"),
+        }
+
     overall_match = bool(manifest_version_matches and all_files_match)
     if overall_match:
         recommendation = "Install fingerprint matches the intended repo build. A Home Assistant restart from this install path should now be trustworthy."
     else:
         recommendation = (
-            "Install fingerprint does not match the intended repo build. Deploy one exact repo build to one Home Assistant custom_components/zero_net_export path, then restart Home Assistant core before trusting live validation."
+            "Install fingerprint does not match the intended repo build. Deploy one exact repo build to one Home Assistant custom_components/zero_net_export path, rerun this comparison until it reports overall_match=true, then restart Home Assistant core before trusting live validation."
         )
 
     return {
         "manifest_version_matches": manifest_version_matches,
+        "manifest_mismatch": manifest_mismatch,
         "all_tracked_files_match": all_files_match,
         "overall_match": overall_match,
         "tracked_files": tracked_files,
+        "mismatches": mismatches,
         "recommendation": recommendation,
     }
 
@@ -137,6 +163,10 @@ def main() -> int:
     parser.add_argument(
         "--expected-json",
         help="Optional path to a previously captured expected fingerprint JSON from print_expected_install_fingerprint.py.",
+    )
+    parser.add_argument(
+        "--write-json",
+        help="Optional path to also save the comparison payload JSON for validation evidence.",
     )
     args = parser.parse_args()
 
@@ -163,7 +193,14 @@ def main() -> int:
         "actual": actual,
         "comparison": comparison,
     }
-    print(json.dumps(payload, indent=2, sort_keys=True))
+    rendered = json.dumps(payload, indent=2, sort_keys=True)
+    print(rendered)
+
+    if args.write_json:
+        output_path = Path(args.write_json).expanduser().resolve()
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(rendered + "\n", encoding="utf-8")
+
     return 0 if comparison.get("overall_match") else 1
 
 
