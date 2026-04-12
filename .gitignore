@@ -38,6 +38,9 @@ Thumbs.db
 # Logs
 *.log
 
+# Local project control state
+project_status.md
+
 # Local previews / scratch
 /tmp/
 
