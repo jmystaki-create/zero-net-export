@@ -13,8 +13,8 @@ Primary configuration path for:
 - managed device inventory
 - controller defaults and tuning
 
-### 2. Integration device page
-Primary troubleshooting path for:
+### 2. Native device path
+Primary troubleshooting path for the Zero Net Export device at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device**:
 - setup checklist
 - native diagnostics snapshot
 - normal entity/status inspection
