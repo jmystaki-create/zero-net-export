@@ -719,6 +719,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "source_status": source_status,
         "source_attention_summary": source_attention_summary,
         "source_attention_roles": source_attention_roles,
+        "unavailable_sources": ", ".join(unavailable_source_roles) if unavailable_source_roles else "None",
+        "stale_sources": ", ".join(stale_source_roles) if stale_source_roles else "None",
         "source_mapping_summary": build_source_mapping_summary(merged),
         "device_status": device_status,
         "device_next_step": device_next_step,
