@@ -693,6 +693,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     """Return the command-center summary shown in Configure and device surfaces."""
     state = getattr(coordinator, "data", None) if coordinator is not None else None
     readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+    install_provenance = build_install_provenance()
 
     entry = getattr(coordinator, "entry", None)
     merged: dict[str, Any] = {}
@@ -815,6 +816,19 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "Health, support, and troubleshooting": SUPPORT_CONFIGURE_PATH,
     }
 
+    install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
+    install_consistency = "Installed package version metadata matches the running code version."
+    if install_provenance.get("manifest_matches_code_version") is False:
+        install_consistency = (
+            "Installed package version metadata does not match the running code version. "
+            "Use the support snapshot to confirm the exact live package before trusting validation results."
+        )
+    elif install_provenance.get("manifest_error"):
+        install_consistency = (
+            "Installed package version metadata could not be read. "
+            "Use the support snapshot to confirm the exact live package before trusting validation results."
+        )
+
     return {
         "source_status": source_status,
         "source_attention_summary": source_attention_summary,
@@ -827,6 +841,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "policy_status": policy_status,
         "policy_readiness": policy_readiness,
         "support_status": support_status,
+        "install_status": install_status,
+        "install_consistency": install_consistency,
         "status_summary": status_summary_map.get(recommended_section, support_status),
         "recommended_section": recommended_section,
         "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),

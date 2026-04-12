@@ -78,6 +78,7 @@ from .native_support import (
     build_source_selector_fallback_hint,
     summarize_validation_issue_messages,
 )
+from .release_info import build_install_provenance
 from .validation import (
     DERIVED_SOURCE_MODE_DIRECT,
     DERIVED_SOURCE_MODE_NEGATIVE_ABS,
@@ -1182,6 +1183,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         state = getattr(coordinator, "data", None) if coordinator is not None else None
         readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
         command_center = build_native_command_center_summary(coordinator) if coordinator is not None else {}
+        install_provenance = build_install_provenance()
         source_attention = build_source_attention_details(state)
         unavailable_sources = self._format_source_role_names(source_attention["unavailable_source_keys"])
         stale_sources = self._format_source_role_names(source_attention["stale_source_keys"])
@@ -1239,6 +1241,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
                 f"{INTEGRATION_DEVICE_PATH} support actions or Settings -> Repairs if deeper triage is still needed."
             )
+        support_install_consistency = "Installed package version metadata matches the running code version."
+        if install_provenance.get("manifest_matches_code_version") is False:
+            support_install_consistency = (
+                "Installed package version metadata does not match the running code version. "
+                "Confirm the exact live package path and restart from that synchronized source before trusting validation results."
+            )
+        elif install_provenance.get("manifest_error"):
+            support_install_consistency = (
+                "Installed package version metadata could not be read. "
+                "Confirm the exact live package path before trusting validation results."
+            )
         mode_label, mode_description = _live_mode_details(coordinator)
         return {
             "support_status": readiness.get("summary") or health_summary,
@@ -1256,6 +1269,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_attention_summary": build_source_attention_summary(state, merged, limit=4),
             "support_blocking_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
             "support_fallback_hint": support_fallback_hint or "Not needed right now.",
+            "support_install_status": str(install_provenance.get("summary") or "Installed package provenance unavailable"),
+            "support_install_consistency": support_install_consistency,
             "support_candidate_hints": support_candidate_hints,
             "support_priority_candidate_hints": support_priority_candidate_hints,
             "recommended_section": str(command_center.get("recommended_section") or "Health, support, and troubleshooting"),
@@ -1275,6 +1290,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "unavailable_sources": command_center["unavailable_sources"],
             "stale_sources": command_center["stale_sources"],
             "source_mapping_summary": command_center["source_mapping_summary"],
+            "install_status": command_center["install_status"],
+            "install_consistency": command_center["install_consistency"],
             "device_status": command_center["device_status"],
             "device_next_step": command_center["device_next_step"],
             "policy_status": command_center["policy_status"],
