@@ -162,9 +162,17 @@ def async_sync_repairs_issues(
     runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
     if missing_source_keys:
         runtime_next_step = f"Open {SOURCES_CONFIGURE_PATH}, finish the missing required source roles, then save and reload the integration."
-    elif unavailable_sources or stale_sources or data.stale_data:
+    elif unavailable_sources:
         runtime_next_step = (
-            f"Open {SOURCES_CONFIGURE_PATH}, then repair the unavailable or stale mapped source roles before retrying control."
+            f"Open {SOURCES_CONFIGURE_PATH}, then repair these unavailable mapped source roles: {unavailable_sources}."
+        )
+    elif stale_sources:
+        runtime_next_step = (
+            f"Open {SOURCES_CONFIGURE_PATH} or {SUPPORT_CONFIGURE_PATH}, then fix these stale mapped source roles: {stale_sources}."
+        )
+    elif data.stale_data:
+        runtime_next_step = (
+            f"Open {SOURCES_CONFIGURE_PATH} or {SUPPORT_CONFIGURE_PATH}, then fix the stale mapped sources before retrying control."
         )
 
     if runtime_reasons:
