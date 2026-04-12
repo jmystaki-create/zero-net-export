@@ -35,6 +35,7 @@ Before touching Home Assistant, confirm:
 - manifest version matches the intended release version
 - changelog is updated
 - GitHub release publication/visibility is complete or in progress as part of the same operation
+- `python3 scripts/print_expected_install_fingerprint.py` reflects the exact repo build that is about to be deployed, so the later live-install comparison has one explicit expected commit and tracked-file hash set
 
 ### 3. After approval, verify the latest version is actually published on GitHub
 After the user approves release execution, but before touching HACS or Home Assistant, explicitly verify that the intended version is visible on GitHub as the newest release.
@@ -94,6 +95,7 @@ After restart and log review, verify live Home Assistant state, ideally via API 
 - presence of Zero Net Export entities
 - whether the release-specific bug is fixed
 - whether a new blocker appears
+- whether the installed package fingerprint shown in Configure or Health/support matches the intended repo build from `python3 scripts/print_expected_install_fingerprint.py`
 
 ### 10. Report completion
 A release completion report should include:
@@ -112,6 +114,7 @@ A release completion report should include:
 - [ ] `main` contains intended release commit
 - [ ] manifest version updated
 - [ ] changelog updated
+- [ ] Expected repo fingerprint captured with `python3 scripts/print_expected_install_fingerprint.py`
 - [ ] tag created and pushed
 - [ ] GitHub release published/visible
 - [ ] GitHub latest-release state verified after approval

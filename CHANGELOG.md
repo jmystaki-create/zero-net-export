@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Added `scripts/print_expected_install_fingerprint.py` plus release/validation guidance so the intended repo build's commit and tracked-file hashes can be compared directly against the installed package fingerprint shown in native Home Assistant surfaces before trusting live validation.
 - Aligned the remaining native operator wording from `Configured devices` to `Managed devices` across setup/repairs copy, command-center support snapshot text, status/reason summaries, core sensor names, and the optional in-HA debug dashboard so the shipped Home Assistant surfaces reinforce one consistent device-management path.
 - Corrected the remaining planning and optional-dashboard wording that still said `integration device page`, so those docs now point to the exact native Home Assistant device path used elsewhere in the shipped support guidance.
 - Tightened the native Repairs runtime-attention issue so it now includes blocking source-validation details alongside unavailable/stale mapped roles and the existing selector-fallback guidance, making the Home Assistant-native troubleshooting path clearer before deeper runtime validation.
