@@ -1171,6 +1171,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "missing_sources": missing_sources,
             "source_health": source_health,
             "source_next_step": source_next_step,
+            "source_repair_step": build_source_repair_step(
+                missing_source_keys=missing_source_keys,
+                unavailable_source_keys=unavailable_source_keys,
+                stale_source_keys=stale_source_keys,
+                blocking_validation_details=blocking_validation_details,
+            ),
             "source_mapping_summary": build_source_mapping_summary(effective),
             "unavailable_sources": unavailable_sources,
             "stale_sources": stale_sources,
@@ -1266,6 +1272,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_source_attention_roles": build_source_attention_role_summary(state, merged, limit=4),
             "support_attention_summary": build_source_attention_summary(state, merged, limit=4),
             "support_blocking_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+            "support_source_repair_step": build_source_repair_step(
+                missing_source_keys=missing_source_keys,
+                unavailable_source_keys=source_attention["unavailable_source_keys"],
+                stale_source_keys=source_attention["stale_source_keys"],
+                blocking_validation_details=summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+            ),
             "support_fallback_hint": support_fallback_hint or "Not needed right now.",
             "support_install_status": str(install_provenance.get("summary") or "Installed package provenance unavailable"),
             "support_install_consistency": support_install_consistency,
@@ -1305,6 +1317,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "current_mode": mode_label,
             "mode_summary": mode_description,
             "next_action_summary": command_center["next_action_summary"],
+            "source_repair_step": command_center["source_repair_step"],
             "recommended_menu_hint": (
                 f"The first menu item below now matches the recommended next section: {command_center['recommended_section']}."
             ),

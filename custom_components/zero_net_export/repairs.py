@@ -23,6 +23,7 @@ from .native_support import (
     SUPPORT_CONFIGURE_PATH,
     build_native_operator_readiness,
     build_source_attention_details,
+    build_source_attention_role_summary,
     build_source_repair_step,
     build_source_selector_fallback_hint,
     summarize_validation_issue_messages,
@@ -155,6 +156,8 @@ def async_sync_repairs_issues(
     data = runtime_state
     runtime_reasons: list[str] = []
     install_provenance = build_install_provenance()
+    merged_config = dict(entry.data)
+    merged_config.update(entry.options)
     install_validation_blocked = not bool(install_provenance.get("live_validation_safe"))
     source_attention = build_source_attention_details(data)
     unavailable_source_keys = source_attention["unavailable_source_keys"]
@@ -211,6 +214,13 @@ def async_sync_repairs_issues(
                 "reason_summary": " ".join(runtime_reasons[:3]),
                 "unavailable_sources": unavailable_sources or "None",
                 "stale_sources": stale_sources or "None",
+                "source_attention_roles": build_source_attention_role_summary(data, merged_config, limit=4),
+                "source_repair_step": build_source_repair_step(
+                    missing_source_keys=missing_source_keys,
+                    unavailable_source_keys=unavailable_source_keys,
+                    stale_source_keys=stale_source_keys,
+                    blocking_validation_details=blocking_validation_details,
+                ),
                 "install_status": str(install_provenance.get("summary") or "Installed package provenance unavailable"),
                 "install_consistency": build_install_consistency_summary(install_provenance),
                 "next_step": runtime_next_step,
