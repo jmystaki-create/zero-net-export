@@ -33,6 +33,7 @@ from .const import (
 from .device_model import parse_device_configs
 from .release_info import (
     build_install_consistency_summary,
+    build_install_fingerprint_summary,
     build_install_provenance,
     build_release_info,
 )
@@ -823,6 +824,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
     install_consistency = build_install_consistency_summary(install_provenance)
+    install_fingerprint_summary = build_install_fingerprint_summary(install_provenance)
 
     return {
         "source_status": source_status,
@@ -838,6 +840,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "support_status": support_status,
         "install_status": install_status,
         "install_consistency": install_consistency,
+        "install_fingerprint_summary": install_fingerprint_summary,
         "status_summary": status_summary_map.get(recommended_section, support_status),
         "recommended_section": recommended_section,
         "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),

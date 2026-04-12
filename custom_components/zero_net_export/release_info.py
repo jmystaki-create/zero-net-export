@@ -98,6 +98,30 @@ def build_install_consistency_summary(install_provenance: dict[str, Any] | None 
         )
     return "Installed package version metadata matches the running code version."
 
+
+def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return a concise multiline summary of the live installed package details."""
+    provenance = install_provenance or build_install_provenance()
+    lines = [
+        f"- component_root: {provenance.get('component_root') or 'n/a'}",
+        f"- code_version: {provenance.get('code_version') or 'n/a'}",
+        f"- manifest_version: {provenance.get('manifest_version') or 'n/a'}",
+        f"- manifest_matches_code_version: {provenance.get('manifest_matches_code_version')}",
+    ]
+    manifest_error = str(provenance.get("manifest_error") or "").strip()
+    if manifest_error:
+        lines.append(f"- manifest_error: {manifest_error}")
+
+    for name, details in (provenance.get("tracked_files") or {}).items():
+        lines.append(
+            f"- {name}: sha256_12={details.get('sha256_12') or 'n/a'}, "
+            f"size_bytes={details.get('size_bytes') if details.get('size_bytes') is not None else 'n/a'}, "
+            f"exists={details.get('exists')}"
+        )
+
+    return "\n".join(lines)
+
+
 def _parse_changelog_text(text: str) -> list[dict[str, Any]]:
     sections: list[dict[str, Any]] = []
     current: dict[str, Any] | None = None
