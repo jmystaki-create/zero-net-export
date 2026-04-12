@@ -203,7 +203,7 @@ views:
           - type: entities
             entities:
               - entity: sensor.zero_net_export_configured_devices
-                name: Configured devices
+                name: Managed devices
               - entity: sensor.zero_net_export_enabled_devices
                 name: Enabled devices
               - entity: sensor.zero_net_export_usable_devices

@@ -16,7 +16,7 @@
   "issues": {
     "setup_incomplete": {
       "title": "Finish native Zero Net Export setup",
-      "description": "Zero Net Export is still mid-setup in Home Assistant's native surfaces.\n\nSummary: {summary}\nMissing required sources: {missing_sources}\nConfigured devices: {device_count}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
+      "description": "Zero Net Export is still mid-setup in Home Assistant's native surfaces.\n\nSummary: {summary}\nMissing required sources: {missing_sources}\nManaged devices: {device_count}\nNext step: {next_step}\n\nPrimary path: {configure_path}."
     },
     "device_inventory_invalid": {
       "title": "Managed-device configuration needs repair",

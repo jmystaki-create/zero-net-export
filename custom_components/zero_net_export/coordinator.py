@@ -1141,7 +1141,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     reason = "Sources validated; configure controllable devices to start control"
                 elif device_summary.usable_devices == 0:
                     status = "waiting_for_devices"
-                    reason = "Sources validated; configured devices exist but no devices are currently usable"
+                    reason = "Sources validated; managed devices exist but no devices are currently usable"
                 else:
                     status = "ready"
                     reason = f"Sources validated; {device_summary.usable_devices} controllable device(s) are ready"

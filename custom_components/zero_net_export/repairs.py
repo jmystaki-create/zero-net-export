@@ -157,7 +157,7 @@ def async_sync_repairs_issues(
     if data.command_failure:
         runtime_reasons.append(data.last_failed_action_message or data.recent_failure_summary or "A recent device command failed.")
     if data.device_count > 0 and data.usable_device_count == 0 and not device_issues and not data.stale_data:
-        runtime_reasons.append(data.device_status_summary or "Configured devices exist, but none are currently usable.")
+        runtime_reasons.append(data.device_status_summary or "Managed devices exist, but none are currently usable.")
 
     runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
     if missing_source_keys:

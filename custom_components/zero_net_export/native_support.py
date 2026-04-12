@@ -454,7 +454,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             f"Use {INTEGRATION_DEVICE_PATH} -> Show native diagnostics snapshot, then return to {DEVICES_CONFIGURE_PATH} "
             "to unblock at least one usable device."
         )
-        summary = "Configured devices exist, but none are currently eligible for control."
+        summary = "Managed devices exist, but none are currently eligible for control."
     elif state_safe_mode:
         phase = "runtime_readiness"
         next_step = (
@@ -602,7 +602,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- unavailable roles: {', '.join(unavailable_source_roles) if unavailable_source_roles else 'none'}",
         f"- stale roles: {', '.join(stale_source_roles) if stale_source_roles else 'none'}",
         "",
-        "Configured devices",
+        "Managed devices",
         f"- total: {getattr(state, 'device_count', 0)}",
         f"- enabled: {getattr(state, 'enabled_device_count', 0)}",
         f"- usable: {getattr(state, 'usable_device_count', 0)}",

@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Aligned the remaining native operator wording from `Configured devices` to `Managed devices` across setup/repairs copy, command-center support snapshot text, status/reason summaries, core sensor names, and the optional in-HA debug dashboard so the shipped Home Assistant surfaces reinforce one consistent device-management path.
+
 ## [0.1.80] - 2026-04-12
 
 ### Fixed

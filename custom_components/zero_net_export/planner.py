@@ -359,7 +359,7 @@ def _plan_absorb_surplus(export_error_w: float, devices: list[DeviceRuntime], mo
             f"for {mode_policy.label} mode"
         )
         reason = (
-            "Configured devices are usable, but none could accept a safe positive power allocation in this advisory planner. "
+            "Managed devices are usable, but none could accept a safe positive power allocation in this advisory planner. "
             f"{mode_policy.reason}"
         )
     elif uncovered_w > 0:
