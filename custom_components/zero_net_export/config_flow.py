@@ -79,6 +79,10 @@ from .validation import (
     DERIVED_SOURCE_MODE_NEGATIVE_ABS,
     DERIVED_SOURCE_MODE_POSITIVE,
     DERIVED_SOURCE_PREFIX,
+    ENERGY_UNITS,
+    PERCENT_UNITS,
+    POWER_UNITS,
+    TOTAL_STATE_CLASSES,
     parse_source_binding,
     validate_configured_entities,
 )
@@ -275,6 +279,27 @@ def _format_source_option_label(entity_id: str, state: Any) -> str:
     return f"{label} ({entity_id}, state {state_value})"
 
 
+def _state_matches_source_quantity(state: Any, quantity: str) -> bool:
+    if state is None:
+        return False
+
+    device_class = str(state.attributes.get("device_class") or "")
+    unit = str(state.attributes.get("unit_of_measurement") or "")
+    state_class = str(state.attributes.get("state_class") or "")
+
+    if quantity == "power":
+        return device_class == "power" or unit in POWER_UNITS
+    if quantity == "energy":
+        return (
+            device_class == "energy"
+            or unit in ENERGY_UNITS
+            or state_class in TOTAL_STATE_CLASSES
+        )
+    if quantity == "percent":
+        return device_class in {"battery", "power_factor"} or unit in PERCENT_UNITS
+    return False
+
+
 def _grid_mode_missing_sources(config: dict[str, Any], grid_mode: str) -> list[str]:
     required_keys = [
         CONF_SOLAR_POWER_ENTITY,
@@ -458,7 +483,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def _source_entity_options(
         self,
         *,
-        device_class: str,
+        quantity: str,
         current_entity_id: str | None = None,
         optional: bool = False,
         none_label: str = "Not configured",
@@ -479,7 +504,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         for state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
             if state.entity_id.split(".", 1)[0] != "sensor":
                 continue
-            if str(state.attributes.get("device_class") or "") != device_class:
+            if not _state_matches_source_quantity(state, quantity):
                 continue
             entity_id = state.entity_id
             if entity_id in seen:
@@ -992,13 +1017,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.EntitySelectorConfig(domain=["sensor"], device_class=["energy"])
         )
         combined_energy_options = self._source_entity_options(
-            device_class="energy",
+            quantity="energy",
             current_entity_id=_selector_entity_default(grid_import_energy_raw, allow_derived=True) or None,
             optional=True,
             none_label="Select combined / net grid energy entity",
         )
         battery_soc_options = self._source_entity_options(
-            device_class="battery",
+            quantity="percent",
             current_entity_id=_entry_default_text(self._config_entry, CONF_BATTERY_SOC_ENTITY, "") or None,
             optional=True,
             none_label="Battery SOC not configured",

@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Broadened the native combined-grid energy and battery-SOC dropdown matching so Configure now lists compatible sensors that expose the right units or state class even when vendors omit the ideal Home Assistant device_class, reducing fallback-field friction in real installs.
 - Tightened the remaining native support and Repairs recovery wording so runtime-attention and invalid-managed-device issues now name the exact Configure, managed-device, and advanced JSON recovery paths instead of vague `open the native Configure flow` guidance.
 - Added native device-page diagnostic sensors for mapped-source blocker summary and mapped-source next step, so operators can see the current source blocker and the exact Configure -> Sources remediation path directly from the integration's entity surface while safe mode is holding control.
 - Corrected the new full managed-device candidate picker wording so it no longer implies the dropdown itself accepts a typed manual path, and instead tells operators to choose the explicit manual-selection option when the right entity is not listed.
