@@ -48,7 +48,14 @@ def build_install_provenance() -> dict[str, Any]:
     except json.JSONDecodeError as err:
         manifest_error = f"manifest parse error: {err}"
 
-    tracked_files = ("manifest.json", "config_flow.py", "native_support.py", "coordinator.py")
+    tracked_files = (
+        "manifest.json",
+        "config_flow.py",
+        "native_support.py",
+        "coordinator.py",
+        "strings.json",
+        "translations/en.json",
+    )
     file_fingerprints: dict[str, dict[str, str | int | None]] = {}
     for relative_name in tracked_files:
         path = component_root / relative_name

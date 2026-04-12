@@ -14,6 +14,8 @@ TRACKED_FILES = (
     "config_flow.py",
     "native_support.py",
     "coordinator.py",
+    "strings.json",
+    "translations/en.json",
 )
 
 
