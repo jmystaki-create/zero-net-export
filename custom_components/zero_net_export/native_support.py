@@ -505,6 +505,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         "",
         "Primary setup path",
         f"- {PRIMARY_CONFIGURE_PATH}",
+        f"- Health and support: {SUPPORT_CONFIGURE_PATH}",
         "",
         "Readiness",
         f"- phase: {operator_readiness.get('phase')}",
@@ -647,6 +648,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "Health, support, and troubleshooting": support_status,
     }
 
+    path_summary_map = {
+        "Sources and source mapping": SOURCES_CONFIGURE_PATH,
+        "Managed devices": DEVICES_CONFIGURE_PATH,
+        "Policy and controller settings": POLICY_CONFIGURE_PATH,
+        "Health, support, and troubleshooting": SUPPORT_CONFIGURE_PATH,
+    }
+
     return {
         "source_status": source_status,
         "source_attention_summary": source_attention_summary,
@@ -655,7 +663,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "support_status": support_status,
         "status_summary": status_summary_map.get(recommended_section, support_status),
         "recommended_section": recommended_section,
-        "recommended_path": f"{PRIMARY_CONFIGURE_PATH} -> {recommended_section}",
+        "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),
         "next_action_summary": next_action_summary,
         "sources_path": SOURCES_CONFIGURE_PATH,
         "devices_path": DEVICES_CONFIGURE_PATH,
@@ -678,6 +686,7 @@ def build_native_support_center(coordinator: Any) -> str:
             "Zero Net Export native support center",
             "",
             f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
+            f"Health and support path: {SUPPORT_CONFIGURE_PATH}",
             f"Readiness phase: {operator_readiness.get('phase')}",
             f"Summary: {operator_readiness.get('summary')}",
             f"Next step: {operator_readiness.get('next_step')}",

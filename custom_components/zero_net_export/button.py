@@ -12,6 +12,7 @@ from .native_support import (
     POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
+    SUPPORT_CONFIGURE_PATH,
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_native_support_center,
@@ -148,7 +149,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 'state': str(entity_state.state),
             })
         return {
-            'configure_path': PRIMARY_CONFIGURE_PATH,
+            'configure_path': DEVICES_CONFIGURE_PATH,
             'managed_count': len(managed),
             'candidate_count': len(candidates),
             'candidate_devices': candidates[:12],
@@ -172,7 +173,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         lines = [
             'Zero Net Export native fleet console',
             '',
-            f'Primary path: {PRIMARY_CONFIGURE_PATH}',
+            f'Primary path: {DEVICES_CONFIGURE_PATH}',
             '',
             f'Managed devices: {len(managed)}',
         ]
@@ -221,7 +222,7 @@ class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEnti
     def extra_state_attributes(self):
         readiness = build_native_operator_readiness(self.coordinator)
         return {
-            "configure_path": PRIMARY_CONFIGURE_PATH,
+            "configure_path": SUPPORT_CONFIGURE_PATH,
             "phase": readiness.get("phase"),
             "next_step": readiness.get("next_step"),
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
@@ -247,7 +248,7 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
     @property
     def extra_state_attributes(self):
         return {
-            "configure_path": PRIMARY_CONFIGURE_PATH,
+            "configure_path": SUPPORT_CONFIGURE_PATH,
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "health_summary": self._state.health_summary if self._state else None,
         }
@@ -257,7 +258,8 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
         message = (
             "Native Zero Net Export diagnostics snapshot\n\n"
             "This is intended for the Home Assistant device page, Scripts, and button.press automations so diagnostics stay reachable from native Home Assistant surfaces.\n\n"
-            f"Primary setup path: {PRIMARY_CONFIGURE_PATH}\n\n"
+            f"Primary setup path: {PRIMARY_CONFIGURE_PATH}\n"
+            f"Health and support path: {SUPPORT_CONFIGURE_PATH}\n\n"
             f"```\n{snapshot}\n```"
         )
         persistent_notification.async_create(
@@ -278,7 +280,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
     def extra_state_attributes(self):
         readiness = build_native_operator_readiness(self.coordinator)
         return {
-            "configure_path": PRIMARY_CONFIGURE_PATH,
+            "configure_path": SUPPORT_CONFIGURE_PATH,
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "source_mismatch": self._state.source_mismatch if self._state else None,
             "stale_data": self._state.stale_data if self._state else None,
@@ -298,6 +300,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 "",
                 f"Entry: {self.coordinator.entry.title}",
                 f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
+                f"Health and support path: {SUPPORT_CONFIGURE_PATH}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
                 f"Summary: {readiness.get('summary') or (self._state.health_summary if self._state else None)}",
                 f"Next step: {readiness.get('next_step') or (self._state.recommendation if self._state else None)}",
