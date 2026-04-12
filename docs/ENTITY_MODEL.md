@@ -24,7 +24,7 @@
 - `button.zero_net_export_show_support_center`
   - publishes a combined native support-center notification with readiness, next-step guidance, checklist, and an embedded support snapshot
 - `button.zero_net_export_show_native_diagnostics_snapshot`
-  - publishes a persistent-notification support snapshot from the integration device page so diagnostics stay reachable from native Home Assistant surfaces and Scripts
+  - publishes a persistent-notification support snapshot from `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device` so diagnostics stay reachable from native Home Assistant surfaces and Scripts
 - `button.zero_net_export_show_setup_checklist`
   - publishes the current readiness phase, checklist, and next step as a persistent notification from native Home Assistant surfaces
 - `button.zero_net_export_<device_key>_reset_overrides`
