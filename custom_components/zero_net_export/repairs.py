@@ -27,6 +27,11 @@ from .native_support import (
     build_source_selector_fallback_hint,
     summarize_validation_issue_messages,
 )
+from .release_info import (
+    build_install_consistency_summary,
+    build_install_provenance,
+    build_install_repair_step,
+)
 
 ISSUE_SETUP_INCOMPLETE = "setup_incomplete"
 ISSUE_DEVICE_INVENTORY_INVALID = "device_inventory_invalid"
@@ -149,6 +154,8 @@ def async_sync_repairs_issues(
 
     data = runtime_state
     runtime_reasons: list[str] = []
+    install_provenance = build_install_provenance()
+    install_validation_blocked = not bool(install_provenance.get("live_validation_safe"))
     source_attention = build_source_attention_details(data)
     unavailable_source_keys = source_attention["unavailable_source_keys"]
     unavailable_sources = _format_named_source_roles(unavailable_source_keys)
@@ -156,6 +163,8 @@ def async_sync_repairs_issues(
     stale_sources = _format_named_source_roles(stale_source_keys)
     blocking_validation_details = summarize_validation_issue_messages(data, severities={"error"}, limit=3)
 
+    if install_validation_blocked:
+        runtime_reasons.append(build_install_consistency_summary(install_provenance))
     if data.stale_data:
         if stale_sources:
             runtime_reasons.append(f"Stale required mapped sources: {stale_sources}.")
@@ -172,7 +181,9 @@ def async_sync_repairs_issues(
         runtime_reasons.append(data.device_status_summary or "Managed devices exist, but none are currently usable.")
 
     runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
-    if missing_source_keys or unavailable_source_keys or stale_source_keys or data.stale_data or blocking_validation_details != "None":
+    if install_validation_blocked:
+        runtime_next_step = build_install_repair_step(install_provenance)
+    elif missing_source_keys or unavailable_source_keys or stale_source_keys or data.stale_data or blocking_validation_details != "None":
         runtime_next_step = build_source_repair_step(
             missing_source_keys=missing_source_keys,
             unavailable_source_keys=unavailable_source_keys,
@@ -195,11 +206,13 @@ def async_sync_repairs_issues(
             severity=ir.IssueSeverity.WARNING,
             translation_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
-                "support_path": SOURCES_CONFIGURE_PATH if (missing_source_keys or unavailable_sources or stale_sources or data.stale_data) else SUPPORT_CONFIGURE_PATH,
+                "support_path": SUPPORT_CONFIGURE_PATH if install_validation_blocked else (SOURCES_CONFIGURE_PATH if (missing_source_keys or unavailable_sources or stale_sources or data.stale_data) else SUPPORT_CONFIGURE_PATH),
                 "health_summary": str(data.health_summary or summary),
                 "reason_summary": " ".join(runtime_reasons[:3]),
                 "unavailable_sources": unavailable_sources or "None",
                 "stale_sources": stale_sources or "None",
+                "install_status": str(install_provenance.get("summary") or "Installed package provenance unavailable"),
+                "install_consistency": build_install_consistency_summary(install_provenance),
                 "next_step": runtime_next_step,
                 "fallback_hint": runtime_fallback_text,
                 "blocking_validation_details": blocking_validation_details,
