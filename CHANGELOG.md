@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Corrected the startup native setup notification so it now names all four Configure command-center sections, including **Health, support, and troubleshooting**, instead of implying the live operator path ends at sources, managed devices, and policy.
 - Corrected the native command-center recommendation logic so runtime-readiness and safe-mode blockers now send operators to **Health, support, and troubleshooting** with the live readiness next step, instead of incorrectly steering fully mapped installs toward policy tuning while runtime attention is still the real blocker.
 - Renamed the native Configure source step from plain `Sources` to `Sources and source mapping` so the actual command-center screen matches the landing guidance and keeps the main source-management path easier to recognize in Home Assistant.
 - Made the command-center landing screen and command-center guide show the current mapped source roles inline, and tightened live source-health summarising so healthy mappings no longer fall back to unrelated device/runtime reasons when operators are trying to understand source state.
