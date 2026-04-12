@@ -605,6 +605,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         merged.update(entry.options)
 
     configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
+    readiness_phase = str(readiness.get("phase") or "")
 
     missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
     source_attention = build_source_attention_details(state)
@@ -663,6 +664,17 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
     elif not configured_devices:
         next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
+    elif readiness_phase == "runtime_readiness":
+        next_action_summary = str(
+            readiness.get("next_step")
+            or f"Open {SUPPORT_CONFIGURE_PATH} and the native diagnostics surfaces to clear the current runtime blocker."
+        )
+        recommended_section = "Health, support, and troubleshooting"
+    elif readiness_phase == "operator_ready":
+        next_action_summary = str(
+            readiness.get("next_step")
+            or "Validate the native Configure path and device support actions in a real Home Assistant install."
+        )
     else:
         next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
 
