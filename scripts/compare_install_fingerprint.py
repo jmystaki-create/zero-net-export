@@ -119,6 +119,13 @@ def compare(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def load_expected_from_json(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("expected fingerprint JSON must contain an object at the top level")
+    return payload
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Compare the repo fingerprint against a live Home Assistant install path.",
@@ -127,25 +134,37 @@ def main() -> int:
         "install_path",
         help="Path to the installed zero_net_export directory, or its parent custom_components directory.",
     )
+    parser.add_argument(
+        "--expected-json",
+        help="Optional path to a previously captured expected fingerprint JSON from print_expected_install_fingerprint.py.",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
-    expected_component_root = repo_root / "custom_components" / "zero_net_export"
     actual_component_root = normalize_component_root(Path(args.install_path))
 
-    expected = fingerprint(expected_component_root)
-    expected["expected_commit"] = git_commit(repo_root)
-    expected["repo_root"] = str(repo_root)
+    if args.expected_json:
+        expected_json_path = Path(args.expected_json).expanduser().resolve()
+        expected = load_expected_from_json(expected_json_path)
+        expected_source = str(expected_json_path)
+    else:
+        expected_component_root = repo_root / "custom_components" / "zero_net_export"
+        expected = fingerprint(expected_component_root)
+        expected["expected_commit"] = git_commit(repo_root)
+        expected["repo_root"] = str(repo_root)
+        expected_source = "repo_head"
 
     actual = fingerprint(actual_component_root)
+    comparison = compare(expected, actual)
 
     payload = {
         "expected": expected,
+        "expected_source": expected_source,
         "actual": actual,
-        "comparison": compare(expected, actual),
+        "comparison": comparison,
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
-    return 0
+    return 0 if comparison.get("overall_match") else 1
 
 
 if __name__ == "__main__":

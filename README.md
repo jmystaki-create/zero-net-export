@@ -81,14 +81,14 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 5.  Go to **Integrations**, find **Zero Net Export**, and click **Download**.
 6.  **Restart Home Assistant**.
 7.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
-8.  If you need to prove the running Home Assistant package matches the intended repo build, run `python3 scripts/print_expected_install_fingerprint.py` in this repo, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components` against the live install path. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
+8.  If you need to prove the running Home Assistant package matches the intended repo build, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` in this repo, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components --expected-json tmp/expected-install-fingerprint.json` against the live install path. The compare script now exits non-zero on mismatch. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
 
 ### Option 2: Manual Installation
 
 1.  Copy the `custom_components/zero_net_export` folder into your Home Assistant `/config/custom_components/` directory.
 2.  **Restart Home Assistant**.
 3.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
-4.  If you need to prove the copied package is the intended build, run `python3 scripts/print_expected_install_fingerprint.py` in this repo, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components` against the target install path. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
+4.  If you need to prove the copied package is the intended build, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` in this repo, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components --expected-json tmp/expected-install-fingerprint.json` against the target install path. The compare script now exits non-zero on mismatch. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
 5.  Go to **Settings** → **Devices & Services** → **Add Integration**.
 6.  Search for **Zero Net Export**.
 
@@ -145,8 +145,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
 | [Release Process](docs/RELEASE_PROCESS.md) | Package and release sequence reference |
-| `scripts/print_expected_install_fingerprint.py` | Prints the repo's expected tracked-file hashes and current commit for comparing a live Home Assistant install against the intended build |
-| `scripts/compare_install_fingerprint.py` | Compares the repo fingerprint against a chosen Home Assistant `custom_components` install path and reports whether the live files actually match |
+| `scripts/print_expected_install_fingerprint.py` | Prints the repo's expected tracked-file hashes and current commit for comparing a live Home Assistant install against the intended build, and can optionally save that JSON snapshot for later use |
+| `scripts/compare_install_fingerprint.py` | Compares the repo fingerprint, or a previously captured expected fingerprint JSON, against a chosen Home Assistant `custom_components` install path and exits non-zero when the live files do not match |
 | [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) | Current implementation trail and work decomposition |
 | [Operator Surfaces UX](docs/OPERATOR_SURFACES_UX.md) | Operator-facing flow and UX framing |
 | [Reference Matrix](docs/REFERENCE_MATRIX.md) | Cross-reference of implementation/documentation intent |

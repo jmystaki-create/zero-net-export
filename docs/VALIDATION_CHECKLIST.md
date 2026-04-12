@@ -7,7 +7,7 @@ Supervisor note: this document is the evidence ledger for the release gates defi
 ## Recommended next validation run
 
 Repo-side helper for mixed-build checks:
-- Run `python3 scripts/print_expected_install_fingerprint.py` in this repo before deploying or validating, then run `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components` against the live install path. Compare that expected commit, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or Health, support, and troubleshooting.
+- Run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` in this repo before deploying or validating, then run `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json` against the live install path. Compare that expected commit, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or Health, support, and troubleshooting. The compare script exits non-zero on mismatch.
 
 If you are progressing the project right now, do this in order:
 
@@ -43,8 +43,8 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Home Assistant restart completes successfully
 - [ ] Integration appears in Settings → Devices & Services
 - [ ] HACS shows the expected new version/tag before upgrade
-- [ ] `python3 scripts/print_expected_install_fingerprint.py` was captured for the intended repo build before validation
-- [ ] `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components` reports a full match for the install being tested
+- [ ] `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` was captured for the intended repo build before validation
+- [ ] `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json` reports a full match for the install being tested
 - [ ] The installed package contents match the expected release (not an older cached/raw form-first build)
 
 ### Manual Install Path
@@ -278,8 +278,8 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] GitHub release exists for the same version when using release-based HACS visibility
 - [ ] `manifest.json`, `CHANGELOG.md`, git tag, and GitHub release version all agree
 - [ ] The Home Assistant install path being tested is confirmed to be serving that same released package
-- [ ] The installed package fingerprint shown in Home Assistant matches the expected commit and tracked-file hashes from `python3 scripts/print_expected_install_fingerprint.py`
-- [ ] The direct path check from `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components` also agrees that the tested install is the intended build
+- [ ] The installed package fingerprint shown in Home Assistant matches the expected commit and tracked-file hashes from `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`
+- [ ] The direct path check from `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json` also agrees that the tested install is the intended build
 
 ## Documentation Validation
 
