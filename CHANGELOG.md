@@ -6,6 +6,8 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.80] - 2026-04-12
+
 ### Fixed
 - Corrected the startup native setup notification so it now names all four Configure command-center sections, including **Health, support, and troubleshooting**, instead of implying the live operator path ends at sources, managed devices, and policy.
 - Corrected the native command-center recommendation logic so runtime-readiness and safe-mode blockers now send operators to **Health, support, and troubleshooting** with the live readiness next step, instead of incorrectly steering fully mapped installs toward policy tuning while runtime attention is still the real blocker.

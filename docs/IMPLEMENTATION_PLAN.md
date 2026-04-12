@@ -68,7 +68,7 @@
 - next: validate the packaged HACS/manual install path plus these health surfaces against a real Home Assistant install, confirm the new per-device runtime telemetry is trustworthy enough, and keep shifting operator-facing guidance into native Home Assistant surfaces where it improves reliability
 
 ## Phase 7 — Native-surface consolidation
-- stabilize install/runtime behavior in Home Assistant ✅ live HA now reaches a loaded state on the current `0.1.79` repo release line, with native entities present again after the startup crash chain was narrowed and deferred release-metadata reads were fixed on hot paths
+- stabilize install/runtime behavior in Home Assistant ✅ live HA now reaches a loaded state on the current `0.1.80` repo release line, with native entities present again after the startup crash chain was narrowed and deferred release-metadata reads were fixed on hot paths
 - remove the custom sidebar/panel route from the shipped integration ✅ `/zero-net-export` route, launcher assets, and panel registration removed
 - keep bootstrap onboarding minimal ✅ add-integration flow still creates the backend entry with safe defaults
 - keep Configure as the supported setup path ✅ source mapping, managed devices, and controller tuning stay in native Configure
@@ -79,7 +79,7 @@
 - update repo guidance and validation docs ✅ active planning/docs now center native Home Assistant surfaces instead of the removed panel route
 - command-center discoverability improved ✅ the Configure landing screen now summarizes source status, managed-device status, policy summary, and the recommended next section so operators no longer have to infer where to start
 - policy-path discoverability improved ✅ the native policy screen now states whether policy tuning is actionable yet, or whether operators should fix source mapping or managed-device issues first
-- known combined-grid energy options-flow bug ⚠️ partially mitigated: `0.1.79` ships both a native manual fallback field, a clearer command-center summary, policy-readiness guidance, and stronger managed-device promotion guidance, so operators can paste the same combined/net grid energy entity ID when the selector still throws a field-level `Entity is neither a valid entity ID nor a valid UUID` error and can more easily see where to continue next; next step is to validate that native fallback in real HA, then keep simplifying the field-to-binding path until the picker no longer misfires
+- known combined-grid energy options-flow bug ⚠️ partially mitigated: `0.1.80` ships both a native manual fallback field, a clearer command-center summary, policy-readiness guidance, and stronger managed-device promotion guidance, so operators can paste the same combined/net grid energy entity ID when the selector still throws a field-level `Entity is neither a valid entity ID nor a valid UUID` error and can more easily see where to continue next; next step is to validate that native fallback in real HA, then keep simplifying the field-to-binding path until the picker no longer misfires
 
 ## Phase 8 — Future enhancements
 - keep tightening native fleet management next, especially around validating the new unmanaged-candidate promotion flow in larger mixed-device installs and removing any remaining cases that still push operators back into raw JSON

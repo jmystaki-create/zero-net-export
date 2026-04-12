@@ -18,7 +18,7 @@ What is already true:
 - the only supported operator path is now native Home Assistant integration/device surfaces: bootstrap install, then Configure for setup and tuning, plus the integration device page, entities, notifications, and Repairs for troubleshooting
 - managed-device onboarding now has native add/edit/remove flows plus presets, unmanaged-candidate discovery, promotion review, shortlist guidance, and fleet review
 - support center, setup checklist, support snapshot, and Repairs guidance now exist as real native HA support surfaces
-- the integration now loads in the user's HA instance on the current `0.1.79` repo release line, exposes native entities again, and no longer appears to be dying in the early startup crash chain
+- the integration now loads in the user's HA instance on the current `0.1.80` repo release line, exposes native entities again, and no longer appears to be dying in the early startup crash chain
 - at least one real managed device is now present in the live HA install
 
 What is not yet true:
@@ -70,7 +70,7 @@ What does not count as enough progress for the next update:
 
 | ID | Gap / risk | Why it matters | Current signal | Exit condition |
 |---|---|---|---|---|
-| G1 | Native Configure flow may still contain real-world friction | This is now the primary product path | Recent real-install screenshots already caught broken setup handoff behavior, and combined/net grid energy selection can still throw a Home Assistant field-level `Entity is neither a valid entity ID nor a valid UUID` error in at least one real install even though `0.1.79` now ships both a native manual fallback field for that energy entity, a clearer command-center status summary, policy-readiness guidance on the policy screen, and stronger managed-device promotion guidance | A fresh install and post-install Configure flow work end-to-end in a real HA instance using only the intended native Configure path |
+| G1 | Native Configure flow may still contain real-world friction | This is now the primary product path | Recent real-install screenshots already caught broken setup handoff behavior, and combined/net grid energy selection can still throw a Home Assistant field-level `Entity is neither a valid entity ID nor a valid UUID` error in at least one real install even though `0.1.80` now ships both a native manual fallback field for that energy entity, a clearer command-center status summary, policy-readiness guidance on the policy screen, and stronger managed-device promotion guidance | A fresh install and post-install Configure flow work end-to-end in a real HA instance using only the intended native Configure path |
 | G2 | Native support surfaces are improved but still somewhat fragmented | Operators need one clear troubleshooting path | Support center, snapshot, checklist, device actions, entities, and Repairs now coexist | Real validation shows operators can diagnose setup/runtime state without hunting across unrelated surfaces |
 | G3 | Managed-device UX is better, but larger mixed fleets may still feel clumsy | Fleet installs are where native flows most often regress into friction | Native presets, edit flow, and fleet review exist, but broader real-world proof is limited | A 5-10+ device mixed install can be onboarded, reviewed, and adjusted without JSON for normal work |
 | G4 | JSON-backed inventory remains an internal dependency | Internal structure can leak back into operator experience | Docs already acknowledge the transitional design | Normal operator tasks do not require JSON except recovery or bulk surgery |
@@ -131,7 +131,7 @@ Do not call the native-operator release line ready unless all gates below pass.
 1. Turn Configure into the clearly signposted native command center for sources, policy, managed devices, and support
 2. Make managed-device review/add/edit/remove feel like a first-class native operator workflow instead of buried capability
 3. Make policy/settings clearly discoverable as a distinct native path for mode, target export, deadband, reserve, and related controller behavior
-4. Re-run restart and reload validation and record whether the integration stays alive after install, now that the `0.1.79` repo release line has crossed the startup-stability line locally and added stronger managed-device promotion guidance but still needs fresh live HA proof
+4. Re-run restart and reload validation and record whether the integration stays alive after install, now that the `0.1.80` repo release line has crossed the startup-stability line locally and added stronger managed-device promotion guidance but still needs fresh live HA proof
 5. Use the live source-validation blockers in the user's HA install to improve operator-facing remediation clarity, especially by naming the unavailable/stale mapped source roles and pointing operators back to Configure -> Sources
 6. Then continue broader runtime/device validation
 
