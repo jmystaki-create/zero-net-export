@@ -479,7 +479,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return [item for item in self._device_candidates() if item["kind"] == kind][:limit]
 
     def _candidate_quick_picks(self, kind: str) -> list[dict[str, Any]]:
-        return self._top_candidates_for_kind(kind, limit=3)
+        ranked = sorted(
+            self._top_candidates_for_kind(kind, limit=12),
+            key=lambda item: (
+                0 if str((self._candidate_summary(item["entity_id"]) or {}).get("fit_confidence")) == "high" else 1,
+                0 if str(item.get("domain") or "") == "switch" else 1,
+                str(item.get("name") or item.get("entity_id") or ""),
+            ),
+        )
+        return ranked[:3]
 
     def _source_entity_options(
         self,
@@ -1295,7 +1303,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
         ]
         top_candidate_summary = "\n".join(
-            f"- {item['name']} ({item['entity_id']}, state {item['state']})" for item in quick_picks
+            (
+                f"- {item['name']} ({item['entity_id']}, state {item['state']})"
+                + f" | fit {(self._candidate_summary(item['entity_id']) or {}).get('fit_confidence', 'unknown')}"
+            )
+            for item in quick_picks
         ) if quick_picks else "- No suggested candidates right now"
         return self.async_show_form(
             step_id="device_pick_candidate",
@@ -1516,6 +1528,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "template_description": selected_template.description if selected_template else "Use manual values for this device.",
                 "candidate_hint": next((item["label"] for item in candidates if item["entity_id"] == defaults.get("entity_id")), "Pick an unmanaged candidate entity from the selector or choose a manual entity."),
                 "default_guidance": self._default_guidance_text(kind, defaults),
+                "selected_candidate_fit": str((self._pending_candidate_summary or {}).get("fit_confidence") or "manual"),
+                "selected_candidate_summary": str((self._pending_candidate_summary or {}).get("fit_summary") or "Manual path, review the entity and settings before saving."),
+                "selected_candidate_warnings": "\n".join(
+                    f"- {item}" for item in ((self._pending_candidate_summary or {}).get("warnings") or [])
+                ) or "- No extra warnings captured for this candidate.",
             },
         )
 
