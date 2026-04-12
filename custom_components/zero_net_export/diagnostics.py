@@ -28,7 +28,11 @@ from .const import (
     INTEGRATION_VERSION,
 )
 from .native_support import PRIMARY_CONFIGURE_PATH, build_native_operator_readiness
-from .release_info import build_install_provenance, build_release_info
+from .release_info import (
+    build_install_consistency_summary,
+    build_install_provenance,
+    build_release_info,
+)
 
 REDACT_CONFIG_KEYS = {
     CONF_NAME,
@@ -102,6 +106,8 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "integration_version": INTEGRATION_VERSION,
             "release_summary": release_info.get("summary"),
             "install_provenance_summary": install_provenance.get("summary"),
+            "install_consistency_summary": build_install_consistency_summary(install_provenance),
+            "live_validation_safe": install_provenance.get("live_validation_safe"),
             "release_update_summary": release_update.get("summary"),
         },
         "config": async_redact_data(dict(entry.data), REDACT_CONFIG_KEYS),

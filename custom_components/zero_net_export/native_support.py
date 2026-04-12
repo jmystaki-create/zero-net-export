@@ -31,7 +31,11 @@ from .const import (
     SOURCE_ROLE_LABELS,
 )
 from .device_model import parse_device_configs
-from .release_info import build_install_provenance, build_release_info
+from .release_info import (
+    build_install_consistency_summary,
+    build_install_provenance,
+    build_release_info,
+)
 from .validation import SourceSpec, format_source_binding_label
 
 PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure"
@@ -623,6 +627,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"Config entry version: {coordinator.entry.version}",
         f"Release summary: {release_info.get('summary', 'n/a')}",
         f"Install provenance: {install_provenance.get('summary', 'n/a')}",
+        f"Install consistency: {build_install_consistency_summary(install_provenance)}",
         f"Update visibility: {release_update.get('summary', 'n/a')}",
         "",
         "Installed package fingerprint",
@@ -817,17 +822,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     }
 
     install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
-    install_consistency = "Installed package version metadata matches the running code version."
-    if install_provenance.get("manifest_matches_code_version") is False:
-        install_consistency = (
-            "Installed package version metadata does not match the running code version. "
-            "Use the support snapshot to confirm the exact live package before trusting validation results."
-        )
-    elif install_provenance.get("manifest_error"):
-        install_consistency = (
-            "Installed package version metadata could not be read. "
-            "Use the support snapshot to confirm the exact live package before trusting validation results."
-        )
+    install_consistency = build_install_consistency_summary(install_provenance)
 
     return {
         "source_status": source_status,

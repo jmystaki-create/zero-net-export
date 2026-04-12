@@ -78,7 +78,7 @@ from .native_support import (
     build_source_selector_fallback_hint,
     summarize_validation_issue_messages,
 )
-from .release_info import build_install_provenance
+from .release_info import build_install_consistency_summary, build_install_provenance
 from .validation import (
     DERIVED_SOURCE_MODE_DIRECT,
     DERIVED_SOURCE_MODE_NEGATIVE_ABS,
@@ -1241,17 +1241,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
                 f"{INTEGRATION_DEVICE_PATH} support actions or Settings -> Repairs if deeper triage is still needed."
             )
-        support_install_consistency = "Installed package version metadata matches the running code version."
-        if install_provenance.get("manifest_matches_code_version") is False:
-            support_install_consistency = (
-                "Installed package version metadata does not match the running code version. "
-                "Confirm the exact live package path and restart from that synchronized source before trusting validation results."
-            )
-        elif install_provenance.get("manifest_error"):
-            support_install_consistency = (
-                "Installed package version metadata could not be read. "
-                "Confirm the exact live package path before trusting validation results."
-            )
+        support_install_consistency = build_install_consistency_summary(install_provenance)
         mode_label, mode_description = _live_mode_details(coordinator)
         return {
             "support_status": readiness.get("summary") or health_summary,

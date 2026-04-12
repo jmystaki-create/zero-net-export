@@ -60,11 +60,14 @@ def build_install_provenance() -> dict[str, Any]:
             "size_bytes": path.stat().st_size if exists else None,
         }
 
+    manifest_matches_code_version = manifest_version == INTEGRATION_VERSION if manifest_version else None
+    live_validation_safe = manifest_matches_code_version is not False and not manifest_error
+
     summary = f"Installed package path {component_root}; code version {INTEGRATION_VERSION}"
     if manifest_version:
         summary += f"; manifest version {manifest_version}"
-        if manifest_version != INTEGRATION_VERSION:
-            summary += " (version mismatch)"
+        if manifest_matches_code_version is False:
+            summary += " (version mismatch, mixed-build risk)"
     elif manifest_error:
         summary += f"; manifest unavailable ({manifest_error})"
 
@@ -73,11 +76,27 @@ def build_install_provenance() -> dict[str, Any]:
         "code_version": INTEGRATION_VERSION,
         "manifest_version": manifest_version,
         "manifest_error": manifest_error,
-        "manifest_matches_code_version": manifest_version == INTEGRATION_VERSION if manifest_version else None,
+        "manifest_matches_code_version": manifest_matches_code_version,
+        "live_validation_safe": live_validation_safe,
         "tracked_files": file_fingerprints,
         "summary": summary,
     }
 
+
+def build_install_consistency_summary(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return operator-facing guidance for whether live validation can be trusted."""
+    provenance = install_provenance or build_install_provenance()
+    if provenance.get("manifest_matches_code_version") is False:
+        return (
+            "Installed package version metadata does not match the running code version, so this install may be serving a mixed build. "
+            "Deploy one exact intended Zero Net Export build to one install path, then restart Home Assistant core from that synchronized source before trusting validation results."
+        )
+    if provenance.get("manifest_error"):
+        return (
+            "Installed package version metadata could not be read. "
+            "Confirm the exact live package path and tracked-file fingerprints before trusting validation results."
+        )
+    return "Installed package version metadata matches the running code version."
 
 def _parse_changelog_text(text: str) -> list[dict[str, Any]]:
     sections: list[dict[str, Any]] = []
