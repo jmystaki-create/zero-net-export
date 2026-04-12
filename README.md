@@ -81,14 +81,14 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 5.  Go to **Integrations**, find **Zero Net Export**, and click **Download**.
 6.  **Restart Home Assistant**.
 7.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
-8.  If you need to prove the running Home Assistant package matches the intended repo build, run `python3 scripts/print_expected_install_fingerprint.py` in this repo and compare its commit plus tracked-file hashes against the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
+8.  If you need to prove the running Home Assistant package matches the intended repo build, run `python3 scripts/print_expected_install_fingerprint.py` in this repo, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components` against the live install path. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
 
 ### Option 2: Manual Installation
 
 1.  Copy the `custom_components/zero_net_export` folder into your Home Assistant `/config/custom_components/` directory.
 2.  **Restart Home Assistant**.
 3.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
-4.  If you need to prove the copied package is the intended build, run `python3 scripts/print_expected_install_fingerprint.py` in this repo and compare its commit plus tracked-file hashes against the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
+4.  If you need to prove the copied package is the intended build, run `python3 scripts/print_expected_install_fingerprint.py` in this repo, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components` against the target install path. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
 5.  Go to **Settings** → **Devices & Services** → **Add Integration**.
 6.  Search for **Zero Net Export**.
 
@@ -146,6 +146,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Validation Checklist](docs/VALIDATION_CHECKLIST.md) | Real-installation sign-off checklist |
 | [Release Process](docs/RELEASE_PROCESS.md) | Package and release sequence reference |
 | `scripts/print_expected_install_fingerprint.py` | Prints the repo's expected tracked-file hashes and current commit for comparing a live Home Assistant install against the intended build |
+| `scripts/compare_install_fingerprint.py` | Compares the repo fingerprint against a chosen Home Assistant `custom_components` install path and reports whether the live files actually match |
 | [Implementation Plan](docs/IMPLEMENTATION_PLAN.md) | Current implementation trail and work decomposition |
 | [Operator Surfaces UX](docs/OPERATOR_SURFACES_UX.md) | Operator-facing flow and UX framing |
 | [Reference Matrix](docs/REFERENCE_MATRIX.md) | Cross-reference of implementation/documentation intent |

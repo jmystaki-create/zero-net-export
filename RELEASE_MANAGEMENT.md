@@ -36,6 +36,7 @@ Before touching Home Assistant, confirm:
 - changelog is updated
 - GitHub release publication/visibility is complete or in progress as part of the same operation
 - `python3 scripts/print_expected_install_fingerprint.py` reflects the exact repo build that is about to be deployed, so the later live-install comparison has one explicit expected commit and tracked-file hash set
+- `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components` is ready to compare the intended repo fingerprint against the actual install path immediately after deploy and before trusting restart validation
 
 ### 3. After approval, verify the latest version is actually published on GitHub
 After the user approves release execution, but before touching HACS or Home Assistant, explicitly verify that the intended version is visible on GitHub as the newest release.
@@ -73,13 +74,19 @@ Once the target version appears:
 - trigger the HACS upgrade/install for the new version
 - confirm HACS finishes the package update successfully
 
-### 7. Restart Home Assistant
+### 7. Compare the installed package against the intended repo build
+Before trusting runtime validation after the package update:
+- run `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components`
+- confirm the reported manifest version and tracked-file hashes all match the intended repo build
+- if the comparison does not fully match, stop and fix the install path/build mix before restart validation
+
+### 8. Restart Home Assistant
 After a Zero Net Export Python/config-flow/runtime release:
 - restart Home Assistant
 
 Current rule: restart is the safe default after these releases, even if a reload-only path may become possible later.
 
-### 8. Review Home Assistant logs for project-specific errors
+### 9. Review Home Assistant logs for project-specific errors
 After restart, inspect Home Assistant logs specifically for Zero Net Export related errors, warnings, retries, tracebacks, or runtime regressions.
 
 This review should:
@@ -88,7 +95,7 @@ This review should:
 - capture any newly exposed project-specific errors
 - feed those findings into the next release automatically, without waiting for the user to restate them
 
-### 9. Verify the live result
+### 10. Verify the live result
 After restart and log review, verify live Home Assistant state, ideally via API plus UI where useful:
 - config entry state
 - current installed version if exposed
@@ -97,7 +104,7 @@ After restart and log review, verify live Home Assistant state, ideally via API 
 - whether a new blocker appears
 - whether the installed package fingerprint shown in Configure or Health/support matches the intended repo build from `python3 scripts/print_expected_install_fingerprint.py`
 
-### 10. Report completion
+### 11. Report completion
 A release completion report should include:
 - released version
 - commit and tag
@@ -121,6 +128,7 @@ A release completion report should include:
 - [ ] HACS `Update information` triggered
 - [ ] HACS shows target version
 - [ ] HACS upgraded package
+- [ ] Installed path compared with `scripts/compare_install_fingerprint.py`
 - [ ] Home Assistant restarted
 - [ ] Project-specific HA logs reviewed after restart
 - [ ] Live HA verification completed
