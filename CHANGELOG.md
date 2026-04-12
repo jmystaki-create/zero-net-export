@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Tightened the remaining source-mapping remediation copy so Configure now points operators back to the exact **Sources and source mapping** path instead of vague `here` or `reopen Configure` wording while source validation is still blocking progress.
 - Tightened native command-center, fleet-console, diagnostics, support-center, and checklist path guidance so those shipped Home Assistant surfaces now point to the exact Configure section they belong to instead of leaking the generic root Configure path during operator triage.
 - Broadened the native combined-grid energy and battery-SOC dropdown matching so Configure now lists compatible sensors that expose the right units or state class even when vendors omit the ideal Home Assistant device_class, reducing fallback-field friction in real installs.
 - Tightened the remaining native support and Repairs recovery wording so runtime-attention and invalid-managed-device issues now name the exact Configure, managed-device, and advanced JSON recovery paths instead of vague `open the native Configure flow` guidance.
@@ -21,6 +22,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Made the native Configure copy more explicit about where to start after install and where device management versus policy tuning live, reducing the current operator-discoverability gap without adding any new surfaces.
 - Aligned the implementation trail with the supervisor's native-HA-only release stance so optional Lovelace/dashboard work is no longer presented as a near-term priority ahead of Configure, native diagnostics, and real-install validation.
 - Aligned the native support-path wording so the Configure command center and README both point operators to the full **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Health, support, and troubleshooting** path before deeper device-page and Repairs triage.
+- Tightened the README native device/support guidance so it names the exact integration device path instead of the vague `integration device page` shorthand.
 - Clarified the README native Configure walkthrough so the main managed-device workspace is described once, in sequence, instead of splitting device management guidance across duplicated steps that obscured the intended operator flow.
 - Made the native managed-device edit and remove pickers self-orienting by showing the current fleet, the main Configure path, and the recommended next device action instead of dropping operators into bare selector-only screens.
 - Corrected the release-process background doc so it no longer claims the first formal GitHub release may still be unpublished, and instead reflects the current tagged-release line plus the requirement to complete the full `RELEASE_MANAGEMENT.md` ship path before calling work shipped.

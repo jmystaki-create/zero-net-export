@@ -62,7 +62,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live in the integration's Configure flow.
 - **Configure is the intended command center**: the product direction is for operators to find sources, policy, managed devices, and support from one obvious native path.
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, unmanaged-candidate discovery plus promotion review, and a fleet-review enable/disable step for staging larger installs without dropping into raw JSON.
-- **Native Home Assistant operator surfaces**: Configure, the integration device page, entities, notifications, and Repairs are the supported operator path.
+- **Native Home Assistant operator surfaces**: Configure, the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, entities, notifications, and Repairs are the supported operator path.
 - **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 - **Native Repairs guidance**: Home Assistant's Repairs surface now flags incomplete setup, invalid managed-device configuration, and runtime attention states with actionable next steps.
 
@@ -105,14 +105,14 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 5.  Use **Managed devices** in Configure as the main device workspace: add fixed or variable controllable devices, review unmanaged candidates, promote the best-fit candidate into the managed fleet, then edit, enable or disable, and remove devices from that same native path. Use the fleet review there to stage larger installs. Use the JSON editor only for bulk structural edits or recovery.
 6.  Use **Policy and controller settings** in Configure for target/deadband/reserve defaults and related control behavior once sources and managed devices are in place.
 7.  Use **Health, support, and troubleshooting** in Configure for the next native triage step when runtime is blocked or unclear.
-8.  For deeper verification, use the integration device page buttons, entities, diagnostics, and **Repairs** after Configure points you to the next blocker.
+8.  For deeper verification, use the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, then its buttons, entities, diagnostics, and **Repairs** after Configure points you to the next blocker.
 
 ### Advanced / fallback paths
 
 - The initial add-integration flow remains bootstrap-only, and the normal post-install path is the native Configure flow.
 - Managed devices are still persisted internally as structured inventory JSON, but the primary native Configure flow now hides most of that behind add/edit/remove forms for fixed and variable devices.
 - The Lovelace YAML dashboard remains optional debug visibility inside Home Assistant, not part of the supported operator path.
-- The integration device page exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
+- The integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device** exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 - Home Assistant **Repairs** now mirrors the most important setup/runtime blockers, which gives operators one more built-in native surface for triage without hunting through multiple entity sections first.
 
 ---

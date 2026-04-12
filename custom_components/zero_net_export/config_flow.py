@@ -786,7 +786,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         if missing_source_keys:
             source_health = f"Missing required sources: {missing_sources}"
-            source_next_step = "Finish the missing required source roles here, then save and reload the integration."
+            source_next_step = (
+                f"Open {SOURCES_CONFIGURE_PATH}, finish the missing required source roles, then save and reload the integration."
+            )
         elif unavailable_source_keys or stale_source_keys:
             issue_parts = []
             if unavailable_source_keys:
@@ -796,17 +798,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             source_health = "Mapped source roles need attention, " + "; ".join(issue_parts)
             source_next_step = str(
                 readiness.get("next_step")
-                or "Repair the unavailable or stale mapped source roles, then save and reload the integration."
+                or f"Open {SOURCES_CONFIGURE_PATH}, repair the unavailable or stale mapped source roles, then save and reload the integration."
             )
         elif blocking_validation_details != "None":
             source_health = "Mapped source validation still has blocking errors: " + blocking_validation_details
             source_next_step = str(
                 readiness.get("next_step")
-                or "Repair the blocking source validation errors here, then save and reload the integration."
+                or f"Open {SOURCES_CONFIGURE_PATH}, repair the blocking source validation errors, then save and reload the integration."
             )
         elif state is None:
-            source_health = "Source health will appear here after the integration loads."
-            source_next_step = "Save source mapping, reload the integration, then reopen Configure to confirm live source health."
+            source_health = "Live source health will appear here after the integration loads."
+            source_next_step = (
+                f"Save source mapping, reload the integration, then reopen {SOURCES_CONFIGURE_PATH} to confirm live source health."
+            )
         else:
             source_health = str(
                 readiness.get("summary")
@@ -989,10 +993,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                         + _summarize_issue_messages(blocking_issues, severities={"error"}, limit=3)
                     ),
                     "source_next_step": (
-                        f"Repair the highlighted source roles here: {self._format_source_role_names(issue_role_keys)}. "
+                        f"Open {SOURCES_CONFIGURE_PATH}, then repair these highlighted source roles: {self._format_source_role_names(issue_role_keys)}. "
                         "If a valid picker choice still fails Home Assistant validation, clear that selector and paste the same entity ID into the matching fallback field."
                         if issue_role_keys
-                        else "Repair the highlighted source roles here, then save and reload the integration."
+                        else f"Open {SOURCES_CONFIGURE_PATH}, repair the highlighted source roles, then save and reload the integration."
                     ),
                     "source_mapping_summary": build_source_mapping_summary(merged_data),
                     "unavailable_sources": "None",
