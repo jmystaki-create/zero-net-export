@@ -41,7 +41,7 @@
         }
       },
       "native_setup": {
-        "title": "Sources",
+        "title": "Sources and source mapping",
         "description": "This is the source-mapping section of the Zero Net Export command center. First choose whether your grid sensors are exposed as one combined signed/net source or as separate import/export entities.\n\nCurrently missing required sources: {missing_sources}\nCurrent source health: {source_health}\nRecommended next step: {source_next_step}\n\nPrimary path: {configure_path}.",
         "data": {
           "grid_sensor_mode": "Grid import/export sensor layout"

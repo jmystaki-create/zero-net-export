@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Renamed the native Configure source step from plain `Sources` to `Sources and source mapping` so the actual command-center screen matches the landing guidance and keeps the main source-management path easier to recognize in Home Assistant.
 - Made the command-center landing screen and command-center guide show the current mapped source roles inline, and tightened live source-health summarising so healthy mappings no longer fall back to unrelated device/runtime reasons when operators are trying to understand source state.
 - Stopped the command-center and source-mapping screens from echoing whole-integration health summaries in the source-health slot once mappings were valid, so the native source row now stays source-specific instead of misleading operators about where remaining runtime issues live.
 - Wired the native health/support screen, support center, diagnostics snapshot, and setup checklist back to the command-center's recommended Configure section and exact path, so support-first triage now keeps pointing operators to the right native setup surface instead of dead-ending on generic health wording.
