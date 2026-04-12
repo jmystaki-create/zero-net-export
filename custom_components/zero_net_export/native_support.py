@@ -196,6 +196,33 @@ def summarize_validation_issue_messages(
     return "; ".join(messages) if messages else "None"
 
 
+def build_source_selector_fallback_hint(
+    *,
+    role_keys: list[str] | None = None,
+    validation_issues: list[dict[str, Any]] | None = None,
+) -> str:
+    """Return operator guidance for known HA entity-selector fallback paths."""
+    roles = set(role_keys or [])
+    for issue in validation_issues or []:
+        code = str(issue.get("code") or "")
+        if "_" not in code:
+            continue
+        key = code.rsplit("_", 1)[0]
+        if key in SOURCE_ROLE_LABELS:
+            roles.add(key)
+
+    hints: list[str] = []
+    if roles.intersection({CONF_GRID_IMPORT_ENERGY_ENTITY, CONF_GRID_EXPORT_ENERGY_ENTITY}):
+        hints.append(
+            "If the combined / net grid energy selector rejects a valid entity, clear it and paste the same entity ID into the Combined / net grid energy entity ID fallback field."
+        )
+    if CONF_BATTERY_SOC_ENTITY in roles:
+        hints.append(
+            "If the battery state of charge selector rejects a valid entity, clear it and paste the same entity ID into the Battery state of charge entity ID fallback field."
+        )
+    return " ".join(hints) if hints else ""
+
+
 def build_live_source_health_summary(state: Any) -> str:
     """Return source-specific runtime health without leaking device/runtime summaries."""
     if state is None:
@@ -317,6 +344,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     blocking_validation_issues = [
         issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
     ]
+    blocking_fallback_hint = build_source_selector_fallback_hint(validation_issues=blocking_validation_issues)
     stale_summary = str(validation_details.get("stale_source_summary") or "").strip()
 
     checklist = [
@@ -406,6 +434,8 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             )
         else:
             next_step = f"Open {SOURCES_CONFIGURE_PATH}, then use native diagnostics and calibration hints to fix source validation issues."
+            if blocking_fallback_hint:
+                next_step += f" {blocking_fallback_hint}"
         summary = "Native setup is waiting on healthy validated source data."
     elif device_parse_issues:
         phase = "device_remediation"

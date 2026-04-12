@@ -73,6 +73,7 @@ from .native_support import (
     build_source_attention_role_summary,
     build_source_attention_summary,
     build_source_mapping_summary,
+    build_source_selector_fallback_hint,
     summarize_validation_issue_messages,
 )
 from .validation import (
@@ -788,6 +789,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         stale_source_keys = attention["stale_source_keys"]
         blocking_validation_details = attention["blocking_validation_details"]
         source_attention_roles = build_source_attention_role_summary(state, effective, limit=4)
+        validation_issues = list(attention["validation_details"].get("issues", []) or [])
+        blocking_validation_issues = [
+            issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
+        ]
+        blocking_fallback_hint = build_source_selector_fallback_hint(validation_issues=blocking_validation_issues)
 
         missing_sources = self._format_source_role_names(missing_source_keys)
         unavailable_sources = self._format_source_role_names(unavailable_source_keys)
@@ -815,6 +821,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 readiness.get("next_step")
                 or f"Open {SOURCES_CONFIGURE_PATH}, repair the blocking source validation errors, then save and reload the integration."
             )
+            if blocking_fallback_hint and blocking_fallback_hint not in source_next_step:
+                source_next_step += f" {blocking_fallback_hint}"
         elif state is None:
             source_health = "Live source health will appear here after the integration loads."
             source_next_step = (
@@ -835,6 +843,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "stale_sources": stale_sources,
             "source_attention_roles": source_attention_roles,
             "blocking_validation_details": blocking_validation_details,
+            "source_fallback_hint": blocking_fallback_hint,
         }
 
     def _support_placeholders(self) -> dict[str, str]:
@@ -997,6 +1006,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 errors["base"] = "source_entities_invalid"
                 issue_role_keys = _issue_role_keys(blocking_issues, severities={"error"})
                 missing_source_keys = _grid_mode_missing_sources(merged_data, grid_mode)
+                source_fallback_hint = build_source_selector_fallback_hint(role_keys=issue_role_keys)
                 source_placeholders = {
                     "missing_sources": self._format_source_role_names(missing_source_keys),
                     "source_health": (
@@ -1005,7 +1015,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     ),
                     "source_next_step": (
                         f"Open {SOURCES_CONFIGURE_PATH}, then repair these highlighted source roles: {self._format_source_role_names(issue_role_keys)}. "
-                        "If a valid picker choice still fails Home Assistant validation, clear that selector and paste the same entity ID into the matching fallback field."
+                        f"{source_fallback_hint}"
                         if issue_role_keys
                         else f"Open {SOURCES_CONFIGURE_PATH}, repair the highlighted source roles, then save and reload the integration."
                     ),
@@ -1014,6 +1024,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     "stale_sources": "None",
                     "source_attention_roles": self._format_source_role_names(issue_role_keys),
                     "blocking_validation_details": _summarize_issue_messages(blocking_issues, severities={"error"}, limit=4),
+                    "source_fallback_hint": source_fallback_hint,
                 }
             else:
                 self.hass.config_entries.async_update_entry(
@@ -1164,7 +1175,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             effective_config = dict(self._config_entry.data)
             effective_config.update(self._config_entry.options)
             source_placeholders = self._source_placeholders(effective_config=effective_config, grid_mode=grid_mode)
-        fallback_guidance = (
+        fallback_guidance = source_placeholders.get("source_fallback_hint") or (
             "Combined grid energy and battery SOC now use native dropdowns to avoid Home Assistant's picker validation bug on some installs. If the right entity still is not listed, paste its entity ID into the matching fallback field below instead."
         )
         return self.async_show_form(
