@@ -197,14 +197,35 @@ def summarize_validation_issue_messages(
 
 
 def build_live_source_health_summary(state: Any) -> str:
-    """Return source-specific runtime health without leaking whole-integration summaries."""
+    """Return source-specific runtime health without leaking device/runtime summaries."""
     if state is None:
         return "Live source health will appear here after the integration loads."
-    return str(
-        getattr(state, "reason", None)
-        or getattr(state, "diagnostic_summary", None)
-        or "Mapped sources currently look healthy."
-    )
+
+    source_attention = build_source_attention_details(state)
+    merged_attention = build_source_attention_summary(state, limit=4)
+    if merged_attention != "None":
+        return f"Mapped source roles need attention: {merged_attention}"
+
+    blocking_validation = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
+    if blocking_validation != "None":
+        diagnostic_summary = str(getattr(state, "diagnostic_summary", "") or "").strip()
+        return diagnostic_summary or blocking_validation
+
+    if bool(getattr(state, "stale_data", False)):
+        stale_summary = str(getattr(state, "stale_source_summary", "") or "").strip()
+        if stale_summary:
+            return stale_summary
+
+    diagnostic_summary = str(getattr(state, "diagnostic_summary", "") or "").strip()
+    if diagnostic_summary and diagnostic_summary != "Source model looks internally consistent; no calibration issues detected right now":
+        return diagnostic_summary
+
+    source_diagnostics = source_attention.get("source_diagnostics", {})
+    if source_diagnostics:
+        ok_count = sum(1 for details in source_diagnostics.values() if details.get("status") == "ok")
+        return f"Mapped sources currently look healthy across {ok_count} mapped role(s)."
+
+    return "Mapped sources currently look healthy."
 
 
 def build_source_mapping_summary(
@@ -686,6 +707,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "source_status": source_status,
         "source_attention_summary": source_attention_summary,
         "source_attention_roles": source_attention_roles,
+        "source_mapping_summary": build_source_mapping_summary(merged),
         "device_status": device_status,
         "device_next_step": device_next_step,
         "policy_status": policy_status,

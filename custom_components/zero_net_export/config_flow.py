@@ -875,6 +875,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "source_status": command_center["source_status"],
             "source_attention_summary": command_center["source_attention_summary"],
             "source_attention_roles": command_center["source_attention_roles"],
+            "source_mapping_summary": command_center["source_mapping_summary"],
             "device_status": command_center["device_status"],
             "device_next_step": command_center["device_next_step"],
             "policy_status": command_center["policy_status"],
