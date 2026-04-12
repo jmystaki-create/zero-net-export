@@ -1,6 +1,8 @@
 """Release / changelog metadata helpers for Zero Net Export."""
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 import re
 from typing import Any
@@ -18,6 +20,63 @@ def _repo_root() -> Path:
 
 def _changelog_path() -> Path:
     return _repo_root() / "CHANGELOG.md"
+
+
+def _component_root() -> Path:
+    return Path(__file__).resolve().parent
+
+
+def _short_sha256(path: Path) -> str | None:
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+    except OSError:
+        return None
+
+
+def build_install_provenance() -> dict[str, Any]:
+    """Return install-path and key-file fingerprint details for live-source validation."""
+    component_root = _component_root()
+    manifest_path = component_root / "manifest.json"
+    manifest_version: str | None = None
+    manifest_error: str | None = None
+
+    try:
+        manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest_version = str(manifest_payload.get("version") or "") or None
+    except OSError as err:
+        manifest_error = str(err)
+    except json.JSONDecodeError as err:
+        manifest_error = f"manifest parse error: {err}"
+
+    tracked_files = ("manifest.json", "config_flow.py", "native_support.py", "coordinator.py")
+    file_fingerprints: dict[str, dict[str, str | int | None]] = {}
+    for relative_name in tracked_files:
+        path = component_root / relative_name
+        exists = path.exists()
+        file_fingerprints[relative_name] = {
+            "path": str(path),
+            "exists": exists,
+            "sha256_12": _short_sha256(path) if exists else None,
+            "size_bytes": path.stat().st_size if exists else None,
+        }
+
+    summary = f"Installed package path {component_root}; code version {INTEGRATION_VERSION}"
+    if manifest_version:
+        summary += f"; manifest version {manifest_version}"
+        if manifest_version != INTEGRATION_VERSION:
+            summary += " (version mismatch)"
+    elif manifest_error:
+        summary += f"; manifest unavailable ({manifest_error})"
+
+    return {
+        "component_root": str(component_root),
+        "code_version": INTEGRATION_VERSION,
+        "manifest_version": manifest_version,
+        "manifest_error": manifest_error,
+        "manifest_matches_code_version": manifest_version == INTEGRATION_VERSION if manifest_version else None,
+        "tracked_files": file_fingerprints,
+        "summary": summary,
+    }
 
 
 def _parse_changelog_text(text: str) -> list[dict[str, Any]]:

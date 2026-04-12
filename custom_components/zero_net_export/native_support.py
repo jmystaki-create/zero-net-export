@@ -31,7 +31,7 @@ from .const import (
     SOURCE_ROLE_LABELS,
 )
 from .device_model import parse_device_configs
-from .release_info import build_release_info
+from .release_info import build_install_provenance, build_release_info
 from .validation import SourceSpec, format_source_binding_label
 
 PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure"
@@ -214,13 +214,54 @@ def build_source_selector_fallback_hint(
     hints: list[str] = []
     if roles.intersection({CONF_GRID_IMPORT_ENERGY_ENTITY, CONF_GRID_EXPORT_ENERGY_ENTITY}):
         hints.append(
-            "If the combined / net grid energy selector rejects a valid entity, clear it and paste the same entity ID into the Combined / net grid energy entity ID fallback field."
+            "If Home Assistant rejects a valid Combined / net grid energy choice, first capture the exact validation error or screenshot, then clear that selector, paste the same entity ID into the Combined / net grid energy entity ID fallback field, and save again."
         )
     if CONF_BATTERY_SOC_ENTITY in roles:
         hints.append(
-            "If the battery state of charge selector rejects a valid entity, clear it and paste the same entity ID into the Battery state of charge entity ID fallback field."
+            "If Home Assistant rejects a valid Battery state of charge choice, first capture the exact validation error or screenshot, then clear that selector, paste the same entity ID into the Battery state of charge entity ID fallback field, and save again."
         )
     return " ".join(hints) if hints else ""
+
+
+def _format_source_role_list(source_keys: list[str] | None) -> str:
+    named_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in (source_keys or []) if key]
+    return ", ".join(named_roles[:6]) if named_roles else "None"
+
+
+def build_source_repair_step(
+    *,
+    missing_source_keys: list[str] | None = None,
+    unavailable_source_keys: list[str] | None = None,
+    stale_source_keys: list[str] | None = None,
+    blocking_validation_details: str | None = None,
+) -> str:
+    """Return a concise operator-facing next step for source repair work."""
+    missing_roles = _format_source_role_list(missing_source_keys)
+    unavailable_roles = _format_source_role_list(unavailable_source_keys)
+    stale_roles = _format_source_role_list(stale_source_keys)
+    blocking_details = str(blocking_validation_details or "").strip()
+
+    if missing_roles != "None":
+        return (
+            f"Open {SOURCES_CONFIGURE_PATH}, finish these required source roles: {missing_roles}, then save and reload the integration."
+        )
+
+    attention_parts: list[str] = []
+    if unavailable_roles != "None":
+        attention_parts.append(f"unavailable roles: {unavailable_roles}")
+    if stale_roles != "None":
+        attention_parts.append(f"stale roles: {stale_roles}")
+    if attention_parts:
+        return (
+            f"Open {SOURCES_CONFIGURE_PATH}, repair these mapped-source blockers ({'; '.join(attention_parts)}), then save and reload the integration."
+        )
+
+    if blocking_details and blocking_details != "None":
+        return (
+            f"Open {SOURCES_CONFIGURE_PATH}, repair the blocking source validation errors ({blocking_details}), then save and reload the integration."
+        )
+
+    return f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration."
 
 
 def build_live_source_health_summary(state: Any) -> str:
@@ -344,7 +385,15 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     blocking_validation_issues = [
         issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
     ]
-    blocking_fallback_hint = build_source_selector_fallback_hint(validation_issues=blocking_validation_issues)
+    blocking_fallback_roles = [
+        key
+        for key in source_attention["unavailable_source_keys"] + source_attention["stale_source_keys"]
+        if key in {CONF_GRID_IMPORT_ENERGY_ENTITY, CONF_GRID_EXPORT_ENERGY_ENTITY, CONF_BATTERY_SOC_ENTITY}
+    ]
+    blocking_fallback_hint = build_source_selector_fallback_hint(
+        role_keys=blocking_fallback_roles,
+        validation_issues=blocking_validation_issues,
+    )
     stale_summary = str(validation_details.get("stale_source_summary") or "").strip()
 
     checklist = [
@@ -434,8 +483,8 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             )
         else:
             next_step = f"Open {SOURCES_CONFIGURE_PATH}, then use native diagnostics and calibration hints to fix source validation issues."
-            if blocking_fallback_hint:
-                next_step += f" {blocking_fallback_hint}"
+        if blocking_fallback_hint:
+            next_step += f" {blocking_fallback_hint}"
         summary = "Native setup is waiting on healthy validated source data."
     elif device_parse_issues:
         phase = "device_remediation"
@@ -495,6 +544,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
     state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
     command_center = build_native_command_center_summary(coordinator)
     release_info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
+    install_provenance = build_install_provenance()
     source_attention = build_source_attention_details(state)
     validation_details = source_attention["validation_details"]
     release_update = validation_details.get("release_update", {})
@@ -551,6 +601,14 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- {issue.get('severity', 'info')}: {issue.get('message', issue)}"
         for issue in recent_issues
     ]
+    install_fingerprint_lines = [
+        (
+            f"- {name}: sha256_12={details.get('sha256_12') or 'n/a'}, "
+            f"size_bytes={details.get('size_bytes') if details.get('size_bytes') is not None else 'n/a'}, "
+            f"exists={details.get('exists')}"
+        )
+        for name, details in (install_provenance.get("tracked_files") or {}).items()
+    ]
     checklist_lines = [
         f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
         for item in operator_readiness.get("checklist", [])
@@ -564,7 +622,15 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"Integration version: {INTEGRATION_VERSION}",
         f"Config entry version: {coordinator.entry.version}",
         f"Release summary: {release_info.get('summary', 'n/a')}",
+        f"Install provenance: {install_provenance.get('summary', 'n/a')}",
         f"Update visibility: {release_update.get('summary', 'n/a')}",
+        "",
+        "Installed package fingerprint",
+        f"- component_root: {install_provenance.get('component_root', 'n/a')}",
+        f"- code_version: {install_provenance.get('code_version', 'n/a')}",
+        f"- manifest_version: {install_provenance.get('manifest_version', 'n/a')}",
+        f"- manifest_matches_code_version: {install_provenance.get('manifest_matches_code_version', 'n/a')}",
+        *install_fingerprint_lines,
         "",
         "Primary setup path",
         f"- {PRIMARY_CONFIGURE_PATH}",
@@ -684,11 +750,15 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             recommended_section = "Managed devices"
 
     if missing_required_sources:
-        next_action_summary = "Finish source mapping first, then return here to add devices and tune policy."
+        next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
     elif runtime_source_attention:
         next_action_summary = str(
             readiness.get("next_step")
-            or "Repair the unavailable or stale mapped source roles, then save and reload the integration."
+            or build_source_repair_step(
+                unavailable_source_keys=source_attention["unavailable_source_keys"],
+                stale_source_keys=source_attention["stale_source_keys"],
+                blocking_validation_details=blocking_validation_details,
+            )
         )
     elif device_parse_issues:
         next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."

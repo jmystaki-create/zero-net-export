@@ -28,7 +28,7 @@ from .const import (
     INTEGRATION_VERSION,
 )
 from .native_support import PRIMARY_CONFIGURE_PATH, build_native_operator_readiness
-from .release_info import build_release_info
+from .release_info import build_install_provenance, build_release_info
 
 REDACT_CONFIG_KEYS = {
     CONF_NAME,
@@ -89,6 +89,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     validation_details["source_freshness"] = source_freshness
 
     release_info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
+    install_provenance = build_install_provenance()
     release_update = deepcopy(safe_validation_details.get("release_update") or {})
     operator_readiness = deepcopy(build_native_operator_readiness(coordinator))
 
@@ -100,6 +101,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "config_entry_version": entry.version,
             "integration_version": INTEGRATION_VERSION,
             "release_summary": release_info.get("summary"),
+            "install_provenance_summary": install_provenance.get("summary"),
             "release_update_summary": release_update.get("summary"),
         },
         "config": async_redact_data(dict(entry.data), REDACT_CONFIG_KEYS),
@@ -185,5 +187,6 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         },
         "validation_details": validation_details,
         "release_info": release_info,
+        "install_provenance": install_provenance,
         "release_update": release_update,
     }
