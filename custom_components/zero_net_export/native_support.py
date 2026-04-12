@@ -575,6 +575,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     unavailable_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["unavailable_source_keys"]]
     stale_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["stale_source_keys"]]
     source_attention_summary = build_source_attention_summary(state, merged, limit=4)
+    source_attention_roles = build_source_attention_role_summary(state, merged, limit=4)
     blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
     runtime_source_attention = bool(unavailable_source_roles or stale_source_roles or blocking_validation_details != "None")
 
@@ -606,12 +607,17 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     if device_parse_issues:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
+        device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
         recommended_section = "Managed devices"
     elif configured_devices:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
         device_status = runtime_device_status or f"{len(configured_devices)} configured"
+        device_next_step = (
+            f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
+        )
     else:
         device_status = "No managed devices configured yet"
+        device_next_step = f"Open {DEVICES_CONFIGURE_PATH} and add at least one controllable load from the managed-device flow."
         if not missing_required_sources and not runtime_source_attention:
             recommended_section = "Managed devices"
 
@@ -635,6 +641,17 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
         f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
     )
+    if missing_required_sources:
+        policy_readiness = "Finish source mapping first. Policy tuning is not actionable until the required mapped roles are complete."
+    elif runtime_source_attention:
+        policy_readiness = f"Repair mapped-source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
+    elif device_parse_issues:
+        policy_readiness = "Repair the managed-device configuration first so policy changes apply to a trustworthy fleet."
+    elif not configured_devices:
+        policy_readiness = "You can tune policy now, but no controllable device can act until at least one managed device is added."
+    else:
+        policy_readiness = "Sources are mapped and managed devices exist, so policy changes are actionable now."
+
     support_status = str(
         readiness.get("summary")
         or getattr(state, "health_summary", None)
@@ -658,8 +675,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     return {
         "source_status": source_status,
         "source_attention_summary": source_attention_summary,
+        "source_attention_roles": source_attention_roles,
         "device_status": device_status,
+        "device_next_step": device_next_step,
         "policy_status": policy_status,
+        "policy_readiness": policy_readiness,
         "support_status": support_status,
         "status_summary": status_summary_map.get(recommended_section, support_status),
         "recommended_section": recommended_section,

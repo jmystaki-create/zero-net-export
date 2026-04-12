@@ -477,8 +477,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             command_center = build_native_command_center_summary(self.coordinator)
             return {
                 "source_status": command_center.get("source_status"),
+                "source_attention_roles": command_center.get("source_attention_roles"),
                 "device_status": command_center.get("device_status"),
+                "device_next_step": command_center.get("device_next_step"),
                 "policy_status": command_center.get("policy_status"),
+                "policy_readiness": command_center.get("policy_readiness"),
                 "support_status": command_center.get("support_status"),
                 "status_summary": command_center.get("status_summary"),
                 "recommended_section": command_center.get("recommended_section"),

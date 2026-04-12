@@ -86,8 +86,11 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
             "recommended_path": command_center.get("recommended_path"),
             "next_step": command_center.get("next_action_summary"),
             "source_status": command_center.get("source_status"),
+            "source_attention_roles": command_center.get("source_attention_roles"),
             "device_status": command_center.get("device_status"),
+            "device_next_step": command_center.get("device_next_step"),
             "policy_status": command_center.get("policy_status"),
+            "policy_readiness": command_center.get("policy_readiness"),
             "support_status": command_center.get("support_status"),
         }
 
@@ -104,8 +107,11 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
                 "",
                 "Current status",
                 f"- Sources: {command_center.get('source_status')}",
+                f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
                 f"- Managed devices: {command_center.get('device_status')}",
+                f"- Managed-device next step: {command_center.get('device_next_step')}",
                 f"- Policy: {command_center.get('policy_status')}",
+                f"- Policy readiness: {command_center.get('policy_readiness')}",
                 f"- Health and support: {command_center.get('support_status')}",
                 "",
                 "Where each native path lives",
