@@ -227,10 +227,13 @@ class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEnti
     @property
     def extra_state_attributes(self):
         readiness = build_native_operator_readiness(self.coordinator)
+        command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": SUPPORT_CONFIGURE_PATH,
             "phase": readiness.get("phase"),
-            "next_step": readiness.get("next_step"),
+            "next_step": command_center.get("next_action_summary") or readiness.get("next_step"),
+            "recommended_section": command_center.get("recommended_section"),
+            "recommended_path": command_center.get("recommended_path"),
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "health_summary": self._state.health_summary if self._state else None,
         }
@@ -253,8 +256,12 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
 
     @property
     def extra_state_attributes(self):
+        command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": SUPPORT_CONFIGURE_PATH,
+            "recommended_section": command_center.get("recommended_section"),
+            "recommended_path": command_center.get("recommended_path"),
+            "next_step": command_center.get("next_action_summary"),
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "health_summary": self._state.health_summary if self._state else None,
         }
@@ -285,8 +292,12 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
     @property
     def extra_state_attributes(self):
         readiness = build_native_operator_readiness(self.coordinator)
+        command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": SUPPORT_CONFIGURE_PATH,
+            "recommended_section": command_center.get("recommended_section"),
+            "recommended_path": command_center.get("recommended_path"),
+            "next_step": command_center.get("next_action_summary") or readiness.get("next_step"),
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "source_mismatch": self._state.source_mismatch if self._state else None,
             "stale_data": self._state.stale_data if self._state else None,
@@ -295,6 +306,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         readiness = build_native_operator_readiness(self.coordinator)
+        command_center = build_native_command_center_summary(self.coordinator)
         checklist = readiness.get("checklist") or []
         checklist_lines = [
             f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
@@ -307,9 +319,11 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 f"Entry: {self.coordinator.entry.title}",
                 f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
                 f"Health and support path: {SUPPORT_CONFIGURE_PATH}",
+                f"Recommended command-center section: {command_center.get('recommended_section')}",
+                f"Recommended command-center path: {command_center.get('recommended_path')}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
                 f"Summary: {readiness.get('summary') or (self._state.health_summary if self._state else None)}",
-                f"Next step: {readiness.get('next_step') or (self._state.recommendation if self._state else None)}",
+                f"Next step: {command_center.get('next_action_summary') or readiness.get('next_step') or (self._state.recommendation if self._state else None)}",
                 "",
                 "Checklist",
                 *(checklist_lines or ["- No checklist available yet."]),

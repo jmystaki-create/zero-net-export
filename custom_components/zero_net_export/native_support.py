@@ -431,6 +431,7 @@ def _build_support_sections(coordinator: Any) -> tuple[Any, list[dict[str, Any]]
 def build_native_support_snapshot(coordinator: Any) -> str:
     """Return the operator support snapshot for native HA surfaces."""
     state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
+    command_center = build_native_command_center_summary(coordinator)
     release_info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
     source_attention = build_source_attention_details(state)
     validation_details = source_attention["validation_details"]
@@ -506,11 +507,14 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         "Primary setup path",
         f"- {PRIMARY_CONFIGURE_PATH}",
         f"- Health and support: {SUPPORT_CONFIGURE_PATH}",
+        f"- Recommended command-center section: {command_center.get('recommended_section')}",
+        f"- Recommended command-center path: {command_center.get('recommended_path')}",
+        f"- Command-center next action: {command_center.get('next_action_summary')}",
         "",
         "Readiness",
         f"- phase: {operator_readiness.get('phase')}",
         f"- summary: {operator_readiness.get('summary')}",
-        f"- next_step: {operator_readiness.get('next_step')}",
+        f"- next_step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
         *checklist_lines,
         "",
         "Runtime summary",
@@ -696,6 +700,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 def build_native_support_center(coordinator: Any) -> str:
     """Return a single operator-facing support bundle for native HA surfaces."""
     _, _, _, operator_readiness = _build_support_sections(coordinator)
+    command_center = build_native_command_center_summary(coordinator)
     snapshot = build_native_support_snapshot(coordinator)
     checklist_lines = [
         f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
@@ -707,9 +712,11 @@ def build_native_support_center(coordinator: Any) -> str:
             "",
             f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
             f"Health and support path: {SUPPORT_CONFIGURE_PATH}",
+            f"Recommended command-center section: {command_center.get('recommended_section')}",
+            f"Recommended command-center path: {command_center.get('recommended_path')}",
             f"Readiness phase: {operator_readiness.get('phase')}",
             f"Summary: {operator_readiness.get('summary')}",
-            f"Next step: {operator_readiness.get('next_step')}",
+            f"Next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
             "",
             "Checklist",
             *(checklist_lines or ["- No checklist available yet."]),

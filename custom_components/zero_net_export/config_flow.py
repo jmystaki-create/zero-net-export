@@ -837,6 +837,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         coordinator = self._coordinator()
         state = getattr(coordinator, "data", None) if coordinator is not None else None
         readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+        command_center = build_native_command_center_summary(coordinator) if coordinator is not None else {}
         source_attention = build_source_attention_details(state)
         unavailable_sources = self._format_source_role_names(source_attention["unavailable_source_keys"])
         stale_sources = self._format_source_role_names(source_attention["stale_source_keys"])
@@ -864,6 +865,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_source_attention_roles": build_source_attention_role_summary(state, merged, limit=4),
             "support_attention_summary": build_source_attention_summary(state, merged, limit=4),
             "support_blocking_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+            "recommended_section": str(command_center.get("recommended_section") or "Health, support, and troubleshooting"),
+            "recommended_path": str(command_center.get("recommended_path") or SUPPORT_CONFIGURE_PATH),
+            "next_action_summary": str(command_center.get("next_action_summary") or readiness.get("next_step") or "Review the current blocker, then follow the recommended native Configure path."),
         }
 
     async def async_step_init(self, user_input=None):

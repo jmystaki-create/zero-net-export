@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Wired the native health/support screen, support center, diagnostics snapshot, and setup checklist back to the command-center's recommended Configure section and exact path, so support-first triage now keeps pointing operators to the right native setup surface instead of dead-ending on generic health wording.
 - Tightened the remaining source-mapping remediation copy so Configure now points operators back to the exact **Sources and source mapping** path instead of vague `here` or `reopen Configure` wording while source validation is still blocking progress.
 - Tightened native command-center, fleet-console, diagnostics, support-center, and checklist path guidance so those shipped Home Assistant surfaces now point to the exact Configure section they belong to instead of leaking the generic root Configure path during operator triage.
 - Broadened the native combined-grid energy and battery-SOC dropdown matching so Configure now lists compatible sensors that expose the right units or state class even when vendors omit the ideal Home Assistant device_class, reducing fallback-field friction in real installs.
