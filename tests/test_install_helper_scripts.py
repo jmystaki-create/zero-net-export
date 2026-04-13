@@ -211,14 +211,40 @@ class InstallHelperScriptsTests(unittest.TestCase):
     def test_deploy_exact_repo_build_dry_run_refuses_when_upstream_is_not_synced(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             config_root = Path(tmpdir) / "config"
-            result = self.run_script(
-                "scripts/deploy_exact_repo_build.py",
-                str(config_root),
-                "--dry-run",
-                "--require-upstream-sync",
-            )
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("repo is not synchronized with its tracked upstream", result.stderr)
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                patch.object(deploy_exact_repo_build, "git_status_details", return_value=(False, [])),
+                patch.object(
+                    deploy_exact_repo_build,
+                    "git_remote_tracking_details",
+                    return_value={
+                        "git_branch": "feature/test",
+                        "git_upstream": "origin/feature/test",
+                        "git_upstream_commit": "5753f33",
+                        "git_local_vs_upstream": "ahead",
+                        "git_ahead_count": 2,
+                        "git_behind_count": 0,
+                    },
+                ),
+                patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "deploy_exact_repo_build.py",
+                        str(config_root),
+                        "--dry-run",
+                        "--require-upstream-sync",
+                    ],
+                ),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                with self.assertRaises(SystemExit) as exc:
+                    deploy_exact_repo_build.main()
+
+            self.assertNotEqual(exc.exception.code, 0)
+            self.assertIn("repo is not synchronized with its tracked upstream", str(exc.exception))
 
     def test_deploy_exact_repo_build_copies_and_validates_install(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
