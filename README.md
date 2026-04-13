@@ -90,12 +90,12 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
     ```bash
     python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync
     ```
-    Confirm the preview shows the intended `git_commit`, `git_upstream_commit`, `git_local_vs_upstream=in_sync`, whether `git_working_tree_dirty` is `true` or `false`, and the exact `git_working_tree_changes` being deployed.
+    Confirm the preview shows `repo_deploy_requirements_passed=true`, `copy_ready=true`, the intended `git_commit`, `git_upstream_commit`, `git_local_vs_upstream=in_sync`, `git_working_tree_dirty=false`, and `git_working_tree_changes=none`.
 2.  If the resolved destination is correct, deploy the exact repo build:
     ```bash
     python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --expected-commit <intended_commit> --require-clean --require-upstream-sync
     ```
-3.  Confirm the installed package matches the current repo fingerprint:
+3.  Confirm the deploy helper reports `post_copy_validation=passed` and `restart_ready=true`, then confirm the installed package matches the current repo fingerprint:
     ```bash
     python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components
     ```

@@ -239,6 +239,12 @@ def emit_repo_build_summary(*, root: Path, commit: str) -> tuple[str, bool | Non
     return commit, dirty, changed_files
 
 
+def emit_deploy_readiness(*, ready_for_copy: bool, restart_ready: bool = False) -> None:
+    print(f"repo_deploy_requirements_passed={str(bool(ready_for_copy)).lower()}")
+    print(f"copy_ready={str(bool(ready_for_copy)).lower()}")
+    print(f"restart_ready={str(bool(restart_ready)).lower()}")
+
+
 def enforce_repo_build_requirements(
     *,
     root: Path,
@@ -289,6 +295,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
         raise
 
     emit_repo_build_summary(root=root, commit=commit)
+    emit_deploy_readiness(ready_for_copy=True, restart_ready=False)
     print(f"deployed_commit={commit}")
     print(f"source_component_root={source_root}")
     print(f"resolved_destination={destination_root}")
@@ -303,6 +310,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
         return validation_rc
 
     print("post_copy_validation=passed")
+    emit_deploy_readiness(ready_for_copy=True, restart_ready=True)
     print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
     print("next_step=restart Home Assistant core from this synchronized install path")
     return 0
@@ -357,6 +365,7 @@ def main() -> int:
         print(f"source_component_root={source_root}")
         print(f"resolved_destination={destination_root}")
         emit_repo_build_summary(root=root, commit=commit)
+        emit_deploy_readiness(ready_for_copy=True, restart_ready=False)
         print(f"destination_exists={destination_root.exists()}")
         emit_pre_deploy_install_summary(pre_deploy_install_summary(destination_root, root=root))
         if destination_root.exists():
