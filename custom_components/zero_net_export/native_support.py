@@ -944,7 +944,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "recommended_section": recommended_section,
         "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),
         "next_action_summary": next_action_summary,
-        "detailed_management_path": DETAILED_MANAGEMENT_PATH,
         "detailed_management_summary": detailed_management_summary,
         "sources_path": SOURCES_CONFIGURE_PATH,
         "devices_path": DEVICES_CONFIGURE_PATH,
