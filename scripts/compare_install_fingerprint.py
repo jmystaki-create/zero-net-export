@@ -68,6 +68,10 @@ def normalize_component_root(input_path: Path, *, repo_component_root: Path | No
     resolved = input_path.expanduser().resolve()
     if resolved.name == "zero_net_export" and resolved.parent.name == "custom_components":
         return resolved
+    if resolved.name == "custom_components":
+        candidate = resolved / "zero_net_export"
+        if candidate.exists():
+            return candidate
     candidate = resolved / "custom_components" / "zero_net_export"
     if candidate.exists():
         return candidate
@@ -83,7 +87,7 @@ def validate_component_root(component_root: Path, *, repo_component_root: Path |
         )
     if component_root.name != "zero_net_export":
         raise SystemExit(
-            f"Resolved install path {component_root} is not a custom_components/zero_net_export directory."
+            f"Resolved install path {component_root} is not a custom_components/zero_net_export directory. Pass the Home Assistant config directory, the custom_components directory, or the installed custom_components/zero_net_export path."
         )
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -96,6 +97,10 @@ def discover_home_assistant_config_roots() -> list[Path]:
     return candidates
 
 
+def shell_command(*parts: str | Path) -> str:
+    return " ".join(shlex.quote(str(part)) for part in parts)
+
+
 def emit_discovered_home_assistant_config_roots() -> int:
     candidates = discover_home_assistant_config_roots()
     print(f"discovered_config_count={len(candidates)}")
@@ -107,7 +112,8 @@ def emit_discovered_home_assistant_config_roots() -> int:
     print("discovered_config_paths=")
     for candidate in candidates:
         print(str(candidate))
-    print("next_step=rerun this script with one discovered config path, for example: python3 scripts/deploy_exact_repo_build.py /path/to/config --dry-run")
+    print(f"example_dry_run_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', candidates[0], '--dry-run')}")
+    print("next_step=rerun this script with one discovered config path in --dry-run mode, then deploy that exact path")
     return 0
 
 
@@ -153,9 +159,13 @@ def restore_backup(destination_root: Path, backup_path: Path | None) -> None:
         shutil.move(str(backup_path), str(destination_root))
 
 
+def validation_target_path(destination_root: Path) -> Path:
+    return destination_root.parent
+
+
 def validate_install(destination_root: Path) -> int:
     script = repo_root() / "scripts" / "validate_install_fingerprint.py"
-    result = subprocess.run([sys.executable, str(script), str(destination_root)], cwd=repo_root())
+    result = subprocess.run([sys.executable, str(script), str(validation_target_path(destination_root))], cwd=repo_root())
     return result.returncode
 
 
@@ -236,6 +246,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
         return validation_rc
 
     print("post_copy_validation=passed")
+    print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
     print("next_step=restart Home Assistant core from this synchronized install path")
     return 0
 
@@ -272,6 +283,8 @@ def main() -> int:
         emit_pre_deploy_install_summary(pre_deploy_install_summary(destination_root, root=root))
         if destination_root.exists():
             print(f"planned_backup_path={planned_backup_path(destination_root)}")
+        print(f"next_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', args.path)}")
+        print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
         print("action=preview_only")
         return 0
 

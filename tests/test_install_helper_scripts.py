@@ -52,6 +52,19 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertTrue(payload["comparison"]["overall_match"])
             self.assertEqual(payload["actual"]["component_root"], str(install_root))
 
+    def test_compare_install_fingerprint_accepts_custom_components_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_root = Path(tmpdir) / "config"
+            custom_components_root = config_root / "custom_components"
+            install_root = custom_components_root / "zero_net_export"
+            shutil.copytree(COMPONENT_ROOT, install_root)
+
+            result = self.run_script("scripts/compare_install_fingerprint.py", str(custom_components_root))
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertTrue(payload["comparison"]["overall_match"])
+            self.assertEqual(payload["actual"]["component_root"], str(install_root))
+
     def test_compare_install_fingerprint_refuses_repo_source_tree(self) -> None:
         result = self.run_script("scripts/compare_install_fingerprint.py", str(COMPONENT_ROOT))
         self.assertNotEqual(result.returncode, 0)
@@ -67,6 +80,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("git_working_tree_changes=", result.stdout)
             self.assertIn("existing_install_present=false", result.stdout)
             self.assertIn("current_install_matches_repo=unknown", result.stdout)
+            self.assertIn(f"next_command=python3 scripts/deploy_exact_repo_build.py {config_root}", result.stdout)
+            self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
 
     def test_deploy_exact_repo_build_discover_home_assistant_config_uses_env_hint(self) -> None:
@@ -88,7 +103,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, msg=result.stderr)
             self.assertIn("discovered_config_count=", result.stdout)
             self.assertIn(str(config_root.resolve()), result.stdout)
-            self.assertIn("next_step=rerun this script with one discovered config path", result.stdout)
+            self.assertIn(f"example_dry_run_command=python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run", result.stdout)
+            self.assertIn("next_step=rerun this script with one discovered config path in --dry-run mode, then deploy that exact path", result.stdout)
 
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -116,6 +132,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("git_working_tree_dirty=", result.stdout)
             self.assertIn("git_working_tree_changes=", result.stdout)
             self.assertIn("post_copy_validation=passed", result.stdout)
+            self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertTrue((config_root / "custom_components" / "zero_net_export" / "manifest.json").exists())
 
     def test_deploy_exact_repo_build_restores_backup_when_validation_fails(self) -> None:
