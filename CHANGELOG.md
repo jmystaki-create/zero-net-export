@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Added `scripts/validate_install_fingerprint.py` so the repo can capture the intended fingerprint, compare the live Home Assistant install path, and save both JSON evidence artifacts in one command before restart/live validation.
 - Added `scripts/compare_install_fingerprint.py` so the repo fingerprint can be compared directly against a chosen Home Assistant `custom_components` install path, with a single JSON verdict for manifest drift and tracked-file mismatches before restart/live validation.
 - Expanded `scripts/compare_install_fingerprint.py` so it now records manifest/file mismatch summaries and can save the full comparison payload with `--write-json`, making mixed-build deploy proof easier to capture during live Home Assistant validation.
 - Added `scripts/print_expected_install_fingerprint.py` plus release/validation guidance so the intended repo build's commit and tracked-file hashes can be compared directly against the installed package fingerprint shown in native Home Assistant surfaces before trusting live validation.

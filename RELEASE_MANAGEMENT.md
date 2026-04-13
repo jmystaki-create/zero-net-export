@@ -35,8 +35,8 @@ Before touching Home Assistant, confirm:
 - manifest version matches the intended release version
 - changelog is updated
 - GitHub release publication/visibility is complete or in progress as part of the same operation
-- `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` reflects the exact repo build that is about to be deployed and saves one explicit expected commit plus tracked-file hash set for the later live-install comparison
-- `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json` is ready to compare that captured intended fingerprint against the actual install path immediately after deploy and before trusting restart validation, while also saving the comparison verdict as evidence
+- `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` is ready to capture `tmp/expected-install-fingerprint.json`, compare the intended fingerprint against the actual install path, save `tmp/install-fingerprint-compare.json`, and fail fast on mismatch before restart validation
+- if deeper debugging is needed, the split-step `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` plus `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json` path remains available
 
 ### 3. After approval, verify the latest version is actually published on GitHub
 After the user approves release execution, but before touching HACS or Home Assistant, explicitly verify that the intended version is visible on GitHub as the newest release.
@@ -76,9 +76,9 @@ Once the target version appears:
 
 ### 7. Compare the installed package against the intended repo build
 Before trusting runtime validation after the package update:
-- run `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`
-- confirm the reported manifest version and tracked-file hashes all match the intended repo build
-- if the comparison exits non-zero or does not fully match, stop and fix the install path/build mix before restart validation
+- run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components`
+- confirm the saved comparison payload reports the manifest version and tracked-file hashes all matching the intended repo build
+- if the validation helper exits non-zero or does not fully match, stop and fix the install path/build mix before restart validation
 
 ### 8. Restart Home Assistant
 After a Zero Net Export Python/config-flow/runtime release:
@@ -121,14 +121,14 @@ A release completion report should include:
 - [ ] `main` contains intended release commit
 - [ ] manifest version updated
 - [ ] changelog updated
-- [ ] Expected repo fingerprint captured with `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`
+- [ ] Expected repo fingerprint captured, preferably via `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` or by the split-step helper if debugging is needed
 - [ ] tag created and pushed
 - [ ] GitHub release published/visible
 - [ ] GitHub latest-release state verified after approval
 - [ ] HACS `Update information` triggered
 - [ ] HACS shows target version
 - [ ] HACS upgraded package
-- [ ] Installed path compared with `scripts/compare_install_fingerprint.py --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`
+- [ ] Installed path compared, preferably via `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` or by the split-step helper if debugging is needed
 - [ ] Home Assistant restarted
 - [ ] Project-specific HA logs reviewed after restart
 - [ ] Live HA verification completed

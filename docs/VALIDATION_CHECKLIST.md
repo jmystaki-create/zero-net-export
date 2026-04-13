@@ -7,7 +7,8 @@ Supervisor note: this document is the evidence ledger for the release gates defi
 ## Recommended next validation run
 
 Repo-side helper for mixed-build checks:
-- Run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` in this repo before deploying or validating, then run `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json` against the live install path. You can point the compare script at the Home Assistant config directory, the `custom_components` directory, or the `custom_components/zero_net_export` directory itself. Compare that expected commit, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or Health, support, and troubleshooting. The compare script exits non-zero on mismatch, now fails fast if the path does not actually contain `zero_net_export/manifest.json`, and can save the full comparison verdict as validation evidence.
+- Run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` in this repo before trusting deploy or validation results. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the `custom_components/zero_net_export` directory itself. Compare that expected commit, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or Health, support, and troubleshooting.
+- If you need the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare script exits non-zero on mismatch, fails fast if the path does not actually contain `zero_net_export/manifest.json`, and can save the full comparison verdict as validation evidence.
 
 If you are progressing the project right now, do this in order:
 
@@ -43,8 +44,8 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] Home Assistant restart completes successfully
 - [ ] Integration appears in Settings → Devices & Services
 - [ ] HACS shows the expected new version/tag before upgrade
-- [ ] `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` was captured for the intended repo build before validation
-- [ ] `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json` reports a full match for the install being tested, using a path that actually resolves to the live `custom_components/zero_net_export` component
+- [ ] `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` was run for the intended repo build before validation, producing `tmp/expected-install-fingerprint.json` and `tmp/install-fingerprint-compare.json`
+- [ ] The saved comparison payload, or the equivalent split-step `print_expected_install_fingerprint.py` plus `compare_install_fingerprint.py` run, reports a full match for the install being tested, using a path that actually resolves to the live `custom_components/zero_net_export` component
 - [ ] The installed package contents match the expected release (not an older cached/raw form-first build)
 
 ### Manual Install Path
