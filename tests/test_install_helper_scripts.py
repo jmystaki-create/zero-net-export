@@ -12,7 +12,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts import deploy_exact_repo_build
+from scripts import compare_install_fingerprint, deploy_exact_repo_build
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +37,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
         self.assertEqual(payload["component_root"], str(COMPONENT_ROOT))
         self.assertIn("working_tree_dirty", payload)
         self.assertIn("working_tree_changes", payload)
+        self.assertIn("git_branch", payload)
+        self.assertIn("git_local_vs_upstream", payload)
         self.assertIn("manifest.json", payload["tracked_files"])
         self.assertTrue(payload["tracked_files"]["manifest.json"]["exists"])
         self.assertEqual(payload["tracked_files"]["translations/en.json"]["path"], str(COMPONENT_ROOT / "translations" / "en.json"))
@@ -79,6 +81,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"resolved_destination={config_root / 'custom_components' / 'zero_net_export'}", result.stdout)
             self.assertIn("git_working_tree_dirty=", result.stdout)
             self.assertIn("git_working_tree_changes=", result.stdout)
+            self.assertIn("git_branch=", result.stdout)
+            self.assertIn("git_local_vs_upstream=", result.stdout)
             self.assertIn("existing_install_present=false", result.stdout)
             self.assertIn("current_install_matches_repo=unknown", result.stdout)
             self.assertIn(f"next_command=python3 scripts/deploy_exact_repo_build.py {config_root}", result.stdout)
@@ -170,6 +174,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, msg=result.stderr)
             self.assertIn("git_working_tree_dirty=", result.stdout)
             self.assertIn("git_working_tree_changes=", result.stdout)
+            self.assertIn("git_branch=", result.stdout)
+            self.assertIn("git_local_vs_upstream=", result.stdout)
             self.assertIn("post_copy_validation=passed", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertTrue((config_root / "custom_components" / "zero_net_export" / "manifest.json").exists())
@@ -197,6 +203,27 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertTrue(sentinel.exists())
             self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep me")
             self.assertFalse(any(install_root.parent.glob("zero_net_export.backup-*")))
+
+    def test_git_remote_tracking_details_reports_ahead_branch_state(self) -> None:
+        outputs = {
+            ("branch", "--show-current"): "feature/test\n",
+            ("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"): "origin/feature/test\n",
+            ("rev-parse", "--short", "origin/feature/test"): "5753f33\n",
+            ("rev-list", "--left-right", "--count", "origin/feature/test...HEAD"): "0 2\n",
+        }
+
+        def fake_check_output(args, cwd=None, text=None):
+            return outputs[tuple(args[1:])]
+
+        with patch.object(compare_install_fingerprint.subprocess, "check_output", side_effect=fake_check_output):
+            tracking = compare_install_fingerprint.git_remote_tracking_details(REPO_ROOT)
+
+        self.assertEqual(tracking["git_branch"], "feature/test")
+        self.assertEqual(tracking["git_upstream"], "origin/feature/test")
+        self.assertEqual(tracking["git_upstream_commit"], "5753f33")
+        self.assertEqual(tracking["git_local_vs_upstream"], "ahead")
+        self.assertEqual(tracking["git_ahead_count"], 2)
+        self.assertEqual(tracking["git_behind_count"], 0)
 
 
 if __name__ == "__main__":

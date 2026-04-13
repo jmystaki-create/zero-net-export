@@ -10,6 +10,13 @@ from pathlib import Path
 from typing import Any
 
 
+def _git_output(repo_root: Path, *args: str) -> str | None:
+    try:
+        return subprocess.check_output(["git", *args], cwd=repo_root, text=True).strip()
+    except Exception:
+        return None
+
+
 def git_status_details(repo_root: Path) -> tuple[bool | None, list[str]]:
     try:
         output = subprocess.check_output(
@@ -58,10 +65,54 @@ def read_manifest_version(path: Path) -> str | None:
 
 
 def git_commit(repo_root: Path) -> str:
-    try:
-        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=repo_root, text=True).strip()
-    except Exception:
-        return "unknown"
+    return _git_output(repo_root, "rev-parse", "--short", "HEAD") or "unknown"
+
+
+def git_remote_tracking_details(repo_root: Path) -> dict[str, Any]:
+    branch = _git_output(repo_root, "branch", "--show-current") or "detached"
+    upstream = _git_output(repo_root, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}")
+    if not upstream:
+        return {
+            "git_branch": branch,
+            "git_upstream": None,
+            "git_upstream_commit": None,
+            "git_local_vs_upstream": "no_upstream",
+            "git_ahead_count": None,
+            "git_behind_count": None,
+        }
+
+    upstream_commit = _git_output(repo_root, "rev-parse", "--short", upstream)
+    ahead_behind = _git_output(repo_root, "rev-list", "--left-right", "--count", f"{upstream}...HEAD")
+    if not ahead_behind:
+        return {
+            "git_branch": branch,
+            "git_upstream": upstream,
+            "git_upstream_commit": upstream_commit,
+            "git_local_vs_upstream": "unknown",
+            "git_ahead_count": None,
+            "git_behind_count": None,
+        }
+
+    behind_str, ahead_str = ahead_behind.split()
+    behind = int(behind_str)
+    ahead = int(ahead_str)
+    if ahead == 0 and behind == 0:
+        relation = "in_sync"
+    elif ahead > 0 and behind == 0:
+        relation = "ahead"
+    elif behind > 0 and ahead == 0:
+        relation = "behind"
+    else:
+        relation = "diverged"
+
+    return {
+        "git_branch": branch,
+        "git_upstream": upstream,
+        "git_upstream_commit": upstream_commit,
+        "git_local_vs_upstream": relation,
+        "git_ahead_count": ahead,
+        "git_behind_count": behind,
+    }
 
 
 def normalize_component_root(input_path: Path, *, repo_component_root: Path | None = None) -> Path:
@@ -173,7 +224,7 @@ def load_expected_from_json(path: Path) -> dict[str, Any]:
 def build_default_expected(repo_root: Path) -> dict[str, Any]:
     component = repo_root / "custom_components" / "zero_net_export"
     working_tree_dirty, working_tree_changes = git_status_details(repo_root)
-    return {
+    payload = {
         "repo_root": str(repo_root),
         "component_root": str(component),
         "expected_commit": git_commit(repo_root),
@@ -182,6 +233,8 @@ def build_default_expected(repo_root: Path) -> dict[str, Any]:
         "manifest_version": read_manifest_version(component / "manifest.json"),
         "tracked_files": fingerprint(component)["tracked_files"],
     }
+    payload.update(git_remote_tracking_details(repo_root))
+    return payload
 
 
 def main() -> int:

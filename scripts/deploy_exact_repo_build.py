@@ -17,6 +17,7 @@ try:
         build_default_expected,
         compare as compare_fingerprints,
         fingerprint as build_fingerprint,
+        git_remote_tracking_details,
         git_status_details,
     )
 except ModuleNotFoundError:  # pragma: no cover - script execution fallback
@@ -24,6 +25,7 @@ except ModuleNotFoundError:  # pragma: no cover - script execution fallback
         build_default_expected,
         compare as compare_fingerprints,
         fingerprint as build_fingerprint,
+        git_remote_tracking_details,
         git_status_details,
     )
 
@@ -223,6 +225,15 @@ def emit_repo_build_summary(*, root: Path, commit: str) -> tuple[str, bool | Non
     else:
         print(f"git_working_tree_dirty={str(bool(dirty)).lower()}")
     print(f"git_working_tree_changes={','.join(changed_files) if changed_files else 'none'}")
+    tracking = git_remote_tracking_details(root)
+    print(f"git_branch={tracking.get('git_branch') or 'unknown'}")
+    print(f"git_upstream={tracking.get('git_upstream') or 'none'}")
+    print(f"git_upstream_commit={tracking.get('git_upstream_commit') or 'unknown'}")
+    print(f"git_local_vs_upstream={tracking.get('git_local_vs_upstream') or 'unknown'}")
+    ahead = tracking.get('git_ahead_count')
+    behind = tracking.get('git_behind_count')
+    print(f"git_ahead_count={ahead if ahead is not None else 'unknown'}")
+    print(f"git_behind_count={behind if behind is not None else 'unknown'}")
     return commit, dirty, changed_files
 
 
