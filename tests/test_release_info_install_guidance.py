@@ -51,7 +51,24 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             "python3 scripts/validate_install_fingerprint.py /config/custom_components",
         )
 
-    def test_build_install_fingerprint_summary_includes_exact_validation_command(self) -> None:
+    def test_build_install_deploy_commands_target_config_root(self) -> None:
+        release_info = _load_release_info_module()
+        dry_run_command = release_info.build_install_deploy_dry_run_command(
+            {"component_root": "/config/custom_components/zero_net_export"}
+        )
+        deploy_command = release_info.build_install_deploy_command(
+            {"component_root": "/config/custom_components/zero_net_export"}
+        )
+        self.assertEqual(
+            dry_run_command,
+            "python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync",
+        )
+        self.assertEqual(
+            deploy_command,
+            "python3 scripts/deploy_exact_repo_build.py /config --expected-commit <intended_commit> --require-clean --require-upstream-sync",
+        )
+
+    def test_build_install_fingerprint_summary_includes_exact_deploy_and_validation_commands(self) -> None:
         release_info = _load_release_info_module()
         summary = release_info.build_install_fingerprint_summary(
             {
@@ -61,6 +78,14 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
                 "manifest_matches_code_version": True,
                 "tracked_files": {},
             }
+        )
+        self.assertIn(
+            "- deploy_dry_run_command: python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync",
+            summary,
+        )
+        self.assertIn(
+            "- deploy_command: python3 scripts/deploy_exact_repo_build.py /config --expected-commit <intended_commit> --require-clean --require-upstream-sync",
+            summary,
         )
         self.assertIn(
             "- validation_command: python3 scripts/validate_install_fingerprint.py /config/custom_components",

@@ -114,14 +114,49 @@ def build_install_consistency_summary(install_provenance: dict[str, Any] | None 
     return "Installed package version metadata matches the running code version."
 
 
-def build_install_validation_command(install_provenance: dict[str, Any] | None = None) -> str:
-    """Return the exact repo helper command for validating the active install path."""
+def _install_command_targets(install_provenance: dict[str, Any] | None = None) -> tuple[str, str]:
     provenance = install_provenance or build_install_provenance()
     component_root_raw = str(provenance.get("component_root") or "").strip()
     component_root = Path(component_root_raw).expanduser() if component_root_raw else None
+
     compare_target = component_root.parent if component_root and component_root.name == "zero_net_export" else component_root
     compare_target_str = str(compare_target) if compare_target else "/path/to/home-assistant/config/custom_components"
+
+    deploy_target = None
+    if component_root and component_root.name == "zero_net_export" and component_root.parent.name == "custom_components":
+        deploy_target = component_root.parent.parent
+    elif component_root and component_root.name == "custom_components":
+        deploy_target = component_root.parent
+    deploy_target_str = str(deploy_target) if deploy_target else "/path/to/home-assistant/config"
+
+    return compare_target_str, deploy_target_str
+
+
+
+def build_install_validation_command(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return the exact repo helper command for validating the active install path."""
+    compare_target_str, _ = _install_command_targets(install_provenance)
     return f"python3 scripts/validate_install_fingerprint.py {compare_target_str}"
+
+
+
+def build_install_deploy_dry_run_command(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return the exact repo helper command for previewing a safe reinstall to this HA config path."""
+    _, deploy_target_str = _install_command_targets(install_provenance)
+    return (
+        "python3 scripts/deploy_exact_repo_build.py "
+        f"{deploy_target_str} --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync"
+    )
+
+
+
+def build_install_deploy_command(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return the exact repo helper command for deploying one synchronized repo build to this HA config path."""
+    _, deploy_target_str = _install_command_targets(install_provenance)
+    return (
+        "python3 scripts/deploy_exact_repo_build.py "
+        f"{deploy_target_str} --expected-commit <intended_commit> --require-clean --require-upstream-sync"
+    )
 
 
 
@@ -145,6 +180,8 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
             f"exists={details.get('exists')}"
         )
 
+    lines.append(f"- deploy_dry_run_command: {build_install_deploy_dry_run_command(provenance)}")
+    lines.append(f"- deploy_command: {build_install_deploy_command(provenance)}")
     lines.append(f"- validation_command: {build_install_validation_command(provenance)}")
 
     return "\n".join(lines)
