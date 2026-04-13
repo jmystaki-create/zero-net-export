@@ -89,6 +89,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("existing_install_present=false", result.stdout)
             self.assertIn("current_install_matches_repo=unknown", result.stdout)
             self.assertIn(f"next_command=python3 scripts/deploy_exact_repo_build.py {config_root}", result.stdout)
+            self.assertIn("success_criteria=confirm repo_deploy_requirements_passed=true, copy_ready=true", result.stdout)
+            self.assertIn(f"git_commit={subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO_ROOT, text=True).strip()}", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
 
@@ -292,6 +294,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("copy_ready=true", result.stdout)
             self.assertIn("restart_ready=true", result.stdout)
             self.assertIn("post_copy_validation=passed", result.stdout)
+            self.assertIn("success_criteria=confirm post_copy_validation=passed, restart_ready=true", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertTrue((config_root / "custom_components" / "zero_net_export" / "manifest.json").exists())
 

@@ -284,6 +284,20 @@ def emit_deploy_readiness(*, ready_for_copy: bool, restart_ready: bool = False) 
     print(f"restart_ready={str(bool(restart_ready)).lower()}")
 
 
+def emit_success_criteria(*, phase: str, commit: str) -> None:
+    if phase == "dry_run":
+        print(
+            "success_criteria=confirm repo_deploy_requirements_passed=true, copy_ready=true, "
+            f"git_commit={commit}, git_working_tree_dirty=false, and git_local_vs_upstream=in_sync before copying"
+        )
+        return
+    if phase == "deploy":
+        print(
+            "success_criteria=confirm post_copy_validation=passed, restart_ready=true, "
+            f"deployed_commit={commit}, then rerun validate_install_fingerprint before restarting Home Assistant core"
+        )
+
+
 def enforce_repo_build_requirements(
     *,
     root: Path,
@@ -350,6 +364,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
 
     print("post_copy_validation=passed")
     emit_deploy_readiness(ready_for_copy=True, restart_ready=True)
+    emit_success_criteria(phase="deploy", commit=commit)
     print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
     print("next_step=restart Home Assistant core from this synchronized install path")
     return 0
@@ -419,6 +434,7 @@ def main() -> int:
                 require_upstream_sync=args.require_upstream_sync,
             )
         )
+        emit_success_criteria(phase="dry_run", commit=commit)
         print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
         print("action=preview_only")
         return 0
