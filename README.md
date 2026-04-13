@@ -84,11 +84,24 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ### Option 2: Manual Installation
 
-1.  Copy the `custom_components/zero_net_export` folder into your Home Assistant `/config/custom_components/` directory.
-2.  **Restart Home Assistant**.
-3.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
-4.  Go to **Settings** → **Devices & Services** → **Add Integration**.
-5.  Search for **Zero Net Export**.
+For manual installs or live repair work, prefer the exact deploy helper from this repo so the copied Home Assistant package can be compared against the intended local build before restart.
+
+1.  From this repo, preview the resolved target first:
+    ```bash
+    python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run
+    ```
+2.  If the resolved destination is correct, deploy the exact repo build:
+    ```bash
+    python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config
+    ```
+3.  Confirm the installed package matches the current repo fingerprint:
+    ```bash
+    python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components
+    ```
+4.  **Restart Home Assistant**.
+5.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
+6.  Go to **Settings** → **Devices & Services** → **Add Integration**.
+7.  Search for **Zero Net Export**.
 
 ---
 
