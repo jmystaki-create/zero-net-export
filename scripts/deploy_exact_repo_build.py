@@ -8,6 +8,20 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
+
+try:
+    from scripts.compare_install_fingerprint import (
+        build_default_expected,
+        compare as compare_fingerprints,
+        fingerprint as build_fingerprint,
+    )
+except ModuleNotFoundError:  # pragma: no cover - script execution fallback
+    from compare_install_fingerprint import (  # type: ignore[no-redef]
+        build_default_expected,
+        compare as compare_fingerprints,
+        fingerprint as build_fingerprint,
+    )
 
 COMPONENT_DIRNAME = "zero_net_export"
 
@@ -82,8 +96,51 @@ def validate_install(destination_root: Path) -> int:
     return result.returncode
 
 
+def pre_deploy_install_summary(destination_root: Path, *, root: Path) -> dict[str, Any]:
+    if not destination_root.exists():
+        return {
+            "existing_install_present": False,
+            "current_install_manifest_version": None,
+            "current_install_matches_repo": None,
+            "current_install_mismatches": [],
+        }
+
+    expected = build_default_expected(root)
+    actual = build_fingerprint(destination_root)
+    comparison = compare_fingerprints(expected, actual)
+    mismatch_files = [item.get("file") for item in comparison.get("mismatches", []) if item.get("file")]
+    manifest_mismatch = comparison.get("manifest_mismatch") or {}
+    manifest_actual = actual.get("manifest_version")
+    if manifest_mismatch.get("field") == "manifest_version":
+        manifest_actual = manifest_mismatch.get("actual")
+
+    return {
+        "existing_install_present": True,
+        "current_install_manifest_version": manifest_actual,
+        "current_install_matches_repo": comparison.get("overall_match"),
+        "current_install_mismatches": mismatch_files,
+    }
+
+
+def emit_pre_deploy_install_summary(summary: dict[str, Any]) -> None:
+    print(f"existing_install_present={str(bool(summary.get('existing_install_present'))).lower()}")
+    manifest_version = summary.get("current_install_manifest_version")
+    print(f"current_install_manifest_version={manifest_version if manifest_version else 'unknown'}")
+
+    matches_repo = summary.get("current_install_matches_repo")
+    if matches_repo is None:
+        print("current_install_matches_repo=unknown")
+    else:
+        print(f"current_install_matches_repo={str(bool(matches_repo)).lower()}")
+
+    mismatches = summary.get("current_install_mismatches") or []
+    print(f"current_install_mismatches={','.join(mismatches) if mismatches else 'none'}")
+
+
 def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, validate_fn=validate_install) -> int:
+    root = repo_root()
     destination_root.parent.mkdir(parents=True, exist_ok=True)
+    existing_install_summary = pre_deploy_install_summary(destination_root, root=root)
     backup_path = backup_component(destination_root)
     try:
         copy_component(source_root, destination_root)
@@ -95,6 +152,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
     print(f"source_component_root={source_root}")
     print(f"resolved_destination={destination_root}")
     print(f"backup_path={backup_path if backup_path else 'none'}")
+    emit_pre_deploy_install_summary(existing_install_summary)
 
     validation_rc = validate_fn(destination_root)
     if validation_rc != 0:
@@ -126,6 +184,7 @@ def main() -> int:
         print(f"resolved_destination={destination_root}")
         print(f"git_commit={commit}")
         print(f"destination_exists={destination_root.exists()}")
+        emit_pre_deploy_install_summary(pre_deploy_install_summary(destination_root, root=root))
         if destination_root.exists():
             print(f"planned_backup_path={planned_backup_path(destination_root)}")
         print("action=preview_only")

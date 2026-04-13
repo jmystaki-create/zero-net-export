@@ -60,7 +60,27 @@ class InstallHelperScriptsTests(unittest.TestCase):
             result = self.run_script("scripts/deploy_exact_repo_build.py", str(config_root), "--dry-run")
             self.assertEqual(result.returncode, 0, msg=result.stderr)
             self.assertIn(f"resolved_destination={config_root / 'custom_components' / 'zero_net_export'}", result.stdout)
+            self.assertIn("existing_install_present=false", result.stdout)
+            self.assertIn("current_install_matches_repo=unknown", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
+
+    def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_root = Path(tmpdir) / "config"
+            install_root = config_root / "custom_components" / "zero_net_export"
+            shutil.copytree(COMPONENT_ROOT, install_root)
+
+            manifest_path = install_root / "manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["version"] = "9.9.9"
+            manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+            result = self.run_script("scripts/deploy_exact_repo_build.py", str(config_root), "--dry-run")
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertIn("existing_install_present=true", result.stdout)
+            self.assertIn("current_install_manifest_version=9.9.9", result.stdout)
+            self.assertIn("current_install_matches_repo=false", result.stdout)
+            self.assertIn("current_install_mismatches=manifest.json", result.stdout)
 
     def test_deploy_exact_repo_build_copies_and_validates_install(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
