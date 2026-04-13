@@ -24,7 +24,7 @@ class NativeUiStringsTests(unittest.TestCase):
         self.assertEqual(
             init_step["menu_options"],
             {
-                "native_setup": "Sensors",
+                "native_setup": "Sensors and source mapping",
                 "policy": "Controls",
                 "devices": "Managed devices",
                 "support": "Diagnostics",
@@ -33,7 +33,7 @@ class NativeUiStringsTests(unittest.TestCase):
         )
         self.assertIn("four main Configure sections", init_step["description"])
         self.assertIn("Detailed management remains the deeper device-view handoff outside this Configure menu.", init_step["description"])
-        self.assertIn("- Sensors: {sources_path}", init_step["description"])
+        self.assertIn("- Sensors and source mapping: {sources_path}", init_step["description"])
         self.assertIn("- Controls: {policy_path}", init_step["description"])
         self.assertIn("- Diagnostics: {support_path}.", init_step["description"])
         self.assertNotIn("- Detailed management:", init_step["description"])
@@ -65,7 +65,7 @@ class NativeUiStringsTests(unittest.TestCase):
             runtime_issue["description"],
         )
         self.assertIn(
-            "After source repairs, reopen Configure -> Sensors to confirm live source health.",
+            "After source repairs, reopen Configure -> Sensors and source mapping to confirm live source health.",
             runtime_issue["description"],
         )
         self.assertIn(
@@ -73,11 +73,11 @@ class NativeUiStringsTests(unittest.TestCase):
             sensors_step["description"],
         )
         self.assertIn(
-            "After each save, reload the integration and reopen this Sensors screen to confirm live source health.",
+            "After each save, reload the integration and reopen this Sensors and source mapping screen to confirm live source health.",
             source_mapping_step["description"],
         )
         self.assertIn(
-            "When the blocker is source-related, finish by reopening Sensors to confirm the mapped roles recover.",
+            "When the blocker is source-related, finish by reopening Sensors and source mapping to confirm the mapped roles recover.",
             diagnostics_step["description"],
         )
 

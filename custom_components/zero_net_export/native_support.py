@@ -43,7 +43,7 @@ PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero
 INTEGRATION_DEVICE_PATH = (
     "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device"
 )
-SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sensors"
+SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sensors and source mapping"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 DETAILED_MANAGEMENT_PATH = (
