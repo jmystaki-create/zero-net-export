@@ -61,18 +61,23 @@ def normalize_component_root(path: Path) -> Path:
     return candidate
 
 
-def validate_component_root(component_root: Path, input_path: Path) -> None:
+def validate_component_root(component_root: Path, input_path: Path, repo_component_root: Path) -> None:
     manifest_path = component_root / "manifest.json"
-    if manifest_path.exists():
-        return
+    if not manifest_path.exists():
+        raise FileNotFoundError(
+            "Could not find zero_net_export/manifest.json from "
+            f"install path '{input_path.expanduser().resolve()}'. "
+            "Pass either the zero_net_export component directory itself, its "
+            "parent custom_components directory, or the Home Assistant config "
+            "directory that contains custom_components/zero_net_export."
+        )
 
-    raise FileNotFoundError(
-        "Could not find zero_net_export/manifest.json from "
-        f"install path '{input_path.expanduser().resolve()}'. "
-        "Pass either the zero_net_export component directory itself, its "
-        "parent custom_components directory, or the Home Assistant config "
-        "directory that contains custom_components/zero_net_export."
-    )
+    if component_root == repo_component_root:
+        raise ValueError(
+            "Install path resolves to this repo's source component directory instead of a live Home Assistant install. "
+            "Point the comparison at the Home Assistant config directory, its custom_components directory, "
+            "or the installed custom_components/zero_net_export directory outside this repo."
+        )
 
 
 def fingerprint(component_root: Path) -> dict[str, Any]:
@@ -178,7 +183,7 @@ def main() -> int:
     )
     parser.add_argument(
         "install_path",
-        help="Path to the installed zero_net_export directory, or its parent custom_components directory.",
+        help="Path to the Home Assistant config directory, its custom_components directory, or the installed zero_net_export directory.",
     )
     parser.add_argument(
         "--expected-json",
@@ -191,11 +196,12 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
+    repo_component_root = repo_root / "custom_components" / "zero_net_export"
     input_install_path = Path(args.install_path)
     actual_component_root = normalize_component_root(input_install_path)
     try:
-        validate_component_root(actual_component_root, input_install_path)
-    except FileNotFoundError as err:
+        validate_component_root(actual_component_root, input_install_path, repo_component_root)
+    except (FileNotFoundError, ValueError) as err:
         parser.exit(2, f"ERROR: {err}\n")
 
     if args.expected_json:
@@ -203,7 +209,7 @@ def main() -> int:
         expected = load_expected_from_json(expected_json_path)
         expected_source = str(expected_json_path)
     else:
-        expected_component_root = repo_root / "custom_components" / "zero_net_export"
+        expected_component_root = repo_component_root
         expected = fingerprint(expected_component_root)
         expected["expected_commit"] = git_commit(repo_root)
         expected["repo_root"] = str(repo_root)
