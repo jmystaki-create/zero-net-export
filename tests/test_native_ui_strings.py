@@ -36,6 +36,9 @@ class NativeUiStringsTests(unittest.TestCase):
         self.assertIn("- Sensors: {sources_path}", init_step["description"])
         self.assertIn("- Controls: {policy_path}", init_step["description"])
         self.assertIn("- Diagnostics: {support_path}.", init_step["description"])
+        self.assertNotIn("- Detailed management:", init_step["description"])
+        self.assertNotIn("{detailed_management_summary}", init_step["description"])
+        self.assertNotIn("{detailed_management_path}", init_step["description"])
 
     def test_managed_devices_step_clarifies_detailed_management_handoff(self) -> None:
         payload = json.loads(STRINGS_PATH.read_text(encoding="utf-8"))
@@ -45,6 +48,10 @@ class NativeUiStringsTests(unittest.TestCase):
             devices_step["description"],
         )
         self.assertIn("Primary path: {configure_path}.", devices_step["description"])
+        self.assertNotIn("Detailed management handoff:", devices_step["description"])
+        self.assertNotIn("Detailed management path:", devices_step["description"])
+        self.assertNotIn("{detailed_management_summary}", devices_step["description"])
+        self.assertNotIn("{detailed_management_path}", devices_step["description"])
 
 
 if __name__ == "__main__":
