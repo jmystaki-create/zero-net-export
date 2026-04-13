@@ -7,6 +7,28 @@ import json
 import subprocess
 from pathlib import Path
 
+
+def git_status_details(root: Path) -> tuple[bool | None, list[str]]:
+    try:
+        output = subprocess.check_output(
+            ["git", "status", "--short", "--untracked-files=all"],
+            cwd=root,
+            text=True,
+        )
+    except Exception:
+        return None, []
+
+    changed_files: list[str] = []
+    for raw_line in output.splitlines():
+        if not raw_line.strip():
+            continue
+        path_part = raw_line[3:] if len(raw_line) > 3 else raw_line
+        if " -> " in path_part:
+            path_part = path_part.split(" -> ", 1)[1]
+        changed_files.append(path_part)
+
+    return bool(changed_files), changed_files
+
 TRACKED_FILES = (
     "manifest.json",
     "config_flow.py",
@@ -54,10 +76,13 @@ def git_commit(root: Path) -> str:
 def main() -> int:
     root = repo_root()
     component = component_root()
+    working_tree_dirty, working_tree_changes = git_status_details(root)
     payload: dict[str, object] = {
         "repo_root": str(root),
         "component_root": str(component),
         "expected_commit": git_commit(root),
+        "working_tree_dirty": working_tree_dirty,
+        "working_tree_changes": working_tree_changes,
         "manifest_version": manifest_version(component / "manifest.json"),
         "tracked_files": {},
     }

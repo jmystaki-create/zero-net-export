@@ -15,12 +15,14 @@ try:
         build_default_expected,
         compare as compare_fingerprints,
         fingerprint as build_fingerprint,
+        git_status_details,
     )
 except ModuleNotFoundError:  # pragma: no cover - script execution fallback
     from compare_install_fingerprint import (  # type: ignore[no-redef]
         build_default_expected,
         compare as compare_fingerprints,
         fingerprint as build_fingerprint,
+        git_status_details,
     )
 
 COMPONENT_DIRNAME = "zero_net_export"
@@ -137,6 +139,16 @@ def emit_pre_deploy_install_summary(summary: dict[str, Any]) -> None:
     print(f"current_install_mismatches={','.join(mismatches) if mismatches else 'none'}")
 
 
+def emit_repo_build_summary(*, root: Path, commit: str) -> None:
+    dirty, changed_files = git_status_details(root)
+    print(f"git_commit={commit}")
+    if dirty is None:
+        print("git_working_tree_dirty=unknown")
+    else:
+        print(f"git_working_tree_dirty={str(bool(dirty)).lower()}")
+    print(f"git_working_tree_changes={','.join(changed_files) if changed_files else 'none'}")
+
+
 def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, validate_fn=validate_install) -> int:
     root = repo_root()
     destination_root.parent.mkdir(parents=True, exist_ok=True)
@@ -148,6 +160,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
         restore_backup(destination_root, backup_path)
         raise
 
+    emit_repo_build_summary(root=root, commit=commit)
     print(f"deployed_commit={commit}")
     print(f"source_component_root={source_root}")
     print(f"resolved_destination={destination_root}")
@@ -182,7 +195,7 @@ def main() -> int:
         print(f"repo_root={root}")
         print(f"source_component_root={source_root}")
         print(f"resolved_destination={destination_root}")
-        print(f"git_commit={commit}")
+        emit_repo_build_summary(root=root, commit=commit)
         print(f"destination_exists={destination_root.exists()}")
         emit_pre_deploy_install_summary(pre_deploy_install_summary(destination_root, root=root))
         if destination_root.exists():

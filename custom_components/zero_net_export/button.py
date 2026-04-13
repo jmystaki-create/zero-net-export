@@ -96,7 +96,6 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
             "policy_status": command_center.get("policy_status"),
             "policy_readiness": command_center.get("policy_readiness"),
             "support_status": command_center.get("support_status"),
-            "detailed_management_path": command_center.get("detailed_management_path"),
             "detailed_management_summary": command_center.get("detailed_management_summary"),
         }
 
@@ -122,12 +121,11 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
                 f"- Controls: {command_center.get('policy_status')}",
                 f"- Controls readiness: {command_center.get('policy_readiness')}",
                 f"- Diagnostics: {command_center.get('support_status')}",
-                f"- Detailed management: {command_center.get('detailed_management_summary')}",
+                f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
                 "",
                 "Where each native path lives",
                 f"- Sensors: {command_center.get('sources_path')}",
                 f"- Managed devices: {command_center.get('devices_path')}",
-                f"- Detailed management: {command_center.get('detailed_management_path')}",
                 f"- Controls: {command_center.get('policy_path')}",
                 f"- Diagnostics: {command_center.get('support_path')}",
             ]
@@ -172,7 +170,6 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'candidate_devices': candidates[:12],
             'top_candidate': candidates[0] if candidates else None,
             'promotion_handoff': f'Open {DEVICES_CONFIGURE_PATH}, choose Add fixed/variable, then pick this candidate in the candidate-pick step.' if candidates else None,
-            'detailed_management_path': DETAILED_MANAGEMENT_PATH,
         }
 
     async def async_press(self) -> None:
@@ -214,14 +211,14 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 f'- Open {DEVICES_CONFIGURE_PATH}.',
                 f'- Choose Add {top_add_label}.',
                 f'- In Pick unmanaged candidate, select {top_entity_id}.',
-                f'- After onboarding, use {DETAILED_MANAGEMENT_PATH} for per-device status, plan, and override review.',
+                f'- After onboarding, use the managed device view for deeper per-device status, plan, guard, and override review.',
             ])
         else:
             lines.extend([
                 '- No unmanaged candidate devices discovered right now',
                 '',
                 'Next step:',
-                f'- Use {DETAILED_MANAGEMENT_PATH} for deeper per-device review if the managed fleet already exists.',
+                '- Use the managed device view for deeper per-device review if the managed fleet already exists.',
                 f'- Open {POLICY_CONFIGURE_PATH} to tune controller behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work.',
             ])
         persistent_notification.async_create(

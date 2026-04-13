@@ -9,6 +9,28 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+
+def git_status_details(repo_root: Path) -> tuple[bool | None, list[str]]:
+    try:
+        output = subprocess.check_output(
+            ["git", "status", "--short", "--untracked-files=all"],
+            cwd=repo_root,
+            text=True,
+        )
+    except Exception:
+        return None, []
+
+    changed_files: list[str] = []
+    for raw_line in output.splitlines():
+        if not raw_line.strip():
+            continue
+        path_part = raw_line[3:] if len(raw_line) > 3 else raw_line
+        if " -> " in path_part:
+            path_part = path_part.split(" -> ", 1)[1]
+        changed_files.append(path_part)
+
+    return bool(changed_files), changed_files
+
 TRACKED_FILES = (
     "manifest.json",
     "config_flow.py",
@@ -146,10 +168,13 @@ def load_expected_from_json(path: Path) -> dict[str, Any]:
 
 def build_default_expected(repo_root: Path) -> dict[str, Any]:
     component = repo_root / "custom_components" / "zero_net_export"
+    working_tree_dirty, working_tree_changes = git_status_details(repo_root)
     return {
         "repo_root": str(repo_root),
         "component_root": str(component),
         "expected_commit": git_commit(repo_root),
+        "working_tree_dirty": working_tree_dirty,
+        "working_tree_changes": working_tree_changes,
         "manifest_version": read_manifest_version(component / "manifest.json"),
         "tracked_files": fingerprint(component)["tracked_files"],
     }

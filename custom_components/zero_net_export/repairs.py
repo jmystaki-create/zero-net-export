@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from homeassistant import data_entry_flow
+from homeassistant.components.repairs import RepairsFlow
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
@@ -72,6 +74,17 @@ def _format_named_source_roles(source_keys: list[str]) -> str:
     if not named_roles:
         return ""
     return ", ".join(named_roles[:6])
+
+
+async def async_create_fix_flow(
+    hass: HomeAssistant,
+    issue_id: str,
+    data: dict[str, str | int | float | None] | None = None,
+    *args: Any,
+    **kwargs: Any,
+) -> RepairsFlow | None:
+    """Expose a minimal Repairs platform contract for Home Assistant."""
+    return None
 
 
 def async_sync_repairs_issues(

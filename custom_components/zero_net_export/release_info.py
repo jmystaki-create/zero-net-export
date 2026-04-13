@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from functools import lru_cache
 from pathlib import Path
 import re
 from typing import Any
@@ -26,15 +27,16 @@ def _component_root() -> Path:
     return Path(__file__).resolve().parent
 
 
-def _short_sha256(path: Path) -> str | None:
+def _safe_file_fingerprint(path: Path) -> tuple[str | None, int | None]:
     try:
-        return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+        payload = path.read_bytes()
+        return hashlib.sha256(payload).hexdigest()[:12], len(payload)
     except OSError:
-        return None
+        return None, None
 
 
-def build_install_provenance() -> dict[str, Any]:
-    """Return install-path and key-file fingerprint details for live-source validation."""
+@lru_cache(maxsize=1)
+def _cached_install_provenance() -> dict[str, Any]:
     component_root = _component_root()
     manifest_path = component_root / "manifest.json"
     manifest_version: str | None = None
@@ -48,16 +50,24 @@ def build_install_provenance() -> dict[str, Any]:
     except json.JSONDecodeError as err:
         manifest_error = f"manifest parse error: {err}"
 
-    tracked_files = ("manifest.json", "config_flow.py", "native_support.py", "coordinator.py")
+    tracked_files = (
+        "manifest.json",
+        "config_flow.py",
+        "native_support.py",
+        "coordinator.py",
+        "strings.json",
+        "translations/en.json",
+    )
     file_fingerprints: dict[str, dict[str, str | int | None]] = {}
     for relative_name in tracked_files:
         path = component_root / relative_name
         exists = path.exists()
+        sha256_12, size_bytes = _safe_file_fingerprint(path) if exists else (None, None)
         file_fingerprints[relative_name] = {
             "path": str(path),
             "exists": exists,
-            "sha256_12": _short_sha256(path) if exists else None,
-            "size_bytes": path.stat().st_size if exists else None,
+            "sha256_12": sha256_12,
+            "size_bytes": size_bytes,
         }
 
     manifest_matches_code_version = manifest_version == INTEGRATION_VERSION if manifest_version else None
@@ -81,6 +91,11 @@ def build_install_provenance() -> dict[str, Any]:
         "tracked_files": file_fingerprints,
         "summary": summary,
     }
+
+
+def build_install_provenance() -> dict[str, Any]:
+    """Return install-path and key-file fingerprint details for live-source validation."""
+    return dict(_cached_install_provenance())
 
 
 def build_install_consistency_summary(install_provenance: dict[str, Any] | None = None) -> str:

@@ -90,6 +90,7 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
     ```bash
     python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run
     ```
+    Confirm the preview shows the intended `git_commit`, whether `git_working_tree_dirty` is `true` or `false`, and the exact `git_working_tree_changes` being deployed.
 2.  If the resolved destination is correct, deploy the exact repo build:
     ```bash
     python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config

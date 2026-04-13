@@ -33,6 +33,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         payload = json.loads(result.stdout)
         self.assertEqual(payload["component_root"], str(COMPONENT_ROOT))
+        self.assertIn("working_tree_dirty", payload)
+        self.assertIn("working_tree_changes", payload)
         self.assertIn("manifest.json", payload["tracked_files"])
         self.assertTrue(payload["tracked_files"]["manifest.json"]["exists"])
         self.assertEqual(payload["tracked_files"]["translations/en.json"]["path"], str(COMPONENT_ROOT / "translations" / "en.json"))
@@ -60,6 +62,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             result = self.run_script("scripts/deploy_exact_repo_build.py", str(config_root), "--dry-run")
             self.assertEqual(result.returncode, 0, msg=result.stderr)
             self.assertIn(f"resolved_destination={config_root / 'custom_components' / 'zero_net_export'}", result.stdout)
+            self.assertIn("git_working_tree_dirty=", result.stdout)
+            self.assertIn("git_working_tree_changes=", result.stdout)
             self.assertIn("existing_install_present=false", result.stdout)
             self.assertIn("current_install_matches_repo=unknown", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
@@ -87,6 +91,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             config_root = Path(tmpdir) / "config"
             result = self.run_script("scripts/deploy_exact_repo_build.py", str(config_root))
             self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertIn("git_working_tree_dirty=", result.stdout)
+            self.assertIn("git_working_tree_changes=", result.stdout)
             self.assertIn("post_copy_validation=passed", result.stdout)
             self.assertTrue((config_root / "custom_components" / "zero_net_export" / "manifest.json").exists())
 
