@@ -61,19 +61,42 @@ class DeployExactRepoBuildTests(unittest.TestCase):
 
 
 class CompareInstallFingerprintTests(unittest.TestCase):
+    def make_live_install_tree(self, root: Path) -> Path:
+        config_dir = root / "config"
+        destination = config_dir / "custom_components" / "zero_net_export"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            [
+                "python3",
+                str(SCRIPTS_DIR / "deploy_exact_repo_build.py"),
+                str(config_dir),
+                "--no-backup",
+            ],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return destination.resolve()
+
     def test_normalize_component_root_finds_component_from_parent_paths(self) -> None:
-        self.assertEqual(
-            compare_script.normalize_component_root(REPO_ROOT / "custom_components"),
-            COMPONENT_ROOT.resolve(),
-        )
-        self.assertEqual(
-            compare_script.normalize_component_root(REPO_ROOT),
-            COMPONENT_ROOT.resolve(),
-        )
-        self.assertEqual(
-            compare_script.normalize_component_root(COMPONENT_ROOT),
-            COMPONENT_ROOT.resolve(),
-        )
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            live_component = self.make_live_install_tree(Path(tmp_dir))
+            live_custom_components = live_component.parent
+            live_config = live_custom_components.parent
+
+            self.assertEqual(
+                compare_script.normalize_component_root(live_custom_components),
+                live_component,
+            )
+            self.assertEqual(
+                compare_script.normalize_component_root(live_config),
+                live_component,
+            )
+            self.assertEqual(
+                compare_script.normalize_component_root(live_component),
+                live_component,
+            )
 
     def test_compare_reports_match_for_identical_fingerprints(self) -> None:
         expected = compare_script.fingerprint(COMPONENT_ROOT)
@@ -100,14 +123,31 @@ class CompareInstallFingerprintTests(unittest.TestCase):
         self.assertEqual(comparison["manifest_mismatch"]["actual"], "0.0.0-test")
         self.assertEqual(comparison["mismatches"][0]["file"], "manifest.json")
 
-    def test_cli_compare_matches_repo_component_and_writes_json(self) -> None:
+    def test_cli_compare_rejects_repo_source_component_path(self) -> None:
+        result = subprocess.run(
+            [
+                "python3",
+                str(SCRIPTS_DIR / "compare_install_fingerprint.py"),
+                str(COMPONENT_ROOT),
+            ],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("repo's source component directory", result.stderr)
+
+    def test_cli_compare_matches_live_install_copy_and_writes_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
+            live_component = self.make_live_install_tree(Path(tmp_dir))
             output_path = Path(tmp_dir) / "compare.json"
             result = subprocess.run(
                 [
                     "python3",
                     str(SCRIPTS_DIR / "compare_install_fingerprint.py"),
-                    str(COMPONENT_ROOT),
+                    str(live_component),
                     "--write-json",
                     str(output_path),
                 ],
@@ -122,15 +162,16 @@ class CompareInstallFingerprintTests(unittest.TestCase):
             self.assertTrue(payload["comparison"]["overall_match"])
             self.assertTrue(output_path.exists())
 
-    def test_cli_validate_matches_repo_component_and_writes_json_artifacts(self) -> None:
+    def test_cli_validate_matches_live_install_copy_and_writes_json_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
+            live_component = self.make_live_install_tree(Path(tmp_dir))
             expected_path = Path(tmp_dir) / "expected.json"
             compare_path = Path(tmp_dir) / "compare.json"
             result = subprocess.run(
                 [
                     "python3",
                     str(SCRIPTS_DIR / "validate_install_fingerprint.py"),
-                    str(COMPONENT_ROOT),
+                    str(live_component),
                     "--expected-json",
                     str(expected_path),
                     "--compare-json",
