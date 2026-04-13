@@ -59,6 +59,8 @@ python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --expe
 python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components
 ```
 
+After the exact deploy copy succeeds, use the helper's printed post-restart checklist and go back to Configure -> Sensors and source mapping before trusting live control.
+
 Use discovery first when the install root is unknown:
 
 ```bash

@@ -92,6 +92,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("success_criteria=confirm repo_deploy_requirements_passed=true, copy_ready=true", result.stdout)
             self.assertIn(f"git_commit={subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO_ROOT, text=True).strip()}", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
+            self.assertIn("post_restart_checklist=after restarting Home Assistant core, confirm the Zero Net Export entry loads", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
 
     def test_deploy_exact_repo_build_dry_run_accepts_custom_components_root(self) -> None:
@@ -296,6 +297,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("post_copy_validation=passed", result.stdout)
             self.assertIn("success_criteria=confirm post_copy_validation=passed, restart_ready=true", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
+            self.assertIn("post_restart_checklist=after restarting Home Assistant core, confirm the Zero Net Export entry loads", result.stdout)
             self.assertTrue((config_root / "custom_components" / "zero_net_export" / "manifest.json").exists())
 
     def test_deploy_exact_repo_build_restores_backup_when_validation_fails(self) -> None:

@@ -68,6 +68,15 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             "python3 scripts/deploy_exact_repo_build.py /config --expected-commit <intended_commit> --require-clean --require-upstream-sync",
         )
 
+    def test_build_install_restart_validation_summary_points_back_to_native_configure_path(self) -> None:
+        release_info = _load_release_info_module()
+        summary = release_info.build_install_restart_validation_summary(
+            {"component_root": "/config/custom_components/zero_net_export"}
+        )
+        self.assertIn("Restart Home Assistant core", summary)
+        self.assertIn("Configure -> Sensors and source mapping", summary)
+        self.assertIn("mapped roles persist", summary)
+
     def test_build_install_fingerprint_summary_includes_exact_deploy_and_validation_commands(self) -> None:
         release_info = _load_release_info_module()
         summary = release_info.build_install_fingerprint_summary(
@@ -89,6 +98,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         self.assertIn(
             "- validation_command: python3 scripts/validate_install_fingerprint.py /config/custom_components",
+            summary,
+        )
+        self.assertIn(
+            "- post_restart_validation: Restart Home Assistant core, then reopen Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors and source mapping",
             summary,
         )
 

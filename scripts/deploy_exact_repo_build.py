@@ -298,6 +298,12 @@ def emit_success_criteria(*, phase: str, commit: str) -> None:
         )
 
 
+def emit_post_restart_checklist() -> None:
+    print(
+        "post_restart_checklist=after restarting Home Assistant core, confirm the Zero Net Export entry loads, reopen Configure -> Sensors and source mapping, verify the mapped roles still persist, and verify any unavailable or stale mapped roles are named clearly before trusting live control"
+    )
+
+
 def enforce_repo_build_requirements(
     *,
     root: Path,
@@ -366,6 +372,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
     emit_deploy_readiness(ready_for_copy=True, restart_ready=True)
     emit_success_criteria(phase="deploy", commit=commit)
     print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
+    emit_post_restart_checklist()
     print("next_step=restart Home Assistant core from this synchronized install path")
     return 0
 
@@ -436,6 +443,7 @@ def main() -> int:
         )
         emit_success_criteria(phase="dry_run", commit=commit)
         print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
+        emit_post_restart_checklist()
         print("action=preview_only")
         return 0
 

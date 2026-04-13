@@ -99,12 +99,13 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
     ```bash
     python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components
     ```
+    The deploy helper now also prints the post-restart checklist, which points operators back to **Configure -> Sensors and source mapping** before trusting live control.
 4.  If you only know the install root indirectly, you can also point the deploy helper at `/path/to/home-assistant/config/custom_components`, the full installed `.../custom_components/zero_net_export` path, or use discovery first:
     ```bash
     python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config
     ```
 5.  **Restart Home Assistant**.
-6.  If this is an upgrade or live fix, confirm the existing Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
+6.  If this is an upgrade or live fix, confirm the existing Zero Net Export entry comes back loaded, reopen **Configure -> Sensors and source mapping**, and confirm the previously saved source mappings still appear there before trusting live runtime results.
 7.  If this is a fresh manual install with no existing entry yet, go to **Settings** → **Devices & Services** → **Add Integration**, then search for **Zero Net Export**.
 
 ---

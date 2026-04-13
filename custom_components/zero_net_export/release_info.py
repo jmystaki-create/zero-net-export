@@ -160,6 +160,16 @@ def build_install_deploy_command(install_provenance: dict[str, Any] | None = Non
 
 
 
+def build_install_restart_validation_summary(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return the native post-restart path operators should use before trusting live validation."""
+    _ = install_provenance
+    return (
+        "Restart Home Assistant core, then reopen Settings -> Devices & Services -> Integrations -> Zero Net Export -> "
+        "Configure -> Sensors and source mapping to confirm the entry loads, mapped roles persist, and any unavailable or stale roles are named clearly before trusting live control."
+    )
+
+
+
 def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None = None) -> str:
     """Return a concise multiline summary of the live installed package details."""
     provenance = install_provenance or build_install_provenance()
@@ -183,6 +193,7 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
     lines.append(f"- deploy_dry_run_command: {build_install_deploy_dry_run_command(provenance)}")
     lines.append(f"- deploy_command: {build_install_deploy_command(provenance)}")
     lines.append(f"- validation_command: {build_install_validation_command(provenance)}")
+    lines.append(f"- post_restart_validation: {build_install_restart_validation_summary(provenance)}")
 
     return "\n".join(lines)
 
