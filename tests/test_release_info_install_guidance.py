@@ -1,0 +1,94 @@
+from __future__ import annotations
+
+import importlib.util
+import sys
+import types
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+INTEGRATION_DIR = REPO_ROOT / "custom_components" / "zero_net_export"
+
+
+def load_integration_module(module_name: str, filename: str):
+    package_roots = {
+        "custom_components": REPO_ROOT / "custom_components",
+        "custom_components.zero_net_export": INTEGRATION_DIR,
+    }
+    for name, path in package_roots.items():
+        if name not in sys.modules:
+            package = types.ModuleType(name)
+            package.__path__ = [str(path)]
+            sys.modules[name] = package
+
+    qualified_name = f"custom_components.zero_net_export.{module_name}"
+    spec = importlib.util.spec_from_file_location(qualified_name, INTEGRATION_DIR / filename)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load {filename}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[qualified_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+release_info = load_integration_module("release_info", "release_info.py")
+
+
+class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
+    def test_cli_steps_use_parent_custom_components_path_for_component_root(self) -> None:
+        steps = release_info.build_install_validation_cli_steps(
+            {"component_root": "/tmp/ha config/custom_components/zero_net_export"}
+        )
+
+        self.assertEqual(steps["compare_target"], "/tmp/ha config/custom_components")
+        self.assertIn("'/tmp/ha config/custom_components'", steps["deploy_command"])
+        self.assertIn("'/tmp/ha config/custom_components'", steps["combined_command"])
+
+    def test_install_repair_step_for_manifest_mismatch_names_resolved_target_and_commands(self) -> None:
+        message = release_info.build_install_repair_step(
+            {
+                "component_root": "/srv/homeassistant/config/custom_components/zero_net_export",
+                "manifest_matches_code_version": False,
+            }
+        )
+
+        self.assertIn("/srv/homeassistant/config/custom_components", message)
+        self.assertIn("--dry-run", message)
+        self.assertIn("deploy_exact_repo_build.py", message)
+        self.assertIn("validate_install_fingerprint.py", message)
+        self.assertIn("one synchronized build", message)
+
+    def test_install_repair_step_for_manifest_error_mentions_same_live_install_path(self) -> None:
+        message = release_info.build_install_repair_step(
+            {
+                "component_root": "/srv/homeassistant/config/custom_components/zero_net_export",
+                "manifest_error": "missing manifest",
+            }
+        )
+
+        self.assertIn("Confirm the exact live Zero Net Export install path", message)
+        self.assertIn("/srv/homeassistant/config/custom_components", message)
+        self.assertIn("that same live install path", message)
+
+    def test_install_fingerprint_summary_includes_compare_target(self) -> None:
+        summary = release_info.build_install_fingerprint_summary(
+            {
+                "component_root": "/srv/homeassistant/config/custom_components/zero_net_export",
+                "code_version": "0.1.80",
+                "manifest_version": "0.1.79",
+                "manifest_matches_code_version": False,
+                "tracked_files": {},
+            }
+        )
+
+        self.assertIn(
+            "- validation_compare_target: /srv/homeassistant/config/custom_components",
+            summary,
+        )
+        self.assertIn("deploy_exact_build_dry_run_command", summary)
+        self.assertIn("combined_validation_command", summary)
+
+
+if __name__ == "__main__":
+    unittest.main()
