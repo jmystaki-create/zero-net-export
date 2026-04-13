@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import subprocess
 import unittest
 from pathlib import Path
 
@@ -19,13 +18,6 @@ class ReleaseMetadataIntegrityTests(unittest.TestCase):
     def _manifest_version(self, path: Path) -> str:
         return str(json.loads(path.read_text(encoding="utf-8"))["version"])
 
-    def _repo_head_short_commit(self) -> str:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=REPO_ROOT,
-            text=True,
-        ).strip()
-
     def test_current_manifest_version_has_changelog_entry(self) -> None:
         version = self._manifest_version(MANIFEST_PATH)
         changelog = CHANGELOG_PATH.read_text(encoding="utf-8")
@@ -38,10 +30,10 @@ class ReleaseMetadataIntegrityTests(unittest.TestCase):
             self._manifest_version(MANIFEST_PATH),
         )
 
-    def test_readme_current_highest_value_next_step_mentions_current_head_commit(self) -> None:
+    def test_readme_current_highest_value_next_step_points_to_current_head_deploy_flow(self) -> None:
         readme = README_PATH.read_text(encoding="utf-8")
         self.assertIn(
-            f"**Current highest-value next step:** push the current exact repo build at commit `{self._repo_head_short_commit()}`",
+            "**Current highest-value next step:** push the current exact repo build at the current repo HEAD so the tracked branch is synchronized again",
             readme,
         )
 
