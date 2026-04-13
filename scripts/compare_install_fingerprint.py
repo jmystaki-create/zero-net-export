@@ -49,10 +49,30 @@ def normalize_component_root(path: Path) -> Path:
     candidate = path.expanduser().resolve()
     if candidate.name == "zero_net_export":
         return candidate
-    nested = candidate / "zero_net_export"
-    if nested.exists():
-        return nested
+
+    nested_component = candidate / "zero_net_export"
+    if nested_component.exists():
+        return nested_component
+
+    custom_components_component = candidate / "custom_components" / "zero_net_export"
+    if custom_components_component.exists():
+        return custom_components_component
+
     return candidate
+
+
+def validate_component_root(component_root: Path, input_path: Path) -> None:
+    manifest_path = component_root / "manifest.json"
+    if manifest_path.exists():
+        return
+
+    raise FileNotFoundError(
+        "Could not find zero_net_export/manifest.json from "
+        f"install path '{input_path.expanduser().resolve()}'. "
+        "Pass either the zero_net_export component directory itself, its "
+        "parent custom_components directory, or the Home Assistant config "
+        "directory that contains custom_components/zero_net_export."
+    )
 
 
 def fingerprint(component_root: Path) -> dict[str, Any]:
@@ -171,7 +191,12 @@ def main() -> int:
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
-    actual_component_root = normalize_component_root(Path(args.install_path))
+    input_install_path = Path(args.install_path)
+    actual_component_root = normalize_component_root(input_install_path)
+    try:
+        validate_component_root(actual_component_root, input_install_path)
+    except FileNotFoundError as err:
+        parser.exit(2, f"ERROR: {err}\n")
 
     if args.expected_json:
         expected_json_path = Path(args.expected_json).expanduser().resolve()
@@ -188,6 +213,7 @@ def main() -> int:
     comparison = compare(expected, actual)
 
     payload = {
+        "input_install_path": str(input_install_path.expanduser().resolve()),
         "expected": expected,
         "expected_source": expected_source,
         "actual": actual,
