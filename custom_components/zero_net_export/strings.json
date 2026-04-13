@@ -90,7 +90,7 @@
       },
       "devices": {
         "title": "Managed devices",
-        "description": "Use this native Configure screen as the main managed-device workspace. If you are looking for where to tag, review, edit, enable, disable, or remove controllable loads, this is it. Only drop into JSON editing for recovery or bulk changes.\n\nThis is where operators tag controllable loads into the Zero Net Export fleet.\n\nPrimary path: {configure_path}.\n\nManaged devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged candidate devices: {candidate_count}\nFixed-load candidates: {fixed_candidate_count}\n{fixed_candidate_summary}\nVariable-load candidates: {variable_candidate_count}\n{variable_candidate_summary}\n\nCandidate snapshot:\n{candidate_summary}\nTop candidate right now: {top_candidate}\nRecommended next device action: {device_next_step}\n\nDevice issues:\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. If you are looking for where to tag, review, edit, enable, disable, or remove controllable loads, this is it. Only drop into JSON editing for recovery or bulk changes.\n\nThink of this screen as a native fleet review: the top section shows what is already managed, and the candidate sections show what is still unmanaged and ready for promotion into the fleet.\n\nPrimary path: {configure_path}.\n\nManaged devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged candidate devices: {candidate_count}\nFixed-load candidates ready for promotion: {fixed_candidate_count}\n{fixed_candidate_summary}\nVariable-load candidates ready for promotion: {variable_candidate_count}\n{variable_candidate_summary}\n\nCandidate snapshot:\n{candidate_summary}\nTop unmanaged candidate right now: {top_candidate}\nRecommended fleet action: {device_next_step}\n\nDevice issues:\n{device_issues}",
         "data": {
           "device_action": "Managed-device action"
         },
@@ -114,14 +114,14 @@
       },
       "device_pick_candidate": {
         "title": "Pick unmanaged candidate",
-        "description": "Start with the best suggested unmanaged {device_kind} candidates below. This first step is now a short, opinionated pick list instead of a long hard-to-scan dropdown. If the right entity is not shown, open the full candidate list or use manual entity selection.\n\nDiscovered candidates: {candidate_count}\nSuggested shortlist:\n{top_candidates}",
+        "description": "Start with the best suggested unmanaged {device_kind} candidates below. This first step is a short, opinionated promotion shortlist instead of a long hard-to-scan dropdown. If the right entity is not shown, open the full unmanaged list or use manual entity selection.\n\nDiscovered unmanaged candidates: {candidate_count}\nSuggested promotion shortlist:\n{top_candidates}",
         "data": {
           "quick_pick": "Suggested candidate action"
         }
       },
       "device_pick_candidate_full": {
         "title": "Full unmanaged candidate list",
-        "description": "Choose from the full discovered unmanaged {device_kind} list when the quick shortlist does not contain the right entity. If the entity still is not listed, choose the manual entity selection option from this dropdown and continue with the normal native form.\n\nDiscovered candidates: {candidate_count}",
+        "description": "Choose from the full discovered unmanaged {device_kind} list when the quick shortlist does not contain the right entity. If the entity still is not listed, choose the manual entity selection option from this dropdown and continue with the normal native form.\n\nDiscovered unmanaged candidates: {candidate_count}",
         "data": {
           "candidate_entity_id": "Unmanaged candidate selection"
         }
