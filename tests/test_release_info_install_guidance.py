@@ -36,6 +36,36 @@ release_info = load_integration_module("release_info", "release_info.py")
 
 
 class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
+    def test_parse_changelog_text_keeps_indented_bullets_under_release_sections(self) -> None:
+        sections = release_info._parse_changelog_text(
+            "\n".join(
+                [
+                    "## [0.1.81] - 2026-04-13",
+                    "",
+                    "### Fixed",
+                    "  - First shipped fix",
+                    "    - Follow-up detail still counts as a highlight",
+                    "",
+                    "## [Unreleased]",
+                ]
+            )
+        )
+
+        self.assertEqual(sections[0]["version"], "0.1.81")
+        self.assertEqual(
+            sections[0]["highlights"],
+            ["First shipped fix", "Follow-up detail still counts as a highlight"],
+        )
+
+    def test_build_release_info_uses_current_version_entry_before_unreleased(self) -> None:
+        info = release_info.build_release_info(release_info.INTEGRATION_VERSION)
+
+        self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
+        self.assertTrue(info["has_changelog"])
+        self.assertEqual(info["released_on"], "2026-04-13")
+        self.assertGreaterEqual(info["highlight_count"], 1)
+        self.assertIn("Home Assistant", info["changes_preview"])
+
     def test_cli_steps_use_parent_custom_components_path_for_component_root(self) -> None:
         steps = release_info.build_install_validation_cli_steps(
             {"component_root": "/tmp/ha config/custom_components/zero_net_export"}
