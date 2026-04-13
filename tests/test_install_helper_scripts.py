@@ -198,6 +198,31 @@ class InstallHelperScriptsTests(unittest.TestCase):
             )
             self.assertIn("recommended dry-run command", result.stdout)
 
+    def test_deploy_exact_repo_build_discover_home_assistant_config_normalizes_component_path_hint(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_root = Path(tmpdir) / "ha-config"
+            component_root = config_root / "custom_components" / "zero_net_export"
+            component_root.mkdir(parents=True)
+            (config_root / ".storage").mkdir()
+
+            env = os.environ.copy()
+            env["HOME_ASSISTANT_CONFIG"] = str(component_root)
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "scripts" / "deploy_exact_repo_build.py"), "--discover-home-assistant-config"],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                env=env,
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertIn(str(config_root.resolve()), result.stdout)
+            self.assertNotIn(str(component_root.resolve()), result.stdout)
+            self.assertIn(
+                f"recommended_validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}",
+                result.stdout,
+            )
+
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             config_root = Path(tmpdir) / "config"

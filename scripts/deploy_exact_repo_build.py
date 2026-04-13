@@ -67,6 +67,14 @@ def git_commit(root: Path) -> str:
         return "unknown"
 
 
+def _candidate_config_root(path: Path) -> Path:
+    if path.name == COMPONENT_DIRNAME and path.parent.name == "custom_components":
+        return path.parent.parent
+    if path.name == "custom_components":
+        return path.parent
+    return path
+
+
 def _looks_like_home_assistant_config_root(path: Path) -> bool:
     return (
         (path / "configuration.yaml").exists()
@@ -82,7 +90,7 @@ def discover_home_assistant_config_roots() -> list[Path]:
         if path is None:
             return
         try:
-            resolved = path.expanduser().resolve()
+            resolved = _candidate_config_root(path.expanduser().resolve())
         except Exception:
             return
         if not _looks_like_home_assistant_config_root(resolved):
