@@ -43,6 +43,7 @@ project_status.md
 
 # Local previews / scratch
 /tmp/
+/tmp-ha-config/
 
 # Testing
 .pytest_cache/
