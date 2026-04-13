@@ -100,9 +100,31 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
     }
 
 
+def _issue_role_keys(issues: list[dict[str, Any]] | None, *, severities: set[str] | None = None) -> list[str]:
+    allowed = {severity.lower() for severity in severities} if severities else None
+    known_suffixes = ("_missing_entity", "_unavailable", "_non_numeric")
+    keys: list[str] = []
+    for issue in issues or []:
+        severity = str(issue.get("severity", "") or "").lower()
+        if allowed is not None and severity not in allowed:
+            continue
+        code = str(issue.get("code", "") or "")
+        key = next((code[: -len(suffix)] for suffix in known_suffixes if code.endswith(suffix)), "")
+        if key in SOURCE_ROLE_LABELS and key not in keys:
+            keys.append(key)
+    return keys
+
+
 def _ordered_source_attention_keys(source_attention: dict[str, Any]) -> list[str]:
     ordered_keys: list[str] = []
     for key in source_attention["unavailable_source_keys"] + source_attention["stale_source_keys"]:
+        if key not in ordered_keys:
+            ordered_keys.append(key)
+    validation_role_keys = _issue_role_keys(
+        source_attention.get("validation_details", {}).get("issues", []),
+        severities={"error"},
+    )
+    for key in validation_role_keys:
         if key not in ordered_keys:
             ordered_keys.append(key)
     return ordered_keys
@@ -137,6 +159,26 @@ def build_source_attention_role_summary(
         issue_messages = [str(issue).strip() for issue in (details.get("issues") or []) if str(issue).strip()]
         if issue_messages:
             markers.append(issue_messages[0])
+        if not issue_messages:
+            validation_issues = list(source_attention.get("validation_details", {}).get("issues", []) or [])
+            validation_role_keys = _issue_role_keys(validation_issues)
+            if key in validation_role_keys:
+                for issue in validation_issues:
+                    code = str(issue.get("code", "") or "")
+                    issue_key = next(
+                        (
+                            code[: -len(suffix)]
+                            for suffix in ("_missing_entity", "_unavailable", "_non_numeric")
+                            if code.endswith(suffix)
+                        ),
+                        "",
+                    )
+                    if issue_key != key:
+                        continue
+                    message = str(issue.get("message") or "").strip()
+                    if message:
+                        markers.append(message)
+                        break
 
         marker_text = "; ".join(markers) if markers else "needs attention"
         details_lines.append(f"{SOURCE_ROLE_LABELS.get(key, key)} -> {entity_label} ({marker_text})")

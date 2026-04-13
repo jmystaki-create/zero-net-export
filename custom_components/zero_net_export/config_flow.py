@@ -531,15 +531,14 @@ def _summarize_issue_messages(
 
 def _issue_role_keys(issues: list[Any], *, severities: set[str] | None = None) -> list[str]:
     allowed = {severity.lower() for severity in severities} if severities else None
+    known_suffixes = ("_missing_entity", "_unavailable", "_non_numeric")
     keys: list[str] = []
     for issue in issues:
         severity = str(getattr(issue, "severity", "") or "").lower()
         if allowed is not None and severity not in allowed:
             continue
         code = str(getattr(issue, "code", "") or "")
-        if "_" not in code:
-            continue
-        key = code.rsplit("_", 1)[0]
+        key = next((code[: -len(suffix)] for suffix in known_suffixes if code.endswith(suffix)), "")
         if key in SOURCE_ROLE_LABELS and key not in keys:
             keys.append(key)
     return keys

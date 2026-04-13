@@ -76,6 +76,32 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Solar power -> sensor.pv_power (unavailable)", guidance)
         self.assertIn("Grid export power -> sensor.grid_export (stale 245 s)", guidance)
 
+    def test_attention_role_summary_includes_validation_only_role_errors(self) -> None:
+        native_support = _load_native_support_module()
+        state = types.SimpleNamespace(
+            source_diagnostics={},
+            validation_details={
+                "issues": [
+                    {
+                        "code": "battery_soc_entity_non_numeric",
+                        "severity": "error",
+                        "message": "Battery state of charge entity sensor.battery_soc is not numeric",
+                    }
+                ]
+            },
+        )
+        summary = native_support.build_source_attention_role_summary(
+            state,
+            {"battery_soc_entity": "sensor.battery_soc"},
+        )
+        concise = native_support.build_source_attention_summary(
+            state,
+            {"battery_soc_entity": "sensor.battery_soc"},
+        )
+        self.assertIn("Battery state of charge -> sensor.battery_soc", summary)
+        self.assertIn("is not numeric", summary)
+        self.assertIn("Battery state of charge (sensor.battery_soc, needs attention)", concise)
+
 
 if __name__ == "__main__":
     unittest.main()
