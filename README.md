@@ -99,14 +99,14 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 1.  Add the **Zero Net Export** integration.
 2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
 3.  Open **Settings** -> **Devices & Services** -> **Integrations** -> **Zero Net Export** -> **Configure**.
-4.  Use **Sources and source mapping** to map your source entities:
+4.  Use **Sensors** to map your source entities and review source health:
     - Solar Power
     - Grid sensors, either as one combined/net pair or as separate import/export entities
     - Home Load Power (optional if solar and grid sources are already mapped)
     - (Optional) Battery Entities
 5.  Use **Managed devices** in Configure as the main device workspace: add fixed or variable controllable devices, review unmanaged candidates, promote the best-fit candidate into the managed fleet, then edit, enable or disable, and remove devices from that same native path. Use the fleet review there to stage larger installs. Use the JSON editor only for bulk structural edits or recovery.
-6.  Use **Policy and controller settings** in Configure for target/deadband/reserve defaults and related control behavior once sources and managed devices are in place.
-7.  Use **Health, support, and troubleshooting** in Configure for the next native triage step when runtime is blocked or unclear.
+6.  Use **Controls** in Configure for target/deadband/reserve defaults and related control behavior once Sensors and Managed devices are in place.
+7.  Use **Diagnostics** in Configure for the next native triage step when runtime is blocked or unclear.
 8.  For deeper verification, use the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, then its buttons, entities, diagnostics, and **Repairs** after Configure points you to the next blocker.
 
 ### Advanced / fallback paths
