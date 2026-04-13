@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shlex
 from typing import Any
 
 from .const import INTEGRATION_VERSION
@@ -106,19 +107,47 @@ def build_install_consistency_summary(install_provenance: dict[str, Any] | None 
     return "Installed package version metadata matches the running code version."
 
 
+def build_install_validation_cli_steps(install_provenance: dict[str, Any] | None = None) -> dict[str, str]:
+    """Return exact repo and live-install commands for fingerprint validation."""
+    provenance = install_provenance or build_install_provenance()
+    component_root_raw = str(provenance.get("component_root") or "").strip()
+    component_root = Path(component_root_raw).expanduser() if component_root_raw else None
+    compare_target = component_root.parent if component_root and component_root.name == "zero_net_export" else component_root
+    compare_target_str = str(compare_target) if compare_target else "/path/to/home-assistant/config/custom_components"
+
+    expected_json = "tmp/expected-install-fingerprint.json"
+    compare_json = "tmp/install-fingerprint-compare.json"
+    repo_command = (
+        "python3 scripts/print_expected_install_fingerprint.py "
+        f"--write-json {shlex.quote(expected_json)}"
+    )
+    compare_command = (
+        "python3 scripts/compare_install_fingerprint.py "
+        f"{shlex.quote(compare_target_str)} "
+        f"--expected-json {shlex.quote(expected_json)} "
+        f"--write-json {shlex.quote(compare_json)}"
+    )
+    return {
+        "repo_command": repo_command,
+        "compare_command": compare_command,
+        "compare_target": compare_target_str,
+    }
+
+
 def build_install_repair_step(install_provenance: dict[str, Any] | None = None) -> str:
     """Return the next operator action when install provenance blocks trustworthy validation."""
     provenance = install_provenance or build_install_provenance()
     component_root = provenance.get("component_root") or "the active custom_components/zero_net_export path"
+    cli_steps = build_install_validation_cli_steps(provenance)
     if provenance.get("manifest_matches_code_version") is False:
         return (
-            f"Deploy one exact intended Zero Net Export build to {component_root}, confirm manifest.json and the tracked files all come from that same build, "
-            "then restart Home Assistant core before trusting live validation or source diagnostics."
+            f"Deploy one exact intended Zero Net Export build to {component_root}, run `{cli_steps['repo_command']}` in the repo, then run "
+            f"`{cli_steps['compare_command']}` against the live install path to confirm one synchronized build before restarting Home Assistant core or trusting live validation."
         )
     if provenance.get("manifest_error"):
         return (
-            f"Confirm the exact live Zero Net Export install path at {component_root}, compare manifest.json and the tracked-file fingerprints from that path, "
-            "then restart Home Assistant core from one synchronized build before trusting live validation or source diagnostics."
+            f"Confirm the exact live Zero Net Export install path at {component_root}, run `{cli_steps['repo_command']}` in the repo, then run "
+            f"`{cli_steps['compare_command']}` against that install path before restarting Home Assistant core or trusting live validation."
         )
     return "Installed package provenance looks consistent."
 
@@ -142,6 +171,14 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
             f"size_bytes={details.get('size_bytes') if details.get('size_bytes') is not None else 'n/a'}, "
             f"exists={details.get('exists')}"
         )
+
+    cli_steps = build_install_validation_cli_steps(provenance)
+    lines.extend(
+        [
+            "- repo_fingerprint_command: " + cli_steps["repo_command"],
+            "- live_compare_command: " + cli_steps["compare_command"],
+        ]
+    )
 
     return "\n".join(lines)
 
