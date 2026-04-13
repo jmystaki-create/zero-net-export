@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import unittest
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "manifest.json"
 CHANGELOG_PATH = REPO_ROOT / "CHANGELOG.md"
+README_PATH = REPO_ROOT / "README.md"
 TEST_INSTALL_MANIFEST_PATH = REPO_ROOT / "tmp" / "test-ha-config" / "custom_components" / "zero_net_export" / "manifest.json"
 
 
@@ -16,6 +18,13 @@ class ReleaseMetadataIntegrityTests(unittest.TestCase):
 
     def _manifest_version(self, path: Path) -> str:
         return str(json.loads(path.read_text(encoding="utf-8"))["version"])
+
+    def _repo_head_short_commit(self) -> str:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=REPO_ROOT,
+            text=True,
+        ).strip()
 
     def test_current_manifest_version_has_changelog_entry(self) -> None:
         version = self._manifest_version(MANIFEST_PATH)
@@ -27,6 +36,13 @@ class ReleaseMetadataIntegrityTests(unittest.TestCase):
         self.assertEqual(
             self._manifest_version(TEST_INSTALL_MANIFEST_PATH),
             self._manifest_version(MANIFEST_PATH),
+        )
+
+    def test_readme_current_highest_value_next_step_mentions_current_head_commit(self) -> None:
+        readme = README_PATH.read_text(encoding="utf-8")
+        self.assertIn(
+            f"**Current highest-value next step:** push the current exact repo build at commit `{self._repo_head_short_commit()}`",
+            readme,
         )
 
 
