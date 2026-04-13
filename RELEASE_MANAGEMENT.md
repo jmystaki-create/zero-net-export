@@ -36,7 +36,7 @@ Before touching Home Assistant, confirm:
 - changelog is updated
 - GitHub release publication/visibility is complete or in progress as part of the same operation
 - `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` is ready to capture `tmp/expected-install-fingerprint.json`, compare the intended fingerprint against the actual install path, save `tmp/install-fingerprint-compare.json`, and fail fast on mismatch before restart validation
-- if a manual repo-side recovery deploy is needed before restart validation, `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` is ready to replace one explicit destination component path, keep a timestamped backup by default, and run the fingerprint validator immediately after the copy
+- if a manual repo-side recovery deploy is needed before restart validation, `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` is ready to replace one explicit destination component path, keep a timestamped backup by default, and run the fingerprint validator immediately after the copy; use `--dry-run` first when you need to confirm the resolved target path before touching the install
 - if deeper debugging is needed, the split-step `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` plus `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json` path remains available
 
 ### 3. After approval, verify the latest version is actually published on GitHub

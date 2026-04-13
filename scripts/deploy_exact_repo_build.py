@@ -65,12 +65,16 @@ def copy_component(source_root: Path, destination_root: Path) -> None:
     shutil.copytree(source_root, destination_root)
 
 
+def planned_backup_path(destination_root: Path) -> Path:
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    return destination_root.parent / f"{destination_root.name}.backup-{stamp}"
+
+
 def backup_component(destination_root: Path) -> Path | None:
     if not destination_root.exists():
         return None
 
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    backup_root = destination_root.parent / f"{destination_root.name}.backup-{stamp}"
+    backup_root = planned_backup_path(destination_root)
     if backup_root.exists():
         raise FileExistsError(f"Backup path already exists: {backup_root}")
     shutil.copytree(destination_root, backup_root)
@@ -112,6 +116,11 @@ def main() -> int:
         action="store_true",
         help="Skip the post-copy fingerprint validation step.",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the resolved deploy plan without copying, backing up, or validating anything.",
+    )
     args = parser.parse_args()
 
     root = repo_root()
@@ -123,9 +132,30 @@ def main() -> int:
 
     ensure_safe_destination(source_root, destination_root, parser)
 
-    backup_root = None
+    destination_exists = destination_root.exists()
+    backup_root = None if args.no_backup or not destination_exists else planned_backup_path(destination_root)
+
+    if args.dry_run:
+        print(f"Dry run deploy plan for {COMPONENT_DIRNAME}")
+        print(f"Repo:        {root}")
+        print(f"Source:      {source_root}")
+        print(f"Destination: {destination_root}")
+        print(f"Commit:      {git_commit(root)}")
+        print(f"Exists now:  {'yes' if destination_exists else 'no'}")
+        if backup_root is not None:
+            print(f"Backup:      {backup_root} (planned)")
+        else:
+            print("Backup:      none")
+        if args.no_validate:
+            print("Validation:  skipped (--no-validate)")
+        else:
+            print("Validation:  would run scripts/validate_install_fingerprint.py against the deployed path")
+        print("Next step:   rerun without --dry-run to perform the copy, then restart Home Assistant core only after validation succeeds.")
+        return 0
+
+    actual_backup_root = None
     if not args.no_backup:
-        backup_root = backup_component(destination_root)
+        actual_backup_root = backup_component(destination_root)
 
     copy_component(source_root, destination_root)
 
@@ -133,8 +163,8 @@ def main() -> int:
     print(f"Source:      {source_root}")
     print(f"Destination: {destination_root}")
     print(f"Commit:      {git_commit(root)}")
-    if backup_root is not None:
-        print(f"Backup:      {backup_root}")
+    if actual_backup_root is not None:
+        print(f"Backup:      {actual_backup_root}")
     else:
         print("Backup:      none")
 
