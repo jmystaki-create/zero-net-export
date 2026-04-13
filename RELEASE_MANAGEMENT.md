@@ -36,6 +36,7 @@ Before touching Home Assistant, confirm:
 - changelog is updated
 - GitHub release publication/visibility is complete or in progress as part of the same operation
 - `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` is ready to capture `tmp/expected-install-fingerprint.json`, compare the intended fingerprint against the actual install path, save `tmp/install-fingerprint-compare.json`, and fail fast on mismatch before restart validation
+- if a manual repo-side recovery deploy is needed before restart validation, `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` is ready to replace one explicit destination component path, keep a timestamped backup by default, and run the fingerprint validator immediately after the copy
 - if deeper debugging is needed, the split-step `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` plus `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json` path remains available
 
 ### 3. After approval, verify the latest version is actually published on GitHub
@@ -78,7 +79,7 @@ Once the target version appears:
 Before trusting runtime validation after the package update:
 - run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components`
 - confirm the saved comparison payload reports the manifest version and tracked-file hashes all matching the intended repo build
-- if the validation helper exits non-zero or does not fully match, stop and fix the install path/build mix before restart validation
+- if the validation helper exits non-zero or does not fully match, stop and fix the install path/build mix before restart validation, including `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` when a manual exact-copy recovery is appropriate
 
 ### 8. Restart Home Assistant
 After a Zero Net Export Python/config-flow/runtime release:
@@ -122,6 +123,7 @@ A release completion report should include:
 - [ ] manifest version updated
 - [ ] changelog updated
 - [ ] Expected repo fingerprint captured, preferably via `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` or by the split-step helper if debugging is needed
+- [ ] Manual exact-copy recovery helper available if the install path still contains a mixed build (`python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config`)
 - [ ] tag created and pushed
 - [ ] GitHub release published/visible
 - [ ] GitHub latest-release state verified after approval

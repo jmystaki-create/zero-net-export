@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+"""Deploy one exact Zero Net Export repo build to a Home Assistant install path."""
+from __future__ import annotations
+
+import argparse
+import shutil
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+COMPONENT_DIRNAME = "zero_net_export"
+
+
+def repo_root() -> Path:
+    return Path(__file__).resolve().parents[1]
+
+
+def source_component_root() -> Path:
+    return repo_root() / "custom_components" / COMPONENT_DIRNAME
+
+
+def normalize_destination(path: Path) -> Path:
+    candidate = path.expanduser().resolve()
+    if candidate.name == COMPONENT_DIRNAME:
+        return candidate
+    if candidate.name == "custom_components":
+        return candidate / COMPONENT_DIRNAME
+    return candidate / "custom_components" / COMPONENT_DIRNAME
+
+
+def git_commit(root: Path) -> str:
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=root,
+            text=True,
+        ).strip()
+    except Exception:
+        return "unknown"
+
+
+def copy_component(source_root: Path, destination_root: Path) -> None:
+    destination_root.parent.mkdir(parents=True, exist_ok=True)
+    if destination_root.exists():
+        shutil.rmtree(destination_root)
+    shutil.copytree(source_root, destination_root)
+
+
+def backup_component(destination_root: Path) -> Path | None:
+    if not destination_root.exists():
+        return None
+
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup_root = destination_root.parent / f"{destination_root.name}.backup-{stamp}"
+    if backup_root.exists():
+        raise FileExistsError(f"Backup path already exists: {backup_root}")
+    shutil.copytree(destination_root, backup_root)
+    return backup_root
+
+
+def validate_install(destination_root: Path) -> int:
+    return subprocess.call(
+        [
+            sys.executable,
+            "scripts/validate_install_fingerprint.py",
+            str(destination_root),
+        ],
+        cwd=repo_root(),
+    )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Copy this repo's custom_components/zero_net_export into one explicit Home "
+            "Assistant install path, replacing any existing component directory first."
+        )
+    )
+    parser.add_argument(
+        "install_path",
+        help=(
+            "Path to the Home Assistant config directory, its custom_components directory, "
+            "or the destination custom_components/zero_net_export directory."
+        ),
+    )
+    parser.add_argument(
+        "--no-backup",
+        action="store_true",
+        help="Skip creating a timestamped backup copy of the existing destination component.",
+    )
+    parser.add_argument(
+        "--no-validate",
+        action="store_true",
+        help="Skip the post-copy fingerprint validation step.",
+    )
+    args = parser.parse_args()
+
+    root = repo_root()
+    source_root = source_component_root()
+    destination_root = normalize_destination(Path(args.install_path))
+
+    if not source_root.exists():
+        parser.exit(2, f"ERROR: repo component source is missing: {source_root}\n")
+
+    backup_root = None
+    if not args.no_backup:
+        backup_root = backup_component(destination_root)
+
+    copy_component(source_root, destination_root)
+
+    print(f"Deployed {COMPONENT_DIRNAME} from repo {root}")
+    print(f"Source:      {source_root}")
+    print(f"Destination: {destination_root}")
+    print(f"Commit:      {git_commit(root)}")
+    if backup_root is not None:
+        print(f"Backup:      {backup_root}")
+    else:
+        print("Backup:      none")
+
+    if args.no_validate:
+        print("Validation:  skipped (--no-validate)")
+        print("Next step:   restart Home Assistant core only after validating the destination install path.")
+        return 0
+
+    print("Validation:  running scripts/validate_install_fingerprint.py against the deployed path...")
+    validation_exit = validate_install(destination_root)
+    if validation_exit == 0:
+        print("Next step:   restart Home Assistant core from this synchronized install path.")
+        return 0
+
+    print(
+        "Next step:   fix the deployed install path until validation reports overall_match=true, "
+        "then restart Home Assistant core.",
+        file=sys.stderr,
+    )
+    return validation_exit
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
