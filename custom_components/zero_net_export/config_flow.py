@@ -547,10 +547,10 @@ def _issue_role_keys(issues: list[Any], *, severities: set[str] | None = None) -
 
 def _command_center_menu_options(recommended_section: str) -> list[str]:
     recommended_map = {
-        "Sources and source mapping": "native_setup",
+        "Sensors": "native_setup",
         "Managed devices": "devices",
-        "Policy and controller settings": "policy",
-        "Health, support, and troubleshooting": "support",
+        "Controls": "policy",
+        "Diagnostics": "support",
     }
     base_options = ["native_setup", "policy", "devices", "support"]
     recommended_option = recommended_map.get(recommended_section)
@@ -1270,7 +1270,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_install_fingerprint_summary": support_install_fingerprint_summary,
             "support_candidate_hints": support_candidate_hints,
             "support_priority_candidate_hints": support_priority_candidate_hints,
-            "recommended_section": str(command_center.get("recommended_section") or "Health, support, and troubleshooting"),
+            "recommended_section": str(command_center.get("recommended_section") or "Diagnostics"),
             "recommended_path": str(command_center.get("recommended_path") or SUPPORT_CONFIGURE_PATH),
             "next_action_summary": str(command_center.get("next_action_summary") or readiness.get("next_step") or "Review the current blocker, then follow the recommended native Configure path."),
         }

@@ -88,7 +88,7 @@ async def _async_update_native_setup_notice(
     next_step = str(readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup.")
 
     message = (
-        f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} as the Zero Net Export command center for Sources and source mapping, Managed devices, Policy and controller settings, and Health, support, and troubleshooting.\n\n"
+        f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} as the Zero Net Export command center for Sensors, Managed devices, Controls, and Diagnostics.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
         + f"\n\nNext step: {next_step}"
         + f"\n\nUse {INTEGRATION_DEVICE_PATH} support actions for a combined support center, setup checklist, and detailed diagnostics snapshot."

@@ -43,16 +43,16 @@ PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero
 INTEGRATION_DEVICE_PATH = (
     "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device"
 )
-SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping"
+SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sensors"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 DETAILED_MANAGEMENT_PATH = (
     f"{INTEGRATION_DEVICE_PATH} -> managed-device entities, per-device status sensors, reset-override buttons, and native support actions"
 )
-POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
+POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Controls"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
-    f"{PRIMARY_CONFIGURE_PATH} -> Health, support, and troubleshooting; deeper health review: "
+    f"{PRIMARY_CONFIGURE_PATH} -> Diagnostics; deeper health review: "
     f"{INTEGRATION_DEVICE_PATH} -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
     "Settings -> Repairs"
 )
@@ -753,7 +753,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_status = "Missing required source roles: " + ", ".join(
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
-        recommended_section = "Sources and source mapping"
+        recommended_section = "Sensors"
     elif runtime_source_attention:
         attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
         validation_suffix = (
@@ -762,13 +762,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             else ""
         )
         source_status = attention_prefix + validation_suffix
-        recommended_section = "Sources and source mapping"
+        recommended_section = "Sensors"
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
-        recommended_section = "Sources and source mapping"
+        recommended_section = "Sensors"
     else:
         source_status = build_live_source_health_summary(state)
-        recommended_section = "Managed devices" if not configured_devices else "Policy and controller settings"
+        recommended_section = "Managed devices" if not configured_devices else "Controls"
 
     if device_parse_issues:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
@@ -806,7 +806,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             readiness.get("next_step")
             or f"Open {SUPPORT_CONFIGURE_PATH} and the native diagnostics surfaces to clear the current runtime blocker."
         )
-        recommended_section = "Health, support, and troubleshooting"
+        recommended_section = "Diagnostics"
     elif readiness_phase == "operator_ready":
         next_action_summary = str(
             readiness.get("next_step")
@@ -840,17 +840,17 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
     detailed_management_summary = build_detailed_management_handoff(configured_devices, state=state)
     status_summary_map = {
-        "Sources and source mapping": source_status,
+        "Sensors": source_status,
         "Managed devices": device_status,
-        "Policy and controller settings": policy_status,
-        "Health, support, and troubleshooting": support_status,
+        "Controls": policy_status,
+        "Diagnostics": support_status,
     }
 
     path_summary_map = {
-        "Sources and source mapping": SOURCES_CONFIGURE_PATH,
+        "Sensors": SOURCES_CONFIGURE_PATH,
         "Managed devices": DEVICES_CONFIGURE_PATH,
-        "Policy and controller settings": POLICY_CONFIGURE_PATH,
-        "Health, support, and troubleshooting": SUPPORT_CONFIGURE_PATH,
+        "Controls": POLICY_CONFIGURE_PATH,
+        "Diagnostics": SUPPORT_CONFIGURE_PATH,
     }
 
     install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
