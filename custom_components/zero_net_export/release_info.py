@@ -133,10 +133,15 @@ def build_install_validation_cli_steps(install_provenance: dict[str, Any] | None
         f"--expected-json {shlex.quote(expected_json)} "
         f"--compare-json {shlex.quote(compare_json)}"
     )
+    deploy_command = (
+        "python3 scripts/deploy_exact_repo_build.py "
+        f"{shlex.quote(compare_target_str)}"
+    )
     return {
         "repo_command": repo_command,
         "compare_command": compare_command,
         "combined_command": combined_command,
+        "deploy_command": deploy_command,
         "compare_target": compare_target_str,
     }
 
@@ -148,13 +153,13 @@ def build_install_repair_step(install_provenance: dict[str, Any] | None = None) 
     cli_steps = build_install_validation_cli_steps(provenance)
     if provenance.get("manifest_matches_code_version") is False:
         return (
-            f"Deploy one exact intended Zero Net Export build to {component_root}, then run "
-            f"`{cli_steps['combined_command']}` from the repo against the live install path to confirm one synchronized build before restarting Home Assistant core or trusting live validation."
+            f"Deploy one exact intended Zero Net Export build to {component_root}, preferably with "
+            f"`{cli_steps['deploy_command']}`, then run `{cli_steps['combined_command']}` from the repo against the live install path to confirm one synchronized build before restarting Home Assistant core or trusting live validation."
         )
     if provenance.get("manifest_error"):
         return (
-            f"Confirm the exact live Zero Net Export install path at {component_root}, then run "
-            f"`{cli_steps['combined_command']}` from the repo against that install path before restarting Home Assistant core or trusting live validation."
+            f"Confirm the exact live Zero Net Export install path at {component_root}, then use "
+            f"`{cli_steps['deploy_command']}` if you need to recopy the repo build, and run `{cli_steps['combined_command']}` from the repo against that install path before restarting Home Assistant core or trusting live validation."
         )
     return "Installed package provenance looks consistent."
 
@@ -182,6 +187,7 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
     cli_steps = build_install_validation_cli_steps(provenance)
     lines.extend(
         [
+            "- deploy_exact_build_command: " + cli_steps["deploy_command"],
             "- repo_fingerprint_command: " + cli_steps["repo_command"],
             "- live_compare_command: " + cli_steps["compare_command"],
             "- combined_validation_command: " + cli_steps["combined_command"],
