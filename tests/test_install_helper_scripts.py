@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import shutil
 import subprocess
@@ -7,6 +9,8 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+
+from scripts import deploy_exact_repo_build
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +69,30 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, msg=result.stderr)
             self.assertIn("post_copy_validation=passed", result.stdout)
             self.assertTrue((config_root / "custom_components" / "zero_net_export" / "manifest.json").exists())
+
+    def test_deploy_exact_repo_build_restores_backup_when_validation_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_root = Path(tmpdir) / "config"
+            install_root = config_root / "custom_components" / "zero_net_export"
+            shutil.copytree(COMPONENT_ROOT, install_root)
+            sentinel = install_root / "sentinel.txt"
+            sentinel.write_text("keep me", encoding="utf-8")
+
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                rc = deploy_exact_repo_build.perform_deploy(
+                    install_root,
+                    source_root=COMPONENT_ROOT,
+                    commit="test-commit",
+                    validate_fn=lambda _: 1,
+                )
+
+            self.assertEqual(rc, 1)
+            self.assertIn("post_copy_validation=failed", stderr.getvalue())
+            self.assertTrue(sentinel.exists())
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "keep me")
+            self.assertFalse(any(install_root.parent.glob("zero_net_export.backup-*")))
 
 
 if __name__ == "__main__":

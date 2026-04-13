@@ -69,10 +69,43 @@ def backup_component(destination_root: Path) -> Path | None:
     return backup_path
 
 
+def restore_backup(destination_root: Path, backup_path: Path | None) -> None:
+    if destination_root.exists():
+        shutil.rmtree(destination_root)
+    if backup_path and backup_path.exists():
+        shutil.move(str(backup_path), str(destination_root))
+
+
 def validate_install(destination_root: Path) -> int:
     script = repo_root() / "scripts" / "validate_install_fingerprint.py"
     result = subprocess.run([sys.executable, str(script), str(destination_root)], cwd=repo_root())
     return result.returncode
+
+
+def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, validate_fn=validate_install) -> int:
+    destination_root.parent.mkdir(parents=True, exist_ok=True)
+    backup_path = backup_component(destination_root)
+    try:
+        copy_component(source_root, destination_root)
+    except Exception:
+        restore_backup(destination_root, backup_path)
+        raise
+
+    print(f"deployed_commit={commit}")
+    print(f"source_component_root={source_root}")
+    print(f"resolved_destination={destination_root}")
+    print(f"backup_path={backup_path if backup_path else 'none'}")
+
+    validation_rc = validate_fn(destination_root)
+    if validation_rc != 0:
+        restore_backup(destination_root, backup_path)
+        print("post_copy_validation=failed", file=sys.stderr)
+        print(f"restored_backup={backup_path if backup_path and backup_path.exists() else 'none'}", file=sys.stderr)
+        return validation_rc
+
+    print("post_copy_validation=passed")
+    print("next_step=restart Home Assistant core from this synchronized install path")
+    return 0
 
 
 def main() -> int:
@@ -98,23 +131,7 @@ def main() -> int:
         print("action=preview_only")
         return 0
 
-    destination_root.parent.mkdir(parents=True, exist_ok=True)
-    backup_path = backup_component(destination_root)
-    copy_component(source_root, destination_root)
-
-    print(f"deployed_commit={commit}")
-    print(f"source_component_root={source_root}")
-    print(f"resolved_destination={destination_root}")
-    print(f"backup_path={backup_path if backup_path else 'none'}")
-
-    validation_rc = validate_install(destination_root)
-    if validation_rc != 0:
-        print("post_copy_validation=failed", file=sys.stderr)
-        return validation_rc
-
-    print("post_copy_validation=passed")
-    print("next_step=restart Home Assistant core from this synchronized install path")
-    return 0
+    return perform_deploy(destination_root, source_root=source_root, commit=commit)
 
 
 if __name__ == "__main__":
