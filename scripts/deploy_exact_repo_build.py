@@ -55,6 +55,8 @@ def normalize_destination(path: Path) -> Path:
     resolved = path.expanduser().resolve()
     if resolved.name == COMPONENT_DIRNAME and resolved.parent.name == "custom_components":
         return resolved
+    if resolved.name == "custom_components":
+        return resolved / COMPONENT_DIRNAME
     return resolved / "custom_components" / COMPONENT_DIRNAME
 
 
@@ -296,7 +298,7 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("path", nargs="?", type=Path, help="Home Assistant config directory or installed custom_components/zero_net_export path")
+    parser.add_argument("path", nargs="?", type=Path, help="Home Assistant config directory, custom_components directory, or installed custom_components/zero_net_export path")
     parser.add_argument("--dry-run", action="store_true", help="Print the resolved deploy target and planned actions without copying files")
     parser.add_argument(
         "--discover-home-assistant-config",

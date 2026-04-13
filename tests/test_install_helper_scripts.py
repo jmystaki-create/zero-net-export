@@ -89,6 +89,16 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
 
+    def test_deploy_exact_repo_build_dry_run_accepts_custom_components_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            custom_components_root = Path(tmpdir) / "config" / "custom_components"
+            custom_components_root.mkdir(parents=True)
+
+            result = self.run_script("scripts/deploy_exact_repo_build.py", str(custom_components_root), "--dry-run")
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertIn(f"resolved_destination={custom_components_root / 'zero_net_export'}", result.stdout)
+            self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {custom_components_root}", result.stdout)
+
     def test_enforce_repo_build_requirements_accepts_matching_clean_repo(self) -> None:
         with patch.object(deploy_exact_repo_build, "git_status_details", return_value=(False, [])):
             commit, dirty, changed_files = deploy_exact_repo_build.enforce_repo_build_requirements(

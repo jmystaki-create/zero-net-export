@@ -88,21 +88,25 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
 
 1.  From this repo, preview the resolved target first:
     ```bash
-    python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run
+    python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run --expected-commit <intended_commit> --require-clean
     ```
-    Confirm the preview shows the intended `git_commit`, whether `git_working_tree_dirty` is `true` or `false`, and the exact `git_working_tree_changes` being deployed.
+    Confirm the preview shows the intended `git_commit`, `git_upstream_commit`, `git_local_vs_upstream`, whether `git_working_tree_dirty` is `true` or `false`, and the exact `git_working_tree_changes` being deployed.
 2.  If the resolved destination is correct, deploy the exact repo build:
     ```bash
-    python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config
+    python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --expected-commit <intended_commit> --require-clean
     ```
 3.  Confirm the installed package matches the current repo fingerprint:
     ```bash
     python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components
     ```
-4.  **Restart Home Assistant**.
-5.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
-6.  Go to **Settings** → **Devices & Services** → **Add Integration**.
-7.  Search for **Zero Net Export**.
+4.  If you only know the install root indirectly, you can also point the deploy helper at `/path/to/home-assistant/config/custom_components`, the full installed `.../custom_components/zero_net_export` path, or use discovery first:
+    ```bash
+    python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config
+    ```
+5.  **Restart Home Assistant**.
+6.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
+7.  Go to **Settings** → **Devices & Services** → **Add Integration**.
+8.  Search for **Zero Net Export**.
 
 ---
 
