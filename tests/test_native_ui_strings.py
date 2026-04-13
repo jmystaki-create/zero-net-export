@@ -61,6 +61,10 @@ class NativeUiStringsTests(unittest.TestCase):
         diagnostics_step = payload["options"]["step"]["support"]
 
         self.assertIn(
+            "Affected mapped roles: {source_attention_roles}",
+            runtime_issue["description"],
+        )
+        self.assertIn(
             "After source repairs, reopen Configure -> Sensors to confirm live source health.",
             runtime_issue["description"],
         )

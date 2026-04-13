@@ -242,12 +242,14 @@ def build_source_repair_step(
     unavailable_source_keys: list[str] | None = None,
     stale_source_keys: list[str] | None = None,
     blocking_validation_details: str | None = None,
+    affected_roles: str | None = None,
 ) -> str:
     """Return a concise operator-facing next step for source repair work."""
     missing_roles = _format_source_role_list(missing_source_keys)
     unavailable_roles = _format_source_role_list(unavailable_source_keys)
     stale_roles = _format_source_role_list(stale_source_keys)
     blocking_details = str(blocking_validation_details or "").strip()
+    affected_roles_text = str(affected_roles or "").strip()
 
     if missing_roles != "None":
         return (
@@ -260,14 +262,22 @@ def build_source_repair_step(
     if stale_roles != "None":
         attention_parts.append(f"stale roles: {stale_roles}")
     if attention_parts:
+        blocker_text = (
+            f"these mapped-source blockers first: {affected_roles_text}"
+            if affected_roles_text and affected_roles_text != "None"
+            else f"these mapped-source blockers ({'; '.join(attention_parts)})"
+        )
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair these mapped-source blockers ({'; '.join(attention_parts)}), then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}, then save and reload the integration."
         )
 
     if blocking_details and blocking_details != "None":
-        return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair the blocking source validation errors ({blocking_details}), then save and reload the integration."
+        blocker_text = (
+            f"repair these highlighted mapped roles first: {affected_roles_text}, then clear the blocking source validation errors ({blocking_details})"
+            if affected_roles_text and affected_roles_text != "None"
+            else f"repair the blocking source validation errors ({blocking_details})"
         )
+        return f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}, then save and reload the integration."
 
     return f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration."
 
@@ -476,13 +486,15 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         phase = "source_remediation"
         if unavailable_source_roles:
             listed = source_attention_roles if source_attention_roles != "None" else ", ".join(unavailable_source_roles[:6])
-            next_step = (
-                f"Open {SOURCES_CONFIGURE_PATH}, then repair these unavailable mapped sources: {listed}."
+            next_step = build_source_repair_step(
+                unavailable_source_keys=source_attention["unavailable_source_keys"],
+                affected_roles=listed,
             )
         elif state_stale_data and stale_source_roles:
             listed = source_attention_roles if source_attention_roles != "None" else ", ".join(stale_source_roles[:6])
-            next_step = (
-                f"Open {SOURCES_CONFIGURE_PATH} or the diagnostics snapshot, then fix these stale mapped sources: {listed}."
+            next_step = build_source_repair_step(
+                stale_source_keys=source_attention["stale_source_keys"],
+                affected_roles=listed,
             )
         elif state_stale_data and stale_summary:
             next_step = (
@@ -490,7 +502,10 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
                 f"then fix the stale mapped sources. {stale_summary}."
             )
         else:
-            next_step = f"Open {SOURCES_CONFIGURE_PATH}, then use native diagnostics and calibration hints to fix source validation issues."
+            next_step = build_source_repair_step(
+                blocking_validation_details=summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+                affected_roles=source_attention_roles,
+            )
         if blocking_fallback_hint:
             next_step += f" {blocking_fallback_hint}"
         summary = "Native setup is waiting on healthy validated source data."
@@ -794,6 +809,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 unavailable_source_keys=source_attention["unavailable_source_keys"],
                 stale_source_keys=source_attention["stale_source_keys"],
                 blocking_validation_details=blocking_validation_details,
+                affected_roles=source_attention_roles,
             )
         )
     elif device_parse_issues:

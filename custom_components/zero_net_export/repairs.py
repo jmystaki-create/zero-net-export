@@ -25,6 +25,7 @@ from .native_support import (
     SUPPORT_CONFIGURE_PATH,
     build_native_operator_readiness,
     build_source_attention_details,
+    build_source_attention_role_summary,
     build_source_repair_step,
     build_source_selector_fallback_hint,
     summarize_validation_issue_messages,
@@ -185,12 +186,14 @@ def async_sync_repairs_issues(
         runtime_reasons.append(data.device_status_summary or "Managed devices exist, but none are currently usable.")
 
     runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
+    source_attention_roles = build_source_attention_role_summary(data, merged, limit=4)
     if missing_source_keys or unavailable_source_keys or stale_source_keys or data.stale_data or blocking_validation_details != "None":
         runtime_next_step = build_source_repair_step(
             missing_source_keys=missing_source_keys,
             unavailable_source_keys=unavailable_source_keys,
             stale_source_keys=stale_source_keys,
             blocking_validation_details=blocking_validation_details,
+            affected_roles=source_attention_roles,
         )
 
     runtime_fallback_hint = build_source_selector_fallback_hint(
@@ -216,6 +219,7 @@ def async_sync_repairs_issues(
                 "next_step": runtime_next_step,
                 "fallback_hint": runtime_fallback_text,
                 "blocking_validation_details": blocking_validation_details,
+                "source_attention_roles": source_attention_roles,
             },
         )
     else:

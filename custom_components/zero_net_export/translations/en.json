@@ -24,7 +24,7 @@
     },
     "runtime_attention": {
       "title": "Runtime attention needed",
-      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nBlocking validation details: {blocking_validation_details}\nNext step: {next_step}\nKnown selector workaround: {fallback_hint}\nAfter source repairs, reopen Configure -> Sensors to confirm live source health.\n\nPrimary setup path: {configure_path}.\nBest native troubleshooting path right now: {support_path}."
+      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nAffected mapped roles: {source_attention_roles}\nBlocking validation details: {blocking_validation_details}\nNext step: {next_step}\nKnown selector workaround: {fallback_hint}\nAfter source repairs, reopen Configure -> Sensors to confirm live source health.\n\nPrimary setup path: {configure_path}.\nBest native troubleshooting path right now: {support_path}."
     }
   },
   "options": {

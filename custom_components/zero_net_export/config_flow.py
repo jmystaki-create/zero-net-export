@@ -1140,6 +1140,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 or build_source_repair_step(
                     unavailable_source_keys=unavailable_source_keys,
                     stale_source_keys=stale_source_keys,
+                    affected_roles=source_attention_roles,
                 )
             )
             if runtime_attention_fallback_hint and runtime_attention_fallback_hint not in source_next_step:
@@ -1148,7 +1149,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             source_health = "Mapped source validation still has blocking errors: " + blocking_validation_details
             source_next_step = str(
                 readiness.get("next_step")
-                or build_source_repair_step(blocking_validation_details=blocking_validation_details)
+                or build_source_repair_step(
+                    blocking_validation_details=blocking_validation_details,
+                    affected_roles=source_attention_roles,
+                )
             )
             if blocking_fallback_hint and blocking_fallback_hint not in source_next_step:
                 source_next_step += f" {blocking_fallback_hint}"
@@ -1240,6 +1244,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 unavailable_source_keys=source_attention["unavailable_source_keys"],
                 stale_source_keys=source_attention["stale_source_keys"],
                 blocking_validation_details=summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+                affected_roles=build_source_attention_role_summary(state, merged, limit=4),
             )
         if not support_next_step:
             support_next_step = (
