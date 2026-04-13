@@ -245,6 +245,7 @@ def enforce_repo_build_requirements(
     commit: str,
     expected_commit: str | None,
     require_clean: bool,
+    require_upstream_sync: bool,
 ) -> tuple[str, bool | None, list[str]]:
     commit, dirty, changed_files = repo_build_summary(root=root, commit=commit)
 
@@ -260,6 +261,17 @@ def enforce_repo_build_requirements(
             changed = ", ".join(changed_files) if changed_files else "unknown changes"
             raise SystemExit(
                 f"Refusing to deploy: git working tree is dirty ({changed}). Commit or stash changes, then retry."
+            )
+
+    if require_upstream_sync:
+        tracking = git_remote_tracking_details(root)
+        relation = tracking.get("git_local_vs_upstream") or "unknown"
+        upstream = tracking.get("git_upstream") or "none"
+        upstream_commit = tracking.get("git_upstream_commit") or "unknown"
+        if relation != "in_sync":
+            raise SystemExit(
+                "Refusing to deploy: repo is not synchronized with its tracked upstream "
+                f"({upstream} at {upstream_commit}, relation={relation}). Push or reconcile the branch, then retry."
             )
 
     return commit, dirty, changed_files
@@ -314,6 +326,11 @@ def main() -> int:
         action="store_true",
         help="Refuse to continue unless the git working tree is clean.",
     )
+    parser.add_argument(
+        "--require-upstream-sync",
+        action="store_true",
+        help="Refuse to continue unless the current branch is fully synchronized with its tracked upstream.",
+    )
     args = parser.parse_args()
 
     if args.discover_home_assistant_config:
@@ -333,6 +350,7 @@ def main() -> int:
         commit=commit,
         expected_commit=args.expected_commit,
         require_clean=args.require_clean,
+        require_upstream_sync=args.require_upstream_sync,
     )
     if args.dry_run:
         print(f"repo_root={root}")
@@ -348,6 +366,8 @@ def main() -> int:
             next_command.extend(['--expected-commit', args.expected_commit])
         if args.require_clean:
             next_command.append('--require-clean')
+        if args.require_upstream_sync:
+            next_command.append('--require-upstream-sync')
         print(f"next_command={shell_command(*next_command)}")
         print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
         print("action=preview_only")

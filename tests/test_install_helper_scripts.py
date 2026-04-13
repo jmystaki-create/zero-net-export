@@ -106,6 +106,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 commit="abc1234",
                 expected_commit="abc1234",
                 require_clean=True,
+                require_upstream_sync=False,
             )
 
         self.assertEqual(commit, "abc1234")
@@ -120,6 +121,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
                     commit="abc1234",
                     expected_commit="deadbee",
                     require_clean=False,
+                    require_upstream_sync=False,
                 )
 
         self.assertIn("expected git commit deadbee", str(exc.exception))
@@ -132,6 +134,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
                     commit="abc1234",
                     expected_commit="abc1234",
                     require_clean=True,
+                    require_upstream_sync=False,
                 )
 
         self.assertIn("git working tree is dirty", str(exc.exception))
@@ -176,6 +179,46 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("current_install_manifest_version=9.9.9", result.stdout)
             self.assertIn("current_install_matches_repo=false", result.stdout)
             self.assertIn("current_install_mismatches=manifest.json", result.stdout)
+
+    def test_enforce_repo_build_requirements_refuses_non_synced_upstream_when_required(self) -> None:
+        with (
+            patch.object(deploy_exact_repo_build, "git_status_details", return_value=(False, [])),
+            patch.object(
+                deploy_exact_repo_build,
+                "git_remote_tracking_details",
+                return_value={
+                    "git_branch": "feature/test",
+                    "git_upstream": "origin/feature/test",
+                    "git_upstream_commit": "5753f33",
+                    "git_local_vs_upstream": "ahead",
+                    "git_ahead_count": 2,
+                    "git_behind_count": 0,
+                },
+            ),
+        ):
+            with self.assertRaises(SystemExit) as exc:
+                deploy_exact_repo_build.enforce_repo_build_requirements(
+                    root=REPO_ROOT,
+                    commit="abc1234",
+                    expected_commit="abc1234",
+                    require_clean=True,
+                    require_upstream_sync=True,
+                )
+
+        self.assertIn("repo is not synchronized with its tracked upstream", str(exc.exception))
+        self.assertIn("relation=ahead", str(exc.exception))
+
+    def test_deploy_exact_repo_build_dry_run_refuses_when_upstream_is_not_synced(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_root = Path(tmpdir) / "config"
+            result = self.run_script(
+                "scripts/deploy_exact_repo_build.py",
+                str(config_root),
+                "--dry-run",
+                "--require-upstream-sync",
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("repo is not synchronized with its tracked upstream", result.stderr)
 
     def test_deploy_exact_repo_build_copies_and_validates_install(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
