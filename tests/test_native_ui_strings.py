@@ -32,7 +32,7 @@ class NativeUiStringsTests(unittest.TestCase):
             },
         )
         self.assertIn("four main Configure sections", init_step["description"])
-        self.assertIn("Detailed management is the deeper device-view handoff outside this Configure menu.", init_step["description"])
+        self.assertIn("Detailed management remains the deeper device-view handoff outside this Configure menu.", init_step["description"])
         self.assertIn("- Sensors: {sources_path}", init_step["description"])
         self.assertIn("- Controls: {policy_path}", init_step["description"])
         self.assertIn("- Diagnostics: {support_path}.", init_step["description"])
@@ -41,10 +41,10 @@ class NativeUiStringsTests(unittest.TestCase):
         payload = json.loads(STRINGS_PATH.read_text(encoding="utf-8"))
         devices_step = payload["options"]["step"]["devices"]
         self.assertIn(
-            "Detailed management is not another Configure menu option.",
+            "Detailed management remains the deeper device-view handoff for per-device status, reset actions, and support details, not another Configure menu option.",
             devices_step["description"],
         )
-        self.assertIn("Detailed management path: {detailed_management_path}.", devices_step["description"])
+        self.assertIn("Primary path: {configure_path}.", devices_step["description"])
 
 
 if __name__ == "__main__":
