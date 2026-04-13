@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -67,6 +68,27 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("existing_install_present=false", result.stdout)
             self.assertIn("current_install_matches_repo=unknown", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
+
+    def test_deploy_exact_repo_build_discover_home_assistant_config_uses_env_hint(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_root = Path(tmpdir) / "ha-config"
+            config_root.mkdir(parents=True)
+            (config_root / "configuration.yaml").write_text("default_config:\n", encoding="utf-8")
+
+            env = os.environ.copy()
+            env["HOME_ASSISTANT_CONFIG"] = str(config_root)
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "scripts" / "deploy_exact_repo_build.py"), "--discover-home-assistant-config"],
+                cwd=REPO_ROOT,
+                text=True,
+                capture_output=True,
+                env=env,
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertIn("discovered_config_count=", result.stdout)
+            self.assertIn(str(config_root.resolve()), result.stdout)
+            self.assertIn("next_step=rerun this script with one discovered config path", result.stdout)
 
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

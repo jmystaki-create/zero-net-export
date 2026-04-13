@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -26,6 +27,17 @@ except ModuleNotFoundError:  # pragma: no cover - script execution fallback
     )
 
 COMPONENT_DIRNAME = "zero_net_export"
+COMMON_CONFIG_ENV_KEYS = (
+    "HOME_ASSISTANT_CONFIG",
+    "HASS_CONFIG",
+    "HA_CONFIG",
+)
+COMMON_CONFIG_CANDIDATE_PATHS = (
+    Path("/config"),
+    Path("~/.homeassistant"),
+    Path("~/homeassistant"),
+    Path("~/config/homeassistant"),
+)
 
 
 def repo_root() -> Path:
@@ -48,6 +60,55 @@ def git_commit(root: Path) -> str:
         return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=root, text=True).strip()
     except Exception:
         return "unknown"
+
+
+def _looks_like_home_assistant_config_root(path: Path) -> bool:
+    return (
+        (path / "configuration.yaml").exists()
+        or (path / ".storage").is_dir()
+        or (path / "custom_components").is_dir()
+    )
+
+
+def discover_home_assistant_config_roots() -> list[Path]:
+    candidates: list[Path] = []
+
+    def add_candidate(path: Path | None) -> None:
+        if path is None:
+            return
+        try:
+            resolved = path.expanduser().resolve()
+        except Exception:
+            return
+        if not _looks_like_home_assistant_config_root(resolved):
+            return
+        if resolved not in candidates:
+            candidates.append(resolved)
+
+    for env_key in COMMON_CONFIG_ENV_KEYS:
+        env_value = os.environ.get(env_key)
+        if env_value:
+            add_candidate(Path(env_value))
+
+    for candidate in COMMON_CONFIG_CANDIDATE_PATHS:
+        add_candidate(candidate)
+
+    return candidates
+
+
+def emit_discovered_home_assistant_config_roots() -> int:
+    candidates = discover_home_assistant_config_roots()
+    print(f"discovered_config_count={len(candidates)}")
+    if not candidates:
+        print("discovered_config_paths=none")
+        print("next_step=pass your Home Assistant config directory path explicitly to this script")
+        return 1
+
+    print("discovered_config_paths=")
+    for candidate in candidates:
+        print(str(candidate))
+    print("next_step=rerun this script with one discovered config path, for example: python3 scripts/deploy_exact_repo_build.py /path/to/config --dry-run")
+    return 0
 
 
 def ensure_safe_destination(destination_root: Path) -> None:
@@ -181,9 +242,20 @@ def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, va
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("path", type=Path, help="Home Assistant config directory or installed custom_components/zero_net_export path")
+    parser.add_argument("path", nargs="?", type=Path, help="Home Assistant config directory or installed custom_components/zero_net_export path")
     parser.add_argument("--dry-run", action="store_true", help="Print the resolved deploy target and planned actions without copying files")
+    parser.add_argument(
+        "--discover-home-assistant-config",
+        action="store_true",
+        help="List likely Home Assistant config directories from common environment variables and paths, then exit.",
+    )
     args = parser.parse_args()
+
+    if args.discover_home_assistant_config:
+        return emit_discovered_home_assistant_config_roots()
+
+    if args.path is None:
+        parser.error("path is required unless --discover-home-assistant-config is used")
 
     root = repo_root()
     source_root = source_component_root().resolve()
