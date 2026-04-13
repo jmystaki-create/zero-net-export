@@ -86,7 +86,7 @@ This phase is in good shape when:
 
 Do next:
 1. Turn Configure into the clearly signposted native command center for sources, policy, managed devices, and support.
-2. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sources and source mapping.
+2. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sensors and source mapping.
 3. Make managed-device review, add, edit, and remove feel like a first-class native operator workflow.
 4. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
 
