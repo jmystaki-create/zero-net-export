@@ -114,6 +114,17 @@ def build_install_consistency_summary(install_provenance: dict[str, Any] | None 
     return "Installed package version metadata matches the running code version."
 
 
+def build_install_validation_command(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return the exact repo helper command for validating the active install path."""
+    provenance = install_provenance or build_install_provenance()
+    component_root_raw = str(provenance.get("component_root") or "").strip()
+    component_root = Path(component_root_raw).expanduser() if component_root_raw else None
+    compare_target = component_root.parent if component_root and component_root.name == "zero_net_export" else component_root
+    compare_target_str = str(compare_target) if compare_target else "/path/to/home-assistant/config/custom_components"
+    return f"python3 scripts/validate_install_fingerprint.py {compare_target_str}"
+
+
+
 def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None = None) -> str:
     """Return a concise multiline summary of the live installed package details."""
     provenance = install_provenance or build_install_provenance()
@@ -133,6 +144,8 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
             f"size_bytes={details.get('size_bytes') if details.get('size_bytes') is not None else 'n/a'}, "
             f"exists={details.get('exists')}"
         )
+
+    lines.append(f"- validation_command: {build_install_validation_command(provenance)}")
 
     return "\n".join(lines)
 
