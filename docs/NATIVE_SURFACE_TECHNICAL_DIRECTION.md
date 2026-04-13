@@ -12,6 +12,7 @@ Primary configuration path for:
 - refresh interval
 - managed device inventory
 - controller defaults and tuning
+- the high-level separation between Controls, Sensors, Managed Devices, and Diagnostics
 
 ### 2. Native device path
 Primary troubleshooting path for the Zero Net Export device at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device**:
@@ -40,3 +41,11 @@ The backend should continue to provide:
 ## Practical implication for future work
 
 If a workflow is required for normal install, setup, or troubleshooting, it should land in native Home Assistant surfaces. Custom UI work is out of scope unless the project direction changes again with fresh evidence.
+
+The current native design direction should now assume these ownership boundaries:
+- Controls: Zero Net Export brain state and controller settings only
+- Sensors: mapped/system telemetry only
+- Managed Devices: enablement, priority, overrides, promotion, and fleet review
+- Diagnostics: troubleshooting, support, provenance, and repair guidance
+
+When a field or action could plausibly live in more than one place, prefer the section that best matches operator intent instead of repeating it across multiple surfaces.

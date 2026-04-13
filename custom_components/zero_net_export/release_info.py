@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from functools import lru_cache
 from pathlib import Path
 import re
 import shlex
@@ -27,15 +28,8 @@ def _component_root() -> Path:
     return Path(__file__).resolve().parent
 
 
-def _short_sha256(path: Path) -> str | None:
-    try:
-        return hashlib.sha256(path.read_bytes()).hexdigest()[:12]
-    except OSError:
-        return None
-
-
-def build_install_provenance() -> dict[str, Any]:
-    """Return install-path and key-file fingerprint details for live-source validation."""
+@lru_cache(maxsize=1)
+def _cached_install_provenance() -> dict[str, Any]:
     component_root = _component_root()
     manifest_path = component_root / "manifest.json"
     manifest_version: str | None = None
@@ -61,11 +55,20 @@ def build_install_provenance() -> dict[str, Any]:
     for relative_name in tracked_files:
         path = component_root / relative_name
         exists = path.exists()
+        sha256_12: str | None = None
+        size_bytes: int | None = None
+        if exists:
+            try:
+                sha256_12 = hashlib.sha256(path.read_bytes()).hexdigest()[:12]
+                size_bytes = path.stat().st_size
+            except OSError:
+                sha256_12 = None
+                size_bytes = None
         file_fingerprints[relative_name] = {
             "path": str(path),
             "exists": exists,
-            "sha256_12": _short_sha256(path) if exists else None,
-            "size_bytes": path.stat().st_size if exists else None,
+            "sha256_12": sha256_12,
+            "size_bytes": size_bytes,
         }
 
     manifest_matches_code_version = manifest_version == INTEGRATION_VERSION if manifest_version else None
@@ -89,6 +92,11 @@ def build_install_provenance() -> dict[str, Any]:
         "tracked_files": file_fingerprints,
         "summary": summary,
     }
+
+
+def build_install_provenance() -> dict[str, Any]:
+    """Return install-path and key-file fingerprint details for live-source validation."""
+    return dict(_cached_install_provenance())
 
 
 def build_install_consistency_summary(install_provenance: dict[str, Any] | None = None) -> str:
@@ -222,9 +230,9 @@ def _parse_changelog_text(text: str) -> list[dict[str, Any]]:
         if current is None:
             continue
 
-        bullet_match = _BULLET_RE.match(line)
+        bullet_match = _BULLET_RE.match(line.strip())
         if bullet_match:
-            current["highlights"].append(bullet_match.group("text").strip())
+            current["highlights"].append(bullet_match.group("text"))
 
     if current:
         sections.append(current)
@@ -232,103 +240,67 @@ def _parse_changelog_text(text: str) -> list[dict[str, Any]]:
     return sections
 
 
-def _parse_changelog_sections() -> list[dict[str, Any]]:
+def _load_changelog() -> list[dict[str, Any]]:
+    cache_key = "changelog"
+    cached = _RELEASE_INFO_CACHE.get(cache_key)
+    if cached is not None:
+        return cached.get("sections", [])
+
     path = _changelog_path()
     try:
         text = path.read_text(encoding="utf-8")
     except OSError:
-        return []
-
-    return _parse_changelog_text(text)
-
-
-def build_release_info(version: str = INTEGRATION_VERSION, *, include_changelog: bool = True) -> dict[str, Any]:
-    """Return current release metadata plus a previous-release comparison when available."""
-    if not include_changelog:
-        cached = _RELEASE_INFO_CACHE.get(version)
-        if cached is not None:
-            return dict(cached)
-        return {
-            "current_version": version,
-            "released_on": None,
-            "highlights": [],
-            "highlight_count": 0,
-            "headline": f"Version {version}",
-            "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
-            "previous_version": None,
-            "previous_released_on": None,
-            "previous_highlights": [],
-            "summary": f"Installed version {version}; changelog parsing deferred outside the startup path.",
-            "has_changelog": False,
-        }
-
-    sections: list[dict[str, Any]] = []
-    path = _changelog_path()
-    try:
-        text = path.read_text(encoding="utf-8")
-    except OSError:
-        text = ""
-    if text:
+        sections: list[dict[str, Any]] = []
+    else:
         sections = _parse_changelog_text(text)
 
-    current: dict[str, Any] | None = None
-    current = next((item for item in sections if item.get("version") == version), None)
-    using_unreleased_fallback = False
-    if current is None:
-        current = next((item for item in sections if item.get("version") == "Unreleased"), None)
-        using_unreleased_fallback = current is not None
-    if current is None:
-        result = {
-            "current_version": version,
-            "released_on": None,
-            "highlights": [],
-            "highlight_count": 0,
-            "headline": f"Version {version}",
-            "changes_preview": "No changelog entry matched this installed version.",
-            "previous_version": None,
-            "previous_released_on": None,
-            "previous_highlights": [],
-            "summary": f"Installed version {version}; no matching changelog entry was found.",
-            "has_changelog": False,
-        }
-        _RELEASE_INFO_CACHE[version] = dict(result)
-        return result
+    _RELEASE_INFO_CACHE[cache_key] = {"sections": sections}
+    return sections
 
-    index = sections.index(current)
-    previous = sections[index + 1] if index + 1 < len(sections) else None
-    highlights = current.get("highlights", [])
-    highlight_count = len(highlights)
+
+def _section_for_version(version: str) -> dict[str, Any] | None:
+    for section in _load_changelog():
+        if str(section.get("version")) == version:
+            return section
+    return None
+
+
+def build_release_info(current_version: str, *, include_changelog: bool = True) -> dict[str, Any]:
+    """Return release metadata for the currently installed version."""
+    section = _section_for_version(current_version) if include_changelog else None
+    if section is None and include_changelog:
+        section = _section_for_version("Unreleased")
+
+    highlights = list(section.get("highlights", [])) if section else []
+    released_on = section.get("released_on") if section else None
+    has_changelog = section is not None
+    headline_version = current_version if current_version else "Unknown"
     summary = (
-        f"Installed version {version}"
-        + (" using current Unreleased changelog notes" if using_unreleased_fallback else "")
-        + (f" ({current['released_on']})" if current.get("released_on") else "")
-        + (
-            f" with {highlight_count} documented change{'s' if highlight_count != 1 else ''}."
-            if highlight_count
-            else "; changelog entry is present but has no bullet highlights."
-        )
+        f"Installed version {headline_version}; changelog parsing deferred outside the startup path."
+        if not include_changelog
+        else f"Installed version {headline_version}"
     )
-    if previous:
-        summary += f" Previous documented release: {previous['version']}."
+    if include_changelog and released_on:
+        summary += f" released {released_on}"
+    if include_changelog and not has_changelog:
+        summary += "; no matching changelog entry found"
+    elif include_changelog and not highlights:
+        summary += "; no highlights recorded"
 
-    preview = " • ".join(highlights[:3]) if highlights else "No bullet highlights were documented for this release."
+    preview = (
+        "Release notes deferred until diagnostics/support surfaces request them."
+        if not include_changelog
+        else ("; ".join(highlights[:3]) if highlights else "No release highlights recorded.")
+    )
 
-    result = {
-        "current_version": version,
-        "released_on": current.get("released_on"),
+    return {
+        "current_version": headline_version,
+        "released_on": released_on,
         "highlights": highlights,
-        "highlight_count": highlight_count,
-        "headline": (
-            f"Version {version}"
-            + (" · pending release notes" if using_unreleased_fallback else "")
-            + (f" · {current['released_on']}" if current.get("released_on") else "")
-        ),
+        "highlight_count": len(highlights),
+        "headline": f"Version {headline_version}",
+        "release_summary": preview,
         "changes_preview": preview,
-        "previous_version": previous.get("version") if previous else None,
-        "previous_released_on": previous.get("released_on") if previous else None,
-        "previous_highlights": previous.get("highlights", []) if previous else [],
         "summary": summary,
-        "has_changelog": True,
+        "has_changelog": has_changelog,
     }
-    _RELEASE_INFO_CACHE[version] = dict(result)
-    return result

@@ -8,6 +8,7 @@
 - make native Home Assistant surfaces sufficient for setup, configuration, operation, and diagnostics
 - eliminate dependence on poor raw device configuration UX for normal operators
 - avoid any requirement for a separate custom or external UI
+- give each native section one clear ownership boundary so Controls, Sensors, Managed Devices, and Diagnostics do not blur together
 
 ## Optional Lovelace fallback sections
 
@@ -66,6 +67,51 @@ The shipped operator product now uses only native Home Assistant integration and
 - Configure for source setup, managed devices, and controller tuning
 - the integration device at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device** for diagnostics and setup/support buttons
 - entities, notifications, automations/scripts, and Repairs for runtime and support workflows
+
+## Current target information architecture
+
+### 1. Controls
+This should contain the Zero Net Export brain only:
+- controller mode
+- target export / deadband / reserve and similar control settings
+- controller state and current decision summary
+- top-level operator actions that affect the brain as a whole
+
+This area should not own managed-device enablement, priority, or per-device overrides.
+
+### 2. Sensors
+This should contain source and system telemetry only:
+- solar power / energy
+- home load power
+- grid import / export power and energy
+- battery state of charge / charge / discharge
+- other mapped source-health and freshness signals
+
+This area should not be a mixed surface for managed-device controls.
+
+### 3. Managed Devices
+This should be the explicit fleet workspace for devices tagged into Zero Net Export control:
+- device promotion from unmanaged to managed
+- enablement / disablement
+- priority
+- per-device overrides
+- fleet review and status
+
+Managed-device controls should move here and out of the generic brain/control section.
+
+### 4. Diagnostics
+This should carry support and troubleshooting material:
+- health summary
+- blocker summary
+- support snapshot
+- checklist / repair guidance
+- install provenance / package validation
+
+### 5. Detailed Management
+A deeper managed-device detail surface should exist behind Managed Devices, reachable from the native device view or a button/action path. This is the right place for a spreadsheet-style review of the whole managed fleet and for richer per-device detail.
+
+### 6. Device detail view
+From the native device view, operators should be able to select a managed device and inspect its detailed telemetry and runtime fields, such as runtime today, guard status, last action, planned action, planned delta, usable state, and other per-device operational fields.
 
 Lovelace/dashboard views remain optional debug visibility inside Home Assistant, but they are not part of the supported operator path.
 

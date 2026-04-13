@@ -21,10 +21,15 @@ Real installs showed that the sidebar/custom-panel route added packaging, routin
 
 1. Keep install and reload behavior stable in real Home Assistant environments
 2. Make **Configure** the single supported setup/configuration path, with troubleshooting kept on native device/entity/notification/Repairs surfaces
-3. Reduce day-to-day reliance on raw `device_inventory_json` in native flows without reintroducing a panel
-4. Keep diagnostics and support snapshots reachable, more coherent, and easier to discover from native HA surfaces
-5. Reduce dependence on custom frontend code for core operator workflows
-6. Preserve release discipline and validation proof in real installs
+3. Separate the native operator model into clear sections for **Controls**, **Sensors**, **Managed Devices**, and **Diagnostics**
+4. Keep controller-level brain settings and controller reasoning in Controls, not mixed together with managed-device operations
+5. Make Managed Devices the explicit home for device enablement, priority, overrides, promotion, and fleet review
+6. Keep Sensors limited to mapped/system telemetry such as solar, home load, battery, and grid state
+7. Add a deeper managed-device detail path, reachable from the native device view, for spreadsheet-style fleet review and per-device operational detail
+8. Reduce day-to-day reliance on raw `device_inventory_json` in native flows without reintroducing a panel
+9. Keep diagnostics and support snapshots reachable, more coherent, and easier to discover from native HA surfaces
+10. Reduce dependence on custom frontend code for core operator workflows
+11. Preserve release discipline and validation proof in real installs
 
 ## What stays
 
@@ -47,7 +52,9 @@ Real installs showed that the sidebar/custom-panel route added packaging, routin
 The current native-surface pivot is successful when:
 - a fresh install can be completed through **Add Integration** plus **Configure**
 - required source mapping works entirely in Configure
+- the installed UI clearly separates Controls, Sensors, Managed Devices, and Diagnostics
 - managed devices can be persisted through Configure with native add/remove flows for common cases
+- managed-device enablement, priority, and overrides are clearly owned by the Managed Devices area instead of leaking into controller-level surfaces
 - controller tuning works through Configure/native entities
 - setup checklist, support center, and support snapshot remain reachable from the integration device at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device**
 - release notes and validation docs all describe the same native-only but still-in-validation path

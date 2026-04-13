@@ -234,6 +234,24 @@ def _format_source_role_list(source_keys: list[str] | None) -> str:
     return ", ".join(named_roles[:6]) if named_roles else "None"
 
 
+def build_source_attention_brief(
+    state: Any,
+    config: dict[str, Any] | None = None,
+    *,
+    limit: int = 3,
+) -> str:
+    """Return a short HA-state-safe source blocker summary."""
+    source_attention = build_source_attention_details(state)
+    ordered = _ordered_source_attention_keys(source_attention)
+    if not ordered:
+        return "No mapped-source blockers"
+
+    labels = [SOURCE_ROLE_LABELS.get(key, key) for key in ordered[:limit]]
+    remaining = len(ordered) - len(labels)
+    suffix = f", +{remaining} more" if remaining > 0 else ""
+    return f"Mapped-source blockers: {', '.join(labels)}{suffix}"
+
+
 def build_source_repair_step(
     *,
     missing_source_keys: list[str] | None = None,
@@ -259,7 +277,7 @@ def build_source_repair_step(
         attention_parts.append(f"stale roles: {stale_roles}")
     if attention_parts:
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair these mapped-source blockers ({'; '.join(attention_parts)}), then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, repair mapped-source blockers ({'; '.join(attention_parts)}), then save and reload the integration."
         )
 
     if blocking_details and blocking_details != "None":
@@ -717,6 +735,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     unavailable_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["unavailable_source_keys"]]
     stale_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["stale_source_keys"]]
     source_attention_summary = build_source_attention_summary(state, merged, limit=4)
+    source_attention_brief = build_source_attention_brief(state, merged, limit=3)
     source_attention_roles = build_source_attention_role_summary(state, merged, limit=4)
     blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
     runtime_source_attention = bool(unavailable_source_roles or stale_source_roles or blocking_validation_details != "None")
@@ -727,13 +746,12 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
         recommended_section = "Sources and source mapping"
     elif runtime_source_attention:
-        attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
-        validation_suffix = (
-            f" Blocking validation details: {blocking_validation_details}"
-            if blocking_validation_details != "None"
-            else ""
-        )
-        source_status = attention_prefix + validation_suffix
+        if source_attention_summary != "None":
+            source_status = source_attention_brief
+        elif blocking_validation_details != "None":
+            source_status = f"Mapped-source validation blocked: {blocking_validation_details}"
+        else:
+            source_status = "Mapped sources need attention."
         recommended_section = "Sources and source mapping"
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
@@ -764,14 +782,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif missing_required_sources:
         next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
     elif runtime_source_attention:
-        next_action_summary = str(
-            readiness.get("next_step")
-            or build_source_repair_step(
-                unavailable_source_keys=source_attention["unavailable_source_keys"],
-                stale_source_keys=source_attention["stale_source_keys"],
-                blocking_validation_details=blocking_validation_details,
-            )
-        )
+        next_action_summary = f"Open {SOURCES_CONFIGURE_PATH}, repair mapped-source blockers, then save and reload the integration."
     elif device_parse_issues:
         next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
     elif not configured_devices:
@@ -839,6 +850,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     return {
         "source_status": source_status,
         "source_attention_summary": source_attention_summary,
+        "source_attention_brief": source_attention_brief,
         "source_attention_roles": source_attention_roles,
         "source_repair_step": build_source_repair_step(
             missing_source_keys=missing_required_sources,

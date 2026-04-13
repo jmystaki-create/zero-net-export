@@ -6,6 +6,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.81] - 2026-04-13
+
+### Fixed
+- Shortened the shipped command-center and mapped-source blocker sensor states so Home Assistant no longer drops those entity states to `unknown` when stale or unavailable mapped sources produce long runtime summaries.
+- Simplified the native runtime-attention next-step text so the Home Assistant popup and diagnostic sensors stop repeating the same stale-source detail across multiple fields while still pointing operators to the exact Configure -> Sources path.
+- Cached installed-package provenance reads inside the runtime helper so the fingerprint summary no longer performs repeated synchronous manifest/hash file reads on the Home Assistant event loop during sensor rendering.
+
+## [0.1.80] - 2026-04-12
+
 ### Fixed
 - Added `scripts/deploy_exact_repo_build.py` so a mixed manual Home Assistant install can be replaced from one exact repo build, with a timestamped backup and immediate fingerprint validation before restart.
 - Added `scripts/validate_install_fingerprint.py` so the repo can capture the intended fingerprint, compare the live Home Assistant install path, and save both JSON evidence artifacts in one command before restart/live validation.

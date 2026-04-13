@@ -41,6 +41,11 @@ Do not drift into:
 ## Current goals
 
 - Make Configure the clear native command center for sources, policy, managed devices, and support.
+- Separate the operator information architecture into four obvious native buckets: Controls, Sensors, Managed Devices, and Diagnostics.
+- Keep the Zero Net Export brain/control surface focused on controller-level settings and decisions only, not managed-device inventory operations.
+- Make Managed Devices a first-class native workspace for enablement, priority, overrides, promotion, and fleet review.
+- Keep Sensors strictly about mapped/system telemetry and not a mixed dumping ground for managed-device controls.
+- Introduce a clearer detailed-management path for managed devices, reachable from the native device view, for spreadsheet-style fleet detail and per-device review.
 - Keep install, upgrade, reload, and restart behavior stable in real Home Assistant environments.
 - Make setup, support, and diagnostics feel like one coherent native workflow.
 - Reduce operator dependence on raw JSON for normal device onboarding and editing.
@@ -53,6 +58,7 @@ A run counts as real progress only if it results in:
 - Visible improvement in the user’s actual Home Assistant install.
 - Configure becoming more self-explanatory as the place for source mapping, policy, and managed-device work.
 - Managed-device management becoming easier to discover and use for ordinary controllable loads.
+- The installed UI making it obvious what belongs under Controls, what belongs under Sensors, what belongs under Managed Devices, and what belongs under Diagnostics.
 - The installed UI making it obvious where to set policy and where to manage devices.
 - Restart and reload validation proving the integration stays alive and source blockers are surfaced clearly enough that the operator can tell what to fix next.
 - A validated code change is committed, pushed, and, when appropriate, advanced through the release process defined in `RELEASE_MANAGEMENT.md`.
@@ -86,9 +92,11 @@ This phase is in good shape when:
 
 Do next:
 1. Turn Configure into the clearly signposted native command center for sources, policy, managed devices, and support.
-2. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sources and source mapping.
-3. Make managed-device review, add, edit, and remove feel like a first-class native operator workflow.
-4. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
+2. Refactor the native surface model so Controls, Sensors, Managed Devices, and Diagnostics each have a clear role and do not repeat each other's content.
+3. Make managed-device review, add, edit, remove, enablement, priority, and override handling feel like a first-class native operator workflow.
+4. Define and implement a separate detailed-management path for managed devices, reachable from the native device view, for deeper per-device review.
+5. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sources and source mapping.
+6. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
 
 Do later:
 - Validate a mixed-device fleet scenario, not just a single-device happy path.

@@ -83,6 +83,9 @@
 
 ## Phase 8 — Future enhancements
 - keep tightening native fleet management next, especially around validating the new unmanaged-candidate promotion flow in larger mixed-device installs and removing any remaining cases that still push operators back into raw JSON
+- restructure the native surface model around clearer ownership boundaries: Controls, Sensors, Managed Devices, and Diagnostics
+- move managed-device enablement, priority, and overrides fully into the Managed Devices workspace instead of leaking them into controller/brain surfaces
+- introduce a deeper managed-device detailed-management path for spreadsheet-style fleet review and richer per-device inspection
 - converge setup, diagnostics, support, and policy management into fewer clearer native operator surfaces as real-user feedback shows which notifications/entities remain redundant
 - only revisit optional Lovelace/dashboard ergonomics later if real installs still expose a specific debug-visibility gap after Configure and the main native operator paths are clear
 - forecast-aware optimization

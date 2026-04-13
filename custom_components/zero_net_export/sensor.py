@@ -14,6 +14,7 @@ from .native_support import (
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
+    build_source_attention_brief,
     build_source_attention_role_summary,
     build_source_attention_summary,
     summarize_validation_issue_messages,
@@ -341,19 +342,16 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             merged = dict(self.coordinator.entry.data)
             merged.update(self.coordinator.entry.options)
             summary = build_source_attention_summary(state, merged, limit=4)
+            brief = build_source_attention_brief(state, merged, limit=3)
             if self._key == "mapped_source_blocker_summary":
                 blocking_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
                 if summary != "None":
-                    return summary
+                    return brief
                 if blocking_details != "None":
                     return blocking_details
                 return "None"
-            readiness = build_native_operator_readiness(self.coordinator)
             if summary != "None" or summarize_validation_issue_messages(state, severities={"error"}, limit=3) != "None":
-                return str(
-                    readiness.get("next_step")
-                    or f"Open {SOURCES_CONFIGURE_PATH}, repair the affected mapped sources, then save and reload the integration"
-                )
+                return f"Open {SOURCES_CONFIGURE_PATH}, repair mapped-source blockers, then save and reload the integration"
             return f"Mapped sources currently look healthy; continue in {DEVICES_CONFIGURE_PATH} or {POLICY_CONFIGURE_PATH}"
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
