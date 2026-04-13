@@ -130,6 +130,30 @@ def _ordered_source_attention_keys(source_attention: dict[str, Any]) -> list[str
     return ordered_keys
 
 
+def _validation_issue_message_for_role(source_attention: dict[str, Any], key: str) -> str:
+    validation_issues = list(source_attention.get("validation_details", {}).get("issues", []) or [])
+    validation_role_keys = _issue_role_keys(validation_issues)
+    if key not in validation_role_keys:
+        return ""
+
+    for issue in validation_issues:
+        code = str(issue.get("code", "") or "")
+        issue_key = next(
+            (
+                code[: -len(suffix)]
+                for suffix in ("_missing_entity", "_unavailable", "_non_numeric")
+                if code.endswith(suffix)
+            ),
+            "",
+        )
+        if issue_key != key:
+            continue
+        message = str(issue.get("message") or "").strip()
+        if message:
+            return message
+    return ""
+
+
 def build_source_attention_role_summary(
     state: Any,
     config: dict[str, Any] | None = None,
@@ -160,25 +184,9 @@ def build_source_attention_role_summary(
         if issue_messages:
             markers.append(issue_messages[0])
         if not issue_messages:
-            validation_issues = list(source_attention.get("validation_details", {}).get("issues", []) or [])
-            validation_role_keys = _issue_role_keys(validation_issues)
-            if key in validation_role_keys:
-                for issue in validation_issues:
-                    code = str(issue.get("code", "") or "")
-                    issue_key = next(
-                        (
-                            code[: -len(suffix)]
-                            for suffix in ("_missing_entity", "_unavailable", "_non_numeric")
-                            if code.endswith(suffix)
-                        ),
-                        "",
-                    )
-                    if issue_key != key:
-                        continue
-                    message = str(issue.get("message") or "").strip()
-                    if message:
-                        markers.append(message)
-                        break
+            validation_message = _validation_issue_message_for_role(source_attention, key)
+            if validation_message:
+                markers.append(validation_message)
 
         marker_text = "; ".join(markers) if markers else "needs attention"
         details_lines.append(f"{SOURCE_ROLE_LABELS.get(key, key)} -> {entity_label} ({marker_text})")
@@ -211,6 +219,9 @@ def build_source_attention_summary(
         if details.get("stale"):
             age_seconds = details.get("age_seconds")
             status_bits.append(f"stale {int(age_seconds)} s" if age_seconds is not None else "stale")
+        validation_message = _validation_issue_message_for_role(source_attention, key)
+        if validation_message and validation_message not in status_bits:
+            status_bits.append(validation_message)
         if not status_bits:
             status_bits.append("needs attention")
         parts.append(f"{SOURCE_ROLE_LABELS.get(key, key)} ({entity_label}, {', '.join(status_bits)})")

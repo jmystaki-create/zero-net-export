@@ -100,7 +100,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertIn("Battery state of charge -> sensor.battery_soc", summary)
         self.assertIn("is not numeric", summary)
-        self.assertIn("Battery state of charge (sensor.battery_soc, needs attention)", concise)
+        self.assertIn(
+            "Battery state of charge (sensor.battery_soc, Battery state of charge entity sensor.battery_soc is not numeric)",
+            concise,
+        )
 
 
 if __name__ == "__main__":
