@@ -210,14 +210,46 @@ def emit_pre_deploy_install_summary(summary: dict[str, Any]) -> None:
     print(f"current_install_mismatches={','.join(mismatches) if mismatches else 'none'}")
 
 
-def emit_repo_build_summary(*, root: Path, commit: str) -> None:
+def repo_build_summary(*, root: Path, commit: str) -> tuple[str, bool | None, list[str]]:
     dirty, changed_files = git_status_details(root)
+    return commit, dirty, changed_files
+
+
+def emit_repo_build_summary(*, root: Path, commit: str) -> tuple[str, bool | None, list[str]]:
+    commit, dirty, changed_files = repo_build_summary(root=root, commit=commit)
     print(f"git_commit={commit}")
     if dirty is None:
         print("git_working_tree_dirty=unknown")
     else:
         print(f"git_working_tree_dirty={str(bool(dirty)).lower()}")
     print(f"git_working_tree_changes={','.join(changed_files) if changed_files else 'none'}")
+    return commit, dirty, changed_files
+
+
+def enforce_repo_build_requirements(
+    *,
+    root: Path,
+    commit: str,
+    expected_commit: str | None,
+    require_clean: bool,
+) -> tuple[str, bool | None, list[str]]:
+    commit, dirty, changed_files = repo_build_summary(root=root, commit=commit)
+
+    if expected_commit and commit != expected_commit:
+        raise SystemExit(
+            f"Refusing to deploy: expected git commit {expected_commit} but repo HEAD is {commit}."
+        )
+
+    if require_clean:
+        if dirty is None:
+            raise SystemExit("Refusing to deploy: could not verify git working tree cleanliness.")
+        if dirty:
+            changed = ", ".join(changed_files) if changed_files else "unknown changes"
+            raise SystemExit(
+                f"Refusing to deploy: git working tree is dirty ({changed}). Commit or stash changes, then retry."
+            )
+
+    return commit, dirty, changed_files
 
 
 def perform_deploy(destination_root: Path, *, source_root: Path, commit: str, validate_fn=validate_install) -> int:
@@ -260,6 +292,15 @@ def main() -> int:
         action="store_true",
         help="List likely Home Assistant config directories from common environment variables and paths, then exit.",
     )
+    parser.add_argument(
+        "--expected-commit",
+        help="Refuse to continue unless repo HEAD matches this short or full git commit.",
+    )
+    parser.add_argument(
+        "--require-clean",
+        action="store_true",
+        help="Refuse to continue unless the git working tree is clean.",
+    )
     args = parser.parse_args()
 
     if args.discover_home_assistant_config:
@@ -274,6 +315,12 @@ def main() -> int:
     ensure_safe_destination(destination_root)
 
     commit = git_commit(root)
+    enforce_repo_build_requirements(
+        root=root,
+        commit=commit,
+        expected_commit=args.expected_commit,
+        require_clean=args.require_clean,
+    )
     if args.dry_run:
         print(f"repo_root={root}")
         print(f"source_component_root={source_root}")
@@ -283,7 +330,12 @@ def main() -> int:
         emit_pre_deploy_install_summary(pre_deploy_install_summary(destination_root, root=root))
         if destination_root.exists():
             print(f"planned_backup_path={planned_backup_path(destination_root)}")
-        print(f"next_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', args.path)}")
+        next_command = ['python3', 'scripts/deploy_exact_repo_build.py', args.path]
+        if args.expected_commit:
+            next_command.extend(['--expected-commit', args.expected_commit])
+        if args.require_clean:
+            next_command.append('--require-clean')
+        print(f"next_command={shell_command(*next_command)}")
         print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
         print("action=preview_only")
         return 0

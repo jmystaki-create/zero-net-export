@@ -10,6 +10,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts import deploy_exact_repo_build
 
@@ -83,6 +84,44 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"next_command=python3 scripts/deploy_exact_repo_build.py {config_root}", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertIn("action=preview_only", result.stdout)
+
+    def test_enforce_repo_build_requirements_accepts_matching_clean_repo(self) -> None:
+        with patch.object(deploy_exact_repo_build, "git_status_details", return_value=(False, [])):
+            commit, dirty, changed_files = deploy_exact_repo_build.enforce_repo_build_requirements(
+                root=REPO_ROOT,
+                commit="abc1234",
+                expected_commit="abc1234",
+                require_clean=True,
+            )
+
+        self.assertEqual(commit, "abc1234")
+        self.assertFalse(dirty)
+        self.assertEqual(changed_files, [])
+
+    def test_enforce_repo_build_requirements_refuses_commit_mismatch(self) -> None:
+        with patch.object(deploy_exact_repo_build, "git_status_details", return_value=(False, [])):
+            with self.assertRaises(SystemExit) as exc:
+                deploy_exact_repo_build.enforce_repo_build_requirements(
+                    root=REPO_ROOT,
+                    commit="abc1234",
+                    expected_commit="deadbee",
+                    require_clean=False,
+                )
+
+        self.assertIn("expected git commit deadbee", str(exc.exception))
+
+    def test_enforce_repo_build_requirements_refuses_dirty_repo_when_required(self) -> None:
+        with patch.object(deploy_exact_repo_build, "git_status_details", return_value=(True, ["custom_components/zero_net_export/manifest.json"])):
+            with self.assertRaises(SystemExit) as exc:
+                deploy_exact_repo_build.enforce_repo_build_requirements(
+                    root=REPO_ROOT,
+                    commit="abc1234",
+                    expected_commit="abc1234",
+                    require_clean=True,
+                )
+
+        self.assertIn("git working tree is dirty", str(exc.exception))
+        self.assertIn("custom_components/zero_net_export/manifest.json", str(exc.exception))
 
     def test_deploy_exact_repo_build_discover_home_assistant_config_uses_env_hint(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

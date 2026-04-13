@@ -43,8 +43,8 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] The installed package contents match the expected release (not an older cached/raw form-first build)
 
 ### Manual Install Path
-- [ ] `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run` confirms the resolved target before copying
-- [ ] `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` completes without post-copy validation failure
+- [ ] `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run --expected-commit <intended_commit> --require-clean` confirms the resolved target, exact commit, and clean repo state before copying
+- [ ] `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --expected-commit <intended_commit> --require-clean` completes without post-copy validation failure
 - [ ] `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` confirms the installed package exactly matches the intended repo build
 - [ ] Home Assistant restart completes successfully
 - [ ] Integration appears in Settings → Devices & Services
