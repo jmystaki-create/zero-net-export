@@ -53,6 +53,30 @@ class NativeUiStringsTests(unittest.TestCase):
         self.assertNotIn("{detailed_management_summary}", devices_step["description"])
         self.assertNotIn("{detailed_management_path}", devices_step["description"])
 
+    def test_source_and_diagnostics_copy_emphasize_returning_to_sensors_after_repairs(self) -> None:
+        payload = json.loads(STRINGS_PATH.read_text(encoding="utf-8"))
+        runtime_issue = payload["issues"]["runtime_attention"]
+        sensors_step = payload["options"]["step"]["native_setup"]
+        source_mapping_step = payload["options"]["step"]["native_setup_sources"]
+        diagnostics_step = payload["options"]["step"]["support"]
+
+        self.assertIn(
+            "After source repairs, reopen Configure -> Sensors to confirm live source health.",
+            runtime_issue["description"],
+        )
+        self.assertIn(
+            "After any save or reload, come back here to confirm the mapped roles are healthy again.",
+            sensors_step["description"],
+        )
+        self.assertIn(
+            "After each save, reload the integration and reopen this Sensors screen to confirm live source health.",
+            source_mapping_step["description"],
+        )
+        self.assertIn(
+            "When the blocker is source-related, finish by reopening Sensors to confirm the mapped roles recover.",
+            diagnostics_step["description"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
