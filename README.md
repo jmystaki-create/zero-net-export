@@ -144,6 +144,7 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
 | :--- | :--- |
 | [project_status.md](project_status.md) | Current execution state for the project: status, next action, blocker, user action, notes, and last modified timestamp |
 | [docs/SUPERVISOR.md](docs/SUPERVISOR.md) | Active project steering guide and source of truth for current direction, goals, risks, and next actions |
+| [TOOLS.md](TOOLS.md) | Preferred live-evidence access paths for Home Assistant UI, APIs, logs, host inspection, and exact-build helper scripts before escalating to the user |
 | `WATCHDOG.md` (workspace root) | Central audit guide used by watchdog-style runs to detect drift, stale state, and small safe corrective fixes |
 | [RELEASE_MANAGEMENT.md](RELEASE_MANAGEMENT.md) | Operational release workflow, including GitHub visibility, HACS refresh, Home Assistant restart, and post-release log review |
 
