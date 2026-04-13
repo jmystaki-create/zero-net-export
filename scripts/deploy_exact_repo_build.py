@@ -41,7 +41,12 @@ def git_commit(root: Path) -> str:
         return "unknown"
 
 
-def ensure_safe_destination(source_root: Path, destination_root: Path, parser: argparse.ArgumentParser) -> None:
+def ensure_safe_destination(
+    repo_root: Path,
+    source_root: Path,
+    destination_root: Path,
+    parser: argparse.ArgumentParser,
+) -> None:
     if destination_root == source_root:
         parser.exit(
             2,
@@ -54,6 +59,13 @@ def ensure_safe_destination(source_root: Path, destination_root: Path, parser: a
             2,
             "ERROR: destination is nested inside this repo's source component directory. "
             "Choose a Home Assistant install path outside the repo.\n",
+        )
+
+    if destination_root == repo_root or repo_root in destination_root.parents:
+        parser.exit(
+            2,
+            "ERROR: destination resolves inside this repo. "
+            "Choose the real Home Assistant config/custom_components/zero_net_export path outside the repo so repo-local dry runs cannot be mistaken for a live deploy.\n",
         )
 
 
@@ -130,7 +142,7 @@ def main() -> int:
     if not source_root.exists():
         parser.exit(2, f"ERROR: repo component source is missing: {source_root}\n")
 
-    ensure_safe_destination(source_root, destination_root, parser)
+    ensure_safe_destination(root, source_root, destination_root, parser)
 
     destination_exists = destination_root.exists()
     backup_root = None if args.no_backup or not destination_exists else planned_backup_path(destination_root)

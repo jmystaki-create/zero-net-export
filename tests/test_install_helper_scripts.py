@@ -47,17 +47,23 @@ class DeployExactRepoBuildTests(unittest.TestCase):
                 component_dir.resolve(),
             )
 
-    def test_ensure_safe_destination_rejects_repo_source_and_nested_destinations(self) -> None:
+    def test_ensure_safe_destination_rejects_repo_local_destinations(self) -> None:
+        repo_root = REPO_ROOT.resolve()
         source_root = COMPONENT_ROOT.resolve()
 
         with self.assertRaises(SystemExit) as exact_match:
-            deploy_script.ensure_safe_destination(source_root, source_root, argparse_parser())
+            deploy_script.ensure_safe_destination(repo_root, source_root, source_root, argparse_parser())
         self.assertEqual(exact_match.exception.code, 2)
 
         nested_destination = source_root / "fake_home_assistant" / "custom_components" / "zero_net_export"
         with self.assertRaises(SystemExit) as nested_match:
-            deploy_script.ensure_safe_destination(source_root, nested_destination, argparse_parser())
+            deploy_script.ensure_safe_destination(repo_root, source_root, nested_destination, argparse_parser())
         self.assertEqual(nested_match.exception.code, 2)
+
+        repo_local_install = repo_root / "tmp" / "fake_home_assistant" / "custom_components" / "zero_net_export"
+        with self.assertRaises(SystemExit) as repo_local_match:
+            deploy_script.ensure_safe_destination(repo_root, source_root, repo_local_install, argparse_parser())
+        self.assertEqual(repo_local_match.exception.code, 2)
 
 
 class CompareInstallFingerprintTests(unittest.TestCase):
@@ -123,8 +129,8 @@ class CompareInstallFingerprintTests(unittest.TestCase):
         self.assertEqual(comparison["manifest_mismatch"]["actual"], "0.0.0-test")
         self.assertEqual(comparison["mismatches"][0]["file"], "manifest.json")
 
-    def test_cli_compare_rejects_repo_source_component_path(self) -> None:
-        result = subprocess.run(
+    def test_cli_compare_rejects_repo_local_paths(self) -> None:
+        source_result = subprocess.run(
             [
                 "python3",
                 str(SCRIPTS_DIR / "compare_install_fingerprint.py"),
@@ -136,8 +142,31 @@ class CompareInstallFingerprintTests(unittest.TestCase):
             check=False,
         )
 
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("repo's source component directory", result.stderr)
+        self.assertEqual(source_result.returncode, 2)
+        self.assertIn("repo's source component directory", source_result.stderr)
+
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT / "tmp") as tmp_dir:
+            repo_local_component = Path(tmp_dir) / "custom_components" / "zero_net_export"
+            repo_local_component.mkdir(parents=True, exist_ok=True)
+            (repo_local_component / "manifest.json").write_text(
+                (COMPONENT_ROOT / "manifest.json").read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+
+            repo_local_result = subprocess.run(
+                [
+                    "python3",
+                    str(SCRIPTS_DIR / "compare_install_fingerprint.py"),
+                    str(repo_local_component),
+                ],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(repo_local_result.returncode, 2)
+        self.assertIn("inside this repo", repo_local_result.stderr)
 
     def test_cli_compare_matches_live_install_copy_and_writes_json(self) -> None:
         with tempfile.TemporaryDirectory() as tmp_dir:
