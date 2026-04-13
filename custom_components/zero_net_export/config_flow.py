@@ -59,6 +59,7 @@ from .device_model import (
 )
 from .native_support import (
     ADVANCED_DEVICES_CONFIGURE_PATH,
+    DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
     INTEGRATION_DEVICE_PATH,
     MODE_CONTROL_PATH,
@@ -1302,6 +1303,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "current_mode": mode_label,
             "mode_summary": mode_description,
             "next_action_summary": command_center["next_action_summary"],
+            "detailed_management_path": command_center["detailed_management_path"],
+            "detailed_management_summary": command_center["detailed_management_summary"],
             "recommended_menu_hint": (
                 f"The first menu item below now matches the recommended next section: {command_center['recommended_section']}."
             ),
@@ -1741,6 +1744,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 ),
                 "device_next_step": device_next_step,
                 "device_issues": "\n".join(f"- {issue}" for issue in issues[:6]) if issues else "None",
+                "detailed_management_path": DETAILED_MANAGEMENT_PATH,
+                "detailed_management_summary": build_native_command_center_summary(self._coordinator()).get(
+                    "detailed_management_summary",
+                    f"Use {DETAILED_MANAGEMENT_PATH} for deeper per-device review once devices are onboarded.",
+                ),
             },
         )
 

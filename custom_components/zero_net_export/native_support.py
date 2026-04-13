@@ -46,6 +46,9 @@ INTEGRATION_DEVICE_PATH = (
 SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
+DETAILED_MANAGEMENT_PATH = (
+    f"{INTEGRATION_DEVICE_PATH} -> managed-device entities, per-device status sensors, reset-override buttons, and native support actions"
+)
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
@@ -544,6 +547,31 @@ def _build_support_sections(coordinator: Any) -> tuple[Any, list[dict[str, Any]]
     return state, configured_devices, device_parse_issues, operator_readiness
 
 
+def build_detailed_management_handoff(
+    configured_devices: list[dict[str, Any]] | None,
+    *,
+    state: Any | None = None,
+) -> str:
+    """Return the deeper native device-view handoff for per-device review and actions."""
+    devices = configured_devices or []
+    if not devices:
+        return (
+            f"Add the first managed device in {DEVICES_CONFIGURE_PATH}, then use {DETAILED_MANAGEMENT_PATH} "
+            "for per-device review once the fleet exists."
+        )
+
+    usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
+    if usable_count <= 0:
+        return (
+            f"Use {DETAILED_MANAGEMENT_PATH} to inspect each managed device's status, guards, plans, and reset actions, "
+            "then return to Managed devices to adjust the fleet if needed."
+        )
+
+    return (
+        f"Use {DETAILED_MANAGEMENT_PATH} for per-device status, planned actions, guard state, and reset actions when the fleet needs deeper review."
+    )
+
+
 def build_native_support_snapshot(coordinator: Any) -> str:
     """Return the operator support snapshot for native HA surfaces."""
     state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
@@ -643,6 +671,8 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- Health and support: {SUPPORT_CONFIGURE_PATH}",
         f"- Recommended command-center section: {command_center.get('recommended_section')}",
         f"- Recommended command-center path: {command_center.get('recommended_path')}",
+        f"- Detailed management path: {command_center.get('detailed_management_path')}",
+        f"- Detailed management handoff: {command_center.get('detailed_management_summary')}",
         f"- Command-center next action: {command_center.get('next_action_summary')}",
         "",
         "Readiness",
@@ -808,6 +838,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         or getattr(state, "diagnostic_summary", None)
         or "Integration state not loaded yet"
     )
+    detailed_management_summary = build_detailed_management_handoff(configured_devices, state=state)
     status_summary_map = {
         "Sources and source mapping": source_status,
         "Managed devices": device_status,
@@ -845,6 +876,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "recommended_section": recommended_section,
         "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),
         "next_action_summary": next_action_summary,
+        "detailed_management_path": DETAILED_MANAGEMENT_PATH,
+        "detailed_management_summary": detailed_management_summary,
         "sources_path": SOURCES_CONFIGURE_PATH,
         "devices_path": DEVICES_CONFIGURE_PATH,
         "policy_path": POLICY_CONFIGURE_PATH,
@@ -870,6 +903,8 @@ def build_native_support_center(coordinator: Any) -> str:
             f"Health and support path: {SUPPORT_CONFIGURE_PATH}",
             f"Recommended command-center section: {command_center.get('recommended_section')}",
             f"Recommended command-center path: {command_center.get('recommended_path')}",
+            f"Detailed management path: {command_center.get('detailed_management_path')}",
+            f"Detailed management handoff: {command_center.get('detailed_management_summary')}",
             f"Readiness phase: {operator_readiness.get('phase')}",
             f"Summary: {operator_readiness.get('summary')}",
             f"Next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
