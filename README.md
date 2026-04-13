@@ -104,9 +104,8 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
     python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config
     ```
 5.  **Restart Home Assistant**.
-6.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
-7.  Go to **Settings** → **Devices & Services** → **Add Integration**.
-8.  Search for **Zero Net Export**.
+6.  If this is an upgrade or live fix, confirm the existing Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
+7.  If this is a fresh manual install with no existing entry yet, go to **Settings** → **Devices & Services** → **Add Integration**, then search for **Zero Net Export**.
 
 ---
 
