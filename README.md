@@ -182,7 +182,7 @@ The backend control engine is substantially built, and the project is now in a l
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). It is the source of truth for the current product state, gap register, release gates, and prioritized next actions.
 
-**Current highest-value next step:** deploy the intended exact repo build at commit `9014481` into the confirmed live Home Assistant config path `/config`, verify the installed fingerprint matches that build, then restart Home Assistant core and continue live validation only from that synchronized install.
+**Current highest-value next step:** deploy the current exact repo build at commit `0b132ad` into the confirmed live Home Assistant config path `/config`, verify the installed fingerprint matches that build, then restart Home Assistant core and continue live validation only from that synchronized install.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
