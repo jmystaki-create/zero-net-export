@@ -41,6 +41,23 @@ def git_commit(root: Path) -> str:
         return "unknown"
 
 
+def ensure_safe_destination(source_root: Path, destination_root: Path, parser: argparse.ArgumentParser) -> None:
+    if destination_root == source_root:
+        parser.exit(
+            2,
+            "ERROR: destination resolves to this repo's source component directory. "
+            "Choose a Home Assistant install path outside the repo so the source build is not deleted.\n",
+        )
+
+    if source_root in destination_root.parents:
+        parser.exit(
+            2,
+            "ERROR: destination is nested inside this repo's source component directory. "
+            "Choose a Home Assistant install path outside the repo.\n",
+        )
+
+
+
 def copy_component(source_root: Path, destination_root: Path) -> None:
     destination_root.parent.mkdir(parents=True, exist_ok=True)
     if destination_root.exists():
@@ -103,6 +120,8 @@ def main() -> int:
 
     if not source_root.exists():
         parser.exit(2, f"ERROR: repo component source is missing: {source_root}\n")
+
+    ensure_safe_destination(source_root, destination_root, parser)
 
     backup_root = None
     if not args.no_backup:
