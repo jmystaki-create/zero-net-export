@@ -102,6 +102,17 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"resolved_destination={custom_components_root / 'zero_net_export'}", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {custom_components_root}", result.stdout)
 
+    def test_recommended_deploy_command_adds_current_safety_flags(self) -> None:
+        target = Path("/config")
+        self.assertEqual(
+            deploy_exact_repo_build.recommended_deploy_command(target, dry_run=True, expected_commit="abc1234"),
+            "python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit abc1234 --require-clean --require-upstream-sync",
+        )
+        self.assertEqual(
+            deploy_exact_repo_build.recommended_deploy_command(target, dry_run=False, expected_commit="abc1234"),
+            "python3 scripts/deploy_exact_repo_build.py /config --expected-commit abc1234 --require-clean --require-upstream-sync",
+        )
+
     def test_enforce_repo_build_requirements_accepts_matching_clean_repo(self) -> None:
         with patch.object(deploy_exact_repo_build, "git_status_details", return_value=(False, [])):
             commit, dirty, changed_files = deploy_exact_repo_build.enforce_repo_build_requirements(
@@ -160,10 +171,29 @@ class InstallHelperScriptsTests(unittest.TestCase):
             )
 
             self.assertEqual(result.returncode, 0, msg=result.stderr)
+            repo_commit = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                cwd=REPO_ROOT,
+                text=True,
+            ).strip()
+
             self.assertIn("discovered_config_count=", result.stdout)
             self.assertIn(str(config_root.resolve()), result.stdout)
+            self.assertIn(f"git_commit={repo_commit}", result.stdout)
             self.assertIn(f"example_dry_run_command=python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run", result.stdout)
-            self.assertIn("next_step=rerun this script with one discovered config path in --dry-run mode, then deploy that exact path", result.stdout)
+            self.assertIn(
+                f"recommended_dry_run_command=python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run --expected-commit {repo_commit} --require-clean --require-upstream-sync",
+                result.stdout,
+            )
+            self.assertIn(
+                f"recommended_deploy_command=python3 scripts/deploy_exact_repo_build.py {config_root} --expected-commit {repo_commit} --require-clean --require-upstream-sync",
+                result.stdout,
+            )
+            self.assertIn(
+                f"recommended_validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}",
+                result.stdout,
+            )
+            self.assertIn("recommended dry-run command", result.stdout)
 
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

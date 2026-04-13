@@ -105,6 +105,26 @@ def shell_command(*parts: str | Path) -> str:
     return " ".join(shlex.quote(str(part)) for part in parts)
 
 
+def recommended_deploy_command(
+    target_path: Path,
+    *,
+    dry_run: bool,
+    expected_commit: str | None = None,
+    require_clean: bool = True,
+    require_upstream_sync: bool = True,
+) -> str:
+    command: list[str | Path] = ["python3", "scripts/deploy_exact_repo_build.py", target_path]
+    if dry_run:
+        command.append("--dry-run")
+    if expected_commit:
+        command.extend(["--expected-commit", expected_commit])
+    if require_clean:
+        command.append("--require-clean")
+    if require_upstream_sync:
+        command.append("--require-upstream-sync")
+    return shell_command(*command)
+
+
 def emit_discovered_home_assistant_config_roots() -> int:
     candidates = discover_home_assistant_config_roots()
     print(f"discovered_config_count={len(candidates)}")
@@ -113,11 +133,30 @@ def emit_discovered_home_assistant_config_roots() -> int:
         print("next_step=pass your Home Assistant config directory path explicitly to this script")
         return 1
 
+    root = repo_root()
+    commit = git_commit(root)
+    recommended_target = candidates[0]
+
     print("discovered_config_paths=")
     for candidate in candidates:
         print(str(candidate))
-    print(f"example_dry_run_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', candidates[0], '--dry-run')}")
-    print("next_step=rerun this script with one discovered config path in --dry-run mode, then deploy that exact path")
+    print(f"git_commit={commit}")
+    print(f"example_dry_run_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', recommended_target, '--dry-run')}")
+    print(
+        "recommended_dry_run_command="
+        + recommended_deploy_command(recommended_target, dry_run=True, expected_commit=commit)
+    )
+    print(
+        "recommended_deploy_command="
+        + recommended_deploy_command(recommended_target, dry_run=False, expected_commit=commit)
+    )
+    print(
+        "recommended_validate_command="
+        + shell_command("python3", "scripts/validate_install_fingerprint.py", normalize_destination(recommended_target).parent)
+    )
+    print(
+        "next_step=rerun this script with one discovered config path using the recommended dry-run command, confirm repo_deploy_requirements_passed=true and copy_ready=true, then run the recommended deploy command for that exact path"
+    )
     return 0
 
 
@@ -370,14 +409,16 @@ def main() -> int:
         emit_pre_deploy_install_summary(pre_deploy_install_summary(destination_root, root=root))
         if destination_root.exists():
             print(f"planned_backup_path={planned_backup_path(destination_root)}")
-        next_command = ['python3', 'scripts/deploy_exact_repo_build.py', args.path]
-        if args.expected_commit:
-            next_command.extend(['--expected-commit', args.expected_commit])
-        if args.require_clean:
-            next_command.append('--require-clean')
-        if args.require_upstream_sync:
-            next_command.append('--require-upstream-sync')
-        print(f"next_command={shell_command(*next_command)}")
+        print(
+            "next_command="
+            + recommended_deploy_command(
+                args.path,
+                dry_run=False,
+                expected_commit=args.expected_commit,
+                require_clean=args.require_clean,
+                require_upstream_sync=args.require_upstream_sync,
+            )
+        )
         print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
         print("action=preview_only")
         return 0
