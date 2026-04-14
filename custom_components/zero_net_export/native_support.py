@@ -43,7 +43,8 @@ PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero
 INTEGRATION_DEVICE_PATH = (
     "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device"
 )
-SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sensors and source mapping"
+SOURCES_SECTION_LABEL = "Sensors and source mapping"
+SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {SOURCES_SECTION_LABEL}"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 DETAILED_MANAGEMENT_PATH = (
@@ -823,7 +824,7 @@ def build_native_setup_recommendation(
     """Return the best current native section for setup follow-through."""
     if missing_source_keys or (source_attention_roles and source_attention_roles != "None"):
         return {
-            "recommended_section": "Sensors",
+            "recommended_section": SOURCES_SECTION_LABEL,
             "recommended_path": SOURCES_CONFIGURE_PATH,
         }
     if device_issues or not has_devices:
@@ -856,7 +857,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"Install consistency: {command_center.get('install_consistency')}",
             "",
             "Current status",
-            f"- Sensors: {command_center.get('source_status')}",
+            f"- {SOURCES_SECTION_LABEL}: {command_center.get('source_status')}",
             f"- Current mapped roles: {command_center.get('source_mapping_summary')}",
             f"- Unavailable mapped roles: {command_center.get('unavailable_sources')}",
             f"- Stale mapped roles: {command_center.get('stale_sources')}",
@@ -870,7 +871,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
             "",
             "Where each native path lives",
-            f"- Sensors: {command_center.get('sources_path')}",
+            f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
             f"- Managed devices: {command_center.get('devices_path')}",
             f"- Controls: {command_center.get('policy_path')}",
             f"- Diagnostics: {command_center.get('support_path')}",
@@ -906,7 +907,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_status = "Missing required source roles: " + ", ".join(
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
-        recommended_section = "Sensors"
+        recommended_section = SOURCES_SECTION_LABEL
     elif runtime_source_attention:
         attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
         validation_suffix = (
@@ -915,10 +916,10 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             else ""
         )
         source_status = attention_prefix + validation_suffix
-        recommended_section = "Sensors"
+        recommended_section = SOURCES_SECTION_LABEL
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
-        recommended_section = "Sensors"
+        recommended_section = SOURCES_SECTION_LABEL
     else:
         source_status = build_live_source_health_summary(state)
         recommended_section = "Managed devices" if not configured_devices else "Controls"
@@ -994,6 +995,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
     detailed_management_summary = build_detailed_management_handoff(configured_devices, state=state)
     status_summary_map = {
+        SOURCES_SECTION_LABEL: source_status,
         "Sensors": source_status,
         "Managed devices": device_status,
         "Controls": policy_status,
@@ -1001,6 +1003,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     }
 
     path_summary_map = {
+        SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
         "Sensors": SOURCES_CONFIGURE_PATH,
         "Managed devices": DEVICES_CONFIGURE_PATH,
         "Controls": POLICY_CONFIGURE_PATH,

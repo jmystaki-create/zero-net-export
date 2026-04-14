@@ -65,6 +65,7 @@ from .native_support import (
     MODE_CONTROL_PATH,
     POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
+    SOURCES_SECTION_LABEL,
     SOURCES_CONFIGURE_PATH,
     SUPPORT_CONFIGURE_PATH,
     _source_specs_from_config,
@@ -546,6 +547,7 @@ def _issue_role_keys(issues: list[Any], *, severities: set[str] | None = None) -
 
 def _command_center_menu_options(recommended_section: str) -> list[str]:
     recommended_map = {
+        SOURCES_SECTION_LABEL: "native_setup",
         "Sensors": "native_setup",
         "Managed devices": "devices",
         "Controls": "policy",

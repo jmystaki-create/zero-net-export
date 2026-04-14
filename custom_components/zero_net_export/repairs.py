@@ -21,6 +21,7 @@ from .native_support import (
     ADVANCED_DEVICES_CONFIGURE_PATH,
     DEVICES_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
+    SOURCES_SECTION_LABEL,
     SOURCES_CONFIGURE_PATH,
     SUPPORT_CONFIGURE_PATH,
     build_native_command_center_summary,
@@ -114,7 +115,7 @@ def async_sync_repairs_issues(
         or build_source_repair_step(missing_source_keys=missing_source_keys)
     )
     summary = str(readiness.get("summary") or "Zero Net Export still needs attention before it is fully operator-ready.")
-    recommended_section = str(command_center.get("recommended_section") or "Sensors")
+    recommended_section = str(command_center.get("recommended_section") or SOURCES_SECTION_LABEL)
     recommended_path = str(command_center.get("recommended_path") or SOURCES_CONFIGURE_PATH)
 
     setup_issue_id = _entry_issue_id(entry, ISSUE_SETUP_INCOMPLETE)
