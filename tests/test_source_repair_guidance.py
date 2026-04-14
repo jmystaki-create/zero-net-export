@@ -126,6 +126,25 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             concise,
         )
 
+    def test_fallback_hint_picks_up_multiword_validation_suffixes(self) -> None:
+        native_support = _load_native_support_module()
+        guidance = native_support.build_source_selector_fallback_hint(
+            validation_issues=[
+                {
+                    "code": "grid_import_energy_entity_missing_entity",
+                    "severity": "error",
+                    "message": "Grid import energy entity is missing",
+                },
+                {
+                    "code": "battery_soc_entity_non_numeric",
+                    "severity": "error",
+                    "message": "Battery state of charge entity sensor.battery_soc is not numeric",
+                },
+            ]
+        )
+        self.assertIn("Combined / net grid energy", guidance)
+        self.assertIn("Battery state of charge", guidance)
+
     def test_setup_recommendation_prefers_sensors_when_source_blockers_exist(self) -> None:
         native_support = _load_native_support_module()
         recommendation = native_support.build_native_setup_recommendation(

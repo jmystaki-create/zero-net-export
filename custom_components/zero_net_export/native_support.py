@@ -265,13 +265,8 @@ def build_source_selector_fallback_hint(
 ) -> str:
     """Return operator guidance for known HA entity-selector fallback paths."""
     roles = set(role_keys or [])
-    for issue in validation_issues or []:
-        code = str(issue.get("code") or "")
-        if "_" not in code:
-            continue
-        key = code.rsplit("_", 1)[0]
-        if key in SOURCE_ROLE_LABELS:
-            roles.add(key)
+    for key in _issue_role_keys(validation_issues):
+        roles.add(key)
 
     hints: list[str] = []
     if roles.intersection({CONF_GRID_IMPORT_ENERGY_ENTITY, CONF_GRID_EXPORT_ENERGY_ENTITY}):
