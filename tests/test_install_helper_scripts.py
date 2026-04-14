@@ -201,9 +201,20 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("candidate_path_status=", result.stdout)
             self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/mnt/data,/srv,/var/lib", result.stdout)
             self.assertIn("recursive_search_root_status=", result.stdout)
+            tracking = compare_install_fingerprint.git_remote_tracking_details(REPO_ROOT)
+
             self.assertIn("discovered_config_count=", result.stdout)
             self.assertIn(str(config_root.resolve()), result.stdout)
             self.assertIn(f"git_commit={repo_commit}", result.stdout)
+            self.assertIn(f"git_branch={tracking.get('git_branch') or 'unknown'}", result.stdout)
+            self.assertIn(f"git_upstream={tracking.get('git_upstream') or 'none'}", result.stdout)
+            self.assertIn(f"git_upstream_commit={tracking.get('git_upstream_commit') or 'unknown'}", result.stdout)
+            self.assertIn(f"git_local_vs_upstream={tracking.get('git_local_vs_upstream') or 'unknown'}", result.stdout)
+            self.assertIn(f"git_ahead_count={tracking.get('git_ahead_count') if tracking.get('git_ahead_count') is not None else 'unknown'}", result.stdout)
+            self.assertIn(f"git_behind_count={tracking.get('git_behind_count') if tracking.get('git_behind_count') is not None else 'unknown'}", result.stdout)
+            if tracking.get("git_local_vs_upstream") != "in_sync":
+                for line in deploy_exact_repo_build.upstream_sync_remediation_lines(REPO_ROOT):
+                    self.assertIn(line, result.stdout)
             self.assertIn(f"example_dry_run_command=python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run", result.stdout)
             self.assertIn(
                 f"recommended_dry_run_command=python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run --expected-commit {repo_commit} --require-clean --require-upstream-sync",

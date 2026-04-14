@@ -306,12 +306,23 @@ def emit_discovered_home_assistant_config_roots() -> int:
 
     root = repo_root()
     commit = git_commit(root)
+    tracking = git_remote_tracking_details(root)
     recommended_target = candidates[0]
 
     print("discovered_config_paths=")
     for candidate in candidates:
         print(str(candidate))
     print(f"git_commit={commit}")
+    print(f"git_branch={tracking.get('git_branch') or 'unknown'}")
+    print(f"git_upstream={tracking.get('git_upstream') or 'none'}")
+    print(f"git_upstream_commit={tracking.get('git_upstream_commit') or 'unknown'}")
+    print(f"git_local_vs_upstream={tracking.get('git_local_vs_upstream') or 'unknown'}")
+    ahead = tracking.get('git_ahead_count')
+    behind = tracking.get('git_behind_count')
+    print(f"git_ahead_count={ahead if ahead is not None else 'unknown'}")
+    print(f"git_behind_count={behind if behind is not None else 'unknown'}")
+    for line in upstream_sync_remediation_lines(root):
+        print(line)
     print(f"example_dry_run_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', recommended_target, '--dry-run')}")
     print(
         "recommended_dry_run_command="
