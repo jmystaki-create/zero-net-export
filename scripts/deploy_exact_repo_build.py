@@ -258,6 +258,24 @@ def discovery_container_runtime_match_statuses() -> list[str]:
     return statuses
 
 
+def discovery_container_runtime_probe_commands() -> list[str]:
+    commands: list[str] = []
+    for runtime in COMMON_CONTAINER_RUNTIMES:
+        matches = _home_assistant_container_matches(runtime)
+        if matches is None:
+            commands.append(f"{runtime}=unavailable")
+            continue
+        if not matches:
+            commands.append(f"{runtime}=none")
+            continue
+        container_ref = str(matches[0].get("name") or matches[0].get("id") or "").strip()
+        if not container_ref:
+            commands.append(f"{runtime}=none")
+            continue
+        commands.append(f"{runtime}={runtime_mount_probe_command(runtime, container_ref)}")
+    return commands
+
+
 def runtime_mount_probe_command(runtime: str, container_ref: str) -> str:
     return shell_command(
         runtime,
@@ -440,6 +458,7 @@ def emit_discovered_home_assistant_config_roots() -> int:
     print(f"checked_container_runtimes={','.join(hints['container_runtimes'])}")
     print(f"container_runtime_status={';'.join(discovery_container_runtime_statuses())}")
     print(f"container_runtime_matches={';'.join(discovery_container_runtime_match_statuses())}")
+    print(f"container_runtime_probe_commands={';'.join(discovery_container_runtime_probe_commands())}")
     print(f"discovered_config_count={len(candidates)}")
     if not candidates:
         print("discovered_config_paths=none")

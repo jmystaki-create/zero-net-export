@@ -358,6 +358,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("checked_container_runtimes=docker,podman", result.stdout)
             self.assertIn("container_runtime_status=", result.stdout)
             self.assertIn("container_runtime_matches=", result.stdout)
+            self.assertIn("container_runtime_probe_commands=", result.stdout)
             self.assertIn("discovered_config_paths=none", result.stdout)
             self.assertIn("discovery_guidance=run this from the Home Assistant host or container", result.stdout)
             self.assertIn("bounded recursive search inspect the real filesystem there", result.stdout)
@@ -527,6 +528,33 @@ class InstallHelperScriptsTests(unittest.TestCase):
             statuses,
             [
                 "docker=homeassistant[abc123]:ghcr.io/home-assistant/home-assistant:stable",
+                "podman=unavailable",
+            ],
+        )
+
+    def test_discovery_container_runtime_probe_commands_report_first_match_probe(self) -> None:
+        def fake_run(runtime: str, *args: str):
+            if args != ("ps", "--format", "{{.ID}}\t{{.Names}}\t{{.Image}}"):
+                return subprocess.CompletedProcess([runtime, *args], 0, stdout="", stderr="")
+            if runtime == "docker":
+                return subprocess.CompletedProcess(
+                    [runtime, *args],
+                    0,
+                    stdout=(
+                        "abc123\thomeassistant\tghcr.io/home-assistant/home-assistant:stable\n"
+                        "def456\tother\tnode:22\n"
+                    ),
+                    stderr="",
+                )
+            return None
+
+        with patch.object(deploy_exact_repo_build, "_run_container_runtime_command", side_effect=fake_run):
+            commands = deploy_exact_repo_build.discovery_container_runtime_probe_commands()
+
+        self.assertEqual(
+            commands,
+            [
+                "docker=docker inspect homeassistant --format '{{range .Mounts}}{{if eq .Destination \"/config\"}}{{.Source}}{{println}}{{end}}{{end}}'",
                 "podman=unavailable",
             ],
         )
