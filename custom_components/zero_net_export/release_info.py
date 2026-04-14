@@ -133,6 +133,12 @@ def _install_command_targets(install_provenance: dict[str, Any] | None = None) -
 
 
 
+def build_install_discovery_command() -> str:
+    """Return the exact repo helper command for discovering a Home Assistant config path."""
+    return "python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config"
+
+
+
 def build_install_validation_command(install_provenance: dict[str, Any] | None = None) -> str:
     """Return the exact repo helper command for validating the active install path."""
     compare_target_str, _ = _install_command_targets(install_provenance)
@@ -190,6 +196,7 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
             f"exists={details.get('exists')}"
         )
 
+    lines.append(f"- discovery_command: {build_install_discovery_command()}")
     lines.append(f"- deploy_dry_run_command: {build_install_deploy_dry_run_command(provenance)}")
     lines.append(f"- deploy_command: {build_install_deploy_command(provenance)}")
     lines.append(f"- validation_command: {build_install_validation_command(provenance)}")

@@ -41,6 +41,14 @@ def _load_release_info_module():
 
 
 class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
+    def test_build_install_discovery_command_points_to_helper_lookup(self) -> None:
+        release_info = _load_release_info_module()
+        command = release_info.build_install_discovery_command()
+        self.assertEqual(
+            command,
+            "python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config",
+        )
+
     def test_build_install_validation_command_targets_custom_components_root(self) -> None:
         release_info = _load_release_info_module()
         command = release_info.build_install_validation_command(
@@ -87,6 +95,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
                 "manifest_matches_code_version": True,
                 "tracked_files": {},
             }
+        )
+        self.assertIn(
+            "- discovery_command: python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config",
+            summary,
         )
         self.assertIn(
             "- deploy_dry_run_command: python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync",
