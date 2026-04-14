@@ -215,7 +215,10 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"git_ahead_commits={','.join(tracking.get('git_ahead_commits') or []) or 'none'}", result.stdout)
             self.assertIn(f"git_behind_commits={','.join(tracking.get('git_behind_commits') or []) or 'none'}", result.stdout)
             if tracking.get("git_local_vs_upstream") != "in_sync":
-                for line in deploy_exact_repo_build.upstream_sync_remediation_lines(REPO_ROOT):
+                for line in deploy_exact_repo_build.upstream_sync_remediation_lines(
+                    REPO_ROOT,
+                    rerun_command=f"python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run --expected-commit {repo_commit} --require-clean --require-upstream-sync",
+                ):
                     self.assertIn(line, result.stdout)
             self.assertIn(f"example_dry_run_command=python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run", result.stdout)
             self.assertIn(
@@ -423,7 +426,10 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 "git_behind_commits": [],
             },
         ):
-            lines = deploy_exact_repo_build.upstream_sync_remediation_lines(REPO_ROOT)
+            lines = deploy_exact_repo_build.upstream_sync_remediation_lines(
+                REPO_ROOT,
+                rerun_command="python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit abc1234 --require-clean --require-upstream-sync",
+            )
 
         self.assertEqual(
             lines,
@@ -431,6 +437,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 "requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue",
                 "remediation_command=git push origin HEAD:feature/test",
                 "remediation_commits=abc1234,def5678",
+                "remediation_after_fix=python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit abc1234 --require-clean --require-upstream-sync",
             ],
         )
 
@@ -479,6 +486,10 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue", stdout.getvalue())
             self.assertIn("remediation_command=git push origin HEAD:feature/test", stdout.getvalue())
             self.assertIn("remediation_commits=abc1234,def5678", stdout.getvalue())
+            self.assertIn(
+                f"remediation_after_fix=python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run --require-upstream-sync",
+                stdout.getvalue(),
+            )
             self.assertIn("next_step=fix the repo requirement failure above", stdout.getvalue())
             self.assertIn("requirement_failure=Refusing to deploy: repo is not synchronized with its tracked upstream", stderr.getvalue())
 

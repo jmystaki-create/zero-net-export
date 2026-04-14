@@ -326,7 +326,16 @@ def emit_discovered_home_assistant_config_roots() -> int:
     print(f"git_behind_count={behind if behind is not None else 'unknown'}")
     print(f"git_ahead_commits={','.join(tracking.get('git_ahead_commits') or []) or 'none'}")
     print(f"git_behind_commits={','.join(tracking.get('git_behind_commits') or []) or 'none'}")
-    for line in upstream_sync_remediation_lines(root):
+    for line in upstream_sync_remediation_lines(
+        root,
+        rerun_command=recommended_deploy_command(
+            recommended_target,
+            dry_run=True,
+            expected_commit=commit,
+            require_clean=True,
+            require_upstream_sync=True,
+        ),
+    ):
         print(line)
     print(f"example_dry_run_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', recommended_target, '--dry-run')}")
     print(
@@ -474,7 +483,7 @@ def emit_deploy_readiness(*, ready_for_copy: bool, restart_ready: bool = False) 
     print(f"restart_ready={str(bool(restart_ready)).lower()}")
 
 
-def upstream_sync_remediation_lines(root: Path) -> list[str]:
+def upstream_sync_remediation_lines(root: Path, *, rerun_command: str | None = None) -> list[str]:
     tracking = git_remote_tracking_details(root)
     branch = tracking.get("git_branch") or "unknown"
     upstream = tracking.get("git_upstream") or "none"
@@ -485,6 +494,11 @@ def upstream_sync_remediation_lines(root: Path) -> list[str]:
     if upstream not in {None, "none"} and "/" in upstream:
         remote_name, upstream_branch = str(upstream).split("/", 1)
 
+    def with_rerun(lines: list[str]) -> list[str]:
+        if rerun_command:
+            lines.append(f"remediation_after_fix={rerun_command}")
+        return lines
+
     if relation == "ahead" and remote_name and upstream_branch:
         ahead_commits = tracking.get("git_ahead_commits") or []
         lines = [
@@ -493,26 +507,26 @@ def upstream_sync_remediation_lines(root: Path) -> list[str]:
         ]
         if ahead_commits:
             lines.append(f"remediation_commits={','.join(ahead_commits)}")
-        return lines
+        return with_rerun(lines)
 
     if relation == "behind" and remote_name and upstream_branch:
-        return [
+        return with_rerun([
             "requirement_remediation=pull the tracked upstream changes into this branch before deploy validation can continue",
             f"remediation_command={shell_command('git', 'pull', '--ff-only', remote_name, upstream_branch)}",
-        ]
+        ])
 
     if relation == "diverged" and remote_name and upstream_branch:
-        return [
+        return with_rerun([
             "requirement_remediation=reconcile the branch divergence before deploy validation can continue",
             f"remediation_command={shell_command('git', 'fetch', remote_name, upstream_branch)}",
             "remediation_follow_up=after fetching, rebase, merge, or otherwise reconcile the branch, then rerun the dry-run command",
-        ]
+        ])
 
     if relation == "no_upstream":
-        return [
+        return with_rerun([
             "requirement_remediation=set a tracked upstream for this branch before deploy validation can continue",
             f"remediation_command={shell_command('git', 'push', '--set-upstream', 'origin', branch)}",
-        ]
+        ])
 
     return []
 
@@ -525,13 +539,14 @@ def emit_requirement_failure_context(
     destination_root: Path,
     commit: str,
     failure_message: str,
+    rerun_command: str | None = None,
 ) -> None:
     print(f"repo_root={root}")
     print(f"source_component_root={source_root}")
     print(f"resolved_destination={destination_root}")
     emit_repo_build_summary(root=root, commit=commit)
     emit_deploy_readiness(ready_for_copy=False, restart_ready=False)
-    for line in upstream_sync_remediation_lines(root):
+    for line in upstream_sync_remediation_lines(root, rerun_command=rerun_command):
         print(line)
     print(f"requirement_failure={failure_message}", file=sys.stderr)
     print(
@@ -694,6 +709,13 @@ def main() -> int:
             destination_root=destination_root,
             commit=commit,
             failure_message=failure_message,
+            rerun_command=recommended_deploy_command(
+                args.path,
+                dry_run=bool(args.dry_run),
+                expected_commit=args.expected_commit,
+                require_clean=args.require_clean,
+                require_upstream_sync=args.require_upstream_sync,
+            ),
         )
         return 1
 
