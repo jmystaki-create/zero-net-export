@@ -335,8 +335,8 @@ def build_source_repair_step(
             else ", ".join(confirm_role_parts)
         )
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text} by making sure {repair_action_text}, then save and reload the integration, "
-            f"{_confirm_recovery_suffix(confirm_roles)}"
+            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}. In Home Assistant, make sure the mapped entities still exist and are reporting fresh numeric values, "
+            f"then {repair_action_text}, save and reload the integration, {_confirm_recovery_suffix(confirm_roles)}"
         )
 
     if blocking_details and blocking_details != "None":
@@ -347,7 +347,7 @@ def build_source_repair_step(
         )
         confirm_roles = affected_roles_text if affected_roles_text and affected_roles_text != "None" else blocking_details
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}, then save and reload the integration, "
+            f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}. Confirm each mapped entity selection still points at the intended Home Assistant entity, then save and reload the integration, "
             f"{_confirm_recovery_suffix(confirm_roles)}"
         )
 

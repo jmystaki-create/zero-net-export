@@ -84,6 +84,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("repair these mapped-source blockers first", guidance)
         self.assertIn("Solar power -> sensor.pv_power (unavailable)", guidance)
         self.assertIn("Grid export power -> sensor.grid_export (stale 245 s)", guidance)
+        self.assertIn("make sure the mapped entities still exist and are reporting fresh numeric values", guidance)
         self.assertIn("restore live availability for Solar power", guidance)
         self.assertIn("refresh or replace stale readings for Grid export power", guidance)
         self.assertIn("reopen Sensors and source mapping to confirm these roles recover", guidance)
@@ -117,6 +118,15 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             "reopen Sensors and source mapping to confirm these roles recover: Solar power, Grid export power.",
             guidance,
         )
+
+    def test_repair_step_with_validation_only_guides_operator_to_confirm_entity_selection(self) -> None:
+        native_support = _load_native_support_module()
+        guidance = native_support.build_source_repair_step(
+            blocking_validation_details="Battery state of charge entity sensor.battery_soc is not numeric",
+            affected_roles="Battery state of charge -> sensor.battery_soc (Battery state of charge entity sensor.battery_soc is not numeric)",
+        )
+        self.assertIn("Confirm each mapped entity selection still points at the intended Home Assistant entity", guidance)
+        self.assertIn("Battery state of charge entity sensor.battery_soc is not numeric", guidance)
 
     def test_attention_role_summary_includes_validation_only_role_errors(self) -> None:
         native_support = _load_native_support_module()
