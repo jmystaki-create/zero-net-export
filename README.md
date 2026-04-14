@@ -117,7 +117,7 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
 1.  Add the **Zero Net Export** integration.
 2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
 3.  Open **Settings** -> **Devices & Services** -> **Integrations** -> **Zero Net Export** -> **Configure**.
-4.  Use **Sensors** to map your source entities and review source health:
+4.  Use **Sensors and source mapping** to map your source entities and review source health:
     - Solar Power
     - Grid sensors, either as one combined/net pair or as separate import/export entities
     - Home Load Power (optional if solar and grid sources are already mapped)
