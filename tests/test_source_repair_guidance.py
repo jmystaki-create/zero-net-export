@@ -5,6 +5,7 @@ import sys
 import types
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -25,7 +26,10 @@ def _load_native_support_module():
 
     ha_pkg = sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
     util_pkg = sys.modules.setdefault("homeassistant.util", types.ModuleType("homeassistant.util"))
-    util_pkg.dt = types.SimpleNamespace(parse_datetime=lambda value: value, now=lambda: None)
+    util_pkg.dt = types.SimpleNamespace(
+        parse_datetime=lambda value: value,
+        now=lambda: types.SimpleNamespace(isoformat=lambda: "2026-04-14T00:00:00+00:00"),
+    )
     ha_pkg.util = util_pkg
 
     const_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.const", CONST_PATH)
@@ -42,11 +46,16 @@ def _load_native_support_module():
     release_info_module.build_install_consistency_summary = lambda data: "install consistency"
     release_info_module.build_install_fingerprint_summary = lambda data: "install fingerprint summary"
     release_info_module.build_install_provenance = lambda: {"summary": "install summary"}
-    release_info_module.build_release_info = lambda: {}
+    release_info_module.build_release_info = lambda *args, **kwargs: {}
     sys.modules[release_info_module.__name__] = release_info_module
 
     validation_module = types.ModuleType("custom_components.zero_net_export.validation")
-    validation_module.SourceSpec = object
+    validation_module.SourceSpec = lambda key, raw, source_kind, required=True: types.SimpleNamespace(
+        key=key,
+        raw=raw,
+        source_kind=source_kind,
+        required=required,
+    )
     validation_module.format_source_binding_label = lambda value: str(value)
     sys.modules[validation_module.__name__] = validation_module
 
@@ -172,6 +181,26 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+
+    def test_support_center_lists_each_native_path(self) -> None:
+        native_support = _load_native_support_module()
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={},
+                options={},
+            )
+            data = None
+
+        support_center = native_support.build_native_support_center(_FakeCoordinator())
+        self.assertIn("Where each native path lives:", support_center)
+        self.assertIn(f"- Sensors and source mapping: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
+        self.assertIn(f"- Managed devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
+        self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
+        self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
 
 
 if __name__ == "__main__":
