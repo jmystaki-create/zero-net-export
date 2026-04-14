@@ -1,6 +1,6 @@
 # Native Home Assistant Operator Plan
 
-> Steering note: this document explains the native-HA-only direction. `docs/SUPERVISOR.md` is now the active steering layer for current goals, risks, release gates, and next actions.
+> Steering note: this document explains the native-HA-only direction. `SUPERVISOR.md` is now the active steering layer for current goals, risks, release gates, and next actions.
 
 ## Status
 

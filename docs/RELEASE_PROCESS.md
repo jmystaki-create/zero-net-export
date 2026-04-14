@@ -4,11 +4,11 @@ This document describes the versioning and packaging background for Zero Net Exp
 
 Operational release execution lives in `../RELEASE_MANAGEMENT.md`. Use that file for the actual ship checklist, including approval, GitHub latest-release verification, forced HACS metadata refresh, Home Assistant restart, and post-release log review.
 
-This process is downstream of `docs/SUPERVISOR.md`. If the supervisor release gates are not met, the release should be treated as not ready even if packaging steps are mechanically complete.
+This process is downstream of `SUPERVISOR.md`. If the supervisor release gates are not met, the release should be treated as not ready even if packaging steps are mechanically complete.
 
 ## Goals
 
-- Keep `manifest.json` version aligned with the current intended release version.
+- Keep `../custom_components/zero_net_export/manifest.json` version aligned with the current intended release version.
 - Keep `CHANGELOG.md` updated for every user-visible change.
 - Produce clear release notes for each tagged version.
 - Make it easy to publish Git tags and GitHub releases consistently.
@@ -40,7 +40,7 @@ At minimum:
    - Update if the public project icon or logo changes
 4. Optional: `README.md`
    - Update wording if release status materially changes
-5. Optional: `docs/BRANDING.md`
+5. Optional: `BRANDING.md`
    - Update if branding usage or packaging changes
 
 ## Standard Workflow
@@ -54,7 +54,7 @@ At minimum:
 ### For a formal release
 
 1. Decide the new version
-2. Update `manifest.json` version
+2. Update `../custom_components/zero_net_export/manifest.json` version
 3. Move/organize changelog items into a dated version section
 4. Commit with a release-oriented message, for example:
    - `release: prepare 0.1.1`

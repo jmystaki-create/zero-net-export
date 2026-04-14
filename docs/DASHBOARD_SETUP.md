@@ -2,7 +2,7 @@
 
 This project includes an optional Lovelace dashboard scaffold at:
 
-- `examples/lovelace/zero_net_export_dashboard.yaml`
+- `../examples/lovelace/zero_net_export_dashboard.yaml`
 
 It is intentionally plain Lovelace YAML, not a custom frontend. It lives fully inside Home Assistant and is supplementary debug visibility for operators who want to see controller, battery, grid, and managed-load state in one place.
 
@@ -25,7 +25,7 @@ The dashboard is structured as optional debug visibility around the native opera
 
 ### Option A — Manual dashboard YAML mode
 
-1. Copy `examples/lovelace/zero_net_export_dashboard.yaml` into your Home Assistant config, for example:
+1. Copy `../examples/lovelace/zero_net_export_dashboard.yaml` into your Home Assistant config, for example:
    - `/config/lovelace/zero_net_export_dashboard.yaml`
 2. In Home Assistant, create a dashboard in YAML mode or add a new view that references this file.
 3. Adjust entity ids so they match the entity ids created by your integration entry.

@@ -75,7 +75,7 @@ The device inventory path is still JSON-backed today, but it is now intentionall
 
 The support snapshot remains available as a native device-page action that condenses release metadata, readiness, mapped-source health, configured-device state, and recent validation issues into one operator-facing text block for support and validation triage.
 
-A first importable Lovelace scaffold now exists at `examples/lovelace/zero_net_export_dashboard.yaml`.
+A first importable Lovelace scaffold now exists at `../examples/lovelace/zero_net_export_dashboard.yaml`.
 
 It currently provides:
 - a live overview card set for solar / home / grid / battery / surplus

@@ -1,6 +1,6 @@
 # Implementation Plan
 
-> Supervisor note: `docs/SUPERVISOR.md` is now the active steering layer for current goals, risk/gap tracking, release gates, and the next-action queue. This file remains the implementation history and phase trail.
+> Supervisor note: `SUPERVISOR.md` is now the active steering layer for current goals, risk/gap tracking, release gates, and the next-action queue. This file remains the implementation history and phase trail.
 
 ## Phase 1 — Spec and scaffold
 - create repo scaffold
@@ -9,7 +9,7 @@
 - define mapped source roles
 
 ## Phase 2 — HA integration skeleton
-- `custom_components/zero_net_export/manifest.json`
+- `../custom_components/zero_net_export/manifest.json`
 - config flow
 - constants
 - coordinator skeleton
@@ -50,7 +50,7 @@
 - controller entities
 - per-device entities ✅ initial status / usability / power entities from configured inventory
 - per-device operator controls ✅ runtime-persisted device enable switches and priority numbers now let operators tune planner participation from Home Assistant
-- basic Lovelace dashboard example ✅ first optional debug dashboard scaffold added under `examples/lovelace/zero_net_export_dashboard.yaml` with setup notes in `docs/DASHBOARD_SETUP.md`
+- basic Lovelace dashboard example ✅ first optional debug dashboard scaffold added under `../examples/lovelace/zero_net_export_dashboard.yaml` with setup notes in `DASHBOARD_SETUP.md`
 - controller runtime overrides ✅ dashboard-facing enable/mode/target-export/deadband controls now persist through the integration runtime store instead of relying on in-memory state only
 - dashboard reset controls ✅ controller and per-device override-reset buttons now provide an explicit path back to config defaults, and the main controller controls expose configured-vs-effective attributes for clearer operator UX
 - next: validate the override UX and entity discoverability on a real Home Assistant install, while keeping the dashboard scaffold clearly optional and outside the supported operator path
@@ -92,4 +92,4 @@
 
 ## Current execution note
 
-If this file and `docs/SUPERVISOR.md` appear to disagree, follow the supervisor document for what should happen next and use this file to understand how the repo got here.
+If this file and `SUPERVISOR.md` appear to disagree, follow the supervisor document for what should happen next and use this file to understand how the repo got here.

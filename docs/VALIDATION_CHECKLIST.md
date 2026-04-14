@@ -2,7 +2,7 @@
 
 Use this checklist to validate Zero Net Export in a real Home Assistant environment before considering v1 complete.
 
-Supervisor note: this document is the evidence ledger for the release gates defined in `docs/SUPERVISOR.md`.
+Supervisor note: this document is the evidence ledger for the release gates defined in `SUPERVISOR.md`.
 
 ## Recommended next validation run
 
@@ -273,7 +273,7 @@ This is the current highest-value path because native onboarding is now the only
 - [ ] `origin/main` contains the user-visible release commit
 - [ ] Remote git tags include the intended release version
 - [ ] GitHub release exists for the same version when using release-based HACS visibility
-- [ ] `manifest.json`, `CHANGELOG.md`, git tag, and GitHub release version all agree
+- [ ] `../custom_components/zero_net_export/manifest.json`, `../CHANGELOG.md`, git tag, and GitHub release version all agree
 - [ ] The Home Assistant install path being tested is confirmed to be serving that same released package
 
 ## Documentation Validation
@@ -306,4 +306,4 @@ This is the current highest-value path because native onboarding is now the only
 
 ---
 
-**Note:** This checklist should be completed at least once on a real Home Assistant installation before marking v1 complete. Treat the associated release as blocked until the supervisor release gates in `docs/SUPERVISOR.md` are satisfied.
+**Note:** This checklist should be completed at least once on a real Home Assistant installation before marking v1 complete. Treat the associated release as blocked until the supervisor release gates in `SUPERVISOR.md` are satisfied.

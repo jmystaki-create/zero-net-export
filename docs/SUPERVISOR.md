@@ -119,8 +119,8 @@ Do later:
 
 ## Source documents
 
-- Product scope: `docs/PRODUCT_SPEC_V1.md`
-- Current implementation trail: `docs/IMPLEMENTATION_PLAN.md`
-- Native operator direction: `docs/NATIVE_OPERATOR_PLAN.md`
-- Validation proof: `docs/VALIDATION_CHECKLIST.md`
-- Release discipline: `RELEASE_MANAGEMENT.md`
+- Product scope: `PRODUCT_SPEC_V1.md`
+- Current implementation trail: `IMPLEMENTATION_PLAN.md`
+- Native operator direction: `NATIVE_OPERATOR_PLAN.md`
+- Validation proof: `VALIDATION_CHECKLIST.md`
+- Release discipline: `../RELEASE_MANAGEMENT.md`
