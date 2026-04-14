@@ -175,7 +175,7 @@
       },
       "policy": {
         "title": "Controls",
-        "description": "Tune controller behaviour here, including target export, deadband, reserve threshold, refresh interval, and the nearby live mode path. If you are looking for where Zero Net Export control behaviour is adjusted, this is it once Sensors are healthy and Managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nLive control mode: {current_mode}\nMode summary: {mode_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}\n\nNative paths around this screen:\n- Controls defaults and thresholds: {policy_path}\n- Live mode control: {mode_path}\n- Sensors: {sources_path}\n- Managed devices: {devices_path}\n- Diagnostics: {support_path}",
+        "description": "Tune controller behaviour here, including target export, deadband, reserve threshold, refresh interval, and the nearby live mode path. If you are looking for where Zero Net Export control behaviour is adjusted, this is it once Sensors and source mapping is healthy and Managed devices are ready.\n\nCurrent policy summary: {policy_summary}\nLive control mode: {current_mode}\nMode summary: {mode_summary}\nCurrent readiness: {policy_readiness}\nRecommended next step after this screen: {policy_next_step}\n\nNative paths around this screen:\n- Controls defaults and thresholds: {policy_path}\n- Live mode control: {mode_path}\n- Sensors and source mapping: {sources_path}\n- Managed devices: {devices_path}\n- Diagnostics: {support_path}",
         "data": {
           "target_export_w": "Target export (W)",
           "deadband_w": "Deadband (W)",
