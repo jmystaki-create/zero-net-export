@@ -304,9 +304,16 @@ def build_source_repair_step(
     blocking_details = str(blocking_validation_details or "").strip()
     affected_roles_text = str(affected_roles or "").strip()
 
+    def _confirm_recovery_suffix(target_roles: str) -> str:
+        role_text = target_roles.strip()
+        if not role_text or role_text == "None":
+            return "then reopen Sensors and source mapping to confirm live source health."
+        return f"then reopen Sensors and source mapping to confirm these roles recover: {role_text}."
+
     if missing_roles != "None":
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, finish these required source roles: {missing_roles}, then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, finish these required source roles: {missing_roles}, then save and reload the integration, "
+            f"{_confirm_recovery_suffix(missing_roles)}"
         )
 
     attention_parts: list[str] = []
@@ -320,8 +327,10 @@ def build_source_repair_step(
             if affected_roles_text and affected_roles_text != "None"
             else f"these mapped-source blockers ({'; '.join(attention_parts)})"
         )
+        confirm_roles = affected_roles_text if affected_roles_text and affected_roles_text != "None" else ", ".join(attention_parts)
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}, then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}, then save and reload the integration, "
+            f"{_confirm_recovery_suffix(confirm_roles)}"
         )
 
     if blocking_details and blocking_details != "None":
@@ -330,9 +339,16 @@ def build_source_repair_step(
             if affected_roles_text and affected_roles_text != "None"
             else f"repair the blocking source validation errors ({blocking_details})"
         )
-        return f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}, then save and reload the integration."
+        confirm_roles = affected_roles_text if affected_roles_text and affected_roles_text != "None" else blocking_details
+        return (
+            f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}, then save and reload the integration, "
+            f"{_confirm_recovery_suffix(confirm_roles)}"
+        )
 
-    return f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration."
+    return (
+        f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration, "
+        "then reopen Sensors and source mapping to confirm live source health."
+    )
 
 
 def build_live_source_health_summary(state: Any) -> str:

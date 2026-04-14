@@ -75,6 +75,18 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("repair these mapped-source blockers first", guidance)
         self.assertIn("Solar power -> sensor.pv_power (unavailable)", guidance)
         self.assertIn("Grid export power -> sensor.grid_export (stale 245 s)", guidance)
+        self.assertIn("reopen Sensors and source mapping to confirm these roles recover", guidance)
+
+    def test_repair_step_names_missing_roles_in_recovery_check(self) -> None:
+        native_support = _load_native_support_module()
+        guidance = native_support.build_source_repair_step(
+            missing_source_keys=["solar_power_entity", "grid_import_power_entity"],
+        )
+        self.assertIn("finish these required source roles: Solar power, Grid import power", guidance)
+        self.assertIn(
+            "reopen Sensors and source mapping to confirm these roles recover: Solar power, Grid import power.",
+            guidance,
+        )
 
     def test_attention_role_summary_includes_validation_only_role_errors(self) -> None:
         native_support = _load_native_support_module()
