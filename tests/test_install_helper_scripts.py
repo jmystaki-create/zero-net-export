@@ -93,6 +93,11 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"git_commit={subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO_ROOT, text=True).strip()}", result.stdout)
             self.assertIn(f"validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}", result.stdout)
             self.assertIn("post_restart_checklist=after restarting Home Assistant core, confirm the Zero Net Export entry loads", result.stdout)
+            repo_commit = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], cwd=REPO_ROOT, text=True).strip()
+            self.assertIn(
+                "exact_copy_sequence=" + deploy_exact_repo_build.recommended_exact_copy_sequence(config_root, expected_commit=repo_commit, require_clean=False, require_upstream_sync=False),
+                result.stdout,
+            )
             self.assertIn("action=preview_only", result.stdout)
 
     def test_deploy_exact_repo_build_dry_run_accepts_custom_components_root(self) -> None:
@@ -114,6 +119,16 @@ class InstallHelperScriptsTests(unittest.TestCase):
         self.assertEqual(
             deploy_exact_repo_build.recommended_deploy_command(target, dry_run=False, expected_commit="abc1234"),
             "python3 scripts/deploy_exact_repo_build.py /config --expected-commit abc1234 --require-clean --require-upstream-sync",
+        )
+        self.assertEqual(
+            deploy_exact_repo_build.recommended_validate_command(target),
+            "python3 scripts/validate_install_fingerprint.py /config/custom_components",
+        )
+        self.assertEqual(
+            deploy_exact_repo_build.recommended_exact_copy_sequence(target, expected_commit="abc1234"),
+            "python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit abc1234 --require-clean --require-upstream-sync && "
+            "python3 scripts/deploy_exact_repo_build.py /config --expected-commit abc1234 --require-clean --require-upstream-sync && "
+            "python3 scripts/validate_install_fingerprint.py /config/custom_components",
         )
 
     def test_enforce_repo_build_requirements_accepts_matching_clean_repo(self) -> None:
@@ -200,6 +215,13 @@ class InstallHelperScriptsTests(unittest.TestCase):
             )
             self.assertIn(
                 f"recommended_validate_command=python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}",
+                result.stdout,
+            )
+            self.assertIn(
+                "recommended_exact_copy_sequence="
+                f"python3 scripts/deploy_exact_repo_build.py {config_root} --dry-run --expected-commit {repo_commit} --require-clean --require-upstream-sync"
+                f" && python3 scripts/deploy_exact_repo_build.py {config_root} --expected-commit {repo_commit} --require-clean --require-upstream-sync"
+                f" && python3 scripts/validate_install_fingerprint.py {config_root / 'custom_components'}",
                 result.stdout,
             )
             self.assertIn("recommended dry-run command", result.stdout)

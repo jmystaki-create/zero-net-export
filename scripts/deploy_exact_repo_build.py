@@ -247,6 +247,42 @@ def recommended_deploy_command(
     return shell_command(*command)
 
 
+def recommended_validate_command(target_path: Path) -> str:
+    return shell_command(
+        "python3",
+        "scripts/validate_install_fingerprint.py",
+        normalize_destination(target_path).parent,
+    )
+
+
+def recommended_exact_copy_sequence(
+    target_path: Path,
+    *,
+    expected_commit: str | None = None,
+    require_clean: bool = True,
+    require_upstream_sync: bool = True,
+) -> str:
+    return " && ".join(
+        [
+            recommended_deploy_command(
+                target_path,
+                dry_run=True,
+                expected_commit=expected_commit,
+                require_clean=require_clean,
+                require_upstream_sync=require_upstream_sync,
+            ),
+            recommended_deploy_command(
+                target_path,
+                dry_run=False,
+                expected_commit=expected_commit,
+                require_clean=require_clean,
+                require_upstream_sync=require_upstream_sync,
+            ),
+            recommended_validate_command(target_path),
+        ]
+    )
+
+
 def emit_discovered_home_assistant_config_roots() -> int:
     candidates = discover_home_assistant_config_roots()
     hints = configured_discovery_hints()
@@ -285,9 +321,10 @@ def emit_discovered_home_assistant_config_roots() -> int:
         "recommended_deploy_command="
         + recommended_deploy_command(recommended_target, dry_run=False, expected_commit=commit)
     )
+    print("recommended_validate_command=" + recommended_validate_command(recommended_target))
     print(
-        "recommended_validate_command="
-        + shell_command("python3", "scripts/validate_install_fingerprint.py", normalize_destination(recommended_target).parent)
+        "recommended_exact_copy_sequence="
+        + recommended_exact_copy_sequence(recommended_target, expected_commit=commit)
     )
     print(
         "next_step=rerun this script with one discovered config path using the recommended dry-run command, confirm repo_deploy_requirements_passed=true and copy_ready=true, then run the recommended deploy command for that exact path"
@@ -651,7 +688,16 @@ def main() -> int:
             )
         )
         emit_success_criteria(phase="dry_run", commit=commit)
-        print(f"validate_command={shell_command('python3', 'scripts/validate_install_fingerprint.py', validation_target_path(destination_root))}")
+        print(f"validate_command={recommended_validate_command(args.path)}")
+        print(
+            "exact_copy_sequence="
+            + recommended_exact_copy_sequence(
+                args.path,
+                expected_commit=args.expected_commit or commit,
+                require_clean=args.require_clean,
+                require_upstream_sync=args.require_upstream_sync,
+            )
+        )
         emit_post_restart_checklist()
         print("action=preview_only")
         return 0
