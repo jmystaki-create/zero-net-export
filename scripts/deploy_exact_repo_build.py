@@ -43,6 +43,13 @@ COMMON_CONFIG_CANDIDATE_PATHS = (
 )
 
 
+def configured_discovery_hints() -> dict[str, list[str]]:
+    return {
+        "env_keys": list(COMMON_CONFIG_ENV_KEYS),
+        "candidate_paths": [str(path.expanduser()) for path in COMMON_CONFIG_CANDIDATE_PATHS],
+    }
+
+
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
@@ -135,9 +142,15 @@ def recommended_deploy_command(
 
 def emit_discovered_home_assistant_config_roots() -> int:
     candidates = discover_home_assistant_config_roots()
+    hints = configured_discovery_hints()
+    print(f"checked_env_keys={','.join(hints['env_keys'])}")
+    print(f"checked_candidate_paths={','.join(hints['candidate_paths'])}")
     print(f"discovered_config_count={len(candidates)}")
     if not candidates:
         print("discovered_config_paths=none")
+        print(
+            "discovery_guidance=run this from the Home Assistant host or container with the real config mounted, or pass the Home Assistant config directory path explicitly"
+        )
         print("next_step=pass your Home Assistant config directory path explicitly to this script")
         return 1
 
