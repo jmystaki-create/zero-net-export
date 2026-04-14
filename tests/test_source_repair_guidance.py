@@ -262,6 +262,48 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
 
+    def test_support_center_surfaces_current_source_blockers_near_the_top(self) -> None:
+        native_support = _load_native_support_module()
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={"solar_power_entity": "sensor.pv_power"},
+                options={},
+            )
+            data = types.SimpleNamespace(
+                validation_details={
+                    "source_diagnostics": {
+                        "solar_power_entity": {
+                            "status": "unavailable",
+                            "entity_id": "sensor.pv_power",
+                            "issues": ["Solar power entity sensor.pv_power is unavailable"],
+                        }
+                    }
+                },
+                source_diagnostics={},
+                stale_data=False,
+                usable_device_count=0,
+                safe_mode=True,
+                reason="Solar power is unavailable.",
+                diagnostic_summary="Runtime attention remains.",
+                health_summary="Runtime attention remains.",
+            )
+
+        support_center = native_support.build_native_support_center(_FakeCoordinator())
+        self.assertIn(
+            "Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)",
+            support_center,
+        )
+        self.assertIn(
+            "Affected mapped roles: Solar power -> sensor.pv_power (unavailable; Solar power entity sensor.pv_power is unavailable)",
+            support_center,
+        )
+        self.assertIn("Unavailable mapped roles: Solar power", support_center)
+        self.assertIn("Stale mapped roles: None", support_center)
+
 
 if __name__ == "__main__":
     unittest.main()
