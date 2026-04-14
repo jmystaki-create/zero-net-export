@@ -267,6 +267,14 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(f"- Add or edit managed devices: {native_support.DEVICES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Tune export policy defaults and thresholds: {native_support.POLICY_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Change live control mode right now: {native_support.MODE_CONTROL_PATH}", guide)
+        self.assertIn("What each command-center section is for", guide)
+        self.assertIn(
+            f"- {native_support.SOURCES_SECTION_LABEL}: map required sources, repair unavailable or stale mapped roles, and confirm live source health after saves or reloads.",
+            guide,
+        )
+        self.assertIn("- Managed devices: add, review, edit, enable, disable, or remove controllable loads from the native fleet workflow.", guide)
+        self.assertIn("- Controls: tune export target, deadband, reserve, and controller defaults once sources and devices are ready.", guide)
+        self.assertIn("- Diagnostics: review runtime blockers, install consistency, and the next troubleshooting path.", guide)
         self.assertIn("- Unavailable mapped roles: Solar power", guide)
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
@@ -329,6 +337,14 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(f"- Managed devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
+        self.assertIn("What each command-center section is for:", support_center)
+        self.assertIn(
+            f"- {native_support.SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
+            support_center,
+        )
+        self.assertIn("- Managed devices: fleet onboarding, edits, enablement, and removal.", support_center)
+        self.assertIn("- Controls: controller policy defaults, thresholds, and readiness.", support_center)
+        self.assertIn("- Diagnostics: runtime health, install consistency, and troubleshooting guidance.", support_center)
 
     def test_command_center_summary_uses_positive_source_blocker_copy_when_none_exist(self) -> None:
         native_support = _load_native_support_module()
