@@ -16,7 +16,7 @@
   "issues": {
     "setup_incomplete": {
       "title": "Finish native Zero Net Export setup",
-      "description": "Zero Net Export is still mid-setup in Home Assistant's native surfaces.\n\nSummary: {summary}\nMissing required sources: {missing_sources}\nManaged devices: {device_count}\nNext step: {next_step}\nKnown selector workaround: {fallback_hint}\n\nPrimary path: {configure_path}."
+      "description": "Zero Net Export is still mid-setup in Home Assistant's native surfaces.\n\nSummary: {summary}\nMissing required sources: {missing_sources}\nManaged devices: {device_count}\nRecommended command-center section: {recommended_section}\nRecommended native path right now: {recommended_path}\nNext step: {next_step}\nKnown selector workaround: {fallback_hint}\n\nPrimary path: {configure_path}."
     },
     "device_inventory_invalid": {
       "title": "Managed-device configuration needs repair",
@@ -24,7 +24,7 @@
     },
     "runtime_attention": {
       "title": "Runtime attention needed",
-      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nAffected mapped roles: {source_attention_roles}\nBlocking validation details: {blocking_validation_details}\nNext step: {next_step}\nKnown selector workaround: {fallback_hint}\nAfter source repairs, reopen Configure -> Sensors and source mapping to confirm live source health.\n\nPrimary setup path: {configure_path}.\nBest native troubleshooting path right now: {support_path}."
+      "description": "Zero Net Export is installed, but the current runtime state still needs operator attention.\n\nHealth summary: {health_summary}\nCurrent reasons: {reason_summary}\nUnavailable mapped roles: {unavailable_sources}\nStale mapped roles: {stale_sources}\nAffected mapped roles: {source_attention_roles}\nBlocking validation details: {blocking_validation_details}\nRecommended command-center section: {recommended_section}\nRecommended native path right now: {recommended_path}\nNext step: {next_step}\nKnown selector workaround: {fallback_hint}\nAfter source repairs, reopen Configure -> Sensors and source mapping to confirm live source health.\n\nPrimary setup path: {configure_path}.\nBest native troubleshooting path right now: {support_path}."
     }
   },
   "options": {

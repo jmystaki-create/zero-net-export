@@ -55,13 +55,30 @@ class NativeUiStringsTests(unittest.TestCase):
 
     def test_source_and_diagnostics_copy_emphasize_returning_to_sensors_after_repairs(self) -> None:
         payload = json.loads(STRINGS_PATH.read_text(encoding="utf-8"))
+        setup_issue = payload["issues"]["setup_incomplete"]
         runtime_issue = payload["issues"]["runtime_attention"]
         sensors_step = payload["options"]["step"]["native_setup"]
         source_mapping_step = payload["options"]["step"]["native_setup_sources"]
         diagnostics_step = payload["options"]["step"]["support"]
 
         self.assertIn(
+            "Recommended command-center section: {recommended_section}",
+            setup_issue["description"],
+        )
+        self.assertIn(
+            "Recommended native path right now: {recommended_path}",
+            setup_issue["description"],
+        )
+        self.assertIn(
             "Affected mapped roles: {source_attention_roles}",
+            runtime_issue["description"],
+        )
+        self.assertIn(
+            "Recommended command-center section: {recommended_section}",
+            runtime_issue["description"],
+        )
+        self.assertIn(
+            "Recommended native path right now: {recommended_path}",
             runtime_issue["description"],
         )
         self.assertIn(

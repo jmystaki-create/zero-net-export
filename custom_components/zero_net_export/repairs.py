@@ -23,6 +23,7 @@ from .native_support import (
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
     SUPPORT_CONFIGURE_PATH,
+    build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
     build_source_attention_role_summary,
@@ -107,11 +108,14 @@ def async_sync_repairs_issues(
     devices, device_issues = parse_device_configs(raw_inventory)
 
     readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+    command_center = build_native_command_center_summary(coordinator) if coordinator is not None else {}
     next_step = str(
         readiness.get("next_step")
         or build_source_repair_step(missing_source_keys=missing_source_keys)
     )
     summary = str(readiness.get("summary") or "Zero Net Export still needs attention before it is fully operator-ready.")
+    recommended_section = str(command_center.get("recommended_section") or "Sensors")
+    recommended_path = str(command_center.get("recommended_path") or SOURCES_CONFIGURE_PATH)
 
     setup_issue_id = _entry_issue_id(entry, ISSUE_SETUP_INCOMPLETE)
     inventory_issue_id = _entry_issue_id(entry, ISSUE_DEVICE_INVENTORY_INVALID)
@@ -135,6 +139,8 @@ def async_sync_repairs_issues(
                 "next_step": next_step,
                 "summary": summary,
                 "fallback_hint": setup_fallback_text,
+                "recommended_section": recommended_section,
+                "recommended_path": recommended_path,
             },
         )
     else:
@@ -220,6 +226,8 @@ def async_sync_repairs_issues(
                 "fallback_hint": runtime_fallback_text,
                 "blocking_validation_details": blocking_validation_details,
                 "source_attention_roles": source_attention_roles,
+                "recommended_section": recommended_section,
+                "recommended_path": recommended_path,
             },
         )
     else:
