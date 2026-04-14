@@ -73,6 +73,7 @@ from .native_support import (
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
+    normalize_command_center_section,
     build_source_attention_role_summary,
     build_source_attention_summary,
     build_source_mapping_summary,
@@ -548,11 +549,11 @@ def _issue_role_keys(issues: list[Any], *, severities: set[str] | None = None) -
 def _command_center_menu_options(recommended_section: str) -> list[str]:
     recommended_map = {
         SOURCES_SECTION_LABEL: "native_setup",
-        "Sensors": "native_setup",
         "Managed devices": "devices",
         "Controls": "policy",
         "Diagnostics": "support",
     }
+    recommended_section = normalize_command_center_section(recommended_section)
     base_options = ["native_setup", "policy", "devices", "support"]
     recommended_option = recommended_map.get(recommended_section)
     ordered = [option for option in base_options if option == recommended_option]

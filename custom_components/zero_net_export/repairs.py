@@ -27,6 +27,7 @@ from .native_support import (
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
+    normalize_command_center_section,
     build_source_attention_role_summary,
     build_source_repair_step,
     build_source_selector_fallback_hint,
@@ -115,7 +116,7 @@ def async_sync_repairs_issues(
         or build_source_repair_step(missing_source_keys=missing_source_keys)
     )
     summary = str(readiness.get("summary") or "Zero Net Export still needs attention before it is fully operator-ready.")
-    recommended_section = str(command_center.get("recommended_section") or SOURCES_SECTION_LABEL)
+    recommended_section = normalize_command_center_section(command_center.get("recommended_section") or SOURCES_SECTION_LABEL)
     recommended_path = str(command_center.get("recommended_path") or SOURCES_CONFIGURE_PATH)
 
     setup_issue_id = _entry_issue_id(entry, ISSUE_SETUP_INCOMPLETE)

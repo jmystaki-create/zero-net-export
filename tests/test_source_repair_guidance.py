@@ -196,6 +196,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "support_path": native_support.SUPPORT_CONFIGURE_PATH,
             }
         )
+        self.assertIn("Recommended section right now: Sensors and source mapping", guide)
+        self.assertNotIn("Recommended section right now: Sensors\n", guide)
         self.assertIn("Use these native paths for the common operator jobs", guide)
         self.assertIn(f"- Fix source mapping or mapped-source blockers: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Add or edit managed devices: {native_support.DEVICES_CONFIGURE_PATH}", guide)
@@ -203,6 +205,17 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
         self.assertIn(f"- Sensors and source mapping: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+
+    def test_normalize_command_center_section_upgrades_legacy_sensors_label(self) -> None:
+        native_support = _load_native_support_module()
+        self.assertEqual(
+            native_support.normalize_command_center_section("Sensors"),
+            native_support.SOURCES_SECTION_LABEL,
+        )
+        self.assertEqual(
+            native_support.normalize_command_center_section(native_support.SOURCES_SECTION_LABEL),
+            native_support.SOURCES_SECTION_LABEL,
+        )
 
     def test_command_center_keeps_sources_as_the_recommended_section_when_source_blockers_and_device_issues_coexist(self) -> None:
         native_support = _load_native_support_module(parse_device_result=([], ["device config invalid"]))

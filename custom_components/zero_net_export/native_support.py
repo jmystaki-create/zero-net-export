@@ -44,6 +44,7 @@ INTEGRATION_DEVICE_PATH = (
     "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device"
 )
 SOURCES_SECTION_LABEL = "Sensors and source mapping"
+SOURCES_SECTION_ALIASES = {"Sensors": SOURCES_SECTION_LABEL}
 SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {SOURCES_SECTION_LABEL}"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
@@ -808,6 +809,12 @@ def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
     return operator_readiness
 
 
+def normalize_command_center_section(section: str | None) -> str:
+    """Return the canonical command-center section label for UI-facing text."""
+    text = str(section or "").strip()
+    return SOURCES_SECTION_ALIASES.get(text, text)
+
+
 def build_native_setup_recommendation(
     *,
     missing_source_keys: list[str] | None = None,
@@ -840,12 +847,13 @@ def build_native_setup_recommendation(
 
 def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
     """Return the device-surface command-center guide text."""
+    recommended_section = normalize_command_center_section(command_center.get("recommended_section"))
     return "\n".join(
         [
             "Zero Net Export native command center guide",
             "",
             f"Primary path: {PRIMARY_CONFIGURE_PATH}",
-            f"Recommended section right now: {command_center.get('recommended_section')}",
+            f"Recommended section right now: {recommended_section}",
             f"Recommended path right now: {command_center.get('recommended_path')}",
             f"What to do next: {command_center.get('next_action_summary')}",
             f"Installed package: {command_center.get('install_status')}",
@@ -941,7 +949,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         has_devices=bool(configured_devices),
         readiness_phase=readiness_phase,
     )
-    recommended_section = recommendation["recommended_section"]
+    recommended_section = normalize_command_center_section(recommendation["recommended_section"])
 
     if missing_required_sources:
         next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
@@ -999,7 +1007,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     detailed_management_summary = build_detailed_management_handoff(configured_devices, state=state)
     status_summary_map = {
         SOURCES_SECTION_LABEL: source_status,
-        "Sensors": source_status,
         "Managed devices": device_status,
         "Controls": policy_status,
         "Diagnostics": support_status,
@@ -1007,7 +1014,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     path_summary_map = {
         SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
-        "Sensors": SOURCES_CONFIGURE_PATH,
         "Managed devices": DEVICES_CONFIGURE_PATH,
         "Controls": POLICY_CONFIGURE_PATH,
         "Diagnostics": SUPPORT_CONFIGURE_PATH,
