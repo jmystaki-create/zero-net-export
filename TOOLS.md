@@ -67,6 +67,8 @@ Use discovery first when the install root is unknown. The helper checks common H
 python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config
 ```
 
+If that still reports no candidates, rerun the same discovery command from the actual Home Assistant host or container. The helper also does a bounded recursive search from common roots there, which can catch non-standard mounted config paths that are not visible from this workspace shell.
+
 ## Escalate to the user only when needed
 
 Treat live validation as a user blocker only when the required evidence cannot be gathered through the documented access paths above, or when the next step requires human-only interaction or approval.

@@ -184,6 +184,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"env_key_status=HOME_ASSISTANT_CONFIG=looks_like_config_root:{config_root.resolve()}", result.stdout)
             self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
             self.assertIn("candidate_path_status=", result.stdout)
+            self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/mnt/data,/srv,/var/lib", result.stdout)
+            self.assertIn("recursive_search_root_status=", result.stdout)
             self.assertIn("discovered_config_count=", result.stdout)
             self.assertIn(str(config_root.resolve()), result.stdout)
             self.assertIn(f"git_commit={repo_commit}", result.stdout)
@@ -248,9 +250,13 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("env_key_status=HOME_ASSISTANT_CONFIG=unset;HASS_CONFIG=unset;HA_CONFIG=unset;HOMEASSISTANT_CONFIG=unset;HASSIO_HOMEASSISTANT=unset", result.stdout)
             self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
             self.assertIn("candidate_path_status=", result.stdout)
+            self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/mnt/data,/srv,/var/lib", result.stdout)
+            self.assertIn("recursive_search_root_status=", result.stdout)
             self.assertIn("discovered_config_paths=none", result.stdout)
             self.assertIn("discovery_guidance=run this from the Home Assistant host or container", result.stdout)
+            self.assertIn("bounded recursive search inspect the real filesystem there", result.stdout)
             self.assertIn("discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container", result.stdout)
+            self.assertIn("bounded recursive search can see the actual install", result.stdout)
             self.assertIn("next_step=pass your Home Assistant config directory path explicitly to this script", result.stdout)
 
     def test_discover_home_assistant_config_roots_checks_common_supervised_paths(self) -> None:
@@ -288,6 +294,35 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 f"{candidate_root}:looks_like_config_root",
             ],
         )
+
+    def test_iter_recursive_config_roots_finds_nested_home_assistant_config(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            nested_root = Path(tmpdir) / "srv" / "ha" / "config"
+            nested_root.mkdir(parents=True)
+            (nested_root / ".storage").mkdir()
+
+            discovered = list(deploy_exact_repo_build.iter_recursive_config_roots(Path(tmpdir)))
+
+        self.assertEqual(discovered, [nested_root.resolve()])
+
+    def test_discover_home_assistant_config_roots_includes_recursive_search_hits(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            recursive_root = Path(tmpdir) / "random" / "mounted" / "ha-config"
+            recursive_root.mkdir(parents=True)
+            (recursive_root / "configuration.yaml").write_text("default_config:\n", encoding="utf-8")
+
+            env = os.environ.copy()
+            env.pop("HOME_ASSISTANT_CONFIG", None)
+            env.pop("HASS_CONFIG", None)
+            env.pop("HA_CONFIG", None)
+            env.pop("HOMEASSISTANT_CONFIG", None)
+            env.pop("HASSIO_HOMEASSISTANT", None)
+            env["HOME"] = tmpdir
+
+            with patch.dict(os.environ, env, clear=True):
+                discovered = deploy_exact_repo_build.discover_home_assistant_config_roots()
+
+        self.assertIn(recursive_root.resolve(), discovered)
 
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

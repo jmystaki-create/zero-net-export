@@ -10,6 +10,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from collections.abc import Iterator
 from typing import Any
 
 try:
@@ -48,13 +49,39 @@ COMMON_CONFIG_CANDIDATE_PATHS = (
     Path("~/homeassistant"),
     Path("~/config/homeassistant"),
 )
+COMMON_RECURSIVE_DISCOVERY_ROOTS = (
+    Path("~"),
+    Path("/data"),
+    Path("/mnt/data"),
+    Path("/srv"),
+    Path("/var/lib"),
+)
+RECURSIVE_DISCOVERY_MAX_DEPTH = 4
+RECURSIVE_DISCOVERY_SKIP_DIRS = {
+    ".cache",
+    ".git",
+    ".venv",
+    "__pycache__",
+    "deps",
+    "node_modules",
+}
 
 
 def configured_discovery_hints() -> dict[str, list[str]]:
     return {
         "env_keys": list(COMMON_CONFIG_ENV_KEYS),
         "candidate_paths": [str(path.expanduser()) for path in COMMON_CONFIG_CANDIDATE_PATHS],
+        "recursive_search_roots": [str(path.expanduser()) for path in configured_recursive_search_roots()],
     }
+
+
+def configured_recursive_search_roots() -> list[Path]:
+    roots: list[Path] = []
+    for candidate in COMMON_RECURSIVE_DISCOVERY_ROOTS:
+        expanded = candidate.expanduser()
+        if expanded not in roots:
+            roots.append(expanded)
+    return roots
 
 
 def _format_probe_status(path: Path) -> str:
@@ -93,6 +120,13 @@ def discovery_candidate_path_statuses() -> list[str]:
     return statuses
 
 
+def discovery_recursive_search_root_statuses() -> list[str]:
+    statuses: list[str] = []
+    for root in configured_recursive_search_roots():
+        statuses.append(f"{root}:{'present' if root.exists() else 'missing'}")
+    return statuses
+
+
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
@@ -126,11 +160,10 @@ def _candidate_config_root(path: Path) -> Path:
 
 
 def _looks_like_home_assistant_config_root(path: Path) -> bool:
-    return (
-        (path / "configuration.yaml").exists()
-        or (path / ".storage").is_dir()
-        or (path / "custom_components").is_dir()
-    )
+    has_configuration_yaml = (path / "configuration.yaml").exists()
+    has_storage = (path / ".storage").is_dir()
+    has_custom_components = (path / "custom_components").is_dir()
+    return has_configuration_yaml or has_storage or (has_custom_components and (has_configuration_yaml or has_storage))
 
 
 def discover_home_assistant_config_roots() -> list[Path]:
@@ -156,7 +189,38 @@ def discover_home_assistant_config_roots() -> list[Path]:
     for candidate in COMMON_CONFIG_CANDIDATE_PATHS:
         add_candidate(candidate)
 
+    for search_root in configured_recursive_search_roots():
+        for discovered in iter_recursive_config_roots(search_root):
+            add_candidate(discovered)
+
     return candidates
+
+
+def iter_recursive_config_roots(search_root: Path) -> Iterator[Path]:
+    try:
+        resolved_root = search_root.expanduser().resolve()
+    except Exception:
+        return
+
+    if not resolved_root.exists() or not resolved_root.is_dir():
+        return
+
+    for current_root, dirnames, _filenames in os.walk(resolved_root, followlinks=False):
+        current_path = Path(current_root)
+        try:
+            depth = len(current_path.relative_to(resolved_root).parts)
+        except ValueError:
+            continue
+
+        dirnames[:] = [
+            dirname
+            for dirname in dirnames
+            if dirname not in RECURSIVE_DISCOVERY_SKIP_DIRS and depth < RECURSIVE_DISCOVERY_MAX_DEPTH
+        ]
+
+        if _looks_like_home_assistant_config_root(current_path):
+            yield current_path
+            dirnames[:] = []
 
 
 def shell_command(*parts: str | Path) -> str:
@@ -190,14 +254,16 @@ def emit_discovered_home_assistant_config_roots() -> int:
     print(f"env_key_status={';'.join(discovery_env_key_statuses())}")
     print(f"checked_candidate_paths={','.join(hints['candidate_paths'])}")
     print(f"candidate_path_status={','.join(discovery_candidate_path_statuses())}")
+    print(f"checked_recursive_search_roots={','.join(hints['recursive_search_roots'])}")
+    print(f"recursive_search_root_status={','.join(discovery_recursive_search_root_statuses())}")
     print(f"discovered_config_count={len(candidates)}")
     if not candidates:
         print("discovered_config_paths=none")
         print(
-            "discovery_guidance=run this from the Home Assistant host or container with the real config mounted, or pass the Home Assistant config directory path explicitly"
+            "discovery_guidance=run this from the Home Assistant host or container with the real config mounted, let the bounded recursive search inspect the real filesystem there, or pass the Home Assistant config directory path explicitly"
         )
         print(
-            "discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container so the real config mount and env hints are visible here"
+            "discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container so the real config mount, env hints, and bounded recursive search can see the actual install"
         )
         print("next_step=pass your Home Assistant config directory path explicitly to this script")
         return 1
