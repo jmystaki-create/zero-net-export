@@ -14,7 +14,7 @@ CONST_PATH = PACKAGE_ROOT / "const.py"
 NATIVE_SUPPORT_PATH = PACKAGE_ROOT / "native_support.py"
 
 
-def _load_native_support_module():
+def _load_native_support_module(*, parse_device_result=([], [])):
     custom_components_pkg = sys.modules.setdefault("custom_components", types.ModuleType("custom_components"))
     custom_components_pkg.__path__ = [str(REPO_ROOT / "custom_components")]
 
@@ -39,7 +39,7 @@ def _load_native_support_module():
     const_spec.loader.exec_module(const_module)
 
     device_model_module = types.ModuleType("custom_components.zero_net_export.device_model")
-    device_model_module.parse_device_configs = lambda raw: ([], [])
+    device_model_module.parse_device_configs = lambda raw: parse_device_result
     sys.modules[device_model_module.__name__] = device_model_module
 
     release_info_module = types.ModuleType("custom_components.zero_net_export.release_info")
@@ -200,6 +200,31 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
         self.assertIn(f"- Sensors and source mapping: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+
+    def test_command_center_keeps_sources_as_the_recommended_section_when_source_blockers_and_device_issues_coexist(self) -> None:
+        native_support = _load_native_support_module(parse_device_result=([], ["device config invalid"]))
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={"solar_power_entity": None},
+                options={},
+            )
+            data = types.SimpleNamespace(
+                validation_details={},
+                source_diagnostics={},
+                stale_data=False,
+                usable_device_count=0,
+                safe_mode=False,
+            )
+
+        command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
+        self.assertEqual(command_center["recommended_section"], native_support.SOURCES_SECTION_LABEL)
+        self.assertEqual(command_center["recommended_path"], native_support.SOURCES_CONFIGURE_PATH)
+        self.assertIn("Missing required source roles", command_center["source_status"])
+        self.assertIn("repair", command_center["device_next_step"])
 
     def test_support_center_lists_each_native_path(self) -> None:
         native_support = _load_native_support_module()

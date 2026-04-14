@@ -902,7 +902,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_status = "Missing required source roles: " + ", ".join(
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
-        recommended_section = SOURCES_SECTION_LABEL
     elif runtime_source_attention:
         attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
         validation_suffix = (
@@ -911,18 +910,14 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             else ""
         )
         source_status = attention_prefix + validation_suffix
-        recommended_section = SOURCES_SECTION_LABEL
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
-        recommended_section = SOURCES_SECTION_LABEL
     else:
         source_status = build_live_source_health_summary(state)
-        recommended_section = "Managed devices" if not configured_devices else "Controls"
 
     if device_parse_issues:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
-        recommended_section = "Managed devices"
     elif configured_devices:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
         device_status = runtime_device_status or f"{len(configured_devices)} configured"
@@ -932,8 +927,15 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     else:
         device_status = "No managed devices configured yet"
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} and add at least one controllable load from the managed-device flow."
-        if not missing_required_sources and not runtime_source_attention:
-            recommended_section = "Managed devices"
+
+    recommendation = build_native_setup_recommendation(
+        missing_source_keys=missing_required_sources,
+        source_attention_roles=source_attention_roles,
+        device_issues=device_parse_issues,
+        has_devices=bool(configured_devices),
+        readiness_phase=readiness_phase,
+    )
+    recommended_section = recommendation["recommended_section"]
 
     if missing_required_sources:
         next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
