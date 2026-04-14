@@ -197,9 +197,9 @@ class InstallHelperScriptsTests(unittest.TestCase):
 
             self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG,HOMEASSISTANT_CONFIG,HASSIO_HOMEASSISTANT", result.stdout)
             self.assertIn(f"env_key_status=HOME_ASSISTANT_CONFIG=looks_like_config_root:{config_root.resolve()}", result.stdout)
-            self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
+            self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant,/root/.homeassistant,/home/homeassistant/.homeassistant", result.stdout)
             self.assertIn("candidate_path_status=", result.stdout)
-            self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/mnt/data,/srv,/var/lib", result.stdout)
+            self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/home,/mnt/data,/srv,/var/lib", result.stdout)
             self.assertIn("recursive_search_root_status=", result.stdout)
             tracking = compare_install_fingerprint.git_remote_tracking_details(REPO_ROOT)
 
@@ -281,9 +281,9 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG,HOMEASSISTANT_CONFIG,HASSIO_HOMEASSISTANT", result.stdout)
             self.assertIn("env_key_status=HOME_ASSISTANT_CONFIG=unset;HASS_CONFIG=unset;HA_CONFIG=unset;HOMEASSISTANT_CONFIG=unset;HASSIO_HOMEASSISTANT=unset", result.stdout)
-            self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
+            self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant,/root/.homeassistant,/home/homeassistant/.homeassistant", result.stdout)
             self.assertIn("candidate_path_status=", result.stdout)
-            self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/mnt/data,/srv,/var/lib", result.stdout)
+            self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/home,/mnt/data,/srv,/var/lib", result.stdout)
             self.assertIn("recursive_search_root_status=", result.stdout)
             self.assertIn("discovered_config_paths=none", result.stdout)
             self.assertIn("discovery_guidance=run this from the Home Assistant host or container", result.stdout)

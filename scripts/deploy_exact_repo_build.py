@@ -45,6 +45,8 @@ COMMON_CONFIG_CANDIDATE_PATHS = (
     Path("/mnt/data/supervisor/homeassistant"),
     Path("/var/lib/homeassistant"),
     Path("/srv/homeassistant"),
+    Path("/root/.homeassistant"),
+    Path("/home/homeassistant/.homeassistant"),
     Path("~/.homeassistant"),
     Path("~/homeassistant"),
     Path("~/config/homeassistant"),
@@ -52,6 +54,7 @@ COMMON_CONFIG_CANDIDATE_PATHS = (
 COMMON_RECURSIVE_DISCOVERY_ROOTS = (
     Path("~"),
     Path("/data"),
+    Path("/home"),
     Path("/mnt/data"),
     Path("/srv"),
     Path("/var/lib"),
