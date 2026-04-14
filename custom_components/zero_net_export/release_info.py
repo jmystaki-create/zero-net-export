@@ -282,8 +282,8 @@ def build_install_exact_copy_summary(install_provenance: dict[str, Any] | None =
     deploy_command = build_install_deploy_command(install_provenance)
     validation_command = build_install_validation_command(install_provenance)
     return (
-        "From the real Home Assistant host or container, run discovery first if the config path is unknown with "
-        f"`{discovery_command}`. "
+        "From the real Home Assistant host or container, first run `pwd` and `ls /config` to confirm whether `/config` is the live Home Assistant config mount. "
+        f"If the config path is still unknown, run discovery with `{discovery_command}`. "
         "If the repo branch is ahead, behind, or diverged, push or reconcile it until git_local_vs_upstream=in_sync. "
         f"Then run `{dry_run_command}` until repo_deploy_requirements_passed=true and copy_ready=true, "
         f"run `{deploy_command}`, rerun `{validation_command}`, restart Home Assistant core, and reopen "

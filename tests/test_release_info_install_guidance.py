@@ -154,7 +154,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             summary,
         )
         self.assertIn(
-            "- exact_copy_sequence: From the real Home Assistant host or container, run discovery first if the config path is unknown with `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config`.",
+            "- exact_copy_sequence: From the real Home Assistant host or container, first run `pwd` and `ls /config` to confirm whether `/config` is the live Home Assistant config mount. If the config path is still unknown, run discovery with `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config`.",
             summary,
         )
         self.assertIn(

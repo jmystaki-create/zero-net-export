@@ -447,6 +447,9 @@ def emit_discovered_home_assistant_config_roots() -> int:
             "discovery_guidance=run this from the Home Assistant host or container with the real config mounted, let the bounded recursive search inspect the real filesystem there, or pass the Home Assistant config directory path explicitly"
         )
         print(
+            "discovery_ssh_probe=from the real Home Assistant shell, run `pwd` and `ls /config` first to confirm whether /config is the live config mount before rerunning discovery or deploy"
+        )
+        print(
             "discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container so the real config mount, env hints, and bounded recursive search can see the actual install"
         )
         print(
@@ -463,7 +466,7 @@ def emit_discovered_home_assistant_config_roots() -> int:
         print(
             "discovery_manual_path_examples=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant"
         )
-        print("next_step=pass your Home Assistant config directory path explicitly to this script")
+        print("next_step=run `pwd` and `ls /config` in the real Home Assistant shell, or pass your Home Assistant config directory path explicitly to this script")
         return 1
 
     root = repo_root()
