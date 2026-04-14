@@ -808,6 +808,42 @@ def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
     return operator_readiness
 
 
+def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
+    """Return the device-surface command-center guide text."""
+    return "\n".join(
+        [
+            "Zero Net Export native command center guide",
+            "",
+            f"Primary path: {PRIMARY_CONFIGURE_PATH}",
+            f"Recommended section right now: {command_center.get('recommended_section')}",
+            f"Recommended path right now: {command_center.get('recommended_path')}",
+            f"What to do next: {command_center.get('next_action_summary')}",
+            f"Installed package: {command_center.get('install_status')}",
+            f"Install consistency: {command_center.get('install_consistency')}",
+            "",
+            "Current status",
+            f"- Sensors: {command_center.get('source_status')}",
+            f"- Current mapped roles: {command_center.get('source_mapping_summary')}",
+            f"- Unavailable mapped roles: {command_center.get('unavailable_sources')}",
+            f"- Stale mapped roles: {command_center.get('stale_sources')}",
+            f"- Current mapped-source blockers: {command_center.get('source_attention_summary')}",
+            f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
+            f"- Managed devices: {command_center.get('device_status')}",
+            f"- Managed-device next step: {command_center.get('device_next_step')}",
+            f"- Controls: {command_center.get('policy_status')}",
+            f"- Controls readiness: {command_center.get('policy_readiness')}",
+            f"- Diagnostics: {command_center.get('support_status')}",
+            f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
+            "",
+            "Where each native path lives",
+            f"- Sensors: {command_center.get('sources_path')}",
+            f"- Managed devices: {command_center.get('devices_path')}",
+            f"- Controls: {command_center.get('policy_path')}",
+            f"- Diagnostics: {command_center.get('support_path')}",
+        ]
+    )
+
+
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     """Return the command-center summary shown in Configure and device surfaces."""
     state = getattr(coordinator, "data", None) if coordinator is not None else None

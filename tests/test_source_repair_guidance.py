@@ -117,6 +117,38 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             concise,
         )
 
+    def test_command_center_guide_text_includes_source_blocker_details(self) -> None:
+        native_support = _load_native_support_module()
+        guide = native_support.build_native_command_center_guide_text(
+            {
+                "recommended_section": "Sensors",
+                "recommended_path": native_support.SOURCES_CONFIGURE_PATH,
+                "next_action_summary": "Repair the mapped-source blockers first.",
+                "install_status": "install summary",
+                "install_consistency": "install consistency",
+                "source_status": "Mapped source blockers: Solar power unavailable.",
+                "source_mapping_summary": "Solar power -> sensor.pv_power",
+                "unavailable_sources": "Solar power",
+                "stale_sources": "Grid export power",
+                "source_attention_summary": "Solar power (sensor.pv_power, unavailable)",
+                "source_attention_roles": "Solar power -> sensor.pv_power (unavailable)",
+                "device_status": "No managed devices configured yet",
+                "device_next_step": "Add a controllable load.",
+                "policy_status": "Mode Automatic",
+                "policy_readiness": "Repair mapped-source blockers first.",
+                "support_status": "Runtime attention remains.",
+                "detailed_management_summary": "Use the device page for deeper per-device review.",
+                "sources_path": native_support.SOURCES_CONFIGURE_PATH,
+                "devices_path": native_support.DEVICES_CONFIGURE_PATH,
+                "policy_path": native_support.POLICY_CONFIGURE_PATH,
+                "support_path": native_support.SUPPORT_CONFIGURE_PATH,
+            }
+        )
+        self.assertIn("- Unavailable mapped roles: Solar power", guide)
+        self.assertIn("- Stale mapped roles: Grid export power", guide)
+        self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
+        self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+
 
 if __name__ == "__main__":
     unittest.main()

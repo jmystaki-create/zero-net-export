@@ -14,6 +14,7 @@ from .native_support import (
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
     SUPPORT_CONFIGURE_PATH,
+    build_native_command_center_guide_text,
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_native_support_center,
@@ -89,8 +90,11 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
             "install_status": command_center.get("install_status"),
             "install_consistency": command_center.get("install_consistency"),
             "source_status": command_center.get("source_status"),
+            "source_attention_summary": command_center.get("source_attention_summary"),
             "source_attention_roles": command_center.get("source_attention_roles"),
             "source_mapping_summary": command_center.get("source_mapping_summary"),
+            "unavailable_sources": command_center.get("unavailable_sources"),
+            "stale_sources": command_center.get("stale_sources"),
             "device_status": command_center.get("device_status"),
             "device_next_step": command_center.get("device_next_step"),
             "policy_status": command_center.get("policy_status"),
@@ -101,35 +105,7 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
 
     async def async_press(self) -> None:
         command_center = build_native_command_center_summary(self.coordinator)
-        message = "\n".join(
-            [
-                "Zero Net Export native command center guide",
-                "",
-                f"Primary path: {PRIMARY_CONFIGURE_PATH}",
-                f"Recommended section right now: {command_center.get('recommended_section')}",
-                f"Recommended path right now: {command_center.get('recommended_path')}",
-                f"What to do next: {command_center.get('next_action_summary')}",
-                f"Installed package: {command_center.get('install_status')}",
-                f"Install consistency: {command_center.get('install_consistency')}",
-                "",
-                "Current status",
-                f"- Sensors: {command_center.get('source_status')}",
-                f"- Current mapped roles: {command_center.get('source_mapping_summary')}",
-                f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
-                f"- Managed devices: {command_center.get('device_status')}",
-                f"- Managed-device next step: {command_center.get('device_next_step')}",
-                f"- Controls: {command_center.get('policy_status')}",
-                f"- Controls readiness: {command_center.get('policy_readiness')}",
-                f"- Diagnostics: {command_center.get('support_status')}",
-                f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
-                "",
-                "Where each native path lives",
-                f"- Sensors: {command_center.get('sources_path')}",
-                f"- Managed devices: {command_center.get('devices_path')}",
-                f"- Controls: {command_center.get('policy_path')}",
-                f"- Diagnostics: {command_center.get('support_path')}",
-            ]
-        )
+        message = build_native_command_center_guide_text(command_center)
         persistent_notification.async_create(
             self.hass,
             message,
