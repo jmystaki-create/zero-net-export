@@ -68,6 +68,14 @@ def git_commit(repo_root: Path) -> str:
     return _git_output(repo_root, "rev-parse", "--short", "HEAD") or "unknown"
 
 
+def _git_commit_range(repo_root: Path, revision_range: str, *, limit: int = 10) -> list[str]:
+    output = _git_output(repo_root, "log", "--format=%h", f"--max-count={limit}", revision_range)
+    if not output:
+        return []
+    return [line.strip() for line in output.splitlines() if line.strip()]
+
+
+
 def git_remote_tracking_details(repo_root: Path) -> dict[str, Any]:
     branch = _git_output(repo_root, "branch", "--show-current") or "detached"
     upstream = _git_output(repo_root, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}")
@@ -79,6 +87,8 @@ def git_remote_tracking_details(repo_root: Path) -> dict[str, Any]:
             "git_local_vs_upstream": "no_upstream",
             "git_ahead_count": None,
             "git_behind_count": None,
+            "git_ahead_commits": [],
+            "git_behind_commits": [],
         }
 
     upstream_commit = _git_output(repo_root, "rev-parse", "--short", upstream)
@@ -91,6 +101,8 @@ def git_remote_tracking_details(repo_root: Path) -> dict[str, Any]:
             "git_local_vs_upstream": "unknown",
             "git_ahead_count": None,
             "git_behind_count": None,
+            "git_ahead_commits": [],
+            "git_behind_commits": [],
         }
 
     behind_str, ahead_str = ahead_behind.split()
@@ -112,6 +124,8 @@ def git_remote_tracking_details(repo_root: Path) -> dict[str, Any]:
         "git_local_vs_upstream": relation,
         "git_ahead_count": ahead,
         "git_behind_count": behind,
+        "git_ahead_commits": _git_commit_range(repo_root, f"{upstream}..HEAD", limit=10),
+        "git_behind_commits": _git_commit_range(repo_root, f"HEAD..{upstream}", limit=10),
     }
 
 

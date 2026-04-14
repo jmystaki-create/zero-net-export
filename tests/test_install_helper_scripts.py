@@ -212,6 +212,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn(f"git_local_vs_upstream={tracking.get('git_local_vs_upstream') or 'unknown'}", result.stdout)
             self.assertIn(f"git_ahead_count={tracking.get('git_ahead_count') if tracking.get('git_ahead_count') is not None else 'unknown'}", result.stdout)
             self.assertIn(f"git_behind_count={tracking.get('git_behind_count') if tracking.get('git_behind_count') is not None else 'unknown'}", result.stdout)
+            self.assertIn(f"git_ahead_commits={','.join(tracking.get('git_ahead_commits') or []) or 'none'}", result.stdout)
+            self.assertIn(f"git_behind_commits={','.join(tracking.get('git_behind_commits') or []) or 'none'}", result.stdout)
             if tracking.get("git_local_vs_upstream") != "in_sync":
                 for line in deploy_exact_repo_build.upstream_sync_remediation_lines(REPO_ROOT):
                     self.assertIn(line, result.stdout)
@@ -388,6 +390,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
                     "git_local_vs_upstream": "ahead",
                     "git_ahead_count": 2,
                     "git_behind_count": 0,
+                    "git_ahead_commits": ["abc1234", "def5678"],
+                    "git_behind_commits": [],
                 },
             ),
         ):
@@ -402,6 +406,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
 
         self.assertIn("repo is not synchronized with its tracked upstream", str(exc.exception))
         self.assertIn("relation=ahead", str(exc.exception))
+        self.assertIn("ahead commits=abc1234,def5678", str(exc.exception))
 
     def test_upstream_sync_remediation_lines_suggest_push_for_ahead_branch(self) -> None:
         with patch.object(
@@ -414,6 +419,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 "git_local_vs_upstream": "ahead",
                 "git_ahead_count": 2,
                 "git_behind_count": 0,
+                "git_ahead_commits": ["abc1234", "def5678"],
+                "git_behind_commits": [],
             },
         ):
             lines = deploy_exact_repo_build.upstream_sync_remediation_lines(REPO_ROOT)
@@ -423,6 +430,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
             [
                 "requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue",
                 "remediation_command=git push origin HEAD:feature/test",
+                "remediation_commits=abc1234,def5678",
             ],
         )
 
@@ -443,6 +451,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
                         "git_local_vs_upstream": "ahead",
                         "git_ahead_count": 2,
                         "git_behind_count": 0,
+                        "git_ahead_commits": ["abc1234", "def5678"],
+                        "git_behind_commits": [],
                     },
                 ),
                 patch.object(
@@ -463,10 +473,12 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertNotEqual(rc, 0)
             self.assertIn(f"resolved_destination={config_root / 'custom_components' / 'zero_net_export'}", stdout.getvalue())
             self.assertIn("git_local_vs_upstream=ahead", stdout.getvalue())
+            self.assertIn("git_ahead_commits=abc1234,def5678", stdout.getvalue())
             self.assertIn("repo_deploy_requirements_passed=false", stdout.getvalue())
             self.assertIn("copy_ready=false", stdout.getvalue())
             self.assertIn("requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue", stdout.getvalue())
             self.assertIn("remediation_command=git push origin HEAD:feature/test", stdout.getvalue())
+            self.assertIn("remediation_commits=abc1234,def5678", stdout.getvalue())
             self.assertIn("next_step=fix the repo requirement failure above", stdout.getvalue())
             self.assertIn("requirement_failure=Refusing to deploy: repo is not synchronized with its tracked upstream", stderr.getvalue())
 
@@ -491,6 +503,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
                         "git_local_vs_upstream": "in_sync",
                         "git_ahead_count": 0,
                         "git_behind_count": 0,
+                        "git_ahead_commits": [],
+                        "git_behind_commits": [],
                     },
                 ),
                 patch.object(
@@ -524,6 +538,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("git_working_tree_changes=", result.stdout)
             self.assertIn("git_branch=", result.stdout)
             self.assertIn("git_local_vs_upstream=", result.stdout)
+            self.assertIn("git_ahead_commits=", result.stdout)
+            self.assertIn("git_behind_commits=", result.stdout)
             self.assertIn("repo_deploy_requirements_passed=true", result.stdout)
             self.assertIn("copy_ready=true", result.stdout)
             self.assertIn("restart_ready=true", result.stdout)

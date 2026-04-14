@@ -324,6 +324,8 @@ def emit_discovered_home_assistant_config_roots() -> int:
     behind = tracking.get('git_behind_count')
     print(f"git_ahead_count={ahead if ahead is not None else 'unknown'}")
     print(f"git_behind_count={behind if behind is not None else 'unknown'}")
+    print(f"git_ahead_commits={','.join(tracking.get('git_ahead_commits') or []) or 'none'}")
+    print(f"git_behind_commits={','.join(tracking.get('git_behind_commits') or []) or 'none'}")
     for line in upstream_sync_remediation_lines(root):
         print(line)
     print(f"example_dry_run_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', recommended_target, '--dry-run')}")
@@ -461,6 +463,8 @@ def emit_repo_build_summary(*, root: Path, commit: str) -> tuple[str, bool | Non
     behind = tracking.get('git_behind_count')
     print(f"git_ahead_count={ahead if ahead is not None else 'unknown'}")
     print(f"git_behind_count={behind if behind is not None else 'unknown'}")
+    print(f"git_ahead_commits={','.join(tracking.get('git_ahead_commits') or []) or 'none'}")
+    print(f"git_behind_commits={','.join(tracking.get('git_behind_commits') or []) or 'none'}")
     return commit, dirty, changed_files
 
 
@@ -482,10 +486,14 @@ def upstream_sync_remediation_lines(root: Path) -> list[str]:
         remote_name, upstream_branch = str(upstream).split("/", 1)
 
     if relation == "ahead" and remote_name and upstream_branch:
-        return [
+        ahead_commits = tracking.get("git_ahead_commits") or []
+        lines = [
             "requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue",
             f"remediation_command={shell_command('git', 'push', remote_name, f'HEAD:{upstream_branch}')}",
         ]
+        if ahead_commits:
+            lines.append(f"remediation_commits={','.join(ahead_commits)}")
+        return lines
 
     if relation == "behind" and remote_name and upstream_branch:
         return [
@@ -582,9 +590,17 @@ def enforce_repo_build_requirements(
         upstream = tracking.get("git_upstream") or "none"
         upstream_commit = tracking.get("git_upstream_commit") or "unknown"
         if relation != "in_sync":
+            ahead_commits = tracking.get("git_ahead_commits") or []
+            behind_commits = tracking.get("git_behind_commits") or []
+            commit_context = []
+            if ahead_commits:
+                commit_context.append(f"ahead commits={','.join(ahead_commits)}")
+            if behind_commits:
+                commit_context.append(f"behind commits={','.join(behind_commits)}")
+            commit_suffix = f" ({'; '.join(commit_context)})" if commit_context else ""
             raise SystemExit(
                 "Refusing to deploy: repo is not synchronized with its tracked upstream "
-                f"({upstream} at {upstream_commit}, relation={relation}). Push or reconcile the branch, then retry."
+                f"({upstream} at {upstream_commit}, relation={relation}){commit_suffix}. Push or reconcile the branch, then retry."
             )
 
     return commit, dirty, changed_files
