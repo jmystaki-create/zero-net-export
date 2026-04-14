@@ -6,6 +6,7 @@ import json
 from functools import lru_cache
 from pathlib import Path
 import re
+import subprocess
 from typing import Any
 
 from .const import INTEGRATION_VERSION
@@ -33,6 +34,14 @@ def _safe_file_fingerprint(path: Path) -> tuple[str | None, int | None]:
         return hashlib.sha256(payload).hexdigest()[:12], len(payload)
     except OSError:
         return None, None
+
+
+
+def _safe_git_commit(repo_root: Path) -> str | None:
+    try:
+        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=repo_root, text=True).strip() or None
+    except Exception:
+        return None
 
 
 @lru_cache(maxsize=1)
@@ -73,6 +82,8 @@ def _cached_install_provenance() -> dict[str, Any]:
     manifest_matches_code_version = manifest_version == INTEGRATION_VERSION if manifest_version else None
     live_validation_safe = manifest_matches_code_version is not False and not manifest_error
 
+    expected_commit = _safe_git_commit(_repo_root())
+
     summary = f"Installed package path {component_root}; code version {INTEGRATION_VERSION}"
     if manifest_version:
         summary += f"; manifest version {manifest_version}"
@@ -88,6 +99,7 @@ def _cached_install_provenance() -> dict[str, Any]:
         "manifest_error": manifest_error,
         "manifest_matches_code_version": manifest_matches_code_version,
         "live_validation_safe": live_validation_safe,
+        "expected_commit": expected_commit,
         "tracked_files": file_fingerprints,
         "summary": summary,
     }
@@ -133,6 +145,15 @@ def _install_command_targets(install_provenance: dict[str, Any] | None = None) -
 
 
 
+def _install_expected_commit(install_provenance: dict[str, Any] | None = None) -> str:
+    provenance = install_provenance or build_install_provenance()
+    raw_commit = str(provenance.get("expected_commit") or "").strip()
+    if raw_commit and raw_commit.lower() not in {"unknown", "none", "n/a"}:
+        return raw_commit
+    return "<intended_commit>"
+
+
+
 def build_install_discovery_command() -> str:
     """Return the exact repo helper command for discovering a Home Assistant config path."""
     return "python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config"
@@ -149,9 +170,10 @@ def build_install_validation_command(install_provenance: dict[str, Any] | None =
 def build_install_deploy_dry_run_command(install_provenance: dict[str, Any] | None = None) -> str:
     """Return the exact repo helper command for previewing a safe reinstall to this HA config path."""
     _, deploy_target_str = _install_command_targets(install_provenance)
+    expected_commit = _install_expected_commit(install_provenance)
     return (
         "python3 scripts/deploy_exact_repo_build.py "
-        f"{deploy_target_str} --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync"
+        f"{deploy_target_str} --dry-run --expected-commit {expected_commit} --require-clean --require-upstream-sync"
     )
 
 
@@ -159,9 +181,20 @@ def build_install_deploy_dry_run_command(install_provenance: dict[str, Any] | No
 def build_install_deploy_command(install_provenance: dict[str, Any] | None = None) -> str:
     """Return the exact repo helper command for deploying one synchronized repo build to this HA config path."""
     _, deploy_target_str = _install_command_targets(install_provenance)
+    expected_commit = _install_expected_commit(install_provenance)
     return (
         "python3 scripts/deploy_exact_repo_build.py "
-        f"{deploy_target_str} --expected-commit <intended_commit> --require-clean --require-upstream-sync"
+        f"{deploy_target_str} --expected-commit {expected_commit} --require-clean --require-upstream-sync"
+    )
+
+
+
+def build_install_exact_copy_summary(install_provenance: dict[str, Any] | None = None) -> str:
+    """Return the operator-facing exact-copy sequence for a trustworthy live install."""
+    return (
+        "From the real Home Assistant host or container, run discovery first if the config path is unknown. "
+        "If the repo branch is ahead, behind, or diverged, push or reconcile it until git_local_vs_upstream=in_sync. "
+        "Then run the dry-run until repo_deploy_requirements_passed=true and copy_ready=true, run the exact deploy, rerun fingerprint validation, restart Home Assistant core, and reopen Configure -> Sensors and source mapping before trusting live control."
     )
 
 
@@ -197,9 +230,11 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
         )
 
     lines.append(f"- discovery_command: {build_install_discovery_command()}")
+    lines.append("- deploy_precondition: push or reconcile the repo branch first if git_local_vs_upstream is not in_sync")
     lines.append(f"- deploy_dry_run_command: {build_install_deploy_dry_run_command(provenance)}")
     lines.append(f"- deploy_command: {build_install_deploy_command(provenance)}")
     lines.append(f"- validation_command: {build_install_validation_command(provenance)}")
+    lines.append(f"- exact_copy_sequence: {build_install_exact_copy_summary(provenance)}")
     lines.append(f"- post_restart_validation: {build_install_restart_validation_summary(provenance)}")
 
     return "\n".join(lines)

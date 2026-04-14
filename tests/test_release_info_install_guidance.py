@@ -76,6 +76,23 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             "python3 scripts/deploy_exact_repo_build.py /config --expected-commit <intended_commit> --require-clean --require-upstream-sync",
         )
 
+    def test_build_install_deploy_commands_use_expected_commit_when_available(self) -> None:
+        release_info = _load_release_info_module()
+        dry_run_command = release_info.build_install_deploy_dry_run_command(
+            {"component_root": "/config/custom_components/zero_net_export", "expected_commit": "d05ffd4"}
+        )
+        deploy_command = release_info.build_install_deploy_command(
+            {"component_root": "/config/custom_components/zero_net_export", "expected_commit": "d05ffd4"}
+        )
+        self.assertEqual(
+            dry_run_command,
+            "python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit d05ffd4 --require-clean --require-upstream-sync",
+        )
+        self.assertEqual(
+            deploy_command,
+            "python3 scripts/deploy_exact_repo_build.py /config --expected-commit d05ffd4 --require-clean --require-upstream-sync",
+        )
+
     def test_build_install_restart_validation_summary_points_back_to_native_configure_path(self) -> None:
         release_info = _load_release_info_module()
         summary = release_info.build_install_restart_validation_summary(
@@ -101,6 +118,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             summary,
         )
         self.assertIn(
+            "- deploy_precondition: push or reconcile the repo branch first if git_local_vs_upstream is not in_sync",
+            summary,
+        )
+        self.assertIn(
             "- deploy_dry_run_command: python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync",
             summary,
         )
@@ -110,6 +131,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         self.assertIn(
             "- validation_command: python3 scripts/validate_install_fingerprint.py /config/custom_components",
+            summary,
+        )
+        self.assertIn(
+            "- exact_copy_sequence: From the real Home Assistant host or container, run discovery first if the config path is unknown.",
             summary,
         )
         self.assertIn(
