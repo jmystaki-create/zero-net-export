@@ -203,6 +203,7 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("recursive_search_root_status=", result.stdout)
             self.assertIn("checked_container_runtimes=docker,podman", result.stdout)
             self.assertIn("container_runtime_status=", result.stdout)
+            self.assertIn("container_runtime_matches=", result.stdout)
             tracking = compare_install_fingerprint.git_remote_tracking_details(REPO_ROOT)
 
             self.assertIn("discovered_config_count=", result.stdout)
@@ -354,12 +355,16 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("recursive_search_root_status=", result.stdout)
             self.assertIn("checked_container_runtimes=docker,podman", result.stdout)
             self.assertIn("container_runtime_status=", result.stdout)
+            self.assertIn("container_runtime_matches=", result.stdout)
             self.assertIn("discovered_config_paths=none", result.stdout)
             self.assertIn("discovery_guidance=run this from the Home Assistant host or container", result.stdout)
             self.assertIn("bounded recursive search inspect the real filesystem there", result.stdout)
             self.assertIn("discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container", result.stdout)
             self.assertIn("bounded recursive search can see the actual install", result.stdout)
             self.assertIn("discovery_container_follow_up=if this shell can reach a Docker or Podman daemon", result.stdout)
+            self.assertIn("discovery_docker_mount_probe_example=docker inspect '<home-assistant-container>' --format '{{range .Mounts}}{{if eq .Destination \"/config\"}}{{.Source}}{{println}}{{end}}{{end}}'", result.stdout)
+            self.assertIn("discovery_podman_mount_probe_example=podman inspect '<home-assistant-container>' --format '{{range .Mounts}}{{if eq .Destination \"/config\"}}{{.Source}}{{println}}{{end}}{{end}}'", result.stdout)
+            self.assertIn("discovery_manual_path_examples=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
             self.assertIn("next_step=pass your Home Assistant config directory path explicitly to this script", result.stdout)
 
     def test_discover_home_assistant_config_roots_checks_common_supervised_paths(self) -> None:
@@ -492,6 +497,33 @@ class InstallHelperScriptsTests(unittest.TestCase):
             statuses,
             [
                 "docker=ok:containers=2:home_assistant_matches=1",
+                "podman=unavailable",
+            ],
+        )
+
+    def test_discovery_container_runtime_match_statuses_list_matching_container_details(self) -> None:
+        def fake_run(runtime: str, *args: str):
+            if args != ("ps", "--format", "{{.ID}}\t{{.Names}}\t{{.Image}}"):
+                return subprocess.CompletedProcess([runtime, *args], 0, stdout="", stderr="")
+            if runtime == "docker":
+                return subprocess.CompletedProcess(
+                    [runtime, *args],
+                    0,
+                    stdout=(
+                        "abc123\thomeassistant\tghcr.io/home-assistant/home-assistant:stable\n"
+                        "def456\tother\tnode:22\n"
+                    ),
+                    stderr="",
+                )
+            return None
+
+        with patch.object(deploy_exact_repo_build, "_run_container_runtime_command", side_effect=fake_run):
+            statuses = deploy_exact_repo_build.discovery_container_runtime_match_statuses()
+
+        self.assertEqual(
+            statuses,
+            [
+                "docker=homeassistant[abc123]:ghcr.io/home-assistant/home-assistant:stable",
                 "podman=unavailable",
             ],
         )

@@ -201,6 +201,26 @@ def iter_container_runtime_mount_sources(runtime: str) -> Iterator[Path]:
                     continue
 
 
+def _home_assistant_container_matches(runtime: str) -> list[dict[str, str]] | None:
+    ps_result = _run_container_runtime_command(runtime, "ps", "--format", "{{.ID}}\t{{.Names}}\t{{.Image}}")
+    if ps_result is None or ps_result.returncode != 0:
+        return None
+
+    matches: list[dict[str, str]] = []
+    for raw_line in ps_result.stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        container_id, _sep, remainder = line.partition("\t")
+        if not container_id or not remainder:
+            continue
+        name, _sep, image = remainder.partition("\t")
+        if not _looks_like_home_assistant_container(name, image):
+            continue
+        matches.append({"id": container_id, "name": name, "image": image})
+    return matches
+
+
 def discovery_container_runtime_statuses() -> list[str]:
     statuses: list[str] = []
     for runtime in COMMON_CONTAINER_RUNTIMES:
@@ -214,14 +234,38 @@ def discovery_container_runtime_statuses() -> list[str]:
             continue
 
         container_lines = [line.strip() for line in ps_result.stdout.splitlines() if line.strip()]
-        ha_containers = 0
-        for line in container_lines:
-            _container_id, _sep, remainder = line.partition("\t")
-            name, _sep, image = remainder.partition("\t")
-            if _looks_like_home_assistant_container(name, image):
-                ha_containers += 1
-        statuses.append(f"{runtime}=ok:containers={len(container_lines)}:home_assistant_matches={ha_containers}")
+        ha_containers = _home_assistant_container_matches(runtime) or []
+        statuses.append(f"{runtime}=ok:containers={len(container_lines)}:home_assistant_matches={len(ha_containers)}")
     return statuses
+
+
+def discovery_container_runtime_match_statuses() -> list[str]:
+    statuses: list[str] = []
+    for runtime in COMMON_CONTAINER_RUNTIMES:
+        matches = _home_assistant_container_matches(runtime)
+        if matches is None:
+            statuses.append(f"{runtime}=unavailable")
+            continue
+        if not matches:
+            statuses.append(f"{runtime}=none")
+            continue
+        statuses.append(
+            f"{runtime}="
+            + ",".join(
+                f"{match['name']}[{match['id']}]:{match['image']}" for match in matches[:4]
+            )
+        )
+    return statuses
+
+
+def runtime_mount_probe_command(runtime: str, container_ref: str) -> str:
+    return shell_command(
+        runtime,
+        "inspect",
+        container_ref,
+        "--format",
+        "{{range .Mounts}}{{if eq .Destination \"/config\"}}{{.Source}}{{println}}{{end}}{{end}}",
+    )
 
 
 def repo_root() -> Path:
@@ -395,6 +439,7 @@ def emit_discovered_home_assistant_config_roots() -> int:
     print(f"recursive_search_root_status={','.join(discovery_recursive_search_root_statuses())}")
     print(f"checked_container_runtimes={','.join(hints['container_runtimes'])}")
     print(f"container_runtime_status={';'.join(discovery_container_runtime_statuses())}")
+    print(f"container_runtime_matches={';'.join(discovery_container_runtime_match_statuses())}")
     print(f"discovered_config_count={len(candidates)}")
     if not candidates:
         print("discovered_config_paths=none")
@@ -406,6 +451,17 @@ def emit_discovered_home_assistant_config_roots() -> int:
         )
         print(
             "discovery_container_follow_up=if this shell can reach a Docker or Podman daemon, rerun discovery there too so container mount inspection can resolve the host path backing the Home Assistant /config volume"
+        )
+        print(
+            "discovery_docker_mount_probe_example="
+            + runtime_mount_probe_command("docker", "<home-assistant-container>")
+        )
+        print(
+            "discovery_podman_mount_probe_example="
+            + runtime_mount_probe_command("podman", "<home-assistant-container>")
+        )
+        print(
+            "discovery_manual_path_examples=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant"
         )
         print("next_step=pass your Home Assistant config directory path explicitly to this script")
         return 1
