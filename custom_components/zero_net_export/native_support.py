@@ -328,7 +328,12 @@ def build_source_repair_step(
             else f"these mapped-source blockers ({'; '.join(attention_parts)})"
         )
         repair_action_text = "; ".join(repair_actions)
-        confirm_roles = affected_roles_text if affected_roles_text and affected_roles_text != "None" else ", ".join(attention_parts)
+        confirm_role_parts = [role for role in (unavailable_roles, stale_roles) if role != "None"]
+        confirm_roles = (
+            affected_roles_text
+            if affected_roles_text and affected_roles_text != "None"
+            else ", ".join(confirm_role_parts)
+        )
         return (
             f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text} by making sure {repair_action_text}, then save and reload the integration, "
             f"{_confirm_recovery_suffix(confirm_roles)}"
@@ -1026,10 +1031,15 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
     install_consistency = build_install_consistency_summary(install_provenance)
     install_fingerprint_summary = build_install_fingerprint_summary(install_provenance)
+    source_attention_summary_display = (
+        source_attention_summary
+        if source_attention_summary != "None"
+        else "No mapped-source blockers currently highlighted"
+    )
 
     return {
         "source_status": source_status,
-        "source_attention_summary": source_attention_summary,
+        "source_attention_summary": source_attention_summary_display,
         "source_attention_roles": source_attention_roles,
         "unavailable_sources": ", ".join(unavailable_source_roles) if unavailable_source_roles else "None",
         "stale_sources": ", ".join(stale_source_roles) if stale_source_roles else "None",

@@ -107,6 +107,17 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("restore live availability for Solar power", guidance)
         self.assertNotIn("refresh or replace stale readings", guidance)
 
+    def test_repair_step_without_affected_role_summary_still_names_roles_in_recovery_check(self) -> None:
+        native_support = _load_native_support_module()
+        guidance = native_support.build_source_repair_step(
+            unavailable_source_keys=["solar_power_entity"],
+            stale_source_keys=["grid_export_power_entity"],
+        )
+        self.assertIn(
+            "reopen Sensors and source mapping to confirm these roles recover: Solar power, Grid export power.",
+            guidance,
+        )
+
     def test_attention_role_summary_includes_validation_only_role_errors(self) -> None:
         native_support = _load_native_support_module()
         state = types.SimpleNamespace(
@@ -271,6 +282,38 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(f"- Managed devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
+
+    def test_command_center_summary_uses_positive_source_blocker_copy_when_none_exist(self) -> None:
+        native_support = _load_native_support_module()
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={
+                    "solar_power_entity": "sensor.pv_power",
+                    "solar_energy_entity": "sensor.pv_energy",
+                    "grid_import_power_entity": "sensor.grid_import_power",
+                    "grid_export_power_entity": "sensor.grid_export_power",
+                    "grid_import_energy_entity": "sensor.grid_import_energy",
+                    "grid_export_energy_entity": "sensor.grid_export_energy",
+                },
+                options={},
+            )
+            data = types.SimpleNamespace(
+                validation_details={},
+                source_diagnostics={},
+                stale_data=False,
+                usable_device_count=0,
+                safe_mode=False,
+                diagnostic_summary="Mapped sources currently look healthy across 6 mapped role(s).",
+                health_summary="Healthy.",
+                mode="automatic",
+            )
+
+        command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
+        self.assertEqual(command_center["source_attention_summary"], "No mapped-source blockers currently highlighted")
 
     def test_support_center_surfaces_current_source_blockers_near_the_top(self) -> None:
         native_support = _load_native_support_module()
