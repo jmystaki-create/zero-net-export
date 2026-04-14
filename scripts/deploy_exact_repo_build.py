@@ -419,6 +419,26 @@ def emit_deploy_readiness(*, ready_for_copy: bool, restart_ready: bool = False) 
     print(f"restart_ready={str(bool(restart_ready)).lower()}")
 
 
+def emit_requirement_failure_context(
+    *,
+    root: Path,
+    source_root: Path,
+    destination_root: Path,
+    commit: str,
+    failure_message: str,
+) -> None:
+    print(f"repo_root={root}")
+    print(f"source_component_root={source_root}")
+    print(f"resolved_destination={destination_root}")
+    emit_repo_build_summary(root=root, commit=commit)
+    emit_deploy_readiness(ready_for_copy=False, restart_ready=False)
+    print(f"requirement_failure={failure_message}", file=sys.stderr)
+    print(
+        "next_step=fix the repo requirement failure above, then rerun the dry-run command until "
+        "repo_deploy_requirements_passed=true and copy_ready=true"
+    )
+
+
 def emit_success_criteria(*, phase: str, commit: str) -> None:
     if phase == "dry_run":
         print(
@@ -549,13 +569,25 @@ def main() -> int:
     ensure_safe_destination(destination_root)
 
     commit = git_commit(root)
-    enforce_repo_build_requirements(
-        root=root,
-        commit=commit,
-        expected_commit=args.expected_commit,
-        require_clean=args.require_clean,
-        require_upstream_sync=args.require_upstream_sync,
-    )
+    try:
+        enforce_repo_build_requirements(
+            root=root,
+            commit=commit,
+            expected_commit=args.expected_commit,
+            require_clean=args.require_clean,
+            require_upstream_sync=args.require_upstream_sync,
+        )
+    except SystemExit as exc:
+        failure_message = str(exc) or "repo deploy requirements failed"
+        emit_requirement_failure_context(
+            root=root,
+            source_root=source_root,
+            destination_root=destination_root,
+            commit=commit,
+            failure_message=failure_message,
+        )
+        return 1
+
     if args.dry_run:
         print(f"repo_root={root}")
         print(f"source_component_root={source_root}")

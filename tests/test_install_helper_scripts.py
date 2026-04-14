@@ -402,11 +402,60 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 contextlib.redirect_stdout(stdout),
                 contextlib.redirect_stderr(stderr),
             ):
-                with self.assertRaises(SystemExit) as exc:
-                    deploy_exact_repo_build.main()
+                rc = deploy_exact_repo_build.main()
 
-            self.assertNotEqual(exc.exception.code, 0)
-            self.assertIn("repo is not synchronized with its tracked upstream", str(exc.exception))
+            self.assertNotEqual(rc, 0)
+            self.assertIn(f"resolved_destination={config_root / 'custom_components' / 'zero_net_export'}", stdout.getvalue())
+            self.assertIn("git_local_vs_upstream=ahead", stdout.getvalue())
+            self.assertIn("repo_deploy_requirements_passed=false", stdout.getvalue())
+            self.assertIn("copy_ready=false", stdout.getvalue())
+            self.assertIn("next_step=fix the repo requirement failure above", stdout.getvalue())
+            self.assertIn("requirement_failure=Refusing to deploy: repo is not synchronized with its tracked upstream", stderr.getvalue())
+
+    def test_deploy_exact_repo_build_dry_run_refuses_when_repo_is_dirty_and_reports_context(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            config_root = Path(tmpdir) / "config"
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                patch.object(
+                    deploy_exact_repo_build,
+                    "git_status_details",
+                    return_value=(True, ["custom_components/zero_net_export/manifest.json"]),
+                ),
+                patch.object(
+                    deploy_exact_repo_build,
+                    "git_remote_tracking_details",
+                    return_value={
+                        "git_branch": "feature/test",
+                        "git_upstream": "origin/feature/test",
+                        "git_upstream_commit": "5753f33",
+                        "git_local_vs_upstream": "in_sync",
+                        "git_ahead_count": 0,
+                        "git_behind_count": 0,
+                    },
+                ),
+                patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "deploy_exact_repo_build.py",
+                        str(config_root),
+                        "--dry-run",
+                        "--require-clean",
+                    ],
+                ),
+                contextlib.redirect_stdout(stdout),
+                contextlib.redirect_stderr(stderr),
+            ):
+                rc = deploy_exact_repo_build.main()
+
+            self.assertNotEqual(rc, 0)
+            self.assertIn("git_working_tree_dirty=true", stdout.getvalue())
+            self.assertIn("git_working_tree_changes=custom_components/zero_net_export/manifest.json", stdout.getvalue())
+            self.assertIn("repo_deploy_requirements_passed=false", stdout.getvalue())
+            self.assertIn("copy_ready=false", stdout.getvalue())
+            self.assertIn("requirement_failure=Refusing to deploy: git working tree is dirty", stderr.getvalue())
 
     def test_deploy_exact_repo_build_copies_and_validates_install(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
