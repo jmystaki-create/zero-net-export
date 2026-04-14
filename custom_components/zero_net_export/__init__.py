@@ -98,6 +98,11 @@ async def _async_update_native_setup_notice(
         f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} as the Zero Net Export command center for Sensors and source mapping, Managed devices, Controls, and Diagnostics.\n\n"
         + f"Recommended command-center section right now: {setup_recommendation['recommended_section']}\n"
         + f"Recommended native path right now: {setup_recommendation['recommended_path']}\n\n"
+        + "Use the native command center sections like this:\n"
+        + f"- Sensors and source mapping: repair mapped sources and confirm live source health\n"
+        + f"- Managed devices: add, edit, enable, disable, or remove controllable loads\n"
+        + f"- Controls: tune export target, deadband, reserve, and live control behaviour\n"
+        + f"- Diagnostics: review runtime blockers, install consistency, and support guidance\n\n"
         + "\n".join(f"- {item}" for item in bullets)
         + f"\n\nNext step: {next_step}"
         + (

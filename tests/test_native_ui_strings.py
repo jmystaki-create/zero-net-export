@@ -33,6 +33,11 @@ class NativeUiStringsTests(unittest.TestCase):
         )
         self.assertIn("four main Configure sections", init_step["description"])
         self.assertIn("Detailed management remains the deeper device-view handoff outside this Configure menu.", init_step["description"])
+        self.assertIn("Use these native sections for the most common operator jobs:", init_step["description"])
+        self.assertIn("- Fix source mapping, unavailable sensors, or stale source health: {sources_path}", init_step["description"])
+        self.assertIn("- Add, review, edit, enable, disable, or remove controllable loads: {devices_path}", init_step["description"])
+        self.assertIn("- Change export target, deadband, reserve, or live control behaviour: {policy_path}", init_step["description"])
+        self.assertIn("- Check runtime health, install consistency, and troubleshooting guidance: {support_path}", init_step["description"])
         self.assertIn("- Sensors and source mapping: {sources_path}", init_step["description"])
         self.assertIn("- Controls: {policy_path}", init_step["description"])
         self.assertIn("- Diagnostics: {support_path}.", init_step["description"])
@@ -100,6 +105,18 @@ class NativeUiStringsTests(unittest.TestCase):
         self.assertIn(
             "After each save, reload the integration and reopen this Sensors and source mapping screen to confirm live source health.",
             source_mapping_step["description"],
+        )
+        self.assertIn(
+            "If you need to change setup rather than diagnose it, jump back to these native paths first:",
+            diagnostics_step["description"],
+        )
+        self.assertIn(
+            "- Sensors and source mapping for source repair: {configure_path}",
+            diagnostics_step["description"],
+        )
+        self.assertIn(
+            "- Managed devices for fleet changes: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed devices",
+            diagnostics_step["description"],
         )
         self.assertIn(
             "When the blocker is source-related, finish by reopening Sensors and source mapping to confirm the mapped roles recover.",

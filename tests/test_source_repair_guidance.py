@@ -196,6 +196,9 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "support_path": native_support.SUPPORT_CONFIGURE_PATH,
             }
         )
+        self.assertIn("Use these native paths for the common operator jobs", guide)
+        self.assertIn(f"- Fix source mapping or mapped-source blockers: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Add or edit managed devices: {native_support.DEVICES_CONFIGURE_PATH}", guide)
         self.assertIn("- Unavailable mapped roles: Solar power", guide)
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
