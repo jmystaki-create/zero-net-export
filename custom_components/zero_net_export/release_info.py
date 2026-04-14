@@ -37,11 +37,93 @@ def _safe_file_fingerprint(path: Path) -> tuple[str | None, int | None]:
 
 
 
-def _safe_git_commit(repo_root: Path) -> str | None:
+def _safe_git_output(repo_root: Path, *args: str) -> str | None:
     try:
-        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=repo_root, text=True).strip() or None
+        return subprocess.check_output(["git", *args], cwd=repo_root, text=True).strip() or None
     except Exception:
         return None
+
+
+
+def _safe_git_commit(repo_root: Path) -> str | None:
+    return _safe_git_output(repo_root, "rev-parse", "--short", "HEAD")
+
+
+
+def _safe_git_remote_tracking_details(repo_root: Path) -> dict[str, Any]:
+    branch = _safe_git_output(repo_root, "branch", "--show-current") or "detached"
+    upstream = _safe_git_output(repo_root, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}")
+    if not upstream:
+        return {
+            "git_branch": branch,
+            "git_upstream": None,
+            "git_upstream_commit": None,
+            "git_local_vs_upstream": "no_upstream",
+            "git_ahead_count": None,
+            "git_behind_count": None,
+            "git_ahead_commits": [],
+            "git_behind_commits": [],
+            "git_sync_remediation": None,
+        }
+
+    upstream_commit = _safe_git_output(repo_root, "rev-parse", "--short", upstream)
+    ahead_behind = _safe_git_output(repo_root, "rev-list", "--left-right", "--count", f"{upstream}...HEAD")
+    if not ahead_behind:
+        return {
+            "git_branch": branch,
+            "git_upstream": upstream,
+            "git_upstream_commit": upstream_commit,
+            "git_local_vs_upstream": "unknown",
+            "git_ahead_count": None,
+            "git_behind_count": None,
+            "git_ahead_commits": [],
+            "git_behind_commits": [],
+            "git_sync_remediation": None,
+        }
+
+    behind_str, ahead_str = ahead_behind.split()
+    behind = int(behind_str)
+    ahead = int(ahead_str)
+    if ahead == 0 and behind == 0:
+        relation = "in_sync"
+    elif ahead > 0 and behind == 0:
+        relation = "ahead"
+    elif behind > 0 and ahead == 0:
+        relation = "behind"
+    else:
+        relation = "diverged"
+
+    ahead_commits_raw = _safe_git_output(repo_root, "log", "--format=%h", "--max-count=10", f"{upstream}..HEAD")
+    behind_commits_raw = _safe_git_output(repo_root, "log", "--format=%h", "--max-count=10", f"HEAD..{upstream}")
+    ahead_commits = [line.strip() for line in (ahead_commits_raw or "").splitlines() if line.strip()]
+    behind_commits = [line.strip() for line in (behind_commits_raw or "").splitlines() if line.strip()]
+
+    remote_name = None
+    upstream_branch = None
+    if "/" in upstream:
+        remote_name, upstream_branch = upstream.split("/", 1)
+
+    remediation = None
+    if relation == "ahead" and remote_name and upstream_branch:
+        remediation = f"git push {remote_name} HEAD:{upstream_branch}"
+    elif relation == "behind" and remote_name and upstream_branch:
+        remediation = f"git pull --ff-only {remote_name} {upstream_branch}"
+    elif relation == "diverged" and remote_name and upstream_branch:
+        remediation = f"git fetch {remote_name} {upstream_branch}"
+    elif relation == "no_upstream":
+        remediation = f"git push --set-upstream origin {branch}"
+
+    return {
+        "git_branch": branch,
+        "git_upstream": upstream,
+        "git_upstream_commit": upstream_commit,
+        "git_local_vs_upstream": relation,
+        "git_ahead_count": ahead,
+        "git_behind_count": behind,
+        "git_ahead_commits": ahead_commits,
+        "git_behind_commits": behind_commits,
+        "git_sync_remediation": remediation,
+    }
 
 
 @lru_cache(maxsize=1)
@@ -82,7 +164,9 @@ def _cached_install_provenance() -> dict[str, Any]:
     manifest_matches_code_version = manifest_version == INTEGRATION_VERSION if manifest_version else None
     live_validation_safe = manifest_matches_code_version is not False and not manifest_error
 
-    expected_commit = _safe_git_commit(_repo_root())
+    repo_root = _repo_root()
+    expected_commit = _safe_git_commit(repo_root)
+    git_tracking = _safe_git_remote_tracking_details(repo_root)
 
     summary = f"Installed package path {component_root}; code version {INTEGRATION_VERSION}"
     if manifest_version:
@@ -92,7 +176,7 @@ def _cached_install_provenance() -> dict[str, Any]:
     elif manifest_error:
         summary += f"; manifest unavailable ({manifest_error})"
 
-    return {
+    payload = {
         "component_root": str(component_root),
         "code_version": INTEGRATION_VERSION,
         "manifest_version": manifest_version,
@@ -103,6 +187,8 @@ def _cached_install_provenance() -> dict[str, Any]:
         "tracked_files": file_fingerprints,
         "summary": summary,
     }
+    payload.update(git_tracking)
+    return payload
 
 
 def build_install_provenance() -> dict[str, Any]:
@@ -237,7 +323,18 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
         )
 
     lines.append(f"- discovery_command: {build_install_discovery_command()}")
+    lines.append(f"- git_branch: {provenance.get('git_branch') or 'n/a'}")
+    lines.append(f"- git_upstream: {provenance.get('git_upstream') or 'n/a'}")
+    lines.append(f"- git_local_vs_upstream: {provenance.get('git_local_vs_upstream') or 'unknown'}")
+    lines.append(
+        f"- git_ahead_commits: {','.join(provenance.get('git_ahead_commits') or []) or 'none'}"
+    )
+    lines.append(
+        f"- git_behind_commits: {','.join(provenance.get('git_behind_commits') or []) or 'none'}"
+    )
     lines.append("- deploy_precondition: push or reconcile the repo branch first if git_local_vs_upstream is not in_sync")
+    if provenance.get("git_sync_remediation"):
+        lines.append(f"- deploy_sync_remediation: {provenance.get('git_sync_remediation')}")
     lines.append(f"- deploy_dry_run_command: {build_install_deploy_dry_run_command(provenance)}")
     lines.append(f"- deploy_command: {build_install_deploy_command(provenance)}")
     lines.append(f"- validation_command: {build_install_validation_command(provenance)}")

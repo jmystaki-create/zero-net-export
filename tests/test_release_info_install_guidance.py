@@ -118,6 +118,26 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             summary,
         )
         self.assertIn(
+            "- git_branch: n/a",
+            summary,
+        )
+        self.assertIn(
+            "- git_upstream: n/a",
+            summary,
+        )
+        self.assertIn(
+            "- git_local_vs_upstream: unknown",
+            summary,
+        )
+        self.assertIn(
+            "- git_ahead_commits: none",
+            summary,
+        )
+        self.assertIn(
+            "- git_behind_commits: none",
+            summary,
+        )
+        self.assertIn(
             "- deploy_precondition: push or reconcile the repo branch first if git_local_vs_upstream is not in_sync",
             summary,
         )
@@ -147,6 +167,33 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         self.assertIn(
             "- post_restart_validation: Restart Home Assistant core, then reopen Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors and source mapping",
+            summary,
+        )
+
+    def test_build_install_fingerprint_summary_includes_exact_sync_remediation_when_available(self) -> None:
+        release_info = _load_release_info_module()
+        summary = release_info.build_install_fingerprint_summary(
+            {
+                "component_root": "/config/custom_components/zero_net_export",
+                "code_version": "1.2.3",
+                "manifest_version": "1.2.3",
+                "manifest_matches_code_version": True,
+                "tracked_files": {},
+                "git_branch": "ui-surface-correction-2026-04-12",
+                "git_upstream": "origin/ui-surface-correction-2026-04-12",
+                "git_local_vs_upstream": "ahead",
+                "git_ahead_commits": ["abc1234", "def5678"],
+                "git_behind_commits": [],
+                "git_sync_remediation": "git push origin HEAD:ui-surface-correction-2026-04-12",
+            }
+        )
+        self.assertIn("- git_branch: ui-surface-correction-2026-04-12", summary)
+        self.assertIn("- git_upstream: origin/ui-surface-correction-2026-04-12", summary)
+        self.assertIn("- git_local_vs_upstream: ahead", summary)
+        self.assertIn("- git_ahead_commits: abc1234,def5678", summary)
+        self.assertIn("- git_behind_commits: none", summary)
+        self.assertIn(
+            "- deploy_sync_remediation: git push origin HEAD:ui-surface-correction-2026-04-12",
             summary,
         )
 
