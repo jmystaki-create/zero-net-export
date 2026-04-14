@@ -135,7 +135,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             has_devices=False,
             readiness_phase="operator_setup",
         )
-        self.assertEqual(recommendation["recommended_section"], "Sensors")
+        self.assertEqual(recommendation["recommended_section"], "Sensors and source mapping")
         self.assertEqual(recommendation["recommended_path"], native_support.SOURCES_CONFIGURE_PATH)
 
     def test_setup_recommendation_prefers_managed_devices_when_sources_are_ready(self) -> None:
@@ -180,7 +180,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Unavailable mapped roles: Solar power", guide)
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
-        self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Sensors and source mapping: {native_support.SOURCES_CONFIGURE_PATH}", guide)
 
     def test_support_center_lists_each_native_path(self) -> None:
         native_support = _load_native_support_module()
