@@ -419,6 +419,46 @@ def emit_deploy_readiness(*, ready_for_copy: bool, restart_ready: bool = False) 
     print(f"restart_ready={str(bool(restart_ready)).lower()}")
 
 
+def upstream_sync_remediation_lines(root: Path) -> list[str]:
+    tracking = git_remote_tracking_details(root)
+    branch = tracking.get("git_branch") or "unknown"
+    upstream = tracking.get("git_upstream") or "none"
+    relation = tracking.get("git_local_vs_upstream") or "unknown"
+
+    remote_name = None
+    upstream_branch = None
+    if upstream not in {None, "none"} and "/" in upstream:
+        remote_name, upstream_branch = str(upstream).split("/", 1)
+
+    if relation == "ahead" and remote_name and upstream_branch:
+        return [
+            "requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue",
+            f"remediation_command={shell_command('git', 'push', remote_name, f'HEAD:{upstream_branch}')}",
+        ]
+
+    if relation == "behind" and remote_name and upstream_branch:
+        return [
+            "requirement_remediation=pull the tracked upstream changes into this branch before deploy validation can continue",
+            f"remediation_command={shell_command('git', 'pull', '--ff-only', remote_name, upstream_branch)}",
+        ]
+
+    if relation == "diverged" and remote_name and upstream_branch:
+        return [
+            "requirement_remediation=reconcile the branch divergence before deploy validation can continue",
+            f"remediation_command={shell_command('git', 'fetch', remote_name, upstream_branch)}",
+            "remediation_follow_up=after fetching, rebase, merge, or otherwise reconcile the branch, then rerun the dry-run command",
+        ]
+
+    if relation == "no_upstream":
+        return [
+            "requirement_remediation=set a tracked upstream for this branch before deploy validation can continue",
+            f"remediation_command={shell_command('git', 'push', '--set-upstream', 'origin', branch)}",
+        ]
+
+    return []
+
+
+
 def emit_requirement_failure_context(
     *,
     root: Path,
@@ -432,6 +472,8 @@ def emit_requirement_failure_context(
     print(f"resolved_destination={destination_root}")
     emit_repo_build_summary(root=root, commit=commit)
     emit_deploy_readiness(ready_for_copy=False, restart_ready=False)
+    for line in upstream_sync_remediation_lines(root):
+        print(line)
     print(f"requirement_failure={failure_message}", file=sys.stderr)
     print(
         "next_step=fix the repo requirement failure above, then rerun the dry-run command until "

@@ -370,6 +370,29 @@ class InstallHelperScriptsTests(unittest.TestCase):
         self.assertIn("repo is not synchronized with its tracked upstream", str(exc.exception))
         self.assertIn("relation=ahead", str(exc.exception))
 
+    def test_upstream_sync_remediation_lines_suggest_push_for_ahead_branch(self) -> None:
+        with patch.object(
+            deploy_exact_repo_build,
+            "git_remote_tracking_details",
+            return_value={
+                "git_branch": "feature/test",
+                "git_upstream": "origin/feature/test",
+                "git_upstream_commit": "5753f33",
+                "git_local_vs_upstream": "ahead",
+                "git_ahead_count": 2,
+                "git_behind_count": 0,
+            },
+        ):
+            lines = deploy_exact_repo_build.upstream_sync_remediation_lines(REPO_ROOT)
+
+        self.assertEqual(
+            lines,
+            [
+                "requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue",
+                "remediation_command=git push origin HEAD:feature/test",
+            ],
+        )
+
     def test_deploy_exact_repo_build_dry_run_refuses_when_upstream_is_not_synced(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             config_root = Path(tmpdir) / "config"
@@ -409,6 +432,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("git_local_vs_upstream=ahead", stdout.getvalue())
             self.assertIn("repo_deploy_requirements_passed=false", stdout.getvalue())
             self.assertIn("copy_ready=false", stdout.getvalue())
+            self.assertIn("requirement_remediation=push the current repo HEAD to the tracked upstream before deploy validation can continue", stdout.getvalue())
+            self.assertIn("remediation_command=git push origin HEAD:feature/test", stdout.getvalue())
             self.assertIn("next_step=fix the repo requirement failure above", stdout.getvalue())
             self.assertIn("requirement_failure=Refusing to deploy: repo is not synchronized with its tracked upstream", stderr.getvalue())
 
