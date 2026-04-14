@@ -181,7 +181,9 @@ class InstallHelperScriptsTests(unittest.TestCase):
             ).strip()
 
             self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG,HOMEASSISTANT_CONFIG,HASSIO_HOMEASSISTANT", result.stdout)
+            self.assertIn(f"env_key_status=HOME_ASSISTANT_CONFIG=looks_like_config_root:{config_root.resolve()}", result.stdout)
             self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
+            self.assertIn("candidate_path_status=", result.stdout)
             self.assertIn("discovered_config_count=", result.stdout)
             self.assertIn(str(config_root.resolve()), result.stdout)
             self.assertIn(f"git_commit={repo_commit}", result.stdout)
@@ -243,9 +245,12 @@ class InstallHelperScriptsTests(unittest.TestCase):
 
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG,HOMEASSISTANT_CONFIG,HASSIO_HOMEASSISTANT", result.stdout)
+            self.assertIn("env_key_status=HOME_ASSISTANT_CONFIG=unset;HASS_CONFIG=unset;HA_CONFIG=unset;HOMEASSISTANT_CONFIG=unset;HASSIO_HOMEASSISTANT=unset", result.stdout)
             self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
+            self.assertIn("candidate_path_status=", result.stdout)
             self.assertIn("discovered_config_paths=none", result.stdout)
             self.assertIn("discovery_guidance=run this from the Home Assistant host or container", result.stdout)
+            self.assertIn("discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container", result.stdout)
             self.assertIn("next_step=pass your Home Assistant config directory path explicitly to this script", result.stdout)
 
     def test_discover_home_assistant_config_roots_checks_common_supervised_paths(self) -> None:
@@ -262,6 +267,27 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 discovered = deploy_exact_repo_build.discover_home_assistant_config_roots()
 
         self.assertEqual(discovered, [candidate_root.resolve()])
+
+    def test_discovery_candidate_path_statuses_report_missing_and_detected_roots(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            candidate_root = Path(tmpdir) / "ha-config"
+            candidate_root.mkdir(parents=True)
+            (candidate_root / ".storage").mkdir()
+
+            with patch.object(
+                deploy_exact_repo_build,
+                "COMMON_CONFIG_CANDIDATE_PATHS",
+                (Path("/definitely-missing-zero-net-export-test"), candidate_root),
+            ):
+                statuses = deploy_exact_repo_build.discovery_candidate_path_statuses()
+
+        self.assertEqual(
+            statuses,
+            [
+                "/definitely-missing-zero-net-export-test:missing",
+                f"{candidate_root}:looks_like_config_root",
+            ],
+        )
 
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

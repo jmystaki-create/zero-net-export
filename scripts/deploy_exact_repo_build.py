@@ -57,6 +57,42 @@ def configured_discovery_hints() -> dict[str, list[str]]:
     }
 
 
+def _format_probe_status(path: Path) -> str:
+    if _looks_like_home_assistant_config_root(path):
+        return "looks_like_config_root"
+    if path.exists():
+        return "present_but_not_config_root"
+    return "missing"
+
+
+def discovery_env_key_statuses() -> list[str]:
+    statuses: list[str] = []
+    for env_key in COMMON_CONFIG_ENV_KEYS:
+        env_value = os.environ.get(env_key)
+        if not env_value:
+            statuses.append(f"{env_key}=unset")
+            continue
+        try:
+            normalized = _candidate_config_root(Path(env_value).expanduser().resolve())
+        except Exception:
+            statuses.append(f"{env_key}=set_unresolvable:{env_value}")
+            continue
+        statuses.append(f"{env_key}={_format_probe_status(normalized)}:{normalized}")
+    return statuses
+
+
+def discovery_candidate_path_statuses() -> list[str]:
+    statuses: list[str] = []
+    for candidate in COMMON_CONFIG_CANDIDATE_PATHS:
+        expanded = candidate.expanduser()
+        try:
+            normalized = _candidate_config_root(expanded.resolve())
+        except Exception:
+            normalized = _candidate_config_root(expanded)
+        statuses.append(f"{expanded}:{_format_probe_status(normalized)}")
+    return statuses
+
+
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
@@ -151,12 +187,17 @@ def emit_discovered_home_assistant_config_roots() -> int:
     candidates = discover_home_assistant_config_roots()
     hints = configured_discovery_hints()
     print(f"checked_env_keys={','.join(hints['env_keys'])}")
+    print(f"env_key_status={';'.join(discovery_env_key_statuses())}")
     print(f"checked_candidate_paths={','.join(hints['candidate_paths'])}")
+    print(f"candidate_path_status={','.join(discovery_candidate_path_statuses())}")
     print(f"discovered_config_count={len(candidates)}")
     if not candidates:
         print("discovered_config_paths=none")
         print(
             "discovery_guidance=run this from the Home Assistant host or container with the real config mounted, or pass the Home Assistant config directory path explicitly"
+        )
+        print(
+            "discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container so the real config mount and env hints are visible here"
         )
         print("next_step=pass your Home Assistant config directory path explicitly to this script")
         return 1
