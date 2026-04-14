@@ -326,7 +326,7 @@ def emit_discovered_home_assistant_config_roots() -> int:
     print(f"git_behind_count={behind if behind is not None else 'unknown'}")
     print(f"git_ahead_commits={','.join(tracking.get('git_ahead_commits') or []) or 'none'}")
     print(f"git_behind_commits={','.join(tracking.get('git_behind_commits') or []) or 'none'}")
-    for line in upstream_sync_remediation_lines(
+    remediation_lines = upstream_sync_remediation_lines(
         root,
         rerun_command=recommended_deploy_command(
             recommended_target,
@@ -335,7 +335,8 @@ def emit_discovered_home_assistant_config_roots() -> int:
             require_clean=True,
             require_upstream_sync=True,
         ),
-    ):
+    )
+    for line in remediation_lines:
         print(line)
     print(f"example_dry_run_command={shell_command('python3', 'scripts/deploy_exact_repo_build.py', recommended_target, '--dry-run')}")
     print(
@@ -351,9 +352,14 @@ def emit_discovered_home_assistant_config_roots() -> int:
         "recommended_exact_copy_sequence="
         + recommended_exact_copy_sequence(recommended_target, expected_commit=commit)
     )
-    print(
-        "next_step=rerun this script with one discovered config path using the recommended dry-run command, confirm repo_deploy_requirements_passed=true and copy_ready=true, then run the recommended deploy command for that exact path"
-    )
+    if tracking.get("git_local_vs_upstream") != "in_sync" and remediation_lines:
+        print(
+            "next_step=fix the repo upstream-sync requirement above first, then rerun the recommended dry-run command for the discovered Home Assistant config path"
+        )
+    else:
+        print(
+            "next_step=rerun this script with one discovered config path using the recommended dry-run command, confirm repo_deploy_requirements_passed=true and copy_ready=true, then run the recommended deploy command for that exact path"
+        )
     return 0
 
 

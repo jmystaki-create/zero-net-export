@@ -267,6 +267,66 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 result.stdout,
             )
 
+    def test_emit_discovered_home_assistant_config_roots_next_step_prioritizes_upstream_sync_fix(self) -> None:
+        config_root = Path("/tmp/ha-config")
+        stdout = io.StringIO()
+        with (
+            patch.object(deploy_exact_repo_build, "discover_home_assistant_config_roots", return_value=[config_root]),
+            patch.object(deploy_exact_repo_build, "git_commit", return_value="abc1234"),
+            patch.object(
+                deploy_exact_repo_build,
+                "git_remote_tracking_details",
+                return_value={
+                    "git_branch": "feature/test",
+                    "git_upstream": "origin/feature/test",
+                    "git_upstream_commit": "5753f33",
+                    "git_local_vs_upstream": "ahead",
+                    "git_ahead_count": 2,
+                    "git_behind_count": 0,
+                    "git_ahead_commits": ["abc1234", "def5678"],
+                    "git_behind_commits": [],
+                },
+            ),
+            contextlib.redirect_stdout(stdout),
+        ):
+            rc = deploy_exact_repo_build.emit_discovered_home_assistant_config_roots()
+
+        self.assertEqual(rc, 0)
+        self.assertIn(
+            "next_step=fix the repo upstream-sync requirement above first, then rerun the recommended dry-run command for the discovered Home Assistant config path",
+            stdout.getvalue(),
+        )
+
+    def test_emit_discovered_home_assistant_config_roots_next_step_uses_dry_run_when_repo_is_ready(self) -> None:
+        config_root = Path("/tmp/ha-config")
+        stdout = io.StringIO()
+        with (
+            patch.object(deploy_exact_repo_build, "discover_home_assistant_config_roots", return_value=[config_root]),
+            patch.object(deploy_exact_repo_build, "git_commit", return_value="abc1234"),
+            patch.object(
+                deploy_exact_repo_build,
+                "git_remote_tracking_details",
+                return_value={
+                    "git_branch": "feature/test",
+                    "git_upstream": "origin/feature/test",
+                    "git_upstream_commit": "abc1234",
+                    "git_local_vs_upstream": "in_sync",
+                    "git_ahead_count": 0,
+                    "git_behind_count": 0,
+                    "git_ahead_commits": [],
+                    "git_behind_commits": [],
+                },
+            ),
+            contextlib.redirect_stdout(stdout),
+        ):
+            rc = deploy_exact_repo_build.emit_discovered_home_assistant_config_roots()
+
+        self.assertEqual(rc, 0)
+        self.assertIn(
+            "next_step=rerun this script with one discovered config path using the recommended dry-run command, confirm repo_deploy_requirements_passed=true and copy_ready=true, then run the recommended deploy command for that exact path",
+            stdout.getvalue(),
+        )
+
     def test_deploy_exact_repo_build_discover_home_assistant_config_reports_checked_hints_when_none_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             env = os.environ.copy()
