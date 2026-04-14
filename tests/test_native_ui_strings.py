@@ -111,11 +111,15 @@ class NativeUiStringsTests(unittest.TestCase):
             diagnostics_step["description"],
         )
         self.assertIn(
-            "- Sensors and source mapping for source repair: {configure_path}",
+            "- Sensors and source mapping for source repair: {sources_path}",
             diagnostics_step["description"],
         )
         self.assertIn(
-            "- Managed devices for fleet changes: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed devices",
+            "- Managed devices for fleet changes: {devices_path}",
+            diagnostics_step["description"],
+        )
+        self.assertIn(
+            "- Controls for policy tuning: {policy_path}",
             diagnostics_step["description"],
         )
         self.assertIn(
