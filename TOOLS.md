@@ -67,7 +67,9 @@ Use discovery first when the install root is unknown. The helper checks common H
 python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config
 ```
 
-If that still reports no candidates, rerun the same discovery command from the actual Home Assistant host or container. The helper also does a bounded recursive search from common roots there, which can catch non-standard mounted config paths that are not visible from this workspace shell.
+If Docker or Podman is reachable from the shell where you run discovery, the helper also inspects running Home Assistant container mounts and can resolve the host path backing `/config` even when that path is not mounted into the current workspace shell.
+
+If discovery still reports no candidates, rerun the same discovery command from the actual Home Assistant host or container. The helper also does a bounded recursive search from common roots there, which can catch non-standard mounted config paths that are not visible from this workspace shell.
 
 ## Escalate to the user only when needed
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shlex
 import shutil
@@ -59,6 +60,13 @@ COMMON_RECURSIVE_DISCOVERY_ROOTS = (
     Path("/srv"),
     Path("/var/lib"),
 )
+COMMON_CONTAINER_RUNTIMES = ("docker", "podman")
+COMMON_CONTAINER_CONFIG_DESTINATIONS = (
+    "/config",
+    "/homeassistant",
+    "/usr/share/hassio/homeassistant",
+    "/mnt/data/supervisor/homeassistant",
+)
 RECURSIVE_DISCOVERY_MAX_DEPTH = 4
 RECURSIVE_DISCOVERY_SKIP_DIRS = {
     ".cache",
@@ -75,6 +83,7 @@ def configured_discovery_hints() -> dict[str, list[str]]:
         "env_keys": list(COMMON_CONFIG_ENV_KEYS),
         "candidate_paths": [str(path.expanduser()) for path in COMMON_CONFIG_CANDIDATE_PATHS],
         "recursive_search_roots": [str(path.expanduser()) for path in configured_recursive_search_roots()],
+        "container_runtimes": list(COMMON_CONTAINER_RUNTIMES),
     }
 
 
@@ -127,6 +136,91 @@ def discovery_recursive_search_root_statuses() -> list[str]:
     statuses: list[str] = []
     for root in configured_recursive_search_roots():
         statuses.append(f"{root}:{'present' if root.exists() else 'missing'}")
+    return statuses
+
+
+def _run_container_runtime_command(runtime: str, *args: str) -> subprocess.CompletedProcess[str] | None:
+    try:
+        return subprocess.run(
+            [runtime, *args],
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=5,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired, PermissionError, OSError):
+        return None
+
+
+def _looks_like_home_assistant_container(name: str, image: str) -> bool:
+    probe = f"{name} {image}".lower()
+    return "homeassistant" in probe or "home-assistant" in probe or probe.startswith("hass ") or "/hass" in probe
+
+
+def iter_container_runtime_mount_sources(runtime: str) -> Iterator[Path]:
+    ps_result = _run_container_runtime_command(runtime, "ps", "--format", "{{.ID}}\t{{.Names}}\t{{.Image}}")
+    if ps_result is None or ps_result.returncode != 0:
+        return
+
+    for raw_line in ps_result.stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        container_id, _sep, remainder = line.partition("\t")
+        if not container_id or not remainder:
+            continue
+        name, _sep, image = remainder.partition("\t")
+        if not _looks_like_home_assistant_container(name, image):
+            continue
+
+        inspect_result = _run_container_runtime_command(runtime, "inspect", container_id)
+        if inspect_result is None or inspect_result.returncode != 0:
+            continue
+        try:
+            payload = json.loads(inspect_result.stdout)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(payload, list):
+            continue
+        for container_details in payload:
+            if not isinstance(container_details, dict):
+                continue
+            mounts = container_details.get("Mounts")
+            if not isinstance(mounts, list):
+                continue
+            for mount in mounts:
+                if not isinstance(mount, dict):
+                    continue
+                destination = str(mount.get("Destination") or "").strip()
+                source = str(mount.get("Source") or "").strip()
+                if destination not in COMMON_CONTAINER_CONFIG_DESTINATIONS or not source:
+                    continue
+                try:
+                    yield Path(source).expanduser().resolve()
+                except Exception:
+                    continue
+
+
+def discovery_container_runtime_statuses() -> list[str]:
+    statuses: list[str] = []
+    for runtime in COMMON_CONTAINER_RUNTIMES:
+        ps_result = _run_container_runtime_command(runtime, "ps", "--format", "{{.ID}}\t{{.Names}}\t{{.Image}}")
+        if ps_result is None:
+            statuses.append(f"{runtime}=unavailable")
+            continue
+        if ps_result.returncode != 0:
+            stderr = " ".join(ps_result.stderr.split()) if ps_result.stderr else "command_failed"
+            statuses.append(f"{runtime}=error:{stderr}")
+            continue
+
+        container_lines = [line.strip() for line in ps_result.stdout.splitlines() if line.strip()]
+        ha_containers = 0
+        for line in container_lines:
+            _container_id, _sep, remainder = line.partition("\t")
+            name, _sep, image = remainder.partition("\t")
+            if _looks_like_home_assistant_container(name, image):
+                ha_containers += 1
+        statuses.append(f"{runtime}=ok:containers={len(container_lines)}:home_assistant_matches={ha_containers}")
     return statuses
 
 
@@ -194,6 +288,10 @@ def discover_home_assistant_config_roots() -> list[Path]:
 
     for search_root in configured_recursive_search_roots():
         for discovered in iter_recursive_config_roots(search_root):
+            add_candidate(discovered)
+
+    for runtime in COMMON_CONTAINER_RUNTIMES:
+        for discovered in iter_container_runtime_mount_sources(runtime):
             add_candidate(discovered)
 
     return candidates
@@ -295,6 +393,8 @@ def emit_discovered_home_assistant_config_roots() -> int:
     print(f"candidate_path_status={','.join(discovery_candidate_path_statuses())}")
     print(f"checked_recursive_search_roots={','.join(hints['recursive_search_roots'])}")
     print(f"recursive_search_root_status={','.join(discovery_recursive_search_root_statuses())}")
+    print(f"checked_container_runtimes={','.join(hints['container_runtimes'])}")
+    print(f"container_runtime_status={';'.join(discovery_container_runtime_statuses())}")
     print(f"discovered_config_count={len(candidates)}")
     if not candidates:
         print("discovered_config_paths=none")
@@ -303,6 +403,9 @@ def emit_discovered_home_assistant_config_roots() -> int:
         )
         print(
             "discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container so the real config mount, env hints, and bounded recursive search can see the actual install"
+        )
+        print(
+            "discovery_container_follow_up=if this shell can reach a Docker or Podman daemon, rerun discovery there too so container mount inspection can resolve the host path backing the Home Assistant /config volume"
         )
         print("next_step=pass your Home Assistant config directory path explicitly to this script")
         return 1

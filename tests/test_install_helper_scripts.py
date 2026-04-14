@@ -201,6 +201,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("candidate_path_status=", result.stdout)
             self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/home,/mnt/data,/srv,/var/lib", result.stdout)
             self.assertIn("recursive_search_root_status=", result.stdout)
+            self.assertIn("checked_container_runtimes=docker,podman", result.stdout)
+            self.assertIn("container_runtime_status=", result.stdout)
             tracking = compare_install_fingerprint.git_remote_tracking_details(REPO_ROOT)
 
             self.assertIn("discovered_config_count=", result.stdout)
@@ -350,11 +352,14 @@ class InstallHelperScriptsTests(unittest.TestCase):
             self.assertIn("candidate_path_status=", result.stdout)
             self.assertIn(f"checked_recursive_search_roots={Path(env['HOME']).expanduser()},/data,/home,/mnt/data,/srv,/var/lib", result.stdout)
             self.assertIn("recursive_search_root_status=", result.stdout)
+            self.assertIn("checked_container_runtimes=docker,podman", result.stdout)
+            self.assertIn("container_runtime_status=", result.stdout)
             self.assertIn("discovered_config_paths=none", result.stdout)
             self.assertIn("discovery_guidance=run this from the Home Assistant host or container", result.stdout)
             self.assertIn("bounded recursive search inspect the real filesystem there", result.stdout)
             self.assertIn("discovery_follow_up=if you are in the wrong shell, rerun `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config` from the Home Assistant host or container", result.stdout)
             self.assertIn("bounded recursive search can see the actual install", result.stdout)
+            self.assertIn("discovery_container_follow_up=if this shell can reach a Docker or Podman daemon", result.stdout)
             self.assertIn("next_step=pass your Home Assistant config directory path explicitly to this script", result.stdout)
 
     def test_discover_home_assistant_config_roots_checks_common_supervised_paths(self) -> None:
@@ -421,6 +426,75 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 discovered = deploy_exact_repo_build.discover_home_assistant_config_roots()
 
         self.assertIn(recursive_root.resolve(), discovered)
+
+    def test_discover_home_assistant_config_roots_includes_container_mount_hits(self) -> None:
+        container_root = Path("/srv/homeassistant-config")
+
+        def fake_run(runtime: str, *args: str):
+            if runtime != "docker":
+                return None
+            if args == ("ps", "--format", "{{.ID}}\t{{.Names}}\t{{.Image}}"):
+                return subprocess.CompletedProcess(
+                    [runtime, *args],
+                    0,
+                    stdout="abc123\thomeassistant\tghcr.io/home-assistant/home-assistant:stable\n",
+                    stderr="",
+                )
+            if args == ("inspect", "abc123"):
+                return subprocess.CompletedProcess(
+                    [runtime, *args],
+                    0,
+                    stdout=json.dumps([
+                        {
+                            "Mounts": [
+                                {
+                                    "Destination": "/config",
+                                    "Source": str(container_root),
+                                }
+                            ]
+                        }
+                    ]),
+                    stderr="",
+                )
+            return subprocess.CompletedProcess([runtime, *args], 0, stdout="", stderr="")
+
+        with (
+            patch.object(deploy_exact_repo_build, "_run_container_runtime_command", side_effect=fake_run),
+            patch.object(deploy_exact_repo_build, "_looks_like_home_assistant_config_root", side_effect=lambda path: path == container_root),
+            patch.object(deploy_exact_repo_build, "COMMON_CONFIG_CANDIDATE_PATHS", ()),
+            patch.object(deploy_exact_repo_build, "COMMON_RECURSIVE_DISCOVERY_ROOTS", ()),
+            patch.dict(os.environ, {}, clear=True),
+        ):
+            discovered = deploy_exact_repo_build.discover_home_assistant_config_roots()
+
+        self.assertEqual(discovered, [container_root.resolve()])
+
+    def test_discovery_container_runtime_statuses_report_home_assistant_matches(self) -> None:
+        def fake_run(runtime: str, *args: str):
+            if args != ("ps", "--format", "{{.ID}}\t{{.Names}}\t{{.Image}}"):
+                return subprocess.CompletedProcess([runtime, *args], 0, stdout="", stderr="")
+            if runtime == "docker":
+                return subprocess.CompletedProcess(
+                    [runtime, *args],
+                    0,
+                    stdout=(
+                        "abc123\thomeassistant\tghcr.io/home-assistant/home-assistant:stable\n"
+                        "def456\tother\tnode:22\n"
+                    ),
+                    stderr="",
+                )
+            return None
+
+        with patch.object(deploy_exact_repo_build, "_run_container_runtime_command", side_effect=fake_run):
+            statuses = deploy_exact_repo_build.discovery_container_runtime_statuses()
+
+        self.assertEqual(
+            statuses,
+            [
+                "docker=ok:containers=2:home_assistant_matches=1",
+                "podman=unavailable",
+            ],
+        )
 
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
