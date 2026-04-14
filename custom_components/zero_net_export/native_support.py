@@ -314,19 +314,23 @@ def build_source_repair_step(
         )
 
     attention_parts: list[str] = []
+    repair_actions: list[str] = []
     if unavailable_roles != "None":
         attention_parts.append(f"unavailable roles: {unavailable_roles}")
+        repair_actions.append(f"restore live availability for {unavailable_roles}")
     if stale_roles != "None":
         attention_parts.append(f"stale roles: {stale_roles}")
+        repair_actions.append(f"refresh or replace stale readings for {stale_roles}")
     if attention_parts:
         blocker_text = (
             f"these mapped-source blockers first: {affected_roles_text}"
             if affected_roles_text and affected_roles_text != "None"
             else f"these mapped-source blockers ({'; '.join(attention_parts)})"
         )
+        repair_action_text = "; ".join(repair_actions)
         confirm_roles = affected_roles_text if affected_roles_text and affected_roles_text != "None" else ", ".join(attention_parts)
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}, then save and reload the integration, "
+            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text} by making sure {repair_action_text}, then save and reload the integration, "
             f"{_confirm_recovery_suffix(confirm_roles)}"
         )
 

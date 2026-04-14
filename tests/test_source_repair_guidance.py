@@ -84,6 +84,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("repair these mapped-source blockers first", guidance)
         self.assertIn("Solar power -> sensor.pv_power (unavailable)", guidance)
         self.assertIn("Grid export power -> sensor.grid_export (stale 245 s)", guidance)
+        self.assertIn("restore live availability for Solar power", guidance)
+        self.assertIn("refresh or replace stale readings for Grid export power", guidance)
         self.assertIn("reopen Sensors and source mapping to confirm these roles recover", guidance)
 
     def test_repair_step_names_missing_roles_in_recovery_check(self) -> None:
@@ -96,6 +98,14 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             "reopen Sensors and source mapping to confirm these roles recover: Solar power, Grid import power.",
             guidance,
         )
+
+    def test_repair_step_with_unavailable_roles_only_tells_operator_to_restore_availability(self) -> None:
+        native_support = _load_native_support_module()
+        guidance = native_support.build_source_repair_step(
+            unavailable_source_keys=["solar_power_entity"],
+        )
+        self.assertIn("restore live availability for Solar power", guidance)
+        self.assertNotIn("refresh or replace stale readings", guidance)
 
     def test_attention_role_summary_includes_validation_only_role_errors(self) -> None:
         native_support = _load_native_support_module()
