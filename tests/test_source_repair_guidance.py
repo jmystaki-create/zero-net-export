@@ -108,6 +108,36 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("restore live availability for Solar power", guidance)
         self.assertNotIn("refresh or replace stale readings", guidance)
 
+    def test_unavailable_sources_do_not_also_appear_as_stale_roles(self) -> None:
+        native_support = _load_native_support_module()
+        state = types.SimpleNamespace(
+            validation_details={
+                "source_diagnostics": {
+                    "solar_power_entity": {
+                        "status": "unavailable",
+                        "entity_id": "sensor.pv_power",
+                        "issues": ["Solar power entity sensor.pv_power is unavailable"],
+                    }
+                },
+                "source_freshness": {
+                    "solar_power_entity": {
+                        "stale": True,
+                        "age_seconds": 245,
+                    }
+                },
+            },
+            source_diagnostics={},
+        )
+        details = native_support.build_source_attention_details(state)
+        self.assertEqual(details["unavailable_source_keys"], ["solar_power_entity"])
+        self.assertEqual(details["stale_source_keys"], [])
+        summary = native_support.build_source_attention_summary(
+            state,
+            {"solar_power_entity": "sensor.pv_power"},
+        )
+        self.assertIn("Solar power (sensor.pv_power, unavailable)", summary)
+        self.assertNotIn("stale 245 s", summary)
+
     def test_repair_step_without_affected_role_summary_still_names_roles_in_recovery_check(self) -> None:
         native_support = _load_native_support_module()
         guidance = native_support.build_source_repair_step(

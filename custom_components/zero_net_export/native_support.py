@@ -88,9 +88,11 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
         if merged.get("stale_threshold_seconds") is None:
             merged["stale_threshold_seconds"] = freshness.get("stale_threshold_seconds")
         enriched_source_diagnostics[key] = merged
-        if merged.get("status") == "unavailable":
+        is_unavailable = merged.get("status") == "unavailable"
+        is_stale = bool(merged.get("stale")) or (merged.get("age_seconds") or 0) > 120
+        if is_unavailable:
             unavailable_source_keys.append(key)
-        if merged.get("stale") or (merged.get("age_seconds") or 0) > 120:
+        if is_stale and not is_unavailable:
             stale_source_keys.append(key)
 
     return {
@@ -174,9 +176,10 @@ def build_source_attention_role_summary(
         entity_label = str(details.get("entity_id") or configured_label or "not resolved")
 
         markers: list[str] = []
-        if details.get("status") == "unavailable":
+        is_unavailable = details.get("status") == "unavailable"
+        if is_unavailable:
             markers.append("unavailable")
-        if details.get("stale"):
+        if details.get("stale") and not is_unavailable:
             age_seconds = details.get("age_seconds")
             if age_seconds is not None:
                 markers.append(f"stale {int(age_seconds)} s")
@@ -216,9 +219,10 @@ def build_source_attention_summary(
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
         entity_label = str(details.get("entity_id") or configured_label or "not resolved")
         status_bits: list[str] = []
-        if details.get("status") == "unavailable":
+        is_unavailable = details.get("status") == "unavailable"
+        if is_unavailable:
             status_bits.append("unavailable")
-        if details.get("stale"):
+        if details.get("stale") and not is_unavailable:
             age_seconds = details.get("age_seconds")
             status_bits.append(f"stale {int(age_seconds)} s" if age_seconds is not None else "stale")
         validation_message = _validation_issue_message_for_role(source_attention, key)
