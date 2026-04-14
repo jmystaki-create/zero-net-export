@@ -6,12 +6,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.82] - 2026-04-14
+
 ### Fixed
 - Made the exact deploy helper and installed-package fingerprint summary print an explicit post-restart validation checklist that sends operators back to **Configure -> Sensors and source mapping** before trusting live control, so the manual install and live-repair path stays aligned with the native command-center workflow.
 - Aligned the remaining native operator wording from `Configured devices` to `Managed devices` across setup/repairs copy, command-center support snapshot text, status/reason summaries, core sensor names, and the optional in-HA debug dashboard so the shipped Home Assistant surfaces reinforce one consistent device-management path.
 - Corrected the remaining planning and optional-dashboard wording that still said `integration device page`, so those docs now point to the exact native Home Assistant device path used elsewhere in the shipped support guidance.
 - Tightened the native Repairs runtime-attention issue so it now includes blocking source-validation details alongside unavailable/stale mapped roles and the existing selector-fallback guidance, making the Home Assistant-native troubleshooting path clearer before deeper runtime validation.
 - Added installed-package fingerprint details to the native Configure command center and Health/support screen, so mixed-build diagnosis now shows the live component path, code-versus-manifest version state, and tracked-file hashes before operators drop into full diagnostics.
+- Clarified install-summary remediation so operators can see the exact upstream-sync next step and discovery rerun guidance before attempting another exact-copy deploy.
+- Corrected project automation steering so Home Assistant access must be checked through the documented TOOLS.md SSH path before supervisor/watchdog runs claim live validation is blocked.
 
 ## [0.1.80] - 2026-04-12
 
