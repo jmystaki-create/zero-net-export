@@ -180,8 +180,8 @@ class InstallHelperScriptsTests(unittest.TestCase):
                 text=True,
             ).strip()
 
-            self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG", result.stdout)
-            self.assertIn("checked_candidate_paths=/config", result.stdout)
+            self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG,HOMEASSISTANT_CONFIG,HASSIO_HOMEASSISTANT", result.stdout)
+            self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
             self.assertIn("discovered_config_count=", result.stdout)
             self.assertIn(str(config_root.resolve()), result.stdout)
             self.assertIn(f"git_commit={repo_commit}", result.stdout)
@@ -242,11 +242,26 @@ class InstallHelperScriptsTests(unittest.TestCase):
             )
 
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG", result.stdout)
-            self.assertIn("checked_candidate_paths=/config", result.stdout)
+            self.assertIn("checked_env_keys=HOME_ASSISTANT_CONFIG,HASS_CONFIG,HA_CONFIG,HOMEASSISTANT_CONFIG,HASSIO_HOMEASSISTANT", result.stdout)
+            self.assertIn("checked_candidate_paths=/config,/homeassistant,/usr/share/hassio/homeassistant,/mnt/data/supervisor/homeassistant,/var/lib/homeassistant,/srv/homeassistant", result.stdout)
             self.assertIn("discovered_config_paths=none", result.stdout)
             self.assertIn("discovery_guidance=run this from the Home Assistant host or container", result.stdout)
             self.assertIn("next_step=pass your Home Assistant config directory path explicitly to this script", result.stdout)
+
+    def test_discover_home_assistant_config_roots_checks_common_supervised_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            candidate_root = Path(tmpdir) / "mnt" / "data" / "supervisor" / "homeassistant"
+            candidate_root.mkdir(parents=True)
+            (candidate_root / ".storage").mkdir()
+
+            with patch.object(
+                deploy_exact_repo_build,
+                "COMMON_CONFIG_CANDIDATE_PATHS",
+                (Path("/does-not-exist"), candidate_root),
+            ):
+                discovered = deploy_exact_repo_build.discover_home_assistant_config_roots()
+
+        self.assertEqual(discovered, [candidate_root.resolve()])
 
     def test_deploy_exact_repo_build_dry_run_reports_existing_install_delta(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

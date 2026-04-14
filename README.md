@@ -100,7 +100,7 @@ For manual installs or live repair work, prefer the exact deploy helper from thi
     python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components
     ```
     The deploy helper now also prints the post-restart checklist, which points operators back to **Configure -> Sensors and source mapping** before trusting live control.
-4.  If you only know the install root indirectly, you can also point the deploy helper at `/path/to/home-assistant/config/custom_components`, the full installed `.../custom_components/zero_net_export` path, or use discovery first:
+4.  If you only know the install root indirectly, you can also point the deploy helper at `/path/to/home-assistant/config/custom_components`, the full installed `.../custom_components/zero_net_export` path, or use discovery first. The discovery mode checks common Home Assistant env vars plus typical container, Home Assistant OS / Supervised, and bare-metal config paths:
     ```bash
     python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config
     ```

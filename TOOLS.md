@@ -61,7 +61,7 @@ python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/c
 
 After the exact deploy copy succeeds, use the helper's printed post-restart checklist and go back to Configure -> Sensors and source mapping before trusting live control.
 
-Use discovery first when the install root is unknown:
+Use discovery first when the install root is unknown. The helper checks common Home Assistant env vars plus typical container, Home Assistant OS / Supervised, and bare-metal config paths:
 
 ```bash
 python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config

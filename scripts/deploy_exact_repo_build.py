@@ -34,9 +34,16 @@ COMMON_CONFIG_ENV_KEYS = (
     "HOME_ASSISTANT_CONFIG",
     "HASS_CONFIG",
     "HA_CONFIG",
+    "HOMEASSISTANT_CONFIG",
+    "HASSIO_HOMEASSISTANT",
 )
 COMMON_CONFIG_CANDIDATE_PATHS = (
     Path("/config"),
+    Path("/homeassistant"),
+    Path("/usr/share/hassio/homeassistant"),
+    Path("/mnt/data/supervisor/homeassistant"),
+    Path("/var/lib/homeassistant"),
+    Path("/srv/homeassistant"),
     Path("~/.homeassistant"),
     Path("~/homeassistant"),
     Path("~/config/homeassistant"),
