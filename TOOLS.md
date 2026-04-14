@@ -47,6 +47,28 @@ Preferred for:
 
 Use local filesystem or shell inspection when package contents or runtime environment need confirmation.
 
+### Home Assistant SSH path, use this before calling live validation blocked
+
+If this workspace shell cannot see the real Home Assistant config, jump to the actual Home Assistant host or container shell first, for example through the Home Assistant SSH / terminal path the user already has available.
+
+From that real Home Assistant shell, answer these questions in order:
+
+```bash
+pwd
+ls /config
+```
+
+- If `/config` exists and is the real Home Assistant config mount, use `/config` as the target path for deploy and fingerprint validation.
+- If `/config` is not the real config mount, rerun discovery from that same shell so the helper can inspect the real filesystem and any local container runtime there:
+
+```bash
+python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config
+```
+
+- If the repo helper is not available in that shell, still use the SSH shell to identify the exact Home Assistant config path or host-side `/config` backing path, then run the helper from an environment that has both this repo checkout and that live path mounted.
+
+Do not treat live deploy or restart validation as blocked until this Home Assistant SSH path has been tried and still cannot reveal the real config directory.
+
 ## 5. Repo helper scripts
 
 Preferred for exact-build validation during manual install or live repair work.

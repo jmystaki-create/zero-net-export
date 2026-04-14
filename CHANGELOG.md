@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Documented the required Home Assistant SSH fallback path in `TOOLS.md`, including the `/config` check and rerun-discovery step the supervisor should try before declaring live deploy or restart validation blocked.
 - Strengthened the exact-build config-path discovery helper so it now reports Docker and Podman runtime status, inspects running Home Assistant container mounts for host-side `/config` paths, and prints an explicit container-runtime follow-up when discovery still cannot see the live install from the current shell.
 
 ## [0.1.82] - 2026-04-14
