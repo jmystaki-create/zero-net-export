@@ -41,7 +41,7 @@ class ReleaseMetadataIntegrityTests(unittest.TestCase):
     def test_readme_current_highest_value_next_step_points_to_current_remote_sync_then_exact_deploy_flow(self) -> None:
         readme = README_PATH.read_text(encoding="utf-8")
         self.assertIn(
-            "**Current highest-value next step:** push the intended deploy-helper commit to the tracked remote branch",
+            "**Current highest-value next step:** from the real Home Assistant host or container, run the exact deploy-helper discovery, dry-run, deploy, fingerprint validation, and restart sequence against the current synchronized repo HEAD before continuing live validation.",
             readme,
         )
 
