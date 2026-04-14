@@ -492,6 +492,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "support_status": command_center.get("support_status"),
                 "status_summary": command_center.get("status_summary"),
                 "recommended_section": command_center.get("recommended_section"),
+                "recommended_reason": command_center.get("recommended_reason"),
                 "recommended_path": command_center.get("recommended_path"),
                 "sources_path": command_center.get("sources_path"),
                 "devices_path": command_center.get("devices_path"),

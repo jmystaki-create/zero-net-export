@@ -769,6 +769,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- Live mode control: {command_center.get('mode_path')}",
         f"- Recommended command-center section: {command_center.get('recommended_section')}",
         f"- Recommended command-center path: {command_center.get('recommended_path')}",
+        f"- Why this section is recommended: {command_center.get('recommended_reason')}",
         f"- Command-center next action: {command_center.get('next_action_summary')}",
         f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
         "",
@@ -868,6 +869,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"Primary path: {PRIMARY_CONFIGURE_PATH}",
             f"Recommended section right now: {recommended_section}",
             f"Recommended path right now: {command_center.get('recommended_path')}",
+            f"Why this section is recommended: {command_center.get('recommended_reason')}",
             f"What to do next: {command_center.get('next_action_summary')}",
             f"Installed package: {command_center.get('install_status')}",
             f"Install consistency: {command_center.get('install_consistency')}",
@@ -1041,6 +1043,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         else "No mapped-source blockers currently highlighted"
     )
 
+    recommended_reason = status_summary_map.get(recommended_section, support_status)
+
     return {
         "source_status": source_status,
         "source_attention_summary": source_attention_summary_display,
@@ -1056,7 +1060,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "install_status": install_status,
         "install_consistency": install_consistency,
         "install_fingerprint_summary": install_fingerprint_summary,
-        "status_summary": status_summary_map.get(recommended_section, support_status),
+        "status_summary": recommended_reason,
+        "recommended_reason": recommended_reason,
         "recommended_section": recommended_section,
         "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),
         "next_action_summary": next_action_summary,
@@ -1091,6 +1096,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Live mode control: {command_center.get('mode_path')}",
             f"Recommended command-center section: {command_center.get('recommended_section')}",
             f"Recommended command-center path: {command_center.get('recommended_path')}",
+            f"Why this section is recommended: {command_center.get('recommended_reason')}",
             f"Current mapped-source blockers: {command_center.get('source_attention_summary')}",
             f"Affected mapped roles: {command_center.get('source_attention_roles')}",
             f"Unavailable mapped roles: {command_center.get('unavailable_sources')}",

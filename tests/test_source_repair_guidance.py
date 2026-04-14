@@ -236,6 +236,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             {
                 "recommended_section": "Sensors",
                 "recommended_path": native_support.SOURCES_CONFIGURE_PATH,
+                "recommended_reason": "Mapped source blockers: Solar power unavailable.",
                 "next_action_summary": "Repair the mapped-source blockers first.",
                 "install_status": "install summary",
                 "install_consistency": "install consistency",
@@ -259,6 +260,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertIn("Recommended section right now: Sensors and source mapping", guide)
         self.assertNotIn("Recommended section right now: Sensors\n", guide)
+        self.assertIn("Why this section is recommended: Mapped source blockers: Solar power unavailable.", guide)
         self.assertIn("Use these native paths for the common operator jobs", guide)
         self.assertIn(f"- Fix source mapping or mapped-source blockers: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Add or edit managed devices: {native_support.DEVICES_CONFIGURE_PATH}", guide)
@@ -300,6 +302,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
         self.assertEqual(command_center["recommended_section"], native_support.SOURCES_SECTION_LABEL)
         self.assertEqual(command_center["recommended_path"], native_support.SOURCES_CONFIGURE_PATH)
+        self.assertEqual(command_center["recommended_reason"], command_center["source_status"])
         self.assertIn("Missing required source roles", command_center["source_status"])
         self.assertIn("repair", command_center["device_next_step"])
 
@@ -318,6 +321,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         support_center = native_support.build_native_support_center(_FakeCoordinator())
         self.assertIn("Where each native path lives:", support_center)
+        self.assertIn("Why this section is recommended:", support_center)
         self.assertIn(f"- Sensors and source mapping: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Managed devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)

@@ -41,6 +41,7 @@ class NativeUiStringsTests(unittest.TestCase):
         self.assertIn("- Sensors and source mapping: {sources_path}", init_step["description"])
         self.assertIn("- Controls: {policy_path}", init_step["description"])
         self.assertIn("- Diagnostics: {support_path}.", init_step["description"])
+        self.assertIn("Why this section is recommended: {recommended_reason}", init_step["description"])
         self.assertNotIn("- Detailed management:", init_step["description"])
         self.assertNotIn("{detailed_management_summary}", init_step["description"])
         self.assertNotIn("{detailed_management_path}", init_step["description"])
@@ -75,6 +76,10 @@ class NativeUiStringsTests(unittest.TestCase):
             setup_issue["description"],
         )
         self.assertIn(
+            "Why this section is recommended: {recommended_reason}",
+            setup_issue["description"],
+        )
+        self.assertIn(
             "Current mapped roles:\n{source_mapping_summary}",
             setup_issue["description"],
         )
@@ -92,6 +97,10 @@ class NativeUiStringsTests(unittest.TestCase):
         )
         self.assertIn(
             "Recommended native path right now: {recommended_path}",
+            runtime_issue["description"],
+        )
+        self.assertIn(
+            "Why this section is recommended: {recommended_reason}",
             runtime_issue["description"],
         )
         self.assertIn(
@@ -120,6 +129,10 @@ class NativeUiStringsTests(unittest.TestCase):
         )
         self.assertIn(
             "- Controls for policy tuning: {policy_path}",
+            diagnostics_step["description"],
+        )
+        self.assertIn(
+            "Why this section is recommended: {recommended_reason}",
             diagnostics_step["description"],
         )
         self.assertIn(

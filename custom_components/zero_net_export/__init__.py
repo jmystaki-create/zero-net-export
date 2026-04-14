@@ -35,7 +35,12 @@ from .const import (
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .native_support import INTEGRATION_DEVICE_PATH, PRIMARY_CONFIGURE_PATH
-from .native_support import build_native_operator_readiness, build_native_setup_recommendation, build_source_attention_role_summary
+from .native_support import (
+    build_native_command_center_summary,
+    build_native_operator_readiness,
+    build_native_setup_recommendation,
+    build_source_attention_role_summary,
+)
 from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
 
@@ -64,6 +69,8 @@ async def _async_update_native_setup_notice(
     merged = dict(entry.data)
     merged.update(entry.options)
     readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
+    command_center = build_native_command_center_summary(coordinator) if coordinator is not None else {}
+    summary = str(readiness.get("summary") or "Zero Net Export still needs attention before it is fully operator-ready.")
     source_attention_roles = build_source_attention_role_summary(state, merged, limit=4)
 
     if not missing_sources and devices and not device_issues and source_attention_roles == "None":
@@ -97,7 +104,8 @@ async def _async_update_native_setup_notice(
     message = (
         f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} as the Zero Net Export command center for Sensors and source mapping, Managed devices, Controls, and Diagnostics.\n\n"
         + f"Recommended command-center section right now: {setup_recommendation['recommended_section']}\n"
-        + f"Recommended native path right now: {setup_recommendation['recommended_path']}\n\n"
+        + f"Recommended native path right now: {setup_recommendation['recommended_path']}\n"
+        + f"Why this section is recommended: {command_center.get('recommended_reason') or summary}\n\n"
         + "Use the native command center sections like this:\n"
         + f"- Sensors and source mapping: repair mapped sources and confirm live source health\n"
         + f"- Managed devices: add, edit, enable, disable, or remove controllable loads\n"

@@ -1282,6 +1282,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_priority_candidate_hints": support_priority_candidate_hints,
             "recommended_section": str(command_center.get("recommended_section") or "Diagnostics"),
             "recommended_path": str(command_center.get("recommended_path") or SUPPORT_CONFIGURE_PATH),
+            "recommended_reason": str(command_center.get("recommended_reason") or command_center.get("status_summary") or readiness.get("summary") or "Review the current blocker in the recommended command-center section."),
             "next_action_summary": str(command_center.get("next_action_summary") or readiness.get("next_step") or "Review the current blocker, then follow the recommended native Configure path."),
         }
 
@@ -1306,6 +1307,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "policy_readiness": command_center["policy_readiness"],
             "recommended_section": command_center["recommended_section"],
             "recommended_path": command_center["recommended_path"],
+            "recommended_reason": command_center["recommended_reason"],
             "sources_path": SOURCES_CONFIGURE_PATH,
             "devices_path": DEVICES_CONFIGURE_PATH,
             "policy_path": POLICY_CONFIGURE_PATH,

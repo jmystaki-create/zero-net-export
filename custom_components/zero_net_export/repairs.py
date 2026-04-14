@@ -144,6 +144,7 @@ def async_sync_repairs_issues(
                 "fallback_hint": setup_fallback_text,
                 "recommended_section": recommended_section,
                 "recommended_path": recommended_path,
+                "recommended_reason": str(command_center.get("recommended_reason") or command_center.get("status_summary") or summary),
             },
         )
     else:
@@ -232,6 +233,7 @@ def async_sync_repairs_issues(
                 "source_attention_roles": source_attention_roles,
                 "recommended_section": recommended_section,
                 "recommended_path": recommended_path,
+                "recommended_reason": str(command_center.get("recommended_reason") or command_center.get("status_summary") or summary),
             },
         )
     else:
