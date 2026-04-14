@@ -117,6 +117,30 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             concise,
         )
 
+    def test_setup_recommendation_prefers_sensors_when_source_blockers_exist(self) -> None:
+        native_support = _load_native_support_module()
+        recommendation = native_support.build_native_setup_recommendation(
+            missing_source_keys=["solar_power_entity"],
+            source_attention_roles="Solar power -> sensor.pv_power (unavailable)",
+            device_issues=[],
+            has_devices=False,
+            readiness_phase="operator_setup",
+        )
+        self.assertEqual(recommendation["recommended_section"], "Sensors")
+        self.assertEqual(recommendation["recommended_path"], native_support.SOURCES_CONFIGURE_PATH)
+
+    def test_setup_recommendation_prefers_managed_devices_when_sources_are_ready(self) -> None:
+        native_support = _load_native_support_module()
+        recommendation = native_support.build_native_setup_recommendation(
+            missing_source_keys=[],
+            source_attention_roles="None",
+            device_issues=[],
+            has_devices=False,
+            readiness_phase="operator_setup",
+        )
+        self.assertEqual(recommendation["recommended_section"], "Managed devices")
+        self.assertEqual(recommendation["recommended_path"], native_support.DEVICES_CONFIGURE_PATH)
+
     def test_command_center_guide_text_includes_source_blocker_details(self) -> None:
         native_support = _load_native_support_module()
         guide = native_support.build_native_command_center_guide_text(

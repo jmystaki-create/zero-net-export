@@ -808,6 +808,36 @@ def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
     return operator_readiness
 
 
+def build_native_setup_recommendation(
+    *,
+    missing_source_keys: list[str] | None = None,
+    source_attention_roles: str | None = None,
+    device_issues: list[str] | None = None,
+    has_devices: bool = False,
+    readiness_phase: str | None = None,
+) -> dict[str, str]:
+    """Return the best current native section for setup follow-through."""
+    if missing_source_keys or (source_attention_roles and source_attention_roles != "None"):
+        return {
+            "recommended_section": "Sensors",
+            "recommended_path": SOURCES_CONFIGURE_PATH,
+        }
+    if device_issues or not has_devices:
+        return {
+            "recommended_section": "Managed devices",
+            "recommended_path": DEVICES_CONFIGURE_PATH,
+        }
+    if str(readiness_phase or "").strip() == "runtime_readiness":
+        return {
+            "recommended_section": "Diagnostics",
+            "recommended_path": SUPPORT_CONFIGURE_PATH,
+        }
+    return {
+        "recommended_section": "Controls",
+        "recommended_path": POLICY_CONFIGURE_PATH,
+    }
+
+
 def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
     """Return the device-surface command-center guide text."""
     return "\n".join(

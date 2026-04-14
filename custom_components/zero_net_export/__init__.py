@@ -35,7 +35,7 @@ from .const import (
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .native_support import INTEGRATION_DEVICE_PATH, PRIMARY_CONFIGURE_PATH
-from .native_support import build_native_operator_readiness, build_source_attention_role_summary
+from .native_support import build_native_operator_readiness, build_native_setup_recommendation, build_source_attention_role_summary
 from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
 
@@ -85,12 +85,26 @@ async def _async_update_native_setup_notice(
     if source_attention_roles != "None":
         bullets.append("Mapped source blockers right now: " + source_attention_roles)
 
-    next_step = str(readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup.")
+    setup_recommendation = build_native_setup_recommendation(
+        missing_source_keys=missing_sources,
+        source_attention_roles=source_attention_roles,
+        device_issues=device_issues,
+        has_devices=bool(devices),
+        readiness_phase=str(readiness.get("phase") or ""),
+    )
+    next_step = str(readiness.get("next_step") or f"Open {setup_recommendation['recommended_path']} and continue setup.")
 
     message = (
         f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} as the Zero Net Export command center for Sensors, Managed devices, Controls, and Diagnostics.\n\n"
+        + f"Recommended command-center section right now: {setup_recommendation['recommended_section']}\n"
+        + f"Recommended native path right now: {setup_recommendation['recommended_path']}\n\n"
         + "\n".join(f"- {item}" for item in bullets)
         + f"\n\nNext step: {next_step}"
+        + (
+            "\nAfter source repairs, reopen Configure -> Sensors and source mapping to confirm live source health."
+            if source_attention_roles != "None" or missing_sources
+            else ""
+        )
         + f"\n\nUse {INTEGRATION_DEVICE_PATH} support actions for a combined support center, setup checklist, and detailed diagnostics snapshot."
     )
     persistent_notification.async_create(
