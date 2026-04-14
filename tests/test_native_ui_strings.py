@@ -32,11 +32,13 @@ class NativeUiStringsTests(unittest.TestCase):
             },
         )
         self.assertIn("four main Configure sections", init_step["description"])
+        self.assertIn("Live mode remains the nearby device-path handoff, not another Configure section.", init_step["description"])
         self.assertIn("Detailed management remains the deeper device-view handoff outside this Configure menu.", init_step["description"])
         self.assertIn("Use these native sections for the most common operator jobs:", init_step["description"])
         self.assertIn("- Fix source mapping, unavailable sensors, or stale source health: {sources_path}", init_step["description"])
         self.assertIn("- Add, review, edit, enable, disable, or remove controllable loads: {devices_path}", init_step["description"])
-        self.assertIn("- Change export target, deadband, reserve, or live control behaviour: {policy_path}", init_step["description"])
+        self.assertIn("- Change export target, deadband, reserve, and controller defaults: {policy_path}", init_step["description"])
+        self.assertIn("- Change live control mode right now: {mode_path}", init_step["description"])
         self.assertIn("- Check runtime health, install consistency, and troubleshooting guidance: {support_path}", init_step["description"])
         self.assertIn("- Sensors and source mapping: {sources_path}", init_step["description"])
         self.assertIn("- Controls: {policy_path}", init_step["description"])
@@ -129,6 +131,10 @@ class NativeUiStringsTests(unittest.TestCase):
         )
         self.assertIn(
             "- Controls for policy tuning: {policy_path}",
+            diagnostics_step["description"],
+        )
+        self.assertIn(
+            "- Live mode control on the device path: {mode_path}",
             diagnostics_step["description"],
         )
         self.assertIn(

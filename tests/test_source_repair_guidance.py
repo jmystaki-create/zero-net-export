@@ -256,6 +256,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "devices_path": native_support.DEVICES_CONFIGURE_PATH,
                 "policy_path": native_support.POLICY_CONFIGURE_PATH,
                 "support_path": native_support.SUPPORT_CONFIGURE_PATH,
+                "mode_path": native_support.MODE_CONTROL_PATH,
             }
         )
         self.assertIn("Recommended section right now: Sensors and source mapping", guide)
@@ -264,6 +265,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Use these native paths for the common operator jobs", guide)
         self.assertIn(f"- Fix source mapping or mapped-source blockers: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Add or edit managed devices: {native_support.DEVICES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Tune export policy defaults and thresholds: {native_support.POLICY_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Change live control mode right now: {native_support.MODE_CONTROL_PATH}", guide)
         self.assertIn("- Unavailable mapped roles: Solar power", guide)
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
