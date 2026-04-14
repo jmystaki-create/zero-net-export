@@ -135,6 +135,7 @@ def async_sync_repairs_issues(
             translation_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "missing_sources": ", ".join(missing_sources) if missing_sources else "None",
+                "source_mapping_summary": str(command_center.get("source_mapping_summary") or "- None"),
                 "device_count": str(len(devices)),
                 "next_step": next_step,
                 "summary": summary,
@@ -220,6 +221,7 @@ def async_sync_repairs_issues(
                 "support_path": SOURCES_CONFIGURE_PATH if (missing_source_keys or unavailable_sources or stale_sources or data.stale_data) else SUPPORT_CONFIGURE_PATH,
                 "health_summary": str(data.health_summary or summary),
                 "reason_summary": " ".join(runtime_reasons[:3]),
+                "source_mapping_summary": str(command_center.get("source_mapping_summary") or "- None"),
                 "unavailable_sources": unavailable_sources or "None",
                 "stale_sources": stale_sources or "None",
                 "next_step": runtime_next_step,

@@ -70,7 +70,15 @@ class NativeUiStringsTests(unittest.TestCase):
             setup_issue["description"],
         )
         self.assertIn(
+            "Current mapped roles:\n{source_mapping_summary}",
+            setup_issue["description"],
+        )
+        self.assertIn(
             "Affected mapped roles: {source_attention_roles}",
+            runtime_issue["description"],
+        )
+        self.assertIn(
+            "Current mapped roles:\n{source_mapping_summary}",
             runtime_issue["description"],
         )
         self.assertIn(
