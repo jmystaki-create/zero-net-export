@@ -11,6 +11,7 @@ from .native_support import (
     DEVICES_CONFIGURE_PATH,
     POLICY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
+    _truncate_state_summary,
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_source_attention_details,
@@ -148,6 +149,34 @@ VALIDATION_ATTRIBUTE_SENSOR_KEYS = {
     "recent_failure_summary",
     "last_successful_action_summary",
 }
+
+
+def _trim_sensor_state(sensor_key: str, value, coordinator=None, state=None):
+    if value is None or not isinstance(value, str):
+        return value
+
+    fallback_by_key = {
+        "stale_source_summary": "Required mapped source data is stale; reopen Configure -> Sensors and source mapping for the affected roles.",
+        "reason": "Mapped source freshness is blocking control; reopen Configure -> Sensors and source mapping.",
+        "health_summary": "Mapped source freshness still needs attention; reopen Configure -> Sensors and source mapping.",
+        "recommendation": "Restore fresh mapped source readings, then reload the integration and confirm recovery in Sensors and source mapping.",
+        "unmanaged_candidate_overview": "See candidate_devices in the sensor attributes for the current unmanaged-device preview.",
+        "candidate_shortlist": "See candidate_devices in the sensor attributes for the current shortlist.",
+        "candidate_shortlist_fit": "See candidate_devices and top_candidate_fit in the sensor attributes for the current shortlist guidance.",
+        "fleet_console_next_step": f"Open {DEVICES_CONFIGURE_PATH} to review unmanaged candidates and managed-device status.",
+        "mapped_source_blocker_summary": "Mapped-source blockers are active; see affected_mapped_sources in the sensor attributes.",
+        "mapped_source_blocker_next_step": f"Open {SOURCES_CONFIGURE_PATH}, repair the highlighted mapped roles, then save, reload, and confirm recovery.",
+        "command_center_status": "Open Configure to continue in the recommended command-center section.",
+        "command_center_next_step": f"Open {SOURCES_CONFIGURE_PATH} or the recommended native section and continue the highlighted step.",
+    }
+
+    fallback = fallback_by_key.get(sensor_key)
+    if fallback is None and coordinator is not None and sensor_key in {"mapped_source_blocker_next_step", "command_center_next_step"}:
+        recommended_path = build_native_command_center_summary(coordinator).get("recommended_path") or SOURCES_CONFIGURE_PATH
+        fallback = f"Open {recommended_path} and continue."
+    if fallback is None:
+        fallback = value[:252] + "..." if len(value) > 255 else value
+    return _truncate_state_summary(value, fallback=fallback)
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -369,8 +398,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "command_center_recommended_path": command_center.get("recommended_path"),
                 "command_center_next_step": command_center.get("next_action_summary"),
             }
-            return mapping.get(self._key)
-        return getattr(state, self._key)
+            return _trim_sensor_state(self._key, mapping.get(self._key), coordinator=self.coordinator, state=state)
+        return _trim_sensor_state(self._key, getattr(state, self._key), coordinator=self.coordinator, state=state)
 
     @property
     def entity_category(self):

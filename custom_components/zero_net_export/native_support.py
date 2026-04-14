@@ -58,6 +58,14 @@ SUPPORT_CONFIGURE_PATH = (
     f"{INTEGRATION_DEVICE_PATH} -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
     "Settings -> Repairs"
 )
+MAX_NATIVE_SENSOR_STATE_CHARS = 255
+
+
+def _truncate_state_summary(text: str, *, fallback: str) -> str:
+    normalized = " ".join(str(text).split())
+    if len(normalized) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return normalized
+    return fallback
 
 
 def _validation_details(state: Any) -> dict[str, Any]:
@@ -1051,6 +1059,26 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
 
     recommended_reason = status_summary_map.get(recommended_section, support_status)
+    status_summary = _truncate_state_summary(
+        str(recommended_reason),
+        fallback=(
+            "Open Configure to continue in the recommended command-center section."
+            if recommended_section != "Managed devices"
+            else "Open Managed devices in Configure to continue fleet work."
+        ),
+    )
+    next_action_summary = _truncate_state_summary(
+        str(next_action_summary),
+        fallback=(
+            f"Open {SOURCES_CONFIGURE_PATH} and use the highlighted native guidance to continue."
+            if missing_required_sources or runtime_source_attention
+            else (
+                f"Open {DEVICES_CONFIGURE_PATH} to continue managed-device setup."
+                if device_parse_issues or not configured_devices
+                else f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+            )
+        ),
+    )
 
     return {
         "source_status": source_status,
@@ -1067,7 +1095,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "install_status": install_status,
         "install_consistency": install_consistency,
         "install_fingerprint_summary": install_fingerprint_summary,
-        "status_summary": recommended_reason,
+        "status_summary": status_summary,
         "recommended_reason": recommended_reason,
         "recommended_section": recommended_section,
         "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),
