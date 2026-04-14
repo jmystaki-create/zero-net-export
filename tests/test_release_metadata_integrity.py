@@ -9,7 +9,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "manifest.json"
 CHANGELOG_PATH = REPO_ROOT / "CHANGELOG.md"
 README_PATH = REPO_ROOT / "README.md"
-TEST_INSTALL_MANIFEST_PATH = REPO_ROOT / "tmp" / "test-ha-config" / "custom_components" / "zero_net_export" / "manifest.json"
+TEST_INSTALL_MANIFEST_PATH = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "test_ha_config"
+    / "custom_components"
+    / "zero_net_export"
+    / "manifest.json"
+)
 
 
 class ReleaseMetadataIntegrityTests(unittest.TestCase):
