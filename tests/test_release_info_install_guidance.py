@@ -134,7 +134,15 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             summary,
         )
         self.assertIn(
-            "- exact_copy_sequence: From the real Home Assistant host or container, run discovery first if the config path is unknown.",
+            "- exact_copy_sequence: From the real Home Assistant host or container, run discovery first if the config path is unknown with `python3 scripts/deploy_exact_repo_build.py --discover-home-assistant-config`.",
+            summary,
+        )
+        self.assertIn(
+            "Then run `python3 scripts/deploy_exact_repo_build.py /config --dry-run --expected-commit <intended_commit> --require-clean --require-upstream-sync` until repo_deploy_requirements_passed=true and copy_ready=true",
+            summary,
+        )
+        self.assertIn(
+            "run `python3 scripts/deploy_exact_repo_build.py /config --expected-commit <intended_commit> --require-clean --require-upstream-sync`, rerun `python3 scripts/validate_install_fingerprint.py /config/custom_components`",
             summary,
         )
         self.assertIn(

@@ -191,10 +191,17 @@ def build_install_deploy_command(install_provenance: dict[str, Any] | None = Non
 
 def build_install_exact_copy_summary(install_provenance: dict[str, Any] | None = None) -> str:
     """Return the operator-facing exact-copy sequence for a trustworthy live install."""
+    discovery_command = build_install_discovery_command()
+    dry_run_command = build_install_deploy_dry_run_command(install_provenance)
+    deploy_command = build_install_deploy_command(install_provenance)
+    validation_command = build_install_validation_command(install_provenance)
     return (
-        "From the real Home Assistant host or container, run discovery first if the config path is unknown. "
+        "From the real Home Assistant host or container, run discovery first if the config path is unknown with "
+        f"`{discovery_command}`. "
         "If the repo branch is ahead, behind, or diverged, push or reconcile it until git_local_vs_upstream=in_sync. "
-        "Then run the dry-run until repo_deploy_requirements_passed=true and copy_ready=true, run the exact deploy, rerun fingerprint validation, restart Home Assistant core, and reopen Configure -> Sensors and source mapping before trusting live control."
+        f"Then run `{dry_run_command}` until repo_deploy_requirements_passed=true and copy_ready=true, "
+        f"run `{deploy_command}`, rerun `{validation_command}`, restart Home Assistant core, and reopen "
+        "Configure -> Sensors and source mapping before trusting live control."
     )
 
 
