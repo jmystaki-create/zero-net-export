@@ -51,7 +51,10 @@ class ZeroNetExportRepairsFlow(RepairsFlow):
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
         placeholders = {
             "issue_id": self.issue_id,
-            "next_step": self._data.get("next_step", "Review the Zero Net Export Configure flow and Diagnostics guidance."),
+            "next_step": self._data.get(
+                "next_step",
+                f"Review {PRIMARY_CONFIGURE_PATH} first, then use {SUPPORT_CONFIGURE_PATH} for diagnostics and troubleshooting.",
+            ),
             "configure_path": self._data.get("configure_path", PRIMARY_CONFIGURE_PATH),
             "support_path": self._data.get("support_path", SUPPORT_CONFIGURE_PATH),
         }

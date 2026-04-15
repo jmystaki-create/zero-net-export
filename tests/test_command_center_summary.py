@@ -245,6 +245,49 @@ class CommandCenterSummaryTests(unittest.TestCase):
             "Wait for the install provenance refresh, then rerun exact-build validation.",
         )
 
+    def test_command_center_summary_fallback_status_summary_uses_exact_native_path(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "",
+            "next_step": "Validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: ""
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SUPPORT_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        entry = SimpleNamespace(data={}, options={})
+        long_summary = "Support summary " * 30
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary=long_summary,
+            diagnostic_summary=long_summary,
+            device_status_summary="",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertEqual(
+            summary["status_summary"],
+            f"Open {native_support.SUPPORT_CONFIGURE_PATH} to continue in the recommended command-center section.",
+        )
+        self.assertNotIn("Open Configure", summary["status_summary"])
+
     def test_command_center_summary_uses_decision_first_headline_when_export_is_high(self) -> None:
         native_support = _load_native_support_module()
 

@@ -1453,7 +1453,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_priority_candidate_hints": support_priority_candidate_hints,
             "recommended_section": str(command_center.get("recommended_section") or SUPPORT_SECTION_LABEL),
             "recommended_path": str(command_center.get("recommended_path") or SUPPORT_CONFIGURE_PATH),
-            "next_action_summary": str(command_center.get("next_action_summary") or readiness.get("next_step") or "Review the current blocker, then follow the recommended native Configure path."),
+            "next_action_summary": str(
+                command_center.get("next_action_summary")
+                or readiness.get("next_step")
+                or f"Review the current blocker, then follow the recommended native path under {PRIMARY_CONFIGURE_PATH}."
+            ),
         }
 
     async def async_step_init(self, user_input=None):

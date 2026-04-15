@@ -1278,12 +1278,14 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         fallback="No top-level alerts right now.",
     )
 
+    recommended_path = path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH)
+
     status_summary = _truncate_state_summary(
         str(recommended_reason),
         fallback=(
-            "Open Configure to continue in the recommended command-center section."
+            f"Open {recommended_path} to continue in the recommended command-center section."
             if recommended_section != DEVICES_SECTION_LABEL
-            else f"Open {DEVICES_SECTION_LABEL} in Configure to continue fleet work."
+            else f"Open {DEVICES_CONFIGURE_PATH} to continue fleet work."
         ),
     )
     next_action_summary = _truncate_state_summary(
@@ -1380,7 +1382,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "status_summary": status_summary,
         "recommended_reason": recommended_reason,
         "recommended_section": recommended_section,
-        "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),
+        "recommended_path": recommended_path,
         "next_action_summary": next_action_summary,
         "detailed_management_summary": detailed_management_summary,
         "sources_path": SOURCES_CONFIGURE_PATH,
