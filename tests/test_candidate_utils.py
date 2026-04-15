@@ -39,7 +39,7 @@ def _load_candidate_utils_module():
 
 
 class CandidateUtilsTests(unittest.TestCase):
-    def test_discover_candidate_devices_prefers_stronger_domains_before_helpers(self) -> None:
+    def test_discover_candidate_devices_prefers_real_load_signals_before_helpers(self) -> None:
         module = _load_candidate_utils_module()
         states = [
             SimpleNamespace(entity_id="input_boolean.virtual_load", state="on", attributes={"friendly_name": "Virtual load"}),
@@ -47,6 +47,9 @@ class CandidateUtilsTests(unittest.TestCase):
             SimpleNamespace(entity_id="number.ev_charger_limit", state="16", attributes={"friendly_name": "EV charger limit"}),
             SimpleNamespace(entity_id="switch.hot_water", state="off", attributes={"friendly_name": "Hot water relay"}),
             SimpleNamespace(entity_id="input_number.helper_limit", state="12", attributes={"friendly_name": "Helper limit"}),
+            SimpleNamespace(entity_id="switch.adguard_home_filtering", state="on", attributes={"friendly_name": "AdGuard Home Filtering"}),
+            SimpleNamespace(entity_id="switch.ac_outlet_2", state="off", attributes={"friendly_name": "AC Outlet 2", "device_class": "outlet"}),
+            SimpleNamespace(entity_id="switch.bedroom_crossfade", state="off", attributes={"friendly_name": "3rd Bedroom Crossfade"}),
         ]
 
         candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
@@ -54,11 +57,14 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(
             [candidate["entity_id"] for candidate in candidates],
             [
+                "switch.ac_outlet_2",
                 "switch.hot_water",
                 "number.ev_charger_limit",
                 "light.patio",
                 "input_number.helper_limit",
                 "input_boolean.virtual_load",
+                "switch.bedroom_crossfade",
+                "switch.adguard_home_filtering",
             ],
         )
 
@@ -117,6 +123,8 @@ class CandidateUtilsTests(unittest.TestCase):
 
         fit = module.assess_candidate(
             {
+                "entity_id": "switch.hot_water",
+                "name": "Hot water relay",
                 "domain": "switch",
                 "kind": "fixed",
                 "state": "off",
@@ -131,7 +139,27 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(fit["operational_value_level"], "high")
         self.assertIn("clean native fit", fit["suitability_summary"])
         self.assertIn("safe enough", fit["safety_summary"])
-        self.assertIn("absorb surplus export", fit["operational_value_summary"])
+        self.assertIn("more likely to matter operationally", fit["operational_value_summary"])
+
+    def test_assess_candidate_penalizes_obvious_service_toggle_names(self) -> None:
+        module = _load_candidate_utils_module()
+
+        fit = module.assess_candidate(
+            {
+                "entity_id": "switch.adguard_home_filtering",
+                "name": "AdGuard Home Filtering",
+                "domain": "switch",
+                "kind": "fixed",
+                "state": "on",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+
+        self.assertEqual(fit["confidence"], "medium")
+        self.assertTrue(any("service, media feature, or software toggle" in warning for warning in fit["warnings"]))
+        self.assertIn("feature toggle or service control", fit["suitability_summary"])
+        self.assertIn("does not clearly look like a physical discretionary load", fit["safety_summary"])
 
     def test_build_candidate_review_line_formats_label_level_and_summary(self) -> None:
         module = _load_candidate_utils_module()

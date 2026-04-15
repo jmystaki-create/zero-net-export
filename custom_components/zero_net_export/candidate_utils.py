@@ -34,14 +34,78 @@ _REVIEW_LEVEL_LABELS = {
     "low": "caution",
 }
 
+_POSITIVE_LOAD_KEYWORDS = (
+    "charger",
+    "ev",
+    "heater",
+    "hot water",
+    "water heater",
+    "boiler",
+    "geyser",
+    "pool",
+    "pump",
+    "outlet",
+    "plug",
+    "aircon",
+    "air conditioner",
+    "hvac",
+    "ac ",
+)
 
-def candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, int, str, str]:
+_NEGATIVE_NON_LOAD_KEYWORDS = (
+    "adguard",
+    "crossfade",
+    "loudness",
+    "surround",
+    "music",
+    "sound",
+    "sonos",
+    "alarm",
+    "api",
+    "stream",
+    "streamer",
+    "audio",
+    "speaker",
+    "filter",
+    "parental",
+    "protection",
+    "query",
+    "browsing",
+    "search",
+    "media",
+)
+
+
+def _candidate_text(candidate: dict[str, Any]) -> str:
+    return " ".join(
+        str(candidate.get(key) or "")
+        for key in ("name", "entity_id", "device_class")
+    ).lower()
+
+
+def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
+    """Return a secondary rank that prefers likely real loads over obvious service toggles."""
+    text = _candidate_text(candidate)
+    score = 0
+    if any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
+        score -= 2
+    if any(keyword in text for keyword in _NEGATIVE_NON_LOAD_KEYWORDS):
+        score += 3
+    if str(candidate.get("device_class") or "").lower() == "outlet":
+        score -= 1
+    return score
+
+
+def candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, int, int, str, str]:
     """Return a stable sort key that prefers stronger promotion targets first."""
     domain = str(candidate.get("domain") or "")
     name = str(candidate.get("name") or candidate.get("entity_id") or "").lower()
     entity_id = str(candidate.get("entity_id") or "")
+    desirability_rank = _candidate_desirability_rank(candidate)
+    confidence_rank = _CANDIDATE_CONFIDENCE_ORDER.get(domain, 99) + desirability_rank
     return (
-        _CANDIDATE_CONFIDENCE_ORDER.get(domain, 99),
+        confidence_rank,
+        desirability_rank,
         _CANDIDATE_DOMAIN_ORDER.get(domain, 99),
         name,
         entity_id,
@@ -67,6 +131,10 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     suitability_summary = "The entity shape looks workable for Zero Net Export, but it still needs operator review before promotion."
     safety_summary = "No obvious safety blocker is visible yet, but confirm the entity really controls the intended device."
     operational_value_summary = "This candidate could help absorb export, but confirm it represents a meaningful discretionary load."
+
+    candidate_text = _candidate_text(candidate)
+    positive_name_signal = any(keyword in candidate_text for keyword in _POSITIVE_LOAD_KEYWORDS)
+    negative_name_signal = any(keyword in candidate_text for keyword in _NEGATIVE_NON_LOAD_KEYWORDS)
 
     if domain == "switch" and kind == "fixed":
         confidence = "high"
@@ -99,6 +167,23 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
             warnings.append(
                 "This is an input_number helper. Check that changing it actually drives a real device, not just a dashboard helper."
             )
+
+    if positive_name_signal:
+        if confidence == "medium":
+            confidence = "high"
+        operational_value_summary = "The entity name suggests a real discretionary load, so it looks more likely to matter operationally once promoted."
+
+    if negative_name_signal:
+        warnings.append(
+            "The entity name looks more like a service, media feature, or software toggle than a discretionary power load. Confirm it really controls a real appliance before promotion."
+        )
+        if confidence == "high":
+            confidence = "medium"
+        elif confidence == "medium":
+            confidence = "low"
+        suitability_summary = "The native control shape may still work, but the entity name suggests this could be a feature toggle or service control instead of a real appliance."
+        safety_summary = "Confidence is lower because the entity name does not clearly look like a physical discretionary load yet."
+        operational_value_summary = "Operational value is doubtful until you confirm this entity maps to a real export-absorbing device rather than software behaviour."
 
     if raw_state in {"unknown", "unavailable"}:
         warnings.append(f"Entity state is currently {raw_state}. Promotion is risky until it reports cleanly.")
