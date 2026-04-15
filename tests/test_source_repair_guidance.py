@@ -416,6 +416,69 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
         self.assertEqual(command_center["source_attention_summary"], "No mapped-source blockers currently highlighted")
 
+    def test_command_center_blocker_copy_ignores_optional_stale_sources(self) -> None:
+        native_support = _load_native_support_module()
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={
+                    "solar_power_entity": "sensor.pv_power",
+                    "solar_energy_entity": "sensor.pv_energy_total",
+                    "grid_import_power_entity": "sensor.grid_import_power",
+                    "grid_export_power_entity": "sensor.grid_export_power",
+                    "grid_import_energy_entity": "sensor.grid_import_energy",
+                    "grid_export_energy_entity": "sensor.grid_export_energy",
+                    "battery_discharge_power_entity": "sensor.battery_discharge_power",
+                },
+                options={},
+            )
+            data = types.SimpleNamespace(
+                validation_details={
+                    "source_diagnostics": {
+                        "solar_energy": {
+                            "entity_id": "sensor.pv_energy_total",
+                            "required": True,
+                        },
+                        "grid_import_power": {
+                            "entity_id": "sensor.grid_import_power",
+                            "required": True,
+                        },
+                        "grid_export_power": {
+                            "entity_id": "sensor.grid_export_power",
+                            "required": True,
+                        },
+                        "battery_discharge_power": {
+                            "entity_id": "sensor.battery_discharge_power",
+                            "required": False,
+                        },
+                    },
+                    "source_freshness": {
+                        "solar_energy": {"stale": True, "age_seconds": 824, "required": True},
+                        "grid_import_power": {"stale": True, "age_seconds": 824, "required": True},
+                        "grid_export_power": {"stale": True, "age_seconds": 824, "required": True},
+                        "battery_discharge_power": {"stale": True, "age_seconds": 824, "required": False},
+                    },
+                },
+                source_diagnostics={},
+                stale_data=True,
+                usable_device_count=0,
+                safe_mode=True,
+                health_summary="Runtime attention remains.",
+                diagnostic_summary="Runtime attention remains.",
+                mode="automatic",
+            )
+
+        command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
+        self.assertIn("solar_energy", command_center["source_attention_summary"])
+        self.assertIn("grid_import_power", command_center["source_attention_summary"])
+        self.assertIn("grid_export_power", command_center["source_attention_summary"])
+        self.assertNotIn("battery_discharge_power", command_center["source_attention_summary"])
+        self.assertNotIn("battery_discharge_power", command_center["source_attention_roles"])
+        self.assertNotIn("battery_discharge_power", command_center["recommended_reason"])
+
     def test_support_center_surfaces_current_source_blockers_near_the_top(self) -> None:
         native_support = _load_native_support_module()
 

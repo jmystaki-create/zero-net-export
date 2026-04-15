@@ -147,6 +147,21 @@ def _ordered_source_attention_keys(source_attention: dict[str, Any]) -> list[str
     return ordered_keys
 
 
+def _blocking_source_attention_keys(source_attention: dict[str, Any]) -> list[str]:
+    blocking_keys: list[str] = []
+    validation_role_keys = set(
+        _issue_role_keys(
+            source_attention.get("validation_details", {}).get("issues", []),
+            severities={"error"},
+        )
+    )
+    for key in _ordered_source_attention_keys(source_attention):
+        details = source_attention["source_diagnostics"].get(key, {}) or {}
+        if key in validation_role_keys or details.get("required") is True or key in REQUIRED_SOURCE_KEYS:
+            blocking_keys.append(key)
+    return blocking_keys
+
+
 def _validation_issue_message_for_role(source_attention: dict[str, Any], key: str) -> str:
     validation_issues = list(source_attention.get("validation_details", {}).get("issues", []) or [])
     validation_role_keys = _issue_role_keys(validation_issues)
@@ -176,14 +191,20 @@ def build_source_attention_role_summary(
     config: dict[str, Any] | None = None,
     *,
     limit: int = 6,
+    blocking_only: bool = False,
 ) -> str:
     """Return concise role -> entity guidance for unavailable or stale mapped sources."""
     source_attention = build_source_attention_details(state)
     source_diagnostics = source_attention["source_diagnostics"]
     configured = config or {}
+    attention_keys = (
+        _blocking_source_attention_keys(source_attention)
+        if blocking_only
+        else _ordered_source_attention_keys(source_attention)
+    )
 
     details_lines: list[str] = []
-    for key in _ordered_source_attention_keys(source_attention)[:limit]:
+    for key in attention_keys[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
         entity_label = str(details.get("entity_id") or configured_label or "not resolved")
@@ -217,17 +238,23 @@ def build_source_attention_summary(
     config: dict[str, Any] | None = None,
     *,
     limit: int = 4,
+    blocking_only: bool = False,
 ) -> str:
     """Return a concise operator-facing summary of current mapped-source blockers."""
     source_attention = build_source_attention_details(state)
     source_diagnostics = source_attention["source_diagnostics"]
     configured = config or {}
+    attention_keys = (
+        _blocking_source_attention_keys(source_attention)
+        if blocking_only
+        else _ordered_source_attention_keys(source_attention)
+    )
 
-    if not _ordered_source_attention_keys(source_attention):
+    if not attention_keys:
         return "None"
 
     parts: list[str] = []
-    for key in _ordered_source_attention_keys(source_attention)[:limit]:
+    for key in attention_keys[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
         entity_label = str(details.get("entity_id") or configured_label or "not resolved")
@@ -245,7 +272,7 @@ def build_source_attention_summary(
             status_bits.append("needs attention")
         parts.append(f"{SOURCE_ROLE_LABELS.get(key, key)} ({entity_label}, {', '.join(status_bits)})")
 
-    remaining = len(_ordered_source_attention_keys(source_attention)) - len(parts)
+    remaining = len(attention_keys) - len(parts)
     if remaining > 0:
         parts.append(f"+{remaining} more")
     return "; ".join(parts)
@@ -942,8 +969,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     source_attention = build_source_attention_details(state)
     unavailable_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["unavailable_source_keys"]]
     stale_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["stale_source_keys"]]
-    source_attention_summary = build_source_attention_summary(state, merged, limit=4)
-    source_attention_roles = build_source_attention_role_summary(state, merged, limit=4)
+    source_attention_summary = build_source_attention_summary(state, merged, limit=4, blocking_only=True)
+    source_attention_roles = build_source_attention_role_summary(state, merged, limit=4, blocking_only=True)
     blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
     runtime_source_attention = bool(unavailable_source_roles or stale_source_roles or blocking_validation_details != "None")
 
