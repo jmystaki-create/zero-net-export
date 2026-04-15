@@ -170,6 +170,93 @@ def _load_config_flow_module():
 
 
 class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
+    def test_best_source_candidate_prefers_explicit_grid_export_energy_sensor(self) -> None:
+        module = _load_config_flow_module()
+        states = [
+            SimpleNamespace(
+                entity_id="sensor.shelly_total_active_returned_energy",
+                state="103.35",
+                attributes={
+                    "friendly_name": "Energy returned",
+                    "device_class": "energy",
+                    "unit_of_measurement": "kWh",
+                    "state_class": "total_increasing",
+                },
+            ),
+            SimpleNamespace(
+                entity_id="sensor.shelly_total_active_energy",
+                state="4021.11",
+                attributes={
+                    "friendly_name": "Total active energy",
+                    "device_class": "energy",
+                    "unit_of_measurement": "kWh",
+                    "state_class": "total_increasing",
+                },
+            ),
+        ]
+
+        best = module._best_source_candidate_entity(states, module.CONF_GRID_EXPORT_ENERGY_ENTITY, "energy")
+
+        self.assertEqual(best, "sensor.shelly_total_active_returned_energy")
+
+    def test_best_source_candidate_rejects_ambiguous_generic_power_pair(self) -> None:
+        module = _load_config_flow_module()
+        states = [
+            SimpleNamespace(
+                entity_id="sensor.inverter_power_a",
+                state="850",
+                attributes={
+                    "friendly_name": "Inverter power A",
+                    "device_class": "power",
+                    "unit_of_measurement": "W",
+                    "state_class": "measurement",
+                },
+            ),
+            SimpleNamespace(
+                entity_id="sensor.inverter_power_b",
+                state="830",
+                attributes={
+                    "friendly_name": "Inverter power B",
+                    "device_class": "power",
+                    "unit_of_measurement": "W",
+                    "state_class": "measurement",
+                },
+            ),
+        ]
+
+        best = module._best_source_candidate_entity(states, module.CONF_SOLAR_POWER_ENTITY, "power")
+
+        self.assertIsNone(best)
+
+    def test_best_source_candidate_accepts_clear_solar_power_sensor(self) -> None:
+        module = _load_config_flow_module()
+        states = [
+            SimpleNamespace(
+                entity_id="sensor.x1_p6k_us_s_solar_power",
+                state="1030",
+                attributes={
+                    "friendly_name": "Solar power",
+                    "device_class": "power",
+                    "unit_of_measurement": "W",
+                    "state_class": "measurement",
+                },
+            ),
+            SimpleNamespace(
+                entity_id="sensor.x1_p6k_us_s_home_demand",
+                state="400",
+                attributes={
+                    "friendly_name": "Home demand",
+                    "device_class": "power",
+                    "unit_of_measurement": "W",
+                    "state_class": "measurement",
+                },
+            ),
+        ]
+
+        best = module._best_source_candidate_entity(states, module.CONF_SOLAR_POWER_ENTITY, "power")
+
+        self.assertEqual(best, "sensor.x1_p6k_us_s_solar_power")
+
     def test_runtime_overlay_adds_usable_and_status_by_key(self) -> None:
         module = _load_config_flow_module()
         devices = [

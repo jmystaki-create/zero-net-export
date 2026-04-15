@@ -536,6 +536,64 @@ def _state_matches_source_quantity(state: Any, quantity: str) -> bool:
     return False
 
 
+def _rank_source_candidates(
+    states: list[Any],
+    role_key: str,
+    quantity: str,
+    *,
+    minimum_score: int | None = None,
+) -> list[tuple[int, str, Any]]:
+    ranked: list[tuple[int, str, Any]] = []
+    for state in states:
+        entity_id = str(getattr(state, "entity_id", "") or "")
+        if entity_id.split(".", 1)[0] != "sensor":
+            continue
+        if not _state_matches_source_quantity(state, quantity):
+            continue
+        score = _score_source_candidate(state, role_key, quantity)
+        if minimum_score is not None and score < minimum_score:
+            continue
+        ranked.append((score, entity_id, state))
+    ranked.sort(key=lambda item: (-item[0], item[1]))
+    return ranked
+
+
+def _best_source_candidate_entity(
+    states: list[Any],
+    role_key: str,
+    quantity: str,
+    *,
+    minimum_score: int = 10,
+    minimum_margin: int = 3,
+) -> str | None:
+    ranked = _rank_source_candidates(states, role_key, quantity, minimum_score=minimum_score)
+    if not ranked:
+        return None
+
+    best_score, best_entity_id, _ = ranked[0]
+    if len(ranked) == 1:
+        return best_entity_id
+
+    second_score = ranked[1][0]
+    if best_score - second_score >= minimum_margin:
+        return best_entity_id
+
+    best_blob = _state_search_blob(ranked[0][2])
+    explicit_tokens: dict[str, tuple[str, ...]] = {
+        CONF_SOLAR_POWER_ENTITY: ("solar power", "pv power"),
+        CONF_SOLAR_ENERGY_ENTITY: ("yield total", "energy production", "generated"),
+        CONF_GRID_IMPORT_POWER_ENTITY: ("grid import", "from grid"),
+        CONF_GRID_EXPORT_POWER_ENTITY: ("grid export", "to grid", "returned"),
+        CONF_GRID_IMPORT_ENERGY_ENTITY: ("total active energy", "imported energy", "from grid"),
+        CONF_GRID_EXPORT_ENERGY_ENTITY: ("returned energy", "exported energy", "to grid"),
+        CONF_HOME_LOAD_POWER_ENTITY: ("home demand", "house load"),
+        CONF_BATTERY_SOC_ENTITY: ("state of charge", "battery soc"),
+    }
+    if any(token in best_blob for token in explicit_tokens.get(role_key, ())):
+        return best_entity_id
+    return None
+
+
 def _grid_mode_missing_sources(config: dict[str, Any], grid_mode: str) -> list[str]:
     required_keys = [
         CONF_SOLAR_POWER_ENTITY,
@@ -747,6 +805,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     ) -> list[selector.SelectOptionDict]:
         options: list[selector.SelectOptionDict] = []
         seen: set[str] = set()
+        all_states = list(self.hass.states.async_all())
 
         if optional:
             options.append(selector.SelectOptionDict(value="", label=none_label))
@@ -762,17 +821,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             options.append(selector.SelectOptionDict(value=current_entity_id, label=f"Current mapping: {current_label}"))
             seen.add(current_entity_id)
 
-        ranked_states: list[tuple[int, str, Any]] = []
-        for state in self.hass.states.async_all():
-            if state.entity_id.split(".", 1)[0] != "sensor":
-                continue
-            if not _state_matches_source_quantity(state, quantity):
-                continue
-            score = _score_source_candidate(state, role_key or "", quantity) if role_key else 0
-            ranked_states.append((-score, state.entity_id, state))
+        ranked_states = (
+            _rank_source_candidates(all_states, role_key or "", quantity)
+            if role_key
+            else [(0, str(state.entity_id), state) for state in all_states if str(state.entity_id).split(".", 1)[0] == "sensor" and _state_matches_source_quantity(state, quantity)]
+        )
 
-        for _, _, state in sorted(ranked_states):
-            entity_id = state.entity_id
+        for _, entity_id, state in ranked_states:
             if entity_id in seen:
                 continue
             option_label = (
@@ -787,18 +842,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return options
 
     def _source_role_candidates(self, role_key: str, quantity: str, *, limit: int = 3) -> list[str]:
-        ranked: list[tuple[int, str, str]] = []
-        for state in self.hass.states.async_all():
-            if state.entity_id.split(".", 1)[0] != "sensor":
-                continue
-            if not _state_matches_source_quantity(state, quantity):
-                continue
-            score = _score_source_candidate(state, role_key, quantity)
-            if score < 2:
-                continue
-            ranked.append((score, state.entity_id, _format_source_candidate_label(state.entity_id, state, role_key, quantity)))
-        ranked.sort(key=lambda item: (-item[0], item[1]))
-        return [label for _, _, label in ranked[:limit]]
+        ranked = _rank_source_candidates(list(self.hass.states.async_all()), role_key, quantity, minimum_score=2)
+        return [
+            _format_source_candidate_label(entity_id, state, role_key, quantity)
+            for _, entity_id, state in ranked[:limit]
+        ]
 
     def _source_candidate_role_specs(self, grid_mode: str) -> list[tuple[str, str]]:
         role_specs: list[tuple[str, str]] = [
@@ -1606,6 +1654,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 DEFAULT_REFRESH_SECONDS,
             ),
         }
+        if user_input is None and grid_mode != GRID_SENSOR_MODE_COMBINED:
+            all_states = list(self.hass.states.async_all())
+            suggested_defaults = {
+                CONF_SOLAR_POWER_ENTITY: _best_source_candidate_entity(all_states, CONF_SOLAR_POWER_ENTITY, "power"),
+                CONF_SOLAR_ENERGY_ENTITY: _best_source_candidate_entity(all_states, CONF_SOLAR_ENERGY_ENTITY, "energy"),
+                CONF_GRID_IMPORT_POWER_ENTITY: _best_source_candidate_entity(all_states, CONF_GRID_IMPORT_POWER_ENTITY, "power"),
+                CONF_GRID_EXPORT_POWER_ENTITY: _best_source_candidate_entity(all_states, CONF_GRID_EXPORT_POWER_ENTITY, "power"),
+                CONF_GRID_IMPORT_ENERGY_ENTITY: _best_source_candidate_entity(all_states, CONF_GRID_IMPORT_ENERGY_ENTITY, "energy"),
+                CONF_GRID_EXPORT_ENERGY_ENTITY: _best_source_candidate_entity(all_states, CONF_GRID_EXPORT_ENERGY_ENTITY, "energy"),
+            }
+            for key, suggestion in suggested_defaults.items():
+                if not source_defaults.get(key) and suggestion:
+                    source_defaults[key] = suggestion
         if user_input is not None:
             for key in (
                 CONF_SOLAR_POWER_ENTITY,
