@@ -25,20 +25,31 @@ def _load_button_module():
     )
     integration_pkg.__path__ = [str(PACKAGE_ROOT)]
 
+    homeassistant_pkg = sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
+    homeassistant_pkg.__path__ = []
+
     components_pkg = sys.modules.setdefault("homeassistant.components", types.ModuleType("homeassistant.components"))
     components_pkg.__path__ = []
+    homeassistant_pkg.components = components_pkg
+
+    helpers_pkg = sys.modules.setdefault("homeassistant.helpers", types.ModuleType("homeassistant.helpers"))
+    helpers_pkg.__path__ = []
+    homeassistant_pkg.helpers = helpers_pkg
 
     persistent_notification_module = types.ModuleType("homeassistant.components.persistent_notification")
     persistent_notification_module.async_create = lambda *args, **kwargs: None
     sys.modules[persistent_notification_module.__name__] = persistent_notification_module
+    components_pkg.persistent_notification = persistent_notification_module
 
     button_component_module = types.ModuleType("homeassistant.components.button")
     button_component_module.ButtonEntity = type("ButtonEntity", (), {})
     sys.modules[button_component_module.__name__] = button_component_module
+    components_pkg.button = button_component_module
 
     entity_helper_module = types.ModuleType("homeassistant.helpers.entity")
     entity_helper_module.EntityCategory = types.SimpleNamespace(DIAGNOSTIC="diagnostic")
     sys.modules[entity_helper_module.__name__] = entity_helper_module
+    helpers_pkg.entity = entity_helper_module
 
     update_coordinator_module = types.ModuleType("homeassistant.helpers.update_coordinator")
 
@@ -48,6 +59,7 @@ def _load_button_module():
 
     update_coordinator_module.CoordinatorEntity = CoordinatorEntity
     sys.modules[update_coordinator_module.__name__] = update_coordinator_module
+    helpers_pkg.update_coordinator = update_coordinator_module
 
     const_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.const", CONST_PATH)
     assert const_spec and const_spec.loader
