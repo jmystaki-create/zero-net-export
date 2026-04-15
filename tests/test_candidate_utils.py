@@ -68,10 +68,11 @@ class CandidateUtilsTests(unittest.TestCase):
             ],
         )
 
-    def test_discover_candidate_devices_filters_managed_unknown_and_unavailable_entities(self) -> None:
+    def test_discover_candidate_devices_filters_managed_internal_unknown_and_unavailable_entities(self) -> None:
         module = _load_candidate_utils_module()
         states = [
             SimpleNamespace(entity_id="switch.managed_device", state="on", attributes={"friendly_name": "Managed"}),
+            SimpleNamespace(entity_id="switch.zero_net_export_enabled", state="on", attributes={"friendly_name": "Zero Net Export Enabled"}),
             SimpleNamespace(entity_id="switch.unknown_device", state="unknown", attributes={"friendly_name": "Unknown"}),
             SimpleNamespace(entity_id="number.unavailable_device", state="unavailable", attributes={"friendly_name": "Unavailable"}),
             SimpleNamespace(entity_id="sensor.not_a_device", state="42", attributes={"friendly_name": "Not a device"}),
@@ -160,6 +161,29 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertTrue(any("service, media feature, or software toggle" in warning for warning in fit["warnings"]))
         self.assertIn("feature toggle or service control", fit["suitability_summary"])
         self.assertIn("does not clearly look like a physical discretionary load", fit["safety_summary"])
+
+    def test_discover_candidate_devices_demotes_media_feature_toggles_below_real_loads(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.master_bedroom_speech_enhancement", state="off", attributes={"friendly_name": "Living Room Speech enhancement"}),
+            SimpleNamespace(entity_id="switch.living_room_subwoofer_enabled_2", state="on", attributes={"friendly_name": "Living Room Subwoofer enabled"}),
+            SimpleNamespace(entity_id="switch.lounge_room_none", state="off", attributes={"friendly_name": "Lounge Room Power"}),
+            SimpleNamespace(entity_id="switch.ac_outlet_2", state="off", attributes={"friendly_name": "AC Outlet 2", "device_class": "outlet"}),
+            SimpleNamespace(entity_id="switch.ebike_charger", state="off", attributes={"friendly_name": "Ebike Charger"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            [
+                "switch.ac_outlet_2",
+                "switch.ebike_charger",
+                "switch.lounge_room_none",
+                "switch.master_bedroom_speech_enhancement",
+                "switch.living_room_subwoofer_enabled_2",
+            ],
+        )
 
     def test_build_candidate_review_line_formats_label_level_and_summary(self) -> None:
         module = _load_candidate_utils_module()

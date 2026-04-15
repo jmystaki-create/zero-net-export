@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Iterable
 
-from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS
+from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS, DOMAIN
 
 
 _CANDIDATE_CONFIDENCE_ORDER = {
@@ -73,6 +73,19 @@ _NEGATIVE_NON_LOAD_KEYWORDS = (
     "browsing",
     "search",
     "media",
+    "subwoofer",
+    "speech enhancement",
+    "speech_enhancement",
+    "bass",
+    "treble",
+    "balance",
+    "audio delay",
+)
+
+_NEGATIVE_ENTITY_ID_FRAGMENTS = (
+    "_none",
+    "_speech_enhancement",
+    "_subwoofer",
 )
 
 
@@ -83,14 +96,28 @@ def _candidate_text(candidate: dict[str, Any]) -> str:
     ).lower()
 
 
+def _negative_non_load_penalty(candidate: dict[str, Any]) -> int:
+    text = _candidate_text(candidate)
+    entity_id = str(candidate.get("entity_id") or "").lower()
+    penalty = 0
+    if any(keyword in text for keyword in _NEGATIVE_NON_LOAD_KEYWORDS):
+        penalty += 3
+    if any(fragment in entity_id for fragment in _NEGATIVE_ENTITY_ID_FRAGMENTS):
+        penalty += 2
+    return penalty
+
+
+def _has_negative_non_load_signal(candidate: dict[str, Any]) -> bool:
+    return _negative_non_load_penalty(candidate) > 0
+
+
 def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
     """Return a secondary rank that prefers likely real loads over obvious service toggles."""
     text = _candidate_text(candidate)
     score = 0
     if any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
         score -= 2
-    if any(keyword in text for keyword in _NEGATIVE_NON_LOAD_KEYWORDS):
-        score += 3
+    score += _negative_non_load_penalty(candidate)
     if str(candidate.get("device_class") or "").lower() == "outlet":
         score -= 1
     return score
@@ -134,7 +161,7 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
 
     candidate_text = _candidate_text(candidate)
     positive_name_signal = any(keyword in candidate_text for keyword in _POSITIVE_LOAD_KEYWORDS)
-    negative_name_signal = any(keyword in candidate_text for keyword in _NEGATIVE_NON_LOAD_KEYWORDS)
+    negative_name_signal = _has_negative_non_load_signal(candidate)
 
     if domain == "switch" and kind == "fixed":
         confidence = "high"
@@ -300,10 +327,12 @@ def discover_candidate_devices(states: Iterable[Any], managed_entity_ids: set[st
     candidates: list[dict[str, str]] = []
     for state in states:
         entity_id = getattr(state, "entity_id", "")
-        domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
+        domain, _, object_id = entity_id.partition(".")
         if domain not in DEVICE_CANDIDATE_DOMAINS:
             continue
         if entity_id in managed_entity_ids:
+            continue
+        if object_id.startswith(f"{DOMAIN}_"):
             continue
         state_value = str(getattr(state, "state", "")).lower()
         if state_value in {"unknown", "unavailable"}:
