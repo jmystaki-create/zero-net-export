@@ -332,7 +332,7 @@ Suggested area labels:
 - **severity:** `low`
 - **area:** `docs`
 - **historical behavior:** `docs/UI_IMPLEMENTATION_MAP.md` is the implementation source of truth for `0.1.83`, but it had fallen behind the actual repo candidate after recent native-UI work landed. The status summary and phase sections still described the command center, Managed Devices workspace, candidate review flow, and release gate in older terms that understated delivered repo-side progress and did not clearly surface the current explicit release-approval boundary.
-- **repo fix:** `43dc9b5` — sync `docs/UI_IMPLEMENTATION_MAP.md` so the completed/remaining status and Phases 3, 4, 5, and 7 match the current repo-native UI candidate and state plainly that James must be asked directly for release approval before the next exact-build redeploy.
+- **repo fix:** this run's implementation-map sync commit — sync `docs/UI_IMPLEMENTATION_MAP.md` so the completed/remaining status and Phases 3, 4, 5, and 7 match the current repo-native UI candidate and state plainly that James must be asked directly for release approval before the next exact-build redeploy.
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_IMPLEMENTATION_MAP.md` now reflects the shipped repo candidate's command-center alert/board work, runtime-aware Managed Devices state, balanced candidate review, device-page deep-review handoff, and the explicit formal release-approval boundary.
 
 ## Closure rule
