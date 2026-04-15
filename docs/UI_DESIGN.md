@@ -43,9 +43,16 @@ These remain valid native Home Assistant surfaces for runtime, support, and auto
 
 They support the operator path, but should not replace the need for a coherent Configure experience.
 
-### 4. Optional dashboard examples
-Lovelace/dashboard assets are optional debug visibility only.
-They are not part of the supported operator path and should not become the primary UX answer.
+### 4. Dashboards.
+There should  be 2 dashbaord. these dahsbaords can be built around existing hacs or custom dashbaord technologies - this can/should be a configuration item (yaml), review
+Lovelace/dashboard assets.
+
+Dashbaord 1 - System Dashboard:
+This should provide an overview of the zero net export system - the load, devices engaged, battery %, activity log etc
+
+Dashboard 2 - Managed Elements:
+This should be a summary of the maanaged devices - their status, their watts, are they activated on/off etc. 
+
 
 ## Explicit non-goals
 
