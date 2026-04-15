@@ -11,7 +11,12 @@ from homeassistant.components import persistent_notification
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
-from .candidate_utils import assess_candidate, build_candidate_preview, discover_candidate_devices
+from .candidate_utils import (
+    assess_candidate,
+    build_candidate_preview,
+    build_candidate_review_line,
+    discover_candidate_devices,
+)
 from .const import (
     CONF_BATTERY_CHARGE_POWER_ENTITY,
     CONF_BATTERY_DISCHARGE_POWER_ENTITY,
@@ -2023,6 +2028,21 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "candidate_device_class": str(summary.get('device_class') or 'none'),
                 "candidate_fit_confidence": str(summary.get('fit_confidence') or 'unknown'),
                 "candidate_fit_summary": str(summary.get('fit_summary') or 'No fit guidance available.'),
+                "candidate_suitability": build_candidate_review_line(
+                    "Control suitability",
+                    str(summary.get('suitability_level') or 'review'),
+                    str(summary.get('suitability_summary') or 'Review whether this entity is a clean control fit.'),
+                ),
+                "candidate_safety": build_candidate_review_line(
+                    "Safety / confidence",
+                    str(summary.get('safety_level') or 'review'),
+                    str(summary.get('safety_summary') or 'Confirm the entity is safe to automate before promotion.'),
+                ),
+                "candidate_operational_value": build_candidate_review_line(
+                    "Operational value",
+                    str(summary.get('operational_value_level') or 'review'),
+                    str(summary.get('operational_value_summary') or 'Confirm this candidate will materially help absorb export.'),
+                ),
                 "candidate_warnings": "\n".join(f"- {item}" for item in (summary.get('warnings') or [])) or "- No immediate warnings detected.",
                 "suggested_template": str(summary.get('suggested_template_label') or 'Custom'),
                 "suggested_template_description": str(summary.get('suggested_template_description') or 'Use a custom configuration for this entity.'),

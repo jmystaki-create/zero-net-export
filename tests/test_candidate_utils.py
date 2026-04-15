@@ -103,8 +103,49 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(helper_fit["confidence"], "low")
         self.assertIn("automation intent", helper_fit["summary"])
         self.assertTrue(any("input_boolean helper" in warning for warning in helper_fit["warnings"]))
+        self.assertEqual(helper_fit["suitability_level"], "low")
+        self.assertEqual(helper_fit["safety_level"], "low")
+        self.assertEqual(helper_fit["operational_value_level"], "low")
         self.assertEqual(variable_fit["confidence"], "medium")
         self.assertTrue(any("meaningful unit" in warning for warning in variable_fit["warnings"]))
+        self.assertEqual(variable_fit["suitability_level"], "medium")
+        self.assertEqual(variable_fit["safety_level"], "medium")
+        self.assertIn("Variable control", variable_fit["suitability_summary"])
+
+    def test_assess_candidate_adds_balanced_review_dimensions_for_strong_switch(self) -> None:
+        module = _load_candidate_utils_module()
+
+        fit = module.assess_candidate(
+            {
+                "domain": "switch",
+                "kind": "fixed",
+                "state": "off",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+
+        self.assertEqual(fit["confidence"], "high")
+        self.assertEqual(fit["suitability_level"], "high")
+        self.assertEqual(fit["safety_level"], "high")
+        self.assertEqual(fit["operational_value_level"], "high")
+        self.assertIn("clean native fit", fit["suitability_summary"])
+        self.assertIn("safe enough", fit["safety_summary"])
+        self.assertIn("absorb surplus export", fit["operational_value_summary"])
+
+    def test_build_candidate_review_line_formats_label_level_and_summary(self) -> None:
+        module = _load_candidate_utils_module()
+
+        line = module.build_candidate_review_line(
+            "Control suitability",
+            "high",
+            "Switch control is usually a clean native fit for fixed loads.",
+        )
+
+        self.assertEqual(
+            line,
+            "Control suitability: strong - Switch control is usually a clean native fit for fixed loads.",
+        )
 
     def test_build_candidate_preview_includes_usefulness_and_key_warning(self) -> None:
         module = _load_candidate_utils_module()

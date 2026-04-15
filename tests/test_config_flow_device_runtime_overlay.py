@@ -84,6 +84,7 @@ def _load_config_flow_module():
         "warnings": [],
     }
     candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
+    candidate_utils_module.build_candidate_review_line = lambda label, level, summary: f"{label}: {level} - {summary}"
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 

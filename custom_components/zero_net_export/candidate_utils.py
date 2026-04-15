@@ -28,6 +28,12 @@ _FIT_USEFULNESS_LABELS = {
     "low": "needs extra review",
 }
 
+_REVIEW_LEVEL_LABELS = {
+    "high": "strong",
+    "medium": "review",
+    "low": "caution",
+}
+
 
 def candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, int, str, str]:
     """Return a stable sort key that prefers stronger promotion targets first."""
@@ -58,25 +64,38 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     confidence = "medium"
     summary = "Looks like a plausible controllable candidate, but review before promotion."
     warnings: list[str] = []
+    suitability_summary = "The entity shape looks workable for Zero Net Export, but it still needs operator review before promotion."
+    safety_summary = "No obvious safety blocker is visible yet, but confirm the entity really controls the intended device."
+    operational_value_summary = "This candidate could help absorb export, but confirm it represents a meaningful discretionary load."
 
     if domain == "switch" and kind == "fixed":
         confidence = "high"
         summary = "Switch entities are usually strong fixed-load candidates when they control a real appliance or relay."
+        suitability_summary = "Switch control is usually a clean native fit for fixed loads because Zero Net Export can turn the load on or off directly."
+        operational_value_summary = "Fixed relay-style loads are usually useful when they represent a real appliance that can absorb surplus export in simple blocks."
     elif domain == "light" and kind == "fixed":
         summary = "Light entities can be controllable, but many are comfort or presence loads rather than discretionary energy sinks."
+        suitability_summary = "Light control can work technically, but it needs review because many lights are comfort loads rather than intentional energy sinks."
+        operational_value_summary = "Operational value is uncertain unless this light really represents a discretionary load the operator is happy to cycle."
         warnings.append(
             "Confirm this light is a real discretionary load, not a normal lighting circuit people expect to stay manual."
         )
     elif domain == "input_boolean" and kind == "fixed":
         confidence = "low"
         summary = "Helpers can represent automation intent, not a physical load."
+        suitability_summary = "Helper booleans are a weak control fit because they often represent intent or automation state instead of a directly controllable appliance."
+        safety_summary = "Confidence is low until you verify this helper really drives a safe physical load instead of only toggling logic."
+        operational_value_summary = "Operational value is low unless this helper clearly maps to a meaningful real-world load behind the scenes."
         warnings.append(
             "This is an input_boolean helper. Verify it really drives a safe controllable load before promoting it."
         )
     elif domain in {"number", "input_number"} and kind == "variable":
         confidence = "high" if domain == "number" else "medium"
         summary = "Number-style entities are strong variable-load candidates when they represent a real power or current target."
+        suitability_summary = "Writable number entities are a strong fit for variable control when they directly represent power, current, or another real throttling target."
+        operational_value_summary = "Variable loads often provide strong operational value because they can track export more smoothly than simple on/off loads."
         if domain == "input_number":
+            safety_summary = "Confidence is only moderate for helpers until you confirm this input_number actually drives a real device and is not just a dashboard helper."
             warnings.append(
                 "This is an input_number helper. Check that changing it actually drives a real device, not just a dashboard helper."
             )
@@ -84,21 +103,46 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     if raw_state in {"unknown", "unavailable"}:
         warnings.append(f"Entity state is currently {raw_state}. Promotion is risky until it reports cleanly.")
         confidence = "low"
+        safety_summary = f"Confidence is low because the entity is currently {raw_state}; wait for a clean live state before trusting it as a managed device."
 
     if kind == "variable" and not unit:
         warnings.append("Variable candidates are safer when the entity exposes a meaningful unit such as A, W, or %.")
         if confidence == "high":
             confidence = "medium"
+        suitability_summary = "Variable control still looks plausible, but it needs extra review because the entity does not expose a clear unit such as A, W, or %."
 
     if kind == "variable" and device_class == "battery":
         warnings.append("Battery-class entities are often telemetry, not safe control targets. Confirm this is a writable control entity.")
         confidence = "low"
+        safety_summary = "Confidence is low because battery-class entities are often telemetry sensors rather than safe writable controls."
+        operational_value_summary = "Operational value is unclear until you confirm this entity is a real control target instead of battery telemetry."
+
+    if not warnings and confidence == "high":
+        safety_summary = "No immediate warning stands out in the current metadata, so this candidate looks safe enough to review and promote if the operator recognizes the load."
 
     return {
         "confidence": confidence,
         "summary": summary,
         "warnings": warnings,
+        "suitability_level": "high" if confidence == "high" else "medium" if domain not in {"input_boolean"} else "low",
+        "suitability_summary": suitability_summary,
+        "safety_level": confidence,
+        "safety_summary": safety_summary,
+        "operational_value_level": (
+            "high"
+            if (domain == "switch" and kind == "fixed") or (domain == "number" and kind == "variable")
+            else "medium"
+            if domain in {"light", "input_number"}
+            else "low"
+        ),
+        "operational_value_summary": operational_value_summary,
     }
+
+
+def build_candidate_review_line(label: str, level: str, summary: str) -> str:
+    """Return a concise structured review line for candidate vetting."""
+    level_label = _REVIEW_LEVEL_LABELS.get(str(level or "").lower(), str(level or "review"))
+    return f"{label}: {level_label} - {summary}"
 
 
 def build_candidate_preview(
