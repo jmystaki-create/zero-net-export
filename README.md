@@ -174,11 +174,11 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The only supported operator path is native Home Assistant integration/device surfaces. There is no supported custom panel, sidebar app, or external UI path, and Lovelace remains optional debug visibility inside Home Assistant. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and the current real-world UI gap is operator clarity, especially making it obvious what belongs under Controls, Sensors, Managed Devices, and Diagnostics from the installed native surfaces.
+The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The only supported operator path is native Home Assistant integration/device surfaces. There is no supported custom panel, sidebar app, or external UI path, and Lovelace remains optional debug visibility inside Home Assistant. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and the current real-world UI gap is operator clarity, especially making it obvious what belongs under Controls, Sensors, Managed Devices, and Diagnostics from the installed native surfaces. The current steering target is to make **0.1.83** the explicit UI release, not just another repo-side polish pass.
 
-The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). It is the source of truth for the current product state, gap register, release gates, and prioritized next actions.
+The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). It is the source of truth for the current product state, gap register, release gates, and prioritized next actions. The strict UI-release checklist now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md).
 
-**Current highest-value next step:** turn Configure into the clearly signposted native command center for sources, policy, managed devices, and support, then keep validating that flow in real Home Assistant installs and convert confirmed friction into targeted releases.
+**Current highest-value next step:** make the Managed Devices native path visibly separate the existing managed fleet from unmanaged promotion candidates, make the promote/vet/review flow feel first-class in live Home Assistant, and only call the UI release ready once James can see that four-bucket native structure clearly.
 
 - [x] Config flow & source validation
 - [x] Device model & guards

@@ -26,6 +26,7 @@ What is not yet true:
 - Larger or more heterogeneous fleets still need more proof.
 - Release confidence still depends on real installs, screenshots, and distribution verification rather than repo-local confidence alone.
 - Live source validation is still blocking control because required mapped sources are unavailable or unknown in the real install.
+- The user does not consider the requested visible native UI outcomes complete yet, even though some supporting scaffolding exists in code.
 
 ## Steering stance
 
@@ -40,10 +41,13 @@ Do not drift into:
 
 ## Current goals
 
+- Make `0.1.83` the explicit UI release.
 - Make Configure the clear native command center for sources, policy, managed devices, and support.
 - Separate the operator information architecture into four obvious native buckets: Controls, Sensors, Managed Devices, and Diagnostics.
 - Keep the Zero Net Export brain/control surface focused on controller-level settings and decisions only, not managed-device inventory operations.
 - Make Managed Devices a first-class native workspace for enablement, priority, overrides, promotion, and fleet review.
+- Make managed versus unmanaged device state visually obvious in native Home Assistant surfaces.
+- Make the native promote / vet / review flow feel like a first-class operator workflow rather than scaffolded helper text.
 - Keep Sensors strictly about mapped/system telemetry and not a mixed dumping ground for managed-device controls.
 - Introduce a clearer detailed-management path for managed devices, reachable from the native device view, for spreadsheet-style fleet detail and per-device review.
 - Keep install, upgrade, reload, and restart behavior stable in real Home Assistant environments.
@@ -67,6 +71,7 @@ This does not count as enough progress:
 - Repo-only cleanup with no Home Assistant visible improvement.
 - Another change that alters the traceback or internals while still leaving the operator unsure where configuration and device management live.
 - Dashboard or support polish that ignores the main discoverability and workflow gaps.
+- Counting support text, diagnostics copy, or backend plumbing as delivered UI when James still cannot see the requested native UI outcome in Home Assistant.
 
 ## Main gaps or risks
 
@@ -91,13 +96,14 @@ This phase is in good shape when:
 ## Next actions
 
 Do next:
-1. Turn Configure into the clearly signposted native command center for sources, policy, managed devices, and support.
-2. Refactor the native surface model so Controls, Sensors, Managed Devices, and Diagnostics each have a clear role and do not repeat each other's content.
-3. Make managed-device review, add, edit, remove, enablement, priority, and override handling feel like a first-class native operator workflow.
-4. Define and implement a separate detailed-management path for managed devices, reachable from the native device view, for deeper per-device review.
-5. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sources and source mapping.
-6. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
-7. When the next coherent release candidate is actually ready, ask James directly for formal release approval instead of only describing deploy/restart steps.
+1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict checklist for the `0.1.83` UI release.
+2. Make the Managed Devices native path visually separate already managed devices from unmanaged candidates ready for promotion.
+3. Make the native promote / vet / review path visibly first-class and easy to follow in live Home Assistant.
+4. Refactor the native surface model so Controls, Sensors, Managed Devices, and Diagnostics each have a clear role and do not repeat each other's content.
+5. Define and implement a separate detailed-management path for managed devices, reachable from the native device view, for deeper per-device review.
+6. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sources and source mapping.
+7. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
+8. When the next coherent release candidate is actually ready, ask James directly for formal release approval instead of only describing deploy/restart steps.
 
 Do later:
 - Validate a mixed-device fleet scenario, not just a single-device happy path.
