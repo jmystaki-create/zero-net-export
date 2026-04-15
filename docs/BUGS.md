@@ -108,7 +108,7 @@ Suggested area labels:
 - **evidence:** in this run, documented HA SSH access on `root@192.168.86.200:2222` succeeded and `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` confirmed the installed component is now the exact intended `0.1.83` build from commit `5fe1c93` with `overall_match=true`. Fresh remote inspection of `/config/.storage/core.config_entries` then showed `0` entries for domain `zero_net_export`, `/config/.storage/core.device_registry` showed `0` Zero Net Export devices, and the HA API `/api/states` returned only `update.zero_net_export_update` for `zero_net_export` entities.
 - **suspected cause:** the release/deploy mismatch is no longer the blocker; the live install now appears to be missing or dropping the Zero Net Export config entry itself, which leaves the update entity behind but prevents the actual integration device and runtime entities from loading
 - **validation status:** not resolved; exact-build deployment is now validated live, and the active blocker has narrowed to missing config-entry registration rather than stale package contents
-- **next action:** inspect why the live `zero_net_export` config entry is absent after restart, determine whether it must be restored, re-created, or migrated, and only then resume runtime/UI validation
+- **next action:** work alongside the newly confirmed config-flow import bug. Once the backup-path pollution is cleaned from `/config/custom_components/`, restart HA and re-check whether a valid config entry can be created and whether entities reattach instead of remaining orphaned
 
 ## ZNE-003 — Requested native UI outcome still not visibly delivered
 - **status:** `fixed_pending_validation`
@@ -139,6 +139,31 @@ Suggested area labels:
 - **repo fix:** `48a9d45` — pass `INTEGRATION_VERSION` from `coordinator.py` into `build_release_info()` and cover the call contract with a coordinator unit test; this run adds `tests/test_release_update_details.py` so the release-update path has its own focused regression coverage for the missing-argument contract
 - **validation status:** repo-side fix is implemented and verified with `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`. In this run, documented HA SSH access also confirmed the exact intended `0.1.83` build is now installed live with `overall_match=true`, and fresh log grep no longer shows the earlier `build_release_info()` missing-argument retry. However, live setup-path validation is still incomplete because ZNE-002 now shows the integration has no active config entry to exercise normal setup/reload behavior.
 - **next action:** once ZNE-002 is resolved and a live `zero_net_export` config entry exists again, re-verify that setup no longer retries with the missing-argument error on the exact installed build
+
+## ZNE-014 — Post-install log review confirms the live 0.1.83 install is still not healthy
+- **status:** `open`
+- **severity:** `high`
+- **area:** `runtime`
+- **where seen:** live Home Assistant `0.1.83` after user install and manual log review request
+- **current observed behavior:** the installed package is present as `0.1.83`, but the overall live install is still not healthy enough to call successful because the config flow is broken and core runtime entities remain absent/orphaned
+- **expected behavior:** after install, Zero Net Export should load cleanly, allow Add Integration, and avoid integration-specific live errors in Home Assistant logs
+- **evidence:** live HA review on 2026-04-15 confirmed remote manifest `0.1.83`, but also confirmed `homeassistant.config_entries` errors for `zero_net_export` plus the still-open missing-config-entry/orphaned-entity condition tracked elsewhere in this file
+- **suspected cause:** currently overlaps the more specific bugs ZNE-002 and ZNE-011
+- **validation status:** confirmed as an umbrella live-review finding, not yet resolved
+- **next action:** keep using this as the top-level install-review reminder, but drive actual fix work through the narrower config-flow and runtime-registration bugs
+
+## ZNE-011 — Config flow cannot load because backup folder names pollute Home Assistant module discovery
+- **status:** `fixed_pending_validation`
+- **severity:** `critical`
+- **area:** `config_flow`
+- **where seen:** live Home Assistant `0.1.83` install while adding the integration
+- **current observed behavior:** the Add Integration flow fails with `Config flow could not be loaded: {"message":"Invalid handler specified"}` and the HA log shows `Error occurred loading flow for integration zero_net_export: No module named 'custom_components.zero_net_export.backup_openclaw_20260415_220427'`
+- **expected behavior:** selecting Zero Net Export in Add Integration should load `custom_components.zero_net_export.config_flow` normally and open the setup flow
+- **evidence:** user screenshots from 2026-04-15 show the exact popup and log detail. Live HA inspection confirmed multiple backup directories still exist under `/config/custom_components/`, including `zero_net_export.backup_openclaw_20260415_220427` and `zero_net_export.backup_openclaw_20260415_220522`, matching the module path mentioned in the traceback.
+- **suspected cause:** the deploy backup strategy leaves backup directories under `/config/custom_components/` with names that still begin with `zero_net_export`, polluting Home Assistant custom-component discovery and causing config-flow import resolution to point at a backup pseudo-module path instead of the real integration package
+- **repo fix:** this run updates `scripts/deploy_exact_repo_build.py` so default backups are now written outside Home Assistant discovery under `<config>/.openclaw_backups/custom_components/zero_net_export.backup-<timestamp>` instead of as sibling directories inside `/config/custom_components/`; `tests/test_install_helper_scripts.py` now covers the new backup path and verifies the copied backup stays outside the discovery root
+- **validation status:** repo-side fix implemented and verified with `python3 -m unittest tests.test_install_helper_scripts` and `python3 -m unittest discover -s tests`. Live validation is still pending because the existing polluted backup directories under `/config/custom_components/` must still be cleaned from the live Home Assistant install and HA restarted before Add Integration can be re-tested.
+- **next action:** remove the existing `zero_net_export.backup_*` directories from the live `/config/custom_components/` tree, clear any stale `__pycache__` tied to those backup module paths, restart HA, then re-test Add Integration to confirm the real Zero Net Export config flow loads cleanly
 
 ## Recently validated or closed bugs
 

@@ -48,6 +48,33 @@ class DeployExactRepoBuildTests(unittest.TestCase):
                 component_dir.resolve(),
             )
 
+    def test_planned_backup_path_uses_hidden_root_outside_custom_components(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            destination = Path(tmp_dir) / "config" / "custom_components" / "zero_net_export"
+            backup_path = deploy_script.planned_backup_path(destination)
+
+            self.assertEqual(
+                backup_path.parent,
+                Path(tmp_dir) / "config" / ".openclaw_backups" / "custom_components",
+            )
+            self.assertTrue(backup_path.name.startswith("zero_net_export.backup-"))
+            self.assertNotEqual(backup_path.parent, destination.parent)
+
+    def test_backup_component_writes_copy_outside_custom_components(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            config_dir = Path(tmp_dir) / "config"
+            destination = config_dir / "custom_components" / "zero_net_export"
+            destination.mkdir(parents=True, exist_ok=True)
+            (destination / "manifest.json").write_text('{"version": "test"}', encoding="utf-8")
+
+            backup_path = deploy_script.backup_component(destination)
+
+            self.assertIsNotNone(backup_path)
+            assert backup_path is not None
+            self.assertTrue(backup_path.exists())
+            self.assertEqual((backup_path / "manifest.json").read_text(encoding="utf-8"), '{"version": "test"}')
+            self.assertFalse((config_dir / "custom_components" / backup_path.name).exists())
+
     def test_ensure_safe_destination_rejects_repo_local_destinations(self) -> None:
         repo_root = REPO_ROOT.resolve()
         source_root = COMPONENT_ROOT.resolve()

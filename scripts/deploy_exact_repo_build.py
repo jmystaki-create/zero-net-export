@@ -11,6 +11,7 @@ from pathlib import Path
 
 
 COMPONENT_DIRNAME = "zero_net_export"
+BACKUP_ROOT_DIRNAME = ".openclaw_backups"
 
 
 def repo_root() -> Path:
@@ -136,9 +137,25 @@ def copy_component(source_root: Path, destination_root: Path) -> None:
     shutil.copytree(source_root, destination_root)
 
 
+def config_root_for_destination(destination_root: Path) -> Path:
+    custom_components_root = destination_root.parent
+    if custom_components_root.name != "custom_components":
+        raise ValueError(
+            f"Destination {destination_root} is not nested under a custom_components directory"
+        )
+    return custom_components_root.parent
+
+
+
 def planned_backup_path(destination_root: Path) -> Path:
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    return destination_root.parent / f"{destination_root.name}.backup-{stamp}"
+    config_root = config_root_for_destination(destination_root)
+    return (
+        config_root
+        / BACKUP_ROOT_DIRNAME
+        / "custom_components"
+        / f"{destination_root.name}.backup-{stamp}"
+    )
 
 
 def backup_component(destination_root: Path) -> Path | None:
@@ -194,7 +211,10 @@ def main() -> int:
     parser.add_argument(
         "--no-backup",
         action="store_true",
-        help="Skip creating a timestamped backup copy of the existing destination component.",
+        help=(
+            "Skip creating a timestamped backup copy of the existing destination component. "
+            "Default backups are stored outside custom_components under .openclaw_backups/."
+        ),
     )
     parser.add_argument(
         "--no-validate",
