@@ -134,7 +134,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertIsNone(telemetry.entity_category)
 
-    def test_managed_device_summary_stays_primary_while_deep_runtime_details_become_diagnostic(self) -> None:
+    def test_managed_device_summary_stays_primary_while_secondary_runtime_details_become_diagnostic(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = SimpleNamespace(
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
@@ -155,6 +155,24 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
 
         summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool pump")
+        current_power = sensor_module.ZeroNetExportDevicePowerSensor(
+            coordinator,
+            "pool",
+            "Pool pump",
+            "current_power_w",
+            "Current power",
+        )
+        status = sensor_module.ZeroNetExportDeviceStatusSensor(coordinator, "pool", "Pool pump")
+        plan = sensor_module.ZeroNetExportDevicePlanSensor(coordinator, "pool", "Pool pump")
+        guard = sensor_module.ZeroNetExportDeviceGuardSensor(coordinator, "pool", "Pool pump")
+        planned_delta = sensor_module.ZeroNetExportDevicePowerSensor(
+            coordinator,
+            "pool",
+            "Pool pump",
+            "planned_power_delta_w",
+            "Planned power delta",
+            entity_category=sensor_module.EntityCategory.DIAGNOSTIC,
+        )
         runtime = sensor_module.ZeroNetExportDeviceDurationSensor(
             coordinator,
             "pool",
@@ -177,6 +195,11 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Ready for control | usable | enabled | priority 90 | power 1185 W | plan turn_on",
         )
         self.assertIsNone(getattr(summary, "_attr_entity_category", None))
+        self.assertIsNone(getattr(current_power, "_attr_entity_category", None))
+        self.assertEqual(status._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(plan._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(guard._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(planned_delta._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(runtime._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(last_requested._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
 

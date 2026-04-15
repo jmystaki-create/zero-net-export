@@ -177,7 +177,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "current_power_w", "Current power"),
                     ZeroNetExportDevicePlanSensor(coordinator, device_key, details["name"]),
                     ZeroNetExportDeviceGuardSensor(coordinator, device_key, details["name"]),
-                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "planned_power_delta_w", "Planned power delta"),
+                    ZeroNetExportDevicePowerSensor(
+                        coordinator,
+                        device_key,
+                        details["name"],
+                        "planned_power_delta_w",
+                        "Planned power delta",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
                     ZeroNetExportDevicePowerSensor(
                         coordinator,
                         device_key,
@@ -594,6 +601,8 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
 
 
 class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_status", f"{device_name} status")
         self._device_key = device_key
@@ -614,6 +623,8 @@ class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
 
 
 class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_planned_action", f"{device_name} planned action")
         self._device_key = device_key
@@ -634,6 +645,8 @@ class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
 
 
 class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_guard_status", f"{device_name} guard status")
         self._device_key = device_key
