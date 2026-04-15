@@ -153,16 +153,17 @@ Suggested area labels:
 - **next action:** inspect the live installed component files and HA metadata paths that feed the integration header/device firmware label, determine why `0.1.83` is still being surfaced, then make version fidelity deterministic before claiming release success
 
 ## ZNE-027 — Command center still lets diagnostics/release plumbing dominate the primary operator surface
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
 - **area:** `diagnostics`
 - **where seen:** live Home Assistant command-center modal after `0.1.84` deploy
-- **current observed behavior:** the command center still shows dense release-fingerprint/install-validation/debug text and long repair-path prose high in the modal, so diagnostics/support detail is visually carrying too much of the primary operator experience.
+- **current observed behavior:** the live `0.1.84` command-center modal still shows dense release-fingerprint/install-validation/debug text and long repair-path prose high in the modal, so diagnostics/support detail is visually carrying too much of the primary operator experience.
 - **expected behavior:** per `docs/UI_DESIGN.md`, Configure should remain the primary operator workspace with the decision summary, grouped control board, and clear jump-off entries, while Diagnostics stays visible but secondary rather than dominating the landing surface.
-- **evidence:** user screenshot on 2026-04-16 shows the modal headed `Zero Net Export command center` with install-fingerprint details and long repair-path prose before the main setup/operator sections, which matches the repo strings that currently embed an `Installed package details:` block directly in the primary command-center description.
-- **suspected cause:** the current command-center summary still mixes install validation, diagnostics, and operational troubleshooting directly into the main landing description instead of demoting that material behind Diagnostics/support paths and lighter alert summaries.
-- **validation status:** confirmed live, not fixed
-- **next action:** rebalance the command-center content so the primary landing stays decision-first and operator-first, while install/debug detail moves into Diagnostics/support paths or secondary drill-downs
+- **evidence:** user screenshot on 2026-04-16 shows the modal headed `Zero Net Export command center` with install-fingerprint details and long repair-path prose before the main setup/operator sections, which matched the repo strings that embedded an `Installed package details:` block directly in the primary command-center description. This run updates that shipped options-flow copy in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the init modal is explicitly framed as a basic setup and current-operating-picture surface, keeps the structured control board, keeps source/control/runtime summaries, and moves managed-device and deep install-validation work into a trailing `Not here` handoff instead of leading with diagnostics plumbing.
+- **suspected cause:** the options-flow init description was still mixing install validation, diagnostics, and operational troubleshooting directly into the primary landing description instead of demoting that material behind Diagnostics/support paths and lighter alert summaries.
+- **repo fix:** this run refocuses the command-center init modal copy in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, and adds `tests/test_command_center_modal_copy.py` so the primary modal cannot regress back to `Installed package details` or the older release-plumbing-heavy wording without test failures.
+- **validation status:** repo-side copy fix implemented in this run and verified with `python3 -m unittest tests.test_command_center_modal_copy tests.test_translation_sync -q` plus `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build redeploy.
+- **next action:** redeploy the current repo candidate, then confirm the command-center modal now reads as a setup-first operator surface with diagnostics/install-validation detail demoted behind the Diagnostics path instead of leading the modal
 
 ## ZNE-028 — Device page still lacks the managed-device structure required by the UI design
 - **status:** `open`
