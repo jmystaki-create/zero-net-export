@@ -204,7 +204,7 @@ Suggested area labels:
 - **repo fix:** this run's native-path wording alignment commit — replace the vague shorthand with the exact native Configure and device-path wording across the remaining repo docs, and record the correction in `CHANGELOG.md`.
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `README.md`, `docs/DASHBOARD_SETUP.md`, and `docs/PRODUCT_SPEC_V1.md` now match the explicit native Home Assistant path language used by `docs/UI_DESIGN.md` and `docs/SUPERVISOR.md`
 
-## ZNE-015 — Source-of-truth UI redesign existed only in a dirty working tree
+## ZNE-017 — Source-of-truth UI redesign existed only in a dirty working tree
 - **closed on:** 2026-04-15
 - **severity:** `medium`
 - **area:** `docs`
