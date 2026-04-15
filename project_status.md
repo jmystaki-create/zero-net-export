@@ -19,4 +19,4 @@ user_action: approve redeploying the exact current shipped-component `0.1.83` ca
 notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, and keep version tracking explicit across local repo state, remote GitHub state, and public release state
 
 # Last time this file materially changed
-last_modified: 2026-04-16 04:44
+last_modified: 2026-04-16 05:34
