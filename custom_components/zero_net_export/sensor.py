@@ -377,7 +377,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def entity_category(self):
         if self._key in FLEET_WORKSPACE_SENSOR_KEYS:
-            return EntityCategory.DIAGNOSTIC
+            return None
         if self._key in {
             "installed_version",
             "previous_installed_version",

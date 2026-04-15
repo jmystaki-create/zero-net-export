@@ -142,7 +142,6 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
 class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_fleet_console", "Show fleet console")
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_icon = "mdi:format-list-group"
 
     @property

@@ -90,7 +90,7 @@ def _load_sensor_module():
 
 
 class SensorEntityCategoryTests(unittest.TestCase):
-    def test_fleet_workspace_sensors_are_diagnostic(self) -> None:
+    def test_fleet_workspace_sensors_are_primary_entities(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = SimpleNamespace(
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
@@ -108,8 +108,8 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Candidate shortlist",
         )
 
-        self.assertEqual(managed_overview.entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
-        self.assertEqual(shortlist.entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertIsNone(managed_overview.entity_category)
+        self.assertIsNone(shortlist.entity_category)
 
     def test_telemetry_sensor_stays_uncategorized(self) -> None:
         sensor_module = _load_sensor_module()

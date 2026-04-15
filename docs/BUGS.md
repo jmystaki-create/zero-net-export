@@ -111,7 +111,7 @@ Suggested area labels:
 - **next action:** deploy a corrective build newer than the current live `0.1.81` install, then re-validate after restart; if the entities still remain restored/unavailable, capture the replacement traceback and split into a more specific bug entry if needed
 
 ## ZNE-003 — Requested native UI outcome still not visibly delivered
-- **status:** `open`
+- **status:** `in_progress`
 - **severity:** `high`
 - **area:** `managed_devices`
 - **where seen:** product-level review against live/native UI expectations
@@ -120,10 +120,12 @@ Suggested area labels:
   1. clear managed vs unmanaged device experience
   2. clear promote / vet / review flow
   3. clear separation of Controls / Sensors / Managed Devices / Diagnostics
-- **evidence:** direct user feedback plus repo/design audit captured in `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **evidence:** direct user feedback plus repo/design audit captured in `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`; repo inspection on 2026-04-15 also confirmed the managed-fleet workspace sensors and fleet-console helper were still marked diagnostic, which buried Managed Devices review under diagnostic-style entity presentation instead of treating it as a first-class fleet workspace
 - **suspected cause:** implementation is still too scaffold/text-heavy and not yet sufficiently productized in live HA
-- **validation status:** still open; `0.1.83` is now the explicit UI release intended to resolve this
-- **next action:** progress the `0.1.83` UI phases in `docs/UI_IMPLEMENTATION_MAP.md` and require live HA evidence before closing
+- **repo fix:** current repo candidate in this run promotes managed-fleet workspace sensors and fleet-console helper out of diagnostics-only presentation
+- **what changed:** repo-side UI cleanup in this run promotes the managed-fleet workspace sensors out of `EntityCategory.DIAGNOSTIC`, and the fleet-console button is no longer diagnostic-only, so the Managed Devices review surface is more visible from native entity/device views
+- **validation status:** repo-side change verified with `python3 -m unittest tests.test_sensor_entity_categories tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py custom_components/zero_net_export/button.py`; live Home Assistant validation is still required before closure
+- **next action:** deploy this candidate to Home Assistant and verify the Managed Devices workspace now surfaces as a first-class native fleet review path rather than a diagnostics-only cluster
 
 ## ZNE-004 — Live install version stamp mismatched the intended `0.1.82` release
 - **status:** `open`
@@ -134,7 +136,7 @@ Suggested area labels:
 - **expected behavior:** the live installed version stamp should match the intended shipped release version
 - **evidence:** user screenshot of the Home Assistant integration page showing `Version 0.1.81` while validating the `0.1.82` release
 - **suspected cause:** deploy/install artifact mismatch, incomplete copy, stale manifest, or other release-fingerprint drift
-- **validation status:** unresolved; this should only close once exact live install/version alignment is explicitly re-verified
+- **validation status:** unresolved; SSH-backed fingerprint validation re-run on 2026-04-15 against `root@192.168.86.200:2222` still reported live manifest `0.1.81` and `overall_match=false` versus current repo HEAD; this should only close once exact live install/version alignment is explicitly re-verified
 - **next action:** re-run exact-build validation against the live HA install and confirm the installed manifest/version stamp matches the intended public release
 
 ## ZNE-005 — `build_release_info()` missing required `current_version` argument
