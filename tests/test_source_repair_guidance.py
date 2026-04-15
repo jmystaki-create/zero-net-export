@@ -46,6 +46,7 @@ def _load_native_support_module(*, parse_device_result=([], [])):
     release_info_module.build_install_consistency_summary = lambda data: "install consistency"
     release_info_module.build_install_fingerprint_summary = lambda data: "install fingerprint summary"
     release_info_module.build_install_provenance = lambda: {"summary": "install summary"}
+    release_info_module.build_install_repair_step = lambda data=None: "install repair step"
     release_info_module.build_release_info = lambda *args, **kwargs: {}
     sys.modules[release_info_module.__name__] = release_info_module
 

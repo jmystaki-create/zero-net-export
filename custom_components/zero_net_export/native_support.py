@@ -35,6 +35,7 @@ from .release_info import (
     build_install_consistency_summary,
     build_install_fingerprint_summary,
     build_install_provenance,
+    build_install_repair_step,
     build_release_info,
 )
 from .validation import SourceSpec, format_source_binding_label
@@ -1115,6 +1116,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
     readiness_phase = str(readiness.get("phase") or "")
+    install_consistency = build_install_consistency_summary(install_provenance)
+    install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
+    install_provenance_blocked = install_provenance_pending or install_provenance.get("manifest_matches_code_version") is False
 
     missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
     source_attention = build_source_attention_details(state)
@@ -1181,7 +1185,10 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         affected_roles=source_attention_roles,
     )
 
-    if missing_required_sources:
+    if install_provenance_blocked:
+        next_action_summary = build_install_repair_step(install_provenance)
+        recommended_section = SUPPORT_SECTION_LABEL
+    elif missing_required_sources:
         next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
     elif runtime_source_attention:
         next_action_summary = str(
@@ -1250,7 +1257,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     }
 
     install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
-    install_consistency = build_install_consistency_summary(install_provenance)
     install_fingerprint_summary = build_install_fingerprint_summary(install_provenance)
     source_attention_summary_display = (
         source_attention_summary
@@ -1259,6 +1265,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
 
     top_alerts: list[str] = []
+    if install_provenance_pending:
+        top_alerts.append(f"Install provenance refresh still pending: {install_consistency}")
+    elif install_provenance.get("manifest_matches_code_version") is False:
+        top_alerts.append(f"Installed package needs exact-build revalidation: {install_consistency}")
+
     if missing_required_sources:
         top_alerts.append(
             "Missing required source roles: "
