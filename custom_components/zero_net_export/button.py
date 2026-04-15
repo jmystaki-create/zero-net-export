@@ -5,6 +5,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import EntityCategory
 
+from .candidate_utils import discover_candidate_devices
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
@@ -149,20 +150,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
         managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
-        candidates = []
-        for entity_state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
-            entity_id = entity_state.entity_id
-            domain = entity_id.split('.', 1)[0] if '.' in entity_id else ''
-            if domain not in {'switch', 'input_boolean', 'light', 'number', 'input_number'}:
-                continue
-            if entity_id in managed_ids or str(entity_state.state).lower() in {'unknown', 'unavailable'}:
-                continue
-            candidates.append({
-                'entity_id': entity_id,
-                'name': str(entity_state.attributes.get('friendly_name') or entity_id),
-                'domain': domain,
-                'state': str(entity_state.state),
-            })
+        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids)
         return {
             'configure_path': DEVICES_CONFIGURE_PATH,
             'managed_count': len(managed),
@@ -176,15 +164,10 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
         managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
-        candidates = []
-        for entity_state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
-            entity_id = entity_state.entity_id
-            domain = entity_id.split('.', 1)[0] if '.' in entity_id else ''
-            if domain not in {'switch', 'input_boolean', 'light', 'number', 'input_number'}:
-                continue
-            if entity_id in managed_ids or str(entity_state.state).lower() in {'unknown', 'unavailable'}:
-                continue
-            candidates.append((str(entity_state.attributes.get('friendly_name') or entity_id), entity_id, domain, str(entity_state.state)))
+        candidates = [
+            (item['name'], item['entity_id'], item['domain'], item['state'])
+            for item in discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+        ]
         lines = [
             'Zero Net Export native fleet console',
             '',

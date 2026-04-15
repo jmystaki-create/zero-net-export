@@ -10,6 +10,7 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
+from .candidate_utils import discover_candidate_devices
 from .const import (
     CONF_BATTERY_CHARGE_POWER_ENTITY,
     CONF_BATTERY_DISCHARGE_POWER_ENTITY,
@@ -17,7 +18,6 @@ from .const import (
     CONF_BATTERY_SOC_ENTITY,
     CONF_DEADBAND_W,
     CONF_DEVICE_INVENTORY_JSON,
-    DEVICE_CANDIDATE_DOMAINS,
     DEVICE_CANDIDATE_FIXED_DOMAINS,
     DEVICE_CANDIDATE_VARIABLE_DOMAINS,
     CONF_GRID_EXPORT_ENERGY_ENTITY,
@@ -631,26 +631,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         managed_ids = {str(device.get("entity_id")) for device in devices if device.get("entity_id")}
         candidates: list[dict[str, Any]] = []
-        for state in sorted(self.hass.states.async_all(), key=lambda item: item.entity_id):
-            entity_id = state.entity_id
-            domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
-            if domain not in DEVICE_CANDIDATE_DOMAINS:
-                continue
-            if entity_id in managed_ids:
-                continue
-            if str(state.state).lower() in {"unavailable", "unknown"}:
-                continue
-            kind = DEVICE_KIND_FIXED if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else DEVICE_KIND_VARIABLE
-            candidates.append(
-                {
-                    "entity_id": entity_id,
-                    "label": _format_candidate_label(entity_id, state),
-                    "name": str(state.attributes.get("friendly_name") or entity_id),
-                    "kind": kind,
-                    "domain": domain,
-                    "state": str(state.state),
-                }
-            )
+        for candidate in discover_candidate_devices(self.hass.states.async_all(), managed_ids):
+            entity_id = candidate["entity_id"]
+            state = self.hass.states.get(entity_id)
+            candidates.append({**candidate, "label": _format_candidate_label(entity_id, state)})
         return candidates
 
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:

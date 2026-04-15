@@ -5,7 +5,8 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
-from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS, DOMAIN, INTEGRATION_VERSION
+from .candidate_utils import discover_candidate_devices
+from .const import DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
@@ -241,27 +242,7 @@ def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[st
 
 
 def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict[str, str]]:
-    candidates: list[dict[str, str]] = []
-    for state in sorted(hass.states.async_all(), key=lambda item: item.entity_id):
-        entity_id = state.entity_id
-        domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
-        if domain not in DEVICE_CANDIDATE_DOMAINS:
-            continue
-        if entity_id in managed_entity_ids:
-            continue
-        state_value = str(state.state).lower()
-        if state_value in {"unknown", "unavailable"}:
-            continue
-        candidates.append(
-            {
-                "entity_id": entity_id,
-                "name": str(state.attributes.get("friendly_name") or entity_id),
-                "domain": domain,
-                "kind": "fixed" if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else "variable",
-                "state": str(state.state),
-            }
-        )
-    return candidates
+    return discover_candidate_devices(hass.states.async_all(), managed_entity_ids)
 
 
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
