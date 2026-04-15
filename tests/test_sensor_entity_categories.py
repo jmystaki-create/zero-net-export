@@ -87,6 +87,7 @@ def _load_sensor_module():
         "summary": "Looks like a plausible controllable candidate, but review before promotion.",
         "warnings": [],
     }
+    candidate_utils_module.build_candidate_name_summary = lambda candidates, **kwargs: "candidate names"
     candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module

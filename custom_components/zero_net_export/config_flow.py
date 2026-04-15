@@ -1428,7 +1428,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "current_mode": mode_label,
             "mode_summary": mode_description,
             "next_action_summary": command_center["next_action_summary"],
-            "source_repair_step": command_center["source_repair_step"],
+            "source_repair_step": command_center.get("source_repair_step") or build_source_repair_step(),
             "recommended_menu_hint": (
                 f"The first menu item below now matches the recommended next section: {command_center['recommended_section']}."
             ),

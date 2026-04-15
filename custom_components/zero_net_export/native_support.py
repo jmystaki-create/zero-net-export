@@ -1172,6 +1172,14 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
     recommended_section = normalize_command_center_section(recommendation["recommended_section"])
 
+    source_repair_step = build_source_repair_step(
+        missing_source_keys=missing_required_sources,
+        unavailable_source_keys=source_attention["unavailable_source_keys"],
+        stale_source_keys=source_attention["stale_source_keys"],
+        blocking_validation_details=blocking_validation_details,
+        affected_roles=source_attention_roles,
+    )
+
     if missing_required_sources:
         next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
     elif runtime_source_attention:
@@ -1339,6 +1347,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "unavailable_sources": ", ".join(unavailable_source_roles) if unavailable_source_roles else "None",
         "stale_sources": ", ".join(stale_source_roles) if stale_source_roles else "None",
         "source_mapping_summary": build_source_mapping_summary(merged),
+        "source_repair_step": source_repair_step,
         "device_status": device_status,
         "device_next_step": device_next_step,
         "policy_status": policy_status,

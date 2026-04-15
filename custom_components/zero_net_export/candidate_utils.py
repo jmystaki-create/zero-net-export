@@ -132,6 +132,40 @@ def build_candidate_preview(
     return f"{heading} | {usefulness} | key warning: {key_warning}"
 
 
+def build_candidate_name_summary(
+    candidates: Iterable[dict[str, Any]],
+    *,
+    limit: int = 3,
+    max_chars: int = 240,
+) -> str:
+    """Return a compact candidate name list safe for sensor state strings."""
+    candidate_list = list(candidates)
+    if not candidate_list:
+        return "None"
+
+    names = [str(item.get("name") or item.get("entity_id") or "candidate").strip() for item in candidate_list[:limit]]
+    names = [name for name in names if name]
+    remainder = len(candidate_list) - min(len(candidate_list), limit)
+    summary_parts = names[:]
+    if remainder > 0:
+        summary_parts.append(f"+{remainder} more")
+
+    summary = "; ".join(summary_parts) or "None"
+    if len(summary) <= max_chars:
+        return summary
+
+    while len(summary_parts) > 1 and len(summary) > max_chars:
+        if summary_parts[-1].startswith("+"):
+            summary_parts.pop(-2)
+        else:
+            summary_parts.pop()
+        summary = "; ".join(summary_parts)
+
+    if len(summary) <= max_chars:
+        return summary
+    return summary[: max_chars - 1].rstrip() + "…"
+
+
 def discover_candidate_devices(states: Iterable[Any], managed_entity_ids: set[str]) -> list[dict[str, str]]:
     """Return unmanaged controllable-device candidates in promotion order."""
     candidates: list[dict[str, str]] = []

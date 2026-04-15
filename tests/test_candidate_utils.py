@@ -145,6 +145,25 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("state off", preview)
         self.assertIn("No immediate warnings", preview)
 
+    def test_build_candidate_name_summary_stays_compact_for_sensor_states(self) -> None:
+        module = _load_candidate_utils_module()
+
+        candidates = [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2"},
+            {"name": "AdGuard Home Filtering", "entity_id": "switch.adguard_home_filtering"},
+            {"name": "AdGuard Home Parental control", "entity_id": "switch.adguard_home_parental_control"},
+            {"name": "3rd Bedroom Crossfade", "entity_id": "switch.bedroom_crossfade"},
+            {"name": "3rd Bedroom Loudness", "entity_id": "switch.bedroom_loudness"},
+        ]
+
+        summary = module.build_candidate_name_summary(candidates)
+
+        self.assertEqual(
+            summary,
+            "AC Outlet 2; AdGuard Home Filtering; AdGuard Home Parental control; +2 more",
+        )
+        self.assertLessEqual(len(summary), 240)
+
 
 if __name__ == "__main__":
     unittest.main()

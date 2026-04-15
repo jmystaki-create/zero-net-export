@@ -140,6 +140,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("active load 1200.0 W", summary["control_outcome_summary"])
         self.assertIn("managed 1", summary["fleet_activity_summary"])
         self.assertIn("usable 1", summary["fleet_activity_summary"])
+        self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
 
     def test_command_center_summary_uses_decision_first_headline_when_export_is_high(self) -> None:
         native_support = _load_native_support_module()
