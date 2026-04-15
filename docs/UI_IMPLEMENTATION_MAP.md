@@ -146,11 +146,12 @@ Completed:
 - full candidate list exists
 - candidate vetting step exists
 - template-selection and save path exist
+- managed-device save flows now post a native success landing with what changed plus the next Managed Devices and deep-review path
 
 Remaining:
 - tighten candidate quality signalling
-- improve the coherence of the pick -> review -> promote journey
-- make post-vetting handoff into the managed fleet feel explicit and confident
+- improve the coherence of the pick -> review -> promote journey in live HA
+- validate that the post-vetting handoff reads clearly in the installed UI, not just in repo state
 
 Features:
 - short opinionated candidate shortlist
@@ -183,10 +184,12 @@ Purpose:
 
 Completed:
 - concept and requirement are documented
+- the Zero Net Export device page now exposes a first-class `Show managed-device review` entry point
+- the deep-review handoff is now referenced directly from managed-device save feedback
 
 Remaining:
-- define the concrete native entry path
-- define what detail belongs there versus on the top-level Managed Devices path
+- validate the concrete native entry path in live HA
+- refine what detail belongs there versus on the top-level Managed Devices path
 - make sure it supports richer device review without diluting the top-level fleet workflow
 
 Features:
@@ -202,9 +205,9 @@ Completed:
 - release discipline and approval rules already exist elsewhere in project steering
 
 Remaining:
-- verify the exact build in live HA
-- gather screenshot-visible proof of the UI outcome
-- only then ask James for formal release approval for the full release flow
+- verify the exact build in live HA once the release is explicitly approved
+- gather screenshot-visible proof of the UI outcome during live validation
+- if this candidate is coherent enough for release, ask James directly for formal release approval instead of implying it through deploy/restart wording
 
 Features:
 - exact-build validation
