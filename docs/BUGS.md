@@ -217,6 +217,18 @@ Suggested area labels:
 - **validation status:** repo-side fix was verified with `python3 -m unittest tests.test_release_info_install_guidance -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/release_info.py custom_components/zero_net_export/__init__.py`. Live validation also succeeded in this run: after copying the updated build over SSH and restarting Home Assistant core, fresh startup-log review no longer showed the earlier blocking `open` / `read_bytes` warnings from `release_info.py`.
 - **next action:** keep install-provenance reads on the async-primed snapshot path so future support or repairs helpers do not regress back into synchronous startup I/O
 
+## ZNE-022 — Live HA install no longer matches the current repo candidate after fingerprint coverage widened
+- **status:** `open`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** repo-versus-live fingerprint validation on 2026-04-16 after `afbbd71`
+- **current observed behavior:** `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` now reports `overall_match=false` against repo `afbbd71`. The live Home Assistant install still matches the earlier deployed `0.1.83` build for most tracked files, but `release_info.py` is behind the repo candidate, so the exact installed package is no longer the exact code under review.
+- **expected behavior:** before trusting further live validation, the Home Assistant install should match the current repo candidate exactly across the tracked files, including `release_info.py`
+- **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded in this run. The fingerprint validator reported live manifest `0.1.83` but `overall_match=false`, with the only mismatch at `release_info.py` (`actual sha256_12=71f4ed6d6b00`, `expected sha256_12=5b32d86d6c48`). `git show --stat afbbd71` confirms the current repo candidate changed `custom_components/zero_net_export/release_info.py` plus validator coverage.
+- **suspected cause:** repo HEAD advanced with the validation-coverage follow-up commit after the earlier live deploy/restart cycle, but that exact repo candidate has not yet been redeployed to Home Assistant
+- **validation status:** confirmed live drift in this run; no deploy/restart performed because release execution still requires explicit approval
+- **next action:** ask James directly for release approval to redeploy the exact `afbbd71` build, rerun fingerprint validation until it reports `overall_match=true`, then restart Home Assistant and continue Configure/native-UI validation on the exact installed candidate
+
 ## Recently validated or closed bugs
 
 ## ZNE-004 — Live install version stamp mismatched the intended `0.1.82` release

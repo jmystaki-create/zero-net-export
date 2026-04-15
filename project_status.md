@@ -7,10 +7,10 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: re-open Configure on the exact deployed `0.1.83` build, confirm the `source_repair_step` 500 is gone, and then re-check the native Managed Devices and four-bucket UI outcome in live Home Assistant
+next_action: ask James directly for approval to redeploy the exact `afbbd71` / `0.1.83` repo build, rerun the fingerprint check until it reports `overall_match=true`, then re-open Configure and continue native-UI validation on the exact installed candidate
 
 # Current blocker or none
-blocker: live config-entry/device absence is no longer the blocker; the remaining release-gate gap is post-deploy Configure and native-UI validation on the repaired live build
+blocker: the live Home Assistant install no longer matches repo HEAD after `afbbd71`, so further Configure/native-UI validation would be against a stale build until the exact repo candidate is redeployed with explicit release approval
 
 # Exact user action needed or none
 user_action: none
@@ -19,4 +19,4 @@ user_action: none
 notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, and keep version tracking explicit across local repo state, remote GitHub state, and public release state
 
 # Last time this file materially changed
-last_modified: 2026-04-16 00:45
+last_modified: 2026-04-16 01:19
