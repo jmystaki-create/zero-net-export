@@ -95,8 +95,8 @@ Suggested area labels:
 - **evidence:** live HA logs after the `0.1.82` restart; affected entities included `sensor.zero_net_export_status`, `sensor.zero_net_export_command_center_status`, `sensor.zero_net_export_stale_source_count`, `binary_sensor.zero_net_export_safe_mode`, and `sensor.zero_net_export_reason`
 - **suspected cause:** missing Repairs flow contract in `custom_components/zero_net_export/repairs.py`
 - **repo fix:** `ad44fc1` — `fix: add repairs platform entry flow`
-- **validation status:** repo-level fix exists and `py_compile` passed, but live post-fix validation is still missing
-- **next action:** deploy a corrective build containing `ad44fc1`, restart Home Assistant, and verify the repairs-platform error is gone and entities recover live
+- **validation status:** repo-level fix exists and `py_compile` passed, but live post-fix validation is still missing; repo-side SSH fingerprint validation on 2026-04-15 showed the live HA install path still serving `0.1.81`, so the corrective repo build containing `ad44fc1` is not yet the installed build being validated
+- **next action:** deploy a corrective build newer than the current live `0.1.81` install, restart Home Assistant, and verify the repairs-platform error is gone and entities recover live
 
 ## ZNE-002 — Main Zero Net Export entities stay restored/unavailable after restart
 - **status:** `open`
@@ -107,8 +107,8 @@ Suggested area labels:
 - **expected behavior:** core Zero Net Export entities recover live after restart
 - **evidence:** live checks after restart showed `sensor.zero_net_export_status`, `sensor.zero_net_export_command_center_status`, `sensor.zero_net_export_stale_source_count`, `binary_sensor.zero_net_export_safe_mode`, and `sensor.zero_net_export_reason` unavailable while source entities such as `sensor.system_rome_yield_total` were present
 - **suspected cause:** may be downstream of ZNE-001 or another runtime-loading issue replacing it
-- **validation status:** not resolved yet
-- **next action:** re-validate after the repairs-platform fix is deployed; if still present, capture the replacement traceback and split into a more specific bug entry if needed
+- **validation status:** not resolved yet; repo-side SSH fingerprint validation on 2026-04-15 showed the live HA install path still serving `0.1.81`, so this runtime recovery bug still cannot be re-validated against the repaired repo build yet
+- **next action:** deploy a corrective build newer than the current live `0.1.81` install, then re-validate after restart; if the entities still remain restored/unavailable, capture the replacement traceback and split into a more specific bug entry if needed
 
 ## ZNE-003 — Requested native UI outcome still not visibly delivered
 - **status:** `open`
@@ -136,20 +136,13 @@ Suggested area labels:
 - **validation status:** unresolved
 - **next action:** either align the script CLI with the intended workflow or rewrite the docs and operator commands around the actual supported interface
 
-## ZNE-005 — Validation workflow awkward against remote HA environment
-- **status:** `open`
-- **severity:** `medium`
-- **area:** `release`
-- **where seen:** release validation work against Home Assistant over SSH
-- **current observed behavior:** bundled validation script usage against the remote HA environment was awkward, and `python3` was not available in the remote HA SSH shell path used during validation attempts
-- **expected behavior:** exact-build validation should be straightforward against the actual HA install path
-- **evidence:** remote shell returned `bash: line 1: python3: command not found`
-- **validation status:** unresolved
-- **next action:** make install-fingerprint validation work cleanly against the HA environment actually available through the documented access path
-
 ## Recently validated or closed bugs
 
-None yet. Move entries here only after the closure standard is met.
+## ZNE-005 — Validation workflow awkward against remote HA environment
+- **closed on:** 2026-04-15
+- **repo fix:** `d3d99d0` — `release: add ssh-backed HA fingerprint validation`
+- **closure evidence:** repo-side SSH validation now works against the documented HA path without remote Python, and a live run against `root@192.168.86.200:2222` returned the installed component fingerprint from `/homeassistant/custom_components/zero_net_export`
+
 
 ## Closure rule
 

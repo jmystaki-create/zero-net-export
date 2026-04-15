@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -114,6 +115,90 @@ def fingerprint(component_root: Path) -> dict[str, Any]:
     return payload
 
 
+def ssh_command_base(ssh_host: str, ssh_port: int | None) -> list[str]:
+    command = ["ssh"]
+    if ssh_port is not None:
+        command.extend(["-p", str(ssh_port)])
+    command.append(ssh_host)
+    return command
+
+
+def run_ssh_command(ssh_host: str, ssh_port: int | None, remote_command: str) -> str:
+    result = subprocess.run(
+        [*ssh_command_base(ssh_host, ssh_port), f"sh -c {shlex.quote(remote_command)}"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"SSH command failed for {ssh_host}: {result.stderr.strip() or result.stdout.strip() or 'unknown error'}"
+        )
+    return result.stdout.strip()
+
+
+def normalize_remote_component_root(install_path: str, ssh_host: str, ssh_port: int | None) -> str:
+    quoted = shlex.quote(install_path)
+    remote_command = (
+        f"candidate=$(realpath {quoted}); "
+        'if [ "$(basename "$candidate")" = "zero_net_export" ]; then component="$candidate"; '
+        'elif [ -f "$candidate/zero_net_export/manifest.json" ]; then component="$candidate/zero_net_export"; '
+        'elif [ -f "$candidate/custom_components/zero_net_export/manifest.json" ]; then component="$candidate/custom_components/zero_net_export"; '
+        'else component="$candidate"; fi; '
+        'readlink -f "$component"'
+    )
+    return run_ssh_command(ssh_host, ssh_port, remote_command)
+
+
+def validate_remote_component_root(component_root: str, input_path: str, ssh_host: str, ssh_port: int | None) -> None:
+    remote_command = f"[ -f {shlex.quote(component_root + '/manifest.json')} ]"
+    try:
+        run_ssh_command(ssh_host, ssh_port, remote_command)
+    except RuntimeError as err:
+        raise FileNotFoundError(
+            "Could not find zero_net_export/manifest.json from "
+            f"remote install path '{input_path}'. Pass either the remote zero_net_export component "
+            "directory itself, its parent custom_components directory, or the Home Assistant config "
+            "directory that contains custom_components/zero_net_export."
+        ) from err
+
+
+def remote_fingerprint(component_root: str, ssh_host: str, ssh_port: int | None) -> dict[str, Any]:
+    manifest_path = f"{component_root}/manifest.json"
+    manifest_command = (
+        f"sed -n 's/.*\"version\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p' {shlex.quote(manifest_path)} | head -n 1"
+    )
+    manifest_version = run_ssh_command(ssh_host, ssh_port, manifest_command) or None
+
+    tracked_files: dict[str, Any] = {}
+    for name in TRACKED_FILES:
+        remote_path = f"{component_root}/{name}"
+        remote_command = (
+            f"if [ -e {shlex.quote(remote_path)} ]; then "
+            f"size=$(wc -c < {shlex.quote(remote_path)} | tr -d '[:space:]'); "
+            f"sha=$(sha256sum {shlex.quote(remote_path)} | awk '{{print substr($1,1,12)}}'); "
+            f"printf '1\\t%s\\t%s\\t%s' \"$size\" \"$sha\" {shlex.quote(remote_path)}; "
+            f"else printf '0\\t\\t\\t%s' {shlex.quote(remote_path)}; fi"
+        )
+        raw = run_ssh_command(ssh_host, ssh_port, remote_command)
+        exists_raw, size_raw, sha_raw, path_raw = (raw.split("\t", 3) + [""] * 4)[:4]
+        tracked_files[name] = {
+            "path": path_raw,
+            "exists": exists_raw == "1",
+            "size_bytes": int(size_raw) if size_raw else None,
+            "sha256_12": sha_raw or None,
+        }
+
+    return {
+        "component_root": component_root,
+        "manifest_version": manifest_version,
+        "tracked_files": tracked_files,
+        "inspection_transport": "ssh",
+        "ssh_host": ssh_host,
+        "ssh_port": ssh_port,
+    }
+
+
 def compare(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
     tracked_files: dict[str, Any] = {}
     mismatches: list[dict[str, Any]] = []
@@ -205,16 +290,36 @@ def main() -> int:
         "--write-json",
         help="Optional path to also save the comparison payload JSON for validation evidence.",
     )
+    parser.add_argument(
+        "--ssh-host",
+        help="Optional SSH host for inspecting a remote Home Assistant install path without requiring remote python3.",
+    )
+    parser.add_argument(
+        "--ssh-port",
+        type=int,
+        help="Optional SSH port to use with --ssh-host.",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
     repo_component_root = repo_root / "custom_components" / "zero_net_export"
-    input_install_path = Path(args.install_path)
-    actual_component_root = normalize_component_root(input_install_path)
-    try:
-        validate_component_root(actual_component_root, input_install_path, repo_root, repo_component_root)
-    except (FileNotFoundError, ValueError) as err:
-        parser.exit(2, f"ERROR: {err}\n")
+
+    if args.ssh_host:
+        input_install_path = args.install_path
+        try:
+            actual_component_root = normalize_remote_component_root(args.install_path, args.ssh_host, args.ssh_port)
+            validate_remote_component_root(actual_component_root, args.install_path, args.ssh_host, args.ssh_port)
+        except FileNotFoundError as err:
+            parser.exit(2, f"ERROR: {err}\n")
+        except RuntimeError as err:
+            parser.exit(2, f"ERROR: {err}\n")
+    else:
+        input_install_path = Path(args.install_path)
+        actual_component_root = normalize_component_root(input_install_path)
+        try:
+            validate_component_root(actual_component_root, input_install_path, repo_root, repo_component_root)
+        except (FileNotFoundError, ValueError) as err:
+            parser.exit(2, f"ERROR: {err}\n")
 
     if args.expected_json:
         expected_json_path = Path(args.expected_json).expanduser().resolve()
@@ -227,11 +332,11 @@ def main() -> int:
         expected["repo_root"] = str(repo_root)
         expected_source = "repo_head"
 
-    actual = fingerprint(actual_component_root)
+    actual = remote_fingerprint(actual_component_root, args.ssh_host, args.ssh_port) if args.ssh_host else fingerprint(actual_component_root)
     comparison = compare(expected, actual)
 
     payload = {
-        "input_install_path": str(input_install_path.expanduser().resolve()),
+        "input_install_path": str(input_install_path.expanduser().resolve()) if isinstance(input_install_path, Path) else input_install_path,
         "expected": expected,
         "expected_source": expected_source,
         "actual": actual,

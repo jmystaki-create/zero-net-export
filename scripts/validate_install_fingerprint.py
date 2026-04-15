@@ -44,6 +44,15 @@ def main() -> int:
         default="tmp/install-fingerprint-compare.json",
         help="Where to save the comparison JSON (default: tmp/install-fingerprint-compare.json).",
     )
+    parser.add_argument(
+        "--ssh-host",
+        help="Optional SSH host for inspecting a remote Home Assistant install path without requiring remote python3.",
+    )
+    parser.add_argument(
+        "--ssh-port",
+        type=int,
+        help="Optional SSH port to use with --ssh-host.",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).resolve().parents[1]
@@ -68,13 +77,17 @@ def main() -> int:
         "--write-json",
         str(compare_json),
     ]
+    if args.ssh_host:
+        compare_command.extend(["--ssh-host", args.ssh_host])
+    if args.ssh_port is not None:
+        compare_command.extend(["--ssh-port", str(args.ssh_port)])
 
     _, expected_payload = run_json_command(expected_command, cwd=repo_root)
     compare_returncode, compare_payload = run_json_command(compare_command, cwd=repo_root)
 
     payload = {
         "repo_root": str(repo_root),
-        "install_path": str(Path(args.install_path).expanduser().resolve()),
+        "install_path": args.install_path if args.ssh_host else str(Path(args.install_path).expanduser().resolve()),
         "expected_json": str(expected_json),
         "compare_json": str(compare_json),
         "expected": expected_payload,

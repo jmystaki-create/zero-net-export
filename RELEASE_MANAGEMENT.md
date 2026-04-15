@@ -39,6 +39,7 @@ Before touching Home Assistant, confirm:
 - changelog is updated
 - GitHub release publication/visibility is complete or in progress as part of the same operation
 - `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` is ready to capture `tmp/expected-install-fingerprint.json`, compare the intended fingerprint against the actual install path, save `tmp/install-fingerprint-compare.json`, and fail fast on mismatch before restart validation
+- when the live Home Assistant shell does not expose `python3`, run that same repo-side validator with `--ssh-host` (and `--ssh-port` if needed) so the repo inspects the remote install path over SSH without requiring remote Python
 - if a manual repo-side recovery deploy is needed before restart validation, `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` is ready to replace one explicit destination component path, keep a timestamped backup by default, refuse repo-local destinations that could be mistaken for a live install, and run the fingerprint validator immediately after the copy; use `--dry-run` first when you need to confirm the resolved target path before touching the install
 - if deeper debugging is needed, the split-step `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json` plus `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json` path remains available, and the compare helper now refuses repo-local paths so only a real Home Assistant install tree can satisfy live validation
 
@@ -81,6 +82,7 @@ Once the target version appears:
 ### 7. Compare the installed package against the intended repo build
 Before trusting runtime validation after the package update:
 - run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components`
+- if the live Home Assistant shell does not expose `python3`, run the same command from this repo with `--ssh-host <user@host>` and `--ssh-port <port>` against the remote install path instead of trying to execute the validator inside the HA shell
 - confirm the saved comparison payload reports the manifest version and tracked-file hashes all matching the intended repo build
 - if the validation helper exits non-zero or does not fully match, stop and fix the install path/build mix before restart validation, including `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` when a manual exact-copy recovery is appropriate
 
