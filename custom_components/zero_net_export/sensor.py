@@ -115,6 +115,17 @@ SOURCE_LABELS = {
 }
 
 TIMESTAMP_SENSOR_KEYS = {"last_action_at", "last_successful_action_at", "last_failed_action_at"}
+FLEET_WORKSPACE_SENSOR_KEYS = {
+    "managed_fleet_overview",
+    "unmanaged_candidate_count",
+    "unmanaged_candidate_overview",
+    "top_unmanaged_candidate",
+    "top_candidate_fit",
+    "top_candidate_warnings",
+    "candidate_shortlist",
+    "candidate_shortlist_fit",
+    "fleet_console_next_step",
+}
 VALIDATION_ATTRIBUTE_SENSOR_KEYS = {
     "release_summary",
     "changes_preview",
@@ -365,6 +376,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
 
     @property
     def entity_category(self):
+        if self._key in FLEET_WORKSPACE_SENSOR_KEYS:
+            return EntityCategory.DIAGNOSTIC
         if self._key in {
             "installed_version",
             "previous_installed_version",

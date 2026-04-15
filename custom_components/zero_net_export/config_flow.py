@@ -1683,6 +1683,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         return "Use Review fleet to stage enablement, or edit an existing device if the current fleet still needs tuning."
 
+    def _detailed_management_summary(self) -> str:
+        command_center = build_native_command_center_summary(self._coordinator())
+        return str(
+            command_center.get("detailed_management_summary")
+            or f"Use {INTEGRATION_DEVICE_PATH} for deeper managed-device review."
+        )
+
     async def async_step_devices(self, user_input=None):
         devices, issues = self._load_devices()
         candidates = self._device_candidates()
@@ -1760,6 +1767,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     else "None discovered right now"
                 ),
                 "device_next_step": device_next_step,
+                "detailed_management_summary": self._detailed_management_summary(),
                 "device_issues": "\n".join(f"- {issue}" for issue in issues[:6]) if issues else "None",
             },
         )
@@ -1884,6 +1892,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "suggested_template": str(summary.get('suggested_template_label') or 'Custom'),
                 "suggested_template_description": str(summary.get('suggested_template_description') or 'Use a custom configuration for this entity.'),
                 "candidate_next_step": next_step,
+                "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 
@@ -2023,6 +2032,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "selected_candidate_warnings": "\n".join(
                     f"- {item}" for item in ((self._pending_candidate_summary or {}).get("warnings") or [])
                 ) or "- No extra warnings captured for this candidate.",
+                "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 
@@ -2062,6 +2072,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": "\n".join(self._fleet_summary_lines(devices)),
                 "enabled_count": str(len(enabled_keys)),
                 "device_count": str(len(devices)),
+                "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 
@@ -2099,6 +2110,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "device_summary": "\n".join(self._fleet_summary_lines(devices)),
                 "device_next_step": self._device_next_step(devices, issues, candidates),
+                "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 
@@ -2129,6 +2141,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "device_summary": "\n".join(self._fleet_summary_lines(devices)),
                 "device_next_step": self._device_next_step(devices, issues, candidates),
+                "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 
@@ -2137,6 +2150,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         description_placeholders = {
             "device_blueprint": default_device_blueprint(),
             "configure_path": ADVANCED_DEVICES_CONFIGURE_PATH,
+            "detailed_management_summary": self._detailed_management_summary(),
             "device_issues": "",
         }
 
