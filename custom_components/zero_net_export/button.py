@@ -214,7 +214,7 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_fleet_console", "Show fleet console")
+        super().__init__(coordinator, "show_fleet_console", "Managed devices workspace")
         self._attr_icon = "mdi:format-list-group"
 
     @property
@@ -258,21 +258,23 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         lines = [
-            'Zero Net Export native fleet console',
+            'Zero Net Export managed devices workspace',
             '',
-            f'Fleet workspace: {DEVICES_CONFIGURE_PATH}',
-            f'Detailed device-view path: {DETAILED_MANAGEMENT_PATH}',
+            f'Workspace path: {DEVICES_CONFIGURE_PATH}',
+            f'Detailed review path: {DETAILED_MANAGEMENT_PATH}',
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
             '',
+            'Managed devices (top section):',
             (
-                'Managed snapshot: '
-                f"{len(managed)} managed | "
+                f"- Snapshot: {len(managed)} managed | "
                 f"{sum(1 for detail in managed if detail.get('effective_enabled', detail.get('enabled', True)))} enabled | "
                 f"{sum(1 for detail in managed if detail.get('usable') is True)} usable"
             ),
+            *([_format_device_review_line(detail) for detail in ordered[:12]] or ['- No managed devices configured yet.']),
+            '',
+            'Unmanaged candidates (bottom section):',
             (
-                'Unmanaged snapshot: '
-                f"{len(candidates)} candidate(s)"
+                f"- Snapshot: {len(candidates)} candidate(s)"
                 + (
                     f" | top candidate {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -280,23 +282,18 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 )
             ),
             (
-                f"Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
+                f"- Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
                 if top_candidate_fit
-                else 'Top candidate fit: No unmanaged candidate guidance available right now.'
+                else '- Top candidate fit: No unmanaged candidate guidance available right now.'
             ),
             (
-                'Top candidate warnings: '
+                '- Top candidate warnings: '
                 + (
                     '; '.join(top_candidate_fit.get('warnings') or [])
                     if top_candidate_fit and top_candidate_fit.get('warnings')
                     else 'No immediate warnings.'
                 )
             ),
-            '',
-            'Managed devices right now:',
-            *([_format_device_review_line(detail) for detail in ordered[:12]] or ['- No managed devices configured yet.']),
-            '',
-            'Top unmanaged candidates:',
             *(
                 [
                     f"- {build_candidate_preview(item, include_state=True)}"
@@ -329,7 +326,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
 
 class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_managed_device_review", "Show managed-device review")
+        super().__init__(coordinator, "show_managed_device_review", "Managed devices review")
         self._attr_icon = "mdi:clipboard-list-outline"
 
     def _unmanaged_candidates(self) -> list[dict[str, str]]:
@@ -378,21 +375,21 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         lines = [
-            "Zero Net Export managed-device review",
+            "Zero Net Export managed devices review",
             "",
-            f"Fleet workspace: {DEVICES_CONFIGURE_PATH}",
+            f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
             f"Detailed device-view path: {DETAILED_MANAGEMENT_PATH}",
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
             "",
+            "Managed devices (top section):",
             (
-                "Managed snapshot: "
-                f"{len(device_details)} managed | "
+                f"- Snapshot: {len(device_details)} managed | "
                 f"{sum(1 for detail in device_details if detail.get('effective_enabled', detail.get('enabled', True)))} enabled | "
                 f"{sum(1 for detail in device_details if detail.get('usable') is True)} usable | "
                 f"{sum(1 for detail in device_details if str(detail.get('planned_action') or '') != 'hold')} planned action(s)"
             ),
             (
-                "Unmanaged snapshot: "
+                "Unmanaged candidates (bottom section): "
                 f"{len(candidates)} candidate(s)"
                 + (
                     f" | top candidate {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
