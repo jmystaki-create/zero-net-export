@@ -6,40 +6,37 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-## [0.1.81] - 2026-04-13
+### Fixed
+- Stopped slow-moving required energy totals from holding runtime safe mode on their own, while still surfacing them as stale source diagnostics, so live control does not get re-blocked just because a total-increasing energy sensor has not ticked recently.
+- Updated the native command-center blocker logic to treat those non-blocking stale energy totals as visible diagnostics instead of active blockers, so healthy power-path installs are steered toward the real next operator path again.
+- Documented the required Home Assistant SSH fallback path in `TOOLS.md`, including the `/config` check and rerun-discovery step the supervisor should try before declaring live deploy or restart validation blocked.
+- Strengthened the exact-build config-path discovery helper so it now reports Docker and Podman runtime status, inspects running Home Assistant container mounts for host-side `/config` paths, and prints an explicit container-runtime follow-up when discovery still cannot see the live install from the current shell.
+
+## [0.1.82] - 2026-04-14
 
 ### Fixed
-- Shortened the shipped command-center and mapped-source blocker sensor states so Home Assistant no longer drops those entity states to `unknown` when stale or unavailable mapped sources produce long runtime summaries.
-- Simplified the native runtime-attention next-step text so the Home Assistant popup and diagnostic sensors stop repeating the same stale-source detail across multiple fields while still pointing operators to the exact Configure -> Sources path.
-- Cached installed-package provenance reads inside the runtime helper so the fingerprint summary no longer performs repeated synchronous manifest/hash file reads on the Home Assistant event loop during sensor rendering.
-
-## [0.1.80] - 2026-04-12
-
-### Fixed
-- Added `scripts/deploy_exact_repo_build.py` so a mixed manual Home Assistant install can be replaced from one exact repo build, with a timestamped backup and immediate fingerprint validation before restart.
-- Added `scripts/validate_install_fingerprint.py` so the repo can capture the intended fingerprint, compare the live Home Assistant install path, and save both JSON evidence artifacts in one command before restart/live validation.
-- Added `scripts/compare_install_fingerprint.py` so the repo fingerprint can be compared directly against a chosen Home Assistant `custom_components` install path, with a single JSON verdict for manifest drift and tracked-file mismatches before restart/live validation.
-- Expanded `scripts/compare_install_fingerprint.py` so it now records manifest/file mismatch summaries and can save the full comparison payload with `--write-json`, making mixed-build deploy proof easier to capture during live Home Assistant validation.
-- Added `scripts/print_expected_install_fingerprint.py` plus release/validation guidance so the intended repo build's commit and tracked-file hashes can be compared directly against the installed package fingerprint shown in native Home Assistant surfaces before trusting live validation.
+- Made the exact deploy helper and installed-package fingerprint summary print an explicit post-restart validation checklist that sends operators back to **Configure -> Sensors and source mapping** before trusting live control, so the manual install and live-repair path stays aligned with the native command-center workflow.
 - Aligned the remaining native operator wording from `Configured devices` to `Managed devices` across setup/repairs copy, command-center support snapshot text, status/reason summaries, core sensor names, and the optional in-HA debug dashboard so the shipped Home Assistant surfaces reinforce one consistent device-management path.
 - Corrected the remaining planning and optional-dashboard wording that still said `integration device page`, so those docs now point to the exact native Home Assistant device path used elsewhere in the shipped support guidance.
 - Tightened the native Repairs runtime-attention issue so it now includes blocking source-validation details alongside unavailable/stale mapped roles and the existing selector-fallback guidance, making the Home Assistant-native troubleshooting path clearer before deeper runtime validation.
 - Added installed-package fingerprint details to the native Configure command center and Health/support screen, so mixed-build diagnosis now shows the live component path, code-versus-manifest version state, and tracked-file hashes before operators drop into full diagnostics.
+- Clarified install-summary remediation so operators can see the exact upstream-sync next step and discovery rerun guidance before attempting another exact-copy deploy.
+- Corrected project automation steering so Home Assistant access must be checked through the documented TOOLS.md SSH path before supervisor/watchdog runs claim live validation is blocked.
 
 ## [0.1.80] - 2026-04-12
 
 ### Fixed
 - Corrected the startup native setup notification so it now names all four Configure command-center sections, including **Health, support, and troubleshooting**, instead of implying the live operator path ends at sources, managed devices, and policy.
 - Corrected the native command-center recommendation logic so runtime-readiness and safe-mode blockers now send operators to **Health, support, and troubleshooting** with the live readiness next step, instead of incorrectly steering fully mapped installs toward policy tuning while runtime attention is still the real blocker.
-- Renamed the native Configure source step from plain `Sources` to `Sources and source mapping` so the actual command-center screen matches the landing guidance and keeps the main source-management path easier to recognize in Home Assistant.
+- Renamed the native Configure source step from plain `Sources` to `Sensors and source mapping` so the actual command-center screen matches the landing guidance and keeps the main source-management path easier to recognize in Home Assistant.
 - Made the command-center landing screen and command-center guide show the current mapped source roles inline, and tightened live source-health summarising so healthy mappings no longer fall back to unrelated device/runtime reasons when operators are trying to understand source state.
 - Stopped the command-center and source-mapping screens from echoing whole-integration health summaries in the source-health slot once mappings were valid, so the native source row now stays source-specific instead of misleading operators about where remaining runtime issues live.
 - Wired the native health/support screen, support center, diagnostics snapshot, and setup checklist back to the command-center's recommended Configure section and exact path, so support-first triage now keeps pointing operators to the right native setup surface instead of dead-ending on generic health wording.
-- Tightened the remaining source-mapping remediation copy so Configure now points operators back to the exact **Sources and source mapping** path instead of vague `here` or `reopen Configure` wording while source validation is still blocking progress.
+- Tightened the remaining source-mapping remediation copy so Configure now points operators back to the exact **Sensors and source mapping** path instead of vague `here` or `reopen Configure` wording while source validation is still blocking progress.
 - Tightened native command-center, fleet-console, diagnostics, support-center, and checklist path guidance so those shipped Home Assistant surfaces now point to the exact Configure section they belong to instead of leaking the generic root Configure path during operator triage.
 - Broadened the native combined-grid energy and battery-SOC dropdown matching so Configure now lists compatible sensors that expose the right units or state class even when vendors omit the ideal Home Assistant device_class, reducing fallback-field friction in real installs.
 - Tightened the remaining native support and Repairs recovery wording so runtime-attention and invalid-managed-device issues now name the exact Configure, managed-device, and advanced JSON recovery paths instead of vague `open the native Configure flow` guidance.
-- Added native device-page diagnostic sensors for mapped-source blocker summary and mapped-source next step, so operators can see the current source blocker and the exact Configure -> Sources remediation path directly from the integration's entity surface while safe mode is holding control.
+- Added native device-page diagnostic sensors for mapped-source blocker summary and mapped-source next step, so operators can see the current source blocker and the exact Configure -> Sensors and source mapping remediation path directly from the integration's entity surface while safe mode is holding control.
 - Corrected the new full managed-device candidate picker wording so it no longer implies the dropdown itself accepts a typed manual path, and instead tells operators to choose the explicit manual-selection option when the right entity is not listed.
 - Replaced the remaining vague `integration device page` runtime wording with the full native Home Assistant device path for Mode, diagnostics, and support actions, so command-center guidance no longer leaks a fuzzy non-path while the supervisor is pushing exact native operator discoverability.
 - Replaced the last shorthand `Open Configure` operator next-step prompts in Repairs, support readiness, and fleet guidance with exact native Home Assistant paths, so the shipped runtime surfaces stay aligned with the command-center discoverability push.
@@ -72,7 +69,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Made the native policy screen self-orienting by showing whether policy tuning is actionable yet, or whether source mapping or managed-device repair still needs attention first, instead of making operators infer that from other screens.
 - Made the native Zero Net Export command center self-orienting by showing current source status, managed-device status, policy summary, and the recommended next section directly on the Configure landing screen instead of making operators infer where to go first.
 - Added a native manual fallback field for the combined / net grid energy entity in Configure, so operators can still finish source mapping by pasting the same entity ID when Home Assistant's energy picker trips the known `valid entity ID or valid UUID` validation bug.
-- Fixed the new source-remediation guidance pass so native support/checklist code safely reads `source_diagnostics` from validation details before building unavailable/stale role lists, avoiding a runtime `NameError` in the operator-readiness path while preserving the clearer Configure -> Sources remediation messaging.
+- Fixed the new source-remediation guidance pass so native support/checklist code safely reads `source_diagnostics` from validation details before building unavailable/stale role lists, avoiding a runtime `NameError` in the operator-readiness path while preserving the clearer Configure -> Sensors and source mapping remediation messaging.
 - Made stale-source remediation more explicit in native support surfaces by naming the affected mapped source roles and backing entity ids in the stale summary, then reusing that exact summary in the checklist and next-step guidance so live HA installs point operators at the specific stale sources to fix.
 - Finished the remaining null-safety pass for native support and diagnostics helpers so helper surfaces no longer dereference `state.validation_details` while coordinator state is still unavailable during startup or reload.
 - Hardened the native support checklist and snapshot surfaces against startup windows where coordinator state is still `None`, targeting the live Home Assistant `setup_retry` crash `'NoneType' object has no attribute 'stale_data'`.

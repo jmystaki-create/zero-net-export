@@ -35,7 +35,6 @@ from .release_info import (
     build_install_consistency_summary,
     build_install_fingerprint_summary,
     build_install_provenance,
-    build_install_repair_step,
     build_release_info,
 )
 from .validation import SourceSpec, format_source_binding_label
@@ -44,16 +43,29 @@ PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero
 INTEGRATION_DEVICE_PATH = (
     "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device"
 )
-SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Sources and source mapping"
+SOURCES_SECTION_LABEL = "Sensors and source mapping"
+SOURCES_SECTION_ALIASES = {"Sensors": SOURCES_SECTION_LABEL}
+SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {SOURCES_SECTION_LABEL}"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
-POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Policy and controller settings"
+DETAILED_MANAGEMENT_PATH = (
+    f"{INTEGRATION_DEVICE_PATH} -> managed-device entities, per-device status sensors, reset-override buttons, and native support actions"
+)
+POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Controls"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
-    f"{PRIMARY_CONFIGURE_PATH} -> Health, support, and troubleshooting; deeper health review: "
+    f"{PRIMARY_CONFIGURE_PATH} -> Diagnostics; deeper health review: "
     f"{INTEGRATION_DEVICE_PATH} -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
     "Settings -> Repairs"
 )
+MAX_NATIVE_SENSOR_STATE_CHARS = 255
+
+
+def _truncate_state_summary(text: str, *, fallback: str) -> str:
+    normalized = " ".join(str(text).split())
+    if len(normalized) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return normalized
+    return fallback
 
 
 def _validation_details(state: Any) -> dict[str, Any]:
@@ -72,9 +84,12 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
     stale_source_keys: list[str] = []
     enriched_source_diagnostics: dict[str, dict[str, Any]] = {}
 
-    for key, details in source_diagnostics.items():
+    ordered_keys = list(dict.fromkeys([*source_diagnostics.keys(), *source_freshness.keys()]))
+    for key in ordered_keys:
+        details = source_diagnostics.get(key, {}) or {}
         freshness = source_freshness.get(key, {}) or {}
-        merged = dict(details)
+        merged = dict(freshness)
+        merged.update(details)
         if "stale" not in merged:
             merged["stale"] = bool(freshness.get("stale", False))
         if merged.get("age_seconds") is None:
@@ -83,10 +98,19 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
             merged["last_updated"] = freshness.get("last_updated")
         if merged.get("stale_threshold_seconds") is None:
             merged["stale_threshold_seconds"] = freshness.get("stale_threshold_seconds")
+        if merged.get("entity_id") is None:
+            merged["entity_id"] = freshness.get("entity_id")
         enriched_source_diagnostics[key] = merged
-        if merged.get("status") == "unavailable":
+        is_unavailable = merged.get("status") == "unavailable"
+        stale_threshold_seconds = merged.get("stale_threshold_seconds")
+        if stale_threshold_seconds is None:
+            stale_threshold_seconds = 120
+        is_stale = bool(merged.get("stale")) or (
+            merged.get("age_seconds") is not None and float(merged.get("age_seconds") or 0) > float(stale_threshold_seconds)
+        )
+        if is_unavailable:
             unavailable_source_keys.append(key)
-        if merged.get("stale") or (merged.get("age_seconds") or 0) > 120:
+        if is_stale and not is_unavailable:
             stale_source_keys.append(key)
 
     return {
@@ -98,12 +122,83 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
     }
 
 
+def _issue_role_keys(issues: list[dict[str, Any]] | None, *, severities: set[str] | None = None) -> list[str]:
+    allowed = {severity.lower() for severity in severities} if severities else None
+    known_suffixes = ("_missing_entity", "_unavailable", "_non_numeric")
+    keys: list[str] = []
+    for issue in issues or []:
+        severity = str(issue.get("severity", "") or "").lower()
+        if allowed is not None and severity not in allowed:
+            continue
+        code = str(issue.get("code", "") or "")
+        key = next((code[: -len(suffix)] for suffix in known_suffixes if code.endswith(suffix)), "")
+        if key in SOURCE_ROLE_LABELS and key not in keys:
+            keys.append(key)
+    return keys
+
+
 def _ordered_source_attention_keys(source_attention: dict[str, Any]) -> list[str]:
     ordered_keys: list[str] = []
     for key in source_attention["unavailable_source_keys"] + source_attention["stale_source_keys"]:
         if key not in ordered_keys:
             ordered_keys.append(key)
+    validation_role_keys = _issue_role_keys(
+        source_attention.get("validation_details", {}).get("issues", []),
+        severities={"error"},
+    )
+    for key in validation_role_keys:
+        if key not in ordered_keys:
+            ordered_keys.append(key)
     return ordered_keys
+
+
+def _blocking_source_attention_keys(source_attention: dict[str, Any]) -> list[str]:
+    blocking_keys: list[str] = []
+    validation_role_keys = set(
+        _issue_role_keys(
+            source_attention.get("validation_details", {}).get("issues", []),
+            severities={"error"},
+        )
+    )
+    for key in _ordered_source_attention_keys(source_attention):
+        details = source_attention["source_diagnostics"].get(key, {}) or {}
+        is_required = details.get("required") is True or key in REQUIRED_SOURCE_KEYS
+        is_unavailable = details.get("status") == "unavailable"
+        is_stale = bool(details.get("stale")) and not is_unavailable
+        stale_blocks_runtime = details.get("stale_blocks_runtime")
+        if stale_blocks_runtime is None:
+            stale_blocks_runtime = is_required
+        if key in validation_role_keys:
+            blocking_keys.append(key)
+        elif is_unavailable and is_required:
+            blocking_keys.append(key)
+        elif is_stale and stale_blocks_runtime:
+            blocking_keys.append(key)
+    return blocking_keys
+
+
+def _validation_issue_message_for_role(source_attention: dict[str, Any], key: str) -> str:
+    validation_issues = list(source_attention.get("validation_details", {}).get("issues", []) or [])
+    validation_role_keys = _issue_role_keys(validation_issues)
+    if key not in validation_role_keys:
+        return ""
+
+    for issue in validation_issues:
+        code = str(issue.get("code", "") or "")
+        issue_key = next(
+            (
+                code[: -len(suffix)]
+                for suffix in ("_missing_entity", "_unavailable", "_non_numeric")
+                if code.endswith(suffix)
+            ),
+            "",
+        )
+        if issue_key != key:
+            continue
+        message = str(issue.get("message") or "").strip()
+        if message:
+            return message
+    return ""
 
 
 def build_source_attention_role_summary(
@@ -111,22 +206,29 @@ def build_source_attention_role_summary(
     config: dict[str, Any] | None = None,
     *,
     limit: int = 6,
+    blocking_only: bool = False,
 ) -> str:
     """Return concise role -> entity guidance for unavailable or stale mapped sources."""
     source_attention = build_source_attention_details(state)
     source_diagnostics = source_attention["source_diagnostics"]
     configured = config or {}
+    attention_keys = (
+        _blocking_source_attention_keys(source_attention)
+        if blocking_only
+        else _ordered_source_attention_keys(source_attention)
+    )
 
     details_lines: list[str] = []
-    for key in _ordered_source_attention_keys(source_attention)[:limit]:
+    for key in attention_keys[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
         entity_label = str(details.get("entity_id") or configured_label or "not resolved")
 
         markers: list[str] = []
-        if details.get("status") == "unavailable":
+        is_unavailable = details.get("status") == "unavailable"
+        if is_unavailable:
             markers.append("unavailable")
-        if details.get("stale"):
+        if details.get("stale") and not is_unavailable:
             age_seconds = details.get("age_seconds")
             if age_seconds is not None:
                 markers.append(f"stale {int(age_seconds)} s")
@@ -135,6 +237,10 @@ def build_source_attention_role_summary(
         issue_messages = [str(issue).strip() for issue in (details.get("issues") or []) if str(issue).strip()]
         if issue_messages:
             markers.append(issue_messages[0])
+        if not issue_messages:
+            validation_message = _validation_issue_message_for_role(source_attention, key)
+            if validation_message:
+                markers.append(validation_message)
 
         marker_text = "; ".join(markers) if markers else "needs attention"
         details_lines.append(f"{SOURCE_ROLE_LABELS.get(key, key)} -> {entity_label} ({marker_text})")
@@ -147,31 +253,41 @@ def build_source_attention_summary(
     config: dict[str, Any] | None = None,
     *,
     limit: int = 4,
+    blocking_only: bool = False,
 ) -> str:
     """Return a concise operator-facing summary of current mapped-source blockers."""
     source_attention = build_source_attention_details(state)
     source_diagnostics = source_attention["source_diagnostics"]
     configured = config or {}
+    attention_keys = (
+        _blocking_source_attention_keys(source_attention)
+        if blocking_only
+        else _ordered_source_attention_keys(source_attention)
+    )
 
-    if not _ordered_source_attention_keys(source_attention):
+    if not attention_keys:
         return "None"
 
     parts: list[str] = []
-    for key in _ordered_source_attention_keys(source_attention)[:limit]:
+    for key in attention_keys[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
         entity_label = str(details.get("entity_id") or configured_label or "not resolved")
         status_bits: list[str] = []
-        if details.get("status") == "unavailable":
+        is_unavailable = details.get("status") == "unavailable"
+        if is_unavailable:
             status_bits.append("unavailable")
-        if details.get("stale"):
+        if details.get("stale") and not is_unavailable:
             age_seconds = details.get("age_seconds")
             status_bits.append(f"stale {int(age_seconds)} s" if age_seconds is not None else "stale")
+        validation_message = _validation_issue_message_for_role(source_attention, key)
+        if validation_message and validation_message not in status_bits:
+            status_bits.append(validation_message)
         if not status_bits:
             status_bits.append("needs attention")
         parts.append(f"{SOURCE_ROLE_LABELS.get(key, key)} ({entity_label}, {', '.join(status_bits)})")
 
-    remaining = len(_ordered_source_attention_keys(source_attention)) - len(parts)
+    remaining = len(attention_keys) - len(parts)
     if remaining > 0:
         parts.append(f"+{remaining} more")
     return "; ".join(parts)
@@ -209,13 +325,8 @@ def build_source_selector_fallback_hint(
 ) -> str:
     """Return operator guidance for known HA entity-selector fallback paths."""
     roles = set(role_keys or [])
-    for issue in validation_issues or []:
-        code = str(issue.get("code") or "")
-        if "_" not in code:
-            continue
-        key = code.rsplit("_", 1)[0]
-        if key in SOURCE_ROLE_LABELS:
-            roles.add(key)
+    for key in _issue_role_keys(validation_issues):
+        roles.add(key)
 
     hints: list[str] = []
     if roles.intersection({CONF_GRID_IMPORT_ENERGY_ENTITY, CONF_GRID_EXPORT_ENERGY_ENTITY}):
@@ -234,58 +345,75 @@ def _format_source_role_list(source_keys: list[str] | None) -> str:
     return ", ".join(named_roles[:6]) if named_roles else "None"
 
 
-def build_source_attention_brief(
-    state: Any,
-    config: dict[str, Any] | None = None,
-    *,
-    limit: int = 3,
-) -> str:
-    """Return a short HA-state-safe source blocker summary."""
-    source_attention = build_source_attention_details(state)
-    ordered = _ordered_source_attention_keys(source_attention)
-    if not ordered:
-        return "No mapped-source blockers"
-
-    labels = [SOURCE_ROLE_LABELS.get(key, key) for key in ordered[:limit]]
-    remaining = len(ordered) - len(labels)
-    suffix = f", +{remaining} more" if remaining > 0 else ""
-    return f"Mapped-source blockers: {', '.join(labels)}{suffix}"
-
-
 def build_source_repair_step(
     *,
     missing_source_keys: list[str] | None = None,
     unavailable_source_keys: list[str] | None = None,
     stale_source_keys: list[str] | None = None,
     blocking_validation_details: str | None = None,
+    affected_roles: str | None = None,
 ) -> str:
     """Return a concise operator-facing next step for source repair work."""
     missing_roles = _format_source_role_list(missing_source_keys)
     unavailable_roles = _format_source_role_list(unavailable_source_keys)
     stale_roles = _format_source_role_list(stale_source_keys)
     blocking_details = str(blocking_validation_details or "").strip()
+    affected_roles_text = str(affected_roles or "").strip()
+
+    def _confirm_recovery_suffix(target_roles: str) -> str:
+        role_text = target_roles.strip()
+        if not role_text or role_text == "None":
+            return "then reopen Sensors and source mapping to confirm live source health."
+        return f"then reopen Sensors and source mapping to confirm these roles recover: {role_text}."
 
     if missing_roles != "None":
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, finish these required source roles: {missing_roles}, then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, finish these required source roles: {missing_roles}, then save and reload the integration, "
+            f"{_confirm_recovery_suffix(missing_roles)}"
         )
 
     attention_parts: list[str] = []
+    repair_actions: list[str] = []
     if unavailable_roles != "None":
         attention_parts.append(f"unavailable roles: {unavailable_roles}")
+        repair_actions.append(f"restore live availability for {unavailable_roles}")
     if stale_roles != "None":
         attention_parts.append(f"stale roles: {stale_roles}")
+        repair_actions.append(f"refresh or replace stale readings for {stale_roles}")
     if attention_parts:
+        blocker_text = (
+            f"these mapped-source blockers first: {affected_roles_text}"
+            if affected_roles_text and affected_roles_text != "None"
+            else f"these mapped-source blockers ({'; '.join(attention_parts)})"
+        )
+        repair_action_text = "; ".join(repair_actions)
+        confirm_role_parts = [role for role in (unavailable_roles, stale_roles) if role != "None"]
+        confirm_roles = (
+            affected_roles_text
+            if affected_roles_text and affected_roles_text != "None"
+            else ", ".join(confirm_role_parts)
+        )
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair mapped-source blockers ({'; '.join(attention_parts)}), then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}. In Home Assistant, make sure the mapped entities still exist and are reporting fresh numeric values, "
+            f"then {repair_action_text}, save and reload the integration, {_confirm_recovery_suffix(confirm_roles)}"
         )
 
     if blocking_details and blocking_details != "None":
+        blocker_text = (
+            f"repair these highlighted mapped roles first: {affected_roles_text}, then clear the blocking source validation errors ({blocking_details})"
+            if affected_roles_text and affected_roles_text != "None"
+            else f"repair the blocking source validation errors ({blocking_details})"
+        )
+        confirm_roles = affected_roles_text if affected_roles_text and affected_roles_text != "None" else blocking_details
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair the blocking source validation errors ({blocking_details}), then save and reload the integration."
+            f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}. Confirm each mapped entity selection still points at the intended Home Assistant entity, then save and reload the integration, "
+            f"{_confirm_recovery_suffix(confirm_roles)}"
         )
 
-    return f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration."
+    return (
+        f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration, "
+        "then reopen Sensors and source mapping to confirm live source health."
+    )
 
 
 def build_live_source_health_summary(state: Any) -> str:
@@ -492,13 +620,15 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         phase = "source_remediation"
         if unavailable_source_roles:
             listed = source_attention_roles if source_attention_roles != "None" else ", ".join(unavailable_source_roles[:6])
-            next_step = (
-                f"Open {SOURCES_CONFIGURE_PATH}, then repair these unavailable mapped sources: {listed}."
+            next_step = build_source_repair_step(
+                unavailable_source_keys=source_attention["unavailable_source_keys"],
+                affected_roles=listed,
             )
         elif state_stale_data and stale_source_roles:
             listed = source_attention_roles if source_attention_roles != "None" else ", ".join(stale_source_roles[:6])
-            next_step = (
-                f"Open {SOURCES_CONFIGURE_PATH} or the diagnostics snapshot, then fix these stale mapped sources: {listed}."
+            next_step = build_source_repair_step(
+                stale_source_keys=source_attention["stale_source_keys"],
+                affected_roles=listed,
             )
         elif state_stale_data and stale_summary:
             next_step = (
@@ -506,7 +636,10 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
                 f"then fix the stale mapped sources. {stale_summary}."
             )
         else:
-            next_step = f"Open {SOURCES_CONFIGURE_PATH}, then use native diagnostics and calibration hints to fix source validation issues."
+            next_step = build_source_repair_step(
+                blocking_validation_details=summarize_validation_issue_messages(state, severities={"error"}, limit=3),
+                affected_roles=source_attention_roles,
+            )
         if blocking_fallback_hint:
             next_step += f" {blocking_fallback_hint}"
         summary = "Native setup is waiting on healthy validated source data."
@@ -561,6 +694,31 @@ def _build_support_sections(coordinator: Any) -> tuple[Any, list[dict[str, Any]]
         device_parse_issues,
     )
     return state, configured_devices, device_parse_issues, operator_readiness
+
+
+def build_detailed_management_handoff(
+    configured_devices: list[dict[str, Any]] | None,
+    *,
+    state: Any | None = None,
+) -> str:
+    """Return the deeper native device-view handoff for per-device review and actions."""
+    devices = configured_devices or []
+    if not devices:
+        return (
+            f"Add the first managed device in {DEVICES_CONFIGURE_PATH}, then use {DETAILED_MANAGEMENT_PATH} "
+            "for per-device review once the fleet exists."
+        )
+
+    usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
+    if usable_count <= 0:
+        return (
+            f"Use {DETAILED_MANAGEMENT_PATH} to inspect each managed device's status, guards, plans, and reset actions, "
+            "then return to Managed devices to adjust the fleet if needed."
+        )
+
+    return (
+        f"Use {DETAILED_MANAGEMENT_PATH} for per-device status, planned actions, guard state, and reset actions when the fleet needs deeper review."
+    )
 
 
 def build_native_support_snapshot(coordinator: Any) -> str:
@@ -659,10 +817,16 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         "",
         "Primary setup path",
         f"- {PRIMARY_CONFIGURE_PATH}",
-        f"- Health and support: {SUPPORT_CONFIGURE_PATH}",
+        f"- Sensors and source mapping: {command_center.get('sources_path')}",
+        f"- Managed devices: {command_center.get('devices_path')}",
+        f"- Controls: {command_center.get('policy_path')}",
+        f"- Diagnostics: {command_center.get('support_path')}",
+        f"- Live mode control: {command_center.get('mode_path')}",
         f"- Recommended command-center section: {command_center.get('recommended_section')}",
         f"- Recommended command-center path: {command_center.get('recommended_path')}",
+        f"- Why this section is recommended: {command_center.get('recommended_reason')}",
         f"- Command-center next action: {command_center.get('next_action_summary')}",
+        f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
         "",
         "Readiness",
         f"- phase: {operator_readiness.get('phase')}",
@@ -714,12 +878,98 @@ def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
     return operator_readiness
 
 
+def normalize_command_center_section(section: str | None) -> str:
+    """Return the canonical command-center section label for UI-facing text."""
+    text = str(section or "").strip()
+    return SOURCES_SECTION_ALIASES.get(text, text)
+
+
+def build_native_setup_recommendation(
+    *,
+    missing_source_keys: list[str] | None = None,
+    source_attention_roles: str | None = None,
+    device_issues: list[str] | None = None,
+    has_devices: bool = False,
+    readiness_phase: str | None = None,
+) -> dict[str, str]:
+    """Return the best current native section for setup follow-through."""
+    if missing_source_keys or (source_attention_roles and source_attention_roles != "None"):
+        return {
+            "recommended_section": SOURCES_SECTION_LABEL,
+            "recommended_path": SOURCES_CONFIGURE_PATH,
+        }
+    if device_issues or not has_devices:
+        return {
+            "recommended_section": "Managed devices",
+            "recommended_path": DEVICES_CONFIGURE_PATH,
+        }
+    if str(readiness_phase or "").strip() == "runtime_readiness":
+        return {
+            "recommended_section": "Diagnostics",
+            "recommended_path": SUPPORT_CONFIGURE_PATH,
+        }
+    return {
+        "recommended_section": "Controls",
+        "recommended_path": POLICY_CONFIGURE_PATH,
+    }
+
+
+def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
+    """Return the device-surface command-center guide text."""
+    recommended_section = normalize_command_center_section(command_center.get("recommended_section"))
+    return "\n".join(
+        [
+            "Zero Net Export native command center guide",
+            "",
+            f"Primary path: {PRIMARY_CONFIGURE_PATH}",
+            f"Recommended section right now: {recommended_section}",
+            f"Recommended path right now: {command_center.get('recommended_path')}",
+            f"Why this section is recommended: {command_center.get('recommended_reason')}",
+            f"What to do next: {command_center.get('next_action_summary')}",
+            f"Installed package: {command_center.get('install_status')}",
+            f"Install consistency: {command_center.get('install_consistency')}",
+            "",
+            "Use these native paths for the common operator jobs",
+            f"- Fix source mapping or mapped-source blockers: {command_center.get('sources_path')}",
+            f"- Add or edit managed devices: {command_center.get('devices_path')}",
+            f"- Tune export policy defaults and thresholds: {command_center.get('policy_path')}",
+            f"- Change live control mode right now: {command_center.get('mode_path')}",
+            f"- Review runtime health or install proof: {command_center.get('support_path')}",
+            "",
+            "What each command-center section is for",
+            f"- {SOURCES_SECTION_LABEL}: map required sources, repair unavailable or stale mapped roles, and confirm live source health after saves or reloads.",
+            "- Managed devices: add, review, edit, enable, disable, or remove controllable loads from the native fleet workflow.",
+            "- Controls: tune export target, deadband, reserve, and controller defaults once sources and devices are ready.",
+            "- Diagnostics: review runtime blockers, install consistency, and the next troubleshooting path.",
+            "",
+            "Current status",
+            f"- {SOURCES_SECTION_LABEL}: {command_center.get('source_status')}",
+            f"- Current mapped roles: {command_center.get('source_mapping_summary')}",
+            f"- Unavailable mapped roles: {command_center.get('unavailable_sources')}",
+            f"- Stale mapped roles: {command_center.get('stale_sources')}",
+            f"- Current mapped-source blockers: {command_center.get('source_attention_summary')}",
+            f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
+            f"- Managed devices: {command_center.get('device_status')}",
+            f"- Managed-device next step: {command_center.get('device_next_step')}",
+            f"- Controls: {command_center.get('policy_status')}",
+            f"- Controls readiness: {command_center.get('policy_readiness')}",
+            f"- Diagnostics: {command_center.get('support_status')}",
+            f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
+            "",
+            "Where each native path lives",
+            f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
+            f"- Managed devices: {command_center.get('devices_path')}",
+            f"- Controls: {command_center.get('policy_path')}",
+            f"- Diagnostics: {command_center.get('support_path')}",
+        ]
+    )
+
+
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     """Return the command-center summary shown in Configure and device surfaces."""
     state = getattr(coordinator, "data", None) if coordinator is not None else None
     readiness = build_native_operator_readiness(coordinator) if coordinator is not None else {}
     install_provenance = build_install_provenance()
-    install_validation_blocked = not bool(install_provenance.get("live_validation_safe"))
 
     entry = getattr(coordinator, "entry", None)
     merged: dict[str, Any] = {}
@@ -734,9 +984,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     source_attention = build_source_attention_details(state)
     unavailable_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["unavailable_source_keys"]]
     stale_source_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in source_attention["stale_source_keys"]]
-    source_attention_summary = build_source_attention_summary(state, merged, limit=4)
-    source_attention_brief = build_source_attention_brief(state, merged, limit=3)
-    source_attention_roles = build_source_attention_role_summary(state, merged, limit=4)
+    source_attention_summary = build_source_attention_summary(state, merged, limit=4, blocking_only=True)
+    source_attention_roles = build_source_attention_role_summary(state, merged, limit=4, blocking_only=True)
     blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
     runtime_source_attention = bool(unavailable_source_roles or stale_source_roles or blocking_validation_details != "None")
 
@@ -744,26 +993,22 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_status = "Missing required source roles: " + ", ".join(
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
-        recommended_section = "Sources and source mapping"
     elif runtime_source_attention:
-        if source_attention_summary != "None":
-            source_status = source_attention_brief
-        elif blocking_validation_details != "None":
-            source_status = f"Mapped-source validation blocked: {blocking_validation_details}"
-        else:
-            source_status = "Mapped sources need attention."
-        recommended_section = "Sources and source mapping"
+        attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
+        validation_suffix = (
+            f" Blocking validation details: {blocking_validation_details}"
+            if blocking_validation_details != "None"
+            else ""
+        )
+        source_status = attention_prefix + validation_suffix
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
-        recommended_section = "Sources and source mapping"
     else:
         source_status = build_live_source_health_summary(state)
-        recommended_section = "Managed devices" if not configured_devices else "Policy and controller settings"
 
     if device_parse_issues:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
-        recommended_section = "Managed devices"
     elif configured_devices:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
         device_status = runtime_device_status or f"{len(configured_devices)} configured"
@@ -773,16 +1018,28 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     else:
         device_status = "No managed devices configured yet"
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} and add at least one controllable load from the managed-device flow."
-        if not missing_required_sources and not runtime_source_attention:
-            recommended_section = "Managed devices"
 
-    if install_validation_blocked:
-        next_action_summary = build_install_repair_step(install_provenance)
-        recommended_section = "Health, support, and troubleshooting"
-    elif missing_required_sources:
+    recommendation = build_native_setup_recommendation(
+        missing_source_keys=missing_required_sources,
+        source_attention_roles=source_attention_roles,
+        device_issues=device_parse_issues,
+        has_devices=bool(configured_devices),
+        readiness_phase=readiness_phase,
+    )
+    recommended_section = normalize_command_center_section(recommendation["recommended_section"])
+
+    if missing_required_sources:
         next_action_summary = build_source_repair_step(missing_source_keys=missing_required_sources)
     elif runtime_source_attention:
-        next_action_summary = f"Open {SOURCES_CONFIGURE_PATH}, repair mapped-source blockers, then save and reload the integration."
+        next_action_summary = str(
+            readiness.get("next_step")
+            or build_source_repair_step(
+                unavailable_source_keys=source_attention["unavailable_source_keys"],
+                stale_source_keys=source_attention["stale_source_keys"],
+                blocking_validation_details=blocking_validation_details,
+                affected_roles=source_attention_roles,
+            )
+        )
     elif device_parse_issues:
         next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
     elif not configured_devices:
@@ -792,7 +1049,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             readiness.get("next_step")
             or f"Open {SUPPORT_CONFIGURE_PATH} and the native diagnostics surfaces to clear the current runtime blocker."
         )
-        recommended_section = "Health, support, and troubleshooting"
+        recommended_section = "Diagnostics"
     elif readiness_phase == "operator_ready":
         next_action_summary = str(
             readiness.get("next_step")
@@ -807,12 +1064,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
         f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
     )
-    if install_validation_blocked:
-        policy_readiness = (
-            "Deploy one exact intended build and restart Home Assistant core first. Until the installed package is synchronized, "
-            "policy changes and validation results are not trustworthy."
-        )
-    elif missing_required_sources:
+    if missing_required_sources:
         policy_readiness = "Finish source mapping first. Policy tuning is not actionable until the required mapped roles are complete."
     elif runtime_source_attention:
         policy_readiness = f"Repair mapped-source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
@@ -829,35 +1081,56 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         or getattr(state, "diagnostic_summary", None)
         or "Integration state not loaded yet"
     )
+    detailed_management_summary = build_detailed_management_handoff(configured_devices, state=state)
     status_summary_map = {
-        "Sources and source mapping": source_status,
+        SOURCES_SECTION_LABEL: source_status,
         "Managed devices": device_status,
-        "Policy and controller settings": policy_status,
-        "Health, support, and troubleshooting": support_status,
+        "Controls": policy_status,
+        "Diagnostics": support_status,
     }
 
     path_summary_map = {
-        "Sources and source mapping": SOURCES_CONFIGURE_PATH,
+        SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
         "Managed devices": DEVICES_CONFIGURE_PATH,
-        "Policy and controller settings": POLICY_CONFIGURE_PATH,
-        "Health, support, and troubleshooting": SUPPORT_CONFIGURE_PATH,
+        "Controls": POLICY_CONFIGURE_PATH,
+        "Diagnostics": SUPPORT_CONFIGURE_PATH,
     }
 
     install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
     install_consistency = build_install_consistency_summary(install_provenance)
     install_fingerprint_summary = build_install_fingerprint_summary(install_provenance)
+    source_attention_summary_display = (
+        source_attention_summary
+        if source_attention_summary != "None"
+        else "No mapped-source blockers currently highlighted"
+    )
+
+    recommended_reason = status_summary_map.get(recommended_section, support_status)
+    status_summary = _truncate_state_summary(
+        str(recommended_reason),
+        fallback=(
+            "Open Configure to continue in the recommended command-center section."
+            if recommended_section != "Managed devices"
+            else "Open Managed devices in Configure to continue fleet work."
+        ),
+    )
+    next_action_summary = _truncate_state_summary(
+        str(next_action_summary),
+        fallback=(
+            f"Open {SOURCES_CONFIGURE_PATH} and use the highlighted native guidance to continue."
+            if missing_required_sources or runtime_source_attention
+            else (
+                f"Open {DEVICES_CONFIGURE_PATH} to continue managed-device setup."
+                if device_parse_issues or not configured_devices
+                else f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+            )
+        ),
+    )
 
     return {
         "source_status": source_status,
-        "source_attention_summary": source_attention_summary,
-        "source_attention_brief": source_attention_brief,
+        "source_attention_summary": source_attention_summary_display,
         "source_attention_roles": source_attention_roles,
-        "source_repair_step": build_source_repair_step(
-            missing_source_keys=missing_required_sources,
-            unavailable_source_keys=source_attention["unavailable_source_keys"],
-            stale_source_keys=source_attention["stale_source_keys"],
-            blocking_validation_details=blocking_validation_details,
-        ),
         "unavailable_sources": ", ".join(unavailable_source_roles) if unavailable_source_roles else "None",
         "stale_sources": ", ".join(stale_source_roles) if stale_source_roles else "None",
         "source_mapping_summary": build_source_mapping_summary(merged),
@@ -869,10 +1142,12 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         "install_status": install_status,
         "install_consistency": install_consistency,
         "install_fingerprint_summary": install_fingerprint_summary,
-        "status_summary": status_summary_map.get(recommended_section, support_status),
+        "status_summary": status_summary,
+        "recommended_reason": recommended_reason,
         "recommended_section": recommended_section,
         "recommended_path": path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH),
         "next_action_summary": next_action_summary,
+        "detailed_management_summary": detailed_management_summary,
         "sources_path": SOURCES_CONFIGURE_PATH,
         "devices_path": DEVICES_CONFIGURE_PATH,
         "policy_path": POLICY_CONFIGURE_PATH,
@@ -895,9 +1170,25 @@ def build_native_support_center(coordinator: Any) -> str:
             "Zero Net Export native support center",
             "",
             f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
-            f"Health and support path: {SUPPORT_CONFIGURE_PATH}",
+            "Where each native path lives:",
+            f"- Sensors and source mapping: {command_center.get('sources_path')}",
+            f"- Managed devices: {command_center.get('devices_path')}",
+            f"- Controls: {command_center.get('policy_path')}",
+            f"- Diagnostics: {command_center.get('support_path')}",
+            f"- Live mode control: {command_center.get('mode_path')}",
+            "What each command-center section is for:",
+            f"- {SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
+            "- Managed devices: fleet onboarding, edits, enablement, and removal.",
+            "- Controls: controller policy defaults, thresholds, and readiness.",
+            "- Diagnostics: runtime health, install consistency, and troubleshooting guidance.",
             f"Recommended command-center section: {command_center.get('recommended_section')}",
             f"Recommended command-center path: {command_center.get('recommended_path')}",
+            f"Why this section is recommended: {command_center.get('recommended_reason')}",
+            f"Current mapped-source blockers: {command_center.get('source_attention_summary')}",
+            f"Affected mapped roles: {command_center.get('source_attention_roles')}",
+            f"Unavailable mapped roles: {command_center.get('unavailable_sources')}",
+            f"Stale mapped roles: {command_center.get('stale_sources')}",
+            f"Managed-device deep review: {command_center.get('detailed_management_summary')}",
             f"Readiness phase: {operator_readiness.get('phase')}",
             f"Summary: {operator_readiness.get('summary')}",
             f"Next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
