@@ -197,6 +197,31 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             summary,
         )
 
+    def test_runtime_deferred_provenance_stays_operator_safe(self) -> None:
+        release_info = _load_release_info_module()
+        provenance = {
+            "component_root": "/config/custom_components/zero_net_export",
+            "code_version": "1.2.3",
+            "manifest_version": "1.2.3",
+            "manifest_matches_code_version": True,
+            "manifest_error": None,
+            "provenance_note": "full install provenance deferred while event loop is running",
+            "tracked_files": {},
+            "git_local_vs_upstream": "deferred_runtime",
+            "git_ahead_commits": [],
+            "git_behind_commits": [],
+        }
+        self.assertEqual(
+            release_info.build_install_consistency_summary(provenance),
+            "Installed package version metadata matches the running code version. Full install provenance is deferred during live runtime, so use the exact-copy helper commands in Diagnostics when you need fingerprint or git-sync proof.",
+        )
+        summary = release_info.build_install_fingerprint_summary(provenance)
+        self.assertIn(
+            "- provenance_note: full install provenance deferred while event loop is running",
+            summary,
+        )
+        self.assertNotIn("- manifest_error:", summary)
+
 
 if __name__ == "__main__":
     unittest.main()

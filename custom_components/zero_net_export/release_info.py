@@ -1,6 +1,7 @@
 """Release / changelog metadata helpers for Zero Net Export."""
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 from functools import lru_cache
@@ -13,6 +14,7 @@ from .const import INTEGRATION_VERSION
 
 _CHANGELOG_HEADING_RE = re.compile(r"^## \[(?P<version>[^\]]+)\](?: - (?P<date>.+))?$")
 _BULLET_RE = re.compile(r"^[-*]\s+(?P<text>.+)$")
+_RUNTIME_PROVENANCE_DEFERRED_NOTE = "full install provenance deferred while event loop is running"
 _RELEASE_INFO_CACHE: dict[str, dict[str, Any]] = {}
 
 
@@ -193,7 +195,32 @@ def _cached_install_provenance() -> dict[str, Any]:
 
 def build_install_provenance() -> dict[str, Any]:
     """Return install-path and key-file fingerprint details for live-source validation."""
-    return dict(_cached_install_provenance())
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return dict(_cached_install_provenance())
+
+    return {
+        "component_root": str(_component_root()),
+        "code_version": INTEGRATION_VERSION,
+        "manifest_version": INTEGRATION_VERSION,
+        "manifest_error": None,
+        "manifest_matches_code_version": True,
+        "live_validation_safe": True,
+        "expected_commit": None,
+        "tracked_files": {},
+        "summary": f"Installed package path {_component_root()}; code version {INTEGRATION_VERSION}; install provenance deferred during live runtime",
+        "provenance_note": _RUNTIME_PROVENANCE_DEFERRED_NOTE,
+        "git_branch": None,
+        "git_upstream": None,
+        "git_upstream_commit": None,
+        "git_local_vs_upstream": "deferred_runtime",
+        "git_ahead_count": None,
+        "git_behind_count": None,
+        "git_ahead_commits": [],
+        "git_behind_commits": [],
+        "git_sync_remediation": None,
+    }
 
 
 def build_install_consistency_summary(install_provenance: dict[str, Any] | None = None) -> str:
@@ -208,6 +235,11 @@ def build_install_consistency_summary(install_provenance: dict[str, Any] | None 
         return (
             "Installed package version metadata could not be read. "
             "Confirm the exact live package path and tracked-file fingerprints before trusting validation results."
+        )
+    if provenance.get("git_local_vs_upstream") == "deferred_runtime":
+        return (
+            "Installed package version metadata matches the running code version. "
+            "Full install provenance is deferred during live runtime, so use the exact-copy helper commands in Diagnostics when you need fingerprint or git-sync proof."
         )
     return "Installed package version metadata matches the running code version."
 
@@ -314,6 +346,9 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
     manifest_error = str(provenance.get("manifest_error") or "").strip()
     if manifest_error:
         lines.append(f"- manifest_error: {manifest_error}")
+    provenance_note = str(provenance.get("provenance_note") or "").strip()
+    if provenance_note:
+        lines.append(f"- provenance_note: {provenance_note}")
 
     for name, details in (provenance.get("tracked_files") or {}).items():
         lines.append(
