@@ -108,7 +108,6 @@ class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEnt
 class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_native_command_center", "Show command center guide")
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_icon = "mdi:map-marker-path"
 
     @property

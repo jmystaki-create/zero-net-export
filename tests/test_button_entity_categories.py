@@ -133,17 +133,19 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
 
 class ButtonEntityCategoryTests(unittest.TestCase):
-    def test_fleet_console_button_is_primary(self) -> None:
+    def test_primary_operator_buttons_stay_out_of_diagnostics(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
             data=None,
         )
 
+        command_center = button_module.ZeroNetExportShowNativeCommandCenterButton(coordinator)
         fleet_console = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
         managed_review = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
         diagnostics = button_module.ZeroNetExportShowNativeDiagnosticsButton(coordinator)
 
+        self.assertIsNone(getattr(command_center, "_attr_entity_category", None))
         self.assertIsNone(getattr(fleet_console, "_attr_entity_category", None))
         self.assertIsNone(getattr(managed_review, "_attr_entity_category", None))
         self.assertEqual(diagnostics._attr_entity_category, button_module.EntityCategory.DIAGNOSTIC)
