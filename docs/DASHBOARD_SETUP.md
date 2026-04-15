@@ -158,6 +158,6 @@ Mapped entity ids, device entity ids, and operator-facing names are redacted in 
 
 After this scaffold, the next useful increment is not more packaged dashboard surface area. The higher-value follow-up is to keep the native Home Assistant operator path clearer and easier to validate:
 
-- make Configure, Repairs, and the integration/device surfaces more self-explanatory as the command center for sources, policy, managed devices, and support
+- make Configure, Repairs, and the native integration device path (`Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device`) more self-explanatory as the command center for sources, policy, managed devices, and support
 - keep validating that native path in real Home Assistant installs, then turn confirmed operator friction into targeted fixes
 - only revisit optional dashboard ergonomics later if real installs show a specific debug-visibility gap that native surfaces still do not cover

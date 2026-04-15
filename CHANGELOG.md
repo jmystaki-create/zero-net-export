@@ -14,6 +14,7 @@ Target release: `0.1.83`
 - Documented the required Home Assistant SSH fallback path in `TOOLS.md`, including the `/config` check and rerun-discovery step the supervisor should try before declaring live deploy or restart validation blocked.
 - Strengthened the exact-build config-path discovery helper so it now reports Docker and Podman runtime status, inspects running Home Assistant container mounts for host-side `/config` paths, and prints an explicit container-runtime follow-up when discovery still cannot see the live install from the current shell.
 - Realigned the repo working version to `0.1.83` across the manifest, changelog, and project status so the UI-release candidate no longer advertises the old `0.1.82` version while source-of-truth UI docs target `0.1.83`.
+- Replaced the remaining vague `integration/device surfaces` wording in README, product spec, and optional dashboard follow-up docs with the exact native Configure plus device-path guidance, so operator-path docs stop drifting behind the source-of-truth UI design.
 
 ## [0.1.82] - 2026-04-14
 
