@@ -6,7 +6,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-Target release: `0.1.83`
+Target release: `0.1.84`
 
 ### Fixed
 - Warm the installed-package provenance cache from Home Assistant's executor during entry setup before native support, repairs, or diagnostics helpers read it, so release/install fingerprint metadata no longer performs its first manifest/hash disk scan on the event loop during startup.
