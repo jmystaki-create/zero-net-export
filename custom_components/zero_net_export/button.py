@@ -247,11 +247,24 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         super().__init__(coordinator, "show_managed_device_review", "Show managed-device review")
         self._attr_icon = "mdi:clipboard-list-outline"
 
+    def _unmanaged_candidates(self) -> list[dict[str, str]]:
+        if self.hass is None:
+            return []
+        state = self._state
+        managed_ids = {
+            str(detail.get("entity_id"))
+            for detail in (getattr(state, "device_details", None) or {}).values()
+            if detail.get("entity_id")
+        }
+        return discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+
     @property
     def extra_state_attributes(self):
         state = self._state
         device_details = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(device_details, key=_device_runtime_sort_key)
+        candidates = self._unmanaged_candidates()
+        top_candidate = candidates[0] if candidates else None
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
@@ -263,6 +276,9 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "usable_count": sum(1 for detail in device_details if detail.get("usable") is True),
             "planned_action_count": sum(1 for detail in device_details if str(detail.get("planned_action") or "") != "hold"),
             "blocked_count": sum(1 for detail in device_details if detail.get("usable") is False),
+            "unmanaged_candidate_count": len(candidates),
+            "top_unmanaged_candidate": top_candidate,
+            "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
             "devices": ordered[:12],
         }
@@ -271,6 +287,8 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         state = self._state
         device_details = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(device_details, key=_device_runtime_sort_key)
+        candidates = self._unmanaged_candidates()
+        top_candidate = candidates[0] if candidates else None
         command_center = build_native_command_center_summary(self.coordinator)
         lines = [
             "Zero Net Export managed-device review",
@@ -286,9 +304,27 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 f"{sum(1 for detail in device_details if detail.get('usable') is True)} usable | "
                 f"{sum(1 for detail in device_details if str(detail.get('planned_action') or '') != 'hold')} planned action(s)"
             ),
+            (
+                "Unmanaged snapshot: "
+                f"{len(candidates)} candidate(s)"
+                + (
+                    f" | top candidate {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else ""
+                )
+            ),
             "",
             "Managed devices right now:",
             *([_format_device_review_line(detail) for detail in ordered[:20]] or ["- No managed devices configured yet."]),
+            "",
+            "Top unmanaged candidates:",
+            *(
+                [
+                    f"- {item['name']} ({item['entity_id']}, {item['kind']}, state {item['state']})"
+                    for item in candidates[:6]
+                ]
+                or ["- No unmanaged candidate devices discovered right now."]
+            ),
             "",
             "Use each managed-device entity row on the Zero Net Export device page for per-device status sensors and reset-override buttons.",
         ]

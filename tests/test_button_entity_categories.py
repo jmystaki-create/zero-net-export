@@ -153,7 +153,27 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             ),
         )
         button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
-        button.hass = object()
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool pump"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="input_boolean.helper_candidate",
+                        state="on",
+                        attributes={"friendly_name": "Helper candidate"},
+                    ),
+                ]
+            )
+        )
 
         import asyncio
         asyncio.run(button.async_press())
@@ -162,8 +182,55 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device review", message)
         self.assertIn("Managed snapshot: 2 managed | 1 enabled | 1 usable | 1 planned action(s)", message)
+        self.assertIn("Unmanaged snapshot: 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
         self.assertIn("- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump", message)
+        self.assertIn("Top unmanaged candidates:", message)
+        self.assertIn("- Hot water (switch.hot_water, fixed, state off)", message)
         self.assertIn("Detailed device-view path: detailed device path", message)
+
+    def test_managed_device_review_button_exposes_unmanaged_candidate_attributes(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool pump"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="number.ev_limit",
+                        state="16",
+                        attributes={"friendly_name": "EV limit"},
+                    ),
+                ]
+            )
+        )
+
+        attrs = button.extra_state_attributes
+
+        self.assertEqual(attrs["managed_count"], 1)
+        self.assertEqual(attrs["unmanaged_candidate_count"], 1)
+        self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "number.ev_limit")
+        self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
 
 
 if __name__ == "__main__":
