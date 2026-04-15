@@ -90,9 +90,35 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     native_support_module.SUPPORT_CONFIGURE_PATH = "support path"
     native_support_module.SUPPORT_SECTION_LABEL = "Diagnostics"
     native_support_module.build_native_command_center_summary = lambda coordinator: {
-        "device_next_step": "Review the next managed device.",
+        "recommended_section": "Sensors",
+        "recommended_path": "sources path",
+        "recommended_reason": "Mapped source blockers remain.",
         "next_action_summary": "Review the next managed device.",
+        "install_status": "install summary",
+        "install_consistency": "install consistency",
+        "source_status": "Sensors need review.",
+        "source_mapping_summary": "Solar power -> sensor.pv_power",
+        "unavailable_sources": "Solar power",
+        "stale_sources": "None",
+        "source_attention_roles": "Solar power -> sensor.pv_power (unavailable)",
+        "device_status": "Managed fleet looks healthy.",
+        "device_next_step": "Review the next managed device.",
+        "policy_status": "Controls ready.",
+        "policy_readiness": "Ready after source repair.",
+        "support_status": "Diagnostics available.",
+        "detailed_management_summary": "Use the device page for deeper per-device review.",
+        "sources_path": "sources path",
+        "devices_path": "devices path",
+        "policy_path": "policy path",
+        "support_path": "support path",
+        "mode_path": "mode path",
     }
+    native_support_module.build_native_command_center_guide_text = lambda command_center: (
+        "Zero Net Export native command center guide\n\n"
+        f"Recommended section right now: {command_center.get('recommended_section')}\n"
+        f"Why this section is recommended: {command_center.get('recommended_reason')}\n"
+        f"Managed-device deep review: {command_center.get('detailed_management_summary')}"
+    )
     native_support_module.build_native_operator_readiness = lambda coordinator: {}
     native_support_module.build_native_support_center = lambda coordinator: "support center"
     native_support_module.build_native_support_snapshot = lambda coordinator: "support snapshot"
@@ -235,6 +261,26 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["top_candidate_fit"]["confidence"], "medium")
         self.assertTrue(any("meaningful unit" in warning for warning in attrs["top_candidate_fit"]["warnings"]))
         self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
+
+    def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportShowNativeCommandCenterButton(coordinator)
+        button.hass = SimpleNamespace()
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        self.assertEqual(len(notification_calls), 1)
+        message = notification_calls[0]["args"][1]
+        self.assertIn("Zero Net Export native command center guide", message)
+        self.assertIn("Recommended section right now: Sensors", message)
+        self.assertIn("Why this section is recommended: Mapped source blockers remain.", message)
+        self.assertIn("Managed-device deep review: Use the device page for deeper per-device review.", message)
 
 
 if __name__ == "__main__":
