@@ -236,6 +236,9 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "effective_enabled": True,
                 "usable": True,
                 "status": "Ready for control",
+                "guard_status": "ready",
+                "planned_action": "turn_on",
+                "last_action_status": "queued",
                 "priority": 10,
                 "nominal_power_w": 1200,
             },
@@ -248,6 +251,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "effective_enabled": False,
                 "usable": False,
                 "status": "Held by guard",
+                "guard_status": "cooldown",
+                "planned_action": "hold",
                 "priority": 20,
                 "nominal_power_w": 7000,
             },
@@ -258,10 +263,17 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertIn("usable", label)
         self.assertIn("Ready for control", label)
+        self.assertIn("guard=ready", label)
+        self.assertIn("plan=turn_on", label)
+        self.assertIn("last=queued", label)
         self.assertIn("1 enabled", summary_lines[0])
         self.assertIn("1 usable", summary_lines[0])
+        self.assertIn("1 blocked", summary_lines[0])
+        self.assertIn("1 planned action(s)", summary_lines[0])
         self.assertIn("Pool pump", summary_lines[1])
+        self.assertIn("plan=turn_on", summary_lines[1])
         self.assertIn("EV charger", summary_lines[2])
+        self.assertIn("guard=cooldown", summary_lines[2])
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()

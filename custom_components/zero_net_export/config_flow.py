@@ -660,6 +660,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             runtime_bits.append("usable" if device.get("usable") else "not usable")
         if device.get("status"):
             runtime_bits.append(str(device.get("status")))
+        if device.get("guard_status"):
+            runtime_bits.append(f"guard={device.get('guard_status')}")
+        if device.get("planned_action"):
+            runtime_bits.append(f"plan={device.get('planned_action')}")
+        if device.get("last_action_status"):
+            runtime_bits.append(f"last={device.get('last_action_status')}")
         runtime_summary = f" [{' | '.join(runtime_bits)}]" if runtime_bits else ""
         return (
             f"{device.get('name', 'Unnamed device')}{runtime_summary} "
@@ -672,11 +678,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
+        blocked_count = sum(1 for device in devices if device.get("usable") is False)
+        planned_count = sum(1 for device in devices if str(device.get("planned_action") or "") not in {"", "hold"})
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
         lines = [
-            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power",
+            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {blocked_count} blocked, {planned_count} planned action(s), {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power",
         ]
         lines.extend(f"- {self._device_status_label(device)}" for device in ordered)
         return lines
