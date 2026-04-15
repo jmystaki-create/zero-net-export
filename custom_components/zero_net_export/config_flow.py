@@ -7,6 +7,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.components import persistent_notification
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
@@ -59,6 +60,7 @@ from .device_model import (
 )
 from .native_support import (
     ADVANCED_DEVICES_CONFIGURE_PATH,
+    DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
     DEVICES_SECTION_LABEL,
     INTEGRATION_DEVICE_PATH,
@@ -969,11 +971,82 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             for device in devices
         ], issues
 
-    async def _save_devices(self, devices: list[dict[str, Any]]):
+    def _build_device_action_feedback(
+        self,
+        *,
+        action: str,
+        devices: list[dict[str, Any]],
+        device: dict[str, Any] | None = None,
+        previous_device: dict[str, Any] | None = None,
+    ) -> dict[str, str] | None:
+        managed_count = len(devices)
+        enabled_count = sum(1 for item in devices if item.get("enabled", True))
+        disabled_count = managed_count - enabled_count
+        kind_label = "fixed load" if str((device or previous_device or {}).get("kind")) == DEVICE_KIND_FIXED else "variable load"
+        current_name = str((device or {}).get("name") or (previous_device or {}).get("name") or "Managed device")
+        current_entity_id = str((device or {}).get("entity_id") or (previous_device or {}).get("entity_id") or "")
+
+        if action == "promote" and device is not None:
+            title = "managed-device promotion saved"
+            changed = f"Promoted {current_name} ({current_entity_id}) into Managed Devices as a {kind_label}."
+            next_step = (
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the fleet snapshot, then use {DETAILED_MANAGEMENT_PATH} "
+                "for per-device runtime review, guards, and reset actions."
+            )
+        elif action == "edit" and device is not None:
+            title = "managed-device update saved"
+            changed = f"Updated {current_name} ({current_entity_id}) in Managed Devices."
+            next_step = (
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} if more fleet tuning is needed, or use {DETAILED_MANAGEMENT_PATH} "
+                "to review runtime status after this change."
+            )
+        elif action == "remove" and previous_device is not None:
+            title = "managed-device removal saved"
+            changed = f"Removed {current_name} ({current_entity_id}) from Managed Devices."
+            next_step = (
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the remaining fleet and promote the next unmanaged candidate if needed."
+            )
+        elif action == "bulk_enable":
+            title = "managed-device enablement saved"
+            changed = "Saved the Managed Devices enablement review."
+            next_step = (
+                f"Next step: use {DETAILED_MANAGEMENT_PATH} to confirm which enabled devices are now usable at runtime."
+            )
+        else:
+            return None
+
+        fleet_snapshot = (
+            f"Fleet now: {managed_count} managed | {enabled_count} enabled | {disabled_count} disabled"
+        )
+        message = "\n".join(
+            [
+                "Zero Net Export managed-device update",
+                "",
+                changed,
+                fleet_snapshot,
+                f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
+                f"Detailed review path: {DETAILED_MANAGEMENT_PATH}",
+                next_step,
+            ]
+        )
+        return {"title": title, "message": message}
+
+    def _show_device_action_feedback(self, feedback: dict[str, str] | None) -> None:
+        if not feedback:
+            return
+        persistent_notification.async_create(
+            self.hass,
+            feedback["message"],
+            title=f"{self._config_entry.title}: {feedback['title']}",
+            notification_id=f"{DOMAIN}_{self._config_entry.entry_id}_managed_device_update",
+        )
+
+    async def _save_devices(self, devices: list[dict[str, Any]], *, feedback: dict[str, str] | None = None):
         merged_options = dict(self._config_entry.options)
         merged_options[CONF_DEVICE_INVENTORY_JSON] = _device_options_json(devices)
         self.hass.config_entries.async_update_entry(self._config_entry, options=merged_options)
         await self.hass.config_entries.async_reload(self._config_entry.entry_id)
+        self._show_device_action_feedback(feedback)
         return self.async_create_entry(title="", data=merged_options)
 
     @staticmethod
@@ -2013,11 +2086,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if device_issues:
                 errors["base"] = "device_inventory_invalid"
             else:
+                feedback = self._build_device_action_feedback(
+                    action="edit" if editing_key else "promote",
+                    devices=candidate_devices,
+                    device=new_device,
+                    previous_device=existing_device,
+                )
                 self._pending_device_key = None
                 self._pending_device_template_key = None
                 self._pending_candidate_entity_id = None
                 self._pending_candidate_summary = None
-                return await self._save_devices(candidate_devices)
+                return await self._save_devices(candidate_devices, feedback=feedback)
 
         selected_template = get_device_template(kind, self._pending_device_template_key)
         defaults = self._device_form_defaults(
@@ -2108,7 +2187,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 {**device, "enabled": device.get("key") in selected_keys}
                 for device in devices
             ]
-            return await self._save_devices(updated_devices)
+            feedback = self._build_device_action_feedback(action="bulk_enable", devices=updated_devices)
+            return await self._save_devices(updated_devices, feedback=feedback)
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
@@ -2181,8 +2261,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         candidates = self._device_candidates()
         if user_input is not None:
             remove_name = user_input["device_key"]
+            removed_device = next((device for device in devices if device.get("key") == remove_name), None)
             remaining = [device for device in devices if device.get("key") != remove_name]
-            return await self._save_devices(remaining)
+            feedback = self._build_device_action_feedback(action="remove", devices=remaining, previous_device=removed_device)
+            return await self._save_devices(remaining, feedback=feedback)
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))

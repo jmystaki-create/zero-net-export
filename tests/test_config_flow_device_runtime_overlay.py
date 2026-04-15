@@ -33,6 +33,13 @@ def _load_config_flow_module():
     voluptuous_module.Optional = lambda key, default=None: key
     sys.modules[voluptuous_module.__name__] = voluptuous_module
 
+    components_module = sys.modules.setdefault("homeassistant.components", types.ModuleType("homeassistant.components"))
+    components_module.__path__ = []
+
+    persistent_notification_module = types.ModuleType("homeassistant.components.persistent_notification")
+    persistent_notification_module.async_create = lambda *args, **kwargs: None
+    sys.modules[persistent_notification_module.__name__] = persistent_notification_module
+
     config_entries_module = types.ModuleType("homeassistant.config_entries")
 
     class ConfigFlow:
@@ -93,6 +100,7 @@ def _load_config_flow_module():
 
     native_support_module = types.ModuleType("custom_components.zero_net_export.native_support")
     native_support_module.ADVANCED_DEVICES_CONFIGURE_PATH = "advanced path"
+    native_support_module.DETAILED_MANAGEMENT_PATH = "detailed device path"
     native_support_module.DEVICES_CONFIGURE_PATH = "devices path"
     native_support_module.DEVICES_SECTION_LABEL = "Managed Devices"
     native_support_module.INTEGRATION_DEVICE_PATH = "device path"
@@ -248,6 +256,40 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("1 usable", summary_lines[0])
         self.assertIn("Pool pump", summary_lines[1])
         self.assertIn("EV charger", summary_lines[2])
+
+    def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+
+        feedback = flow._build_device_action_feedback(
+            action="promote",
+            devices=[{"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True}],
+            device={"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertEqual(feedback["title"], "managed-device promotion saved")
+        self.assertIn("Promoted Pool pump (switch.pool_pump) into Managed Devices as a fixed load.", feedback["message"])
+        self.assertIn("Managed Devices path: devices path", feedback["message"])
+        self.assertIn("Detailed review path: detailed device path", feedback["message"])
+
+    def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+
+        feedback = flow._build_device_action_feedback(
+            action="bulk_enable",
+            devices=[
+                {"key": "pool", "enabled": True},
+                {"key": "ev", "enabled": False},
+            ],
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertEqual(feedback["title"], "managed-device enablement saved")
+        self.assertIn("Fleet now: 2 managed | 1 enabled | 1 disabled", feedback["message"])
 
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
         module = _load_config_flow_module()
