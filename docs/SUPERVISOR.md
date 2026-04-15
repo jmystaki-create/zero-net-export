@@ -97,6 +97,7 @@ Do next:
 4. Define and implement a separate detailed-management path for managed devices, reachable from the native device view, for deeper per-device review.
 5. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sources and source mapping.
 6. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
+7. When the next coherent release candidate is actually ready, ask James directly for formal release approval instead of only describing deploy/restart steps.
 
 Do later:
 - Validate a mixed-device fleet scenario, not just a single-device happy path.
@@ -113,6 +114,7 @@ Do later:
 - If blocked on the user, continue only with safe adjacent work.
 - Do not reintroduce a custom panel as the default answer to native UX rough edges.
 - Keep updates delta-only.
+- Format thread updates for quick scanning: keep the `SUPERVISOR HH:MM` title on its own line, then separate the body with short bullet points or numbered bullets instead of one dense paragraph.
 - If user action is needed, state the exact action needed.
 - When progress depends on live runtime evidence, first use the documented access paths in TOOLS.md before asking the user for screenshots, logs, tracebacks, or validation evidence.
 - Only treat live validation as a user blocker if the required evidence cannot be gathered through the documented access paths or requires human-only interaction.
@@ -121,7 +123,9 @@ Do later:
 - When a safe, validated improvement is complete, commit it and push it unless a higher-priority project rule blocks that.
 - When the project is sufficiently ready for release, follow `RELEASE_MANAGEMENT.md` rather than stopping at local code changes.
 - Do not treat local repo progress as complete if the intended result depends on GitHub release visibility, HACS update, Home Assistant restart, or live post-release verification.
-- If release execution requires explicit user approval, ask for that approval at the point the project is release-ready, then continue the release flow through `RELEASE_MANAGEMENT.md`.
+- If release execution requires explicit user approval, ask James for that approval at the point the project is release-ready, then continue the release flow through `RELEASE_MANAGEMENT.md`.
+- Do not rely on implied approval, “next gap”, or embedded command suggestions when the real next step is a formal release. When the candidate is coherent enough for release, explicitly say that the release is ready and ask James for approval to execute it end-to-end.
+- Supervisor updates should not make James infer that release approval is needed. If the actual boundary is formal release execution, state that directly in the thread.
 - Keep version tracking explicit during ongoing work: verify local manifest/changelog version, current branch state, and local-vs-remote GitHub status before claiming release readiness or shipped progress.
 - Distinguish clearly between local working version, pushed remote state, and publicly released GitHub version. Do not present them as the same unless they are verified to match.
 
