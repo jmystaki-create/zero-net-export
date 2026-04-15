@@ -188,6 +188,34 @@ class SourceFreshnessProbeTests(unittest.TestCase):
         self.assertEqual(detail["stale_threshold_seconds"], 900)
         self.assertGreater(detail["age_seconds"], 120)
 
+    def test_stale_energy_sensor_is_visible_but_does_not_block_runtime(self) -> None:
+        coordinator_module = _load_coordinator_module()
+        coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
+        coordinator.entry = SimpleNamespace(data={"refresh_seconds": 30}, options={})
+        coordinator.hass = SimpleNamespace(states=SimpleNamespace(get=lambda entity_id: None))
+        spec = SimpleNamespace(
+            key="solar_energy_entity",
+            entity_id="sensor.system_rome_yield_total",
+            required=True,
+            quantity="energy",
+        )
+        now = datetime(2026, 4, 15, 0, 58, 0, tzinfo=timezone.utc)
+        sensor_state = SimpleNamespace(last_updated=now - timedelta(minutes=31))
+
+        stale_sources, freshness = coordinator._source_freshness(
+            [spec],
+            {"solar_energy_entity": sensor_state},
+            now,
+        )
+
+        self.assertEqual(stale_sources, [])
+        detail = freshness["solar_energy_entity"]
+        self.assertTrue(detail["stale"])
+        self.assertFalse(detail["stale_blocks_runtime"])
+        self.assertIsNone(detail["freshness_probe_entity_id"])
+        self.assertEqual(detail["stale_threshold_seconds"], 900)
+        self.assertGreater(detail["age_seconds"], 900)
+
     def test_power_sensor_without_companion_probe_stays_stale(self) -> None:
         coordinator_module = _load_coordinator_module()
         coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
@@ -211,6 +239,7 @@ class SourceFreshnessProbeTests(unittest.TestCase):
         self.assertEqual(len(stale_sources), 1)
         detail = freshness["solar_power_entity"]
         self.assertTrue(detail["stale"])
+        self.assertTrue(detail["stale_blocks_runtime"])
         self.assertIsNone(detail["freshness_probe_entity_id"])
         self.assertEqual(detail["stale_threshold_seconds"], 120)
         self.assertGreater(detail["age_seconds"], 120)

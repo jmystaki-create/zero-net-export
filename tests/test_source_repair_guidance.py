@@ -510,6 +510,64 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("battery_discharge_power", command_center["source_attention_roles"])
         self.assertNotIn("battery_discharge_power", command_center["recommended_reason"])
 
+    def test_command_center_blocker_copy_ignores_slow_required_energy_staleness(self) -> None:
+        native_support = _load_native_support_module()
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={
+                    "solar_power_entity": "sensor.pv_power",
+                    "solar_energy_entity": "sensor.pv_energy_total",
+                    "grid_import_power_entity": "sensor.grid_import_power",
+                    "grid_export_power_entity": "sensor.grid_export_power",
+                    "grid_import_energy_entity": "sensor.grid_import_energy",
+                    "grid_export_energy_entity": "sensor.grid_export_energy",
+                },
+                options={},
+            )
+            data = types.SimpleNamespace(
+                validation_details={
+                    "source_diagnostics": {
+                        "solar_energy": {
+                            "entity_id": "sensor.pv_energy_total",
+                            "required": True,
+                        },
+                        "grid_import_power": {
+                            "entity_id": "sensor.grid_import_power",
+                            "required": True,
+                        },
+                    },
+                    "source_freshness": {
+                        "solar_energy": {
+                            "stale": True,
+                            "age_seconds": 1532,
+                            "required": True,
+                            "stale_blocks_runtime": False,
+                        },
+                        "grid_import_power": {
+                            "stale": False,
+                            "age_seconds": 12,
+                            "required": True,
+                            "stale_blocks_runtime": True,
+                        },
+                    },
+                },
+                source_diagnostics={},
+                stale_data=False,
+                usable_device_count=1,
+                safe_mode=False,
+                health_summary="Healthy.",
+                diagnostic_summary="Mapped sources currently look healthy across 6 mapped role(s).",
+                mode="automatic",
+            )
+
+        command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
+        self.assertEqual(command_center["source_attention_summary"], "No mapped-source blockers currently highlighted")
+        self.assertNotIn("solar_energy", command_center["recommended_reason"])
+
     def test_support_center_surfaces_current_source_blockers_near_the_top(self) -> None:
         native_support = _load_native_support_module()
 

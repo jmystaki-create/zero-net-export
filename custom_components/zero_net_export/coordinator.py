@@ -691,6 +691,9 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             threshold = max(threshold, STALE_SOURCE_ENERGY_MIN_SECONDS)
         return threshold
 
+    def _stale_source_blocks_runtime(self, spec: SourceSpec) -> bool:
+        return bool(spec.required and spec.quantity != "energy")
+
     def _candidate_freshness_probe_entity_ids(self, entity_id: str) -> list[str]:
         candidates: list[str] = []
         base = entity_id
@@ -763,6 +766,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     "entity_id": binding.entity_id if binding.entity_id else spec.entity_id,
                     "binding": spec.entity_id,
                     "required": spec.required,
+                    "stale_blocks_runtime": self._stale_source_blocks_runtime(spec),
                     "stale": False,
                     "last_updated": None,
                     "age_seconds": None,
@@ -783,6 +787,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "entity_id": binding.entity_id,
                 "binding": spec.entity_id,
                 "required": spec.required,
+                "stale_blocks_runtime": self._stale_source_blocks_runtime(spec),
                 "stale": stale,
                 "last_updated": effective_last_updated.isoformat() if effective_last_updated else None,
                 "entity_last_updated": normalized_last_updated.isoformat() if normalized_last_updated else None,
@@ -791,7 +796,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "freshness_probe_entity_id": freshness_probe_entity_id,
             }
             freshness[spec.key] = detail
-            if stale and spec.required:
+            if stale and detail["stale_blocks_runtime"]:
                 stale_sources.append(detail)
 
         return stale_sources, freshness

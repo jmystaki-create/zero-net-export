@@ -162,7 +162,17 @@ def _blocking_source_attention_keys(source_attention: dict[str, Any]) -> list[st
     )
     for key in _ordered_source_attention_keys(source_attention):
         details = source_attention["source_diagnostics"].get(key, {}) or {}
-        if key in validation_role_keys or details.get("required") is True or key in REQUIRED_SOURCE_KEYS:
+        is_required = details.get("required") is True or key in REQUIRED_SOURCE_KEYS
+        is_unavailable = details.get("status") == "unavailable"
+        is_stale = bool(details.get("stale")) and not is_unavailable
+        stale_blocks_runtime = details.get("stale_blocks_runtime")
+        if stale_blocks_runtime is None:
+            stale_blocks_runtime = is_required
+        if key in validation_role_keys:
+            blocking_keys.append(key)
+        elif is_unavailable and is_required:
+            blocking_keys.append(key)
+        elif is_stale and stale_blocks_runtime:
             blocking_keys.append(key)
     return blocking_keys
 
