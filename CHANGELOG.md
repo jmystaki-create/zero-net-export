@@ -23,6 +23,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Clarified install-summary remediation so operators can see the exact upstream-sync next step and discovery rerun guidance before attempting another exact-copy deploy.
 - Corrected project automation steering so Home Assistant access must be checked through the documented TOOLS.md SSH path before supervisor/watchdog runs claim live validation is blocked.
 
+## [0.1.81] - 2026-04-13
+
+### Fixed
+- Shortened the shipped command-center and mapped-source blocker sensor states so Home Assistant no longer drops those entity states to `unknown` when stale or unavailable mapped sources produce long runtime summaries.
+- Simplified the native runtime-attention next-step text so the Home Assistant popup and diagnostic sensors stop repeating the same stale-source detail across multiple fields while still pointing operators to the exact Configure -> Sources path.
+- Cached installed-package provenance reads inside the runtime helper so the fingerprint summary no longer performs repeated synchronous manifest/hash file reads on the Home Assistant event loop during sensor rendering.
+
 ## [0.1.80] - 2026-04-12
 
 ### Fixed

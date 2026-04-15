@@ -62,7 +62,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
         self.assertTrue(info["has_changelog"])
-        self.assertEqual(info["released_on"], "2026-04-13")
+        self.assertEqual(info["released_on"], "2026-04-14")
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertIn("Home Assistant", info["changes_preview"])
 
