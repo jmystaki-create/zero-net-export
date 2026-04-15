@@ -140,7 +140,7 @@ Suggested area labels:
 
 ## ZNE-005 — Validation workflow awkward against remote HA environment
 - **closed on:** 2026-04-15
-- **repo fix:** `d3d99d0` — `release: add ssh-backed HA fingerprint validation`
+- **repo fix:** `f3388cf` — `release: add ssh-backed HA fingerprint validation`
 - **closure evidence:** repo-side SSH validation now works against the documented HA path without remote Python, and a live run against `root@192.168.86.200:2222` returned the installed component fingerprint from `/homeassistant/custom_components/zero_net_export`
 
 
