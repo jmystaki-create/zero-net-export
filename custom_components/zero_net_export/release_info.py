@@ -28,8 +28,7 @@ def _component_root() -> Path:
     return Path(__file__).resolve().parent
 
 
-@lru_cache(maxsize=1)
-def _cached_install_provenance() -> dict[str, Any]:
+def _collect_install_provenance() -> dict[str, Any]:
     component_root = _component_root()
     manifest_path = component_root / "manifest.json"
     manifest_version: str | None = None
@@ -92,6 +91,17 @@ def _cached_install_provenance() -> dict[str, Any]:
         "tracked_files": file_fingerprints,
         "summary": summary,
     }
+
+
+@lru_cache(maxsize=1)
+def _cached_install_provenance() -> dict[str, Any]:
+    return _collect_install_provenance()
+
+
+async def async_prime_install_provenance(hass) -> dict[str, Any]:
+    """Warm the install provenance cache off the event loop before sync UI helpers use it."""
+    await hass.async_add_executor_job(_cached_install_provenance)
+    return build_install_provenance()
 
 
 def build_install_provenance() -> dict[str, Any]:

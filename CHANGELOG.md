@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.83`
 
 ### Fixed
+- Warm the installed-package provenance cache from Home Assistant's executor during entry setup before native support, repairs, or diagnostics helpers read it, so release/install fingerprint metadata no longer performs its first manifest/hash disk scan on the event loop during startup.
 - Committed the pending `docs/UI_DESIGN.md` build checklist, implementation-gap analysis, and explicit `1A` headline-decision-summary execution slice so the shipped UI design source of truth no longer trails the working-tree steering.
 - Added `scripts/clean_legacy_discovery_artifacts.py` plus regression coverage so the repo now has a safe cleanup path for old `zero_net_export.backup_*` directories and stale `zero_net_export.*.pyc` artifacts that can still poison Home Assistant custom-component discovery after earlier deploys.
 - Moved the exact-build deploy helper's default backups out of Home Assistant's `custom_components` discovery root and into `<config>/.openclaw_backups/custom_components/`, so backup copies can no longer masquerade as `zero_net_export.*` modules and break the Add Integration config flow.

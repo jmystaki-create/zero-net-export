@@ -36,6 +36,7 @@ from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .native_support import INTEGRATION_DEVICE_PATH, PRIMARY_CONFIGURE_PATH
 from .native_support import build_native_operator_readiness, build_source_attention_role_summary
+from .release_info import async_prime_install_provenance
 from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
 
@@ -121,6 +122,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await _async_update_native_setup_notice(hass, entry)
+    await async_prime_install_provenance(hass)
 
     coordinator = ZeroNetExportCoordinator(hass, entry)
     await coordinator.async_initialize()

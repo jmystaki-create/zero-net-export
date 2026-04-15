@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import importlib.util
 import sys
 import types
@@ -36,6 +37,9 @@ release_info = load_integration_module("release_info", "release_info.py")
 
 
 class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
+    def tearDown(self) -> None:
+        release_info._cached_install_provenance.cache_clear()
+
     def test_parse_changelog_text_keeps_indented_bullets_under_release_sections(self) -> None:
         sections = release_info._parse_changelog_text(
             "\n".join(
@@ -118,6 +122,21 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         self.assertIn("deploy_exact_build_dry_run_command", summary)
         self.assertIn("combined_validation_command", summary)
+
+    def test_async_prime_install_provenance_warms_cache_via_executor(self) -> None:
+        release_info._cached_install_provenance.cache_clear()
+        calls: list[object] = []
+
+        class DummyHass:
+            async def async_add_executor_job(self, target):
+                calls.append(target)
+                return target()
+
+        result = asyncio.run(release_info.async_prime_install_provenance(DummyHass()))
+
+        self.assertEqual(calls, [release_info._cached_install_provenance])
+        self.assertEqual(result["code_version"], release_info.INTEGRATION_VERSION)
+        self.assertEqual(release_info._cached_install_provenance.cache_info().currsize, 1)
 
 
 if __name__ == "__main__":

@@ -205,15 +205,17 @@ Suggested area labels:
 - **next action:** keep candidate detail richness in attributes/notifications/deeper review paths so future summary expansions do not regress back into overlong HA state strings
 
 ## ZNE-020 — Install provenance fingerprinting performs blocking file I/O in the event loop
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `medium`
 - **area:** `runtime`
 - **where seen:** live Home Assistant immediately after restarting the exact `209665e` build
 - **current observed behavior:** startup logs warn that Zero Net Export performs blocking `read_bytes` and `open` calls inside the event loop while building install-provenance metadata from `manifest.json`
 - **expected behavior:** install-provenance and release-info helpers should avoid synchronous filesystem reads on the event loop during coordinator/update paths
-- **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded in this run, and post-restart `ha core logs -n 120` showed `Detected blocking call to read_bytes ... by custom integration 'zero_net_export' at custom_components/zero_net_export/release_info.py, line 62: sha256_12 = hashlib.sha256(path.read_bytes()).hexdigest()[:12]` plus the corresponding blocking `open` warning from the same code path
+- **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded in the prior validation run, and post-restart `ha core logs -n 120` showed `Detected blocking call to read_bytes ... by custom integration 'zero_net_export' at custom_components/zero_net_export/release_info.py, line 62: sha256_12 = hashlib.sha256(path.read_bytes()).hexdigest()[:12]` plus the corresponding blocking `open` warning from the same code path
 - **suspected cause:** `build_install_provenance()` ultimately calls `_cached_install_provenance()`, which reads and hashes tracked component files synchronously from `release_info.py` during coordinator/repair setup work that now runs on the Home Assistant event loop
-- **next action:** move install-provenance file reads off the event loop, or precompute/cache them from an executor-safe path so startup and coordinator updates stop emitting blocking-call warnings
+- **repo fix:** `pending` — this run adds `async_prime_install_provenance(hass)` in `custom_components/zero_net_export/release_info.py` and calls it from `custom_components/zero_net_export/__init__.py` before the first coordinator refresh/repairs sync, so the first manifest/hash cache warm happens through Home Assistant's executor instead of on the event loop
+- **validation status:** repo-side fix implemented and covered by `python3 -m unittest tests.test_release_info_install_guidance -q` plus `python3 -m unittest discover -s tests -q`. Live validation is still pending; the next HA restart/log review must confirm the earlier `Detected blocking call to read_bytes` and blocking `open` warnings no longer appear on the exact deployed build.
+- **next action:** deploy this repo build to Home Assistant, restart core, then grep the fresh logs for `Detected blocking call` and `release_info.py` before closing the bug
 
 ## Recently validated or closed bugs
 
