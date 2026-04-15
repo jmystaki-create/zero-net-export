@@ -560,7 +560,6 @@ def _command_center_menu_options(recommended_section: str) -> list[str]:
     recommended_option = recommended_map.get(recommended_section)
     ordered = [option for option in base_options if option == recommended_option]
     ordered.extend(option for option in base_options if option != recommended_option)
-    ordered.append("advanced")
     return ordered
 
 

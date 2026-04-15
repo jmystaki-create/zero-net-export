@@ -36,8 +36,7 @@
           "native_setup": "Sensors",
           "policy": "Controls",
           "devices": "Managed Devices",
-          "support": "Diagnostics",
-          "advanced": "Advanced JSON editor and recovery"
+          "support": "Diagnostics"
         }
       },
       "native_setup": {
