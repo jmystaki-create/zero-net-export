@@ -6,6 +6,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.components.repairs import RepairsFlow
 
 from .const import (
     CONF_DEVICE_INVENTORY_JSON,
@@ -38,6 +39,39 @@ ISSUE_SETUP_INCOMPLETE = "setup_incomplete"
 ISSUE_DEVICE_INVENTORY_INVALID = "device_inventory_invalid"
 ISSUE_RUNTIME_ATTENTION = "runtime_attention"
 ISSUE_KEYS = (ISSUE_SETUP_INCOMPLETE, ISSUE_DEVICE_INVENTORY_INVALID, ISSUE_RUNTIME_ATTENTION)
+
+
+class ZeroNetExportRepairsFlow(RepairsFlow):
+    """Minimal Repairs flow so Home Assistant accepts this integration's repairs platform."""
+
+    def __init__(self, issue_id: str, data: dict[str, str] | None = None) -> None:
+        self.issue_id = issue_id
+        self._data = data or {}
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None):
+        placeholders = {
+            "issue_id": self.issue_id,
+            "next_step": self._data.get("next_step", "Review the Zero Net Export Configure flow and Diagnostics guidance."),
+            "configure_path": self._data.get("configure_path", PRIMARY_CONFIGURE_PATH),
+            "support_path": self._data.get("support_path", SUPPORT_CONFIGURE_PATH),
+        }
+        return self.async_show_form(
+            step_id="confirm",
+            data_schema=None,
+            description_placeholders=placeholders,
+        )
+
+    async def async_step_confirm(self, user_input: dict[str, Any] | None = None):
+        return self.async_create_entry(title="Zero Net Export", data={"issue_id": self.issue_id})
+
+
+async def async_create_fix_flow(
+    hass: HomeAssistant,
+    issue_id: str,
+    data: dict[str, str] | None = None,
+) -> RepairsFlow | None:
+    """Return a Repairs flow instance so the integration exposes a valid repairs platform."""
+    return ZeroNetExportRepairsFlow(issue_id, data)
 
 
 def _entry_issue_id(entry: ConfigEntry, issue_key: str) -> str:
