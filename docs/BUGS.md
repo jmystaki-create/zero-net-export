@@ -140,6 +140,42 @@ Suggested area labels:
 - **validation status:** repo-side fix remains covered by `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`. Live validation is now good enough for this bug specifically: the fixed `coordinator.py` is present in the live install, the integration has an active config entry again, and the earlier missing-argument setup retry is no longer present in current log review.
 - **next action:** no further action for this specific bug beyond keeping future coordinator/release-info changes under regression coverage
 
+## ZNE-026 — Integration overview/device page still shows stale 0.1.83 version after 0.1.84 install
+- **status:** `open`
+- **severity:** `high`
+- **area:** `release`
+- **where seen:** live Home Assistant UI after `0.1.84` deploy
+- **current observed behavior:** the integration overview and device info screenshots still show `Version 0.1.83` / `Firmware: 0.1.83` even though the release and deploy were executed as `0.1.84`
+- **expected behavior:** the Home Assistant integration and device surfaces should show the currently installed `0.1.84` version, not the previous release
+- **evidence:** user screenshots on 2026-04-16 show the integration header and device info card both rendering `0.1.83` after the `0.1.84` release/deploy. Earlier live shell checks in the same run showed conflicting file states, including one post-release command still reporting remote manifest `0.1.83`, so the stale-version UI is consistent with unresolved live install/version-fidelity drift.
+- **suspected cause:** live install/version reporting is still inconsistent, likely due to incomplete remote artifact replacement, stale HA integration metadata, or a remaining mismatch between manifest/version-reporting paths and what the UI surfaces actually read
+- **validation status:** confirmed live, not fixed
+- **next action:** inspect the live installed component files and HA metadata paths that feed the integration header/device firmware label, determine why `0.1.83` is still being surfaced, then make version fidelity deterministic before claiming release success
+
+## ZNE-027 — Command center still lets diagnostics/release plumbing dominate the primary operator surface
+- **status:** `open`
+- **severity:** `high`
+- **area:** `diagnostics`
+- **where seen:** live Home Assistant command-center modal after `0.1.84` deploy
+- **current observed behavior:** the command center still shows dense release-fingerprint/install-validation/debug text and long repair-path prose high in the modal, so diagnostics/support detail is visually carrying too much of the primary operator experience.
+- **expected behavior:** per `docs/UI_DESIGN.md`, Configure should remain the primary operator workspace with the decision summary, grouped control board, and clear jump-off entries, while Diagnostics stays visible but secondary rather than dominating the landing surface.
+- **evidence:** user screenshot on 2026-04-16 shows the modal headed `Zero Net Export command center` with install-fingerprint details and long repair-path prose before the main setup/operator sections, which matches the repo strings that currently embed an `Installed package details:` block directly in the primary command-center description.
+- **suspected cause:** the current command-center summary still mixes install validation, diagnostics, and operational troubleshooting directly into the main landing description instead of demoting that material behind Diagnostics/support paths and lighter alert summaries.
+- **validation status:** confirmed live, not fixed
+- **next action:** rebalance the command-center content so the primary landing stays decision-first and operator-first, while install/debug detail moves into Diagnostics/support paths or secondary drill-downs
+
+## ZNE-028 — Device page still lacks the managed-device structure required by the UI design
+- **status:** `open`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** live Home Assistant device page after `0.1.84` deploy
+- **current observed behavior:** the device page is still mostly generic cards plus buttons/sensors, with little visible managed-device structure. Managed-device workflow is not yet clearly centered on the device info page as the user requested.
+- **expected behavior:** the device page should visibly evolve toward the `docs/UI_DESIGN.md` target, with managed-device structure and review paths feeling first-class on the native device page rather than reading mainly as generic controls plus helper buttons.
+- **evidence:** user screenshot on 2026-04-16 shows the device page still dominated by generic Controls/Sensors/Activity cards and button entities like `Show fleet console` / `Show managed-device review`, while the user explicitly stated that managed devices should be on the device info page and that the page has not really progressed enough toward the design.
+- **suspected cause:** managed-device UX remains implemented mainly as button-triggered review flows and supporting entities rather than as a clearly shaped native device-page experience aligned with the design doc.
+- **validation status:** confirmed live, not fixed
+- **next action:** move the next visible UI work toward stronger managed-device structure on the device page instead of relying mainly on button-triggered helper flows
+
 ## ZNE-014 — Post-install log review confirms the live 0.1.83 install is still not healthy
 - **status:** `fixed_pending_validation`
 - **severity:** `high`
