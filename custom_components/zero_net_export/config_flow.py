@@ -60,12 +60,16 @@ from .device_model import (
 from .native_support import (
     ADVANCED_DEVICES_CONFIGURE_PATH,
     DEVICES_CONFIGURE_PATH,
+    DEVICES_SECTION_LABEL,
     INTEGRATION_DEVICE_PATH,
     MODE_CONTROL_PATH,
     POLICY_CONFIGURE_PATH,
+    POLICY_SECTION_LABEL,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
+    SOURCES_SECTION_LABEL,
     SUPPORT_CONFIGURE_PATH,
+    SUPPORT_SECTION_LABEL,
     _source_specs_from_config,
     build_live_source_health_summary,
     build_native_command_center_summary,
@@ -547,10 +551,10 @@ def _issue_role_keys(issues: list[Any], *, severities: set[str] | None = None) -
 
 def _command_center_menu_options(recommended_section: str) -> list[str]:
     recommended_map = {
-        "Sources and source mapping": "native_setup",
-        "Managed devices": "devices",
-        "Policy and controller settings": "policy",
-        "Health, support, and troubleshooting": "support",
+        SOURCES_SECTION_LABEL: "native_setup",
+        DEVICES_SECTION_LABEL: "devices",
+        POLICY_SECTION_LABEL: "policy",
+        SUPPORT_SECTION_LABEL: "support",
     }
     base_options = ["native_setup", "policy", "devices", "support"]
     recommended_option = recommended_map.get(recommended_section)
@@ -1284,7 +1288,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_install_fingerprint_summary": support_install_fingerprint_summary,
             "support_candidate_hints": support_candidate_hints,
             "support_priority_candidate_hints": support_priority_candidate_hints,
-            "recommended_section": str(command_center.get("recommended_section") or "Health, support, and troubleshooting"),
+            "recommended_section": str(command_center.get("recommended_section") or SUPPORT_SECTION_LABEL),
             "recommended_path": str(command_center.get("recommended_path") or SUPPORT_CONFIGURE_PATH),
             "next_action_summary": str(command_center.get("next_action_summary") or readiness.get("next_step") or "Review the current blocker, then follow the recommended native Configure path."),
         }

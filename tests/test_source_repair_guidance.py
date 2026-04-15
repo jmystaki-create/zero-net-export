@@ -87,7 +87,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("make sure the mapped entities still exist and are reporting fresh numeric values", guidance)
         self.assertIn("restore live availability for Solar power", guidance)
         self.assertIn("refresh or replace stale readings for Grid export power", guidance)
-        self.assertIn("reopen Sensors and source mapping to confirm these roles recover", guidance)
+        self.assertIn("reopen Sensors to confirm these roles recover", guidance)
 
     def test_repair_step_names_missing_roles_in_recovery_check(self) -> None:
         native_support = _load_native_support_module()
@@ -96,7 +96,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertIn("finish these required source roles: Solar power, Grid import power", guidance)
         self.assertIn(
-            "reopen Sensors and source mapping to confirm these roles recover: Solar power, Grid import power.",
+            "reopen Sensors to confirm these roles recover: Solar power, Grid import power.",
             guidance,
         )
 
@@ -145,7 +145,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             stale_source_keys=["grid_export_power_entity"],
         )
         self.assertIn(
-            "reopen Sensors and source mapping to confirm these roles recover: Solar power, Grid export power.",
+            "reopen Sensors to confirm these roles recover: Solar power, Grid export power.",
             guidance,
         )
 
@@ -284,7 +284,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             has_devices=False,
             readiness_phase="operator_setup",
         )
-        self.assertEqual(recommendation["recommended_section"], "Sensors and source mapping")
+        self.assertEqual(recommendation["recommended_section"], "Sensors")
         self.assertEqual(recommendation["recommended_path"], native_support.SOURCES_CONFIGURE_PATH)
 
     def test_setup_recommendation_prefers_managed_devices_when_sources_are_ready(self) -> None:
@@ -296,7 +296,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             has_devices=False,
             readiness_phase="operator_setup",
         )
-        self.assertEqual(recommendation["recommended_section"], "Managed devices")
+        self.assertEqual(recommendation["recommended_section"], "Managed Devices")
         self.assertEqual(recommendation["recommended_path"], native_support.DEVICES_CONFIGURE_PATH)
 
     def test_command_center_guide_text_includes_source_blocker_details(self) -> None:
@@ -328,8 +328,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "mode_path": native_support.MODE_CONTROL_PATH,
             }
         )
-        self.assertIn("Recommended section right now: Sensors and source mapping", guide)
-        self.assertNotIn("Recommended section right now: Sensors\n", guide)
+        self.assertIn("Recommended section right now: Sensors", guide)
+        self.assertNotIn("Recommended section right now: Sensors and source mapping", guide)
         self.assertIn("Why this section is recommended: Mapped source blockers: Solar power unavailable.", guide)
         self.assertIn("Use these native paths for the common operator jobs", guide)
         self.assertIn(f"- Fix source mapping or mapped-source blockers: {native_support.SOURCES_CONFIGURE_PATH}", guide)
@@ -341,13 +341,13 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             f"- {native_support.SOURCES_SECTION_LABEL}: map required sources, repair unavailable or stale mapped roles, and confirm live source health after saves or reloads.",
             guide,
         )
-        self.assertIn("- Managed devices: add, review, edit, enable, disable, or remove controllable loads from the native fleet workflow.", guide)
+        self.assertIn("- Managed Devices: add, review, edit, enable, disable, or remove controllable loads from the native fleet workflow.", guide)
         self.assertIn("- Controls: tune export target, deadband, reserve, and controller defaults once sources and devices are ready.", guide)
         self.assertIn("- Diagnostics: review runtime blockers, install consistency, and the next troubleshooting path.", guide)
         self.assertIn("- Unavailable mapped roles: Solar power", guide)
         self.assertIn("- Stale mapped roles: Grid export power", guide)
         self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
-        self.assertIn(f"- Sensors and source mapping: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
 
     def test_normalize_command_center_section_upgrades_legacy_sensors_label(self) -> None:
         native_support = _load_native_support_module()
@@ -402,8 +402,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         support_center = native_support.build_native_support_center(_FakeCoordinator())
         self.assertIn("Where each native path lives:", support_center)
         self.assertIn("Why this section is recommended:", support_center)
-        self.assertIn(f"- Sensors and source mapping: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
-        self.assertIn(f"- Managed devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
+        self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
+        self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
         self.assertIn("What each command-center section is for:", support_center)
@@ -411,7 +411,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             f"- {native_support.SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
             support_center,
         )
-        self.assertIn("- Managed devices: fleet onboarding, edits, enablement, and removal.", support_center)
+        self.assertIn("- Managed Devices: fleet onboarding, edits, enablement, and removal.", support_center)
         self.assertIn("- Controls: controller policy defaults, thresholds, and readiness.", support_center)
         self.assertIn("- Diagnostics: runtime health, install consistency, and troubleshooting guidance.", support_center)
 

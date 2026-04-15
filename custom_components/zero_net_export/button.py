@@ -9,10 +9,14 @@ from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
+    DEVICES_SECTION_LABEL,
     POLICY_CONFIGURE_PATH,
+    POLICY_SECTION_LABEL,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
+    SOURCES_SECTION_LABEL,
     SUPPORT_CONFIGURE_PATH,
+    SUPPORT_SECTION_LABEL,
     build_native_command_center_summary,
     build_native_operator_readiness,
     build_native_support_center,
@@ -111,20 +115,20 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
                 f"Install consistency: {command_center.get('install_consistency')}",
                 "",
                 "Current status",
-                f"- Sources and source mapping: {command_center.get('source_status')}",
+                f"- {SOURCES_SECTION_LABEL}: {command_center.get('source_status')}",
                 f"- Current mapped roles: {command_center.get('source_mapping_summary')}",
                 f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
-                f"- Managed devices: {command_center.get('device_status')}",
+                f"- {DEVICES_SECTION_LABEL}: {command_center.get('device_status')}",
                 f"- Managed-device next step: {command_center.get('device_next_step')}",
-                f"- Policy: {command_center.get('policy_status')}",
-                f"- Policy readiness: {command_center.get('policy_readiness')}",
-                f"- Health and support: {command_center.get('support_status')}",
+                f"- {POLICY_SECTION_LABEL}: {command_center.get('policy_status')}",
+                f"- {POLICY_SECTION_LABEL} readiness: {command_center.get('policy_readiness')}",
+                f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_status')}",
                 "",
                 "Where each native path lives",
-                f"- Sources and source mapping: {command_center.get('sources_path')}",
-                f"- Managed devices: {command_center.get('devices_path')}",
-                f"- Policy: {command_center.get('policy_path')}",
-                f"- Health and support: {command_center.get('support_path')}",
+                f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
+                f"- {DEVICES_SECTION_LABEL}: {command_center.get('devices_path')}",
+                f"- {POLICY_SECTION_LABEL}: {command_center.get('policy_path')}",
+                f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_path')}",
             ]
         )
         persistent_notification.async_create(
@@ -187,7 +191,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             '',
             f'Primary path: {DEVICES_CONFIGURE_PATH}',
             '',
-            f'Managed devices: {len(managed)}',
+            f'{DEVICES_SECTION_LABEL}: {len(managed)}',
         ]
         if managed:
             lines.extend(
@@ -278,7 +282,7 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
             "Native Zero Net Export diagnostics snapshot\n\n"
             "This is intended for the Home Assistant device page, Scripts, and button.press automations so diagnostics stay reachable from native Home Assistant surfaces.\n\n"
             f"Primary setup path: {PRIMARY_CONFIGURE_PATH}\n"
-            f"Health and support path: {SUPPORT_CONFIGURE_PATH}\n\n"
+            f"Diagnostics path: {SUPPORT_CONFIGURE_PATH}\n\n"
             f"```\n{snapshot}\n```"
         )
         persistent_notification.async_create(
@@ -324,7 +328,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 "",
                 f"Entry: {self.coordinator.entry.title}",
                 f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
-                f"Health and support path: {SUPPORT_CONFIGURE_PATH}",
+                f"Diagnostics path: {SUPPORT_CONFIGURE_PATH}",
                 f"Recommended command-center section: {command_center.get('recommended_section')}",
                 f"Recommended command-center path: {command_center.get('recommended_path')}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",

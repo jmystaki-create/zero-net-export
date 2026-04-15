@@ -43,18 +43,26 @@ PRIMARY_CONFIGURE_PATH = "Settings -> Devices & Services -> Integrations -> Zero
 INTEGRATION_DEVICE_PATH = (
     "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device"
 )
-SOURCES_SECTION_LABEL = "Sensors and source mapping"
-SOURCES_SECTION_ALIASES = {"Sensors": SOURCES_SECTION_LABEL}
+SOURCES_SECTION_LABEL = "Sensors"
+SOURCES_SECTION_ALIASES = {
+    "Sensors and source mapping": SOURCES_SECTION_LABEL,
+    "Sources and source mapping": SOURCES_SECTION_LABEL,
+    "Sources": SOURCES_SECTION_LABEL,
+}
+DEVICES_SECTION_LABEL = "Managed Devices"
+DEVICES_SECTION_ALIASES = {"Managed devices": DEVICES_SECTION_LABEL}
+POLICY_SECTION_LABEL = "Controls"
+SUPPORT_SECTION_LABEL = "Diagnostics"
 SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {SOURCES_SECTION_LABEL}"
-DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Managed devices"
+DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {DEVICES_SECTION_LABEL}"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 DETAILED_MANAGEMENT_PATH = (
     f"{INTEGRATION_DEVICE_PATH} -> managed-device entities, per-device status sensors, reset-override buttons, and native support actions"
 )
-POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> Controls"
+POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {POLICY_SECTION_LABEL}"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
-    f"{PRIMARY_CONFIGURE_PATH} -> Diagnostics; deeper health review: "
+    f"{PRIMARY_CONFIGURE_PATH} -> {SUPPORT_SECTION_LABEL}; deeper health review: "
     f"{INTEGRATION_DEVICE_PATH} -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
     "Settings -> Repairs"
 )
@@ -363,8 +371,8 @@ def build_source_repair_step(
     def _confirm_recovery_suffix(target_roles: str) -> str:
         role_text = target_roles.strip()
         if not role_text or role_text == "None":
-            return "then reopen Sensors and source mapping to confirm live source health."
-        return f"then reopen Sensors and source mapping to confirm these roles recover: {role_text}."
+            return "then reopen Sensors to confirm live source health."
+        return f"then reopen Sensors to confirm these roles recover: {role_text}."
 
     if missing_roles != "None":
         return (
@@ -412,7 +420,7 @@ def build_source_repair_step(
 
     return (
         f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration, "
-        "then reopen Sensors and source mapping to confirm live source health."
+        "then reopen Sensors to confirm live source health."
     )
 
 
@@ -660,7 +668,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             f"Use {INTEGRATION_DEVICE_PATH} -> Show native diagnostics snapshot, then return to {DEVICES_CONFIGURE_PATH} "
             "to unblock at least one usable device."
         )
-        summary = "Managed devices exist, but none are currently eligible for control."
+        summary = "Managed Devices exist, but none are currently eligible for control."
     elif state_safe_mode:
         phase = "runtime_readiness"
         next_step = (
@@ -713,7 +721,7 @@ def build_detailed_management_handoff(
     if usable_count <= 0:
         return (
             f"Use {DETAILED_MANAGEMENT_PATH} to inspect each managed device's status, guards, plans, and reset actions, "
-            "then return to Managed devices to adjust the fleet if needed."
+            "then return to Managed Devices to adjust the fleet if needed."
         )
 
     return (
@@ -817,10 +825,10 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         "",
         "Primary setup path",
         f"- {PRIMARY_CONFIGURE_PATH}",
-        f"- Sensors and source mapping: {command_center.get('sources_path')}",
-        f"- Managed devices: {command_center.get('devices_path')}",
-        f"- Controls: {command_center.get('policy_path')}",
-        f"- Diagnostics: {command_center.get('support_path')}",
+        f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
+        f"- {DEVICES_SECTION_LABEL}: {command_center.get('devices_path')}",
+        f"- {POLICY_SECTION_LABEL}: {command_center.get('policy_path')}",
+        f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_path')}",
         f"- Live mode control: {command_center.get('mode_path')}",
         f"- Recommended command-center section: {command_center.get('recommended_section')}",
         f"- Recommended command-center path: {command_center.get('recommended_path')}",
@@ -857,7 +865,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- unavailable roles: {', '.join(unavailable_source_roles) if unavailable_source_roles else 'none'}",
         f"- stale roles: {', '.join(stale_source_roles) if stale_source_roles else 'none'}",
         "",
-        "Managed devices",
+        DEVICES_SECTION_LABEL,
         f"- total: {getattr(state, 'device_count', 0)}",
         f"- enabled: {getattr(state, 'enabled_device_count', 0)}",
         f"- usable: {getattr(state, 'usable_device_count', 0)}",
@@ -881,7 +889,11 @@ def build_native_operator_readiness(coordinator: Any) -> dict[str, Any]:
 def normalize_command_center_section(section: str | None) -> str:
     """Return the canonical command-center section label for UI-facing text."""
     text = str(section or "").strip()
-    return SOURCES_SECTION_ALIASES.get(text, text)
+    if text in SOURCES_SECTION_ALIASES:
+        return SOURCES_SECTION_ALIASES[text]
+    if text in DEVICES_SECTION_ALIASES:
+        return DEVICES_SECTION_ALIASES[text]
+    return text
 
 
 def build_native_setup_recommendation(
@@ -900,16 +912,16 @@ def build_native_setup_recommendation(
         }
     if device_issues or not has_devices:
         return {
-            "recommended_section": "Managed devices",
+            "recommended_section": DEVICES_SECTION_LABEL,
             "recommended_path": DEVICES_CONFIGURE_PATH,
         }
     if str(readiness_phase or "").strip() == "runtime_readiness":
         return {
-            "recommended_section": "Diagnostics",
+            "recommended_section": SUPPORT_SECTION_LABEL,
             "recommended_path": SUPPORT_CONFIGURE_PATH,
         }
     return {
-        "recommended_section": "Controls",
+        "recommended_section": POLICY_SECTION_LABEL,
         "recommended_path": POLICY_CONFIGURE_PATH,
     }
 
@@ -938,9 +950,9 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "",
             "What each command-center section is for",
             f"- {SOURCES_SECTION_LABEL}: map required sources, repair unavailable or stale mapped roles, and confirm live source health after saves or reloads.",
-            "- Managed devices: add, review, edit, enable, disable, or remove controllable loads from the native fleet workflow.",
-            "- Controls: tune export target, deadband, reserve, and controller defaults once sources and devices are ready.",
-            "- Diagnostics: review runtime blockers, install consistency, and the next troubleshooting path.",
+            f"- {DEVICES_SECTION_LABEL}: add, review, edit, enable, disable, or remove controllable loads from the native fleet workflow.",
+            f"- {POLICY_SECTION_LABEL}: tune export target, deadband, reserve, and controller defaults once sources and devices are ready.",
+            f"- {SUPPORT_SECTION_LABEL}: review runtime blockers, install consistency, and the next troubleshooting path.",
             "",
             "Current status",
             f"- {SOURCES_SECTION_LABEL}: {command_center.get('source_status')}",
@@ -949,18 +961,18 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Stale mapped roles: {command_center.get('stale_sources')}",
             f"- Current mapped-source blockers: {command_center.get('source_attention_summary')}",
             f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
-            f"- Managed devices: {command_center.get('device_status')}",
+            f"- {DEVICES_SECTION_LABEL}: {command_center.get('device_status')}",
             f"- Managed-device next step: {command_center.get('device_next_step')}",
-            f"- Controls: {command_center.get('policy_status')}",
-            f"- Controls readiness: {command_center.get('policy_readiness')}",
-            f"- Diagnostics: {command_center.get('support_status')}",
+            f"- {POLICY_SECTION_LABEL}: {command_center.get('policy_status')}",
+            f"- {POLICY_SECTION_LABEL} readiness: {command_center.get('policy_readiness')}",
+            f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_status')}",
             f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
             "",
             "Where each native path lives",
             f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
-            f"- Managed devices: {command_center.get('devices_path')}",
-            f"- Controls: {command_center.get('policy_path')}",
-            f"- Diagnostics: {command_center.get('support_path')}",
+            f"- {DEVICES_SECTION_LABEL}: {command_center.get('devices_path')}",
+            f"- {POLICY_SECTION_LABEL}: {command_center.get('policy_path')}",
+            f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_path')}",
         ]
     )
 
@@ -1049,7 +1061,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             readiness.get("next_step")
             or f"Open {SUPPORT_CONFIGURE_PATH} and the native diagnostics surfaces to clear the current runtime blocker."
         )
-        recommended_section = "Diagnostics"
+        recommended_section = SUPPORT_SECTION_LABEL
     elif readiness_phase == "operator_ready":
         next_action_summary = str(
             readiness.get("next_step")
@@ -1084,16 +1096,16 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     detailed_management_summary = build_detailed_management_handoff(configured_devices, state=state)
     status_summary_map = {
         SOURCES_SECTION_LABEL: source_status,
-        "Managed devices": device_status,
-        "Controls": policy_status,
-        "Diagnostics": support_status,
+        DEVICES_SECTION_LABEL: device_status,
+        POLICY_SECTION_LABEL: policy_status,
+        SUPPORT_SECTION_LABEL: support_status,
     }
 
     path_summary_map = {
         SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
-        "Managed devices": DEVICES_CONFIGURE_PATH,
-        "Controls": POLICY_CONFIGURE_PATH,
-        "Diagnostics": SUPPORT_CONFIGURE_PATH,
+        DEVICES_SECTION_LABEL: DEVICES_CONFIGURE_PATH,
+        POLICY_SECTION_LABEL: POLICY_CONFIGURE_PATH,
+        SUPPORT_SECTION_LABEL: SUPPORT_CONFIGURE_PATH,
     }
 
     install_status = str(install_provenance.get("summary") or "Installed package provenance unavailable")
@@ -1110,8 +1122,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         str(recommended_reason),
         fallback=(
             "Open Configure to continue in the recommended command-center section."
-            if recommended_section != "Managed devices"
-            else "Open Managed devices in Configure to continue fleet work."
+            if recommended_section != DEVICES_SECTION_LABEL
+            else f"Open {DEVICES_SECTION_LABEL} in Configure to continue fleet work."
         ),
     )
     next_action_summary = _truncate_state_summary(
@@ -1171,16 +1183,16 @@ def build_native_support_center(coordinator: Any) -> str:
             "",
             f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
             "Where each native path lives:",
-            f"- Sensors and source mapping: {command_center.get('sources_path')}",
-            f"- Managed devices: {command_center.get('devices_path')}",
-            f"- Controls: {command_center.get('policy_path')}",
-            f"- Diagnostics: {command_center.get('support_path')}",
+            f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
+            f"- {DEVICES_SECTION_LABEL}: {command_center.get('devices_path')}",
+            f"- {POLICY_SECTION_LABEL}: {command_center.get('policy_path')}",
+            f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_path')}",
             f"- Live mode control: {command_center.get('mode_path')}",
             "What each command-center section is for:",
             f"- {SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
-            "- Managed devices: fleet onboarding, edits, enablement, and removal.",
-            "- Controls: controller policy defaults, thresholds, and readiness.",
-            "- Diagnostics: runtime health, install consistency, and troubleshooting guidance.",
+            f"- {DEVICES_SECTION_LABEL}: fleet onboarding, edits, enablement, and removal.",
+            f"- {POLICY_SECTION_LABEL}: controller policy defaults, thresholds, and readiness.",
+            f"- {SUPPORT_SECTION_LABEL}: runtime health, install consistency, and troubleshooting guidance.",
             f"Recommended command-center section: {command_center.get('recommended_section')}",
             f"Recommended command-center path: {command_center.get('recommended_path')}",
             f"Why this section is recommended: {command_center.get('recommended_reason')}",
