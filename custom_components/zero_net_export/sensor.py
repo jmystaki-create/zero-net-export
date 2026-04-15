@@ -5,7 +5,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
-from .candidate_utils import discover_candidate_devices
+from .candidate_utils import assess_candidate, discover_candidate_devices
 from .const import DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
 from .native_support import (
@@ -216,29 +216,7 @@ def _build_source_entities(coordinator):
 
 
 def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[str]]:
-    domain = candidate.get("domain") or ""
-    confidence = "medium"
-    summary = "Looks like a plausible candidate, but review before promotion."
-    warnings: list[str] = []
-    if domain == "switch":
-        confidence = "high"
-        summary = "Strong fixed-load candidate when this switch controls a real discretionary appliance or relay."
-    elif domain == "light":
-        confidence = "medium"
-        summary = "Potentially controllable, but many lights are comfort loads rather than discretionary sinks."
-        warnings.append("Confirm this light is appropriate for automated energy control.")
-    elif domain == "input_boolean":
-        confidence = "low"
-        summary = "Likely a helper or intent flag rather than a physical load."
-        warnings.append("Verify this helper actually drives a safe controllable device.")
-    elif domain == "number":
-        confidence = "high"
-        summary = "Strong variable-load candidate if this entity is a writable power/current target."
-    elif domain == "input_number":
-        confidence = "medium"
-        summary = "Possible variable-load candidate, but often just a helper value."
-        warnings.append("Check that changing this helper really affects a physical device.")
-    return {"confidence": confidence, "summary": summary, "warnings": warnings}
+    return assess_candidate(candidate)
 
 
 def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict[str, str]]:

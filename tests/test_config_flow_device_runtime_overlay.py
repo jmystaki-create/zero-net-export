@@ -78,6 +78,11 @@ def _load_config_flow_module():
     sys.modules[selector_module.__name__] = selector_module
 
     candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
+    candidate_utils_module.assess_candidate = lambda candidate: {
+        "confidence": "medium",
+        "summary": "Looks like a plausible controllable candidate, but review before promotion.",
+        "warnings": [],
+    }
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 

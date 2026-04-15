@@ -183,6 +183,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Zero Net Export managed-device review", message)
         self.assertIn("Managed snapshot: 2 managed | 1 enabled | 1 usable | 1 planned action(s)", message)
         self.assertIn("Unmanaged snapshot: 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
+        self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn("Top candidate warnings: No immediate warnings.", message)
         self.assertIn("- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump", message)
         self.assertIn("Top unmanaged candidates:", message)
         self.assertIn("- Hot water (switch.hot_water, fixed, state off)", message)
@@ -230,6 +232,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["managed_count"], 1)
         self.assertEqual(attrs["unmanaged_candidate_count"], 1)
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "number.ev_limit")
+        self.assertEqual(attrs["top_candidate_fit"]["confidence"], "medium")
+        self.assertTrue(any("meaningful unit" in warning for warning in attrs["top_candidate_fit"]["warnings"]))
         self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
 
 

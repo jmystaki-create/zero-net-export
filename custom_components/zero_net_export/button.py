@@ -5,7 +5,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import EntityCategory
 
-from .candidate_utils import discover_candidate_devices
+from .candidate_utils import assess_candidate, discover_candidate_devices
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
@@ -278,6 +278,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "blocked_count": sum(1 for detail in device_details if detail.get("usable") is False),
             "unmanaged_candidate_count": len(candidates),
             "top_unmanaged_candidate": top_candidate,
+            "top_candidate_fit": assess_candidate(top_candidate) if top_candidate else None,
             "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
             "devices": ordered[:12],
@@ -289,6 +290,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         ordered = sorted(device_details, key=_device_runtime_sort_key)
         candidates = self._unmanaged_candidates()
         top_candidate = candidates[0] if candidates else None
+        top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         lines = [
             "Zero Net Export managed-device review",
@@ -311,6 +313,19 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                     f" | top candidate {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
                     else ""
+                )
+            ),
+            (
+                f"Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
+                if top_candidate_fit
+                else "Top candidate fit: No unmanaged candidate guidance available right now."
+            ),
+            (
+                "Top candidate warnings: "
+                + (
+                    "; ".join(top_candidate_fit.get("warnings") or [])
+                    if top_candidate_fit and top_candidate_fit.get("warnings")
+                    else "No immediate warnings."
                 )
             ),
             "",

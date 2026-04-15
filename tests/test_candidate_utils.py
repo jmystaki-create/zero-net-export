@@ -78,6 +78,34 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(candidates[0]["entity_id"], "switch.pool_pump")
         self.assertEqual(candidates[0]["kind"], "fixed")
 
+    def test_assess_candidate_flags_helper_and_missing_unit_risk(self) -> None:
+        module = _load_candidate_utils_module()
+
+        helper_fit = module.assess_candidate(
+            {
+                "domain": "input_boolean",
+                "kind": "fixed",
+                "state": "on",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+        variable_fit = module.assess_candidate(
+            {
+                "domain": "input_number",
+                "kind": "variable",
+                "state": "12",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+
+        self.assertEqual(helper_fit["confidence"], "low")
+        self.assertIn("automation intent", helper_fit["summary"])
+        self.assertTrue(any("input_boolean helper" in warning for warning in helper_fit["warnings"]))
+        self.assertEqual(variable_fit["confidence"], "medium")
+        self.assertTrue(any("meaningful unit" in warning for warning in variable_fit["warnings"]))
+
 
 if __name__ == "__main__":
     unittest.main()

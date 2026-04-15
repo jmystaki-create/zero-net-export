@@ -11,7 +11,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
-from .candidate_utils import discover_candidate_devices
+from .candidate_utils import assess_candidate, discover_candidate_devices
 from .const import (
     CONF_BATTERY_CHARGE_POWER_ENTITY,
     CONF_BATTERY_DISCHARGE_POWER_ENTITY,
@@ -892,40 +892,25 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         kind = DEVICE_KIND_FIXED if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else DEVICE_KIND_VARIABLE
         templates = get_device_templates(kind)
         suggested_template = templates[0] if templates else None
-        confidence = "medium"
-        fit_summary = "Looks like a plausible controllable candidate, but review before promotion."
-        warnings: list[str] = []
+        candidate_fit = assess_candidate(
+            {
+                "domain": domain,
+                "kind": kind,
+                "state": str(state.state),
+                "unit": str(state.attributes.get('unit_of_measurement') or ''),
+                "device_class": str(state.attributes.get('device_class') or ''),
+            }
+        )
+        confidence = str(candidate_fit.get("confidence") or "medium")
+        fit_summary = str(candidate_fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
+        warnings: list[str] = list(candidate_fit.get("warnings") or [])
 
         if domain == 'switch' and kind == DEVICE_KIND_FIXED:
             suggested_template = next((item for item in templates if item.key in {'hot_water', 'smart_plug', 'pool_pump'}), suggested_template)
-            confidence = 'high'
-            fit_summary = 'Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.'
-        elif domain == 'light' and kind == DEVICE_KIND_FIXED:
-            confidence = 'medium'
-            fit_summary = 'Light entities can be controllable, but many are comfort or presence loads rather than discretionary energy sinks.'
-            warnings.append('Confirm this light is a real discretionary load, not a normal lighting circuit people expect to stay manual.')
-        elif domain == 'input_boolean' and kind == DEVICE_KIND_FIXED:
-            confidence = 'low'
-            fit_summary = 'Helpers can represent automation intent, not a physical load.'
-            warnings.append('This is an input_boolean helper. Verify it really drives a safe controllable load before promoting it.')
         if domain in {'number', 'input_number'} and kind == DEVICE_KIND_VARIABLE:
             suggested_template = next((item for item in templates if item.key in {'ev_charger', 'battery_charge_sink'}), suggested_template)
-            confidence = 'high' if domain == 'number' else 'medium'
-            fit_summary = 'Number-style entities are strong variable-load candidates when they represent a real power or current target.'
-            if domain == 'input_number':
-                warnings.append('This is an input_number helper. Check that changing it actually drives a real device, not just a dashboard helper.')
-
-        raw_state = str(state.state).strip().lower()
-        if raw_state in {'unknown', 'unavailable'}:
-            warnings.append(f'Entity state is currently {raw_state}. Promotion is risky until it reports cleanly.')
-            confidence = 'low'
         unit = str(state.attributes.get('unit_of_measurement') or '')
         device_class = str(state.attributes.get('device_class') or '')
-        if kind == DEVICE_KIND_VARIABLE and not unit:
-            warnings.append('Variable candidates are safer when the entity exposes a meaningful unit such as A, W, or %.')
-        if kind == DEVICE_KIND_VARIABLE and device_class == 'battery':
-            warnings.append('Battery-class entities are often telemetry, not safe control targets. Confirm this is a writable control entity.')
-            confidence = 'low'
 
         return {
             'entity_id': entity_id,
