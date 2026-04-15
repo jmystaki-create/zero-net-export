@@ -84,9 +84,12 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
     stale_source_keys: list[str] = []
     enriched_source_diagnostics: dict[str, dict[str, Any]] = {}
 
-    for key, details in source_diagnostics.items():
+    ordered_keys = list(dict.fromkeys([*source_diagnostics.keys(), *source_freshness.keys()]))
+    for key in ordered_keys:
+        details = source_diagnostics.get(key, {}) or {}
         freshness = source_freshness.get(key, {}) or {}
-        merged = dict(details)
+        merged = dict(freshness)
+        merged.update(details)
         if "stale" not in merged:
             merged["stale"] = bool(freshness.get("stale", False))
         if merged.get("age_seconds") is None:
@@ -95,6 +98,8 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
             merged["last_updated"] = freshness.get("last_updated")
         if merged.get("stale_threshold_seconds") is None:
             merged["stale_threshold_seconds"] = freshness.get("stale_threshold_seconds")
+        if merged.get("entity_id") is None:
+            merged["entity_id"] = freshness.get("entity_id")
         enriched_source_diagnostics[key] = merged
         is_unavailable = merged.get("status") == "unavailable"
         is_stale = bool(merged.get("stale")) or (merged.get("age_seconds") or 0) > 120

@@ -149,6 +149,44 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             guidance,
         )
 
+    def test_stale_only_freshness_entries_appear_in_attention_details_and_summaries(self) -> None:
+        native_support = _load_native_support_module()
+        state = types.SimpleNamespace(
+            source_diagnostics={},
+            validation_details={
+                "source_diagnostics": {},
+                "source_freshness": {
+                    "grid_import_power_entity": {
+                        "entity_id": "sensor.grid_import",
+                        "stale": True,
+                        "age_seconds": 245,
+                        "last_updated": "2026-04-14T00:00:00+00:00",
+                        "stale_threshold_seconds": 120,
+                    }
+                },
+                "issues": [],
+            },
+        )
+        details = native_support.build_source_attention_details(state)
+        self.assertEqual(details["unavailable_source_keys"], [])
+        self.assertEqual(details["stale_source_keys"], ["grid_import_power_entity"])
+        self.assertEqual(
+            details["source_diagnostics"]["grid_import_power_entity"]["entity_id"],
+            "sensor.grid_import",
+        )
+
+        summary = native_support.build_source_attention_summary(
+            state,
+            {"grid_import_power_entity": "sensor.grid_import"},
+        )
+        self.assertIn("Grid import power (sensor.grid_import, stale 245 s)", summary)
+
+        role_summary = native_support.build_source_attention_role_summary(
+            state,
+            {"grid_import_power_entity": "sensor.grid_import"},
+        )
+        self.assertIn("Grid import power -> sensor.grid_import (stale 245 s)", role_summary)
+
     def test_repair_step_with_validation_only_guides_operator_to_confirm_entity_selection(self) -> None:
         native_support = _load_native_support_module()
         guidance = native_support.build_source_repair_step(
