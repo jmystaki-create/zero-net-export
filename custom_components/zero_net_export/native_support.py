@@ -1020,6 +1020,86 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
     )
 
 
+def _decision_mode_text(state: Any) -> str:
+    current_mode = str(getattr(state, "mode", "") or "")
+    return MODE_LABELS.get(current_mode, current_mode or "Unknown mode")
+
+
+def _build_headline_decision(
+    state: Any,
+    *,
+    missing_required_sources: list[str],
+    runtime_source_attention: bool,
+    source_attention_summary: str,
+    blocking_validation_details: str,
+    configured_devices: list[dict[str, Any]],
+) -> str:
+    if missing_required_sources:
+        return "Setup incomplete, waiting for required sensors."
+    if runtime_source_attention:
+        if source_attention_summary != "None":
+            return "Source data needs attention, control is constrained."
+        if blocking_validation_details != "None":
+            return "Source validation failed, control is constrained."
+        return "Mapped sources need attention before control can continue."
+    if state is None:
+        return "Waiting for runtime state to load."
+
+    if getattr(state, "battery_below_reserve", False):
+        return "Battery reserve protected, not engaging load."
+
+    planned_action_count = int(getattr(state, "planned_action_count", 0) or 0)
+    executable_action_count = int(getattr(state, "executable_action_count", 0) or 0)
+    active_controlled_power_w = float(getattr(state, "active_controlled_power_w", 0) or 0)
+    blocked_planned_action_count = int(getattr(state, "blocked_planned_action_count", 0) or 0)
+    usable_device_count = int(getattr(state, "usable_device_count", 0) or 0)
+    target_export_w = float(getattr(state, "target_export_w", 0) or 0)
+    deadband_w = float(getattr(state, "deadband_w", 0) or 0)
+    grid_export_power_w = getattr(state, "grid_export_power_w", None)
+    grid_import_power_w = getattr(state, "grid_import_power_w", None)
+    export_error_w = getattr(state, "export_error_w", None)
+
+    if executable_action_count > 0:
+        if grid_export_power_w is not None and float(grid_export_power_w) > target_export_w + deadband_w:
+            return "Export too high, engaging load."
+        if grid_import_power_w is not None and float(grid_import_power_w) > deadband_w:
+            return "Import detected, shedding load."
+        return "Control adjustment ready, applying managed-device action."
+
+    if planned_action_count > 0 or blocked_planned_action_count > 0:
+        if usable_device_count <= 0 and configured_devices:
+            return "Export outside target, no eligible device available."
+        control_reason = str(getattr(state, "control_reason", "") or "").lower()
+        if blocked_planned_action_count > 0 or "guard" in control_reason or "wait" in control_reason:
+            return "Action queued, waiting for device guard."
+        return "Control change planned, waiting to execute."
+
+    if export_error_w is not None and abs(float(export_error_w)) <= deadband_w:
+        if active_controlled_power_w > 0:
+            return "Near target, holding current managed load."
+        return "Near target, holding."
+
+    if grid_export_power_w is not None and float(grid_export_power_w) > target_export_w + deadband_w:
+        if usable_device_count <= 0:
+            return "Export too high, no eligible device available."
+        return "Export above target, waiting for an eligible managed device."
+
+    if grid_import_power_w is not None and float(grid_import_power_w) > deadband_w:
+        if active_controlled_power_w > 0:
+            return "Import detected, holding managed load until the next control window."
+        return "Import detected, not engaging load."
+
+    if active_controlled_power_w > 0:
+        return "Managed load active, holding current fleet posture."
+
+    return str(
+        getattr(state, "reason", "")
+        or getattr(state, "control_reason", "")
+        or getattr(state, "status", "")
+        or f"{_decision_mode_text(state)} state available."
+    )
+
+
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     """Return the command-center summary shown in Configure and device surfaces."""
     state = getattr(coordinator, "data", None) if coordinator is not None else None
@@ -1048,7 +1128,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_status = "Missing required source roles: " + ", ".join(
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
-        headline_decision = "Setup incomplete, waiting for required sensors."
     elif runtime_source_attention:
         attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
         validation_suffix = (
@@ -1057,13 +1136,19 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             else ""
         )
         source_status = attention_prefix + validation_suffix
-        headline_decision = "Source data needs attention, control is constrained."
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
-        headline_decision = "Waiting for runtime state to load."
     else:
         source_status = build_live_source_health_summary(state)
-        headline_decision = str(getattr(state, "reason", "") or getattr(state, "control_reason", "") or getattr(state, "status", "") or "Runtime state available.")
+
+    headline_decision = _build_headline_decision(
+        state,
+        missing_required_sources=missing_required_sources,
+        runtime_source_attention=runtime_source_attention,
+        source_attention_summary=source_attention_summary,
+        blocking_validation_details=blocking_validation_details,
+        configured_devices=configured_devices,
+    )
 
     if device_parse_issues:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
@@ -1117,7 +1202,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     else:
         next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
 
-    current_mode = MODE_LABELS.get(str(getattr(state, "mode", "") or ""), str(getattr(state, "mode", "") or "Unknown mode"))
+    current_mode = _decision_mode_text(state)
     policy_status = (
         f"Mode {current_mode}; target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W, "
         f"deadband {int(merged.get(CONF_DEADBAND_W, DEFAULT_DEADBAND_W) or DEFAULT_DEADBAND_W)} W, "
@@ -1195,6 +1280,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 f"grid export {getattr(state, 'grid_export_power_w', None)} W" if state is not None and getattr(state, 'grid_export_power_w', None) is not None else None,
                 f"home load {getattr(state, 'home_load_power_w', None)} W" if state is not None and getattr(state, 'home_load_power_w', None) is not None else None,
                 f"battery {getattr(state, 'battery_soc', None)}%" if state is not None and getattr(state, 'battery_soc', None) is not None else None,
+                f"battery charge {getattr(state, 'battery_charge_power_w', None)} W" if state is not None and getattr(state, 'battery_charge_power_w', None) is not None else None,
+                f"battery discharge {getattr(state, 'battery_discharge_power_w', None)} W" if state is not None and getattr(state, 'battery_discharge_power_w', None) is not None else None,
             ]
             if part is not None
         ) or "Energy state will appear here after runtime loads.",
