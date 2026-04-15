@@ -1,7 +1,7 @@
 """Sensors for Zero Net Export."""
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
@@ -527,6 +527,8 @@ class ZeroNetExportSourceAgeSensor(ZeroNetExportSourceBaseSensor):
 
 
 class ZeroNetExportSourceIssueCountSensor(ZeroNetExportSourceBaseSensor):
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
     def __init__(self, coordinator, source_key: str, source_label: str):
         super().__init__(coordinator, source_key, source_label, "issue_count", "issue count")
 

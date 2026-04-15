@@ -203,16 +203,17 @@ Suggested area labels:
 - **next action:** redeploy the current repo candidate, then confirm the `Finish native Zero Net Export setup` warning renders as a concise sectioned checklist instead of a dense paragraph
 
 ## ZNE-031 — Source issue-count sensors are generating HA statistics/state-class cleanup notifications
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
-- **area:** `sensor_model`
+- **area:** `sensors`
 - **where seen:** live Home Assistant notifications on 2026-04-16
 - **current observed behavior:** Home Assistant is showing more than 10 cleanup/statistics warnings such as `The entity no longer has a state class` for Zero Net Export issue-count sensors like `sensor.zero_net_export_solar_power_issue_count`
-- **expected behavior:** these sensors should not create a flood of HA statistics-cleanup warnings. Either they should use a stable, correct long-term-statistics posture or avoid presenting themselves in a way that causes HA to build and then invalidate statistics records.
+- **expected behavior:** these sensors should not create a flood of HA statistics-cleanup warnings. The issue-count sensors should keep a stable numeric state-class posture so Home Assistant does not keep creating and then invalidating statistics metadata for them.
 - **evidence:** user screenshot on 2026-04-16 shows an HA dialog for `sensor.zero_net_export_solar_power_issue_count` stating long-term statistics were previously generated but the entity no longer has a supported state class. User also reported there are over 10 similar notifications in Home Assistant.
-- **suspected cause:** one or more Zero Net Export diagnostic count sensors previously exposed a state class that caused HA to generate statistics, but the current sensor definition no longer exposes a compatible state-class posture, leaving stale long-term-statistics metadata behind and triggering repeated cleanup notices
-- **validation status:** confirmed live, not fixed
-- **next action:** inspect the issue-count and related diagnostic sensor model history, decide whether these sensors should explicitly carry a supported state class or intentionally remain non-statistical, then make the entity model stable so HA stops generating notification spam
+- **suspected cause:** the diagnostic issue-count entities are still present with the same entity ids, but the current `ZeroNetExportSourceIssueCountSensor` definition did not set an explicit state class, so Home Assistant treats the historical statistics metadata as a cleanup problem and keeps surfacing warning notifications.
+- **repo fix:** this run restores a stable explicit numeric posture by setting `ZeroNetExportSourceIssueCountSensor._attr_state_class = SensorStateClass.MEASUREMENT` in `custom_components/zero_net_export/sensor.py`, with focused regression coverage in `tests/test_sensor_issue_count_state_class.py`.
+- **validation status:** repo-side fix implemented in this run and verified with `python3 -m unittest tests.test_sensor_issue_count_state_class -q` plus `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build redeploy and post-restart notification review.
+- **next action:** redeploy the current repo candidate, restart Home Assistant, then confirm the statistics/state-class cleanup notifications for the `*_issue_count` sensors stop reappearing
 
 ## ZNE-014 — Post-install log review confirms the live 0.1.83 install is still not healthy
 - **status:** `fixed_pending_validation`
