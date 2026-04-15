@@ -176,6 +176,44 @@ Suggested area labels:
 - **validation status:** confirmed live, not fixed
 - **next action:** move the next visible UI work toward stronger managed-device structure on the device page instead of relying mainly on button-triggered helper flows
 
+## ZNE-029 — Runtime attention notification is overloaded and poorly formatted
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `ui`
+- **where seen:** live Home Assistant runtime attention notification/modal on 2026-04-16
+- **current observed behavior:** the `Runtime attention needed` surface is a dense wall of text with weak visual hierarchy. The headings are not visually separated enough, spacing is poor, and the content is too long and repetitive, making the error harder to act on quickly.
+- **expected behavior:** the runtime attention surface should use tighter content, clearer grouping, and stronger heading emphasis so the operator can scan the problem, cause, and next step quickly
+- **evidence:** user screenshot on 2026-04-16 shows the runtime attention modal with long repeated validation details, weak spacing, and overloaded instructions. User explicitly requested bolded headings, better spacing, and tighter content.
+- **suspected cause:** the current runtime/support notification text is generated as a long plain-text dump of support fields rather than being edited into a compact operator-facing alert format
+- **repo fix:** this run tightens the Repairs/runtime-attention notification copy in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, replacing the long paragraph-style dump with short `Now`, `Mapped-source blockers`, `Do next`, and `Open` sections so the primary signal and repair path scan cleanly in Home Assistant's native modal
+- **validation status:** repo-side copy fix implemented and covered in this run by `python3 -m unittest tests.test_repairs_copy tests.test_translation_sync -q` plus `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build redeploy.
+- **next action:** redeploy the current repo candidate, then confirm the `Runtime attention needed` modal now reads as a compact sectioned alert instead of a wall of text
+
+## ZNE-030 — Setup-finished/setup-warning notification is also overloaded and poorly formatted
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `ui`
+- **where seen:** live Home Assistant `Finish native Zero Net Export setup` notification/modal on 2026-04-16
+- **current observed behavior:** the setup notification is still a dense block of text with weak visual hierarchy, long repeated prose, and too much instruction text packed into a single alert surface
+- **expected behavior:** the setup notification should be short, structured, and easy to scan, with stronger heading separation and a tighter summary/next-step layout
+- **evidence:** user screenshot on 2026-04-16 shows the `Finish native Zero Net Export setup` warning with long repeated setup/selector-workaround prose. User explicitly called it poorly formatted in the same way as the runtime-attention notification.
+- **suspected cause:** the setup guidance text is still generated as a long support-style narrative instead of a compact notification-specific layout
+- **repo fix:** this run also tightens the `Finish native Zero Net Export setup` Repairs copy in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, reshaping it into short `Status`, `Do next`, and `Open` blocks so the native setup warning points operators at Configure without the earlier prose dump
+- **validation status:** repo-side copy fix implemented and covered in this run by `python3 -m unittest tests.test_repairs_copy tests.test_translation_sync -q` plus `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build redeploy.
+- **next action:** redeploy the current repo candidate, then confirm the `Finish native Zero Net Export setup` warning renders as a concise sectioned checklist instead of a dense paragraph
+
+## ZNE-031 — Source issue-count sensors are generating HA statistics/state-class cleanup notifications
+- **status:** `open`
+- **severity:** `high`
+- **area:** `sensor_model`
+- **where seen:** live Home Assistant notifications on 2026-04-16
+- **current observed behavior:** Home Assistant is showing more than 10 cleanup/statistics warnings such as `The entity no longer has a state class` for Zero Net Export issue-count sensors like `sensor.zero_net_export_solar_power_issue_count`
+- **expected behavior:** these sensors should not create a flood of HA statistics-cleanup warnings. Either they should use a stable, correct long-term-statistics posture or avoid presenting themselves in a way that causes HA to build and then invalidate statistics records.
+- **evidence:** user screenshot on 2026-04-16 shows an HA dialog for `sensor.zero_net_export_solar_power_issue_count` stating long-term statistics were previously generated but the entity no longer has a supported state class. User also reported there are over 10 similar notifications in Home Assistant.
+- **suspected cause:** one or more Zero Net Export diagnostic count sensors previously exposed a state class that caused HA to generate statistics, but the current sensor definition no longer exposes a compatible state-class posture, leaving stale long-term-statistics metadata behind and triggering repeated cleanup notices
+- **validation status:** confirmed live, not fixed
+- **next action:** inspect the issue-count and related diagnostic sensor model history, decide whether these sensors should explicitly carry a supported state class or intentionally remain non-statistical, then make the entity model stable so HA stops generating notification spam
+
 ## ZNE-014 — Post-install log review confirms the live 0.1.83 install is still not healthy
 - **status:** `fixed_pending_validation`
 - **severity:** `high`

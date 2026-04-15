@@ -329,26 +329,18 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "mode_path": native_support.MODE_CONTROL_PATH,
             }
         )
-        self.assertIn("Recommended section right now: Sensors", guide)
-        self.assertNotIn("Recommended section right now: Sensors and source mapping", guide)
-        self.assertIn("Why this section is recommended: Mapped source blockers: Solar power unavailable.", guide)
-        self.assertIn("Use these native paths for the common operator jobs", guide)
-        self.assertIn(f"- Fix source mapping or mapped-source blockers: {native_support.SOURCES_CONFIGURE_PATH}", guide)
-        self.assertIn(f"- Add or edit managed devices: {native_support.DEVICES_CONFIGURE_PATH}", guide)
-        self.assertIn(f"- Tune export policy defaults and thresholds: {native_support.POLICY_CONFIGURE_PATH}", guide)
-        self.assertIn(f"- Change live control mode right now: {native_support.MODE_CONTROL_PATH}", guide)
-        self.assertIn("What each command-center section is for", guide)
-        self.assertIn(
-            f"- {native_support.SOURCES_SECTION_LABEL}: map required sources, repair unavailable or stale mapped roles, and confirm live source health after saves or reloads.",
-            guide,
-        )
-        self.assertIn("- Managed Devices: add, review, edit, enable, disable, or remove controllable loads from the native fleet workflow.", guide)
-        self.assertIn("- Controls: tune export target, deadband, reserve, and controller defaults once sources and devices are ready.", guide)
-        self.assertIn("- Diagnostics: review runtime blockers, install consistency, and the next troubleshooting path.", guide)
-        self.assertIn("- Unavailable mapped roles: Solar power", guide)
-        self.assertIn("- Stale mapped roles: Grid export power", guide)
-        self.assertIn("- Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)", guide)
-        self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn("This surface is for the basic setup only.", guide)
+        self.assertIn("Managed-device workflow belongs on the Zero Net Export device page", guide)
+        self.assertIn("- Recommended section: Sensors", guide)
+        self.assertNotIn("- Recommended section: Sensors and source mapping", guide)
+        self.assertIn(f"- Recommended path: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn("Basic setup paths", guide)
+        self.assertIn(f"- Finish source mapping: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Tune control settings: {native_support.POLICY_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Change live control mode: {native_support.MODE_CONTROL_PATH}", guide)
+        self.assertIn(f"- Open diagnostics only if setup is blocked: {native_support.SUPPORT_CONFIGURE_PATH}", guide)
+        self.assertIn("Not here", guide)
+        self.assertIn(f"- Managed Devices and candidate promotion: {native_support.DEVICES_CONFIGURE_PATH}", guide)
 
     def test_normalize_command_center_section_upgrades_legacy_sensors_label(self) -> None:
         native_support = _load_native_support_module()
