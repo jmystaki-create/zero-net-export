@@ -187,12 +187,12 @@ Suggested area labels:
 - **expected behavior:** Configure should open even when the command-center summary omits optional source-repair detail; the options flow should fall back to a generic source-repair step instead of crashing
 - **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded in this run, and `ha core logs -n 240` shows `File "/config/custom_components/zero_net_export/config_flow.py", line 1431, in async_step_init` followed by `"source_repair_step": command_center["source_repair_step"],` and `KeyError: 'source_repair_step'`
 - **suspected cause:** the options-flow handoff assumed the command-center summary always carried `source_repair_step`, but some runtime states only emit `next_action_summary` and related fields
-- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the command-center summary always emits `source_repair_step`, and also hardens `custom_components/zero_net_export/config_flow.py` with a fallback `build_source_repair_step()` default if the key is ever absent again
-- **validation status:** repo-side fix implemented and covered by `python3 -m unittest tests.test_command_center_summary -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py`
-- **next action:** deploy the latest repo build to Home Assistant, restart, then re-open Configure and confirm the 500 is gone
+- **repo fix:** `209665e` — this run updates `custom_components/zero_net_export/native_support.py` so the command-center summary always emits `source_repair_step`, and also hardens `custom_components/zero_net_export/config_flow.py` with a fallback `build_source_repair_step()` default if the key is ever absent again
+- **validation status:** repo-side fix implemented and covered by `python3 -m unittest tests.test_command_center_summary -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py`. In this run, the exact `209665e` repo build was also copied to `/config/custom_components/zero_net_export`, `scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` returned `overall_match=true`, and Home Assistant core was restarted cleanly. However, Configure itself still needs a post-deploy click test before this bug can be closed.
+- **next action:** re-open Configure in live Home Assistant and confirm the 500 is gone on the deployed `209665e` build
 
 ## ZNE-019 — Candidate overview and shortlist sensors overflow Home Assistant state length
-- **status:** `fixed_pending_validation`
+- **status:** `validated`
 - **severity:** `medium`
 - **area:** `sensors`
 - **where seen:** live Home Assistant `0.1.83` with a larger unmanaged-candidate backlog
@@ -200,9 +200,20 @@ Suggested area labels:
 - **expected behavior:** Managed Devices candidate summary sensors should stay compact enough to remain valid HA state strings while still giving operators a useful at-a-glance snapshot
 - **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded in this run, and `ha core logs -n 120` shows repeated errors such as `State AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings; ... for sensor.zero_net_export_unmanaged_candidate_overview is longer than 255, falling back to unknown` and `State 3rd Bedroom Crossfade (switch.bedroom_crossfade, fixed) | ... for sensor.zero_net_export_candidate_shortlist is longer than 255, falling back to unknown`
 - **suspected cause:** the candidate summary sensors were reusing verbose review-preview strings that are suitable for notifications or attributes, but too long for HA state payload limits once multiple candidates are concatenated
-- **repo fix:** this run adds `build_candidate_name_summary(...)` in `custom_components/zero_net_export/candidate_utils.py` and switches the candidate overview/shortlist sensor states to compact name-list summaries, keeping the richer fit/warning detail in attributes and deeper review paths instead of the state string itself
-- **validation status:** repo-side fix implemented and covered by `python3 -m unittest tests.test_candidate_utils -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/candidate_utils.py custom_components/zero_net_export/sensor.py`
-- **next action:** deploy the latest repo build to Home Assistant, restart, then confirm the candidate overview/shortlist sensors stop falling back to `unknown` and the repeated 255-character log errors disappear
+- **repo fix:** `209665e` — this run adds `build_candidate_name_summary(...)` in `custom_components/zero_net_export/candidate_utils.py` and switches the candidate overview/shortlist sensor states to compact name-list summaries, keeping the richer fit/warning detail in attributes and deeper review paths instead of the state string itself
+- **validation status:** repo-side fix implemented and covered by `python3 -m unittest tests.test_candidate_utils -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/candidate_utils.py custom_components/zero_net_export/sensor.py`. Live validation succeeded in this run: the exact `209665e` repo build was copied to `/config/custom_components/zero_net_export`, `scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` returned `overall_match=true`, Home Assistant core was restarted, and a follow-up `ha core logs` pass after the next coordinator cycles no longer showed the earlier `longer than 255, falling back to unknown` errors for `sensor.zero_net_export_unmanaged_candidate_overview` or `sensor.zero_net_export_candidate_shortlist`.
+- **next action:** keep candidate detail richness in attributes/notifications/deeper review paths so future summary expansions do not regress back into overlong HA state strings
+
+## ZNE-020 — Install provenance fingerprinting performs blocking file I/O in the event loop
+- **status:** `open`
+- **severity:** `medium`
+- **area:** `runtime`
+- **where seen:** live Home Assistant immediately after restarting the exact `209665e` build
+- **current observed behavior:** startup logs warn that Zero Net Export performs blocking `read_bytes` and `open` calls inside the event loop while building install-provenance metadata from `manifest.json`
+- **expected behavior:** install-provenance and release-info helpers should avoid synchronous filesystem reads on the event loop during coordinator/update paths
+- **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded in this run, and post-restart `ha core logs -n 120` showed `Detected blocking call to read_bytes ... by custom integration 'zero_net_export' at custom_components/zero_net_export/release_info.py, line 62: sha256_12 = hashlib.sha256(path.read_bytes()).hexdigest()[:12]` plus the corresponding blocking `open` warning from the same code path
+- **suspected cause:** `build_install_provenance()` ultimately calls `_cached_install_provenance()`, which reads and hashes tracked component files synchronously from `release_info.py` during coordinator/repair setup work that now runs on the Home Assistant event loop
+- **next action:** move install-provenance file reads off the event loop, or precompute/cache them from an executor-safe path so startup and coordinator updates stop emitting blocking-call warnings
 
 ## Recently validated or closed bugs
 
