@@ -1005,6 +1005,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_status = "Missing required source roles: " + ", ".join(
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
+        headline_decision = "Setup incomplete, waiting for required sensors."
     elif runtime_source_attention:
         attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
         validation_suffix = (
@@ -1013,10 +1014,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             else ""
         )
         source_status = attention_prefix + validation_suffix
+        headline_decision = "Source data needs attention, control is constrained."
     elif state is None:
         source_status = "Source health will appear here after the integration loads."
+        headline_decision = "Waiting for runtime state to load."
     else:
         source_status = build_live_source_health_summary(state)
+        headline_decision = str(getattr(state, "reason", "") or getattr(state, "control_reason", "") or getattr(state, "status", "") or "Runtime state available.")
 
     if device_parse_issues:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
@@ -1139,7 +1143,58 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         ),
     )
 
+    energy_state_summary = _truncate_state_summary(
+        " | ".join(
+            part for part in [
+                f"solar {getattr(state, 'solar_power_w', None)} W" if state is not None and getattr(state, 'solar_power_w', None) is not None else None,
+                f"grid import {getattr(state, 'grid_import_power_w', None)} W" if state is not None and getattr(state, 'grid_import_power_w', None) is not None else None,
+                f"grid export {getattr(state, 'grid_export_power_w', None)} W" if state is not None and getattr(state, 'grid_export_power_w', None) is not None else None,
+                f"home load {getattr(state, 'home_load_power_w', None)} W" if state is not None and getattr(state, 'home_load_power_w', None) is not None else None,
+                f"battery {getattr(state, 'battery_soc', None)}%" if state is not None and getattr(state, 'battery_soc', None) is not None else None,
+            ]
+        ) or "Energy state will appear here after runtime loads.",
+        fallback="Energy state will appear here after runtime loads.",
+    )
+    control_decision_summary = _truncate_state_summary(
+        " | ".join(
+            part for part in [
+                f"mode {current_mode}",
+                f"target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W",
+                f"error {getattr(state, 'export_error_w', None)} W" if state is not None and getattr(state, 'export_error_w', None) is not None else None,
+                str(getattr(state, 'control_reason', '') or '').strip() or None,
+            ]
+        ) or f"mode {current_mode}",
+        fallback=f"mode {current_mode}",
+    )
+    control_outcome_summary = _truncate_state_summary(
+        " | ".join(
+            part for part in [
+                str(getattr(state, 'control_summary', '') or '').strip() or None,
+                f"planned actions {getattr(state, 'planned_action_count', None)}" if state is not None and getattr(state, 'planned_action_count', None) is not None else None,
+                f"executable {getattr(state, 'executable_action_count', None)}" if state is not None and getattr(state, 'executable_action_count', None) is not None else None,
+                f"active load {getattr(state, 'active_controlled_power_w', None)} W" if state is not None and getattr(state, 'active_controlled_power_w', None) is not None else None,
+            ]
+        ) or "Control outcome will appear here after runtime loads.",
+        fallback="Control outcome will appear here after runtime loads.",
+    )
+    fleet_activity_summary = _truncate_state_summary(
+        " | ".join(
+            part for part in [
+                device_status,
+                f"managed {getattr(state, 'device_count', None)}" if state is not None and getattr(state, 'device_count', None) is not None else None,
+                f"enabled {getattr(state, 'enabled_device_count', None)}" if state is not None and getattr(state, 'enabled_device_count', None) is not None else None,
+                f"usable {getattr(state, 'usable_device_count', None)}" if state is not None and getattr(state, 'usable_device_count', None) is not None else None,
+            ]
+        ) or device_status,
+        fallback=device_status,
+    )
+
     return {
+        "headline_decision": _truncate_state_summary(headline_decision, fallback="Runtime summary unavailable."),
+        "energy_state_summary": energy_state_summary,
+        "control_decision_summary": control_decision_summary,
+        "control_outcome_summary": control_outcome_summary,
+        "fleet_activity_summary": fleet_activity_summary,
         "source_status": source_status,
         "source_attention_summary": source_attention_summary_display,
         "source_attention_roles": source_attention_roles,

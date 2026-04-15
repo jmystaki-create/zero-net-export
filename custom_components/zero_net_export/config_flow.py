@@ -1407,6 +1407,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         mode_label, mode_description = _live_mode_details(self._coordinator())
         placeholders = {
             "configure_path": PRIMARY_CONFIGURE_PATH,
+            "headline_decision": command_center["headline_decision"],
+            "energy_state_summary": command_center["energy_state_summary"],
+            "control_decision_summary": command_center["control_decision_summary"],
+            "control_outcome_summary": command_center["control_outcome_summary"],
+            "fleet_activity_summary": command_center["fleet_activity_summary"],
             "source_status": command_center["source_status"],
             "source_attention_summary": command_center["source_attention_summary"],
             "source_attention_roles": command_center["source_attention_roles"],
