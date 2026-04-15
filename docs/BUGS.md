@@ -128,29 +128,29 @@ Suggested area labels:
 - **next action:** keep this bug in `fixed_pending_validation`, ask James directly for release approval to redeploy the exact current repo candidate, rerun fingerprint validation until it reports `overall_match=true`, then re-check the managed/unmanaged workspace, command-center/device-path visibility, and four-bucket UI outcome against the exact installed `0.1.83` build
 
 ## ZNE-005 — `build_release_info()` missing required `current_version` argument
-- **status:** `fixed_pending_validation`
+- **status:** `validated`
 - **severity:** `critical`
 - **area:** `runtime`
 - **where seen:** live Home Assistant integration page during setup/retry
-- **current observed behavior:** Home Assistant shows `Failed setup, will retry: build_release_info() missing 1 required positional argument: 'current_version'`
+- **current observed behavior:** historical bug. Earlier live Home Assistant runs showed `Failed setup, will retry: build_release_info() missing 1 required positional argument: 'current_version'`.
 - **expected behavior:** Zero Net Export setup should complete without this runtime error
-- **evidence:** user screenshot of the Home Assistant integration page showing the exact setup error; repo/HA SSH inspection on 2026-04-15 confirmed the live `0.1.81` install still has `coordinator.py` calling `build_release_info(include_changelog=False)` at line 223 without the required version argument
-- **suspected cause:** coordinator release-update metadata calls `build_release_info()` without the required `current_version`, causing setup to fail while building validation details
+- **evidence:** user screenshot of the Home Assistant integration page showing the exact setup error; repo/HA SSH inspection on 2026-04-15 confirmed the live `0.1.81` install still had `coordinator.py` calling `build_release_info(include_changelog=False)` at line 223 without the required version argument. In this run, documented HA SSH/API access confirmed the live install now has one active `zero_net_export` config entry and 145 live Zero Net Export entities, `scripts/validate_install_fingerprint.py` shows `coordinator.py` matches the repo candidate exactly, and fresh `ha core logs` review no longer shows the earlier `build_release_info()` missing-argument retry.
+- **suspected cause:** coordinator release-update metadata called `build_release_info()` without the required `current_version`, causing setup to fail while building validation details
 - **repo fix:** `48a9d45` — pass `INTEGRATION_VERSION` from `coordinator.py` into `build_release_info()` and cover the call contract with a coordinator unit test; this run adds `tests/test_release_update_details.py` so the release-update path has its own focused regression coverage for the missing-argument contract
-- **validation status:** repo-side fix is implemented and verified with `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`. In this run, documented HA SSH access also confirmed the exact intended `0.1.83` build is now installed live with `overall_match=true`, and fresh log grep no longer shows the earlier `build_release_info()` missing-argument retry. However, live setup-path validation is still incomplete because ZNE-002 now shows the integration has no active config entry to exercise normal setup/reload behavior.
-- **next action:** once ZNE-002 is resolved and a live `zero_net_export` config entry exists again, re-verify that setup no longer retries with the missing-argument error on the exact installed build
+- **validation status:** repo-side fix remains covered by `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`. Live validation is now good enough for this bug specifically: the fixed `coordinator.py` is present in the live install, the integration has an active config entry again, and the earlier missing-argument setup retry is no longer present in current log review.
+- **next action:** no further action for this specific bug beyond keeping future coordinator/release-info changes under regression coverage
 
 ## ZNE-014 — Post-install log review confirms the live 0.1.83 install is still not healthy
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
 - **area:** `runtime`
 - **where seen:** live Home Assistant `0.1.83` after user install and manual log review request
-- **current observed behavior:** the installed package is present as `0.1.83`, but the overall live install is still not healthy enough to call successful because the config flow is broken and core runtime entities remain absent/orphaned
-- **expected behavior:** after install, Zero Net Export should load cleanly, allow Add Integration, and avoid integration-specific live errors in Home Assistant logs
-- **evidence:** live HA review on 2026-04-15 confirmed remote manifest `0.1.83`, but also confirmed `homeassistant.config_entries` errors for `zero_net_export` plus the still-open missing-config-entry/orphaned-entity condition tracked elsewhere in this file
-- **suspected cause:** currently overlaps the more specific bugs ZNE-002 and ZNE-011
-- **validation status:** confirmed as an umbrella live-review finding, not yet resolved
-- **next action:** keep using this as the top-level install-review reminder, but drive actual fix work through the narrower config-flow and runtime-registration bugs
+- **current observed behavior:** the earlier broken-config-flow and missing-entity install state is no longer the current live symptom. In this run the live system has one active `zero_net_export` config entry, 145 live Zero Net Export entities via the Home Assistant API, and no current `homeassistant.config_entries` setup traceback for Zero Net Export in fresh log review. The remaining install-health problem is narrower: the live install is still a mixed older build, and logs still show the older `release_info.py` blocking-I/O warning tracked under ZNE-020.
+- **expected behavior:** after install, Zero Net Export should load cleanly, allow Add Integration, avoid integration-specific live errors in Home Assistant logs, and match the exact repo candidate under review
+- **evidence:** live HA review on 2026-04-15 originally confirmed remote manifest `0.1.83` plus `homeassistant.config_entries` errors and the missing-config-entry/orphaned-entity condition tracked elsewhere in this file. In this run, documented HA SSH access confirmed the config entry is present again in `/config/.storage/core.config_entries`, direct API inspection returned 145 live Zero Net Export entities, `scripts/validate_install_fingerprint.py` still reports `overall_match=false`, and fresh `ha core logs` review only shows the older blocking `release_info.py` warning plus the standard custom-integration warning.
+- **suspected cause:** the original install-health failure overlapped ZNE-002 and ZNE-011; the remaining live-health concern now overlaps ZNE-020 and ZNE-022 because the installed component tree is still behind the repo candidate
+- **validation status:** materially improved in this run. The original broken-install symptom is no longer reproducible live, but this umbrella bug should stay open until the exact repo candidate is redeployed and a post-restart log review shows the live install is both healthy and fingerprint-aligned.
+- **next action:** treat exact-build redeploy and post-restart validation under ZNE-022 as the real remaining work, then close this umbrella bug once the live install matches the repo candidate and the stale `release_info.py` warning is gone
 
 ## ZNE-011 — Config flow cannot load because backup folder names pollute Home Assistant module discovery
 - **status:** `fixed_pending_validation`
