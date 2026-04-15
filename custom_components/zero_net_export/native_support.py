@@ -102,7 +102,12 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
             merged["entity_id"] = freshness.get("entity_id")
         enriched_source_diagnostics[key] = merged
         is_unavailable = merged.get("status") == "unavailable"
-        is_stale = bool(merged.get("stale")) or (merged.get("age_seconds") or 0) > 120
+        stale_threshold_seconds = merged.get("stale_threshold_seconds")
+        if stale_threshold_seconds is None:
+            stale_threshold_seconds = 120
+        is_stale = bool(merged.get("stale")) or (
+            merged.get("age_seconds") is not None and float(merged.get("age_seconds") or 0) > float(stale_threshold_seconds)
+        )
         if is_unavailable:
             unavailable_source_keys.append(key)
         if is_stale and not is_unavailable:

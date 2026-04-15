@@ -187,6 +187,37 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertIn("Grid import power -> sensor.grid_import (stale 245 s)", role_summary)
 
+    def test_energy_sources_respect_extended_stale_threshold_in_attention_details(self) -> None:
+        native_support = _load_native_support_module()
+        state = types.SimpleNamespace(
+            source_diagnostics={},
+            validation_details={
+                "source_diagnostics": {},
+                "source_freshness": {
+                    "solar_energy": {
+                        "entity_id": "sensor.system_rome_yield_total",
+                        "stale": False,
+                        "age_seconds": 824,
+                        "last_updated": "2026-04-14T00:00:00+00:00",
+                        "stale_threshold_seconds": 900,
+                        "required": True,
+                    }
+                },
+                "issues": [],
+            },
+        )
+        details = native_support.build_source_attention_details(state)
+        self.assertEqual(details["unavailable_source_keys"], [])
+        self.assertEqual(details["stale_source_keys"], [])
+        self.assertEqual(
+            native_support.build_source_attention_summary(
+                state,
+                {"solar_energy": "sensor.system_rome_yield_total"},
+                blocking_only=True,
+            ),
+            "None",
+        )
+
     def test_repair_step_with_validation_only_guides_operator_to_confirm_entity_selection(self) -> None:
         native_support = _load_native_support_module()
         guidance = native_support.build_source_repair_step(
