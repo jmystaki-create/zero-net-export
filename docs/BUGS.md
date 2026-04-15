@@ -141,16 +141,30 @@ Suggested area labels:
 - **next action:** no further action for this specific bug beyond keeping future coordinator/release-info changes under regression coverage
 
 ## ZNE-026 — Integration overview/device page still shows stale 0.1.83 version after 0.1.84 install
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
 - **area:** `release`
 - **where seen:** live Home Assistant UI after `0.1.84` deploy
 - **current observed behavior:** the integration overview and device info screenshots still show `Version 0.1.83` / `Firmware: 0.1.83` even though the release and deploy were executed as `0.1.84`
 - **expected behavior:** the Home Assistant integration and device surfaces should show the currently installed `0.1.84` version, not the previous release
-- **evidence:** user screenshots on 2026-04-16 show the integration header and device info card both rendering `0.1.83` after the `0.1.84` release/deploy. Earlier live shell checks in the same run showed conflicting file states, including one post-release command still reporting remote manifest `0.1.83`, so the stale-version UI is consistent with unresolved live install/version-fidelity drift.
-- **suspected cause:** live install/version reporting is still inconsistent, likely due to incomplete remote artifact replacement, stale HA integration metadata, or a remaining mismatch between manifest/version-reporting paths and what the UI surfaces actually read
-- **validation status:** confirmed live, not fixed
-- **next action:** inspect the live installed component files and HA metadata paths that feed the integration header/device firmware label, determine why `0.1.83` is still being surfaced, then make version fidelity deterministic before claiming release success
+- **evidence:** user screenshots on 2026-04-16 show the integration header and device info card both rendering `Version 0.1.83` / `Firmware: 0.1.83` after the `0.1.84` release/deploy. Earlier live shell checks in the same run showed conflicting file states, including one post-release command still reporting remote manifest `0.1.83`, so the stale-version UI is consistent with unresolved live install/version-fidelity drift. In this run, the documented HA SSH/API path worked again: `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` still reports `overall_match=false`, and one of the current mismatches is `custom_components/zero_net_export/entity.py`, which means the live install is still missing the later repo-side device-surface version fix.
+- **suspected cause:** the original stale version was partly a real live mixed-build problem, and repo inspection in this run confirmed the bug-tracker state had drifted behind the shipped candidate because `custom_components/zero_net_export/entity.py` now reads the packaged `manifest.json` version for the Home Assistant device surface instead of blindly using an older imported constant.
+- **repo fix:** `057fcf5` — make the device surface version read the packaged `manifest.json` so Home Assistant device firmware/version labels follow the installed component tree, with regression coverage in `tests/test_device_surface_version.py`
+- **validation status:** repo-side fix is now present and covered by `python3 -m unittest tests.test_device_surface_version -q`, but live Home Assistant validation is still pending because the exact current repo candidate is not installed yet. This bug should not stay `open` in the tracker because a repo fix now exists; the remaining work is redeploy plus post-install device-surface verification.
+- **next action:** redeploy the exact current `0.1.83` repo candidate, rerun fingerprint validation until `overall_match=true`, then confirm the integration overview and Zero Net Export device page both read the installed package version from the deployed manifest
+
+## ZNE-032 — Release summary incorrectly reports a rollback as a normal update
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** live Home Assistant `sensor.zero_net_export_release_summary` in this run
+- **current observed behavior:** the native release summary currently says `Updated from 0.1.84 to 0.1.83`, which reads like a normal upgrade even though the version moved backwards after the repo working-version revert to the documented `0.1.83` UI target
+- **expected behavior:** when the recorded previous version is higher than the current installed version, the native release summary should flag that as a rollback or mixed version history instead of claiming a normal update
+- **evidence:** in this run, the documented HA API path returned `sensor.zero_net_export_release_summary` with `state: Release notes deferred until diagnostics/support surfaces request them.` and `summary: Updated from 0.1.84 to 0.1.83. ...`, while the same run's repo/source-of-truth inspection confirmed `custom_components/zero_net_export/manifest.json` is intentionally back on `0.1.83`
+- **suspected cause:** `_release_update_details()` treated any version change as an upgrade and never compared version direction, so a rollback or version-history correction produced misleading release wording
+- **repo fix:** this run updates `custom_components/zero_net_export/coordinator.py` so release summaries compare previous versus current version direction and call out rollback or mixed version history explicitly when the version goes backwards; `tests/test_release_update_details.py` now covers both rollback and normal upgrade wording
+- **validation status:** repo-side fix implemented in this run and covered by `python3 -m unittest tests.test_release_update_details -q`. Live Home Assistant validation is still pending on the next exact-build redeploy because the current install fingerprint remains behind repo HEAD.
+- **next action:** redeploy the exact current repo candidate, rerun fingerprint validation until `overall_match=true`, then confirm `sensor.zero_net_export_release_summary` no longer says `Updated from 0.1.84 to 0.1.83` and instead flags the rollback/version-history mismatch clearly
 
 ## ZNE-027 — Command center still lets diagnostics/release plumbing dominate the primary operator surface
 - **status:** `fixed_pending_validation`

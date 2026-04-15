@@ -150,6 +150,46 @@ class ReleaseUpdateDetailsTests(unittest.TestCase):
         self.assertEqual(details["installed_version"], coordinator_module.INTEGRATION_VERSION)
         self.assertFalse(details["update_detected"])
 
+    def test_release_update_details_flags_rollbacks_without_claiming_upgrade(self) -> None:
+        coordinator_module = _load_coordinator_module()
+
+        coordinator_module.build_release_info = lambda *args, **kwargs: {
+            "current_version": "0.1.83",
+            "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
+            "summary": "Installed version 0.1.83",
+        }
+        coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
+        coordinator._previous_installed_version = "0.1.84"
+        coordinator._last_seen_integration_version = "0.1.83"
+        coordinator._version_update_detected_at = datetime(2026, 4, 16, tzinfo=timezone.utc)
+
+        details = coordinator._release_update_details()
+
+        self.assertTrue(details["update_detected"])
+        self.assertEqual(details["version_change_direction"], -1)
+        self.assertIn("Version changed from 0.1.84 to 0.1.83.", details["summary"])
+        self.assertIn("rollback or mixed version history", details["summary"])
+        self.assertNotIn("Updated from 0.1.84 to 0.1.83.", details["summary"])
+
+    def test_release_update_details_keeps_upgrade_wording_for_newer_builds(self) -> None:
+        coordinator_module = _load_coordinator_module()
+
+        coordinator_module.build_release_info = lambda *args, **kwargs: {
+            "current_version": "0.1.84",
+            "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
+            "summary": "Installed version 0.1.84",
+        }
+        coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
+        coordinator._previous_installed_version = "0.1.83"
+        coordinator._last_seen_integration_version = "0.1.84"
+        coordinator._version_update_detected_at = datetime(2026, 4, 16, tzinfo=timezone.utc)
+
+        details = coordinator._release_update_details()
+
+        self.assertTrue(details["update_detected"])
+        self.assertEqual(details["version_change_direction"], 1)
+        self.assertIn("Updated from 0.1.83 to 0.1.84.", details["summary"])
+
 
 if __name__ == "__main__":
     unittest.main()

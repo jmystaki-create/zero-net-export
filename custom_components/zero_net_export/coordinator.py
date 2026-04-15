@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 import logging
+import re
 from typing import Any
 
 from homeassistant.util import dt as dt_util
@@ -55,6 +56,38 @@ STALE_SOURCE_REFRESH_MULTIPLIER = 3
 COMMAND_FAILURE_ACTIVE_SECONDS = 900
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _version_sort_key(version: str | None) -> tuple[int, tuple[int, ...], str]:
+    """Return a sortable key for simple dotted integration versions."""
+    raw = str(version or "").strip()
+    if not raw:
+        return (0, (), "")
+    numbers = tuple(int(part) for part in re.findall(r"\d+", raw))
+    if not numbers:
+        return (1, (), raw)
+    return (2, numbers, raw)
+
+
+def _compare_integration_versions(previous_version: str | None, current_version: str | None) -> int | None:
+    """Compare two integration versions.
+
+    Returns 1 when current_version is newer, -1 when older, 0 when equal,
+    and None when the versions cannot be compared confidently.
+    """
+    previous_key = _version_sort_key(previous_version)
+    current_key = _version_sort_key(current_version)
+    if previous_key[0] == 0 or current_key[0] == 0:
+        return None
+    if previous_key[0] != current_key[0]:
+        return None
+    previous_value = previous_key[1] if previous_key[0] == 2 else previous_key[2]
+    current_value = current_key[1] if current_key[0] == 2 else current_key[2]
+    if current_value > previous_value:
+        return 1
+    if current_value < previous_value:
+        return -1
+    return 0
 
 
 @dataclass
@@ -229,11 +262,19 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             and installed_version
             and previous_installed_version != installed_version
         )
+        version_change_direction = _compare_integration_versions(previous_installed_version, installed_version)
         if update_detected:
-            summary = (
-                f"Updated from {previous_installed_version} to {installed_version}. "
-                f"{release_info.get('changes_preview') or release_info.get('summary') or 'Review the release highlights below.'}"
-            )
+            if version_change_direction == -1:
+                summary = (
+                    f"Version changed from {previous_installed_version} to {installed_version}. "
+                    "This looks like a rollback or mixed version history, so verify the exact installed build before trusting release-change summaries. "
+                    f"{release_info.get('changes_preview') or release_info.get('summary') or 'Review the release highlights below.'}"
+                )
+            else:
+                summary = (
+                    f"Updated from {previous_installed_version} to {installed_version}. "
+                    f"{release_info.get('changes_preview') or release_info.get('summary') or 'Review the release highlights below.'}"
+                )
         else:
             summary = (
                 f"Installed version {installed_version}. "
@@ -245,6 +286,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             "last_seen_version": self._last_seen_integration_version,
             "previous_installed_version": previous_installed_version,
             "update_detected": update_detected,
+            "version_change_direction": version_change_direction,
             "version_update_detected_at": self._version_update_detected_at.isoformat()
             if self._version_update_detected_at
             else None,
