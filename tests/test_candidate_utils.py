@@ -106,6 +106,45 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(variable_fit["confidence"], "medium")
         self.assertTrue(any("meaningful unit" in warning for warning in variable_fit["warnings"]))
 
+    def test_build_candidate_preview_includes_usefulness_and_key_warning(self) -> None:
+        module = _load_candidate_utils_module()
+
+        preview = module.build_candidate_preview(
+            {
+                "entity_id": "input_boolean.virtual_load",
+                "name": "Virtual load",
+                "kind": "fixed",
+                "domain": "input_boolean",
+                "state": "on",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+
+        self.assertIn("Virtual load (input_boolean.virtual_load, fixed)", preview)
+        self.assertIn("needs extra review", preview)
+        self.assertIn("input_boolean helper", preview)
+
+    def test_build_candidate_preview_uses_no_warning_fallback_for_strong_match(self) -> None:
+        module = _load_candidate_utils_module()
+
+        preview = module.build_candidate_preview(
+            {
+                "entity_id": "switch.hot_water",
+                "name": "Hot water relay",
+                "kind": "fixed",
+                "domain": "switch",
+                "state": "off",
+                "unit": "",
+                "device_class": "",
+            },
+            include_state=True,
+        )
+
+        self.assertIn("strong match", preview)
+        self.assertIn("state off", preview)
+        self.assertIn("No immediate warnings", preview)
+
 
 if __name__ == "__main__":
     unittest.main()

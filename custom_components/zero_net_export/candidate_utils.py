@@ -22,6 +22,12 @@ _CANDIDATE_DOMAIN_ORDER = {
     "input_boolean": 4,
 }
 
+_FIT_USEFULNESS_LABELS = {
+    "high": "strong match",
+    "medium": "plausible match",
+    "low": "needs extra review",
+}
+
 
 def candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, int, str, str]:
     """Return a stable sort key that prefers stronger promotion targets first."""
@@ -93,6 +99,37 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         "summary": summary,
         "warnings": warnings,
     }
+
+
+def build_candidate_preview(
+    candidate: dict[str, Any],
+    *,
+    include_entity_id: bool = True,
+    include_kind: bool = True,
+    include_state: bool = False,
+) -> str:
+    """Return a concise operator-facing preview for unmanaged candidate rows."""
+    fit = assess_candidate(candidate)
+    name = str(candidate.get("name") or candidate.get("entity_id") or "candidate")
+    entity_id = str(candidate.get("entity_id") or "")
+    kind = str(candidate.get("kind") or "unknown")
+    state = str(candidate.get("state") or "")
+
+    detail_bits: list[str] = []
+    if include_entity_id and entity_id:
+        detail_bits.append(entity_id)
+    if include_kind and kind:
+        detail_bits.append(kind)
+    if include_state and state:
+        detail_bits.append(f"state {state}")
+
+    heading = name if not detail_bits else f"{name} ({', '.join(detail_bits)})"
+    confidence = str(fit.get("confidence") or "medium")
+    usefulness = _FIT_USEFULNESS_LABELS.get(confidence, confidence)
+    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
+    key_warning = warnings[0] if warnings else "No immediate warnings"
+
+    return f"{heading} | {usefulness} | key warning: {key_warning}"
 
 
 def discover_candidate_devices(states: Iterable[Any], managed_entity_ids: set[str]) -> list[dict[str, str]]:

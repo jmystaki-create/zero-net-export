@@ -11,7 +11,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
-from .candidate_utils import assess_candidate, discover_candidate_devices
+from .candidate_utils import assess_candidate, build_candidate_preview, discover_candidate_devices
 from .const import (
     CONF_BATTERY_CHARGE_POWER_ENTITY,
     CONF_BATTERY_DISCHARGE_POWER_ENTITY,
@@ -688,7 +688,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         for candidate in discover_candidate_devices(self.hass.states.async_all(), managed_ids):
             entity_id = candidate["entity_id"]
             state = self.hass.states.get(entity_id)
-            candidates.append({**candidate, "label": _format_candidate_label(entity_id, state)})
+            candidates.append(
+                {
+                    **candidate,
+                    "label": build_candidate_preview(candidate, include_state=True),
+                    "fallback_label": _format_candidate_label(entity_id, state),
+                }
+            )
         return candidates
 
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:
@@ -696,7 +702,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if kind:
             candidates = [item for item in candidates if item["kind"] == kind]
         return [
-            selector.SelectOptionDict(value=item["entity_id"], label=item["label"])
+            selector.SelectOptionDict(
+                value=item["entity_id"],
+                label=item.get("label") or item.get("fallback_label") or item["entity_id"],
+            )
             for item in candidates[:100]
         ]
 
@@ -1840,13 +1849,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             else "Unmanaged now: 0 | fixed candidates: 0 | variable candidates: 0"
         )
         candidate_summary = "\n".join(
-            f"- {item['name']} ({item['entity_id']}, {item['kind']})" for item in candidates[:12]
+            f"- {build_candidate_preview(item)}" for item in candidates[:12]
         ) if candidates else "- No unmanaged candidate devices discovered right now"
         fixed_candidate_summary = "\n".join(
-            f"- {item['name']} ({item['entity_id']})" for item in fixed_candidates[:6]
+            f"- {build_candidate_preview(item)}" for item in fixed_candidates[:6]
         ) if fixed_candidates else "- No fixed-load candidates discovered right now"
         variable_candidate_summary = "\n".join(
-            f"- {item['name']} ({item['entity_id']})" for item in variable_candidates[:6]
+            f"- {build_candidate_preview(item)}" for item in variable_candidates[:6]
         ) if variable_candidates else "- No variable-load candidates discovered right now"
         top_candidate = candidates[0] if candidates else None
         device_next_step = self._device_next_step(display_devices, issues, candidates)
@@ -1912,10 +1921,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
         ]
         top_candidate_summary = "\n".join(
-            (
-                f"- {item['name']} ({item['entity_id']}, state {item['state']})"
-                + f" | fit {(self._candidate_summary(item['entity_id']) or {}).get('fit_confidence', 'unknown')}"
-            )
+            f"- {build_candidate_preview(item, include_kind=False, include_state=True)}"
             for item in quick_picks
         ) if quick_picks else "- No suggested candidates right now"
         candidate_path_summary = (

@@ -5,7 +5,7 @@ from homeassistant.components import persistent_notification
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import EntityCategory
 
-from .candidate_utils import assess_candidate, discover_candidate_devices
+from .candidate_utils import assess_candidate, build_candidate_preview, discover_candidate_devices
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
@@ -335,7 +335,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "Top unmanaged candidates:",
             *(
                 [
-                    f"- {item['name']} ({item['entity_id']}, {item['kind']}, state {item['state']})"
+                    f"- {build_candidate_preview(item, include_state=True)}"
                     for item in candidates[:6]
                 ]
                 or ["- No unmanaged candidate devices discovered right now."]

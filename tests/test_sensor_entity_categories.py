@@ -81,6 +81,16 @@ def _load_sensor_module():
     release_info_module.build_release_info = lambda *args, **kwargs: {}
     sys.modules[release_info_module.__name__] = release_info_module
 
+    candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
+    candidate_utils_module.assess_candidate = lambda candidate: {
+        "confidence": "medium",
+        "summary": "Looks like a plausible controllable candidate, but review before promotion.",
+        "warnings": [],
+    }
+    candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
+    candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+    sys.modules[candidate_utils_module.__name__] = candidate_utils_module
+
     sensor_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.sensor", SENSOR_PATH)
     assert sensor_spec and sensor_spec.loader
     sensor_module = importlib.util.module_from_spec(sensor_spec)

@@ -5,7 +5,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
-from .candidate_utils import assess_candidate, discover_candidate_devices
+from .candidate_utils import assess_candidate, build_candidate_preview, discover_candidate_devices
 from .const import DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
 from .native_support import (
@@ -256,9 +256,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             if not candidates:
                 return "No unmanaged candidate devices discovered"
-            preview = ", ".join(item['name'] for item in candidates[:4])
-            if len(candidates) > 4:
-                preview += f", +{len(candidates) - 4} more"
+            preview = "; ".join(build_candidate_preview(item, include_entity_id=False) for item in candidates[:3])
+            if len(candidates) > 3:
+                preview += f"; +{len(candidates) - 3} more"
             return preview
         if self._key == "top_unmanaged_candidate":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
@@ -266,7 +266,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if not candidates:
                 return "None"
             top = candidates[0]
-            return f"{top['name']} ({top['entity_id']})"
+            return build_candidate_preview(top)
         if self._key == "top_candidate_fit":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
@@ -288,7 +288,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if not candidates:
                 return "No additional candidates"
             shortlist = candidates[:3]
-            return "; ".join(f"{item['name']} ({item['entity_id']})" for item in shortlist)
+            return "; ".join(build_candidate_preview(item) for item in shortlist)
         if self._key == "candidate_shortlist_fit":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
