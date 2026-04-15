@@ -125,22 +125,44 @@ Suggested area labels:
 - **validation status:** still open; `0.1.83` is now the explicit UI release intended to resolve this
 - **next action:** progress the `0.1.83` UI phases in `docs/UI_IMPLEMENTATION_MAP.md` and require live HA evidence before closing
 
-## ZNE-004 — Deploy helper CLI drift from documented release flow
-- **status:** `closed`
-- **severity:** `medium`
+## ZNE-004 — Live install version stamp mismatched the intended `0.1.82` release
+- **status:** `open`
+- **severity:** `high`
 - **area:** `release`
-- **where seen:** formal `0.1.82` deploy attempt
-- **current observed behavior:** `scripts/deploy_exact_repo_build.py` rejected flags used by the intended exact-build workflow, including `--expected-commit`, `--require-clean`, and `--require-upstream-sync`
-- **expected behavior:** deploy tooling should match the documented/operator release workflow or the docs should be corrected to match the actual CLI
-- **evidence:** live command failure during release execution
-- **repo fix:** `d6c80be` — `scripts/deploy_exact_repo_build.py` now accepts `--expected-commit`, `--require-clean`, and `--require-upstream-sync`, and `tests/test_install_helper_scripts.py` covers matching and failing cases for each guard
-- **validation status:** closed with repo validation because this bug was a local release-helper CLI contract mismatch, not a live Home Assistant runtime defect; `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance` passed on 2026-04-15 after the flag support and test coverage were added
-- **next action:** use the guarded deploy helper in the next formal release attempt so the release flow can fail fast before touching the live install when the repo state or target commit is wrong
+- **where seen:** live Home Assistant integration page during `0.1.82` release validation
+- **current observed behavior:** GitHub/public release target was `0.1.82`, but the installed integration page still showed `Version 0.1.81`
+- **expected behavior:** the live installed version stamp should match the intended shipped release version
+- **evidence:** user screenshot of the Home Assistant integration page showing `Version 0.1.81` while validating the `0.1.82` release
+- **suspected cause:** deploy/install artifact mismatch, incomplete copy, stale manifest, or other release-fingerprint drift
+- **validation status:** unresolved; this should only close once exact live install/version alignment is explicitly re-verified
+- **next action:** re-run exact-build validation against the live HA install and confirm the installed manifest/version stamp matches the intended public release
+
+## ZNE-005 — `build_release_info()` missing required `current_version` argument
+- **status:** `open`
+- **severity:** `critical`
+- **area:** `runtime`
+- **where seen:** live Home Assistant integration page during setup/retry
+- **current observed behavior:** Home Assistant shows `Failed setup, will retry: build_release_info() missing 1 required positional argument: 'current_version'`
+- **expected behavior:** Zero Net Export setup should complete without this runtime error
+- **evidence:** user screenshot of the Home Assistant integration page showing the exact setup error
+- **suspected cause:** a callsite / function-signature mismatch involving `build_release_info()`
+- **validation status:** unresolved; prior historical mention existed, but this screenshot is direct live evidence and should keep the bug open until explicitly revalidated closed
+- **next action:** inspect `release_info.py` callsites and release-related setup paths, fix the signature mismatch, then validate in live HA that setup no longer retries with this error
 
 ## Recently validated or closed bugs
 
-## ZNE-005 — Validation workflow awkward against remote HA environment
+## ZNE-006 — Deploy helper CLI drift from documented release flow
 - **closed on:** 2026-04-15
+- **severity:** `medium`
+- **area:** `release`
+- **historical behavior:** `scripts/deploy_exact_repo_build.py` had rejected flags used by the intended exact-build workflow, including `--expected-commit`, `--require-clean`, and `--require-upstream-sync`
+- **repo fix:** `d6c80be` — `scripts/deploy_exact_repo_build.py` now accepts `--expected-commit`, `--require-clean`, and `--require-upstream-sync`, and `tests/test_install_helper_scripts.py` covers matching and failing cases for each guard
+- **closure evidence:** this was closed with repo validation because the bug was a local release-helper CLI contract mismatch, not a live Home Assistant runtime defect; `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance` passed on 2026-04-15 after the flag support and test coverage were added
+
+## ZNE-007 — Validation workflow awkward against remote HA environment
+- **closed on:** 2026-04-15
+- **severity:** `medium`
+- **area:** `release`
 - **repo fix:** `f3388cf` — `release: add ssh-backed HA fingerprint validation`
 - **closure evidence:** repo-side SSH validation now works against the documented HA path without remote Python, and a live run against `root@192.168.86.200:2222` returned the installed component fingerprint from `/homeassistant/custom_components/zero_net_export`
 
