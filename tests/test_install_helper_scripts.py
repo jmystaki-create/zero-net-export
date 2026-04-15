@@ -66,6 +66,53 @@ class DeployExactRepoBuildTests(unittest.TestCase):
             deploy_script.ensure_safe_destination(repo_root, source_root, repo_local_install, argparse_parser())
         self.assertEqual(repo_local_match.exception.code, 2)
 
+    def test_ensure_expected_commit_accepts_matching_short_prefix(self) -> None:
+        with patch.object(deploy_script, "git_commit_full", return_value="abcdef1234567890"):
+            deploy_script.ensure_expected_commit(REPO_ROOT, "abcdef12", argparse_parser())
+
+    def test_ensure_expected_commit_rejects_mismatch(self) -> None:
+        with patch.object(deploy_script, "git_commit_full", return_value="abcdef1234567890"):
+            with self.assertRaises(SystemExit) as mismatch:
+                deploy_script.ensure_expected_commit(REPO_ROOT, "deadbeef", argparse_parser())
+
+        self.assertEqual(mismatch.exception.code, 2)
+
+    def test_ensure_clean_repo_rejects_dirty_status_output(self) -> None:
+        with patch.object(deploy_script.subprocess, "check_output", return_value="?? tmp-ha-config/\n"):
+            with self.assertRaises(SystemExit) as dirty:
+                deploy_script.ensure_clean_repo(REPO_ROOT, argparse_parser())
+
+        self.assertEqual(dirty.exception.code, 2)
+
+    def test_ensure_upstream_sync_requires_matching_upstream_commit(self) -> None:
+        def fake_check_output(command, cwd=None, text=None, stderr=None):
+            if command[:3] == ["git", "rev-parse", "--abbrev-ref"]:
+                return "origin/main\n"
+            if command == ["git", "rev-parse", "HEAD"]:
+                return "abcdef1234567890\n"
+            if command == ["git", "rev-parse", "origin/main"]:
+                return "abcdef1234567890\n"
+            raise AssertionError(f"unexpected command: {command}")
+
+        with patch.object(deploy_script.subprocess, "check_output", side_effect=fake_check_output):
+            deploy_script.ensure_upstream_sync(REPO_ROOT, argparse_parser())
+
+    def test_ensure_upstream_sync_rejects_diverged_upstream_commit(self) -> None:
+        def fake_check_output(command, cwd=None, text=None, stderr=None):
+            if command[:3] == ["git", "rev-parse", "--abbrev-ref"]:
+                return "origin/main\n"
+            if command == ["git", "rev-parse", "HEAD"]:
+                return "abcdef1234567890\n"
+            if command == ["git", "rev-parse", "origin/main"]:
+                return "deadbeef12345678\n"
+            raise AssertionError(f"unexpected command: {command}")
+
+        with patch.object(deploy_script.subprocess, "check_output", side_effect=fake_check_output):
+            with self.assertRaises(SystemExit) as mismatch:
+                deploy_script.ensure_upstream_sync(REPO_ROOT, argparse_parser())
+
+        self.assertEqual(mismatch.exception.code, 2)
+
 
 class CompareInstallFingerprintTests(unittest.TestCase):
     def test_remote_fingerprint_uses_ssh_without_remote_python(self) -> None:

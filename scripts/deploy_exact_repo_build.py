@@ -41,6 +41,65 @@ def git_commit(root: Path) -> str:
         return "unknown"
 
 
+def git_commit_full(root: Path) -> str:
+    return subprocess.check_output(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        text=True,
+    ).strip()
+
+
+def ensure_expected_commit(root: Path, expected_commit: str, parser: argparse.ArgumentParser) -> None:
+    actual_commit = git_commit_full(root)
+    expected = expected_commit.strip()
+    if not expected:
+        parser.exit(2, "ERROR: --expected-commit requires a non-empty commit value.\n")
+    if actual_commit != expected and not actual_commit.startswith(expected):
+        parser.exit(
+            2,
+            f"ERROR: repo HEAD {actual_commit} does not match --expected-commit {expected}.\n",
+        )
+
+
+def ensure_clean_repo(root: Path, parser: argparse.ArgumentParser) -> None:
+    status = subprocess.check_output(
+        ["git", "status", "--porcelain"],
+        cwd=root,
+        text=True,
+    )
+    if status.strip():
+        parser.exit(
+            2,
+            "ERROR: repo has uncommitted or untracked changes but --require-clean was set.\n",
+        )
+
+
+def ensure_upstream_sync(root: Path, parser: argparse.ArgumentParser) -> None:
+    try:
+        upstream_ref = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"],
+            cwd=root,
+            text=True,
+            stderr=subprocess.STDOUT,
+        ).strip()
+    except subprocess.CalledProcessError as err:
+        details = err.output.strip()
+        suffix = f" ({details})" if details else ""
+        parser.exit(2, f"ERROR: --require-upstream-sync needs a configured upstream branch{suffix}.\n")
+
+    local_commit = git_commit_full(root)
+    upstream_commit = subprocess.check_output(
+        ["git", "rev-parse", upstream_ref],
+        cwd=root,
+        text=True,
+    ).strip()
+    if local_commit != upstream_commit:
+        parser.exit(
+            2,
+            "ERROR: repo HEAD does not match its upstream tracking branch but --require-upstream-sync was set.\n",
+        )
+
+
 def ensure_safe_destination(
     repo_root: Path,
     source_root: Path,
@@ -119,6 +178,20 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--expected-commit",
+        help="Require the repo HEAD commit to match this full or short commit before deploying.",
+    )
+    parser.add_argument(
+        "--require-clean",
+        action="store_true",
+        help="Fail unless the repo has no tracked, staged, or untracked changes.",
+    )
+    parser.add_argument(
+        "--require-upstream-sync",
+        action="store_true",
+        help="Fail unless the repo HEAD matches the current branch's upstream tracking commit.",
+    )
+    parser.add_argument(
         "--no-backup",
         action="store_true",
         help="Skip creating a timestamped backup copy of the existing destination component.",
@@ -142,6 +215,13 @@ def main() -> int:
     if not source_root.exists():
         parser.exit(2, f"ERROR: repo component source is missing: {source_root}\n")
 
+    if args.expected_commit:
+        ensure_expected_commit(root, args.expected_commit, parser)
+    if args.require_clean:
+        ensure_clean_repo(root, parser)
+    if args.require_upstream_sync:
+        ensure_upstream_sync(root, parser)
+
     ensure_safe_destination(root, source_root, destination_root, parser)
 
     destination_exists = destination_root.exists()
@@ -153,6 +233,12 @@ def main() -> int:
         print(f"Source:      {source_root}")
         print(f"Destination: {destination_root}")
         print(f"Commit:      {git_commit(root)}")
+        if args.expected_commit:
+            print(f"Expected:    {args.expected_commit}")
+        if args.require_clean:
+            print("Require clean: yes")
+        if args.require_upstream_sync:
+            print("Require upstream sync: yes")
         print(f"Exists now:  {'yes' if destination_exists else 'no'}")
         if backup_root is not None:
             print(f"Backup:      {backup_root} (planned)")
@@ -175,6 +261,12 @@ def main() -> int:
     print(f"Source:      {source_root}")
     print(f"Destination: {destination_root}")
     print(f"Commit:      {git_commit(root)}")
+    if args.expected_commit:
+        print(f"Expected:    {args.expected_commit}")
+    if args.require_clean:
+        print("Require clean: yes")
+    if args.require_upstream_sync:
+        print("Require upstream sync: yes")
     if actual_backup_root is not None:
         print(f"Backup:      {actual_backup_root}")
     else:

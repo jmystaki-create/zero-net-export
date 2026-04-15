@@ -126,15 +126,16 @@ Suggested area labels:
 - **next action:** progress the `0.1.83` UI phases in `docs/UI_IMPLEMENTATION_MAP.md` and require live HA evidence before closing
 
 ## ZNE-004 — Deploy helper CLI drift from documented release flow
-- **status:** `open`
+- **status:** `closed`
 - **severity:** `medium`
 - **area:** `release`
 - **where seen:** formal `0.1.82` deploy attempt
 - **current observed behavior:** `scripts/deploy_exact_repo_build.py` rejected flags used by the intended exact-build workflow, including `--expected-commit`, `--require-clean`, and `--require-upstream-sync`
 - **expected behavior:** deploy tooling should match the documented/operator release workflow or the docs should be corrected to match the actual CLI
 - **evidence:** live command failure during release execution
-- **validation status:** unresolved
-- **next action:** either align the script CLI with the intended workflow or rewrite the docs and operator commands around the actual supported interface
+- **repo fix:** `313a73d` — `scripts/deploy_exact_repo_build.py` now accepts `--expected-commit`, `--require-clean`, and `--require-upstream-sync`, and `tests/test_install_helper_scripts.py` covers matching and failing cases for each guard
+- **validation status:** closed with repo validation because this bug was a local release-helper CLI contract mismatch, not a live Home Assistant runtime defect; `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance` passed on 2026-04-15 after the flag support and test coverage were added
+- **next action:** use the guarded deploy helper in the next formal release attempt so the release flow can fail fast before touching the live install when the repo state or target commit is wrong
 
 ## Recently validated or closed bugs
 
