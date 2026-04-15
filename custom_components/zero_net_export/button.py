@@ -435,7 +435,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_review", f"{device_name} review")
+        super().__init__(coordinator, f"device_{device_key}_review", f"{device_name} managed review")
         self._device_key = device_key
         self._attr_icon = "mdi:text-box-search-outline"
 

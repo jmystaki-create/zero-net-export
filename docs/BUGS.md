@@ -180,16 +180,17 @@ Suggested area labels:
 - **next action:** redeploy the current repo candidate, then confirm the command-center modal now reads as a setup-first operator surface with diagnostics/install-validation detail demoted behind the Diagnostics path instead of leading the modal
 
 ## ZNE-028 — Device page still lacks the managed-device structure required by the UI design
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
 - **area:** `managed_devices`
 - **where seen:** live Home Assistant device page after `0.1.84` deploy
 - **current observed behavior:** the device page is still mostly generic cards plus buttons/sensors, with little visible managed-device structure. Managed-device workflow is not yet clearly centered on the device info page as the user requested.
 - **expected behavior:** the device page should visibly evolve toward the `docs/UI_DESIGN.md` target, with managed-device structure and review paths feeling first-class on the native device page rather than reading mainly as generic controls plus helper buttons.
-- **evidence:** user screenshot on 2026-04-16 shows the device page still dominated by generic Controls/Sensors/Activity cards and button entities like `Show fleet console` / `Show managed-device review`, while the user explicitly stated that managed devices should be on the device info page and that the page has not really progressed enough toward the design.
-- **suspected cause:** managed-device UX remains implemented mainly as button-triggered review flows and supporting entities rather than as a clearly shaped native device-page experience aligned with the design doc.
-- **validation status:** confirmed live, not fixed
-- **next action:** move the next visible UI work toward stronger managed-device structure on the device page instead of relying mainly on button-triggered helper flows
+- **evidence:** user screenshot on 2026-04-16 shows the device page still dominated by generic Controls/Sensors/Activity cards and button entities like `Show fleet console` / `Show managed-device review`, while the user explicitly stated that managed devices should be on the device info page and that the page has not really progressed enough toward the design. In this run, repo inspection confirmed the per-device surface was still exposing too many deep runtime sensors as primary entities, which diluted the managed-device workspace signal on the native device page.
+- **suspected cause:** managed-device UX remains implemented mainly as button-triggered review flows and supporting entities rather than as a clearly shaped native device-page experience aligned with the design doc. The per-device entity mix was also too flat, leaving deep runtime detail to compete with the main managed-device surface instead of staying secondary.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so every configured load now exposes a primary `managed summary` sensor on the Zero Net Export device page, while deeper per-device runtime history sensors such as last-requested power, last-applied power, durations, timestamps, and last-action detail move into diagnostic categorization. This same run also renames the per-device review buttons in `custom_components/zero_net_export/button.py` to explicit `{device} managed review` labels so the device-page managed-device actions group more clearly.
+- **validation status:** repo-side fix implemented in this run and covered by `python3 -m unittest tests.test_sensor_entity_categories tests.test_button_entity_categories -q` plus `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build redeploy.
+- **next action:** redeploy the current repo candidate, then confirm the Zero Net Export device page now shows each configured load with a visible managed summary row while the deeper runtime-history entities sit under diagnostics instead of crowding the primary device surface
 
 ## ZNE-029 — Runtime attention notification is overloaded and poorly formatted
 - **status:** `fixed_pending_validation`

@@ -134,6 +134,52 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertIsNone(telemetry.entity_category)
 
+    def test_managed_device_summary_stays_primary_while_deep_runtime_details_become_diagnostic(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "status": "Ready for control",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "priority": 90,
+                        "current_power_w": 1185,
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+
+        summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool pump")
+        runtime = sensor_module.ZeroNetExportDeviceDurationSensor(
+            coordinator,
+            "pool",
+            "Pool pump",
+            "current_active_seconds",
+            "Current active runtime",
+        )
+        last_requested = sensor_module.ZeroNetExportDevicePowerSensor(
+            coordinator,
+            "pool",
+            "Pool pump",
+            "last_requested_power_w",
+            "Last requested power",
+            entity_category=sensor_module.EntityCategory.DIAGNOSTIC,
+        )
+
+        self.assertEqual(summary._attr_name, "Pool pump managed summary")
+        self.assertEqual(
+            summary.native_value,
+            "Ready for control | usable | enabled | priority 90 | power 1185 W | plan turn_on",
+        )
+        self.assertIsNone(getattr(summary, "_attr_entity_category", None))
+        self.assertEqual(runtime._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(last_requested._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+
 
 if __name__ == "__main__":
     unittest.main()

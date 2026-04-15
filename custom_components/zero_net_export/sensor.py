@@ -172,13 +172,28 @@ async def async_setup_entry(hass, entry, async_add_entities):
         for device_key, details in state.device_details.items():
             entities.extend(
                 [
+                    ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, details["name"]),
                     ZeroNetExportDeviceStatusSensor(coordinator, device_key, details["name"]),
                     ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "current_power_w", "Current power"),
                     ZeroNetExportDevicePlanSensor(coordinator, device_key, details["name"]),
                     ZeroNetExportDeviceGuardSensor(coordinator, device_key, details["name"]),
                     ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "planned_power_delta_w", "Planned power delta"),
-                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_requested_power_w", "Last requested power"),
-                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "last_applied_power_w", "Last applied power"),
+                    ZeroNetExportDevicePowerSensor(
+                        coordinator,
+                        device_key,
+                        details["name"],
+                        "last_requested_power_w",
+                        "Last requested power",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
+                    ZeroNetExportDevicePowerSensor(
+                        coordinator,
+                        device_key,
+                        details["name"],
+                        "last_applied_power_w",
+                        "Last applied power",
+                        entity_category=EntityCategory.DIAGNOSTIC,
+                    ),
                     ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "current_active_seconds", "Current active runtime"),
                     ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "active_runtime_today_seconds", "Active runtime today"),
                     ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_action_at", "Last action at"),
@@ -538,6 +553,46 @@ class ZeroNetExportSourceIssueCountSensor(ZeroNetExportSourceBaseSensor):
         return sum(int(issue_counts.get(level) or 0) for level in ("error", "warning", "info"))
 
 
+def _format_device_power_summary(value) -> str:
+    if value is None:
+        return "n/a"
+    try:
+        return f"{int(round(float(value)))} W"
+    except (TypeError, ValueError):
+        return str(value)
+
+
+class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity):
+    def __init__(self, coordinator, device_key: str, device_name: str):
+        super().__init__(coordinator, f"device_{device_key}_managed_summary", f"{device_name} managed summary")
+        self._device_key = device_key
+
+    @property
+    def native_value(self):
+        state = self._state
+        if state is None:
+            return None
+        detail = state.device_details.get(self._device_key, {})
+        runtime_bits = [
+            str(detail.get("status") or "status unknown"),
+            "usable" if detail.get("usable") else "not usable",
+            "enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "disabled",
+        ]
+        priority = detail.get("priority")
+        if priority is not None:
+            runtime_bits.append(f"priority {priority}")
+        runtime_bits.append(f"power {_format_device_power_summary(detail.get('current_power_w'))}")
+        runtime_bits.append(f"plan {detail.get('planned_action') or 'hold'}")
+        return " | ".join(runtime_bits)
+
+    @property
+    def extra_state_attributes(self):
+        state = self._state
+        if state is None:
+            return {}
+        return state.device_details.get(self._device_key, {})
+
+
 class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_status", f"{device_name} status")
@@ -599,10 +654,20 @@ class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
 
 
 class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
-    def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
+    def __init__(
+        self,
+        coordinator,
+        device_key: str,
+        device_name: str,
+        value_key: str,
+        suffix: str,
+        *,
+        entity_category=None,
+    ):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        self._attr_entity_category = entity_category
 
     @property
     def native_value(self):
@@ -624,6 +689,8 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
 
 
 class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
@@ -650,6 +717,7 @@ class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
 
 class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
@@ -672,6 +740,8 @@ class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
 
 
 class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key

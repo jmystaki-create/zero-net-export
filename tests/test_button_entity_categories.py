@@ -124,6 +124,60 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     native_support_module.build_native_support_snapshot = lambda coordinator: "support snapshot"
     sys.modules[native_support_module.__name__] = native_support_module
 
+    candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
+
+    def _discover_candidate_devices(states, managed_entity_ids):
+        candidates = []
+        for state in states:
+            entity_id = getattr(state, "entity_id", "")
+            if entity_id in managed_entity_ids:
+                continue
+            domain, _, _object_id = entity_id.partition(".")
+            if domain not in {"switch", "number", "input_boolean"}:
+                continue
+            attributes = getattr(state, "attributes", {}) or {}
+            candidates.append(
+                {
+                    "entity_id": entity_id,
+                    "name": str(attributes.get("friendly_name") or entity_id),
+                    "domain": domain,
+                    "kind": "fixed" if domain in {"switch", "input_boolean"} else "variable",
+                    "state": str(getattr(state, "state", "")),
+                    "unit": str(attributes.get("unit_of_measurement") or ""),
+                    "device_class": str(attributes.get("device_class") or ""),
+                }
+            )
+        return sorted(candidates, key=lambda item: (0 if item["domain"] == "switch" else 1, item["name"]))
+
+    def _assess_candidate(candidate):
+        if candidate.get("domain") == "switch":
+            return {
+                "confidence": "high",
+                "summary": "Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.",
+                "warnings": [],
+            }
+        return {
+            "confidence": "medium",
+            "summary": "Looks like a plausible controllable candidate, but review before promotion.",
+            "warnings": ["Variable candidates are safer when the entity exposes a meaningful unit such as A, W, or %."],
+        }
+
+    candidate_utils_module.discover_candidate_devices = _discover_candidate_devices
+    candidate_utils_module.assess_candidate = _assess_candidate
+    candidate_utils_module.build_candidate_preview = lambda candidate, include_state=False, **kwargs: (
+        f"{candidate['name']} ({candidate['entity_id']}, {candidate['kind']}"
+        + (f", state {candidate['state']}" if include_state else "")
+        + ") | "
+        + ("strong match" if candidate["domain"] == "switch" else "plausible match")
+        + " | key warning: "
+        + (
+            "No immediate warnings"
+            if candidate["domain"] == "switch"
+            else "Variable candidates are safer when the entity exposes a meaningful unit such as A, W, or %."
+        )
+    )
+    sys.modules[candidate_utils_module.__name__] = candidate_utils_module
+
     button_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.button", BUTTON_PATH)
     assert button_spec and button_spec.loader
     button_module = importlib.util.module_from_spec(button_spec)
@@ -387,6 +441,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         import asyncio
         asyncio.run(button.async_press())
 
+        self.assertEqual(button._attr_name, "Pool pump managed review")
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
