@@ -144,6 +144,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | [Control Loop](docs/CONTROL_LOOP.md) | How the optimization logic works |
 | [UI Design](docs/UI_DESIGN.md) | Single source of truth for the intended native Home Assistant UI design |
 | [UI Implementation Map](docs/UI_IMPLEMENTATION_MAP.md) | Single source of truth for UI implementation status, completed work, remaining work, and delivery phases |
+| [Bug Tracker](docs/BUGS.md) | Single source of truth for active bugs, regressions, validation state, and closure state |
 | [Native Operator Plan](docs/NATIVE_OPERATOR_PLAN.md) | Historical native-only operator direction background |
 | [Native Surface Technical Direction](docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md) | Historical technical-direction background |
 | [Dashboard Setup](docs/DASHBOARD_SETUP.md) | How to install the optional Lovelace debug dashboard inside Home Assistant |

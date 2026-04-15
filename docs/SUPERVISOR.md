@@ -7,6 +7,7 @@ Use it to decide:
 - what currently matters most
 - what counts as real progress
 - what should not be treated as progress
+- how active bugs should be posted, worked, validated, and closed in conjunction with `docs/BUGS.md`
 
 ## Current position
 
@@ -80,6 +81,7 @@ This does not count as enough progress:
 - Larger mixed-fleet usability and runtime safety still need more real-world proof.
 - Release visibility can drift from actual shipped package state.
 - Source validation blockers are still preventing real control in the live install.
+- Active bugs and regressions must stay explicitly tracked in `docs/BUGS.md` rather than being implied across scattered notes.
 
 ## Acceptance check
 
@@ -109,6 +111,14 @@ Do later:
 - Validate a mixed-device fleet scenario, not just a single-device happy path.
 - Tighten remaining cases where operators still get pushed back into JSON for normal edits.
 - Package and release only after the exact tested build is verified as the one users will actually install.
+
+## Bug-tracking rules
+
+- `docs/BUGS.md` is the single source of truth for active bugs, regressions, validation state, and closure state.
+- When a new confirmed bug or regression is found, add or update the relevant entry in `docs/BUGS.md` in the same run when reasonably possible.
+- When a bug is being actively fixed, update the bug entry so repo-only fixes, live-validation state, and next action are explicit.
+- Do not treat a bug as closed just because code changed. Follow the validation/closure rules in `docs/BUGS.md`.
+- If a watchdog or supervisor run finds bug drift, missing validation, or a stale bug state, fixing the bug entry itself counts as legitimate project progress.
 
 ## Operating rules
 
@@ -140,6 +150,7 @@ Do later:
 Primary UI source-of-truth documents:
 - UI design source of truth: `docs/UI_DESIGN.md`
 - UI implementation / phase / status source of truth: `docs/UI_IMPLEMENTATION_MAP.md`
+- Bug / regression / validation / closure source of truth: `docs/BUGS.md`
 
 Other project references:
 - Product scope: `docs/PRODUCT_SPEC_V1.md`
