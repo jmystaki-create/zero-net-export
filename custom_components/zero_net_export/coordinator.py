@@ -687,6 +687,65 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         )
         return max(STALE_SOURCE_MIN_SECONDS, refresh_seconds * STALE_SOURCE_REFRESH_MULTIPLIER)
 
+    def _candidate_freshness_probe_entity_ids(self, entity_id: str) -> list[str]:
+        candidates: list[str] = []
+        base = entity_id
+        suffixes = ("data_time", "last_update", "last_updated", "last_check")
+
+        while True:
+            next_base, separator, _suffix = base.rpartition("_")
+            if not separator or not next_base:
+                break
+            base = next_base
+            for freshness_suffix in suffixes:
+                candidate = f"{base}_{freshness_suffix}"
+                if candidate not in candidates:
+                    candidates.append(candidate)
+
+        return candidates
+
+    def _normalize_probe_timestamp(self, value: Any) -> datetime | None:
+        if isinstance(value, datetime):
+            parsed = value
+        elif isinstance(value, str):
+            raw = value.strip()
+            if not raw or raw.lower() in {"unknown", "unavailable", "none"}:
+                return None
+            parsed = dt_util.parse_datetime(raw)
+        else:
+            return None
+
+        if parsed is None:
+            return None
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return parsed.astimezone(timezone.utc)
+
+    def _companion_freshness_probe(self, entity_id: str, sensor_updated_at: datetime | None) -> tuple[datetime | None, str | None]:
+        freshest_timestamp: datetime | None = sensor_updated_at
+        freshest_entity_id: str | None = None
+
+        for probe_entity_id in self._candidate_freshness_probe_entity_ids(entity_id):
+            probe_state = self.hass.states.get(probe_entity_id)
+            if probe_state is None:
+                continue
+
+            probe_timestamp = self._normalize_probe_timestamp(probe_state.state)
+            if probe_timestamp is None:
+                probe_timestamp = self._normalize_probe_timestamp(
+                    probe_state.attributes.get("last_check") or probe_state.attributes.get("last_updated")
+                )
+            if probe_timestamp is None:
+                probe_timestamp = self._normalize_probe_timestamp(getattr(probe_state, "last_updated", None))
+            if probe_timestamp is None:
+                continue
+
+            if freshest_timestamp is None or probe_timestamp > freshest_timestamp:
+                freshest_timestamp = probe_timestamp
+                freshest_entity_id = probe_entity_id
+
+        return freshest_timestamp, freshest_entity_id
+
     def _source_freshness(self, specs: list[SourceSpec], states: dict[str, Any], now: datetime) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
         threshold_seconds = self._source_stale_threshold_seconds()
         stale_sources: list[dict[str, Any]] = []
@@ -708,9 +767,12 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 continue
 
             last_updated = getattr(state, "last_updated", None)
-            if last_updated is not None and last_updated.tzinfo is None:
-                last_updated = last_updated.replace(tzinfo=timezone.utc)
-            age_seconds = max((now - last_updated).total_seconds(), 0.0) if last_updated else None
+            normalized_last_updated = self._normalize_probe_timestamp(last_updated)
+            effective_last_updated, freshness_probe_entity_id = self._companion_freshness_probe(
+                binding.entity_id,
+                normalized_last_updated,
+            )
+            age_seconds = max((now - effective_last_updated).total_seconds(), 0.0) if effective_last_updated else None
             stale = bool(age_seconds is not None and age_seconds > threshold_seconds)
             detail = {
                 "key": spec.key,
@@ -718,9 +780,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 "binding": spec.entity_id,
                 "required": spec.required,
                 "stale": stale,
-                "last_updated": last_updated.isoformat() if last_updated else None,
+                "last_updated": effective_last_updated.isoformat() if effective_last_updated else None,
+                "entity_last_updated": normalized_last_updated.isoformat() if normalized_last_updated else None,
                 "age_seconds": round(age_seconds, 1) if age_seconds is not None else None,
                 "stale_threshold_seconds": threshold_seconds,
+                "freshness_probe_entity_id": freshness_probe_entity_id,
             }
             freshness[spec.key] = detail
             if stale and spec.required:
