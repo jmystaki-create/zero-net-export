@@ -143,6 +143,7 @@ class SourceFreshnessProbeTests(unittest.TestCase):
             key="grid_import_power_entity",
             entity_id="sensor.x1_p6k_us_s_grid_import",
             required=True,
+            quantity="power",
         )
         now = datetime(2026, 4, 15, 0, 58, 0, tzinfo=timezone.utc)
         sensor_state = SimpleNamespace(last_updated=datetime(2026, 4, 15, 0, 17, 2, tzinfo=timezone.utc))
@@ -160,7 +161,7 @@ class SourceFreshnessProbeTests(unittest.TestCase):
         self.assertLess(detail["age_seconds"], 120)
         self.assertEqual(detail["entity_last_updated"], "2026-04-15T00:17:02+00:00")
 
-    def test_sensor_without_companion_probe_stays_stale(self) -> None:
+    def test_energy_sensor_without_companion_probe_gets_longer_stale_threshold(self) -> None:
         coordinator_module = _load_coordinator_module()
         coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
         coordinator.entry = SimpleNamespace(data={"refresh_seconds": 30}, options={})
@@ -169,6 +170,7 @@ class SourceFreshnessProbeTests(unittest.TestCase):
             key="solar_energy_entity",
             entity_id="sensor.system_rome_yield_total",
             required=True,
+            quantity="energy",
         )
         now = datetime(2026, 4, 15, 0, 58, 0, tzinfo=timezone.utc)
         sensor_state = SimpleNamespace(last_updated=now - timedelta(minutes=10))
@@ -179,10 +181,38 @@ class SourceFreshnessProbeTests(unittest.TestCase):
             now,
         )
 
-        self.assertEqual(len(stale_sources), 1)
+        self.assertEqual(stale_sources, [])
         detail = freshness["solar_energy_entity"]
+        self.assertFalse(detail["stale"])
+        self.assertIsNone(detail["freshness_probe_entity_id"])
+        self.assertEqual(detail["stale_threshold_seconds"], 900)
+        self.assertGreater(detail["age_seconds"], 120)
+
+    def test_power_sensor_without_companion_probe_stays_stale(self) -> None:
+        coordinator_module = _load_coordinator_module()
+        coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
+        coordinator.entry = SimpleNamespace(data={"refresh_seconds": 30}, options={})
+        coordinator.hass = SimpleNamespace(states=SimpleNamespace(get=lambda entity_id: None))
+        spec = SimpleNamespace(
+            key="solar_power_entity",
+            entity_id="sensor.x1_p6k_us_s_solar_power",
+            required=True,
+            quantity="power",
+        )
+        now = datetime(2026, 4, 15, 0, 58, 0, tzinfo=timezone.utc)
+        sensor_state = SimpleNamespace(last_updated=now - timedelta(minutes=10))
+
+        stale_sources, freshness = coordinator._source_freshness(
+            [spec],
+            {"solar_power_entity": sensor_state},
+            now,
+        )
+
+        self.assertEqual(len(stale_sources), 1)
+        detail = freshness["solar_power_entity"]
         self.assertTrue(detail["stale"])
         self.assertIsNone(detail["freshness_probe_entity_id"])
+        self.assertEqual(detail["stale_threshold_seconds"], 120)
         self.assertGreater(detail["age_seconds"], 120)
 
 

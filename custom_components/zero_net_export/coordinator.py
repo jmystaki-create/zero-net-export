@@ -49,6 +49,7 @@ STORAGE_KEY_PREFIX = f"{DOMAIN}_runtime"
 MAX_ACTION_HISTORY = 20
 MAX_DAILY_METRIC_DAYS = 7
 STALE_SOURCE_MIN_SECONDS = 120
+STALE_SOURCE_ENERGY_MIN_SECONDS = 900
 STALE_SOURCE_REFRESH_MULTIPLIER = 3
 COMMAND_FAILURE_ACTIVE_SECONDS = 900
 
@@ -678,14 +679,17 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             "energy_redirected_today_kwh": round(float(bucket.get("energy_redirected_kwh") or 0.0), 3),
         }
 
-    def _source_stale_threshold_seconds(self) -> int:
+    def _source_stale_threshold_seconds(self, quantity: str | None = None) -> int:
         refresh_seconds = int(
             self.entry.options.get(
                 CONF_REFRESH_SECONDS,
                 self.entry.data.get(CONF_REFRESH_SECONDS, DEFAULT_REFRESH_SECONDS),
             )
         )
-        return max(STALE_SOURCE_MIN_SECONDS, refresh_seconds * STALE_SOURCE_REFRESH_MULTIPLIER)
+        threshold = max(STALE_SOURCE_MIN_SECONDS, refresh_seconds * STALE_SOURCE_REFRESH_MULTIPLIER)
+        if quantity == "energy":
+            threshold = max(threshold, STALE_SOURCE_ENERGY_MIN_SECONDS)
+        return threshold
 
     def _candidate_freshness_probe_entity_ids(self, entity_id: str) -> list[str]:
         candidates: list[str] = []
@@ -747,11 +751,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         return freshest_timestamp, freshest_entity_id
 
     def _source_freshness(self, specs: list[SourceSpec], states: dict[str, Any], now: datetime) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
-        threshold_seconds = self._source_stale_threshold_seconds()
         stale_sources: list[dict[str, Any]] = []
         freshness: dict[str, dict[str, Any]] = {}
 
         for spec in specs:
+            threshold_seconds = self._source_stale_threshold_seconds(spec.quantity)
             state = states.get(spec.key)
             binding = parse_source_binding(spec.entity_id)
             if state is None or not spec.entity_id or not binding.entity_id:
