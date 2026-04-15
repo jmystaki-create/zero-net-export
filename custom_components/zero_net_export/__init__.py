@@ -122,7 +122,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await _async_update_native_setup_notice(hass, entry)
-    await async_prime_install_provenance(hass)
+    await async_prime_install_provenance(hass, force_refresh=True)
 
     coordinator = ZeroNetExportCoordinator(hass, entry)
     await coordinator.async_initialize()
@@ -171,6 +171,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.config_entries.async_update_entry(entry, data=data)
 
     await _async_update_native_setup_notice(hass, entry)
+    await async_prime_install_provenance(hass, force_refresh=True)
     async_sync_repairs_issues(hass, entry)
 
     return True

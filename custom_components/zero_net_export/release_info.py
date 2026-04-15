@@ -14,6 +14,7 @@ from .const import INTEGRATION_VERSION
 _CHANGELOG_HEADING_RE = re.compile(r"^## \[(?P<version>[^\]]+)\](?: - (?P<date>.+))?$")
 _BULLET_RE = re.compile(r"^[-*]\s+(?P<text>.+)$")
 _RELEASE_INFO_CACHE: dict[str, dict[str, Any]] = {}
+_INSTALL_PROVENANCE_SNAPSHOT: dict[str, Any] | None = None
 
 
 def _repo_root() -> Path:
@@ -98,20 +99,51 @@ def _cached_install_provenance() -> dict[str, Any]:
     return _collect_install_provenance()
 
 
-async def async_prime_install_provenance(hass) -> dict[str, Any]:
-    """Warm the install provenance cache off the event loop before sync UI helpers use it."""
-    await hass.async_add_executor_job(_cached_install_provenance)
+def _cache_install_provenance(snapshot: dict[str, Any]) -> dict[str, Any]:
+    global _INSTALL_PROVENANCE_SNAPSHOT
+    _INSTALL_PROVENANCE_SNAPSHOT = dict(snapshot)
+    return dict(_INSTALL_PROVENANCE_SNAPSHOT)
+
+
+def _build_pending_install_provenance() -> dict[str, Any]:
+    component_root = _component_root()
+    return {
+        "component_root": str(component_root),
+        "code_version": INTEGRATION_VERSION,
+        "manifest_version": None,
+        "manifest_error": None,
+        "manifest_matches_code_version": None,
+        "live_validation_safe": True,
+        "tracked_files": {},
+        "summary": (
+            f"Installed package path {component_root}; code version {INTEGRATION_VERSION}; "
+            "install provenance pending async refresh"
+        ),
+        "pending_async_refresh": True,
+    }
+
+
+async def async_prime_install_provenance(hass, *, force_refresh: bool = False) -> dict[str, Any]:
+    """Warm the install provenance snapshot off the event loop before sync UI helpers use it."""
+    if force_refresh or _INSTALL_PROVENANCE_SNAPSHOT is None:
+        snapshot = await hass.async_add_executor_job(_collect_install_provenance)
+        _cached_install_provenance.cache_clear()
+        return _cache_install_provenance(snapshot)
     return build_install_provenance()
 
 
 def build_install_provenance() -> dict[str, Any]:
     """Return install-path and key-file fingerprint details for live-source validation."""
-    return dict(_cached_install_provenance())
+    if _INSTALL_PROVENANCE_SNAPSHOT is None:
+        return _build_pending_install_provenance()
+    return dict(_INSTALL_PROVENANCE_SNAPSHOT)
 
 
 def build_install_consistency_summary(install_provenance: dict[str, Any] | None = None) -> str:
     """Return operator-facing guidance for whether live validation can be trusted."""
     provenance = install_provenance or build_install_provenance()
+    if provenance.get("pending_async_refresh"):
+        return "Install provenance is still being refreshed asynchronously."
     if provenance.get("manifest_matches_code_version") is False:
         return (
             "Installed package version metadata does not match the running code version, so this install may be serving a mixed build. "
@@ -172,6 +204,10 @@ def build_install_repair_step(install_provenance: dict[str, Any] | None = None) 
     component_root = provenance.get("component_root") or "the active custom_components/zero_net_export path"
     cli_steps = build_install_validation_cli_steps(provenance)
     compare_target = cli_steps["compare_target"]
+    if provenance.get("pending_async_refresh"):
+        return (
+            f"Wait for the async install-provenance refresh to complete for {component_root}, then rerun the exact-build fingerprint check against {compare_target} before treating install provenance as a blocker."
+        )
     if provenance.get("manifest_matches_code_version") is False:
         return (
             f"Preview the exact repo deploy target for {compare_target} with "
@@ -194,6 +230,8 @@ def build_install_fingerprint_summary(install_provenance: dict[str, Any] | None 
         f"- manifest_version: {provenance.get('manifest_version') or 'n/a'}",
         f"- manifest_matches_code_version: {provenance.get('manifest_matches_code_version')}",
     ]
+    if provenance.get("pending_async_refresh"):
+        lines.append("- pending_async_refresh: true")
     manifest_error = str(provenance.get("manifest_error") or "").strip()
     if manifest_error:
         lines.append(f"- manifest_error: {manifest_error}")

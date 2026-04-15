@@ -39,6 +39,7 @@ release_info = load_integration_module("release_info", "release_info.py")
 class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
     def tearDown(self) -> None:
         release_info._cached_install_provenance.cache_clear()
+        release_info._INSTALL_PROVENANCE_SNAPSHOT = None
 
     def test_parse_changelog_text_keeps_indented_bullets_under_release_sections(self) -> None:
         sections = release_info._parse_changelog_text(
@@ -123,8 +124,19 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("deploy_exact_build_dry_run_command", summary)
         self.assertIn("combined_validation_command", summary)
 
-    def test_async_prime_install_provenance_warms_cache_via_executor(self) -> None:
+    def test_build_install_provenance_returns_pending_snapshot_until_async_prime_runs(self) -> None:
         release_info._cached_install_provenance.cache_clear()
+        release_info._INSTALL_PROVENANCE_SNAPSHOT = None
+
+        result = release_info.build_install_provenance()
+
+        self.assertTrue(result["pending_async_refresh"])
+        self.assertEqual(result["code_version"], release_info.INTEGRATION_VERSION)
+        self.assertEqual(result["tracked_files"], {})
+
+    def test_async_prime_install_provenance_warms_snapshot_via_executor(self) -> None:
+        release_info._cached_install_provenance.cache_clear()
+        release_info._INSTALL_PROVENANCE_SNAPSHOT = None
         calls: list[object] = []
 
         class DummyHass:
@@ -134,9 +146,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         result = asyncio.run(release_info.async_prime_install_provenance(DummyHass()))
 
-        self.assertEqual(calls, [release_info._cached_install_provenance])
+        self.assertEqual(calls, [release_info._collect_install_provenance])
         self.assertEqual(result["code_version"], release_info.INTEGRATION_VERSION)
-        self.assertEqual(release_info._cached_install_provenance.cache_info().currsize, 1)
+        self.assertIsNotNone(release_info._INSTALL_PROVENANCE_SNAPSHOT)
+        self.assertEqual(release_info._cached_install_provenance.cache_info().currsize, 0)
 
 
 if __name__ == "__main__":
