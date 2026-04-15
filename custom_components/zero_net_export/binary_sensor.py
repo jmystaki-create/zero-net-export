@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
@@ -25,11 +26,26 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     entities = [
         ZeroNetExportBinarySensor(coordinator, "active", "Active"),
-        ZeroNetExportBinarySensor(coordinator, "source_mismatch", "Source mismatch"),
-        ZeroNetExportBinarySensor(coordinator, "safe_mode", "Safe mode"),
-        ZeroNetExportBinarySensor(coordinator, "stale_data", "Stale data"),
-        ZeroNetExportBinarySensor(coordinator, "command_failure", "Command failure"),
-        ZeroNetExportBinarySensor(coordinator, "battery_below_reserve", "Battery below reserve"),
+        ZeroNetExportBinarySensor(
+            coordinator,
+            "source_mismatch",
+            "Source mismatch",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+        ZeroNetExportBinarySensor(coordinator, "safe_mode", "Safe mode", entity_category=EntityCategory.DIAGNOSTIC),
+        ZeroNetExportBinarySensor(coordinator, "stale_data", "Stale data", entity_category=EntityCategory.DIAGNOSTIC),
+        ZeroNetExportBinarySensor(
+            coordinator,
+            "command_failure",
+            "Command failure",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+        ZeroNetExportBinarySensor(
+            coordinator,
+            "battery_below_reserve",
+            "Battery below reserve",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
     ]
 
     state = coordinator.data
@@ -46,6 +62,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class ZeroNetExportBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
+    def __init__(self, coordinator, key, name, *, entity_category=None):
+        super().__init__(coordinator, key, name)
+        self._attr_entity_category = entity_category
+
     @property
     def is_on(self):
         state = self._state
@@ -55,6 +75,8 @@ class ZeroNetExportBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
 
 
 class ZeroNetExportSourceStaleBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, source_key: str, source_label: str):
         super().__init__(coordinator, f"source_{source_key}_stale", f"{source_label} stale")
         self._source_key = source_key
@@ -75,6 +97,8 @@ class ZeroNetExportSourceStaleBinarySensor(ZeroNetExportEntity, BinarySensorEnti
 
 
 class ZeroNetExportDeviceUsableBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_usable", f"{device_name} usable")
         self._device_key = device_key
