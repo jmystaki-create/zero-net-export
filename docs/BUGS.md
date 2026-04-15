@@ -154,6 +154,14 @@ Suggested area labels:
 
 ## Recently validated or closed bugs
 
+## ZNE-010 — Repo release metadata drifted behind the documented `0.1.83` UI target
+- **closed on:** 2026-04-15
+- **severity:** `medium`
+- **area:** `release`
+- **historical behavior:** `docs/SUPERVISOR.md`, `docs/UI_DESIGN.md`, and `docs/UI_IMPLEMENTATION_MAP.md` all defined `0.1.83` as the active UI release target, but the repo working version still advertised `0.1.82` in `custom_components/zero_net_export/manifest.json`, the top changelog section, and `project_status.md`. That left the current candidate version tracking behind the documented release target and risked another misleading release/deploy handoff.
+- **repo fix:** this run's release-metadata alignment commit — bump the repo working version to `0.1.83` in the manifest, make the changelog's active `Unreleased` section explicitly target `0.1.83`, and refresh `project_status.md` so the next action/blocker reflect the real release boundary and the still-installed live `0.1.81` build.
+- **closure evidence:** repo-side source-of-truth audit plus direct metadata correction in the same run; `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and `project_status.md` now all point at the active `0.1.83` candidate, while live HA version drift remains tracked separately under `ZNE-004`
+
 ## ZNE-009 — Repo-wide unit verification drifted from the current button import contract
 - **closed on:** 2026-04-15
 - **severity:** `low`
