@@ -327,6 +327,14 @@ Suggested area labels:
 - **repo fix:** this run's validation-coverage fix commit — expand the tracked-file set in `scripts/print_expected_install_fingerprint.py`, `scripts/compare_install_fingerprint.py`, and `custom_components/zero_net_export/release_info.py` to include `button.py`, `candidate_utils.py`, `diagnostics.py`, and `sensor.py`, with regression coverage in `tests/test_install_helper_scripts.py` and `tests/test_release_info_install_guidance.py`.
 - **closure evidence:** `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile scripts/print_expected_install_fingerprint.py scripts/compare_install_fingerprint.py custom_components/zero_net_export/release_info.py` all passed in this run. Live SSH hash checks also confirmed the previously untracked drift in `button.py` and `candidate_utils.py`, so the widened fingerprint set now covers the missing UI files instead of silently skipping them.
 
+## ZNE-024 — UI implementation map drifted behind the current repo-native UI candidate
+- **closed on:** 2026-04-16
+- **severity:** `low`
+- **area:** `docs`
+- **historical behavior:** `docs/UI_IMPLEMENTATION_MAP.md` is the implementation source of truth for `0.1.83`, but it had fallen behind the actual repo candidate after recent native-UI work landed. The status summary and phase sections still described the command center, Managed Devices workspace, candidate review flow, and release gate in older terms that understated delivered repo-side progress and did not clearly surface the current explicit release-approval boundary.
+- **repo fix:** `43dc9b5` — sync `docs/UI_IMPLEMENTATION_MAP.md` so the completed/remaining status and Phases 3, 4, 5, and 7 match the current repo-native UI candidate and state plainly that James must be asked directly for release approval before the next exact-build redeploy.
+- **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_IMPLEMENTATION_MAP.md` now reflects the shipped repo candidate's command-center alert/board work, runtime-aware Managed Devices state, balanced candidate review, device-page deep-review handoff, and the explicit formal release-approval boundary.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

@@ -23,23 +23,28 @@ If a change does not materially improve one of those visible outcomes, it should
 - Native-only product direction is established. There is no supported custom panel/sidebar/external UI path.
 - Configure is already the intended primary operator path.
 - The integration device path already exists as the native support and diagnostics path.
+- The command center now opens with a headline decision summary, a structured control board, and a top-level alert summary instead of only a looser helper-style status surface.
 - Managed-device add/edit/remove flows exist.
+- Managed Devices now overlays live runtime readiness/detail into fleet summaries and selector labels instead of showing config-only inventory placeholders.
 - Unmanaged-candidate discovery exists.
-- Candidate shortlist and full-list pick flows exist.
-- Candidate vetting/review scaffolding exists.
+- Candidate shortlist and full-list pick flows exist, and they now share the same fit/warning signals and stronger runtime ranking helpers.
+- Candidate vetting/review now includes an explicit balanced review shape covering control suitability, safety/confidence, and operational value.
+- Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
 - Fleet review / bulk enable-disable scaffolding exists.
+- The Zero Net Export device page now exposes a first-class managed-device review action and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
 - Native support/snapshot/checklist surfaces exist.
 - The four-bucket IA language already exists in project wording: Controls, Sensors, Managed Devices, Diagnostics.
 
 ### Implemented but not yet delivered as a finished UI outcome
-- Managed versus unmanaged is present in code and copy, but not yet visually crisp enough in the lived native HA experience.
-- The promote / vet / review path exists in pieces, but still feels scaffolded instead of productized.
-- The four-bucket IA is described more than it is felt.
-- Diagnostics/support text currently carries too much of the product UX burden.
+- Managed versus unmanaged is stronger in the repo candidate, but it is not yet proven visually crisp enough in the lived native HA experience.
+- The promote / vet / review path is now materially more coherent in repo state, but still lacks live HA proof that it feels first-class instead of scaffolded.
+- The four-bucket IA is more visible in the repo candidate, but it is still not yet proven in the installed product.
+- Diagnostics/support text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
+- The live Home Assistant install no longer matches the current repo candidate, so exact-build redeploy plus fingerprint revalidation is blocking honest UI judgment.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
-- The native Managed Devices path still does not visibly feel like the strong central workspace James asked for.
+- The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reinstalled and reviewed.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
 
 ## What counts as success for 0.1.83
@@ -123,19 +128,23 @@ Purpose:
 Completed:
 - managed-device flows and candidate discovery scaffolding exist
 - fleet summary and candidate-summary text exists
+- Configure Managed Devices now overlays live runtime readiness/status into fleet summaries, usable counts, and selector labels
+- managed-device rows now surface guard state, planned action, and last action status directly in the native fleet view
+- selector ordering now prefers enabled and usable devices before blocked or disabled entries
+- the device page now exposes a first-class `Show managed-device review` handoff for deeper fleet review
 
 Remaining:
-- make the landing experience clearly separate:
-  - current managed fleet
-  - unmanaged candidates ready for promotion
-- make the next recommended fleet action obvious at a glance
-- reduce reliance on long descriptive paragraphs
+- validate the managed-on-top / unmanaged-below experience in live HA and confirm it feels visually obvious without depending on explanatory text
+- confirm the next recommended fleet action is obvious at a glance in the installed UI, not just in repo copy
+- keep trimming any remaining descriptive text that still substitutes for stronger native grouping
 
 Features:
 - managed fleet summary block
 - unmanaged candidate summary block
 - at-a-glance next promotion target
+- runtime-aware managed-device row detail
 - clearer visual ordering and ownership of fleet actions
+- native deep-review handoff from the device page
 
 ### Phase 4. Promote / vet / review flow
 Purpose:
@@ -147,17 +156,20 @@ Completed:
 - candidate vetting step exists
 - template-selection and save path exist
 - managed-device save flows now post a native success landing with what changed plus the next Managed Devices and deep-review path
+- candidate review now uses a balanced native summary of control suitability, safety/confidence, and operational value
+- candidate discovery, shortlist, review, and managed-device review now share the same fit/warning guidance and stronger ranking helpers
 
 Remaining:
-- tighten candidate quality signalling
-- improve the coherence of the pick -> review -> promote journey in live HA
-- validate that the post-vetting handoff reads clearly in the installed UI, not just in repo state
+- validate the full pick -> review -> promote journey in live HA so it feels first-class in the installed product rather than only coherent in repo state
+- confirm the post-vetting handoff and success landing read clearly on the exact deployed build
 
 Features:
 - short opinionated candidate shortlist
 - full candidate list fallback
 - candidate fit summary and warnings
+- balanced candidate review
 - explicit promotion handoff into managed fleet state
+- native success landing after save
 
 ### Phase 5. Four-bucket IA cleanup
 Purpose:
@@ -166,17 +178,21 @@ Purpose:
 Completed:
 - section labels and path language already exist
 - high-level ownership direction already exists
+- the command center now leads with a headline decision summary, a grouped control board, and a top-level alert summary
+- the shared command-center/device-path guide now carries explicit recommended-section and section-ownership handoff text
+- the device-page command-center guide remains in the main device surface instead of diagnostics-only categorization
 
 Remaining:
-- move or reframe any leaking content so each area has one clear purpose
-- reduce duplication between support wording and normal operator surfaces
-- make where-to-go-next obvious from the installed UI itself
+- keep moving any remaining leaking content so each area has one clear purpose
+- confirm in live HA that the installed UI itself, not just the wording, makes where-to-go-next obvious
+- keep reducing any remaining duplication between support wording and normal operator surfaces
 
 Features:
 - Controls owns controller brain/settings only
 - Sensors owns telemetry/source health only
 - Managed Devices owns fleet operations only
 - Diagnostics owns troubleshooting/support only
+- top-level alert visibility with local follow-through
 
 ### Phase 6. Detailed management path
 Purpose:
@@ -205,9 +221,10 @@ Completed:
 - release discipline and approval rules already exist elsewhere in project steering
 
 Remaining:
-- verify the exact build in live HA once the release is explicitly approved
+- ask James directly for formal release approval to redeploy the exact current repo candidate instead of burying that boundary inside generic deploy/restart wording
+- verify the exact build in live HA once that release approval is granted
+- rerun fingerprint validation until it returns `overall_match=true` before trusting further Configure or UI conclusions
 - gather screenshot-visible proof of the UI outcome during live validation
-- if this candidate is coherent enough for release, ask James directly for formal release approval instead of implying it through deploy/restart wording
 
 Features:
 - exact-build validation
