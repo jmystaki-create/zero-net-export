@@ -44,10 +44,10 @@ def read_manifest_version(path: Path) -> str | None:
     return str(payload.get("version") or "") or None
 
 
-def git_commit(repo_root: Path) -> str | None:
+def git_commit(repo_root: Path, *git_args: str) -> str | None:
     try:
         return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
+            ["git", *(git_args or ("rev-parse", "--short", "HEAD"))],
             cwd=repo_root,
             text=True,
         ).strip()
@@ -338,6 +338,15 @@ def main() -> int:
         expected_component_root = repo_component_root
         expected = fingerprint(expected_component_root)
         expected["expected_commit"] = git_commit(repo_root)
+        expected["expected_component_commit"] = git_commit(
+            repo_root,
+            "log",
+            "-n",
+            "1",
+            "--format=%h",
+            "--",
+            str(expected_component_root.relative_to(repo_root)),
+        )
         expected["repo_root"] = str(repo_root)
         expected_source = "repo_head"
 

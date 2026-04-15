@@ -25,7 +25,34 @@ def load_script_module(name: str, filename: str):
 
 deploy_script = load_script_module("deploy_exact_repo_build", "deploy_exact_repo_build.py")
 compare_script = load_script_module("compare_install_fingerprint", "compare_install_fingerprint.py")
+print_expected_script = load_script_module("print_expected_install_fingerprint", "print_expected_install_fingerprint.py")
 cleanup_script = load_script_module("clean_legacy_discovery_artifacts", "clean_legacy_discovery_artifacts.py")
+
+
+class PrintExpectedInstallFingerprintTests(unittest.TestCase):
+    def test_build_expected_payload_reports_repo_head_and_component_commit(self) -> None:
+        def fake_check_output(command, cwd=None, text=None):
+            if command == ["git", "rev-parse", "--short", "HEAD"]:
+                return "repohead1\n"
+            if command == [
+                "git",
+                "log",
+                "-n",
+                "1",
+                "--format=%h",
+                "--",
+                "custom_components/zero_net_export",
+            ]:
+                return "component2\n"
+            raise AssertionError(f"unexpected command: {command}")
+
+        with patch.object(print_expected_script.subprocess, "check_output", side_effect=fake_check_output):
+            payload = print_expected_script.build_expected_payload()
+
+        self.assertEqual(payload["expected_commit"], "repohead1")
+        self.assertEqual(payload["expected_component_commit"], "component2")
+        self.assertEqual(payload["manifest_version"], "0.1.83")
+        self.assertIn("button.py", payload["tracked_files"])
 
 
 class CleanLegacyDiscoveryArtifactsTests(unittest.TestCase):
@@ -312,6 +339,17 @@ class CompareInstallFingerprintTests(unittest.TestCase):
                 compare_script.normalize_component_root(live_component),
                 live_component,
             )
+
+    def test_git_commit_accepts_custom_git_args(self) -> None:
+        with patch.object(compare_script.subprocess, "check_output", return_value="component2\n") as mock_check_output:
+            result = compare_script.git_commit(REPO_ROOT, "log", "-n", "1", "--format=%h", "--", "custom_components/zero_net_export")
+
+        self.assertEqual(result, "component2")
+        mock_check_output.assert_called_once_with(
+            ["git", "log", "-n", "1", "--format=%h", "--", "custom_components/zero_net_export"],
+            cwd=REPO_ROOT,
+            text=True,
+        )
 
     def test_compare_reports_match_for_identical_fingerprints(self) -> None:
         expected = compare_script.fingerprint(COMPONENT_ROOT)

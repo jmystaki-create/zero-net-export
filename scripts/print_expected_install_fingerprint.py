@@ -7,6 +7,7 @@ import hashlib
 import json
 import subprocess
 from pathlib import Path
+from typing import Sequence
 
 
 def tracked_component_files(component_root: Path) -> tuple[str, ...]:
@@ -30,6 +31,17 @@ def short_sha256(path: Path) -> str | None:
         return None
 
 
+def git_short_commit(repo_root: Path, git_args: Sequence[str]) -> str:
+    try:
+        return subprocess.check_output(
+            ["git", *git_args],
+            cwd=repo_root,
+            text=True,
+        ).strip()
+    except Exception:
+        return "unknown"
+
+
 def build_expected_payload() -> dict[str, object]:
     repo_root = Path(__file__).resolve().parents[1]
     component_root = repo_root / "custom_components" / "zero_net_export"
@@ -37,19 +49,17 @@ def build_expected_payload() -> dict[str, object]:
     manifest_path = component_root / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
-    try:
-        commit = subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"],
-            cwd=repo_root,
-            text=True,
-        ).strip()
-    except Exception:
-        commit = "unknown"
+    commit = git_short_commit(repo_root, ["rev-parse", "--short", "HEAD"])
+    component_commit = git_short_commit(
+        repo_root,
+        ["log", "-n", "1", "--format=%h", "--", str(component_root.relative_to(repo_root))],
+    )
 
     payload: dict[str, object] = {
         "repo_root": str(repo_root),
         "component_root": str(component_root),
         "expected_commit": commit,
+        "expected_component_commit": component_commit,
         "manifest_version": str(manifest.get("version") or "unknown"),
         "tracked_files": {},
     }
