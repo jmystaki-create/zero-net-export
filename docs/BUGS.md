@@ -199,6 +199,14 @@ Suggested area labels:
 - **repo fix:** this run's UI source-of-truth doc commit — add the referenced redesign support docs to Git and keep the refreshed `docs/UI_DESIGN.md` as the committed design source of truth.
 - **closure evidence:** repo-side audit plus direct doc correction in the same run; `git status` no longer reports the source-of-truth UI docs as modified/untracked once the commit lands, and the design document's referenced research/spec/review trail is now present in the repo
 
+## ZNE-016 — UI design checklist and 1A execution slice drifted out of the committed source of truth
+- **closed on:** 2026-04-15
+- **severity:** `medium`
+- **area:** `docs`
+- **historical behavior:** repo inspection in this run found `docs/UI_DESIGN.md` dirty again. The working tree had already added the new build checklist, implementation-gap analysis, and the explicit `1A` headline-decision-summary execution slice, but HEAD still ended at the older relationship section. That meant the committed source-of-truth design doc was materially behind the current steering and no longer matched the fuller design shape being used for watchdog/supervisor guidance.
+- **repo fix:** this run's UI source-of-truth sync commit — commit the pending `docs/UI_DESIGN.md` checklist/gap-analysis/`1A` design sections so the repo-shipped design source matches the current steering.
+- **closure evidence:** repo-side audit plus direct doc correction in the same run; after the sync commit, `git diff -- docs/UI_DESIGN.md` is empty and the committed design doc now carries the build checklist, implementation-gap analysis, `1A` priority slice, and `docs/UI_IMPLEMENTATION_SPEC.md` reference.
+
 ## ZNE-010 — Repo release metadata drifted behind the documented `0.1.83` UI target
 - **closed on:** 2026-04-15
 - **severity:** `medium`
