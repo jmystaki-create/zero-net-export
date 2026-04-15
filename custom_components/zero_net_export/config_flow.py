@@ -637,6 +637,18 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._pending_candidate_summary: dict[str, Any] | None = None
 
     @staticmethod
+    def _device_sort_key(device: dict[str, Any]) -> tuple[int, int, int, str]:
+        enabled_rank = 0 if device.get("effective_enabled", device.get("enabled", True)) else 1
+        usable = device.get("usable")
+        usable_rank = 0 if usable is True else 1 if usable is None else 2
+        return (
+            enabled_rank,
+            usable_rank,
+            int(device.get("priority", 0) or 0),
+            str(device.get("name", "")).lower(),
+        )
+
+    @staticmethod
     def _device_status_label(device: dict[str, Any]) -> str:
         state = "enabled" if device.get("effective_enabled", device.get("enabled", True)) else "disabled"
         priority = int(device.get("priority", 0) or 0)
@@ -646,29 +658,23 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             runtime_bits.append("usable" if device.get("usable") else "not usable")
         if device.get("status"):
             runtime_bits.append(str(device.get("status")))
-        runtime_summary = f", {'; '.join(runtime_bits)}" if runtime_bits else ""
+        runtime_summary = f" [{' | '.join(runtime_bits)}]" if runtime_bits else ""
         return (
-            f"{device.get('name', 'Unnamed device')} "
-            f"({device.get('kind', 'unknown')}, {state}{runtime_summary}, priority {priority}, {power} W, {device.get('entity_id', 'unknown entity')})"
+            f"{device.get('name', 'Unnamed device')}{runtime_summary} "
+            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, {power} W, {device.get('entity_id', 'unknown entity')})"
         )
 
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
         if not devices:
             return ["- None"]
-        ordered = sorted(
-            devices,
-            key=lambda item: (
-                0 if item.get("effective_enabled", item.get("enabled", True)) else 1,
-                int(item.get("priority", 0) or 0),
-                str(item.get("name", "")).lower(),
-            ),
-        )
+        ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
+        usable_count = sum(1 for device in devices if device.get("usable") is True)
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
         lines = [
-            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power",
+            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power",
         ]
         lines.extend(f"- {self._device_status_label(device)}" for device in ordered)
         return lines
@@ -2106,7 +2112,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in sorted(display_devices, key=lambda item: str(item.get("name", "")).lower())
+            for device in sorted(display_devices, key=self._device_sort_key)
         ]
         return self.async_show_form(
             step_id="device_bulk_enable",
@@ -2148,7 +2154,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in sorted(display_devices, key=lambda item: str(item.get("name", "")).lower())
+            for device in sorted(display_devices, key=self._device_sort_key)
         ]
         return self.async_show_form(
             step_id="device_edit_pick",
@@ -2180,7 +2186,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in sorted(display_devices, key=lambda item: str(item.get("name", "")).lower())
+            for device in sorted(display_devices, key=self._device_sort_key)
         ]
         return self.async_show_form(
             step_id="device_remove",

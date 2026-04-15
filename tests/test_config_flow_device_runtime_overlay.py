@@ -245,8 +245,54 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("usable", label)
         self.assertIn("Ready for control", label)
         self.assertIn("1 enabled", summary_lines[0])
+        self.assertIn("1 usable", summary_lines[0])
         self.assertIn("Pool pump", summary_lines[1])
         self.assertIn("EV charger", summary_lines[2])
+
+    def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
+        devices = [
+            {
+                "key": "disabled_ready",
+                "name": "Disabled but ready",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.disabled_ready",
+                "enabled": False,
+                "effective_enabled": False,
+                "usable": True,
+                "priority": 1,
+                "nominal_power_w": 800,
+            },
+            {
+                "key": "enabled_blocked",
+                "name": "Enabled but blocked",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.enabled_blocked",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": False,
+                "priority": 1,
+                "nominal_power_w": 900,
+            },
+            {
+                "key": "enabled_ready",
+                "name": "Enabled and ready",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.enabled_ready",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "priority": 50,
+                "nominal_power_w": 1000,
+            },
+        ]
+
+        summary_lines = flow._fleet_summary_lines(devices)
+
+        self.assertIn("Enabled and ready", summary_lines[1])
+        self.assertIn("Enabled but blocked", summary_lines[2])
+        self.assertIn("Disabled but ready", summary_lines[3])
 
 
 if __name__ == "__main__":
