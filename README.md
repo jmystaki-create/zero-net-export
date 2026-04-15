@@ -119,7 +119,6 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 - The initial add-integration flow remains bootstrap-only, and the normal post-install path is the native Configure flow.
 - Managed devices are still persisted internally as structured inventory JSON, but the primary native Configure flow now hides most of that behind add/edit/remove forms for fixed and variable devices.
-- The Lovelace YAML dashboard remains optional debug visibility inside Home Assistant, not part of the supported operator path.
 - The integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device** exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 - Home Assistant **Repairs** now mirrors the most important setup/runtime blockers, which gives operators one more built-in native surface for triage without hunting through multiple entity sections first.
 
@@ -177,7 +176,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The only supported operator path is native Home Assistant integration/device surfaces. There is no supported custom panel, sidebar app, or external UI path, and Lovelace remains optional debug visibility inside Home Assistant. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and the current real-world UI gap is operator clarity, especially making it obvious what belongs under Controls, Sensors, Managed Devices, and Diagnostics from the installed native surfaces. The current steering target is to make **0.1.83** the explicit UI release, not just another repo-side polish pass.
+The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The supported operator path remains centered on native Home Assistant integration/device surfaces, with no supported custom panel, sidebar app, or external web UI path. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and the current real-world UI gap is operator clarity, especially making it obvious what belongs under Controls, Sensors, Managed Devices, and Diagnostics from the installed native surfaces. The current steering target is to make **0.1.83** the explicit UI release, not just another repo-side polish pass.
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 

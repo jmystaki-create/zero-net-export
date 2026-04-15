@@ -98,7 +98,26 @@ Features:
 - entity recovery after restart
 - clean enough load path for UI inspection
 
-### Phase 2. Managed Devices landing experience
+### Phase 2. Dashboard implementation strategy
+Purpose:
+- deliver the two dashboards now required by `docs/UI_DESIGN.md`
+- keep dashboard strategy and execution tracked here rather than scattered across design docs
+
+Completed:
+- baseline Lovelace/dashboard assets already exist in the repo for reuse/reference
+
+Remaining:
+- decide the exact technology/configuration path for the two required dashboards
+- define how YAML or other dashboard configuration should be supplied
+- align existing dashboard assets to the new two-dashboard strategy
+
+Features:
+- System Dashboard
+- Managed Elements Dashboard
+- reusable/configurable dashboard configuration path
+- alignment of existing Lovelace/dashboard assets to the new design
+
+### Phase 3. Managed Devices landing experience
 Purpose:
 - make the Managed Devices path feel like the obvious home for fleet work
 
@@ -119,7 +138,7 @@ Features:
 - at-a-glance next promotion target
 - clearer visual ordering and ownership of fleet actions
 
-### Phase 3. Promote / vet / review flow
+### Phase 4. Promote / vet / review flow
 Purpose:
 - make unmanaged-to-managed promotion feel like a first-class native product flow
 
@@ -140,7 +159,7 @@ Features:
 - candidate fit summary and warnings
 - explicit promotion handoff into managed fleet state
 
-### Phase 4. Four-bucket IA cleanup
+### Phase 5. Four-bucket IA cleanup
 Purpose:
 - make Controls, Sensors, Managed Devices, and Diagnostics feel like distinct homes instead of overlapping narrative sections
 
@@ -159,7 +178,7 @@ Features:
 - Managed Devices owns fleet operations only
 - Diagnostics owns troubleshooting/support only
 
-### Phase 5. Detailed management path
+### Phase 6. Detailed management path
 Purpose:
 - provide a deeper review path for richer per-device and fleet-level inspection without bloating the top-level workflow
 
@@ -176,7 +195,7 @@ Features:
 - per-device operational detail
 - spreadsheet-style or audit-style fleet inspection
 
-### Phase 6. Live validation and release gate
+### Phase 7. Live validation and release gate
 Purpose:
 - prove the UI release with real Home Assistant evidence
 
@@ -198,7 +217,7 @@ Features:
 
 These should not displace UI work unless they are required to keep the integration loading or to make live UI validation possible:
 - additional release-plumbing polish
-- optional dashboard polish beyond debug visibility
+- dashboard work that is outside the strategy defined in `docs/UI_DESIGN.md`
 - support-text expansion without visible UX gain
 - backend reshuffling that does not materially improve the requested native UI outcomes
 

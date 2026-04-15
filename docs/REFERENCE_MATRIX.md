@@ -64,7 +64,6 @@ Battery prediction and charging automation / optimization for Home Assistant.
 - tariff-aware strategy concepts
 
 ### What not to rely on as the core product shape
-- optional dashboard debug visibility inside Home Assistant, not the supported operator path
 - direct zero-export device orchestration
 
 ---
@@ -84,7 +83,7 @@ A HACS add-on described as helping optimize controlled loads, solar, and battery
 
 ---
 
-## 4. Dashboard Card Projects
+## 4. Dashboard Card Projects (implementation reference only)
 
 ### Examples
 - `reptilex/tesla-style-solar-power-card`
@@ -116,7 +115,7 @@ A cohesive native Home Assistant operator workflow that combines:
 - source validation
 - export-target control
 - fixed + variable device orchestration
-- optional dashboard debug visibility
+- dashboard implementation reference only, with product strategy defined in `docs/UI_DESIGN.md`
 - explainable decisions
 - safety / degraded modes
 - reporting

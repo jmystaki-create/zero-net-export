@@ -20,7 +20,6 @@ The supported operator path became native Home Assistant only:
 - Configure flow
 - the integration device path at `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device`
 - entities, notifications, automations/scripts, and Repairs
-- optional Lovelace dashboards only as supplementary debug visibility
 
 ## Durable project lesson
 

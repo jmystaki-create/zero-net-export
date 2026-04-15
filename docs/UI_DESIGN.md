@@ -43,15 +43,26 @@ These remain valid native Home Assistant surfaces for runtime, support, and auto
 
 They support the operator path, but should not replace the need for a coherent Configure experience.
 
-### 4. Dashboards.
-There should  be 2 dashbaord. these dahsbaords can be built around existing hacs or custom dashbaord technologies - this can/should be a configuration item (yaml), review
-Lovelace/dashboard assets.
+### 4. Dashboards
+There should be **2 dashboards**.
 
-Dashbaord 1 - System Dashboard:
-This should provide an overview of the zero net export system - the load, devices engaged, battery %, activity log etc
+These dashboards can be built around existing HACS or custom dashboard technologies.
+This can and should be a configuration item, likely YAML-backed, and should review and reuse the Lovelace/dashboard assets where that helps.
 
-Dashboard 2 - Managed Elements:
-This should be a summary of the maanaged devices - their status, their watts, are they activated on/off etc. 
+#### Dashboard 1 - System Dashboard
+This dashboard should provide an overview of the Zero Net Export system, including:
+- load
+- devices engaged
+- battery %
+- activity log
+- other whole-system status needed to understand what the controller is doing
+
+#### Dashboard 2 - Managed Elements
+This dashboard should provide a summary of the managed devices, including:
+- their status
+- their watts
+- whether they are activated on/off
+- other fleet-level detail needed to understand the current managed-device state
 
 
 ## Explicit non-goals

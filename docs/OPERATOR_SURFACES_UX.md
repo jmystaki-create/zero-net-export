@@ -18,7 +18,6 @@ Use instead:
 - every action should be explainable
 - device setup should feel like a product workflow, not a developer JSON workflow
 - native Home Assistant should be sufficient for setup, configuration, operation, and diagnostics
-- optional dashboards may exist for debug visibility, but they are not the supported product UI
 
 ## Durable IA lesson
 
