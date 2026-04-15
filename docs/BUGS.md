@@ -146,7 +146,7 @@ Suggested area labels:
 - **expected behavior:** Zero Net Export setup should complete without this runtime error
 - **evidence:** user screenshot of the Home Assistant integration page showing the exact setup error; repo/HA SSH inspection on 2026-04-15 confirmed the live `0.1.81` install still has `coordinator.py` calling `build_release_info(include_changelog=False)` at line 223 without the required version argument
 - **suspected cause:** coordinator release-update metadata calls `build_release_info()` without the required `current_version`, causing setup to fail while building validation details
-- **repo fix:** `ac8281c` — pass `INTEGRATION_VERSION` from `coordinator.py` into `build_release_info()` and cover the call contract with a coordinator unit test
+- **repo fix:** `48a9d45` — pass `INTEGRATION_VERSION` from `coordinator.py` into `build_release_info()` and cover the call contract with a coordinator unit test
 - **validation status:** repo-side fix is implemented and verified with `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`; live validation is still pending because Home Assistant is still running the older `0.1.81` install over SSH
 - **next action:** deploy this corrective build to Home Assistant, restart/reload the integration, and verify setup no longer retries with the missing-argument error
 
