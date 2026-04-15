@@ -10,20 +10,23 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-TRACKED_FILES = (
-    "manifest.json",
-    "__init__.py",
-    "button.py",
-    "candidate_utils.py",
-    "config_flow.py",
-    "coordinator.py",
-    "diagnostics.py",
-    "native_support.py",
-    "release_info.py",
-    "sensor.py",
-    "strings.json",
-    "translations/en.json",
-)
+
+def tracked_component_files(component_root: Path) -> tuple[str, ...]:
+    """Return the shipped source files that must match a live install exactly."""
+    tracked: list[str] = []
+    for path in sorted(component_root.rglob("*")):
+        if not path.is_file():
+            continue
+        if "__pycache__" in path.parts:
+            continue
+        if path.suffix not in {".py", ".json"}:
+            continue
+        tracked.append(path.relative_to(component_root).as_posix())
+    return tuple(tracked)
+
+
+REPO_COMPONENT_ROOT = Path(__file__).resolve().parents[1] / "custom_components" / "zero_net_export"
+TRACKED_FILES = tracked_component_files(REPO_COMPONENT_ROOT)
 
 
 def short_sha256(path: Path) -> str | None:

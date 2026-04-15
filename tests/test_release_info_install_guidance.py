@@ -152,8 +152,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("button.py", result["tracked_files"])
         self.assertIn("candidate_utils.py", result["tracked_files"])
         self.assertIn("diagnostics.py", result["tracked_files"])
+        self.assertIn("repairs.py", result["tracked_files"])
         self.assertIn("release_info.py", result["tracked_files"])
         self.assertIn("sensor.py", result["tracked_files"])
+        self.assertNotIn("__pycache__/sensor.cpython-311.pyc", result["tracked_files"])
         self.assertIsNotNone(release_info._INSTALL_PROVENANCE_SNAPSHOT)
         self.assertEqual(release_info._cached_install_provenance.cache_info().currsize, 0)
 

@@ -8,20 +8,19 @@ import json
 import subprocess
 from pathlib import Path
 
-TRACKED_FILES = (
-    "manifest.json",
-    "__init__.py",
-    "button.py",
-    "candidate_utils.py",
-    "config_flow.py",
-    "coordinator.py",
-    "diagnostics.py",
-    "native_support.py",
-    "release_info.py",
-    "sensor.py",
-    "strings.json",
-    "translations/en.json",
-)
+
+def tracked_component_files(component_root: Path) -> tuple[str, ...]:
+    """Return the shipped source files that must match a live install exactly."""
+    tracked: list[str] = []
+    for path in sorted(component_root.rglob("*")):
+        if not path.is_file():
+            continue
+        if "__pycache__" in path.parts:
+            continue
+        if path.suffix not in {".py", ".json"}:
+            continue
+        tracked.append(path.relative_to(component_root).as_posix())
+    return tuple(tracked)
 
 
 def short_sha256(path: Path) -> str | None:
@@ -34,6 +33,7 @@ def short_sha256(path: Path) -> str | None:
 def build_expected_payload() -> dict[str, object]:
     repo_root = Path(__file__).resolve().parents[1]
     component_root = repo_root / "custom_components" / "zero_net_export"
+    tracked_files_list = tracked_component_files(component_root)
     manifest_path = component_root / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
@@ -55,7 +55,7 @@ def build_expected_payload() -> dict[str, object]:
     }
 
     tracked_files: dict[str, object] = {}
-    for name in TRACKED_FILES:
+    for name in tracked_files_list:
         path = component_root / name
         tracked_files[name] = {
             "path": str(path),

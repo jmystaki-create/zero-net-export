@@ -29,6 +29,20 @@ def _component_root() -> Path:
     return Path(__file__).resolve().parent
 
 
+def _tracked_component_files(component_root: Path | None = None) -> tuple[str, ...]:
+    root = component_root or _component_root()
+    tracked: list[str] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        if "__pycache__" in path.parts:
+            continue
+        if path.suffix not in {".py", ".json"}:
+            continue
+        tracked.append(path.relative_to(root).as_posix())
+    return tuple(tracked)
+
+
 def _collect_install_provenance() -> dict[str, Any]:
     component_root = _component_root()
     manifest_path = component_root / "manifest.json"
@@ -43,20 +57,7 @@ def _collect_install_provenance() -> dict[str, Any]:
     except json.JSONDecodeError as err:
         manifest_error = f"manifest parse error: {err}"
 
-    tracked_files = (
-        "manifest.json",
-        "__init__.py",
-        "button.py",
-        "candidate_utils.py",
-        "config_flow.py",
-        "coordinator.py",
-        "diagnostics.py",
-        "native_support.py",
-        "release_info.py",
-        "sensor.py",
-        "strings.json",
-        "translations/en.json",
-    )
+    tracked_files = _tracked_component_files(component_root)
     file_fingerprints: dict[str, dict[str, str | int | None]] = {}
     for relative_name in tracked_files:
         path = component_root / relative_name
