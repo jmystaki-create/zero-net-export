@@ -136,11 +136,11 @@ Suggested area labels:
 - **expected behavior:** the live installed version stamp should match the intended shipped release version
 - **evidence:** user screenshot of the Home Assistant integration page showing `Version 0.1.81` while validating the `0.1.82` release
 - **suspected cause:** deploy/install artifact mismatch, incomplete copy, stale manifest, or other release-fingerprint drift
-- **validation status:** unresolved; SSH-backed fingerprint validation re-run on 2026-04-15 with `python3 scripts/validate_install_fingerprint.py /homeassistant/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` still reported live manifest `0.1.81`, tracked-file mismatches, and `overall_match=false` versus repo HEAD `45c61ec`; this should only close once exact live install/version alignment is explicitly re-verified
-- **next action:** if `0.1.83` is now the intended release candidate, ask James directly for approval to execute the formal release flow for commit `45c61ec`, then deploy one exact build to Home Assistant and re-run fingerprint validation until the installed manifest/version stamp matches the intended release
+- **validation status:** unresolved; SSH-backed fingerprint validation re-run on 2026-04-15 with `python3 scripts/validate_install_fingerprint.py /homeassistant/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` still reported live manifest `0.1.81`, tracked-file mismatches, and `overall_match=false` versus the current pushed `0.1.83` repo candidate; this should only close once exact live install/version alignment is explicitly re-verified
+- **next action:** if `0.1.83` is now the intended release candidate, ask James directly for approval to execute the formal release flow for the current pushed `0.1.83` candidate, then deploy one exact build to Home Assistant and re-run fingerprint validation until the installed manifest/version stamp matches the intended release
 
 ## ZNE-005 — `build_release_info()` missing required `current_version` argument
-- **status:** `in_progress`
+- **status:** `fixed_pending_validation`
 - **severity:** `critical`
 - **area:** `runtime`
 - **where seen:** live Home Assistant integration page during setup/retry
@@ -149,8 +149,8 @@ Suggested area labels:
 - **evidence:** user screenshot of the Home Assistant integration page showing the exact setup error; repo/HA SSH inspection on 2026-04-15 confirmed the live `0.1.81` install still has `coordinator.py` calling `build_release_info(include_changelog=False)` at line 223 without the required version argument
 - **suspected cause:** coordinator release-update metadata calls `build_release_info()` without the required `current_version`, causing setup to fail while building validation details
 - **repo fix:** `48a9d45` — pass `INTEGRATION_VERSION` from `coordinator.py` into `build_release_info()` and cover the call contract with a coordinator unit test; this run adds `tests/test_release_update_details.py` so the release-update path has its own focused regression coverage for the missing-argument contract
-- **validation status:** repo-side fix is implemented and verified with `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`; live validation is still pending because Home Assistant is still running the older `0.1.81` install over SSH
-- **next action:** deploy this corrective build to Home Assistant, restart/reload the integration, and verify setup no longer retries with the missing-argument error
+- **validation status:** repo-side fix is implemented and verified with `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`; SSH-backed fingerprint validation re-run in this run still shows Home Assistant serving the older `0.1.81` install, so live validation remains pending until a newer exact build is deployed
+- **next action:** deploy the current `0.1.83` candidate build to Home Assistant, restart/reload the integration, and verify setup no longer retries with the missing-argument error
 
 ## Recently validated or closed bugs
 
