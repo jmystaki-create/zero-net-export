@@ -1,6 +1,6 @@
 # Implementation Plan
 
-> Supervisor note: `docs/SUPERVISOR.md` is now the active steering layer for current goals, risk/gap tracking, release gates, and the next-action queue. This file remains the implementation history and phase trail.
+> Historical implementation note: `docs/SUPERVISOR.md` remains the active steering layer, `docs/UI_DESIGN.md` is now the active UI design source of truth, and `docs/UI_IMPLEMENTATION_MAP.md` is now the active UI implementation / phase / status source of truth. This file remains the longer historical implementation trail.
 
 ## Phase 1 — Spec and scaffold
 - create repo scaffold

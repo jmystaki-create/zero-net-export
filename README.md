@@ -142,8 +142,10 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | :--- | :--- |
 | [Architecture](docs/ARCHITECTURE.md) | System design and component overview |
 | [Control Loop](docs/CONTROL_LOOP.md) | How the optimization logic works |
-| [Native Operator Plan](docs/NATIVE_OPERATOR_PLAN.md) | Current native-only operator direction |
-| [Native Surface Technical Direction](docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md) | Supported HA surfaces and backend contract |
+| [UI Design](docs/UI_DESIGN.md) | Single source of truth for the intended native Home Assistant UI design |
+| [UI Implementation Map](docs/UI_IMPLEMENTATION_MAP.md) | Single source of truth for UI implementation status, completed work, remaining work, and delivery phases |
+| [Native Operator Plan](docs/NATIVE_OPERATOR_PLAN.md) | Historical native-only operator direction background |
+| [Native Surface Technical Direction](docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md) | Historical technical-direction background |
 | [Dashboard Setup](docs/DASHBOARD_SETUP.md) | How to install the optional Lovelace debug dashboard inside Home Assistant |
 | [Entity Model](docs/ENTITY_MODEL.md) | List of all created entities |
 | [Product Spec](docs/PRODUCT_SPEC_V1.md) | Full product requirements and goals |
@@ -176,7 +178,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The only supported operator path is native Home Assistant integration/device surfaces. There is no supported custom panel, sidebar app, or external UI path, and Lovelace remains optional debug visibility inside Home Assistant. The shipped experience is still transitional: managed devices still persist through inventory JSON under the hood, native diagnostics/support/repairs are better unified but still not fully complete, and the current real-world UI gap is operator clarity, especially making it obvious what belongs under Controls, Sensors, Managed Devices, and Diagnostics from the installed native surfaces. The current steering target is to make **0.1.83** the explicit UI release, not just another repo-side polish pass.
 
-The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). It is the source of truth for the current product state, gap register, release gates, and prioritized next actions. The strict UI-release checklist now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md).
+The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 
 **Current highest-value next step:** make the Managed Devices native path visibly separate the existing managed fleet from unmanaged promotion candidates, make the promote/vet/review flow feel first-class in live Home Assistant, and only call the UI release ready once James can see that four-bucket native structure clearly.
 

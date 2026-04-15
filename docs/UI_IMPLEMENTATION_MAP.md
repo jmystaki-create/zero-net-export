@@ -1,149 +1,213 @@
 # UI Implementation Map for 0.1.83
 
-This file is the strict checklist for the **0.1.83 UI release**.
+This document is the single source of truth for the **implementation strategy and delivery status** of the native Home Assistant UI work.
 
-The goal is not repo activity. The goal is visible native Home Assistant UI outcomes that James can actually see and judge.
+If another project document appears to disagree about what has been completed, what remains, how the UI work is phased, or what the next UI milestone should contain, follow this file.
 
-## Release intent
+The intended product design now lives in `docs/UI_DESIGN.md`.
+
+## Scope
 
 `0.1.83` is the **UI release**.
 
-It should focus on the three native-UI outcomes James asked for:
+This release should focus on the three native-UI outcomes James explicitly asked for:
 1. a clear **managed vs unmanaged** device experience
 2. a clear **promote / vet / review** native flow for bringing unmanaged devices into the managed fleet
 3. a clear native information architecture split between **Controls**, **Sensors**, **Managed Devices**, and **Diagnostics**
 
-If a change does not materially help one of those three visible outcomes, it should not displace this work unless it is required to keep the integration loading.
+If a change does not materially improve one of those visible outcomes, it should not displace this work unless it is required to keep the integration loading or to unblock live UI validation.
 
-## 1. Already visible now
+## Status summary
 
-These things appear to exist in the current codebase and are at least partially exposed through native Home Assistant surfaces.
+### Completed enough to build on
+- Native-only product direction is established. There is no supported custom panel/sidebar/external UI path.
+- Configure is already the intended primary operator path.
+- The integration device path already exists as the native support and diagnostics path.
+- Managed-device add/edit/remove flows exist.
+- Unmanaged-candidate discovery exists.
+- Candidate shortlist and full-list pick flows exist.
+- Candidate vetting/review scaffolding exists.
+- Fleet review / bulk enable-disable scaffolding exists.
+- Native support/snapshot/checklist surfaces exist.
+- The four-bucket IA language already exists in project wording: Controls, Sensors, Managed Devices, Diagnostics.
 
-### Native IA labels and paths
-- Configure has explicit paths and wording for:
-  - Controls
-  - Sensors and source mapping
-  - Managed Devices
-  - Diagnostics
-- Native support/command-center text refers to these areas as distinct sections.
+### Implemented but not yet delivered as a finished UI outcome
+- Managed versus unmanaged is present in code and copy, but not yet visually crisp enough in the lived native HA experience.
+- The promote / vet / review path exists in pieces, but still feels scaffolded instead of productized.
+- The four-bucket IA is described more than it is felt.
+- Diagnostics/support text currently carries too much of the product UX burden.
 
-### Managed-device workflow building blocks
-- Managed device add flow exists
-- Managed device edit flow exists
-- Managed device remove flow exists
-- Fleet review / bulk enable-disable flow exists
-- Candidate discovery exists for unmanaged entities
-- Candidate shortlist path exists
-- Full unmanaged candidate list path exists
-- Candidate vetting/review step exists before promotion
+### Still blocked or incomplete
+- Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
+- The native Managed Devices path still does not visibly feel like the strong central workspace James asked for.
+- Screenshot-grade proof of the requested UI outcome does not yet exist.
 
-### Supporting native entities/buttons
-- unmanaged candidate count / overview sensors exist
-- top unmanaged candidate sensors exist
-- fleet console / support / diagnostics helper buttons exist
+## What counts as success for 0.1.83
 
-## 2. Implemented but not meaningfully visible
+`0.1.83` should not be called the UI release unless all of the following are true:
 
-These items exist in code or strings, but they do not yet count as delivered UI from a real operator point of view.
+1. **Managed vs unmanaged is visually obvious**
+   - the Managed Devices path clearly shows the current managed fleet
+   - the same path clearly shows unmanaged candidates ready for promotion
+   - the difference is obvious without depending on long explanatory text
 
-### IA split is described more than it is felt
-- The code and strings talk about Controls, Sensors, Managed Devices, and Diagnostics
-- But the lived UI still does not make those boundaries obvious enough at a glance
-- Too much of the experience still depends on explanatory text rather than a clearly felt native structure
+2. **Promote / vet / review is visibly first-class**
+   - the operator can clearly choose a candidate, review it, understand fit/warnings, and promote it into the managed fleet
+   - the flow feels coherent in live HA rather than spread across helper text
 
-### Managed vs unmanaged is present, but not visually crisp enough
-- Current managed fleet summary exists
-- Current unmanaged candidate summaries exist
-- But the operator experience still does not feel like a strong side-by-side native workspace with an obvious "these are already managed" versus "these are ready for promotion" distinction
+3. **Controls / Sensors / Managed Devices / Diagnostics are clearly separated**
+   - each bucket has one clear job
+   - duplication and leakage across the four buckets is reduced
+   - an operator can tell where to go next without guessing
 
-### Promotion flow exists, but still feels like scaffolding
-- shortlist -> full list -> review candidate -> template -> save exists
-- But it does not yet feel like a polished first-class product workflow in live HA
+4. **The result is visible in live Home Assistant**
+   - James can inspect the live UI and see the intended outcome directly
+   - repo code, docs, or wording alone do not count as UI completion
 
-### Support/diagnostic helpers may be over-carrying the UX
-- Several helper surfaces exist as notifications, summaries, or diagnostics text
-- This makes the product feel more documented than designed
-- James's success condition is visible UI clarity, not just richer support copy
+## Phase plan
 
-## 3. Not implemented yet
+### Phase 0. Baseline and source-of-truth consolidation
+Purpose:
+- stop direction drift
+- centralize design and implementation planning
 
-These are the missing visible outcomes that prevent the requested UI from counting as done.
+Completed:
+- established `docs/UI_DESIGN.md` as the design source of truth
+- established `docs/UI_IMPLEMENTATION_MAP.md` as the implementation source of truth
+- updated steering so `0.1.83` is explicitly the UI release
 
-### A truly obvious Managed Devices landing experience
-Not yet implemented well enough:
-- a crisp top-level native managed-devices workspace that clearly separates:
-  - already managed devices
+Remaining:
+- repoint older project documents so they defer to these two files
+- repoint cron prompts so they explicitly use these two files for UI steering
+
+### Phase 1. Runtime stability required for honest UI validation
+Purpose:
+- ensure the integration loads cleanly enough that visible UI work can actually be judged
+
+Completed:
+- major startup-crash and release/runtime stabilization work has already happened in earlier corrective releases
+- repairs-platform root cause was identified and a repo fix was added
+
+Remaining:
+- verify the current corrective path is sufficient for the integration to load cleanly in live HA
+- make sure the visible UI is not being masked by restored/unavailable entity failure states
+- keep only the minimum required stability work in scope here so UI delivery stays primary
+
+Features:
+- repairs-platform correctness
+- entity recovery after restart
+- clean enough load path for UI inspection
+
+### Phase 2. Managed Devices landing experience
+Purpose:
+- make the Managed Devices path feel like the obvious home for fleet work
+
+Completed:
+- managed-device flows and candidate discovery scaffolding exist
+- fleet summary and candidate-summary text exists
+
+Remaining:
+- make the landing experience clearly separate:
+  - current managed fleet
   - unmanaged candidates ready for promotion
-- an at-a-glance operator view that answers:
-  - what is already in the fleet?
-  - what is not in the fleet yet?
-  - what should I promote next?
+- make the next recommended fleet action obvious at a glance
+- reduce reliance on long descriptive paragraphs
 
-### A visibly strong promotion / vet / review path
-Not yet implemented well enough:
-- a promotion path that feels obvious and productized rather than step-fragmented
-- clearer candidate quality signalling
-- clearer post-vetting handoff into managed fleet state
+Features:
+- managed fleet summary block
+- unmanaged candidate summary block
+- at-a-glance next promotion target
+- clearer visual ordering and ownership of fleet actions
 
-### A truly clear four-bucket native IA
-Not yet implemented well enough:
-- Controls must feel like controller brain/settings only
-- Sensors must feel like telemetry/source health only
-- Managed Devices must feel like fleet ownership only
-- Diagnostics must feel like troubleshooting/support only
+### Phase 3. Promote / vet / review flow
+Purpose:
+- make unmanaged-to-managed promotion feel like a first-class native product flow
 
-Right now that separation is partially coded, but not clearly realized enough in live UI.
+Completed:
+- shortlist path exists
+- full candidate list exists
+- candidate vetting step exists
+- template-selection and save path exist
 
-### Screenshot-grade proof
-Not yet implemented:
-- live screenshot evidence showing the requested UI outcome clearly
-- release acceptance tied to what James can see in HA, not what the repo suggests
+Remaining:
+- tighten candidate quality signalling
+- improve the coherence of the pick -> review -> promote journey
+- make post-vetting handoff into the managed fleet feel explicit and confident
 
-## 4. Must be in the 0.1.83 UI-complete milestone
+Features:
+- short opinionated candidate shortlist
+- full candidate list fallback
+- candidate fit summary and warnings
+- explicit promotion handoff into managed fleet state
 
-`0.1.83` should not be called the UI release unless all of the following are true.
+### Phase 4. Four-bucket IA cleanup
+Purpose:
+- make Controls, Sensors, Managed Devices, and Diagnostics feel like distinct homes instead of overlapping narrative sections
 
-### A. Managed vs unmanaged is visually obvious
-Required outcome:
-- the Managed Devices native path clearly shows:
-  - devices already managed by Zero Net Export
-  - unmanaged candidates available for promotion
-- this must be obvious without relying on long explanatory paragraphs
+Completed:
+- section labels and path language already exist
+- high-level ownership direction already exists
 
-### B. Promotion / vet / review is visibly first-class
-Required outcome:
-- the native add/promote flow clearly supports:
-  - choose candidate
-  - review candidate
-  - understand fit/warnings
-  - promote into managed fleet
-- the operator should not have to mentally stitch together multiple helper texts to understand what to do
+Remaining:
+- move or reframe any leaking content so each area has one clear purpose
+- reduce duplication between support wording and normal operator surfaces
+- make where-to-go-next obvious from the installed UI itself
 
-### C. Controls / Sensors / Managed Devices / Diagnostics are clearly separated
-Required outcome:
-- each section has one clear ownership boundary
-- there is minimal duplication/leakage across those four areas
-- the UI makes it obvious where to go for each job
+Features:
+- Controls owns controller brain/settings only
+- Sensors owns telemetry/source health only
+- Managed Devices owns fleet operations only
+- Diagnostics owns troubleshooting/support only
 
-### D. The result is visible in live Home Assistant
-Required outcome:
-- James can inspect the live HA UI and see the intended improvement directly
-- the release cannot be called complete based only on repo code, strings, or internal reasoning
+### Phase 5. Detailed management path
+Purpose:
+- provide a deeper review path for richer per-device and fleet-level inspection without bloating the top-level workflow
 
-## 5. Non-goals for 0.1.83 unless required for loading
+Completed:
+- concept and requirement are documented
 
-These should not take priority over the UI release goal unless they are required to keep the integration alive:
+Remaining:
+- define the concrete native entry path
+- define what detail belongs there versus on the top-level Managed Devices path
+- make sure it supports richer device review without diluting the top-level fleet workflow
+
+Features:
+- deeper fleet review
+- per-device operational detail
+- spreadsheet-style or audit-style fleet inspection
+
+### Phase 6. Live validation and release gate
+Purpose:
+- prove the UI release with real Home Assistant evidence
+
+Completed:
+- release discipline and approval rules already exist elsewhere in project steering
+
+Remaining:
+- verify the exact build in live HA
+- gather screenshot-visible proof of the UI outcome
+- only then ask James for formal release approval for the full release flow
+
+Features:
+- exact-build validation
+- live HA inspection
+- screenshot-grade acceptance evidence
+- formal release approval boundary
+
+## Non-goals for 0.1.83 unless required to unblock UI delivery
+
+These should not displace UI work unless they are required to keep the integration loading or to make live UI validation possible:
 - additional release-plumbing polish
-- optional dashboard polish beyond what is needed for debug visibility
-- more support text that does not improve visible operator clarity
+- optional dashboard polish beyond debug visibility
+- support-text expansion without visible UX gain
 - backend reshuffling that does not materially improve the requested native UI outcomes
 
-## 6. Working rule for future progress reports
+## Working rule for future progress reports
 
-Do not count any item as UI progress unless it falls into one of these buckets:
-- **already visible now**
-- **implemented but not meaningfully visible**
-- **not implemented yet**
-- **must be in the 0.1.83 UI-complete milestone**
+Do not count work as UI progress unless it fits one of these categories:
+- completed enough to build on
+- implemented but not yet delivered as a finished UI outcome
+- still blocked or incomplete
+- phase-complete movement toward the `0.1.83` UI release
 
-Do not let text-heavy guidance, diagnostics wording, or release plumbing masquerade as delivered UI.
+Do not let text-heavy guidance, diagnostics wording, release mechanics, or backend scaffolding masquerade as delivered UI.

@@ -1,5 +1,7 @@
 # Native Surface Technical Direction
 
+> Historical technical-direction note: UI design direction now lives in `docs/UI_DESIGN.md`, and implementation status / delivery phasing now lives in `docs/UI_IMPLEMENTATION_MAP.md`. Use this file as supporting background only.
+
 ## Current design decision
 
 Zero Net Export keeps the Home Assistant integration backend, and its supported operator UX is limited to native Home Assistant surfaces. There is no supported custom sidebar, custom panel, or external UI path.

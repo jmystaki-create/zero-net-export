@@ -137,8 +137,13 @@ Do later:
 
 ## Source documents
 
+Primary UI source-of-truth documents:
+- UI design source of truth: `docs/UI_DESIGN.md`
+- UI implementation / phase / status source of truth: `docs/UI_IMPLEMENTATION_MAP.md`
+
+Other project references:
 - Product scope: `docs/PRODUCT_SPEC_V1.md`
-- Current implementation trail: `docs/IMPLEMENTATION_PLAN.md`
-- Native operator direction: `docs/NATIVE_OPERATOR_PLAN.md`
+- Historical implementation trail: `docs/IMPLEMENTATION_PLAN.md`
+- Historical native-direction trail: `docs/NATIVE_OPERATOR_PLAN.md`
 - Validation proof: `docs/VALIDATION_CHECKLIST.md`
 - Release discipline: `RELEASE_MANAGEMENT.md`

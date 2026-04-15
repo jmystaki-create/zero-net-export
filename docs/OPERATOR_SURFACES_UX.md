@@ -1,5 +1,7 @@
 # Operator Surfaces and UX
 
+> Historical UX note: the active UI design source of truth is now `docs/UI_DESIGN.md`, and the active implementation/phase/status source of truth is `docs/UI_IMPLEMENTATION_MAP.md`. This file is retained as supporting background so older UX notes do not silently drift.
+
 ## Primary operator-surface goals
 - show current energy picture clearly
 - show controller state clearly

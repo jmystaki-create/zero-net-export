@@ -1,6 +1,6 @@
 # Native Home Assistant Operator Plan
 
-> Steering note: this document explains the native-HA-only direction. `docs/SUPERVISOR.md` is now the active steering layer for current goals, risks, release gates, and next actions.
+> Historical-direction note: this document is now background context only. The current UI design source of truth is `docs/UI_DESIGN.md`, the current UI implementation/status source of truth is `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/SUPERVISOR.md` remains the active steering layer for goals, risks, release gates, and next actions.
 
 ## Status
 
