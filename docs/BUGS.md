@@ -298,6 +298,13 @@ Suggested area labels:
 - **repo fix:** `f3388cf` — `release: add ssh-backed HA fingerprint validation`
 - **closure evidence:** repo-side SSH validation now works against the documented HA path without remote Python, and a live run against `root@192.168.86.200:2222` returned the installed component fingerprint from `/homeassistant/custom_components/zero_net_export`
 
+## ZNE-021 — Exact-build fingerprint validation skipped critical startup/provenance files
+- **closed on:** 2026-04-16
+- **severity:** `medium`
+- **area:** `release`
+- **historical behavior:** the exact-build validation helpers only tracked `manifest.json`, `config_flow.py`, `native_support.py`, `coordinator.py`, and translation files. That let `scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` report `overall_match=true` even though important startup/provenance files like `__init__.py` and `release_info.py` were outside the comparison set.
+- **repo fix:** this run's validation-coverage fix commit — expand the tracked-file set in `scripts/print_expected_install_fingerprint.py`, `scripts/compare_install_fingerprint.py`, and `custom_components/zero_net_export/release_info.py` to include `__init__.py` and `release_info.py`, with regression coverage in `tests/test_install_helper_scripts.py` and `tests/test_release_info_install_guidance.py`.
+- **closure evidence:** in this run, documented HA SSH access on `root@192.168.86.200:2222` succeeded, fresh `ha core logs` review showed the earlier `release_info.py` startup path was a real validation concern, repo-side verification passed with `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile scripts/print_expected_install_fingerprint.py scripts/compare_install_fingerprint.py scripts/validate_install_fingerprint.py custom_components/zero_net_export/release_info.py`, and a rerun of `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` now correctly reports `release_info.py` drift and `overall_match=false` until the latest repo build is redeployed.
 
 ## Closure rule
 

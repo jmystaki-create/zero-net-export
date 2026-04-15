@@ -148,6 +148,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertEqual(calls, [release_info._collect_install_provenance])
         self.assertEqual(result["code_version"], release_info.INTEGRATION_VERSION)
+        self.assertIn("__init__.py", result["tracked_files"])
+        self.assertIn("release_info.py", result["tracked_files"])
         self.assertIsNotNone(release_info._INSTALL_PROVENANCE_SNAPSHOT)
         self.assertEqual(release_info._cached_install_provenance.cache_info().currsize, 0)
 

@@ -45,9 +45,11 @@ def _collect_install_provenance() -> dict[str, Any]:
 
     tracked_files = (
         "manifest.json",
+        "__init__.py",
         "config_flow.py",
-        "native_support.py",
         "coordinator.py",
+        "native_support.py",
+        "release_info.py",
         "strings.json",
         "translations/en.json",
     )

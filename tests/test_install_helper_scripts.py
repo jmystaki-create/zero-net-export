@@ -219,9 +219,11 @@ class CompareInstallFingerprintTests(unittest.TestCase):
         responses = {
             "manifest": "0.1.83",
             "manifest.json": "1\t321\tabc123def456\t/config/custom_components/zero_net_export/manifest.json",
+            "__init__.py": "1\t432\taaa111bbb222\t/config/custom_components/zero_net_export/__init__.py",
             "config_flow.py": "1\t654\tbbb222ccc333\t/config/custom_components/zero_net_export/config_flow.py",
-            "native_support.py": "1\t777\tccc333ddd444\t/config/custom_components/zero_net_export/native_support.py",
             "coordinator.py": "1\t888\tddd444eee555\t/config/custom_components/zero_net_export/coordinator.py",
+            "native_support.py": "1\t777\tccc333ddd444\t/config/custom_components/zero_net_export/native_support.py",
+            "release_info.py": "1\t543\tccc999ddd000\t/config/custom_components/zero_net_export/release_info.py",
             "strings.json": "1\t999\teee555fff666\t/config/custom_components/zero_net_export/strings.json",
             "translations/en.json": "1\t111\tfff666aaa777\t/config/custom_components/zero_net_export/translations/en.json",
         }
@@ -245,7 +247,9 @@ class CompareInstallFingerprintTests(unittest.TestCase):
 
         self.assertEqual(payload["manifest_version"], "0.1.83")
         self.assertEqual(payload["inspection_transport"], "ssh")
+        self.assertEqual(payload["tracked_files"]["__init__.py"]["sha256_12"], "aaa111bbb222")
         self.assertEqual(payload["tracked_files"]["config_flow.py"]["sha256_12"], "bbb222ccc333")
+        self.assertEqual(payload["tracked_files"]["release_info.py"]["size_bytes"], 543)
         self.assertEqual(payload["tracked_files"]["translations/en.json"]["size_bytes"], 111)
 
     def make_live_install_tree(self, root: Path) -> Path:

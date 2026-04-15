@@ -10,9 +10,11 @@ from pathlib import Path
 
 TRACKED_FILES = (
     "manifest.json",
+    "__init__.py",
     "config_flow.py",
-    "native_support.py",
     "coordinator.py",
+    "native_support.py",
+    "release_info.py",
     "strings.json",
     "translations/en.json",
 )
