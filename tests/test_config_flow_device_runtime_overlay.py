@@ -1,0 +1,253 @@
+from __future__ import annotations
+
+import importlib.util
+import sys
+import types
+import unittest
+from pathlib import Path
+from types import SimpleNamespace
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+PACKAGE_ROOT = REPO_ROOT / "custom_components" / "zero_net_export"
+CONST_PATH = PACKAGE_ROOT / "const.py"
+MODULE_PATH = PACKAGE_ROOT / "config_flow.py"
+
+
+def _load_config_flow_module():
+    custom_components_pkg = sys.modules.setdefault("custom_components", types.ModuleType("custom_components"))
+    custom_components_pkg.__path__ = [str(REPO_ROOT / "custom_components")]
+
+    integration_pkg = sys.modules.setdefault(
+        "custom_components.zero_net_export",
+        types.ModuleType("custom_components.zero_net_export"),
+    )
+    integration_pkg.__path__ = [str(PACKAGE_ROOT)]
+
+    homeassistant_module = sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
+    homeassistant_module.__path__ = []
+
+    voluptuous_module = types.ModuleType("voluptuous")
+    voluptuous_module.Schema = lambda value: value
+    voluptuous_module.Required = lambda key, default=None: key
+    voluptuous_module.Optional = lambda key, default=None: key
+    sys.modules[voluptuous_module.__name__] = voluptuous_module
+
+    config_entries_module = types.ModuleType("homeassistant.config_entries")
+
+    class ConfigFlow:
+        def __init_subclass__(cls, **kwargs):
+            return None
+
+    class OptionsFlow:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+    config_entries_module.ConfigFlow = ConfigFlow
+    config_entries_module.OptionsFlow = OptionsFlow
+    sys.modules[config_entries_module.__name__] = config_entries_module
+
+    core_module = types.ModuleType("homeassistant.core")
+    core_module.callback = lambda func: func
+    sys.modules[core_module.__name__] = core_module
+
+    helpers_module = sys.modules.setdefault("homeassistant.helpers", types.ModuleType("homeassistant.helpers"))
+    helpers_module.__path__ = []
+
+    selector_module = types.ModuleType("homeassistant.helpers.selector")
+    selector_module.SelectOptionDict = lambda **kwargs: kwargs
+    selector_module.SelectSelector = lambda config: config
+    selector_module.SelectSelectorConfig = lambda **kwargs: kwargs
+    selector_module.SelectSelectorMode = types.SimpleNamespace(LIST="list", DROPDOWN="dropdown")
+    selector_module.TextSelector = lambda config: config
+    selector_module.TextSelectorConfig = lambda **kwargs: kwargs
+    selector_module.TextSelectorType = types.SimpleNamespace(TEXT="text")
+    selector_module.NumberSelector = lambda config: config
+    selector_module.NumberSelectorConfig = lambda **kwargs: kwargs
+    selector_module.NumberSelectorMode = types.SimpleNamespace(BOX="box")
+    selector_module.BooleanSelector = lambda *args, **kwargs: {"boolean": True}
+    selector_module.EntitySelector = lambda config: config
+    selector_module.EntitySelectorConfig = lambda **kwargs: kwargs
+    sys.modules[selector_module.__name__] = selector_module
+
+    candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
+    candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+    sys.modules[candidate_utils_module.__name__] = candidate_utils_module
+
+    const_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.const", CONST_PATH)
+    assert const_spec and const_spec.loader
+    const_module = importlib.util.module_from_spec(const_spec)
+    sys.modules[const_spec.name] = const_module
+    const_spec.loader.exec_module(const_module)
+
+    device_model_module = types.ModuleType("custom_components.zero_net_export.device_model")
+    device_model_module.ADAPTER_FIXED_TOGGLE = "fixed_toggle"
+    device_model_module.ADAPTER_VARIABLE_NUMBER = "variable_number"
+    device_model_module.DEVICE_KIND_FIXED = "fixed"
+    device_model_module.DEVICE_KIND_VARIABLE = "variable"
+    device_model_module.default_device_blueprint = lambda: "[]"
+    device_model_module.get_device_template = lambda kind, key: None
+    device_model_module.get_device_templates = lambda kind: []
+    device_model_module.parse_device_configs = lambda raw: ([], [])
+    sys.modules[device_model_module.__name__] = device_model_module
+
+    native_support_module = types.ModuleType("custom_components.zero_net_export.native_support")
+    native_support_module.ADVANCED_DEVICES_CONFIGURE_PATH = "advanced path"
+    native_support_module.DEVICES_CONFIGURE_PATH = "devices path"
+    native_support_module.DEVICES_SECTION_LABEL = "Managed Devices"
+    native_support_module.INTEGRATION_DEVICE_PATH = "device path"
+    native_support_module.MODE_CONTROL_PATH = "mode path"
+    native_support_module.POLICY_CONFIGURE_PATH = "policy path"
+    native_support_module.POLICY_SECTION_LABEL = "Controls"
+    native_support_module.PRIMARY_CONFIGURE_PATH = "primary path"
+    native_support_module.SOURCES_CONFIGURE_PATH = "sources path"
+    native_support_module.SOURCES_SECTION_LABEL = "Sensors"
+    native_support_module.SUPPORT_CONFIGURE_PATH = "support path"
+    native_support_module.SUPPORT_SECTION_LABEL = "Diagnostics"
+    native_support_module._source_specs_from_config = lambda config, grid_mode=None: []
+    native_support_module.build_live_source_health_summary = lambda *args, **kwargs: "healthy"
+    native_support_module.build_native_command_center_summary = lambda *args, **kwargs: {}
+    native_support_module.build_native_operator_readiness = lambda *args, **kwargs: {}
+    native_support_module.build_source_attention_details = lambda *args, **kwargs: {}
+    native_support_module.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+    native_support_module.build_source_attention_summary = lambda *args, **kwargs: "None"
+    native_support_module.build_source_mapping_summary = lambda *args, **kwargs: "None"
+    native_support_module.build_source_repair_step = lambda *args, **kwargs: "Repair step"
+    native_support_module.build_source_selector_fallback_hint = lambda *args, **kwargs: "Fallback hint"
+    native_support_module.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+    sys.modules[native_support_module.__name__] = native_support_module
+
+    release_info_module = types.ModuleType("custom_components.zero_net_export.release_info")
+    release_info_module.build_install_consistency_summary = lambda *args, **kwargs: "consistent"
+    release_info_module.build_install_fingerprint_summary = lambda *args, **kwargs: "fingerprint"
+    release_info_module.build_install_provenance = lambda *args, **kwargs: {}
+    release_info_module.build_install_repair_step = lambda *args, **kwargs: "repair step"
+    sys.modules[release_info_module.__name__] = release_info_module
+
+    validation_module = types.ModuleType("custom_components.zero_net_export.validation")
+    validation_module.DERIVED_SOURCE_MODE_DIRECT = "direct"
+    validation_module.DERIVED_SOURCE_MODE_NEGATIVE_ABS = "negative_abs"
+    validation_module.DERIVED_SOURCE_MODE_POSITIVE = "positive"
+    validation_module.DERIVED_SOURCE_PREFIX = "derived_"
+    validation_module.ENERGY_UNITS = {"kWh"}
+    validation_module.PERCENT_UNITS = {"%"}
+    validation_module.POWER_UNITS = {"W"}
+    validation_module.TOTAL_STATE_CLASSES = {"total", "total_increasing"}
+    validation_module.parse_source_binding = lambda value: value
+    validation_module.validate_configured_entities = lambda *args, **kwargs: SimpleNamespace(
+        is_valid=True,
+        errors=[],
+        warnings=[],
+        source_diagnostics={},
+        source_freshness={},
+        diagnostic_summary="",
+        blocking_details="",
+        status="validated",
+    )
+    sys.modules[validation_module.__name__] = validation_module
+
+    module_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.config_flow", MODULE_PATH)
+    assert module_spec and module_spec.loader
+    module = importlib.util.module_from_spec(module_spec)
+    sys.modules[module_spec.name] = module
+    module_spec.loader.exec_module(module)
+    return module
+
+
+class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
+    def test_runtime_overlay_adds_usable_and_status_by_key(self) -> None:
+        module = _load_config_flow_module()
+        devices = [
+            {
+                "key": "pool_pump",
+                "name": "Pool pump",
+                "kind": "fixed",
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "priority": 10,
+                "nominal_power_w": 1200,
+            }
+        ]
+        coordinator = SimpleNamespace(
+            data=SimpleNamespace(
+                device_details={
+                    "pool_pump": {
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                    }
+                }
+            )
+        )
+
+        enriched = module._overlay_runtime_device_details(devices, coordinator)
+
+        self.assertTrue(enriched[0]["usable"])
+        self.assertTrue(enriched[0]["effective_enabled"])
+        self.assertEqual(enriched[0]["status"], "Ready for control")
+
+    def test_runtime_overlay_falls_back_to_entity_id_match(self) -> None:
+        module = _load_config_flow_module()
+        devices = [{"key": "legacy_key", "entity_id": "switch.hot_water", "enabled": False}]
+        coordinator = SimpleNamespace(
+            data=SimpleNamespace(
+                device_details={
+                    "runtime_key": {
+                        "entity_id": "switch.hot_water",
+                        "usable": False,
+                        "effective_enabled": False,
+                        "status": "Blocked by guard",
+                    }
+                }
+            )
+        )
+
+        enriched = module._overlay_runtime_device_details(devices, coordinator)
+
+        self.assertFalse(enriched[0]["usable"])
+        self.assertFalse(enriched[0]["effective_enabled"])
+        self.assertEqual(enriched[0]["status"], "Blocked by guard")
+
+    def test_device_status_label_and_summary_show_runtime_state(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
+        devices = [
+            {
+                "key": "pool_pump",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "status": "Ready for control",
+                "priority": 10,
+                "nominal_power_w": 1200,
+            },
+            {
+                "key": "ev",
+                "name": "EV charger",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "entity_id": "number.ev_limit",
+                "enabled": True,
+                "effective_enabled": False,
+                "usable": False,
+                "status": "Held by guard",
+                "priority": 20,
+                "nominal_power_w": 7000,
+            },
+        ]
+
+        label = flow._device_status_label(devices[0])
+        summary_lines = flow._fleet_summary_lines(devices)
+
+        self.assertIn("usable", label)
+        self.assertIn("Ready for control", label)
+        self.assertIn("1 enabled", summary_lines[0])
+        self.assertIn("Pool pump", summary_lines[1])
+        self.assertIn("EV charger", summary_lines[2])
+
+
+if __name__ == "__main__":
+    unittest.main()

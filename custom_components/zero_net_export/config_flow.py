@@ -140,6 +140,46 @@ def _live_mode_details(coordinator: Any) -> tuple[str, str]:
     return mode_label, mode_description
 
 
+def _overlay_runtime_device_details(
+    devices: list[dict[str, Any]], coordinator: Any | None
+) -> list[dict[str, Any]]:
+    """Merge runtime-only device visibility into parsed config-flow devices."""
+    state = getattr(coordinator, "data", None) if coordinator is not None else None
+    runtime_details = getattr(state, "device_details", {}) or {}
+    if not runtime_details:
+        return [dict(device) for device in devices]
+
+    runtime_by_key = {
+        str(device_key): details
+        for device_key, details in runtime_details.items()
+        if isinstance(details, dict)
+    }
+    runtime_by_entity_id = {
+        str(details.get("entity_id")): details
+        for details in runtime_details.values()
+        if isinstance(details, dict) and details.get("entity_id")
+    }
+
+    enriched: list[dict[str, Any]] = []
+    for device in devices:
+        merged = dict(device)
+        runtime = runtime_by_key.get(str(device.get("key")))
+        if runtime is None and device.get("entity_id"):
+            runtime = runtime_by_entity_id.get(str(device.get("entity_id")))
+        if runtime:
+            merged.update(
+                {
+                    "status": runtime.get("status"),
+                    "usable": runtime.get("usable"),
+                    "effective_enabled": runtime.get("effective_enabled", device.get("enabled", True)),
+                    "guard_status": runtime.get("guard_status"),
+                    "planned_action": runtime.get("planned_action"),
+                }
+            )
+        enriched.append(merged)
+    return enriched
+
+
 def _build_bootstrap_schema(defaults: dict | None = None) -> vol.Schema:
     defaults = defaults or {}
 
@@ -598,12 +638,18 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     @staticmethod
     def _device_status_label(device: dict[str, Any]) -> str:
-        state = "enabled" if device.get("enabled", True) else "disabled"
+        state = "enabled" if device.get("effective_enabled", device.get("enabled", True)) else "disabled"
         priority = int(device.get("priority", 0) or 0)
         power = int(float(device.get("nominal_power_w", 0) or 0))
+        runtime_bits: list[str] = []
+        if device.get("usable") is not None:
+            runtime_bits.append("usable" if device.get("usable") else "not usable")
+        if device.get("status"):
+            runtime_bits.append(str(device.get("status")))
+        runtime_summary = f", {'; '.join(runtime_bits)}" if runtime_bits else ""
         return (
             f"{device.get('name', 'Unnamed device')} "
-            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, {power} W, {device.get('entity_id', 'unknown entity')})"
+            f"({device.get('kind', 'unknown')}, {state}{runtime_summary}, priority {priority}, {power} W, {device.get('entity_id', 'unknown entity')})"
         )
 
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
@@ -612,12 +658,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ordered = sorted(
             devices,
             key=lambda item: (
-                0 if item.get("enabled", True) else 1,
+                0 if item.get("effective_enabled", item.get("enabled", True)) else 1,
                 int(item.get("priority", 0) or 0),
                 str(item.get("name", "")).lower(),
             ),
         )
-        enabled_count = sum(1 for device in devices if device.get("enabled", True))
+        enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
@@ -1675,6 +1721,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_devices(self, user_input=None):
         devices, issues = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
         if user_input is not None:
             choice = user_input.get("device_action")
@@ -1710,12 +1757,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             choices.append(selector.SelectOptionDict(value="edit", label="Edit managed device"))
             choices.append(selector.SelectOptionDict(value="remove", label="Remove managed device"))
         choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))
-        summary = "\n".join(self._fleet_summary_lines(devices))
+        summary = "\n".join(self._fleet_summary_lines(display_devices))
         fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
         variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
         managed_snapshot = (
-            f"Managed now: {len(devices)} | enabled: {sum(1 for device in devices if device.get('enabled', True))} | usable: {sum(1 for device in devices if device.get('usable'))}"
-            if devices
+            f"Managed now: {len(display_devices)} | enabled: {sum(1 for device in display_devices if device.get('effective_enabled', device.get('enabled', True)))} | usable: {sum(1 for device in display_devices if device.get('usable'))}"
+            if display_devices
             else "Managed now: 0 | enabled: 0 | usable: 0"
         )
         unmanaged_snapshot = (
@@ -1733,7 +1780,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             f"- {item['name']} ({item['entity_id']})" for item in variable_candidates[:6]
         ) if variable_candidates else "- No variable-load candidates discovered right now"
         top_candidate = candidates[0] if candidates else None
-        device_next_step = self._device_next_step(devices, issues, candidates)
+        device_next_step = self._device_next_step(display_devices, issues, candidates)
         return self.async_show_form(
             step_id="devices",
             data_schema=vol.Schema(
@@ -2047,6 +2094,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if not devices:
             return await self.async_step_devices()
 
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         enabled_keys = [device["key"] for device in devices if device.get("enabled", True)]
         if user_input is not None:
             selected_keys = {str(key) for key in user_input.get("enabled_devices", [])}
@@ -2058,7 +2106,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in sorted(devices, key=lambda item: str(item.get("name", "")).lower())
+            for device in sorted(display_devices, key=lambda item: str(item.get("name", "")).lower())
         ]
         return self.async_show_form(
             step_id="device_bulk_enable",
@@ -2075,7 +2123,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ),
             errors={},
             description_placeholders={
-                "device_summary": "\n".join(self._fleet_summary_lines(devices)),
+                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "enabled_count": str(len(enabled_keys)),
                 "device_count": str(len(devices)),
                 "detailed_management_summary": self._detailed_management_summary(),
@@ -2084,6 +2132,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_device_edit_pick(self, user_input=None):
         devices, issues = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
         if user_input is not None:
             selected_key = user_input["device_key"]
@@ -2099,7 +2148,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in sorted(devices, key=lambda item: str(item.get("name", "")).lower())
+            for device in sorted(display_devices, key=lambda item: str(item.get("name", "")).lower())
         ]
         return self.async_show_form(
             step_id="device_edit_pick",
@@ -2114,14 +2163,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
-                "device_summary": "\n".join(self._fleet_summary_lines(devices)),
-                "device_next_step": self._device_next_step(devices, issues, candidates),
+                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
+                "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 
     async def async_step_device_remove(self, user_input=None):
         devices, issues = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
         if user_input is not None:
             remove_name = user_input["device_key"]
@@ -2130,7 +2180,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         options = [
             selector.SelectOptionDict(value=device["key"], label=self._device_status_label(device))
-            for device in sorted(devices, key=lambda item: str(item.get("name", "")).lower())
+            for device in sorted(display_devices, key=lambda item: str(item.get("name", "")).lower())
         ]
         return self.async_show_form(
             step_id="device_remove",
@@ -2145,8 +2195,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
-                "device_summary": "\n".join(self._fleet_summary_lines(devices)),
-                "device_next_step": self._device_next_step(devices, issues, candidates),
+                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
+                "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
         )
