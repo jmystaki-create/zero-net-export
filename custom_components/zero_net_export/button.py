@@ -9,6 +9,7 @@ from .candidate_utils import discover_candidate_devices
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
+    DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
     DEVICES_SECTION_LABEL,
     POLICY_CONFIGURE_PATH,
@@ -31,6 +32,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ZeroNetExportResetControllerOverridesButton(coordinator),
         ZeroNetExportShowNativeCommandCenterButton(coordinator),
         ZeroNetExportShowFleetConsoleButton(coordinator),
+        ZeroNetExportShowManagedDeviceReviewButton(coordinator),
         ZeroNetExportShowNativeSupportCenterButton(coordinator),
         ZeroNetExportShowNativeDiagnosticsButton(coordinator),
         ZeroNetExportShowSetupChecklistButton(coordinator),
@@ -62,6 +64,36 @@ def _fleet_console_notification_id(entry_id: str) -> str:
 
 def _command_center_notification_id(entry_id: str) -> str:
     return f"{DOMAIN}_{entry_id}_command_center"
+
+
+def _managed_device_review_notification_id(entry_id: str) -> str:
+    return f"{DOMAIN}_{entry_id}_managed_device_review"
+
+
+def _device_runtime_sort_key(detail: dict) -> tuple[int, int, str]:
+    effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
+    usable = detail.get("usable") is True
+    planned = str(detail.get("planned_action") or "") != "hold"
+    return (
+        0 if effective_enabled and usable else 1,
+        0 if planned else 1,
+        str(detail.get("name") or detail.get("entity_id") or ""),
+    )
+
+
+def _format_device_review_line(detail: dict) -> str:
+    runtime_bits = [
+        str(detail.get("status") or "status unknown"),
+        "usable" if detail.get("usable") else "not usable",
+        "enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "disabled",
+        f"guard={detail.get('guard_status') or 'unknown'}",
+        f"plan={detail.get('planned_action') or 'hold'}",
+    ]
+    last_action_status = str(detail.get("last_action_status") or "").strip()
+    if last_action_status:
+        runtime_bits.append(f"last={last_action_status}")
+    entity_id = str(detail.get("entity_id") or "unknown entity")
+    return f"- {detail.get('name') or entity_id}: {' | '.join(runtime_bits)} | entity={entity_id}"
 
 
 class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEntity):
@@ -207,6 +239,64 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             '\n'.join(lines),
             title=f"{self.coordinator.entry.title}: fleet console",
             notification_id=_fleet_console_notification_id(self.coordinator.entry.entry_id),
+        )
+
+
+class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEntity):
+    def __init__(self, coordinator):
+        super().__init__(coordinator, "show_managed_device_review", "Show managed-device review")
+        self._attr_icon = "mdi:clipboard-list-outline"
+
+    @property
+    def extra_state_attributes(self):
+        state = self._state
+        device_details = list((state.device_details or {}).values()) if state is not None else []
+        ordered = sorted(device_details, key=_device_runtime_sort_key)
+        command_center = build_native_command_center_summary(self.coordinator)
+        return {
+            "configure_path": DEVICES_CONFIGURE_PATH,
+            "detailed_management_path": DETAILED_MANAGEMENT_PATH,
+            "managed_count": len(device_details),
+            "enabled_count": sum(
+                1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))
+            ),
+            "usable_count": sum(1 for detail in device_details if detail.get("usable") is True),
+            "planned_action_count": sum(1 for detail in device_details if str(detail.get("planned_action") or "") != "hold"),
+            "blocked_count": sum(1 for detail in device_details if detail.get("usable") is False),
+            "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
+            "devices": ordered[:12],
+        }
+
+    async def async_press(self) -> None:
+        state = self._state
+        device_details = list((state.device_details or {}).values()) if state is not None else []
+        ordered = sorted(device_details, key=_device_runtime_sort_key)
+        command_center = build_native_command_center_summary(self.coordinator)
+        lines = [
+            "Zero Net Export managed-device review",
+            "",
+            f"Fleet workspace: {DEVICES_CONFIGURE_PATH}",
+            f"Detailed device-view path: {DETAILED_MANAGEMENT_PATH}",
+            f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
+            "",
+            (
+                "Managed snapshot: "
+                f"{len(device_details)} managed | "
+                f"{sum(1 for detail in device_details if detail.get('effective_enabled', detail.get('enabled', True)))} enabled | "
+                f"{sum(1 for detail in device_details if detail.get('usable') is True)} usable | "
+                f"{sum(1 for detail in device_details if str(detail.get('planned_action') or '') != 'hold')} planned action(s)"
+            ),
+            "",
+            "Managed devices right now:",
+            *([_format_device_review_line(detail) for detail in ordered[:20]] or ["- No managed devices configured yet."]),
+            "",
+            "Use each managed-device entity row on the Zero Net Export device page for per-device status sensors and reset-override buttons.",
+        ]
+        persistent_notification.async_create(
+            self.hass,
+            "\n".join(lines),
+            title=f"{self.coordinator.entry.title}: managed-device review",
+            notification_id=_managed_device_review_notification_id(self.coordinator.entry.entry_id),
         )
 
 

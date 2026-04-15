@@ -184,6 +184,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "device_page_buttons": [
                 "Show command center guide",
+                "Show managed-device review",
                 "Show support center",
                 "Show native diagnostics snapshot",
                 "Show setup checklist",
