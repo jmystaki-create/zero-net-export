@@ -157,7 +157,7 @@ Suggested area labels:
 - **severity:** `medium`
 - **area:** `docs`
 - **historical behavior:** `docs/UI_DESIGN.md` still said there should be two dashboards built around existing HACS or custom dashboard technologies, and `docs/UI_IMPLEMENTATION_MAP.md` still carried a dashboard-delivery phase as though those dashboards were required for the `0.1.83` UI release. That conflicted with the same docs' native-only operator path, with supervisor steering, and with the project rule that optional dashboards must not displace Configure and Managed Devices work.
-- **repo fix:** `64dcf70` — clarify dashboards as optional in-native supplemental visibility only, and remove them as a required `0.1.83` implementation phase
+- **repo fix:** `863cba8` — clarify dashboards as optional in-native supplemental visibility only, and remove them as a required `0.1.83` implementation phase
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_DESIGN.md` now marks dashboards optional and secondary, and `docs/UI_IMPLEMENTATION_MAP.md` now reframes dashboard work as optional cleanup instead of a required release phase
 
 ## ZNE-006 — Deploy helper CLI drift from documented release flow
