@@ -119,6 +119,33 @@ class SensorStateLengthGuardTests(unittest.TestCase):
             "See candidate_devices in the sensor attributes for the current shortlist.",
         )
 
+    def test_mapped_source_blocker_summary_falls_back_when_live_summary_exceeds_native_limit(self) -> None:
+        sensor_module = _load_sensor_module()
+        long_value = "; ".join(
+            f"role_{index} (sensor.very_long_mapped_source_entity_name_number_{index}, stale {2000 + index} s)"
+            for index in range(1, 6)
+        )
+        trimmed = sensor_module._trim_sensor_state("mapped_source_blocker_summary", long_value)
+        self.assertLessEqual(len(trimmed), 255)
+        self.assertEqual(
+            trimmed,
+            "Mapped-source blockers are active; see affected_mapped_sources in the sensor attributes.",
+        )
+
+    def test_mapped_source_blocker_next_step_falls_back_when_guidance_exceeds_native_limit(self) -> None:
+        sensor_module = _load_sensor_module()
+        long_value = (
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors and source mapping, "
+            "repair solar_energy, grid_import_power, grid_export_power, battery_discharge_power, battery_state_of_charge, "
+            "then save, reload, reopen Sensors and source mapping, and confirm every stale role has recovered before trusting control again."
+        )
+        trimmed = sensor_module._trim_sensor_state("mapped_source_blocker_next_step", long_value)
+        self.assertLessEqual(len(trimmed), 255)
+        self.assertEqual(
+            trimmed,
+            "Open Settings -> Sensors, repair the highlighted mapped roles, then save, reload, and confirm recovery.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

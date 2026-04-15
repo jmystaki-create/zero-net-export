@@ -374,23 +374,33 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             blocking_details = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
             if self._key == "mapped_source_blocker_summary":
                 if summary != "None":
-                    return summary
+                    return _trim_sensor_state(self._key, summary, coordinator=self.coordinator, state=state)
                 if blocking_details != "None":
-                    return blocking_details
+                    return _trim_sensor_state(self._key, blocking_details, coordinator=self.coordinator, state=state)
                 return "None"
             readiness = build_native_operator_readiness(self.coordinator)
             if summary != "None" or blocking_details != "None":
                 source_attention = build_source_attention_details(state)
-                return str(
-                    readiness.get("next_step")
-                    or build_source_repair_step(
-                        unavailable_source_keys=source_attention["unavailable_source_keys"],
-                        stale_source_keys=source_attention["stale_source_keys"],
-                        blocking_validation_details=blocking_details,
-                        affected_roles=build_source_attention_role_summary(state, merged, limit=4),
-                    )
+                return _trim_sensor_state(
+                    self._key,
+                    str(
+                        readiness.get("next_step")
+                        or build_source_repair_step(
+                            unavailable_source_keys=source_attention["unavailable_source_keys"],
+                            stale_source_keys=source_attention["stale_source_keys"],
+                            blocking_validation_details=blocking_details,
+                            affected_roles=build_source_attention_role_summary(state, merged, limit=4),
+                        )
+                    ),
+                    coordinator=self.coordinator,
+                    state=state,
                 )
-            return f"Mapped sources currently look healthy; continue in {DEVICES_CONFIGURE_PATH} or {POLICY_CONFIGURE_PATH}"
+            return _trim_sensor_state(
+                self._key,
+                f"Mapped sources currently look healthy; continue in {DEVICES_CONFIGURE_PATH} or {POLICY_CONFIGURE_PATH}",
+                coordinator=self.coordinator,
+                state=state,
+            )
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
             mapping = {
