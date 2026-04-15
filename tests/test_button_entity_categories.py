@@ -336,6 +336,69 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertTrue(any("meaningful unit" in warning for warning in attrs["top_candidate_fit"]["warnings"]))
         self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
 
+    def test_managed_device_detail_button_renders_per_device_review(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "reason": "Export is above target and this load can absorb it.",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                        "planned_action_reason": "Use the pump to absorb export.",
+                        "planned_power_delta_w": 1200,
+                        "nominal_power_w": 1200,
+                        "min_power_w": 1200,
+                        "max_power_w": 1200,
+                        "step_w": 1200,
+                        "current_power_w": 0,
+                        "current_target_power_w": None,
+                        "priority": 90,
+                        "cooldown_seconds": 300,
+                        "min_on_seconds": 900,
+                        "min_off_seconds": 600,
+                        "max_active_seconds": 7200,
+                        "operator_enabled_override": None,
+                        "operator_priority_override": 75,
+                        "last_action_status": "applied",
+                        "last_action_result_message": "Turned on successfully.",
+                        "last_requested_power_w": 1200,
+                        "last_applied_power_w": 1200,
+                        "successful_action_count": 4,
+                        "failed_action_count": 1,
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
+        button.hass = SimpleNamespace()
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        self.assertEqual(len(notification_calls), 1)
+        message = notification_calls[0]["args"][1]
+        self.assertIn("Zero Net Export managed-device detail review", message)
+        self.assertIn("Managed Devices path: devices path", message)
+        self.assertIn("Device: Pool pump", message)
+        self.assertIn("Entity: switch.pool_pump", message)
+        self.assertIn("Guard state: ready", message)
+        self.assertIn("Planned action: turn_on", message)
+        self.assertIn("- Priority: 90", message)
+        self.assertIn("- Planned power delta: 1200 W", message)
+        self.assertIn("- Priority override: 75", message)
+        self.assertIn("- Last action result: Turned on successfully.", message)
+        self.assertIn("Use devices path to edit enablement, priority, or power limits.", message)
+
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)

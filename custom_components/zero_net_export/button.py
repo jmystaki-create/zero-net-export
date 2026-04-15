@@ -37,6 +37,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     if state is not None:
         entities.extend(
+            ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, details["name"])
+            for device_key, details in state.device_details.items()
+        )
+        entities.extend(
             ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, details["name"])
             for device_key, details in state.device_details.items()
         )
@@ -67,6 +71,10 @@ def _managed_device_review_notification_id(entry_id: str) -> str:
     return f"{DOMAIN}_{entry_id}_managed_device_review"
 
 
+def _managed_device_detail_notification_id(entry_id: str, device_key: str) -> str:
+    return f"{DOMAIN}_{entry_id}_managed_device_{device_key}_review"
+
+
 def _device_runtime_sort_key(detail: dict) -> tuple[int, int, str]:
     effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
     usable = detail.get("usable") is True
@@ -91,6 +99,66 @@ def _format_device_review_line(detail: dict) -> str:
         runtime_bits.append(f"last={last_action_status}")
     entity_id = str(detail.get("entity_id") or "unknown entity")
     return f"- {detail.get('name') or entity_id}: {' | '.join(runtime_bits)} | entity={entity_id}"
+
+
+def _format_power(value: object) -> str:
+    if value is None:
+        return "n/a"
+    try:
+        return f"{int(round(float(value)))} W"
+    except (TypeError, ValueError):
+        return str(value)
+
+
+def _build_managed_device_detail_lines(detail: dict) -> list[str]:
+    entity_id = str(detail.get("entity_id") or "unknown entity")
+    lines = [
+        "Zero Net Export managed-device detail review",
+        "",
+        f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
+        f"Detailed device-view path: {DETAILED_MANAGEMENT_PATH}",
+        f"Device: {detail.get('name') or entity_id}",
+        f"Entity: {entity_id}",
+        f"Kind: {detail.get('kind') or 'unknown'}",
+        f"Runtime status: {detail.get('status') or 'status unknown'}",
+        f"Guard state: {detail.get('guard_status') or 'unknown'}",
+        f"Planned action: {detail.get('planned_action') or 'hold'}",
+        f"Planned action reason: {detail.get('planned_action_reason') or 'No planned action reason recorded.'}",
+        f"Reason: {detail.get('reason') or 'No runtime reason recorded.'}",
+        "",
+        "Control profile:",
+        f"- Enabled: {'yes' if detail.get('effective_enabled', detail.get('enabled', True)) else 'no'}",
+        f"- Usable: {'yes' if detail.get('usable') else 'no'}",
+        f"- Priority: {detail.get('priority') if detail.get('priority') is not None else 'n/a'}",
+        f"- Current power: {_format_power(detail.get('current_power_w'))}",
+        f"- Planned power delta: {_format_power(detail.get('planned_power_delta_w'))}",
+        f"- Requested target power: {_format_power(detail.get('planned_requested_power_w') or detail.get('current_target_power_w'))}",
+        f"- Nominal power: {_format_power(detail.get('nominal_power_w'))}",
+        f"- Variable range: {_format_power(detail.get('min_power_w'))} to {_format_power(detail.get('max_power_w'))}",
+        f"- Step size: {_format_power(detail.get('step_w'))}",
+        f"- Cooldown: {int(detail.get('cooldown_seconds') or 0)} s",
+        f"- Min on time: {int(detail.get('min_on_seconds') or 0)} s",
+        f"- Min off time: {int(detail.get('min_off_seconds') or 0)} s",
+        f"- Max active time: {int(detail.get('max_active_seconds') or 0)} s",
+        "",
+        "Operator overrides:",
+        f"- Enabled override: {detail.get('operator_enabled_override') if detail.get('operator_enabled_override') is not None else 'none'}",
+        f"- Priority override: {detail.get('operator_priority_override') if detail.get('operator_priority_override') is not None else 'none'}",
+        "",
+        "Latest execution:",
+        f"- Last action status: {detail.get('last_action_status') or 'No recent action'}",
+        f"- Last action result: {detail.get('last_action_result_message') or 'No recent action result recorded.'}",
+        f"- Last requested power: {_format_power(detail.get('last_requested_power_w'))}",
+        f"- Last applied power: {_format_power(detail.get('last_applied_power_w'))}",
+        f"- Success count: {int(detail.get('successful_action_count') or 0)}",
+        f"- Failure count: {int(detail.get('failed_action_count') or 0)}",
+        "",
+        "Next native actions:",
+        f"- Use {DEVICES_CONFIGURE_PATH} to edit enablement, priority, or power limits.",
+        f"- Use {entity_id} sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
+        f"- Use the reset overrides button for this device if operator overrides should be cleared.",
+    ]
+    return lines
 
 
 class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEntity):
@@ -358,13 +426,44 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 or ["- No unmanaged candidate devices discovered right now."]
             ),
             "",
-            "Use each managed-device entity row on the Zero Net Export device page for per-device status sensors and reset-override buttons.",
+            "Use each managed-device review button on the Zero Net Export device page for a deeper per-device snapshot, plus the paired status sensors and reset-override buttons.",
         ]
         persistent_notification.async_create(
             self.hass,
             "\n".join(lines),
             title=f"{self.coordinator.entry.title}: managed-device review",
             notification_id=_managed_device_review_notification_id(self.coordinator.entry.entry_id),
+        )
+
+
+class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEntity):
+    def __init__(self, coordinator, device_key: str, device_name: str):
+        super().__init__(coordinator, f"device_{device_key}_review", f"{device_name} review")
+        self._device_key = device_key
+        self._attr_icon = "mdi:text-box-search-outline"
+
+    def _detail(self) -> dict:
+        state = self._state
+        if state is None:
+            return {}
+        return dict((state.device_details or {}).get(self._device_key, {}) or {})
+
+    @property
+    def extra_state_attributes(self):
+        detail = self._detail()
+        return {
+            "configure_path": DEVICES_CONFIGURE_PATH,
+            "detailed_management_path": DETAILED_MANAGEMENT_PATH,
+            **detail,
+        }
+
+    async def async_press(self) -> None:
+        detail = self._detail()
+        persistent_notification.async_create(
+            self.hass,
+            "\n".join(_build_managed_device_detail_lines(detail)),
+            title=f"{self.coordinator.entry.title}: {detail.get('name') or self._device_key} review",
+            notification_id=_managed_device_detail_notification_id(self.coordinator.entry.entry_id, self._device_key),
         )
 
 
