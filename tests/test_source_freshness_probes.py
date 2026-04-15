@@ -124,6 +124,32 @@ def _load_coordinator_module():
 
 
 class SourceFreshnessProbeTests(unittest.TestCase):
+    def test_release_update_details_passes_current_version_to_release_info(self) -> None:
+        coordinator_module = _load_coordinator_module()
+        captured: dict[str, object] = {}
+
+        def _build_release_info(current_version: str, *, include_changelog: bool = True) -> dict[str, object]:
+            captured["current_version"] = current_version
+            captured["include_changelog"] = include_changelog
+            return {
+                "current_version": current_version,
+                "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
+                "summary": f"Installed version {current_version}",
+            }
+
+        coordinator_module.build_release_info = _build_release_info
+        coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
+        coordinator._previous_installed_version = None
+        coordinator._last_seen_integration_version = coordinator_module.INTEGRATION_VERSION
+        coordinator._version_update_detected_at = None
+
+        details = coordinator._release_update_details()
+
+        self.assertEqual(captured["current_version"], coordinator_module.INTEGRATION_VERSION)
+        self.assertFalse(captured["include_changelog"])
+        self.assertEqual(details["installed_version"], coordinator_module.INTEGRATION_VERSION)
+        self.assertFalse(details["update_detected"])
+
     def test_companion_data_time_probe_keeps_static_sensor_fresh(self) -> None:
         coordinator_module = _load_coordinator_module()
         coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
