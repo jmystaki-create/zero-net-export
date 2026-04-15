@@ -43,14 +43,18 @@ These remain valid native Home Assistant surfaces for runtime, support, and auto
 
 They support the operator path, but should not replace the need for a coherent Configure experience.
 
-### 4. Dashboards
-There should be **2 dashboards**.
+### 4. Optional dashboards
+Dashboards are optional supplemental visibility inside native Home Assistant, not part of the required operator path and not part of the `0.1.83` release gate.
 
-These dashboards can be built around existing HACS or custom dashboard technologies.
-This can and should be a configuration item, likely YAML-backed, and should review and reuse the Lovelace/dashboard assets where that helps.
+If optional dashboards are kept or expanded later, they must stay fully inside normal Home Assistant dashboard capabilities and remain clearly secondary to Configure, the integration device path, entities, notifications, automations/scripts, and Repairs.
+
+Existing Lovelace/dashboard assets may be reused as optional examples only.
+They must not become a required setup path, a parallel product UI, or a reason to defer the core native Configure and Managed Devices work.
+
+If optional dashboards are maintained, the two useful shapes are still:
 
 #### Dashboard 1 - System Dashboard
-This dashboard should provide an overview of the Zero Net Export system, including:
+This dashboard can provide an overview of the Zero Net Export system, including:
 - load
 - devices engaged
 - battery %
@@ -58,7 +62,7 @@ This dashboard should provide an overview of the Zero Net Export system, includi
 - other whole-system status needed to understand what the controller is doing
 
 #### Dashboard 2 - Managed Elements
-This dashboard should provide a summary of the managed devices, including:
+This dashboard can provide a summary of the managed devices, including:
 - their status
 - their watts
 - whether they are activated on/off

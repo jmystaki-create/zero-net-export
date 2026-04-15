@@ -98,24 +98,23 @@ Features:
 - entity recovery after restart
 - clean enough load path for UI inspection
 
-### Phase 2. Dashboard implementation strategy
+### Phase 2. Optional dashboard cleanup
 Purpose:
-- deliver the two dashboards now required by `docs/UI_DESIGN.md`
-- keep dashboard strategy and execution tracked here rather than scattered across design docs
+- keep optional dashboard assets aligned with the native-only product direction
+- prevent optional dashboard work from being mistaken for the `0.1.83` UI release itself
 
 Completed:
 - baseline Lovelace/dashboard assets already exist in the repo for reuse/reference
 
 Remaining:
-- decide the exact technology/configuration path for the two required dashboards
-- define how YAML or other dashboard configuration should be supplied
-- align existing dashboard assets to the new two-dashboard strategy
+- keep optional dashboard docs/examples explicitly secondary to the supported native operator path
+- trim or refresh optional assets only when they help debug visibility inside Home Assistant without changing product direction
+- avoid letting optional dashboard work displace Configure, Managed Devices, Diagnostics, or live validation work
 
 Features:
-- System Dashboard
-- Managed Elements Dashboard
-- reusable/configurable dashboard configuration path
-- alignment of existing Lovelace/dashboard assets to the new design
+- optional System Dashboard example
+- optional Managed Elements Dashboard example
+- alignment of existing Lovelace/dashboard assets to the native-only design
 
 ### Phase 3. Managed Devices landing experience
 Purpose:
