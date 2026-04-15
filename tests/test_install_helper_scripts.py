@@ -25,6 +25,79 @@ def load_script_module(name: str, filename: str):
 
 deploy_script = load_script_module("deploy_exact_repo_build", "deploy_exact_repo_build.py")
 compare_script = load_script_module("compare_install_fingerprint", "compare_install_fingerprint.py")
+cleanup_script = load_script_module("clean_legacy_discovery_artifacts", "clean_legacy_discovery_artifacts.py")
+
+
+class CleanLegacyDiscoveryArtifactsTests(unittest.TestCase):
+    def test_normalize_custom_components_root_accepts_config_custom_components_or_component_paths(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            root = Path(tmp_dir)
+            config_dir = root / "config"
+            custom_components_dir = config_dir / "custom_components"
+            component_dir = custom_components_dir / "zero_net_export"
+
+            self.assertEqual(
+                cleanup_script.normalize_custom_components_root(config_dir),
+                custom_components_dir.resolve(),
+            )
+            self.assertEqual(
+                cleanup_script.normalize_custom_components_root(custom_components_dir),
+                custom_components_dir.resolve(),
+            )
+            self.assertEqual(
+                cleanup_script.normalize_custom_components_root(component_dir),
+                custom_components_dir.resolve(),
+            )
+
+    def test_scan_finds_legacy_backup_dirs_and_zero_net_export_bytecode(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            custom_components_dir = Path(tmp_dir) / "config" / "custom_components"
+            live_component = custom_components_dir / "zero_net_export"
+            backup_dir = custom_components_dir / "zero_net_export.backup_openclaw_20260415_220427"
+            other_backup_dir = custom_components_dir / "zero_net_export.backup-20260415T120000Z"
+            unrelated_backup = custom_components_dir / "another_component.backup_openclaw_20260415_220427"
+            pycache_dir = custom_components_dir / "__pycache__"
+            live_component.mkdir(parents=True, exist_ok=True)
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            other_backup_dir.mkdir(parents=True, exist_ok=True)
+            unrelated_backup.mkdir(parents=True, exist_ok=True)
+            pycache_dir.mkdir(parents=True, exist_ok=True)
+            (pycache_dir / "zero_net_export.backup_openclaw_20260415_220427.cpython-313.pyc").write_bytes(b"legacy")
+            (pycache_dir / "another_component.cpython-313.pyc").write_bytes(b"keep")
+
+            payload = cleanup_script.scan_artifacts(custom_components_dir)
+
+            self.assertEqual(
+                payload["legacy_backup_paths"],
+                [str(other_backup_dir), str(backup_dir)],
+            )
+            self.assertEqual(
+                payload["stale_bytecode_paths"],
+                [str(pycache_dir / "zero_net_export.backup_openclaw_20260415_220427.cpython-313.pyc")],
+            )
+
+    def test_clean_removes_legacy_backup_dirs_and_matching_bytecode_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            custom_components_dir = Path(tmp_dir) / "config" / "custom_components"
+            live_component = custom_components_dir / "zero_net_export"
+            backup_dir = custom_components_dir / "zero_net_export.backup_openclaw_20260415_220427"
+            pycache_dir = custom_components_dir / "__pycache__"
+            live_component.mkdir(parents=True, exist_ok=True)
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            pycache_dir.mkdir(parents=True, exist_ok=True)
+            stale_bytecode = pycache_dir / "zero_net_export.backup_openclaw_20260415_220427.cpython-313.pyc"
+            unrelated_bytecode = pycache_dir / "another_component.cpython-313.pyc"
+            stale_bytecode.write_bytes(b"legacy")
+            unrelated_bytecode.write_bytes(b"keep")
+
+            payload = cleanup_script.clean_artifacts(custom_components_dir)
+
+            self.assertEqual(payload["removed_backup_paths"], [str(backup_dir)])
+            self.assertEqual(payload["removed_stale_bytecode_paths"], [str(stale_bytecode)])
+            self.assertFalse(backup_dir.exists())
+            self.assertFalse(stale_bytecode.exists())
+            self.assertTrue(live_component.exists())
+            self.assertTrue(unrelated_bytecode.exists())
 
 
 class DeployExactRepoBuildTests(unittest.TestCase):
