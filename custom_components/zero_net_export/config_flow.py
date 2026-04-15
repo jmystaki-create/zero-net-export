@@ -1415,6 +1415,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         placeholders = {
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "headline_decision": command_center["headline_decision"],
+            "alert_summary": command_center["alert_summary"],
             "energy_state_summary": command_center["energy_state_summary"],
             "control_decision_summary": command_center["control_decision_summary"],
             "control_outcome_summary": command_center["control_outcome_summary"],

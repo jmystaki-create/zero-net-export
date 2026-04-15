@@ -130,6 +130,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(summary["headline_decision"], "Action queued, waiting for device guard.")
+        self.assertEqual(summary["alert_summary"], "1 configured device available")
         self.assertIn("solar 4200.0 W", summary["energy_state_summary"])
         self.assertIn("grid import 350.0 W", summary["energy_state_summary"])
         self.assertIn("battery charge 900.0 W", summary["energy_state_summary"])
@@ -141,6 +142,51 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("managed 1", summary["fleet_activity_summary"])
         self.assertIn("usable 1", summary["fleet_activity_summary"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
+
+    def test_command_center_summary_surfaces_top_alerts_across_source_device_and_runtime_blocks(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "runtime_readiness",
+            "summary": "Runtime health still needs operator attention.",
+            "next_step": "Review the current runtime blocker.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [native_support.CONF_GRID_EXPORT_POWER_ENTITY],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "Grid export power is unavailable"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "Grid export power"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources need attention"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Grid export: sensor.grid_export_power"
+
+        native_support.parse_device_configs = lambda entry: ([], ["pool_pump missing entity_id"])
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Runtime health still needs operator attention.",
+            diagnostic_summary="Runtime health still needs operator attention.",
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("Mapped-source blockers: Grid export power is unavailable", summary["alert_summary"])
+        self.assertIn("Managed-device configuration needs repair for 1 item(s).", summary["alert_summary"])
+        self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
 
     def test_command_center_summary_uses_decision_first_headline_when_export_is_high(self) -> None:
         native_support = _load_native_support_module()

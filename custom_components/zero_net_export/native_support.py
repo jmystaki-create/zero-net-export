@@ -979,6 +979,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"Primary path: {PRIMARY_CONFIGURE_PATH}",
             f"Recommended section right now: {recommended_section}",
             f"Recommended path right now: {command_center.get('recommended_path')}",
+            f"Top alerts: {command_center.get('alert_summary')}",
             f"Why this section is recommended: {command_center.get('recommended_reason')}",
             f"What to do next: {command_center.get('next_action_summary')}",
             f"Installed package: {command_center.get('install_status')}",
@@ -1257,7 +1258,32 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         else "No mapped-source blockers currently highlighted"
     )
 
+    top_alerts: list[str] = []
+    if missing_required_sources:
+        top_alerts.append(
+            "Missing required source roles: "
+            + ", ".join(SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources)
+        )
+    elif runtime_source_attention:
+        top_alerts.append(f"Mapped-source blockers: {source_attention_summary_display}")
+
+    if device_parse_issues:
+        top_alerts.append(f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s).")
+    elif not configured_devices:
+        top_alerts.append("No managed devices configured yet.")
+
+    if readiness_phase == "runtime_readiness":
+        top_alerts.append(str(readiness.get("summary") or support_status))
+
     recommended_reason = status_summary_map.get(recommended_section, support_status)
+    if not top_alerts and recommended_reason:
+        top_alerts.append(str(recommended_reason))
+
+    alert_summary = _truncate_state_summary(
+        " | ".join(part for part in top_alerts if part),
+        fallback="No top-level alerts right now.",
+    )
+
     status_summary = _truncate_state_summary(
         str(recommended_reason),
         fallback=(
@@ -1337,6 +1363,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     return {
         "headline_decision": _truncate_state_summary(headline_decision, fallback="Runtime summary unavailable."),
+        "alert_summary": alert_summary,
         "energy_state_summary": energy_state_summary,
         "control_decision_summary": control_decision_summary,
         "control_outcome_summary": control_outcome_summary,
@@ -1397,6 +1424,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- {SUPPORT_SECTION_LABEL}: runtime health, install consistency, and troubleshooting guidance.",
             f"Recommended command-center section: {command_center.get('recommended_section')}",
             f"Recommended command-center path: {command_center.get('recommended_path')}",
+            f"Top alerts: {command_center.get('alert_summary')}",
             f"Why this section is recommended: {command_center.get('recommended_reason')}",
             f"Current mapped-source blockers: {command_center.get('source_attention_summary')}",
             f"Affected mapped roles: {command_center.get('source_attention_roles')}",
