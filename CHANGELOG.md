@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.83`
 
 ### Fixed
+- Upgraded the native fleet-console device-page action so it now shows managed and unmanaged snapshots, runtime-ranked managed-device status, top candidate fit and warnings, and an explicit promotion handoff back into Configure -> Managed Devices instead of a thinner raw-entity list.
 - Ignored the repo-local `tmp-ha-config/` scratch Home Assistant tree so exact-build release guards can still use `--require-clean` without tripping over local validation debris.
 - Wired the device-page command-center guide button to the shared full guide builder, so the native command-center handoff now shows the recommended section reason, common operator paths, section ownership, mapped-source blocker detail, and managed-device deep-review path instead of a shorter partial summary.
 - Stopped slow-moving required energy totals from holding runtime safe mode on their own, while still surfacing them as stale source diagnostics, so live control does not get re-blocked just because a total-increasing energy sensor has not ticked recently.

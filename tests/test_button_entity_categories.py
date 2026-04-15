@@ -148,6 +148,78 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIsNone(getattr(managed_review, "_attr_entity_category", None))
         self.assertEqual(diagnostics._attr_entity_category, button_module.EntityCategory.DIAGNOSTIC)
 
+    def test_fleet_console_button_renders_managed_vs_unmanaged_workspace(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    },
+                    "ev": {
+                        "name": "EV charger",
+                        "entity_id": "number.ev_limit",
+                        "usable": False,
+                        "enabled": True,
+                        "effective_enabled": False,
+                        "status": "Held by guard",
+                        "guard_status": "blocked",
+                        "planned_action": "hold",
+                    },
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool pump"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="input_boolean.helper_candidate",
+                        state="on",
+                        attributes={"friendly_name": "Helper candidate"},
+                    ),
+                ]
+            )
+        )
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        self.assertEqual(len(notification_calls), 1)
+        message = notification_calls[0]["args"][1]
+        self.assertIn("Zero Net Export native fleet console", message)
+        self.assertIn("Fleet workspace: devices path", message)
+        self.assertIn("Detailed device-view path: detailed device path", message)
+        self.assertIn("Managed snapshot: 2 managed | 1 enabled | 1 usable", message)
+        self.assertIn("Unmanaged snapshot: 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
+        self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn("Managed devices right now:", message)
+        self.assertIn("- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump", message)
+        self.assertIn("Top unmanaged candidates:", message)
+        self.assertIn("- Hot water (switch.hot_water, fixed, state off) | strong match | key warning: No immediate warnings", message)
+        self.assertIn("Promotion handoff:", message)
+        self.assertIn("- Choose Add fixed load device.", message)
+        self.assertIn("- In Pick unmanaged candidate, select switch.hot_water.", message)
+
     def test_managed_device_review_button_renders_runtime_fleet_summary(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)

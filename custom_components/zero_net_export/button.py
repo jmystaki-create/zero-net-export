@@ -11,14 +11,10 @@ from .entity import ZeroNetExportEntity
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
-    DEVICES_SECTION_LABEL,
     POLICY_CONFIGURE_PATH,
-    POLICY_SECTION_LABEL,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
-    SOURCES_SECTION_LABEL,
     SUPPORT_CONFIGURE_PATH,
-    SUPPORT_SECTION_LABEL,
     build_native_command_center_guide_text,
     build_native_command_center_summary,
     build_native_operator_readiness,
@@ -158,57 +154,102 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def extra_state_attributes(self):
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
+        ordered = sorted(managed, key=_device_runtime_sort_key)
         managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
         candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+        top_candidate = candidates[0] if candidates else None
+        top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
+        command_center = build_native_command_center_summary(self.coordinator)
         return {
             'configure_path': DEVICES_CONFIGURE_PATH,
+            'detailed_management_path': DETAILED_MANAGEMENT_PATH,
             'managed_count': len(managed),
+            'enabled_count': sum(
+                1 for detail in managed if detail.get('effective_enabled', detail.get('enabled', True))
+            ),
+            'usable_count': sum(1 for detail in managed if detail.get('usable') is True),
             'candidate_count': len(candidates),
             'candidate_devices': candidates[:12],
-            'top_candidate': candidates[0] if candidates else None,
-            'promotion_handoff': f'Open {DEVICES_CONFIGURE_PATH}, choose Add fixed/variable, then pick this candidate in the candidate-pick step.' if candidates else None,
+            'top_candidate': top_candidate,
+            'top_candidate_fit': top_candidate_fit,
+            'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
+            'devices': ordered[:12],
+            'promotion_handoff': (
+                f'Open {DEVICES_CONFIGURE_PATH}, choose Add fixed/variable, review the top candidate, then save it into Managed Devices.'
+                if candidates
+                else None
+            ),
         }
 
     async def async_press(self) -> None:
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
+        ordered = sorted(managed, key=_device_runtime_sort_key)
         managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
-        candidates = [
-            (item['name'], item['entity_id'], item['domain'], item['state'])
-            for item in discover_candidate_devices(self.hass.states.async_all(), managed_ids)
-        ]
+        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+        top_candidate = candidates[0] if candidates else None
+        top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
+        command_center = build_native_command_center_summary(self.coordinator)
         lines = [
             'Zero Net Export native fleet console',
             '',
-            f'Primary path: {DEVICES_CONFIGURE_PATH}',
+            f'Fleet workspace: {DEVICES_CONFIGURE_PATH}',
+            f'Detailed device-view path: {DETAILED_MANAGEMENT_PATH}',
+            f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
             '',
-            f'{DEVICES_SECTION_LABEL}: {len(managed)}',
+            (
+                'Managed snapshot: '
+                f"{len(managed)} managed | "
+                f"{sum(1 for detail in managed if detail.get('effective_enabled', detail.get('enabled', True)))} enabled | "
+                f"{sum(1 for detail in managed if detail.get('usable') is True)} usable"
+            ),
+            (
+                'Unmanaged snapshot: '
+                f"{len(candidates)} candidate(s)"
+                + (
+                    f" | top candidate {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else ''
+                )
+            ),
+            (
+                f"Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
+                if top_candidate_fit
+                else 'Top candidate fit: No unmanaged candidate guidance available right now.'
+            ),
+            (
+                'Top candidate warnings: '
+                + (
+                    '; '.join(top_candidate_fit.get('warnings') or [])
+                    if top_candidate_fit and top_candidate_fit.get('warnings')
+                    else 'No immediate warnings.'
+                )
+            ),
+            '',
+            'Managed devices right now:',
+            *([_format_device_review_line(detail) for detail in ordered[:12]] or ['- No managed devices configured yet.']),
+            '',
+            'Top unmanaged candidates:',
+            *(
+                [
+                    f"- {build_candidate_preview(item, include_state=True)}"
+                    for item in candidates[:6]
+                ]
+                or ['- No unmanaged candidate devices discovered right now.']
+            ),
+            '',
+            'Promotion handoff:',
         ]
-        if managed:
-            lines.extend(
-                f"- {detail.get('name')}: {detail.get('status')} | enabled={detail.get('effective_enabled')} | entity={detail.get('entity_id')}"
-                for detail in managed[:12]
-            )
-        else:
-            lines.append('- No managed devices configured yet')
-        lines.extend(['', f'Unmanaged candidate devices: {len(candidates)}'])
-        if candidates:
-            lines.extend(f'- {name} ({entity_id}, {domain}, state {value})' for name, entity_id, domain, value in candidates[:12])
-            top_name, top_entity_id, top_domain, top_value = candidates[0]
-            top_add_label = 'fixed load device' if top_domain in {'switch', 'input_boolean', 'light'} else 'variable load device'
+        if top_candidate:
+            top_add_label = 'fixed load device' if top_candidate['kind'] == 'fixed' else 'variable load device'
             lines.extend([
-                '',
-                f'Top candidate: {top_name} ({top_entity_id}, {top_domain}, state {top_value})',
-                'Next step:',
                 f'- Open {DEVICES_CONFIGURE_PATH}.',
                 f'- Choose Add {top_add_label}.',
-                f'- In Pick unmanaged candidate, select {top_entity_id}.',
+                f"- In Pick unmanaged candidate, select {top_candidate['entity_id']}.",
+                '- Review fit and warnings, then save it into Managed Devices.',
             ])
         else:
             lines.extend([
-                '- No unmanaged candidate devices discovered right now',
-                '',
-                'Next step:',
                 f'- Open {POLICY_CONFIGURE_PATH} to tune controller behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work.',
             ])
         persistent_notification.async_create(
