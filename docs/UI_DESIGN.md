@@ -5,6 +5,7 @@ This document is the single source of truth for the **product design** of the na
 If another project document appears to disagree about UI direction, supported operator surfaces, or section ownership, follow this file.
 
 The implementation plan, delivery phases, completed work, and remaining work now live in `docs/UI_IMPLEMENTATION_MAP.md`.
+Research inputs, external pattern synthesis, and the full redesign-question trail now live in `docs/UI_RESEARCH.md`.
 
 ## Product intent
 
@@ -13,7 +14,22 @@ Zero Net Export is a **native Home Assistant integration**.
 Its supported operator UX is limited to native Home Assistant surfaces.
 There is no supported custom sidebar, custom panel, external web UI, or parallel product UI.
 
-The design goal is not to expose all backend capability. The design goal is to make the operator path inside Home Assistant feel clear, boring, obvious, and trustworthy.
+The design goal is not to expose all backend capability.
+The design goal is to make the operator path inside Home Assistant feel like a **serious, high-legibility operator console** that is still fully native to Home Assistant.
+
+The product should feel:
+- industrial
+- crisp
+- dense
+- serious
+- trustworthy
+- operationally legible at a glance
+
+It should not feel like:
+- a decorative dashboard first
+- a text-heavy guidance layer
+- a pseudo-app awkwardly forced into Home Assistant
+- a pile of entities that happens to contain an optimizer
 
 ## Supported operator surfaces
 
@@ -21,22 +37,27 @@ The design goal is not to expose all backend capability. The design goal is to m
 This is the primary operator workspace.
 
 Configure should be the place where an operator can:
-- map sources
-- understand source-health blockers
-- manage the Zero Net Export policy/brain
+- understand what the optimizer is doing right now
+- see the current energy state it is reacting to
+- inspect the controller’s current decision and outcome
 - manage the controlled device fleet
-- reach diagnostics and next-step guidance
+- review unmanaged candidates
+- promote devices into the managed fleet
+- access deeper telemetry, health, and troubleshooting paths
+
+The Configure experience should behave like a **main landing flow with clear jump-off entries**, not a flat list of loosely related settings.
 
 ### 2. Native integration device path
-Primary support and troubleshooting path:
+Primary support, detail, and troubleshooting path:
 - `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device`
 
 This path should expose:
 - setup checklist
 - support and diagnostics actions
 - support snapshot access
-- detailed device/runtime visibility
+- detailed runtime visibility
 - repair guidance and next-step clues
+- deeper device/support detail that does not belong in the primary landing console
 
 ### 3. Entities, notifications, automations/scripts, and Repairs
 These remain valid native Home Assistant surfaces for runtime, support, and automation workflows.
@@ -46,28 +67,11 @@ They support the operator path, but should not replace the need for a coherent C
 ### 4. Optional dashboards
 Dashboards are optional supplemental visibility inside native Home Assistant, not part of the required operator path and not part of the `0.1.83` release gate.
 
-If optional dashboards are kept or expanded later, they must stay fully inside normal Home Assistant dashboard capabilities and remain clearly secondary to Configure, the integration device path, entities, notifications, automations/scripts, and Repairs.
-
-Existing Lovelace/dashboard assets may be reused as optional examples only.
-They must not become a required setup path, a parallel product UI, or a reason to defer the core native Configure and Managed Devices work.
-
-If optional dashboards are maintained, the two useful shapes are still:
-
-#### Dashboard 1 - System Dashboard
-This dashboard can provide an overview of the Zero Net Export system, including:
-- load
-- devices engaged
-- battery %
-- activity log
-- other whole-system status needed to understand what the controller is doing
-
-#### Dashboard 2 - Managed Elements
-This dashboard can provide a summary of the managed devices, including:
-- their status
-- their watts
-- whether they are activated on/off
-- other fleet-level detail needed to understand the current managed-device state
-
+Optional dashboards may still help with additional visibility, but they must remain clearly secondary to the native operator path.
+They must not become:
+- a required setup path
+- the main product UI
+- a workaround for weak native Configure / Managed Devices design
 
 ## Explicit non-goals
 
@@ -76,42 +80,235 @@ These are out of scope unless the project direction changes explicitly:
 - restoring `/zero-net-export` as a required route
 - relying on custom frontend assets for core setup or troubleshooting
 - treating optional dashboards as the supported operator surface
+- solving native-HA UX weakness by shifting the real experience into dashboards
 
 ## Core UI problem to solve
 
-The project already has substantial backend capability and some native UI scaffolding, but the visible operator experience still does not feel complete.
+The project already has substantial backend capability and meaningful native UI scaffolding, but the visible operator experience still does not feel fully productized.
 
-The design problem is to make the native Home Assistant UI clearly communicate:
-- what the system knows
-- what is broken
-- what the operator should do next
-- what is already managed by Zero Net Export
-- what is still unmanaged but promotable
-- where each type of task belongs
+The design problem is no longer just “make it clearer.”
+The design problem is to make the native Home Assistant UI behave like a real operator product that clearly communicates:
+- what the optimizer is doing right now
+- what energy conditions it is reacting to
+- what result it is currently producing
+- what devices are already managed
+- what devices are still unmanaged
+- what warnings or blockers matter now
+- where the operator should go next for control, fleet work, telemetry, or diagnostics
+
+## Design intent for the primary landing experience
+
+The opening experience should be a **dense native operator console**.
+
+It should not be a minimal summary.
+It should not hide core operating information one click deeper.
+It should not rely on explanatory prose to create understanding.
+
+The operator should first understand, in this order:
+1. what the optimizer is doing right now
+2. the current energy state it is reacting to
+
+### Tone of the opening experience
+
+The opening experience should feel like:
+- a control console
+- balanced and information-rich
+- dense but grouped
+- operational rather than decorative
+
+It should not feel like:
+- a single oversized hero card
+- a lightweight summary page
+- a narrative explainer
+
+## Primary landing structure
+
+The top of the Configure experience should be structured like this:
+
+### 1. Headline decision summary
+A clear, decision-oriented summary should appear above the structured board.
+
+This summary should communicate what the optimizer is doing in operational language, for example:
+- export too high, engaging load
+- near target, holding
+- battery reserve protected, not engaging
+- no eligible device available
+- source data stale, control paused
+
+This summary should be concise, visible immediately, and interruption-capable when something important changes.
+
+### 2. Structured control board
+Below the headline decision summary, the main control board should show the full operating picture.
+
+The control board should be grouped into four blocks:
+- **Energy state**
+- **Control decision**
+- **Control outcome**
+- **Fleet activity**
+
+This grouping should carry the main legibility burden.
+The product should prefer strong grouping over simplification by omission.
+
+### Required top-board visibility
+
+The top board should remain the real operational console.
+It should not be reduced to only a few teaser metrics.
+
+The intended top-board operating picture includes:
+- decision summary
+- solar power
+- grid import/export
+- home load
+- battery SOC
+- battery charge/discharge
+- active managed load total
+- target export
+- current error vs target
+- controller mode
+
+These fields do not all need equal visual weight, but they should remain visible in the opening operator console.
+
+## Managed Devices workspace
+
+Managed Devices should appear directly below the top control board.
+
+This section is the main fleet workspace, but it is intentionally secondary to live operational state.
+The product should first show how the optimizer is behaving, then show the fleet that behavior depends on.
+
+### Managed Devices layout
+
+Managed Devices should be a **vertically split workspace**, not a side-by-side split.
+
+Order:
+1. **Managed devices on top**
+2. **Unmanaged devices on bottom**
+
+This structure is important because it makes managed vs unmanaged visually obvious while still preserving a clear scan order inside native Home Assistant constraints.
+
+### Managed device rows
+
+Each managed device should show operational detail at a glance, including:
+- name
+- type
+- enabled/disabled
+- priority
+- current power or impact
+- current state/action
+
+Managed rows should feel operational, not skeletal, but they should not turn into a wall of deep per-device troubleshooting detail.
+
+### Unmanaged candidate rows
+
+Each unmanaged candidate should show a concise shortlist-style preview, including:
+- name
+- type
+- likely usefulness
+- key warning, if any
+
+The product should not over-rank candidates or pretend it knows the one correct next choice.
+The unmanaged section should be useful and review-friendly, but neutral in posture.
+
+## Promotion workflow
+
+Promotion must feel like a first-class workflow, not scattered scaffolding.
+
+The intended promotion sequence is:
+1. identify a candidate from the unmanaged section
+2. open a balanced candidate review
+3. understand fit, warnings, and likely operational value
+4. promote into the managed fleet
+5. receive a success summary with the next sensible action
+
+### Candidate review requirements
+
+Candidate review should be **balanced**, combining:
+- control suitability
+- safety / confidence
+- operational value
+
+It should help the operator answer:
+- can this be controlled well?
+- is it safe/confident enough to add?
+- will it actually matter operationally?
+
+### Post-promotion behavior
+
+After promotion, the product should not dump the operator back cold.
+It should show:
+- success
+- what changed
+- the next sensible action
+
+## Sensors and telemetry placement
+
+The product still needs a clear telemetry model, but not all sensor detail should compete equally for top-level attention.
+
+### Top-level telemetry
+The most important sensors should remain visible in the control board.
+These are the values required to understand live optimizer behavior.
+
+### Deeper telemetry
+Additional sensor detail should live below or around the Managed Devices area, or in deeper supporting paths, rather than becoming an oversized destination that competes with the main operator console.
+
+The design intent is:
+- critical telemetry in the console
+- deeper telemetry available
+- telemetry not over-elevated into a separate dominant experience
+
+## Diagnostics and health posture
+
+Diagnostics should be **always visible but secondary**.
+
+Diagnostics is not a hidden basement that appears only when things are broken.
+Health is part of the product’s normal posture.
+
+Diagnostics should provide:
+- health summary
+- blocker summary
+- support snapshot
+- setup checklist
+- repair guidance
+- install provenance / package validation
+- deeper troubleshooting path
+
+But Diagnostics should not become the primary place where the product explains what it is or how to do normal work.
+
+## Problem-signal behavior
+
+When something is wrong, the signal should appear in two places:
+1. **globally**, as a top-level alert summary
+2. **locally**, in the relevant block or section
+
+This is important because the operator should both:
+- notice the problem quickly
+- and understand its local context without hunting
+
+Examples:
+- source problem appears in the global alert summary and also in the relevant telemetry/control area
+- fleet/configuration problem appears in the global alert summary and also in Managed Devices
 
 ## Required information architecture
 
-The UI must be organized into four clear buckets.
+The product still uses four conceptual buckets, but they should now be understood through the new design shape rather than as abstract labels alone.
 
 ### Controls
-Controls owns the Zero Net Export brain only.
+Controls owns the Zero Net Export brain and its current decision-making posture.
 
 It should contain:
 - controller mode
 - target export
 - deadband
 - reserve and similar policy settings
-- controller state and current decision summary
-- top-level control actions affecting the controller as a whole
+- current decision summary
+- controller state and outcome-related control context
 
 It should not own:
-- managed-device promotion
-- managed-device enablement
-- managed-device priority
-- per-device overrides as the primary management path
+- managed-device promotion as the primary path
+- fleet inventory as the main content
+- per-device management as the main interaction model
 
 ### Sensors
-Sensors owns source and system telemetry only.
+Sensors owns telemetry and source health.
 
 It should contain:
 - solar power and energy
@@ -121,26 +318,27 @@ It should contain:
 - source-health and freshness signals
 - source mapping status and blocker visibility
 
-It should not become a mixed surface for fleet operations.
+The most critical subset belongs in the top console.
+Deeper telemetry can live further down or behind deeper entries.
 
 ### Managed Devices
 Managed Devices owns the controllable fleet.
 
 It should contain:
 - the current managed fleet
-- unmanaged candidates ready for promotion
-- promotion of unmanaged devices into the managed fleet
-- device vetting and review before promotion
+- unmanaged candidates ready for review
+- promotion into the managed fleet
 - enablement / disablement
 - priority
 - per-device overrides
 - fleet review
 - deeper device-management entry points
 
-This must feel like a real native workspace, not a fallback or a text-heavy helper.
+This must feel like a real native workspace.
+It must not feel like a fallback helper section.
 
 ### Diagnostics
-Diagnostics owns troubleshooting and support.
+Diagnostics owns health, troubleshooting, and support.
 
 It should contain:
 - health summary
@@ -151,7 +349,17 @@ It should contain:
 - install provenance / package validation
 - the clearest next-step troubleshooting path
 
-It should not become the place where normal device onboarding or normal controller operation is explained away.
+It should stay visible, but secondary.
+
+## Navigation model
+
+The preferred navigation model is **hybrid**:
+- one main landing flow
+- clear jump-off entries to deeper sections
+
+The product should avoid both extremes:
+- one giant unstructured flow
+- or a fragmented maze of disconnected sections
 
 ## The three required visible outcomes for 0.1.83
 
@@ -160,58 +368,65 @@ The next release, `0.1.83`, is the **UI release**.
 It must focus on these three visible outcomes:
 
 ### 1. Managed vs unmanaged must be visually obvious
-An operator should be able to open the native Managed Devices path and immediately tell:
+An operator should immediately be able to tell:
 - what is already managed
 - what is still unmanaged
-- what looks ready for promotion next
+- where to review candidates next
 
-This must be obvious without depending on long paragraphs.
+The vertical split of Managed Devices is part of making this obvious.
 
 ### 2. Promote / vet / review must feel first-class
-The native promotion flow must feel like a product workflow.
+The promotion flow must feel like a coherent workflow inside the native product.
 
 It must clearly support:
 - choose a candidate
 - review that candidate
 - understand fit and warnings
 - promote the candidate into the managed fleet
+- receive a meaningful success landing
 
-The operator should not have to mentally stitch together helper text across multiple surfaces.
-
-### 3. Controls / Sensors / Managed Devices / Diagnostics must be clearly separated
+### 3. The product structure must be clearly felt
 The operator should not have to guess where something lives.
 
-The UI should make it obvious:
-- where to tune the controller
-- where to inspect source and mapping health
-- where to manage controllable loads
-- where to troubleshoot and collect support evidence
+The landing flow should make it obvious:
+- where the system’s current decision is shown
+- where live energy context is shown
+- where the fleet is managed
+- where health and troubleshooting live
 
 ## UX principles
 
 - operator-first
-- exception-first
+- decision-first
+- exception-visible
 - never hide active constraints
 - every action should be explainable
 - manual intervention should be obvious when needed
-- configuration should be guided and recoverable
+- strong grouping beats shallow simplification
 - device setup should feel like a product workflow, not a developer JSON workflow
 - visibility in real Home Assistant matters more than repo-local elegance
+- support wording should support the UX, not substitute for it
 
 ## Design rules for future decisions
 
 When a field or action could live in more than one place:
 - choose the section that best matches operator intent
-- avoid duplication across the four UI buckets
+- avoid duplication unless duplication is deliberately used for visibility plus context, as with problem signals
 - prefer one strong obvious home over multiple weak homes
 
 When deciding whether something counts as UI progress:
 - it does not count unless it improves what James can actually see and use in native Home Assistant
 - support copy, plumbing, release mechanics, or backend cleanup do not count as delivered UI on their own
 
+When considering reductions in visible information:
+- prefer grouping and hierarchy before hiding data
+- this product should behave like an operator console, not a minimalist summary card
+
 ## Relationship to other documents
 
 - `docs/UI_DESIGN.md` is the source of truth for the intended product design.
+- `docs/UI_DESIGN-old.md` preserves the previous version of this design document.
+- `docs/UI_RESEARCH.md` captures the research base, external pattern synthesis, and redesign-session answers used to shape this version.
 - `docs/UI_IMPLEMENTATION_MAP.md` is the source of truth for implementation status, completed work, remaining work, phases, and delivery strategy.
+- `docs/UI_DESIGN_REVIEW.md` is the place for critique, review notes, screenshot-driven observations, and design feedback.
 - `docs/SUPERVISOR.md` should reference these files rather than re-explaining the full UI design.
-- Older design-direction documents should defer to these two files to avoid stale drift.

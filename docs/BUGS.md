@@ -154,6 +154,14 @@ Suggested area labels:
 
 ## Recently validated or closed bugs
 
+## ZNE-011 — Source-of-truth UI redesign existed only in a dirty working tree
+- **closed on:** 2026-04-15
+- **severity:** `medium`
+- **area:** `docs`
+- **historical behavior:** `docs/UI_DESIGN.md` had been locally rewritten to a denser native operator-console model and now referenced `docs/UI_RESEARCH.md`, `docs/UI_IMPLEMENTATION_SPEC.md`, `docs/UI_DESIGN_REVIEW.md`, and `docs/UI_DESIGN-old.md`, but those supporting files were still untracked. That left the repo's own source-of-truth chain half-landed: the active design doc pointed at documents that were not actually shipped in Git, and the redesign rationale/spec trail could disappear on the next clean checkout.
+- **repo fix:** this run's UI source-of-truth doc commit — add the referenced redesign support docs to Git and keep the refreshed `docs/UI_DESIGN.md` as the committed design source of truth.
+- **closure evidence:** repo-side audit plus direct doc correction in the same run; `git status` no longer reports the source-of-truth UI docs as modified/untracked once the commit lands, and the design document's referenced research/spec/review trail is now present in the repo
+
 ## ZNE-010 — Repo release metadata drifted behind the documented `0.1.83` UI target
 - **closed on:** 2026-04-15
 - **severity:** `medium`
