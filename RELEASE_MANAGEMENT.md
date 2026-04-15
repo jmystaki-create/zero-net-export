@@ -18,6 +18,7 @@ A release is only considered complete when:
 ## Operating Rule
 
 The assistant manages this process, but must begin with explicit user approval to release.
+When the release candidate is coherent enough that the true next step is formal release execution, the assistant must proactively ask James for approval to run the release end-to-end. Do not bury that boundary inside “next gap” wording, deploy command suggestions, or restart instructions that make James infer approval is needed.
 
 ## Standard Procedure
 
@@ -25,6 +26,8 @@ The assistant manages this process, but must begin with explicit user approval t
 Before touching the live Home Assistant install, ask:
 - whether to proceed with the release now
 - which version/commit is being released, if not already obvious
+
+The approval ask must be explicit. If the real next step is release execution, say that plainly, name the candidate version, and ask James whether he approves the formal release flow now.
 
 No HACS or HA upgrade action should start before that approval.
 
