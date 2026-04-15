@@ -220,10 +220,14 @@ class CompareInstallFingerprintTests(unittest.TestCase):
             "manifest": "0.1.83",
             "manifest.json": "1\t321\tabc123def456\t/config/custom_components/zero_net_export/manifest.json",
             "__init__.py": "1\t432\taaa111bbb222\t/config/custom_components/zero_net_export/__init__.py",
+            "button.py": "1\t245\tbutton111222\t/config/custom_components/zero_net_export/button.py",
+            "candidate_utils.py": "1\t346\tcand333444555\t/config/custom_components/zero_net_export/candidate_utils.py",
             "config_flow.py": "1\t654\tbbb222ccc333\t/config/custom_components/zero_net_export/config_flow.py",
             "coordinator.py": "1\t888\tddd444eee555\t/config/custom_components/zero_net_export/coordinator.py",
+            "diagnostics.py": "1\t432\tdiag666777888\t/config/custom_components/zero_net_export/diagnostics.py",
             "native_support.py": "1\t777\tccc333ddd444\t/config/custom_components/zero_net_export/native_support.py",
             "release_info.py": "1\t543\tccc999ddd000\t/config/custom_components/zero_net_export/release_info.py",
+            "sensor.py": "1\t654\tsensor999000\t/config/custom_components/zero_net_export/sensor.py",
             "strings.json": "1\t999\teee555fff666\t/config/custom_components/zero_net_export/strings.json",
             "translations/en.json": "1\t111\tfff666aaa777\t/config/custom_components/zero_net_export/translations/en.json",
         }
@@ -248,8 +252,12 @@ class CompareInstallFingerprintTests(unittest.TestCase):
         self.assertEqual(payload["manifest_version"], "0.1.83")
         self.assertEqual(payload["inspection_transport"], "ssh")
         self.assertEqual(payload["tracked_files"]["__init__.py"]["sha256_12"], "aaa111bbb222")
+        self.assertEqual(payload["tracked_files"]["button.py"]["sha256_12"], "button111222")
+        self.assertEqual(payload["tracked_files"]["candidate_utils.py"]["size_bytes"], 346)
         self.assertEqual(payload["tracked_files"]["config_flow.py"]["sha256_12"], "bbb222ccc333")
+        self.assertEqual(payload["tracked_files"]["diagnostics.py"]["sha256_12"], "diag666777888")
         self.assertEqual(payload["tracked_files"]["release_info.py"]["size_bytes"], 543)
+        self.assertEqual(payload["tracked_files"]["sensor.py"]["sha256_12"], "sensor999000")
         self.assertEqual(payload["tracked_files"]["translations/en.json"]["size_bytes"], 111)
 
     def make_live_install_tree(self, root: Path) -> Path:
