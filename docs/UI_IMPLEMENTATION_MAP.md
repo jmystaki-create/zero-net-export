@@ -31,7 +31,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Candidate vetting/review now includes an explicit balanced review shape covering control suitability, safety/confidence, and operational value.
 - Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
 - Fleet review / bulk enable-disable scaffolding exists.
-- The Zero Net Export device page now exposes a first-class managed-device review action and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
+- The Zero Net Export device page now exposes a first-class managed-device review action, per-device managed review buttons for each configured load, and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
 - Native support/snapshot/checklist surfaces exist.
 - The four-bucket IA language already exists in project wording: Controls, Sensors, Managed Devices, Diagnostics.
 
@@ -201,15 +201,17 @@ Purpose:
 Completed:
 - concept and requirement are documented
 - the Zero Net Export device page now exposes a first-class `Show managed-device review` entry point
+- the device page now also exposes per-device managed review buttons for each configured load, alongside the paired per-device status/reset actions
 - the deep-review handoff is now referenced directly from managed-device save feedback
 
 Remaining:
-- validate the concrete native entry path in live HA
+- validate the concrete native entry path in live HA, including the new per-device review buttons on the Zero Net Export device page
 - refine what detail belongs there versus on the top-level Managed Devices path
 - make sure it supports richer device review without diluting the top-level fleet workflow
 
 Features:
 - deeper fleet review
+- per-device review buttons from the native device page
 - per-device operational detail
 - spreadsheet-style or audit-style fleet inspection
 
