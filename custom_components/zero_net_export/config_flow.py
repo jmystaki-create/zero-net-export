@@ -1729,6 +1729,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         summary = "\n".join(self._fleet_summary_lines(devices))
         fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
         variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
+        managed_snapshot = (
+            f"Managed now: {len(devices)} | enabled: {sum(1 for device in devices if device.get('enabled', True))} | usable: {sum(1 for device in devices if device.get('usable'))}"
+            if devices
+            else "Managed now: 0 | enabled: 0 | usable: 0"
+        )
+        unmanaged_snapshot = (
+            f"Unmanaged now: {len(candidates)} | fixed candidates: {len(fixed_candidates)} | variable candidates: {len(variable_candidates)}"
+            if candidates
+            else "Unmanaged now: 0 | fixed candidates: 0 | variable candidates: 0"
+        )
         candidate_summary = "\n".join(
             f"- {item['name']} ({item['entity_id']}, {item['kind']})" for item in candidates[:12]
         ) if candidates else "- No unmanaged candidate devices discovered right now"
@@ -1754,7 +1764,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
                 "device_summary": summary,
+                "managed_snapshot": managed_snapshot,
                 "candidate_count": str(len(candidates)),
+                "unmanaged_snapshot": unmanaged_snapshot,
                 "candidate_summary": candidate_summary,
                 "fixed_candidate_count": str(len(fixed_candidates)),
                 "fixed_candidate_summary": fixed_candidate_summary,
@@ -1806,6 +1818,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
             for item in quick_picks
         ) if quick_picks else "- No suggested candidates right now"
+        candidate_path_summary = (
+            "1. Pick a candidate from the shortlist.\n"
+            "2. Review fit and warnings.\n"
+            "3. Choose a preset.\n"
+            "4. Save it into Managed Devices."
+        )
         return self.async_show_form(
             step_id="device_pick_candidate",
             data_schema=vol.Schema(
@@ -1820,6 +1838,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "candidate_count": str(len(options)),
                 "top_candidates": top_candidate_summary,
+                "candidate_path_summary": candidate_path_summary,
             },
         )
 
@@ -1873,6 +1892,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if summary.get("fit_confidence") != "low"
             else "Continue only if this entity really drives a controllable device. If not, go back and choose manual selection or a different candidate."
         )
+        promotion_path_summary = (
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
+        )
         return self.async_show_form(
             step_id="device_vetting",
             data_schema=vol.Schema({}),
@@ -1891,6 +1913,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "suggested_template": str(summary.get('suggested_template_label') or 'Custom'),
                 "suggested_template_description": str(summary.get('suggested_template_description') or 'Use a custom configuration for this entity.'),
                 "candidate_next_step": next_step,
+                "promotion_path_summary": promotion_path_summary,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
         )
