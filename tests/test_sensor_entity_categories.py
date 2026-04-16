@@ -142,6 +142,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 device_details={
                     "pool": {
                         "name": "Pool pump",
+                        "kind": "fixed",
                         "status": "Ready for control",
                         "usable": True,
                         "enabled": True,
@@ -192,7 +193,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(summary._attr_name, "Pool pump managed summary")
         self.assertEqual(
             summary.native_value,
-            "Ready for control | usable | enabled | priority 90 | power 1185 W | plan turn_on",
+            "fixed load | Ready for control | usable | enabled | priority 90 | power 1185 W | action turn_on",
         )
         self.assertIsNone(getattr(summary, "_attr_entity_category", None))
         self.assertIsNone(getattr(current_power, "_attr_entity_category", None))
@@ -202,6 +203,36 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(planned_delta._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(runtime._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(last_requested._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+
+    def test_variable_managed_summary_surfaces_target_and_relevant_guard(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="test-entry", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "ev": {
+                        "name": "EV charger",
+                        "kind": "variable",
+                        "usable": False,
+                        "effective_enabled": True,
+                        "priority": 60,
+                        "status": "Guarded",
+                        "current_power_w": 620,
+                        "current_target_power_w": 1400,
+                        "guard_status": "blocked",
+                        "planned_action": "hold",
+                        "last_action_status": "guard_blocked",
+                    }
+                }
+            ),
+        )
+
+        summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "ev", "EV charger")
+
+        self.assertEqual(
+            summary.native_value,
+            "variable load | Guarded | not usable | enabled | priority 60 | power 620 W | target 1400 W | guard blocked | action hold | last guard_blocked",
+        )
 
 
 if __name__ == "__main__":

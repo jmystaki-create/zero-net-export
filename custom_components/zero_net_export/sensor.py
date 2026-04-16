@@ -569,6 +569,14 @@ def _format_device_power_summary(value) -> str:
         return str(value)
 
 
+def _device_kind_summary(kind: object) -> str:
+    if kind == "fixed":
+        return "fixed load"
+    if kind == "variable":
+        return "variable load"
+    return str(kind or "unknown kind")
+
+
 class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_managed_summary", f"{device_name} managed summary")
@@ -581,6 +589,7 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
             return None
         detail = state.device_details.get(self._device_key, {})
         runtime_bits = [
+            _device_kind_summary(detail.get("kind")),
             str(detail.get("status") or "status unknown"),
             "usable" if detail.get("usable") else "not usable",
             "enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "disabled",
@@ -589,7 +598,15 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         if priority is not None:
             runtime_bits.append(f"priority {priority}")
         runtime_bits.append(f"power {_format_device_power_summary(detail.get('current_power_w'))}")
-        runtime_bits.append(f"plan {detail.get('planned_action') or 'hold'}")
+        if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
+            runtime_bits.append(f"target {_format_device_power_summary(detail.get('current_target_power_w'))}")
+        guard_status = str(detail.get("guard_status") or "").strip()
+        if guard_status and guard_status not in {"ready", "idle"}:
+            runtime_bits.append(f"guard {guard_status}")
+        runtime_bits.append(f"action {detail.get('planned_action') or 'hold'}")
+        last_action_status = str(detail.get("last_action_status") or "").strip()
+        if last_action_status and last_action_status not in {"ok", "applied", "success"}:
+            runtime_bits.append(f"last {last_action_status}")
         return " | ".join(runtime_bits)
 
     @property
