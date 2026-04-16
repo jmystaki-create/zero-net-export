@@ -98,7 +98,7 @@ This phase is in good shape when:
 ## Next actions
 
 Do next:
-1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict checklist for the current UI-shaping release line, and remove stale `0.1.83` assumptions whenever current live work is already on `0.1.85`.
+1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict checklist for the current UI-shaping release line, and remove stale `0.1.83` or `0.1.85` assumptions whenever current live work is already on `0.1.86`.
 2. Make the Managed Devices native path visually separate already managed devices from unmanaged candidates ready for promotion.
 3. Make the native promote / vet / review path visibly first-class and easy to follow in live Home Assistant.
 4. Refactor the native surface model so Controls, Sensors, Managed Devices, and Diagnostics each have a clear role and do not repeat each other's content.
