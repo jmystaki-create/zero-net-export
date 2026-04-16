@@ -247,8 +247,34 @@ def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[st
     return assess_candidate(candidate)
 
 
+def _managed_entity_ids(state) -> set[str]:
+    return {
+        str(detail.get("entity_id"))
+        for detail in (getattr(state, "device_details", {}) or {}).values()
+        if detail.get("entity_id")
+    }
+
+
 def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict[str, str]]:
     return discover_candidate_devices(hass.states.async_all(), managed_entity_ids)
+
+
+def _candidate_devices_for_state(coordinator, hass, state) -> list[dict[str, str]]:
+    managed_entity_ids = _managed_entity_ids(state)
+    cache_key = (id(state), tuple(sorted(managed_entity_ids)))
+    cached = getattr(coordinator, "_zne_candidate_sensor_cache", None)
+    if cached and cached.get("key") == cache_key:
+        return cached["candidates"]
+    candidates = _candidate_devices_for_hass(hass, managed_entity_ids)
+    setattr(
+        coordinator,
+        "_zne_candidate_sensor_cache",
+        {
+            "key": cache_key,
+            "candidates": candidates,
+        },
+    )
+    return candidates
 
 
 def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -> dict[str, int]:
@@ -306,10 +332,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return None
+        candidates = None
+        if self._key in FLEET_WORKSPACE_SENSOR_KEYS:
+            candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         if self._key == "managed_fleet_overview":
             counts = _managed_fleet_counts(state.device_details)
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             candidate_count = len(candidates)
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
             first_blocked_name = _first_matching_device_name(
@@ -361,43 +388,30 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(f"{counts['nominal_power_w']} W nominal")
             return _truncate_sensor_state(" | ".join(summary_parts))
         if self._key == "unmanaged_candidate_count":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            return len(_candidate_devices_for_hass(self.hass, managed_ids))
+            return len(candidates or [])
         if self._key == "unmanaged_candidate_overview":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
-            return build_candidate_overview_summary(candidates)
+            return build_candidate_overview_summary(candidates or [])
         if self._key == "top_unmanaged_candidate":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             if not candidates:
                 return "None"
             top = candidates[0]
             return build_candidate_preview(top)
         if self._key == "top_candidate_fit":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             if not candidates:
                 return "No candidate fit guidance available"
             fit = _candidate_fit_details(candidates[0])
             return f"{fit['confidence']}: {fit['summary']}"
         if self._key == "top_candidate_warnings":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             if not candidates:
                 return "No warnings"
             fit = _candidate_fit_details(candidates[0])
             warnings = fit.get('warnings') or []
             return "; ".join(warnings) if warnings else "No immediate warnings"
         if self._key == "candidate_shortlist":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             if not candidates:
                 return "No additional candidates"
             return build_candidate_name_summary(candidates)
         if self._key == "candidate_shortlist_fit":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             if not candidates:
                 return "No shortlist fit guidance"
             shortlist = candidates[:3]
@@ -407,8 +421,6 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 parts.append(f"{item['name']}: {fit['confidence']}")
             return "; ".join(parts)
         if self._key == "fleet_console_next_step":
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             counts = _managed_fleet_counts(state.device_details)
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)

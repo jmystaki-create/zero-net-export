@@ -140,6 +140,19 @@ Suggested area labels:
 - **validation status:** repo-side fix remains covered by `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`. Live validation is now good enough for this bug specifically: the fixed `coordinator.py` is present in the live install, the integration has an active config entry again, and the earlier missing-argument setup retry is no longer present in current log review.
 - **next action:** no further action for this specific bug beyond keeping future coordinator/release-info changes under regression coverage
 
+## ZNE-029 — Fleet workspace candidate sensors redo full candidate discovery on every sensor read
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `sensors`
+- **where seen:** live Home Assistant logs on the current mixed `0.1.86` install
+- **current observed behavior:** Home Assistant logged `Updating state for sensor.zero_net_export_unmanaged_candidate_overview ... took 0.593 seconds`, which means the main Managed Devices candidate surface is still heavy enough to trigger runtime warnings in the live install.
+- **expected behavior:** the fleet workspace candidate sensors should reuse one candidate-discovery result per coordinator refresh instead of rescanning the entire HA state registry separately for each related sensor value.
+- **evidence:** this run used the documented SSH path in `TOOLS.md` and `ha core logs -n 400 | grep -i "entity.py\|blocking call\|zero_net_export"`, which returned `2026-04-16 17:10:11.612 WARNING ... sensor.zero_net_export_unmanaged_candidate_overview ... took 0.593 seconds`; this run's repo inspection then confirmed `custom_components/zero_net_export/sensor.py` was calling `discover_candidate_devices(...)` independently for `managed_fleet_overview`, `unmanaged_candidate_count`, `unmanaged_candidate_overview`, `top_unmanaged_candidate`, `top_candidate_fit`, `top_candidate_warnings`, `candidate_shortlist`, `candidate_shortlist_fit`, and `fleet_console_next_step`, all against the same coordinator state.
+- **suspected cause:** fleet workspace sensors were each re-running full candidate discovery from `hass.states.async_all()` during the same coordinator update instead of sharing one cached candidate list.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so fleet-workspace sensors share one cached candidate-discovery result per coordinator state, and adds a regression test in `tests/test_sensor_entity_categories.py` to keep that cache behavior in place across the overview, shortlist, and top-candidate sensors.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest tests.test_sensor_entity_categories tests.test_candidate_utils -q` and `python3 -m unittest discover -s tests -q`. Live validation is still pending because the current Home Assistant install fingerprint still does not match repo `778e258`, so the optimized sensor code is not installed yet.
+- **next action:** deploy one exact current repo build, rerun fingerprint validation until `overall_match=true`, then confirm the unmanaged-candidate sensors stop emitting slow-update warnings in Home Assistant logs
+
 ## ZNE-026 — Integration overview/device page still shows stale version, and the first repo-side fix regressed into blocking I/O
 - **status:** `fixed_pending_validation`
 - **severity:** `high`

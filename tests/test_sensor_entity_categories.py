@@ -298,6 +298,38 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
 
+    def test_fleet_workspace_candidate_discovery_is_cached_per_coordinator_state(self) -> None:
+        sensor_module = _load_sensor_module()
+        calls: list[tuple[str, ...]] = []
+
+        def _discover(hass, managed_ids):
+            calls.append(tuple(sorted(managed_ids)))
+            return [
+                {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+                {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
+            ]
+
+        sensor_module._candidate_devices_for_hass = _discover
+        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed | 1 variable | top AC Outlet 2"
+        sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2; EV charger limit"
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "unmanaged_candidate_overview", "Unmanaged candidate overview")
+        shortlist = sensor_module.ZeroNetExportSensor(coordinator, "candidate_shortlist", "Candidate shortlist")
+        top = sensor_module.ZeroNetExportSensor(coordinator, "top_unmanaged_candidate", "Top unmanaged candidate")
+        overview.hass = hass
+        shortlist.hass = hass
+        top.hass = hass
+
+        self.assertEqual(overview.native_value, "2 candidates | 1 fixed | 1 variable | top AC Outlet 2")
+        self.assertEqual(shortlist.native_value, "AC Outlet 2; EV charger limit")
+        self.assertEqual(top.native_value, "candidate preview")
+        self.assertEqual(len(calls), 1)
+
     def test_managed_fleet_overview_keeps_top_unmanaged_target_visible_with_existing_fleet(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
