@@ -71,61 +71,90 @@ The current release line should not be called a successful UI release unless all
 
 ## Phase plan
 
-### Phase 0. Baseline and source-of-truth consolidation
-Purpose:
+This section is now the explicit staged delivery map. Each phase should be implemented, validated, and then advanced rather than treated as one vague UI bucket.
+
+### Stage 0. Baseline and source-of-truth consolidation
+**Purpose**
 - stop direction drift
 - centralize design and implementation planning
 
-Completed:
+**Completed**
 - established `docs/UI_DESIGN.md` as the design source of truth
 - established `docs/UI_IMPLEMENTATION_MAP.md` as the implementation source of truth
 - updated steering so the active release line, not stale `0.1.83` wording, is explicitly treated as the current UI correction target
 
-Remaining:
+**Remaining**
 - repoint older project documents so they defer to these two files
 - repoint cron prompts so they explicitly use these two files for UI steering
 
-### Phase 1. Runtime stability required for honest UI validation
-Purpose:
+**Features in this stage**
+- source-of-truth docs aligned
+- project steering aligned
+- automation prompts aligned
+
+### Stage 1. Runtime stability required for honest UI validation
+**Purpose**
 - ensure the integration loads cleanly enough that visible UI work can actually be judged
 
-Completed:
+**Completed**
 - major startup-crash and release/runtime stabilization work has already happened in earlier corrective releases
 - repairs-platform root cause was identified and a repo fix was added
+- integration/entity load is no longer in the earlier hard-crash state
 
-Remaining:
-- verify the current corrective path is sufficient for the integration to load cleanly in live HA
+**Remaining**
+- remove the current blocking-I/O version-surface regression from `entity.py`
+- keep startup clean enough that the live UI can be judged without runtime noise dominating the result
 - make sure the visible UI is not being masked by restored/unavailable entity failure states
-- keep only the minimum required stability work in scope here so UI delivery stays primary
 
-Features:
+**Features in this stage**
 - repairs-platform correctness
 - entity recovery after restart
+- non-blocking version/reporting path
 - clean enough load path for UI inspection
 
-### Phase 2. Optional dashboard cleanup
-Purpose:
-- keep optional dashboard assets aligned with the native-only product direction
-- prevent optional dashboard work from being mistaken for the current UI release itself
+### Stage 2. Command center reduction to true setup-only scope
+**Purpose**
+- make the command center a short, high-legibility setup surface instead of a support dump
 
-Completed:
-- baseline Lovelace/dashboard assets already exist in the repo for reuse/reference
+**Completed**
+- the command-center guide has been trimmed repo-side toward setup-only posture
+- the opening summary/board structure now exists in repo state
 
-Remaining:
-- keep optional dashboard docs/examples explicitly secondary to the supported native operator path
-- trim or refresh optional assets only when they help debug visibility inside Home Assistant without changing product direction
-- avoid letting optional dashboard work displace Configure, Managed Devices, Diagnostics, or live validation work
+**Remaining**
+- reduce command-center content further so it only covers setup, control posture, and next step
+- remove release/install/debug clutter from the primary command-center experience
+- tighten the wording and hierarchy so the surface feels like a basic setup console rather than a text-heavy helper
 
-Features:
-- optional System Dashboard example
-- optional Managed Elements Dashboard example
-- alignment of existing Lovelace/dashboard assets to the native-only design
+**Features in this stage**
+- headline decision summary
+- compact top alert / next step
+- setup-only board content
+- clear jump-off to Sensors / Controls / Diagnostics
 
-### Phase 3. Managed Devices landing experience
-Purpose:
-- make the Managed Devices path feel like the obvious home for fleet work
+### Stage 3. Top control board completion
+**Purpose**
+- make the opening experience feel like a serious operator console
 
-Completed:
+**Completed**
+- the command center now opens with a headline decision summary, a structured control board, and a top-level alert summary instead of only a looser helper-style status surface
+
+**Remaining**
+- ensure the four top-board groups are actually visible and legible in the installed UI
+- keep the board dense but grouped, not narrative
+- make sure the top board carries the required operational picture before the fleet workspace begins
+
+**Features in this stage**
+- Headline decision summary
+- Energy state block
+- Control decision block
+- Control outcome block
+- Fleet activity block
+
+### Stage 4. Managed Devices workspace redesign
+**Purpose**
+- make Managed Devices feel like the obvious home for fleet work
+
+**Completed**
 - managed-device flows and candidate discovery scaffolding exist
 - fleet summary and candidate-summary text exists
 - Configure Managed Devices now overlays live runtime readiness/status into fleet summaries, usable counts, and selector labels
@@ -133,24 +162,23 @@ Completed:
 - selector ordering now prefers enabled and usable devices before blocked or disabled entries
 - the device page now exposes a first-class `Show managed-device review` handoff for deeper fleet review
 
-Remaining:
-- validate the managed-on-top / unmanaged-below experience in live HA and confirm it feels visually obvious without depending on explanatory text
+**Remaining**
+- make the managed-on-top / unmanaged-below structure visually obvious in live HA
+- move the real managed-devices experience onto the device page strongly enough that it does not just look like generic HA cards plus buttons
 - confirm the next recommended fleet action is obvious at a glance in the installed UI, not just in repo copy
-- keep trimming any remaining descriptive text that still substitutes for stronger native grouping
 
-Features:
+**Features in this stage**
 - managed fleet summary block
 - unmanaged candidate summary block
-- at-a-glance next promotion target
+- vertically split workspace
 - runtime-aware managed-device row detail
 - clearer visual ordering and ownership of fleet actions
-- native deep-review handoff from the device page
 
-### Phase 4. Promote / vet / review flow
-Purpose:
+### Stage 5. Promote / vet / review flow completion
+**Purpose**
 - make unmanaged-to-managed promotion feel like a first-class native product flow
 
-Completed:
+**Completed**
 - shortlist path exists
 - full candidate list exists
 - candidate vetting step exists
@@ -159,80 +187,94 @@ Completed:
 - candidate review now uses a balanced native summary of control suitability, safety/confidence, and operational value
 - candidate discovery, shortlist, review, and managed-device review now share the same fit/warning guidance and stronger ranking helpers
 
-Remaining:
+**Remaining**
 - validate the full pick -> review -> promote journey in live HA so it feels first-class in the installed product rather than only coherent in repo state
 - confirm the post-vetting handoff and success landing read clearly on the exact deployed build
+- make promotion feel like an obvious workflow, not a scaffold of helper buttons and summaries
 
-Features:
-- short opinionated candidate shortlist
-- full candidate list fallback
-- candidate fit summary and warnings
+**Features in this stage**
+- shortlist and full candidate selection
 - balanced candidate review
 - explicit promotion handoff into managed fleet state
 - native success landing after save
 
-### Phase 5. Four-bucket IA cleanup
-Purpose:
+### Stage 6. Four-bucket IA cleanup
+**Purpose**
 - make Controls, Sensors, Managed Devices, and Diagnostics feel like distinct homes instead of overlapping narrative sections
 
-Completed:
+**Completed**
 - section labels and path language already exist
 - high-level ownership direction already exists
-- the command center now leads with a headline decision summary, a grouped control board, and a top-level alert summary
 - the shared command-center/device-path guide now carries explicit recommended-section and section-ownership handoff text
-- the device-page command-center guide remains in the main device surface instead of diagnostics-only categorization
 
-Remaining:
-- keep moving any remaining leaking content so each area has one clear purpose
+**Remaining**
+- keep moving any leaking content so each area has one clear purpose
 - confirm in live HA that the installed UI itself, not just the wording, makes where-to-go-next obvious
-- keep reducing any remaining duplication between support wording and normal operator surfaces
+- stop treating button naming and popup text as equivalent to true IA delivery
 
-Features:
+**Features in this stage**
 - Controls owns controller brain/settings only
 - Sensors owns telemetry/source health only
 - Managed Devices owns fleet operations only
 - Diagnostics owns troubleshooting/support only
 - top-level alert visibility with local follow-through
 
-### Phase 6. Detailed management path
-Purpose:
+### Stage 7. Notification and support-surface cleanup
+**Purpose**
+- make warnings, setup prompts, and runtime-attention surfaces compact and scannable
+
+**Completed**
+- the problems are now clearly identified through live screenshots and bug tracking
+
+**Remaining**
+- tighten runtime attention notifications
+- tighten setup-finished/setup-warning notifications
+- reduce repetition, improve spacing, and use stronger heading hierarchy where HA renders it acceptably
+
+**Features in this stage**
+- compact runtime-attention alerts
+- compact setup alerts
+- stronger section hierarchy
+- shorter next-step wording
+
+### Stage 8. Device-page detailed management path
+**Purpose**
 - provide a deeper review path for richer per-device and fleet-level inspection without bloating the top-level workflow
 
-Completed:
+**Completed**
 - concept and requirement are documented
 - the Zero Net Export device page now exposes a first-class `Show managed-device review` entry point
 - the device page now also exposes per-device managed review buttons for each configured load, alongside the paired per-device status/reset actions
 - the deep-review handoff is now referenced directly from managed-device save feedback
 
-Remaining:
+**Remaining**
 - validate the concrete native entry path in live HA, including the new per-device review buttons on the Zero Net Export device page
 - refine what detail belongs there versus on the top-level Managed Devices path
 - make sure it supports richer device review without diluting the top-level fleet workflow
 
-Features:
+**Features in this stage**
 - deeper fleet review
 - per-device review buttons from the native device page
 - per-device operational detail
 - spreadsheet-style or audit-style fleet inspection
 
-### Phase 7. Live validation and release gate
-Purpose:
+### Stage 9. Live validation and release gate
+**Purpose**
 - prove the UI release with real Home Assistant evidence
 
-Completed:
+**Completed**
 - release discipline and approval rules already exist elsewhere in project steering
 
-Remaining:
-- ask James directly for formal release approval to redeploy the exact current repo candidate instead of burying that boundary inside generic deploy/restart wording
-- verify the exact build in live HA once that release approval is granted
-- rerun fingerprint validation until it returns `overall_match=true` before trusting further Configure or UI conclusions
+**Remaining**
+- verify the exact current build in live HA
 - gather screenshot-visible proof of the UI outcome during live validation
+- make sure the installed product, not just repo wording, reflects the design intent
 
-Features:
+**Features in this stage**
 - exact-build validation
 - live HA inspection
 - screenshot-grade acceptance evidence
-- formal release approval boundary
+- release-by-release validation discipline
 
 ## Non-goals for the current UI release line unless required to unblock UI delivery
 
