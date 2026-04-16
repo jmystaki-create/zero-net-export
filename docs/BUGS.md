@@ -153,19 +153,6 @@ Suggested area labels:
 - **validation status:** repo-side fix remains verified with `python3 -m unittest tests.test_device_surface_version -q` plus `python3 -m unittest discover -s tests -q`, which passed again in this run. Live Home Assistant validation is still pending because this run confirmed the currently installed fingerprint is still behind repo HEAD only in `entity.py`, and the old blocking-I/O warning remains visible until that exact file is redeployed.
 - **next action:** redeploy the exact current repo candidate, rerun fingerprint validation until `overall_match=true`, then confirm the integration/device surfaces still show the installed package version while Home Assistant startup logs no longer emit the `entity.py` blocking-I/O warning
 
-## ZNE-032 — Release summary incorrectly reports a rollback as a normal update
-- **status:** `fixed_pending_validation`
-- **severity:** `medium`
-- **area:** `release`
-- **where seen:** live Home Assistant `sensor.zero_net_export_release_summary` in this run
-- **current observed behavior:** the native release summary currently says `Updated from 0.1.84 to 0.1.83`, which reads like a normal upgrade even though the version moved backwards after the repo working-version revert to the documented `0.1.83` UI target
-- **expected behavior:** when the recorded previous version is higher than the current installed version, the native release summary should flag that as a rollback or mixed version history instead of claiming a normal update
-- **evidence:** in this run, the documented HA API path returned `sensor.zero_net_export_release_summary` with `state: Release notes deferred until diagnostics/support surfaces request them.` and `summary: Updated from 0.1.84 to 0.1.83. ...`, while the same run's repo/source-of-truth inspection confirmed `custom_components/zero_net_export/manifest.json` is intentionally back on `0.1.83`
-- **suspected cause:** `_release_update_details()` treated any version change as an upgrade and never compared version direction, so a rollback or version-history correction produced misleading release wording
-- **repo fix:** this run updates `custom_components/zero_net_export/coordinator.py` so release summaries compare previous versus current version direction and call out rollback or mixed version history explicitly when the version goes backwards; `tests/test_release_update_details.py` now covers both rollback and normal upgrade wording
-- **validation status:** repo-side fix implemented in this run and covered by `python3 -m unittest tests.test_release_update_details -q`. Live Home Assistant validation is still pending on the next exact-build redeploy because the current install fingerprint remains behind repo HEAD.
-- **next action:** redeploy the exact current repo candidate, rerun fingerprint validation until `overall_match=true`, then confirm `sensor.zero_net_export_release_summary` no longer says `Updated from 0.1.84 to 0.1.83` and instead flags the rollback/version-history mismatch clearly
-
 ## ZNE-027 — Command center still lets diagnostics/release plumbing dominate the primary operator surface
 - **status:** `fixed_pending_validation`
 - **severity:** `high`
@@ -343,6 +330,14 @@ Suggested area labels:
 - **historical behavior:** repo inspection in this run found `project_status.md` still said `user_action: none` and still listed the already-corrected `0.1.83` metadata drift as the main blocker, even though `docs/SUPERVISOR.md`, `RELEASE_MANAGEMENT.md`, and active bug state already made the true next boundary explicit: James must directly approve the formal `0.1.85` release flow before redeploy/restart/live validation continues.
 - **repo fix:** this run's status-boundary correction commit — update `project_status.md` so the next action explicitly asks James for release approval now, the blocker names the remaining `entity.py` drift plus the approval boundary, and `user_action` no longer incorrectly says `none`.
 - **closure evidence:** repo-side source-of-truth audit plus direct status-file correction in the same run; `project_status.md` now matches `docs/SUPERVISOR.md`, `RELEASE_MANAGEMENT.md`, and `ZNE-022` by making the formal `0.1.85` release approval ask explicit instead of implied.
+
+## ZNE-032 — Release summary incorrectly reports a rollback as a normal update
+- **closed on:** 2026-04-16
+- **severity:** `medium`
+- **area:** `release`
+- **historical behavior:** earlier live Home Assistant API inspection showed `sensor.zero_net_export_release_summary` reporting `Updated from 0.1.84 to 0.1.83`, which read like a normal upgrade even though the version had moved backwards during the temporary repo-side `0.1.83` release-line drift.
+- **repo fix:** `63265ab` with regression coverage in `7617337` — update `custom_components/zero_net_export/coordinator.py` so release summaries compare previous versus current version direction and only use normal upgrade wording for forward version moves.
+- **closure evidence:** this run rechecked the documented HA API path from `TOOLS.md` and the live `sensor.zero_net_export_release_summary` now reports `current_version: 0.1.85`, `previous_installed_version: 0.1.83`, `version_change_direction: 1`, and `summary: Updated from 0.1.83 to 0.1.85. ...`, so the rollback-specific miswording is no longer the live bug state.
 
 ## ZNE-004 — Live install version stamp mismatched the intended `0.1.82` release
 - **closed on:** 2026-04-15
