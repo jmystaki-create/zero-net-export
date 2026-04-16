@@ -181,10 +181,25 @@ def _overlay_runtime_device_details(
                     "effective_enabled": runtime.get("effective_enabled", device.get("enabled", True)),
                     "guard_status": runtime.get("guard_status"),
                     "planned_action": runtime.get("planned_action"),
+                    "last_action_status": runtime.get("last_action_status"),
+                    "current_power_w": runtime.get("current_power_w"),
+                    "current_target_power_w": runtime.get("current_target_power_w"),
                 }
             )
         enriched.append(merged)
     return enriched
+
+
+def _format_runtime_power_label(value: Any) -> str:
+    if value in (None, "", "unknown", "unavailable"):
+        return "n/a"
+    try:
+        watts = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    if watts.is_integer():
+        return f"{int(watts)} W"
+    return f"{watts:.1f} W"
 
 
 def _build_bootstrap_schema(defaults: dict | None = None) -> vol.Schema:
@@ -720,12 +735,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def _device_status_label(device: dict[str, Any]) -> str:
         state = "enabled" if device.get("effective_enabled", device.get("enabled", True)) else "disabled"
         priority = int(device.get("priority", 0) or 0)
-        power = int(float(device.get("nominal_power_w", 0) or 0))
+        nominal_power = int(float(device.get("nominal_power_w", 0) or 0))
         runtime_bits: list[str] = []
         if device.get("usable") is not None:
             runtime_bits.append("usable" if device.get("usable") else "not usable")
         if device.get("status"):
             runtime_bits.append(str(device.get("status")))
+        runtime_bits.append(f"power={_format_runtime_power_label(device.get('current_power_w'))}")
+        if device.get("kind") == DEVICE_KIND_VARIABLE and device.get("current_target_power_w") is not None:
+            runtime_bits.append(f"target={_format_runtime_power_label(device.get('current_target_power_w'))}")
         if device.get("guard_status"):
             runtime_bits.append(f"guard={device.get('guard_status')}")
         if device.get("planned_action"):
@@ -735,7 +753,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         runtime_summary = f" [{' | '.join(runtime_bits)}]" if runtime_bits else ""
         return (
             f"{device.get('name', 'Unnamed device')}{runtime_summary} "
-            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, {power} W, {device.get('entity_id', 'unknown entity')})"
+            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, nominal {nominal_power} W, {device.get('entity_id', 'unknown entity')})"
         )
 
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:

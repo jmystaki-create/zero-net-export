@@ -330,6 +330,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "last_action_status": "queued",
                 "priority": 10,
                 "nominal_power_w": 1200,
+                "current_power_w": 1185,
             },
             {
                 "key": "ev",
@@ -342,27 +343,77 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "status": "Held by guard",
                 "guard_status": "cooldown",
                 "planned_action": "hold",
+                "last_action_status": "throttled",
                 "priority": 20,
                 "nominal_power_w": 7000,
+                "current_power_w": 1800,
+                "current_target_power_w": 2200,
             },
         ]
 
         label = flow._device_status_label(devices[0])
+        variable_label = flow._device_status_label(devices[1])
         summary_lines = flow._fleet_summary_lines(devices)
 
         self.assertIn("usable", label)
         self.assertIn("Ready for control", label)
+        self.assertIn("power=1185 W", label)
         self.assertIn("guard=ready", label)
         self.assertIn("plan=turn_on", label)
         self.assertIn("last=queued", label)
+        self.assertIn("priority 10", label)
+        self.assertIn("nominal 1200 W", label)
+        self.assertIn("power=1800 W", variable_label)
+        self.assertIn("target=2200 W", variable_label)
+        self.assertIn("last=throttled", variable_label)
         self.assertIn("1 enabled", summary_lines[0])
         self.assertIn("1 usable", summary_lines[0])
         self.assertIn("1 blocked", summary_lines[0])
         self.assertIn("1 planned action(s)", summary_lines[0])
         self.assertIn("EV charger", summary_lines[1])
+        self.assertIn("power=1800 W", summary_lines[1])
+        self.assertIn("target=2200 W", summary_lines[1])
         self.assertIn("guard=cooldown", summary_lines[1])
         self.assertIn("Pool pump", summary_lines[2])
+        self.assertIn("power=1185 W", summary_lines[2])
         self.assertIn("plan=turn_on", summary_lines[2])
+
+    def test_overlay_runtime_device_details_carries_power_target_and_last_action(self) -> None:
+        module = _load_config_flow_module()
+        devices = [
+            {
+                "key": "ev",
+                "name": "EV charger",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "entity_id": "number.ev_limit",
+                "enabled": True,
+                "priority": 20,
+                "nominal_power_w": 7000,
+            }
+        ]
+        coordinator = SimpleNamespace(
+            data=SimpleNamespace(
+                device_details={
+                    "ev": {
+                        "entity_id": "number.ev_limit",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "status": "Tracking export",
+                        "guard_status": "ready",
+                        "planned_action": "set_power",
+                        "last_action_status": "throttled",
+                        "current_power_w": 1800,
+                        "current_target_power_w": 2200,
+                    }
+                }
+            )
+        )
+
+        enriched = module._overlay_runtime_device_details(devices, coordinator)
+
+        self.assertEqual(enriched[0]["current_power_w"], 1800)
+        self.assertEqual(enriched[0]["current_target_power_w"], 2200)
+        self.assertEqual(enriched[0]["last_action_status"], "throttled")
 
     def test_device_sort_key_surfaces_blocked_devices_before_healthy_plans(self) -> None:
         module = _load_config_flow_module()
