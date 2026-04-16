@@ -565,6 +565,15 @@ def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[
     return payloads, issues
 
 
+def _first_runtime_device_name(state: Any, *, predicate) -> str:
+    if state is None:
+        return ""
+    for detail in (getattr(state, "device_details", {}) or {}).values():
+        if predicate(detail):
+            return str(detail.get("name") or detail.get("entity_id") or "").strip()
+    return ""
+
+
 def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
     state_stale_data = bool(getattr(state, "stale_data", False)) if state is not None else False
     state_usable_device_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
@@ -1281,6 +1290,14 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if source_attention_summary != "None"
         else "No mapped-source blockers currently highlighted"
     )
+    first_blocked_device_name = _first_runtime_device_name(
+        state,
+        predicate=lambda detail: detail.get("usable") is False,
+    )
+    first_planned_device_name = _first_runtime_device_name(
+        state,
+        predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+    )
 
     top_alerts: list[str] = []
     if install_provenance_pending:
@@ -1388,7 +1405,14 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 f"managed {getattr(state, 'device_count', None)}" if state is not None and getattr(state, 'device_count', None) is not None else None,
                 f"enabled {getattr(state, 'enabled_device_count', None)}" if state is not None and getattr(state, 'enabled_device_count', None) is not None else None,
                 f"usable {getattr(state, 'usable_device_count', None)}" if state is not None and getattr(state, 'usable_device_count', None) is not None else None,
-                f"blocked {getattr(state, 'blocked_planned_action_count', None)}" if state is not None and getattr(state, 'blocked_planned_action_count', None) not in {None, 0} else None,
+                (
+                    f"blocked {first_blocked_device_name}"
+                    if first_blocked_device_name
+                    else f"blocked {getattr(state, 'blocked_planned_action_count', None)}"
+                )
+                if state is not None and getattr(state, 'blocked_planned_action_count', None) not in {None, 0}
+                else None,
+                f"plan {first_planned_device_name}" if first_planned_device_name else None,
             ]
             if part is not None
         ) or device_status,

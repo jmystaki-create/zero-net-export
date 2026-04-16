@@ -312,6 +312,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             candidate_count = len(candidates)
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
+            first_blocked_name = _first_matching_device_name(
+                state.device_details,
+                predicate=lambda detail: detail.get("usable") is False,
+            )
+            first_planned_name = _first_matching_device_name(
+                state.device_details,
+                predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+            )
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=2, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=1)
@@ -339,9 +347,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
             if counts["blocked_count"]:
-                summary_parts.append(f"{counts['blocked_count']} blocked")
+                summary_parts.append(
+                    f"blocked {first_blocked_name}" if first_blocked_name else f"{counts['blocked_count']} blocked"
+                )
             if counts["planned_count"]:
-                summary_parts.append(f"{counts['planned_count']} active plan")
+                summary_parts.append(
+                    f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
+                )
             summary_parts.append(f"{counts['fixed_count']} fixed")
             if counts["variable_count"]:
                 summary_parts.append(f"{counts['variable_count']} variable")
@@ -556,6 +568,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "variable_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'variable'),
                 "top_candidate": top_candidate,
                 "top_candidate_name": str(top_candidate.get('name') or top_candidate.get('entity_id') or '').strip() if top_candidate else None,
+                "first_blocked_device": _first_matching_device_name(
+                    state.device_details,
+                    predicate=lambda detail: detail.get("usable") is False,
+                ) or None,
+                "first_active_plan_device": _first_matching_device_name(
+                    state.device_details,
+                    predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+                ) or None,
                 "source_blocked": blocking_source_summary != "None" or blocking_validation_details != "None",
                 "source_blocker_summary": blocking_source_summary,
                 "blocking_validation_details": blocking_validation_details,

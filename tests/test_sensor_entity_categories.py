@@ -200,7 +200,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(summary._attr_name, "Pool pump managed summary")
         self.assertEqual(
             managed_overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 1 active plan | 1 fixed",
+            "1 managed | 1 enabled | 1 usable | plan Pool pump | 1 fixed",
         )
         self.assertEqual(managed_overview.extra_state_attributes["planned_count"], 1)
         self.assertEqual(managed_overview.extra_state_attributes["usable_count"], 1)
@@ -319,6 +319,44 @@ class SensorEntityCategoryTests(unittest.TestCase):
             overview.native_value,
             "1 managed | 1 enabled | 1 usable | 2 unmanaged | top AC Outlet 2 | 1 fixed | 1185 W nominal",
         )
+
+    def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+        ]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": False,
+                        "effective_enabled": True,
+                        "planned_action": "turn_on",
+                        "nominal_power_w": 1185,
+                    },
+                    "ev": {
+                        "name": "EV charger",
+                        "kind": "variable",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                    },
+                }
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            overview.native_value,
+            "2 managed | 2 enabled | 1 usable | 1 unmanaged | top AC Outlet 2 | blocked Pool pump | plan Pool pump | 1 fixed | 1 variable | 1185 W nominal",
+        )
+        self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
+        self.assertEqual(overview.extra_state_attributes["first_active_plan_device"], "Pool pump")
 
     def test_managed_fleet_overview_surfaces_source_repair_before_promotion_backlog(self) -> None:
         sensor_module = _load_sensor_module()
