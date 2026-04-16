@@ -330,7 +330,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             }
         )
         self.assertIn("This surface is for the basic setup only.", guide)
-        self.assertIn("Managed-device workflow belongs on the Zero Net Export device page", guide)
+        self.assertIn(
+            "Managed Devices lives in Configure, while the Zero Net Export device page is the deeper per-device review path.",
+            guide,
+        )
         self.assertIn("- Recommended section: Sensors", guide)
         self.assertNotIn("- Recommended section: Sensors and source mapping", guide)
         self.assertIn(f"- Recommended path: {native_support.SOURCES_CONFIGURE_PATH}", guide)

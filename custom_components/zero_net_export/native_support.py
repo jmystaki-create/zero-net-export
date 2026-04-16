@@ -989,7 +989,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "",
             "This surface is for the basic setup only.",
             "Use it to finish source mapping, confirm core control settings, and understand the next setup step.",
-            "Managed-device workflow belongs on the Zero Net Export device page and managed-device review surfaces.",
+            "Managed Devices lives in Configure, while the Zero Net Export device page is the deeper per-device review path.",
             "",
             f"Headline: {command_center.get('headline_decision')}",
             f"Top alert: {command_center.get('alert_summary')}",

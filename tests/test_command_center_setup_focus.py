@@ -91,7 +91,10 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         )
 
         self.assertIn("This surface is for the basic setup only.", text)
-        self.assertIn("Managed-device workflow belongs on the Zero Net Export device page", text)
+        self.assertIn(
+            "Managed Devices lives in Configure, while the Zero Net Export device page is the deeper per-device review path.",
+            text,
+        )
         self.assertNotIn("Installed package:", text)
         self.assertNotIn("Install consistency:", text)
         self.assertNotIn("Managed-device deep review", text)
