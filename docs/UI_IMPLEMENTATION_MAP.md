@@ -1,4 +1,4 @@
-# UI Implementation Map for 0.1.83
+# UI Implementation Map for the current Zero Net Export UI release line
 
 This document is the single source of truth for the **implementation strategy and delivery status** of the native Home Assistant UI work.
 
@@ -8,7 +8,7 @@ The intended product design now lives in `docs/UI_DESIGN.md`.
 
 ## Scope
 
-`0.1.83` is the **UI release**.
+The current live/UI correction line is now beyond `0.1.83`; treat this document as the UI-shaping checklist for the active release line and do not use stale `0.1.83` wording as if it were still the current release target.
 
 This release should focus on the three native-UI outcomes James explicitly asked for:
 1. a clear **managed vs unmanaged** device experience
@@ -47,9 +47,9 @@ If a change does not materially improve one of those visible outcomes, it should
 - The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reinstalled and reviewed.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
 
-## What counts as success for 0.1.83
+## What counts as success for the current UI release line
 
-`0.1.83` should not be called the UI release unless all of the following are true:
+The current release line should not be called a successful UI release unless all of the following are true:
 
 1. **Managed vs unmanaged is visually obvious**
    - the Managed Devices path clearly shows the current managed fleet
@@ -79,7 +79,7 @@ Purpose:
 Completed:
 - established `docs/UI_DESIGN.md` as the design source of truth
 - established `docs/UI_IMPLEMENTATION_MAP.md` as the implementation source of truth
-- updated steering so `0.1.83` is explicitly the UI release
+- updated steering so the active release line, not stale `0.1.83` wording, is explicitly treated as the current UI correction target
 
 Remaining:
 - repoint older project documents so they defer to these two files
@@ -106,7 +106,7 @@ Features:
 ### Phase 2. Optional dashboard cleanup
 Purpose:
 - keep optional dashboard assets aligned with the native-only product direction
-- prevent optional dashboard work from being mistaken for the `0.1.83` UI release itself
+- prevent optional dashboard work from being mistaken for the current UI release itself
 
 Completed:
 - baseline Lovelace/dashboard assets already exist in the repo for reuse/reference
@@ -234,7 +234,7 @@ Features:
 - screenshot-grade acceptance evidence
 - formal release approval boundary
 
-## Non-goals for 0.1.83 unless required to unblock UI delivery
+## Non-goals for the current UI release line unless required to unblock UI delivery
 
 These should not displace UI work unless they are required to keep the integration loading or to make live UI validation possible:
 - additional release-plumbing polish
@@ -248,6 +248,6 @@ Do not count work as UI progress unless it fits one of these categories:
 - completed enough to build on
 - implemented but not yet delivered as a finished UI outcome
 - still blocked or incomplete
-- phase-complete movement toward the `0.1.83` UI release
+- phase-complete movement toward the current UI release line
 
 Do not let text-heavy guidance, diagnostics wording, release mechanics, or backend scaffolding masquerade as delivered UI.

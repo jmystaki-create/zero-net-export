@@ -42,7 +42,7 @@ Do not drift into:
 
 ## Current goals
 
-- Make `0.1.83` the explicit UI release.
+- Treat `0.1.85` as the current live release under active correction, and keep the UI-shaping work aligned to the current release line rather than stale `0.1.83` wording.
 - Make Configure the clear native command center for sources, policy, managed devices, and support.
 - Separate the operator information architecture into four obvious native buckets: Controls, Sensors, Managed Devices, and Diagnostics.
 - Keep the Zero Net Export brain/control surface focused on controller-level settings and decisions only, not managed-device inventory operations.
@@ -98,7 +98,7 @@ This phase is in good shape when:
 ## Next actions
 
 Do next:
-1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict checklist for the `0.1.83` UI release.
+1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict checklist for the current UI-shaping release line, and remove stale `0.1.83` assumptions whenever current live work is already on `0.1.85`.
 2. Make the Managed Devices native path visually separate already managed devices from unmanaged candidates ready for promotion.
 3. Make the native promote / vet / review path visibly first-class and easy to follow in live Home Assistant.
 4. Refactor the native surface model so Controls, Sensors, Managed Devices, and Diagnostics each have a clear role and do not repeat each other's content.

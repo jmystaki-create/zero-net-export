@@ -65,7 +65,7 @@ These remain valid native Home Assistant surfaces for runtime, support, and auto
 They support the operator path, but should not replace the need for a coherent Configure experience.
 
 ### 4. Optional dashboards
-Dashboards are optional supplemental visibility inside native Home Assistant, not part of the required operator path and not part of the `0.1.83` release gate.
+Dashboards are optional supplemental visibility inside native Home Assistant, not part of the required operator path and not part of the current release gate.
 
 Optional dashboards may still help with additional visibility, but they must remain clearly secondary to the native operator path.
 They must not become:
@@ -361,9 +361,9 @@ The product should avoid both extremes:
 - one giant unstructured flow
 - or a fragmented maze of disconnected sections
 
-## The three required visible outcomes for 0.1.83
+## The three required visible outcomes for the current UI correction line
 
-The next release, `0.1.83`, is the **UI release**.
+The current release line, now beyond `0.1.83`, is where the UI correction work must visibly land. Do not treat stale `0.1.83` wording as the active release target.
 
 It must focus on these three visible outcomes:
 
