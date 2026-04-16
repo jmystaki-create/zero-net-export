@@ -45,6 +45,21 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices (top section)", remove_description)
         self.assertIn("Unmanaged candidates (bottom section)", remove_description)
 
+        vetting_description = steps["device_vetting"]["description"]
+        self.assertIn("Managed Devices owns this promotion workflow", vetting_description)
+        self.assertIn("Managed devices (top section)", vetting_description)
+        self.assertIn("Unmanaged candidates (bottom section)", vetting_description)
+
+        template_description = steps["device_template"]["description"]
+        self.assertIn("Managed Devices still owns this step", template_description)
+        self.assertIn("Managed devices (top section)", template_description)
+        self.assertIn("Unmanaged candidates (bottom section)", template_description)
+
+        add_description = steps["device_add"]["description"]
+        self.assertIn("Managed Devices still owns this save step", add_description)
+        self.assertIn("Managed devices (top section)", add_description)
+        self.assertIn("Unmanaged candidates (bottom section)", add_description)
+
         policy_description = steps["policy"]["description"]
         self.assertIn("Controls owns controller behaviour", policy_description)
         self.assertIn("keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics", policy_description)

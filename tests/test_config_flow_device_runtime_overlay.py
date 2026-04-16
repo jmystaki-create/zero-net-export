@@ -679,7 +679,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 module.DOMAIN: {
                     "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
                 }
-            }
+            },
+            states=SimpleNamespace(async_all=lambda: []),
         )
         flow.async_show_form = lambda **kwargs: kwargs
         flow._pending_candidate_entity_id = "switch.ac_outlet_2"
@@ -727,6 +728,103 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
             "Why: Mapped source blockers remain."
         ))
+
+    def test_promotion_forms_keep_managed_and_unmanaged_context_visible(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SOURCES_SECTION_LABEL,
+            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_path": module.SOURCES_CONFIGURE_PATH,
+            "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
+        }
+        module.get_device_templates = lambda kind: [
+            SimpleNamespace(key="fixed_plug", label="Fixed plug", description="Use the fixed plug preset."),
+        ]
+        module.get_device_template = lambda kind, key: SimpleNamespace(
+            key="fixed_plug",
+            label="Fixed plug",
+            description="Use the fixed plug preset.",
+            defaults={},
+        )
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            },
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._load_devices = lambda: ([
+            {
+                "key": "pool",
+                "name": "Pool pump",
+                "entity_id": "switch.pool_pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "planned_action": "on",
+            },
+            {
+                "key": "ev",
+                "name": "EV charger",
+                "entity_id": "number.ev_charger_current",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": False,
+                "guard_reason": "Source stale",
+            },
+        ], [])
+        flow._device_candidates = lambda: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2",
+            },
+            {
+                "entity_id": "switch.towel_rail",
+                "name": "Towel Rail",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "Towel Rail",
+            },
+        ]
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+        flow._pending_candidate_entity_id = "switch.ac_outlet_2"
+        flow._pending_candidate_summary = {
+            "name": "AC Outlet 2",
+            "entity_id": "switch.ac_outlet_2",
+            "kind": module.DEVICE_KIND_FIXED,
+            "fit_confidence": "high",
+            "fit_summary": "Strong match.",
+            "warnings": [],
+            "suggested_template_key": "fixed_plug",
+            "suggested_template_label": "Fixed plug",
+            "suggested_template_description": "Use the fixed plug preset.",
+        }
+        flow._pending_device_template_key = "fixed_plug"
+
+        vetting = asyncio.run(flow.async_step_device_vetting())
+        template = asyncio.run(flow.async_step_device_template())
+        add = asyncio.run(flow.async_step_device_add())
+
+        for result in (vetting, template, add):
+            self.assertEqual(
+                result["description_placeholders"]["managed_snapshot"],
+                "Managed now: 2 | enabled: 2 | usable: 1 | blocked: EV charger | plan: Pool pump",
+            )
+            self.assertEqual(
+                result["description_placeholders"]["unmanaged_snapshot"],
+                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0",
+            )
+            self.assertEqual(
+                result["description_placeholders"]["top_candidate"],
+                "AC Outlet 2 (switch.ac_outlet_2, fixed)",
+            )
+            self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()

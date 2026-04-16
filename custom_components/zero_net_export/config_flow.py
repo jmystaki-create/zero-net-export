@@ -2208,12 +2208,24 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         promotion_path_summary = (
             "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
         )
+        devices, _ = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        candidates = self._device_candidates()
+        top_candidate = candidates[0] if candidates else None
         return self.async_show_form(
             step_id="device_vetting",
             data_schema=vol.Schema({}),
             errors={},
             description_placeholders={
                 "device_blocker_summary": self._device_blocker_summary(),
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "top_candidate": (
+                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else "none discovered right now"
+                ),
+                "configure_path": DEVICES_CONFIGURE_PATH,
                 "candidate_name": str(summary.get('name') or summary.get('entity_id') or 'candidate'),
                 "candidate_entity_id": str(summary.get('entity_id') or ''),
                 "candidate_domain": str(summary.get('domain') or 'unknown'),
@@ -2261,6 +2273,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value=template.key, label=template.label)
             for template in templates
         ]
+        devices, _ = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        candidates = self._device_candidates()
+        top_candidate = candidates[0] if candidates else None
         return self.async_show_form(
             step_id="device_template",
             data_schema=vol.Schema(
@@ -2276,6 +2292,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors={},
             description_placeholders={
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "device_blocker_summary": self._device_blocker_summary(),
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "top_candidate": (
+                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else "none discovered right now"
+                ),
+                "configure_path": DEVICES_CONFIGURE_PATH,
+                "detailed_management_summary": self._detailed_management_summary(),
                 "template_summary": "\n".join(
                     f"- {template.label}: {template.description}" for template in templates
                 ),
@@ -2324,6 +2350,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             template_defaults=selected_template.defaults if selected_template and not editing_key else None,
             candidate_summary=self._pending_candidate_summary if not editing_key else None,
         )
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        top_candidate = candidates[0] if candidates else None
         if not editing_key and self._pending_candidate_entity_id:
             selected_candidate = next((item for item in candidates if item["entity_id"] == self._pending_candidate_entity_id), None)
             if selected_candidate is not None:
@@ -2379,6 +2407,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "device_blocker_summary": self._device_blocker_summary(),
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "top_candidate": (
+                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else "none discovered right now"
+                ),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_mode": "Edit" if editing_key else "Add",
                 "device_template": selected_template.label if selected_template else "Custom",
