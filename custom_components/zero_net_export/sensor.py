@@ -251,6 +251,20 @@ def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict
     return discover_candidate_devices(hass.states.async_all(), managed_entity_ids)
 
 
+def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -> dict[str, int]:
+    devices = list((device_details or {}).values())
+    return {
+        "managed_count": len(devices),
+        "enabled_count": sum(1 for detail in devices if detail.get("effective_enabled", detail.get("enabled", True))),
+        "usable_count": sum(1 for detail in devices if detail.get("usable") is True),
+        "blocked_count": sum(1 for detail in devices if detail.get("usable") is False),
+        "planned_count": sum(1 for detail in devices if str(detail.get("planned_action") or "") not in {"", "hold"}),
+        "fixed_count": sum(1 for detail in devices if detail.get("kind") == "fixed"),
+        "variable_count": sum(1 for detail in devices if detail.get("kind") == "variable"),
+        "nominal_power_w": int(sum(float(detail.get("nominal_power_w", 0) or 0) for detail in devices)),
+    }
+
+
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def native_value(self):
@@ -270,12 +284,24 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if state is None:
             return None
         if self._key == "managed_fleet_overview":
-            device_details = list((state.device_details or {}).values())
-            if not device_details:
+            counts = _managed_fleet_counts(state.device_details)
+            if counts["managed_count"] == 0:
                 return "No managed devices yet"
-            enabled = sum(1 for detail in device_details if detail.get("effective_enabled"))
-            usable = sum(1 for detail in device_details if detail.get("usable"))
-            return f"{len(device_details)} managed, {enabled} enabled, {usable} usable"
+            summary_parts = [
+                f"{counts['managed_count']} managed",
+                f"{counts['enabled_count']} enabled",
+                f"{counts['usable_count']} usable",
+            ]
+            if counts["blocked_count"]:
+                summary_parts.append(f"{counts['blocked_count']} blocked")
+            if counts["planned_count"]:
+                summary_parts.append(f"{counts['planned_count']} active plan")
+            summary_parts.append(f"{counts['fixed_count']} fixed")
+            if counts["variable_count"]:
+                summary_parts.append(f"{counts['variable_count']} variable")
+            if counts["nominal_power_w"]:
+                summary_parts.append(f"{counts['nominal_power_w']} W nominal")
+            return " | ".join(summary_parts)
         if self._key == "unmanaged_candidate_count":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             return len(_candidate_devices_for_hass(self.hass, managed_ids))
@@ -325,8 +351,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key == "fleet_console_next_step":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
-            if not state.device_details and candidates:
+            counts = _managed_fleet_counts(state.device_details)
+            if counts["managed_count"] == 0 and candidates:
                 return f"Open {DEVICES_CONFIGURE_PATH} and tag the first candidate into the fleet"
+            if counts["blocked_count"]:
+                return f"Open {DEVICES_CONFIGURE_PATH}, review blocked managed devices, then fix the next guard or readiness issue"
+            if counts["planned_count"]:
+                return f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan before changing the fleet"
             if candidates:
                 return f"Review unmanaged candidates, then promote the next controllable device from {DEVICES_CONFIGURE_PATH}"
             return f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
@@ -442,6 +473,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             return {
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "managed_devices": list((state.device_details or {}).values()),
+                **_managed_fleet_counts(state.device_details),
                 "candidate_devices": candidates[:12],
                 "candidate_count": len(candidates),
                 "fixed_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'fixed'),

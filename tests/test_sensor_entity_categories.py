@@ -156,6 +156,12 @@ class SensorEntityCategoryTests(unittest.TestCase):
             ),
         )
 
+        managed_overview = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "managed_fleet_overview",
+            "Managed fleet overview",
+        )
+        managed_overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
         summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool pump")
         current_power = sensor_module.ZeroNetExportDevicePowerSensor(
             coordinator,
@@ -192,6 +198,12 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(summary._attr_name, "Pool pump managed summary")
+        self.assertEqual(
+            managed_overview.native_value,
+            "1 managed | 1 enabled | 1 usable | 1 active plan | 1 fixed",
+        )
+        self.assertEqual(managed_overview.extra_state_attributes["planned_count"], 1)
+        self.assertEqual(managed_overview.extra_state_attributes["usable_count"], 1)
         self.assertEqual(
             summary.native_value,
             "fixed load | Ready for control | usable | enabled | priority 90 | power 1185 W | action turn_on",
@@ -257,6 +269,35 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(shortlist.native_value, "AC Outlet 2; EV charger limit")
         self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
+
+    def test_fleet_console_next_step_prioritizes_blocked_devices_before_more_promotions(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+        ]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "heater": {
+                        "name": "Heated floor",
+                        "kind": "fixed",
+                        "usable": False,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                    }
+                }
+            ),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Fleet console next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open devices path, review blocked managed devices, then fix the next guard or readiness issue",
+        )
+        self.assertEqual(next_step.extra_state_attributes["blocked_count"], 1)
 
 
 if __name__ == "__main__":
