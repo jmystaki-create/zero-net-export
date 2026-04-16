@@ -265,10 +265,31 @@ class CandidateUtilsTests(unittest.TestCase):
             [candidate["entity_id"] for candidate in candidates],
             [
                 "switch.ac_outlet_2",
-                "switch.ebike_charger",
                 "switch.coffee_machine",
+                "switch.ebike_charger",
                 "switch.third_bedroom_power",
                 "switch.garage_power",
+            ],
+        )
+
+    def test_discover_candidate_devices_does_not_let_generic_power_labels_hide_behind_plug_entity_ids(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.smart_plug_6", state="off", attributes={"friendly_name": "Garage Power"}),
+            SimpleNamespace(entity_id="switch.coffee_machine", state="off", attributes={"friendly_name": "Coffee machine"}),
+            SimpleNamespace(entity_id="switch.plug_8", state="off", attributes={"friendly_name": "Air Purifier"}),
+            SimpleNamespace(entity_id="switch.towel_rail", state="off", attributes={"friendly_name": "Towel Rail"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            [
+                "switch.plug_8",
+                "switch.coffee_machine",
+                "switch.towel_rail",
+                "switch.smart_plug_6",
             ],
         )
 

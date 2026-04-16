@@ -38,6 +38,8 @@ _POSITIVE_LOAD_KEYWORDS = (
     "charger",
     "ev",
     "heater",
+    "heated floor",
+    "floor heat",
     "hot water",
     "water heater",
     "boiler",
@@ -46,6 +48,9 @@ _POSITIVE_LOAD_KEYWORDS = (
     "pump",
     "outlet",
     "plug",
+    "purifier",
+    "towel rail",
+    "coffee",
     "aircon",
     "air conditioner",
     "hvac",
@@ -170,9 +175,10 @@ def _generic_power_penalty(candidate: dict[str, Any]) -> int:
     appliance-style names like chargers, heated floors, towel rails, and purifiers.
     """
     text = _candidate_text(candidate)
+    name_text = str(candidate.get("name") or "").lower()
     if not any(keyword in text for keyword in _GENERIC_POWER_KEYWORDS):
         return 0
-    if any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
+    if any(keyword in name_text for keyword in _POSITIVE_LOAD_KEYWORDS):
         return 0
     if str(candidate.get("device_class") or "").lower() == "outlet":
         return 0
