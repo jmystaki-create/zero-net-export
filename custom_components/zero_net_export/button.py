@@ -80,13 +80,15 @@ def _has_active_plan(detail: dict) -> bool:
     return str(detail.get("planned_action") or "") not in {"", "hold"}
 
 
-def _device_runtime_sort_key(detail: dict) -> tuple[int, int, str]:
+def _device_runtime_sort_key(detail: dict) -> tuple[int, int, int, str]:
     effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
     usable = detail.get("usable") is True
+    blocked = detail.get("usable") is False
     planned = _has_active_plan(detail)
     return (
-        0 if effective_enabled and usable else 1,
+        0 if blocked else 1,
         0 if planned else 1,
+        0 if effective_enabled and usable else 1,
         str(detail.get("name") or detail.get("entity_id") or ""),
     )
 

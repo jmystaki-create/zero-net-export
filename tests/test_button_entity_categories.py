@@ -292,7 +292,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section):", message)
         self.assertIn("- Snapshot: 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
-        self.assertIn("- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump", message)
+        blocked_line = "- EV charger: Held by guard | not usable | disabled | guard=blocked | plan=hold | entity=number.ev_limit"
+        planned_line = "- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump"
+        self.assertIn(blocked_line, message)
+        self.assertIn(planned_line, message)
+        self.assertLess(message.index(blocked_line), message.index(planned_line))
         self.assertIn("- Hot water (switch.hot_water, fixed, state off) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Return after blocker repair:", message)
         self.assertIn("- Open sources path first.", message)
@@ -364,7 +368,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section): 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
-        self.assertIn("- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump", message)
+        blocked_line = "- EV charger: Held by guard | not usable | disabled | guard=blocked | plan=hold | entity=number.ev_limit"
+        planned_line = "- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump"
+        self.assertIn(blocked_line, message)
+        self.assertIn(planned_line, message)
+        self.assertLess(message.index(blocked_line), message.index(planned_line))
         self.assertIn("Top unmanaged candidates:", message)
         self.assertIn("- Hot water (switch.hot_water, fixed, state off)", message)
         self.assertIn("Detailed device-view path: detailed device path", message)
