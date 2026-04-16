@@ -285,6 +285,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Workspace path: devices path", message)
         self.assertIn("Detailed review path: detailed device path", message)
+        self.assertIn("Before fleet work:", message)
+        self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
@@ -366,6 +368,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Top unmanaged candidates:", message)
         self.assertIn("- Hot water (switch.hot_water, fixed, state off)", message)
         self.assertIn("Detailed device-view path: detailed device path", message)
+        self.assertIn("Before fleet work:", message)
+        self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Return after blocker repair:", message)
         self.assertIn("- Open sources path first.", message)
         self.assertIn("- Why: Mapped source blockers remain.", message)
@@ -410,6 +414,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         attrs = button.extra_state_attributes
 
         self.assertEqual(attrs["managed_count"], 1)
+        self.assertEqual(attrs["recommended_section"], "Sensors")
+        self.assertEqual(attrs["recommended_path"], "sources path")
+        self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
+        self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(attrs["unmanaged_candidate_count"], 1)
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "number.ev_limit")
         self.assertEqual(attrs["top_candidate_fit"]["confidence"], "medium")
@@ -457,6 +465,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         attrs = button.extra_state_attributes
 
+        self.assertEqual(attrs["recommended_section"], "Sensors")
+        self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
         self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
         self.assertIn("- Why: Mapped source blockers remain.", attrs["promotion_handoff"])

@@ -111,6 +111,25 @@ def _format_power(value: object) -> str:
         return str(value)
 
 
+def _managed_devices_blocker_first_lines(command_center: dict) -> list[str]:
+    recommended_section = str(command_center.get("recommended_section") or "").strip()
+    recommended_path = str(command_center.get("recommended_path") or "").strip()
+    recommended_reason = str(command_center.get("recommended_reason") or "").strip()
+    next_step = str(command_center.get("device_next_step") or command_center.get("next_action_summary") or "").strip()
+
+    if not recommended_section or recommended_section == DEVICES_SECTION_LABEL:
+        return []
+
+    lines = ["Before fleet work:"]
+    if recommended_path:
+        lines.append(f"- Open {recommended_path} first.")
+    if recommended_reason:
+        lines.append(f"- Why: {recommended_reason}")
+    if next_step:
+        lines.append(f"- After repair: {next_step}")
+    return lines
+
+
 def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict | None) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
@@ -267,6 +286,10 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         return {
             'configure_path': DEVICES_CONFIGURE_PATH,
             'detailed_management_path': DETAILED_MANAGEMENT_PATH,
+            'recommended_section': command_center.get('recommended_section'),
+            'recommended_path': command_center.get('recommended_path'),
+            'recommended_reason': command_center.get('recommended_reason'),
+            'blocker_first': "\n".join(_managed_devices_blocker_first_lines(command_center)),
             'managed_count': len(managed),
             'enabled_count': sum(
                 1 for detail in managed if detail.get('effective_enabled', detail.get('enabled', True))
@@ -290,12 +313,14 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         top_candidate = candidates[0] if candidates else None
         top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
+        blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
         lines = [
             'Zero Net Export managed devices workspace',
             '',
             f'Workspace path: {DEVICES_CONFIGURE_PATH}',
             f'Detailed review path: {DETAILED_MANAGEMENT_PATH}',
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
+            *(['', *blocker_first_lines] if blocker_first_lines else []),
             '',
             'Managed devices (top section):',
             (
@@ -372,6 +397,10 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
+            "recommended_section": command_center.get("recommended_section"),
+            "recommended_path": command_center.get("recommended_path"),
+            "recommended_reason": command_center.get("recommended_reason"),
+            "blocker_first": "\n".join(_managed_devices_blocker_first_lines(command_center)),
             "managed_count": len(device_details),
             "enabled_count": sum(
                 1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))
@@ -396,12 +425,14 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         top_candidate = candidates[0] if candidates else None
         top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
+        blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
         lines = [
             "Zero Net Export managed devices review",
             "",
             f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
             f"Detailed device-view path: {DETAILED_MANAGEMENT_PATH}",
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
+            *(["", *blocker_first_lines] if blocker_first_lines else []),
             "",
             "Managed devices (top section):",
             (
