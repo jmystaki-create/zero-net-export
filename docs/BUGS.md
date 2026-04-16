@@ -507,6 +507,14 @@ Suggested area labels:
 - **repo fix:** this run's doc-state sync commit — update `README.md` and `project_status.md` so they distinguish the current live `0.1.86` correction line from the next `0.1.87` UI rollout target, and make the release-approval boundary explicitly block any `0.1.87` UI-release claim until the exact `0.1.86` live reconciliation is done.
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `README.md`, `project_status.md`, and `docs/UI_IMPLEMENTATION_MAP.md` now agree that `0.1.86` is the live correction line while `0.1.87` is the next UI rollout target.
 
+## ZNE-040 — UI implementation map briefly regressed the Managed Devices workspace back onto the device page
+- **closed on:** 2026-04-17
+- **severity:** `low`
+- **area:** `docs`
+- **historical behavior:** this watchdog run found one remaining source-of-truth contradiction inside `docs/UI_IMPLEMENTATION_MAP.md`. Stage 4 still said to "move the real managed-devices experience onto the device page strongly enough that it does not just look like generic HA cards plus buttons," which directly conflicted with `docs/UI_DESIGN.md`, `docs/SUPERVISOR.md`, and the same implementation map's own `0.1.87` rollout and acceptance text that keep Configure -> Managed Devices as the primary fleet workspace and the device page as the deeper review path.
+- **repo fix:** this run's implementation-map correction commit — rewrite the Stage 4 remaining item so it keeps the device page framed as the deeper per-device review path that supports Configure -> Managed Devices, instead of competing with or replacing the main fleet workspace.
+- **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_IMPLEMENTATION_MAP.md` Stage 4 now matches `docs/UI_DESIGN.md`, `docs/SUPERVISOR.md`, and the map's own `0.1.87` rollout/acceptance sections on Configure -> Managed Devices being primary.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

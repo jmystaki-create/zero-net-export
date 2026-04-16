@@ -165,7 +165,7 @@ This section is now the explicit staged delivery map. Each phase should be imple
 
 **Remaining**
 - make the managed-on-top / unmanaged-below structure visually obvious in live HA
-- move the real managed-devices experience onto the device page strongly enough that it does not just look like generic HA cards plus buttons
+- make the device-page deeper-review path feel clearly secondary to Configure -> Managed Devices, so it supports richer per-device inspection without competing with the primary fleet workspace
 - confirm the next recommended fleet action is obvious at a glance in the installed UI, not just in repo copy
 
 **Features in this stage**
