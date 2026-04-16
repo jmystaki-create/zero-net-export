@@ -195,6 +195,13 @@ def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and _negative_non_load_penalty(candidate) >= 3 and not positive_name_signal:
         return True
 
+    if (
+        domain in DEVICE_CANDIDATE_FIXED_DOMAINS
+        and any(fragment in entity_id for fragment in _NEGATIVE_ENTITY_ID_FRAGMENTS)
+        and not positive_name_signal
+    ):
+        return True
+
     if kind != "variable" or domain not in {"number", "input_number"}:
         return False
 

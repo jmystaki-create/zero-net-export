@@ -159,7 +159,7 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("feature toggle or service control", fit["suitability_summary"])
         self.assertIn("does not clearly look like a physical discretionary load", fit["safety_summary"])
 
-    def test_discover_candidate_devices_excludes_media_feature_toggles_but_keeps_real_loads(self) -> None:
+    def test_discover_candidate_devices_excludes_media_feature_toggles_and_none_wrappers_but_keeps_real_loads(self) -> None:
         module = _load_candidate_utils_module()
         states = [
             SimpleNamespace(entity_id="switch.master_bedroom_speech_enhancement", state="off", attributes={"friendly_name": "Living Room Speech enhancement"}),
@@ -176,7 +176,6 @@ class CandidateUtilsTests(unittest.TestCase):
             [
                 "switch.ac_outlet_2",
                 "switch.ebike_charger",
-                "switch.lounge_room_none",
             ],
         )
 
@@ -231,7 +230,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         self.assertEqual([candidate["entity_id"] for candidate in candidates], ["number.ev_charger_limit"])
 
-    def test_discover_candidate_devices_excludes_obvious_service_and_media_switches(self) -> None:
+    def test_discover_candidate_devices_excludes_obvious_service_media_and_none_switches(self) -> None:
         module = _load_candidate_utils_module()
         states = [
             SimpleNamespace(entity_id="switch.ac_outlet_2", state="off", attributes={"friendly_name": "AC Outlet 2", "device_class": "outlet"}),
@@ -247,7 +246,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         self.assertEqual(
             [candidate["entity_id"] for candidate in candidates],
-            ["switch.ac_outlet_2", "switch.living_room_none"],
+            ["switch.ac_outlet_2"],
         )
 
     def test_build_candidate_review_line_formats_label_level_and_summary(self) -> None:
