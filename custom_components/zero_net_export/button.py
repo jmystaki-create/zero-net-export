@@ -95,14 +95,21 @@ def _device_runtime_sort_key(detail: dict) -> tuple[int, int, int, str]:
 
 def _format_device_review_line(detail: dict) -> str:
     runtime_bits = [
+        str(detail.get("kind") or "unknown"),
         str(detail.get("status") or "status unknown"),
         "usable" if detail.get("usable") else "not usable",
         "enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "disabled",
-        f"guard={detail.get('guard_status') or 'unknown'}",
-        f"plan={detail.get('planned_action') or 'hold'}",
     ]
+    priority = detail.get("priority")
+    if priority is not None:
+        runtime_bits.append(f"priority={int(priority)}")
+    runtime_bits.append(f"power={_format_power(detail.get('current_power_w'))}")
+    if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
+        runtime_bits.append(f"target={_format_power(detail.get('current_target_power_w'))}")
+    runtime_bits.append(f"guard={detail.get('guard_status') or 'unknown'}")
+    runtime_bits.append(f"plan={detail.get('planned_action') or 'hold'}")
     last_action_status = str(detail.get("last_action_status") or "").strip()
-    if last_action_status:
+    if last_action_status and last_action_status not in {"ok", "applied", "success"}:
         runtime_bits.append(f"last={last_action_status}")
     entity_id = str(detail.get("entity_id") or "unknown entity")
     return f"- {detail.get('name') or entity_id}: {' | '.join(runtime_bits)} | entity={entity_id}"

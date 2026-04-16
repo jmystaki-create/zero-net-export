@@ -292,8 +292,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section):", message)
         self.assertIn("- Snapshot: 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
-        blocked_line = "- EV charger: Held by guard | not usable | disabled | guard=blocked | plan=hold | entity=number.ev_limit"
-        planned_line = "- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump"
+        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold | entity=number.ev_limit"
+        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power=n/a | guard=ready | plan=turn_on | entity=switch.pool_pump"
         self.assertIn(blocked_line, message)
         self.assertIn(planned_line, message)
         self.assertLess(message.index(blocked_line), message.index(planned_line))
@@ -368,8 +368,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section): 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
-        blocked_line = "- EV charger: Held by guard | not usable | disabled | guard=blocked | plan=hold | entity=number.ev_limit"
-        planned_line = "- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump"
+        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold | entity=number.ev_limit"
+        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power=n/a | guard=ready | plan=turn_on | entity=switch.pool_pump"
         self.assertIn(blocked_line, message)
         self.assertIn(planned_line, message)
         self.assertLess(message.index(blocked_line), message.index(planned_line))
@@ -518,6 +518,32 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(review_attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 0 planned action(s)")
         self.assertEqual(review_attrs["planned_action_count"], 0)
         self.assertEqual(review_attrs["first_planned_device"], "")
+
+    def test_managed_device_review_line_carries_kind_priority_and_power_context(self) -> None:
+        button_module = _load_button_module()
+
+        line = button_module._format_device_review_line(
+            {
+                "name": "EV charger",
+                "entity_id": "number.ev_limit",
+                "kind": "variable",
+                "status": "Tracking export",
+                "usable": True,
+                "enabled": True,
+                "effective_enabled": True,
+                "priority": 40,
+                "current_power_w": 1800,
+                "current_target_power_w": 2200,
+                "guard_status": "ready",
+                "planned_action": "set_power",
+                "last_action_status": "throttled",
+            }
+        )
+
+        self.assertEqual(
+            line,
+            "- EV charger: variable | Tracking export | usable | enabled | priority=40 | power=1800 W | target=2200 W | guard=ready | plan=set_power | last=throttled | entity=number.ev_limit",
+        )
 
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:
         notification_calls: list[dict] = []
