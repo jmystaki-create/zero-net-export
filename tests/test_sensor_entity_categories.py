@@ -288,7 +288,37 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
 
-    def test_fleet_console_next_step_prioritizes_blocked_devices_before_more_promotions(self) -> None:
+    def test_managed_fleet_overview_keeps_top_unmanaged_target_visible_with_existing_fleet(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+            {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
+        ]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                        "nominal_power_w": 1185,
+                    }
+                }
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            overview.native_value,
+            "1 managed | 1 enabled | 1 usable | 1 fixed | 1185 W nominal | 2 unmanaged | top AC Outlet 2",
+        )
+
+    def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
             {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
@@ -313,9 +343,27 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path, review blocked managed devices, then fix the next guard or readiness issue",
+            "Open devices path, review blocked managed devices starting with Heated floor, then fix the next guard or readiness issue",
         )
         self.assertEqual(next_step.extra_state_attributes["blocked_count"], 1)
+
+    def test_fleet_console_next_step_names_top_candidate_when_fleet_is_empty(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+        ]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Fleet console next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open devices path and tag AC Outlet 2 into the fleet",
+        )
 
 
 if __name__ == "__main__":

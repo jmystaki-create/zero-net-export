@@ -265,6 +265,23 @@ def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -
     }
 
 
+def _first_matching_device_name(
+    device_details: dict[str, dict[str, object]] | None,
+    *,
+    predicate,
+) -> str:
+    for detail in (device_details or {}).values():
+        if predicate(detail):
+            return str(detail.get("name") or detail.get("entity_id") or "").strip()
+    return ""
+
+
+def _truncate_sensor_state(text: str, *, max_chars: int = 255) -> str:
+    if len(text) <= max_chars:
+        return text
+    return f"{text[: max_chars - 3].rstrip()}..."
+
+
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def native_value(self):
@@ -296,7 +313,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 )
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
-                return " | ".join(summary_parts)
+                return _truncate_sensor_state(" | ".join(summary_parts))
             summary_parts.extend(
                 [
                     f"{counts['enabled_count']} enabled",
@@ -314,7 +331,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(f"{counts['nominal_power_w']} W nominal")
             if candidate_count:
                 summary_parts.append(f"{candidate_count} unmanaged")
-            return " | ".join(summary_parts)
+                if top_candidate_name:
+                    summary_parts.append(f"top {top_candidate_name}")
+            return _truncate_sensor_state(" | ".join(summary_parts))
         if self._key == "unmanaged_candidate_count":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             return len(_candidate_devices_for_hass(self.hass, managed_ids))
@@ -365,15 +384,36 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             counts = _managed_fleet_counts(state.device_details)
+            top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
+            first_blocked_name = _first_matching_device_name(
+                state.device_details,
+                predicate=lambda detail: detail.get("usable") is False,
+            )
+            first_planned_name = _first_matching_device_name(
+                state.device_details,
+                predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+            )
             if counts["managed_count"] == 0 and candidates:
-                return f"Open {DEVICES_CONFIGURE_PATH} and tag the first candidate into the fleet"
+                return _truncate_sensor_state(
+                    f"Open {DEVICES_CONFIGURE_PATH} and tag {top_candidate_name or 'the top candidate'} into the fleet"
+                )
             if counts["blocked_count"]:
-                return f"Open {DEVICES_CONFIGURE_PATH}, review blocked managed devices, then fix the next guard or readiness issue"
+                target = f" starting with {first_blocked_name}" if first_blocked_name else ""
+                return _truncate_sensor_state(
+                    f"Open {DEVICES_CONFIGURE_PATH}, review blocked managed devices{target}, then fix the next guard or readiness issue"
+                )
             if counts["planned_count"]:
-                return f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan before changing the fleet"
+                target = f" for {first_planned_name}" if first_planned_name else ""
+                return _truncate_sensor_state(
+                    f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan{target} before changing the fleet"
+                )
             if candidates:
-                return f"Review unmanaged candidates, then promote the next controllable device from {DEVICES_CONFIGURE_PATH}"
-            return f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
+                return _truncate_sensor_state(
+                    f"Review unmanaged candidates, then promote {top_candidate_name or 'the next controllable device'} from {DEVICES_CONFIGURE_PATH}"
+                )
+            return _truncate_sensor_state(
+                f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
+            )
         if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
             merged = dict(self.coordinator.entry.data)
             merged.update(self.coordinator.entry.options)
