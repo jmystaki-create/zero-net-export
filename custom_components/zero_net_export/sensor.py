@@ -100,7 +100,7 @@ SENSOR_DEFS = {
     "top_candidate_warnings": "Top candidate warnings",
     "candidate_shortlist": "Candidate shortlist",
     "candidate_shortlist_fit": "Candidate shortlist fit",
-    "fleet_console_next_step": "Fleet console next step",
+    "fleet_console_next_step": "Managed devices next step",
     "mapped_source_blocker_summary": "Mapped-source blocker summary",
     "mapped_source_blocker_next_step": "Mapped-source blocker next step",
     "command_center_status": "Command center status",

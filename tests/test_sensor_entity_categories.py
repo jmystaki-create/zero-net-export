@@ -103,6 +103,14 @@ def _load_sensor_module():
 
 
 class SensorEntityCategoryTests(unittest.TestCase):
+    def test_fleet_next_step_sensor_uses_managed_devices_label(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["fleet_console_next_step"],
+            "Managed devices next step",
+        )
+
     def test_fleet_workspace_sensors_are_primary_entities(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = SimpleNamespace(
@@ -441,7 +449,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 }
             ),
         )
-        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Fleet console next step")
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
         next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
@@ -460,7 +468,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
             data=SimpleNamespace(device_details={}),
         )
-        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Fleet console next step")
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
         next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
@@ -481,7 +489,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
             data=SimpleNamespace(device_details={}),
         )
-        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Fleet console next step")
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
         next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
