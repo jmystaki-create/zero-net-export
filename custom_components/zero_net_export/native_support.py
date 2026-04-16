@@ -1294,6 +1294,14 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         state,
         predicate=lambda detail: detail.get("usable") is False,
     )
+    blocked_device_count = sum(
+        1
+        for detail in (getattr(state, "device_details", {}) or {}).values()
+        if detail.get("usable") is False
+    ) if state is not None else 0
+    blocked_activity_count = blocked_device_count or (
+        int(getattr(state, "blocked_planned_action_count", 0) or 0) if state is not None else 0
+    )
     first_planned_device_name = _first_runtime_device_name(
         state,
         predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
@@ -1408,9 +1416,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 (
                     f"blocked {first_blocked_device_name}"
                     if first_blocked_device_name
-                    else f"blocked {getattr(state, 'blocked_planned_action_count', None)}"
+                    else f"blocked {blocked_activity_count}"
                 )
-                if state is not None and getattr(state, 'blocked_planned_action_count', None) not in {None, 0}
+                if blocked_activity_count
                 else None,
                 f"plan {first_planned_device_name}" if first_planned_device_name else None,
             ]
