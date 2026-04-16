@@ -235,6 +235,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             ),
         )
         button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        self.assertEqual(button._attr_name, "Review managed devices workspace")
         button.hass = SimpleNamespace(
             states=SimpleNamespace(
                 async_all=lambda: [
@@ -261,6 +262,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         asyncio.run(button.async_press())
 
         self.assertEqual(len(notification_calls), 1)
+        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices workspace")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Workspace path: devices path", message)
@@ -308,6 +310,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             ),
         )
         button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        self.assertEqual(button._attr_name, "Review managed devices")
         button.hass = SimpleNamespace(
             states=SimpleNamespace(
                 async_all=lambda: [
@@ -441,7 +444,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         import asyncio
         asyncio.run(button.async_press())
 
-        self.assertEqual(button._attr_name, "Pool pump managed review")
+        self.assertEqual(button._attr_name, "Review Pool pump")
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)

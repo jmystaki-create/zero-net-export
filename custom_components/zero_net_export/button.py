@@ -214,7 +214,7 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_fleet_console", "Managed devices workspace")
+        super().__init__(coordinator, "show_fleet_console", "Review managed devices workspace")
         self._attr_icon = "mdi:format-list-group"
 
     @property
@@ -319,14 +319,14 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         persistent_notification.async_create(
             self.hass,
             '\n'.join(lines),
-            title=f"{self.coordinator.entry.title}: fleet console",
+            title=f"{self.coordinator.entry.title}: managed devices workspace",
             notification_id=_fleet_console_notification_id(self.coordinator.entry.entry_id),
         )
 
 
 class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_managed_device_review", "Managed devices review")
+        super().__init__(coordinator, "show_managed_device_review", "Review managed devices")
         self._attr_icon = "mdi:clipboard-list-outline"
 
     def _unmanaged_candidates(self) -> list[dict[str, str]]:
@@ -435,7 +435,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_review", f"{device_name} managed review")
+        super().__init__(coordinator, f"device_{device_key}_review", f"Review {device_name}")
         self._device_key = device_key
         self._attr_icon = "mdi:text-box-search-outline"
 
@@ -459,7 +459,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         persistent_notification.async_create(
             self.hass,
             "\n".join(_build_managed_device_detail_lines(detail)),
-            title=f"{self.coordinator.entry.title}: {detail.get('name') or self._device_key} review",
+            title=f"{self.coordinator.entry.title}: review {detail.get('name') or self._device_key}",
             notification_id=_managed_device_detail_notification_id(self.coordinator.entry.entry_id, self._device_key),
         )
 
