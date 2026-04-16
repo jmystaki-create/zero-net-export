@@ -321,6 +321,19 @@ Suggested area labels:
 - **validation status:** validated in repo state this run by direct file inspection plus the documented HA SSH fingerprint output showing live manifest `0.1.85`. This correction removes the release-line mismatch from the repo candidate; live exact-build validation is still separately blocked by ZNE-022's remaining `entity.py` drift.
 - **next action:** keep release approval language explicit, then redeploy the exact `0.1.85` repo candidate so fingerprint validation can collapse to `overall_match=true` before more live UI claims are made
 
+## ZNE-036 — Repo working version drifted forward to `0.1.86` without new release-line evidence
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** repo state audit on 2026-04-16 after recent local commits
+- **current observed behavior:** repo HEAD had been bumped to `0.1.86` in shipped metadata and install-helper regression expectations even though `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `project_status.md`, and the current formal release boundary still treat `0.1.85` as the active correction line unless newer verified evidence exists.
+- **expected behavior:** repo working version, changelog target, and exact-build helper expectations should stay on `0.1.85` until the project has explicit verified evidence and approval to advance the live release line.
+- **evidence:** this run's repo inspection found `custom_components/zero_net_export/manifest.json` at `0.1.86`, `CHANGELOG.md` targeting `0.1.86`, and `tests/test_install_helper_scripts.py` asserting `0.1.86`, while `project_status.md` still asks James to approve the formal `0.1.85` release flow and the supervisor docs explicitly say to treat `0.1.85` as the active line unless newer verified evidence supersedes it.
+- **suspected cause:** two recent local commits (`a7b44db`, `ad4fb42`) advanced repo metadata and test fixtures ahead of the documented release boundary without corresponding source-of-truth updates or live-release validation evidence.
+- **repo fix:** this run restores the repo working version back to `0.1.85` in `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and `tests/test_install_helper_scripts.py`, and records the correction in the changelog.
+- **validation status:** validated in repo state this run by direct file inspection plus targeted regression re-runs of `tests/test_install_helper_scripts.py`; the repo candidate once again matches the documented `0.1.85` release boundary.
+- **next action:** keep the current candidate on `0.1.85`, then use the formal release-approval flow before any future version bump beyond that line
+
 ## Recently validated or closed bugs
 
 ## ZNE-035 — Project status still hid the real `0.1.85` release-approval boundary

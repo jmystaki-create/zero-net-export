@@ -51,7 +51,7 @@ class PrintExpectedInstallFingerprintTests(unittest.TestCase):
 
         self.assertEqual(payload["expected_commit"], "repohead1")
         self.assertEqual(payload["expected_component_commit"], "component2")
-        self.assertEqual(payload["manifest_version"], "0.1.86")
+        self.assertEqual(payload["manifest_version"], "0.1.85")
         self.assertIn("button.py", payload["tracked_files"])
 
 
@@ -243,7 +243,7 @@ class DeployExactRepoBuildTests(unittest.TestCase):
 
 class CompareInstallFingerprintTests(unittest.TestCase):
     def test_remote_fingerprint_uses_ssh_without_remote_python(self) -> None:
-        responses = {"manifest": "0.1.86"}
+        responses = {"manifest": "0.1.85"}
         for index, name in enumerate(compare_script.TRACKED_FILES, start=1):
             responses[name] = (
                 f"1\t{200 + index}\tsha{index:09d}\t/config/custom_components/zero_net_export/{name}"
@@ -282,7 +282,7 @@ class CompareInstallFingerprintTests(unittest.TestCase):
                 2222,
             )
 
-        self.assertEqual(payload["manifest_version"], "0.1.86")
+        self.assertEqual(payload["manifest_version"], "0.1.85")
         self.assertEqual(payload["inspection_transport"], "ssh")
         self.assertEqual(payload["tracked_files"]["__init__.py"]["sha256_12"], "aaa111bbb222")
         self.assertEqual(payload["tracked_files"]["button.py"]["sha256_12"], "button111222")
