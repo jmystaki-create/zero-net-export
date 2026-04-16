@@ -385,6 +385,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
             "devices": ordered[:12],
+            "promotion_handoff": "\n".join(_managed_devices_workspace_handoff(command_center, top_candidate)),
         }
 
     async def async_press(self) -> None:
@@ -443,6 +444,8 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 ]
                 or ["- No unmanaged candidate devices discovered right now."]
             ),
+            "",
+            *_managed_devices_workspace_handoff(command_center, top_candidate),
             "",
             "Use each managed-device review button on the Zero Net Export device page for a deeper per-device snapshot, plus the paired status sensors and reset-override buttons.",
         ]

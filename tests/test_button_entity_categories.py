@@ -366,6 +366,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Top unmanaged candidates:", message)
         self.assertIn("- Hot water (switch.hot_water, fixed, state off)", message)
         self.assertIn("Detailed device-view path: detailed device path", message)
+        self.assertIn("Return after blocker repair:", message)
+        self.assertIn("- Open sources path first.", message)
+        self.assertIn("- Why: Mapped source blockers remain.", message)
 
     def test_managed_device_review_button_exposes_unmanaged_candidate_attributes(self) -> None:
         button_module = _load_button_module()
@@ -412,6 +415,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["top_candidate_fit"]["confidence"], "medium")
         self.assertTrue(any("meaningful unit" in warning for warning in attrs["top_candidate_fit"]["warnings"]))
         self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
+        self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
+        self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
 
     def test_fleet_console_attributes_gate_promotion_handoff_behind_blocker_repair(self) -> None:
         button_module = _load_button_module()
