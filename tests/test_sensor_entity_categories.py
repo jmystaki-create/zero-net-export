@@ -317,7 +317,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 1 fixed | 1185 W nominal | 2 unmanaged | top AC Outlet 2",
+            "1 managed | 1 enabled | 1 usable | 2 unmanaged | top AC Outlet 2 | 1 fixed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_surfaces_source_repair_before_promotion_backlog(self) -> None:
@@ -348,6 +348,39 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(
             overview.extra_state_attributes["source_repair_path"],
             "sources path",
+        )
+
+    def test_managed_fleet_overview_keeps_source_repair_and_unmanaged_backlog_visible_with_existing_fleet(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+            {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
+        ]
+        sensor_module.build_source_attention_summary = lambda state, merged, limit=2, blocking_only=False: (
+            "Missing required source roles: Solar power" if blocking_only else "None"
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                        "nominal_power_w": 1185,
+                    }
+                }
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            overview.native_value,
+            "1 managed | 1 enabled | 1 usable | repair sources first | 2 unmanaged | top AC Outlet 2 | 1 fixed | 1185 W nominal",
         )
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:

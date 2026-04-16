@@ -332,21 +332,21 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     f"{counts['usable_count']} usable",
                 ]
             )
+            if source_blocked:
+                summary_parts.append("repair sources first")
+            if candidate_count:
+                summary_parts.append(f"{candidate_count} unmanaged")
+                if top_candidate_name:
+                    summary_parts.append(f"top {top_candidate_name}")
             if counts["blocked_count"]:
                 summary_parts.append(f"{counts['blocked_count']} blocked")
             if counts["planned_count"]:
                 summary_parts.append(f"{counts['planned_count']} active plan")
-            if source_blocked:
-                summary_parts.append("repair sources first")
             summary_parts.append(f"{counts['fixed_count']} fixed")
             if counts["variable_count"]:
                 summary_parts.append(f"{counts['variable_count']} variable")
             if counts["nominal_power_w"]:
                 summary_parts.append(f"{counts['nominal_power_w']} W nominal")
-            if candidate_count:
-                summary_parts.append(f"{candidate_count} unmanaged")
-                if top_candidate_name:
-                    summary_parts.append(f"top {top_candidate_name}")
             return _truncate_sensor_state(" | ".join(summary_parts))
         if self._key == "unmanaged_candidate_count":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
