@@ -143,6 +143,77 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("usable 1", summary["fleet_activity_summary"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
 
+    def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            reason="Monitoring export drift before acting.",
+            control_reason="Waiting for min-off timer to clear.",
+            status="Active",
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            blocked_planned_action_count=1,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "pool_pump": {"entity_id": "switch.pool_pump"},
+            },
+        )
+        hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool Pump"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="switch.ac_outlet_2",
+                        state="off",
+                        attributes={"friendly_name": "AC Outlet 2"},
+                    ),
+                ]
+            )
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=hass)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
+        self.assertIn("blocked 1", summary["fleet_activity_summary"])
+        self.assertIn("1 unmanaged ready", summary["device_status"])
+
     def test_command_center_summary_surfaces_top_alerts_across_source_device_and_runtime_blocks(self) -> None:
         native_support = _load_native_support_module()
 

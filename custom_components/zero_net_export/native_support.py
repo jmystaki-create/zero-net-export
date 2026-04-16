@@ -7,6 +7,7 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
+from .candidate_utils import discover_candidate_devices
 from .const import (
     CONF_BATTERY_RESERVE_SOC,
     CONF_BATTERY_CHARGE_POWER_ENTITY,
@@ -1085,6 +1086,21 @@ def _build_headline_decision(
     )
 
 
+def _command_center_candidate_snapshot(coordinator: Any, state: Any) -> tuple[list[dict[str, str]], str]:
+    hass = getattr(coordinator, "hass", None) if coordinator is not None else None
+    states = getattr(getattr(hass, "states", None), "async_all", None)
+    if not callable(states):
+        return [], ""
+    managed_ids = {
+        str(detail.get("entity_id"))
+        for detail in ((getattr(state, "device_details", None) or {}) or {}).values()
+        if detail.get("entity_id")
+    }
+    candidates = discover_candidate_devices(states(), managed_ids)
+    top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
+    return candidates, top_candidate_name
+
+
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     """Return the command-center summary shown in Configure and device surfaces."""
     state = getattr(coordinator, "data", None) if coordinator is not None else None
@@ -1098,6 +1114,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         merged.update(entry.options)
 
     configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
+    candidates, top_candidate_name = _command_center_candidate_snapshot(coordinator, state)
+    candidate_count = len(candidates)
     readiness_phase = str(readiness.get("phase") or "")
     install_consistency = build_install_consistency_summary(install_provenance)
     install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
@@ -1140,16 +1158,28 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     if device_parse_issues:
         device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
+        if candidate_count:
+            device_status += f"; {candidate_count} unmanaged ready"
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
     elif configured_devices:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
         device_status = runtime_device_status or f"{len(configured_devices)} configured"
+        if candidate_count:
+            device_status += f"; {candidate_count} unmanaged ready"
+            if top_candidate_name:
+                device_status += f"; top {top_candidate_name}"
         device_next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
         )
     else:
         device_status = "No managed devices configured yet"
-        device_next_step = f"Open {DEVICES_CONFIGURE_PATH} and add at least one controllable load from the managed-device flow."
+        if candidate_count:
+            device_status += f"; {candidate_count} unmanaged ready"
+            if top_candidate_name:
+                device_status += f"; top {top_candidate_name}"
+        device_next_step = (
+            f"Open {DEVICES_CONFIGURE_PATH} and review {top_candidate_name or 'the top candidate'} first from the managed-device flow."
+        )
 
     recommendation = build_native_setup_recommendation(
         missing_source_keys=missing_required_sources,
@@ -1353,9 +1383,12 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             part
             for part in [
                 device_status,
+                f"{candidate_count} unmanaged" if candidate_count else None,
+                f"top {top_candidate_name}" if top_candidate_name else None,
                 f"managed {getattr(state, 'device_count', None)}" if state is not None and getattr(state, 'device_count', None) is not None else None,
                 f"enabled {getattr(state, 'enabled_device_count', None)}" if state is not None and getattr(state, 'enabled_device_count', None) is not None else None,
                 f"usable {getattr(state, 'usable_device_count', None)}" if state is not None and getattr(state, 'usable_device_count', None) is not None else None,
+                f"blocked {getattr(state, 'blocked_planned_action_count', None)}" if state is not None and getattr(state, 'blocked_planned_action_count', None) not in {None, 0} else None,
             ]
             if part is not None
         ) or device_status,
