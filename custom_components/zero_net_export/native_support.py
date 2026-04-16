@@ -1169,6 +1169,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
 
     if install_provenance_blocked:
+        device_next_step = build_install_repair_step(install_provenance)
+    elif missing_required_sources or runtime_source_attention:
+        device_next_step = source_repair_step
+
+    if install_provenance_blocked:
         next_action_summary = build_install_repair_step(install_provenance)
         recommended_section = SUPPORT_SECTION_LABEL
     elif missing_required_sources:

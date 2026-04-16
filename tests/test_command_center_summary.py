@@ -244,6 +244,56 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["next_action_summary"],
             "Wait for the install provenance refresh, then rerun exact-build validation.",
         )
+        self.assertEqual(
+            summary["device_next_step"],
+            "Wait for the install provenance refresh, then rerun exact-build validation.",
+        )
+
+    def test_command_center_summary_gates_device_next_step_on_source_repair_before_fleet_work(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime health needs source repair.",
+            "next_step": "Open Sensors first.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources need attention"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: not configured\n- Grid: not configured"
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="No managed devices configured yet",
+            device_count=0,
+            enabled_device_count=0,
+            usable_device_count=0,
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn(
+            f"Open {native_support.SOURCES_CONFIGURE_PATH}, finish these required source roles:",
+            summary["device_next_step"],
+        )
+        self.assertNotIn(native_support.DEVICES_CONFIGURE_PATH, summary["device_next_step"])
+        self.assertEqual(
+            summary["next_action_summary"],
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} and use the highlighted native guidance to continue.",
+        )
 
     def test_command_center_summary_fallback_status_summary_uses_exact_native_path(self) -> None:
         native_support = _load_native_support_module()
