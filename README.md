@@ -59,7 +59,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
-- **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live in the integration's Configure flow.
+- **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
 - **Configure is the intended command center**: the product direction is for operators to find sources, policy, managed devices, and support from one obvious native path.
 - **Clear native section ownership is now a product goal**: Controls should hold the Zero Net Export brain, Sensors should hold mapped/system telemetry, Managed Devices should hold fleet operations, and Diagnostics should hold troubleshooting/support.
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, unmanaged-candidate discovery plus promotion review, and a fleet-review enable/disable step for staging larger installs without dropping into raw JSON.
@@ -81,7 +81,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 4.  Click **Add**.
 5.  Go to **Integrations**, find **Zero Net Export**, and click **Download**.
 6.  **Restart Home Assistant**.
-7.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
+7.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
 8.  If you need to prove the running Home Assistant package matches the intended repo build, run `python3 scripts/validate_install_fingerprint.py /path/to/your/config/custom_components` in this repo. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the live Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the remote install path is inspected over SSH without remote Python. If you want the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare helper refuses repo-local paths so a repo copy cannot be mistaken for live validation. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
 9.  If you need one exact manual deploy from this repo before validation, first run `python3 scripts/deploy_exact_repo_build.py /path/to/your/config --dry-run` to preview the resolved destination, then rerun `python3 scripts/deploy_exact_repo_build.py /path/to/your/config` (or point either command at the live Home Assistant `custom_components` directory or the installed `custom_components/zero_net_export` directory outside this repo) when the target looks correct. It replaces the destination component directory instead of layering files onto an older copy, creates a timestamped backup by default, refuses to target this repo's own source component directory, and then runs `scripts/validate_install_fingerprint.py` against the deployed path before you restart Home Assistant.
 
@@ -89,7 +89,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 1.  Copy the `custom_components/zero_net_export` folder into your Home Assistant `/config/custom_components/` directory.
 2.  **Restart Home Assistant**.
-3.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear in **Configure**.
+3.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source mappings still appear at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
 4.  If you need to prove the copied package is the intended build, run `python3 scripts/validate_install_fingerprint.py /path/to/your/config/custom_components` in this repo. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the live Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the remote install path is inspected over SSH without remote Python. If you want the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare helper refuses repo-local paths so a repo copy cannot be mistaken for live validation. Compare that result with the installed package details shown in **Configure** or **Health, support, and troubleshooting**.
 5.  To replace a mixed manual install with one exact repo build, first run `python3 scripts/deploy_exact_repo_build.py /path/to/your/config --dry-run` to preview the resolved destination, then rerun `python3 scripts/deploy_exact_repo_build.py /path/to/your/config` before restart. It removes the old `custom_components/zero_net_export` directory at the destination, copies this repo's component directory into place, keeps a timestamped backup by default, refuses to target this repo's own source component directory, and runs the install fingerprint validation helper against the deployed path.
 6.  Go to **Settings** → **Devices & Services** → **Add Integration**.
@@ -99,7 +99,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## ⚙️ Configuration
 
-### Primary operator path: native Home Assistant Configure flow
+### Primary operator path: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure
 
 1.  Add the **Zero Net Export** integration.
 2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
@@ -117,8 +117,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ### Advanced / fallback paths
 
-- The initial add-integration flow remains bootstrap-only, and the normal post-install path is the native Configure flow.
-- Managed devices are still persisted internally as structured inventory JSON, but the primary native Configure flow now hides most of that behind add/edit/remove forms for fixed and variable devices.
+- The initial add-integration flow remains bootstrap-only, and the normal post-install path is **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
+- Managed devices are still persisted internally as structured inventory JSON, but **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure** now hides most of that behind add/edit/remove forms for fixed and variable devices.
 - The integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device** exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 - Home Assistant **Repairs** now mirrors the most important setup/runtime blockers, which gives operators one more built-in native surface for triage without hunting through multiple entity sections first.
 
