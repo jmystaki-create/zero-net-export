@@ -76,10 +76,14 @@ def _managed_device_detail_notification_id(entry_id: str, device_key: str) -> st
     return f"{DOMAIN}_{entry_id}_managed_device_{device_key}_review"
 
 
+def _has_active_plan(detail: dict) -> bool:
+    return str(detail.get("planned_action") or "") not in {"", "hold"}
+
+
 def _device_runtime_sort_key(detail: dict) -> tuple[int, int, str]:
     effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
     usable = detail.get("usable") is True
-    planned = str(detail.get("planned_action") or "") != "hold"
+    planned = _has_active_plan(detail)
     return (
         0 if effective_enabled and usable else 1,
         0 if planned else 1,
@@ -115,14 +119,14 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
         1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))
     )
     usable_count = sum(1 for detail in device_details if detail.get("usable") is True)
-    planned_count = sum(1 for detail in device_details if str(detail.get("planned_action") or "") != "hold")
+    planned_count = sum(1 for detail in device_details if _has_active_plan(detail))
     first_blocked_name = _first_matching_device_name(
         device_details,
         predicate=lambda detail: detail.get("usable") is False,
     )
     first_planned_name = _first_matching_device_name(
         device_details,
-        predicate=lambda detail: str(detail.get("planned_action") or "") != "hold",
+        predicate=_has_active_plan,
     )
     parts = [f"{managed_count} managed", f"{enabled_count} enabled", f"{usable_count} usable"]
     if first_blocked_name:
@@ -333,7 +337,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             ),
             'first_planned_device': _first_matching_device_name(
                 ordered,
-                predicate=lambda detail: str(detail.get('planned_action') or '') != 'hold',
+                predicate=_has_active_plan,
             ),
             'managed_snapshot': _managed_snapshot_summary(ordered),
             'candidate_count': len(candidates),
@@ -443,7 +447,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))
             ),
             "usable_count": sum(1 for detail in device_details if detail.get("usable") is True),
-            "planned_action_count": sum(1 for detail in device_details if str(detail.get("planned_action") or "") != "hold"),
+            "planned_action_count": sum(1 for detail in device_details if _has_active_plan(detail)),
             "blocked_count": sum(1 for detail in device_details if detail.get("usable") is False),
             "first_blocked_device": _first_matching_device_name(
                 ordered,
@@ -451,7 +455,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             ),
             "first_planned_device": _first_matching_device_name(
                 ordered,
-                predicate=lambda detail: str(detail.get("planned_action") or "") != "hold",
+                predicate=_has_active_plan,
             ),
             "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
             "unmanaged_candidate_count": len(candidates),

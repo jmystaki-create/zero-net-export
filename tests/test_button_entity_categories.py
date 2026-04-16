@@ -477,6 +477,40 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
         self.assertIn("- Why: Mapped source blockers remain.", attrs["promotion_handoff"])
 
+    def test_empty_planned_action_does_not_create_a_fake_active_plan_snapshot(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "",
+                    }
+                }
+            ),
+        )
+
+        fleet_button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        review_button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        fleet_button.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        review_button.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        fleet_attrs = fleet_button.extra_state_attributes
+        review_attrs = review_button.extra_state_attributes
+
+        self.assertEqual(fleet_attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable")
+        self.assertEqual(fleet_attrs["first_planned_device"], "")
+        self.assertEqual(review_attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 0 planned action(s)")
+        self.assertEqual(review_attrs["planned_action_count"], 0)
+        self.assertEqual(review_attrs["first_planned_device"], "")
+
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)
