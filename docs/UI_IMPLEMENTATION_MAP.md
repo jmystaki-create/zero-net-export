@@ -8,9 +8,10 @@ The intended product design now lives in `docs/UI_DESIGN.md`.
 
 ## Scope
 
-The current live/UI correction line is now beyond `0.1.83`; treat this document as the UI-shaping checklist for the active release line and do not use stale `0.1.83` wording as if it were still the current release target.
+The current live/UI correction line is now `0.1.86`, and `0.1.87` is the next UI-focused release line.
+Treat this document as the UI-shaping checklist for `0.1.87`, and do not use stale `0.1.83`, `0.1.85`, or `0.1.86` wording as if those were still the future UI target.
 
-This release should focus on the three native-UI outcomes James explicitly asked for:
+`0.1.87` should focus on the three native-UI outcomes James explicitly asked for:
 1. a clear **managed vs unmanaged** device experience
 2. a clear **promote / vet / review** native flow for bringing unmanaged devices into the managed fleet
 3. a clear native information architecture split between **Controls**, **Sensors**, **Managed Devices**, and **Diagnostics**
@@ -47,9 +48,9 @@ If a change does not materially improve one of those visible outcomes, it should
 - The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reinstalled and reviewed.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
 
-## What counts as success for the current UI release line
+## What counts as success for 0.1.87
 
-The current release line should not be called a successful UI release unless all of the following are true:
+`0.1.87` should not be called a successful UI release unless all of the following are true:
 
 1. **Managed vs unmanaged is visually obvious**
    - the Managed Devices path clearly shows the current managed fleet
@@ -275,6 +276,55 @@ This section is now the explicit staged delivery map. Each phase should be imple
 - live HA inspection
 - screenshot-grade acceptance evidence
 - release-by-release validation discipline
+
+## 0.1.87 release rollout view
+
+This is the explicit `0.1.87` rollout target James asked for. It converts the staged design work above into the release feature set.
+
+### 0.1.87 must include
+1. **Command center reduction**
+   - basic setup only
+   - short top alert / next step
+   - no release/install/debug clutter dominating the primary surface
+
+2. **Top control board visibility**
+   - headline decision summary
+   - Energy state / Control decision / Control outcome / Fleet activity grouping
+   - required operational metrics visible in the opening experience
+
+3. **Managed Devices workspace redesign**
+   - managed devices clearly on top
+   - unmanaged candidates clearly below
+   - visually obvious managed vs unmanaged split
+   - stronger fleet-workspace feel on the device page
+
+4. **Promotion workflow completion**
+   - shortlist -> review -> promote path reads as one coherent native flow
+   - balanced candidate review remains visible and understandable
+   - promotion success gives a clear next action
+
+5. **Four-bucket IA clarity**
+   - Controls / Sensors / Managed Devices / Diagnostics visibly feel distinct
+   - less cross-bucket leakage and duplication
+
+6. **Notification cleanup**
+   - runtime attention notification tightened and reformatted
+   - setup-finished/setup-warning notification tightened and reformatted
+
+### 0.1.87 should avoid being derailed by
+- non-UI release churn unless required to keep HA loading
+- optional dashboard work
+- backend-only cleanup presented as shipped UI
+- wording tweaks that do not produce a visible HA change
+
+### 0.1.87 acceptance test
+`0.1.87` is only successful if James can open the live HA surfaces and see:
+- command center behaving like setup only
+- device page clearly functioning as the managed-devices workspace
+- managed vs unmanaged visually obvious
+- promotion/review workflow clearly visible
+- notifications noticeably cleaner and tighter
+- Controls / Sensors / Managed Devices / Diagnostics easier to distinguish at a glance
 
 ## Non-goals for the current UI release line unless required to unblock UI delivery
 
