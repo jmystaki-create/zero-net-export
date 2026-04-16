@@ -11,6 +11,7 @@ from .entity import ZeroNetExportEntity
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
+    DEVICES_SECTION_LABEL,
     POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
@@ -108,6 +109,42 @@ def _format_power(value: object) -> str:
         return f"{int(round(float(value)))} W"
     except (TypeError, ValueError):
         return str(value)
+
+
+def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict | None) -> list[str]:
+    recommended_section = str(command_center.get("recommended_section") or "").strip()
+    recommended_path = str(command_center.get("recommended_path") or "").strip()
+    recommended_reason = str(command_center.get("recommended_reason") or "").strip()
+    next_step = str(command_center.get("device_next_step") or command_center.get("next_action_summary") or "").strip()
+
+    if recommended_section and recommended_section != DEVICES_SECTION_LABEL:
+        lines = ["Return after blocker repair:"]
+        if recommended_path:
+            lines.append(f"- Open {recommended_path} first.")
+        if recommended_reason:
+            lines.append(f"- Why: {recommended_reason}")
+        if next_step:
+            lines.append(f"- Next fleet step after repair: {next_step}")
+        return lines
+
+    lines = ["Promotion handoff:"]
+    if top_candidate:
+        top_add_label = "fixed load device" if top_candidate["kind"] == "fixed" else "variable load device"
+        lines.extend(
+            [
+                f"- Open {DEVICES_CONFIGURE_PATH}.",
+                f"- Choose Add {top_add_label}.",
+                f"- In Pick unmanaged candidate, select {top_candidate['entity_id']}.",
+                "- Review fit and warnings, then save it into Managed Devices.",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                f"- Open {POLICY_CONFIGURE_PATH} to tune controller behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work.",
+            ]
+        )
+    return lines
 
 
 def _build_managed_device_detail_lines(detail: dict) -> list[str]:
@@ -241,11 +278,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'top_candidate_fit': top_candidate_fit,
             'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
             'devices': ordered[:12],
-            'promotion_handoff': (
-                f'Open {DEVICES_CONFIGURE_PATH}, choose Add fixed/variable, review the top candidate, then save it into Managed Devices.'
-                if candidates
-                else None
-            ),
+            'promotion_handoff': "\n".join(_managed_devices_workspace_handoff(command_center, top_candidate)),
         }
 
     async def async_press(self) -> None:
@@ -302,20 +335,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 or ['- No unmanaged candidate devices discovered right now.']
             ),
             '',
-            'Promotion handoff:',
+            *_managed_devices_workspace_handoff(command_center, top_candidate),
         ]
-        if top_candidate:
-            top_add_label = 'fixed load device' if top_candidate['kind'] == 'fixed' else 'variable load device'
-            lines.extend([
-                f'- Open {DEVICES_CONFIGURE_PATH}.',
-                f'- Choose Add {top_add_label}.',
-                f"- In Pick unmanaged candidate, select {top_candidate['entity_id']}.",
-                '- Review fit and warnings, then save it into Managed Devices.',
-            ])
-        else:
-            lines.extend([
-                f'- Open {POLICY_CONFIGURE_PATH} to tune controller behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work.',
-            ])
         persistent_notification.async_create(
             self.hass,
             '\n'.join(lines),

@@ -187,6 +187,24 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
 
 class ButtonEntityCategoryTests(unittest.TestCase):
+    def test_workspace_handoff_returns_promotion_steps_when_managed_devices_is_the_active_section(self) -> None:
+        button_module = _load_button_module()
+
+        handoff = button_module._managed_devices_workspace_handoff(
+            {
+                "recommended_section": button_module.DEVICES_SECTION_LABEL,
+                "recommended_path": "devices path",
+                "recommended_reason": "Managed fleet work is the current priority.",
+                "device_next_step": "Promote the next candidate.",
+            },
+            {"entity_id": "switch.hot_water", "kind": "fixed"},
+        )
+
+        self.assertEqual(handoff[0], "Promotion handoff:")
+        self.assertIn("- Open devices path.", handoff)
+        self.assertIn("- Choose Add fixed load device.", handoff)
+        self.assertIn("- In Pick unmanaged candidate, select switch.hot_water.", handoff)
+
     def test_primary_operator_buttons_stay_out_of_diagnostics(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(
@@ -274,10 +292,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("- Pool pump: Ready for control | usable | enabled | guard=ready | plan=turn_on | entity=switch.pool_pump", message)
         self.assertIn("- Hot water (switch.hot_water, fixed, state off) | strong match | key warning: No immediate warnings", message)
-        self.assertIn("Promotion handoff:", message)
-        self.assertIn("- Open devices path.", message)
-        self.assertIn("- Choose Add fixed load device.", message)
-        self.assertIn("- In Pick unmanaged candidate, select switch.hot_water.", message)
+        self.assertIn("Return after blocker repair:", message)
+        self.assertIn("- Open sources path first.", message)
+        self.assertIn("- Why: Mapped source blockers remain.", message)
+        self.assertIn("- Next fleet step after repair: Review the next managed device.", message)
 
     def test_managed_device_review_button_renders_runtime_fleet_summary(self) -> None:
         notification_calls: list[dict] = []
@@ -394,6 +412,49 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["top_candidate_fit"]["confidence"], "medium")
         self.assertTrue(any("meaningful unit" in warning for warning in attrs["top_candidate_fit"]["warnings"]))
         self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
+
+    def test_fleet_console_attributes_gate_promotion_handoff_behind_blocker_repair(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool pump"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    ),
+                ]
+            )
+        )
+
+        attrs = button.extra_state_attributes
+
+        self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
+        self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
+        self.assertIn("- Why: Mapped source blockers remain.", attrs["promotion_handoff"])
 
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:
         notification_calls: list[dict] = []
