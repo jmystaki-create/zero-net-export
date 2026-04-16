@@ -327,39 +327,21 @@ Suggested area labels:
 - **where seen:** repo-versus-live fingerprint validation on 2026-04-16 against repo HEAD from this run
 - **current observed behavior:** `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` still reports `overall_match=false` against the current repo candidate in this run. The live Home Assistant component payload is now aligned on the `0.1.86` release line, and the remaining mismatch set has collapsed to one undeployed file: live `sensor.py` is still behind repo HEAD.
 - **expected behavior:** before trusting further live validation, the Home Assistant install should match one exact current repo candidate across the full shipped component surface, including the current `sensor.py` plus the active `0.1.86` release line.
-- **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded again in the earlier release-line correction run and again in this run. A fresh `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` against current repo commit `9a671f0` still reports `overall_match=false` with `manifest_version_matches=true` and the same single remaining mismatch: live `sensor.py` `sha256_12=6c87c053febb` (37812 bytes) versus repo `sensor.py` `sha256_12=5c485eb35c56` (40202 bytes). This run's live API check also lines up with that exact drift: the installed `sensor.zero_net_export_fleet_console_next_step` still emits the pre-fix Managed Devices-first wording while required source-role blockers remain active.
+- **evidence:** documented HA SSH access on `root@192.168.86.200:2222` succeeded again in this run. A fresh `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` against current repo commit `e0fe183` still reports `overall_match=false` with `manifest_version_matches=true` and the same single remaining mismatch: live `sensor.py` `sha256_12=6c87c053febb` (37812 bytes) versus repo `sensor.py` `sha256_12=5c485eb35c56` (40202 bytes). This run's live API check also lines up with that exact drift: `sensor.zero_net_export_fleet_console_next_step` still says `Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices and tag the first candidate into the fleet`, which is the pre-fix Managed Devices-first wording even while mapped-source blockers remain active.
 - **suspected cause:** the project steering and live install are now aligned on the `0.1.86` line, but Home Assistant is still running an older deployed `sensor.py`, so the exact-build candidate and live install still disagree even after the repo metadata correction landed.
 - **repo fix:** `afbbd71`, `cf46eac`, `b9766aa`, `f45aef9` — widen exact-build fingerprint coverage beyond the old hand-maintained subset, then derive tracked files from the actual shipped component tree in `scripts/print_expected_install_fingerprint.py`, `scripts/compare_install_fingerprint.py`, and `custom_components/zero_net_export/release_info.py`, skipping only `__pycache__`; tests now assert coverage for active shipped files like `button.py`, `candidate_utils.py`, `binary_sensor.py`, `repairs.py`, and `select.py` so future UI/runtime files cannot silently fall outside exact-build validation. This run also realigns `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, `README.md`, and `tests/test_install_helper_scripts.py` to `0.1.86` so the repo candidate again matches the current live correction line.
 - **validation status:** repo-side fingerprint coverage remains implemented and verified, and this run re-confirmed through both the documented HA SSH fingerprint path and the live Home Assistant API that the remaining blocker is still one undeployed `sensor.py`. The manifest/version drift is resolved, but full live closure still requires redeploying one exact `0.1.86` repo build and rerunning fingerprint validation until it reports `overall_match=true`.
 - **next action:** ask James directly to approve the formal `0.1.86` release-reconciliation flow now, then deploy the exact current repo candidate so the remaining `sensor.py` drift is cleared, rerun fingerprint validation until it reports `overall_match=true`, restart Home Assistant, and continue Configure/native-UI validation on the exact installed candidate
 
-## ZNE-034 — Repo metadata and bug-tracker steering drifted back to `0.1.83` even though the active live release line is `0.1.85`
-- **status:** `validated`
-- **severity:** `medium`
-- **area:** `release`
-- **where seen:** repo source-of-truth audit on 2026-04-16
-- **current observed behavior:** repo metadata and operator-facing status files had drifted back to `0.1.83`, which contradicted `docs/SUPERVISOR.md`, the current live Home Assistant manifest, and the watchdog rule that the active release line should be treated as `0.1.85` unless newer verified evidence supersedes it.
-- **expected behavior:** the repo working version, changelog target, project status, and exact-build regression expectations should all track the active `0.1.85` line so release validation and approval handoffs are not pointed at a stale rollback candidate.
-- **evidence:** this run's repo inspection found `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, `README.md`, `project_status.md`, and `tests/test_install_helper_scripts.py` still targeting `0.1.83`, while the documented HA SSH fingerprint check returned live manifest `0.1.85` and `docs/SUPERVISOR.md` explicitly says to treat `0.1.85` as the current live release under active correction.
-- **suspected cause:** earlier repo-side rollback cleanup over-corrected and reintroduced stale `0.1.83` steering after the project had already moved to the `0.1.85` live correction line.
-- **repo fix:** this run restores the repo working version and release-target text to `0.1.85` in `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, `README.md`, `project_status.md`, and `tests/test_install_helper_scripts.py`.
-- **validation status:** validated in repo state this run by direct file inspection plus the documented HA SSH fingerprint output showing live manifest `0.1.85`. This correction removes the release-line mismatch from the repo candidate; live exact-build validation is still separately blocked by ZNE-022's remaining `entity.py` drift.
-- **next action:** keep release approval language explicit, then redeploy the exact `0.1.85` repo candidate so fingerprint validation can collapse to `overall_match=true` before more live UI claims are made
+## Recently validated or closed bugs
 
 ## ZNE-036 — Repo working version drifted forward to `0.1.86` without new release-line evidence
-- **status:** `validated`
+- **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
-- **where seen:** repo state audit on 2026-04-16 after recent local commits
-- **current observed behavior:** repo HEAD had been bumped to `0.1.86` in shipped metadata and install-helper regression expectations even though `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `project_status.md`, and the current formal release boundary still treat `0.1.85` as the active correction line unless newer verified evidence exists.
-- **expected behavior:** repo working version, changelog target, and exact-build helper expectations should stay on `0.1.85` until the project has explicit verified evidence and approval to advance the live release line.
-- **evidence:** this run's repo inspection found `custom_components/zero_net_export/manifest.json` at `0.1.86`, `CHANGELOG.md` targeting `0.1.86`, and `tests/test_install_helper_scripts.py` asserting `0.1.86`, while `project_status.md` still asks James to approve the formal `0.1.85` release flow and the supervisor docs explicitly say to treat `0.1.85` as the active line unless newer verified evidence supersedes it.
-- **suspected cause:** two recent local commits (`a7b44db`, `ad4fb42`) advanced repo metadata and test fixtures ahead of the documented release boundary without corresponding source-of-truth updates or live-release validation evidence.
-- **repo fix:** this run restores the repo working version back to `0.1.85` in `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and `tests/test_install_helper_scripts.py`, and records the correction in the changelog.
-- **validation status:** validated in repo state this run by direct file inspection plus targeted regression re-runs of `tests/test_install_helper_scripts.py`; the repo candidate once again matches the documented `0.1.85` release boundary.
-- **next action:** keep the current candidate on `0.1.85`, then use the formal release-approval flow before any future version bump beyond that line
-
-## Recently validated or closed bugs
+- **historical behavior:** repo HEAD had been bumped to `0.1.86` in shipped metadata and install-helper regression expectations while other source-of-truth docs still lagged on `0.1.85` wording. That intermediate state is now historical only.
+- **repo fix:** this run's release-metadata correction commit initially restored the repo working version back to `0.1.85` while the release boundary was still being reconciled.
+- **closure evidence:** later same-day source-of-truth updates superseded the temporary `0.1.85` boundary. `docs/SUPERVISOR.md`, `project_status.md`, `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and live HA fingerprint evidence now all treat `0.1.86` as the active correction line, so this bug should no longer be read as current steering.
 
 ## ZNE-035 — Project status still hid the real `0.1.85` release-approval boundary
 - **closed on:** 2026-04-16
@@ -367,7 +349,15 @@ Suggested area labels:
 - **area:** `process`
 - **historical behavior:** repo inspection in this run found `project_status.md` still said `user_action: none` and still listed the already-corrected `0.1.83` metadata drift as the main blocker, even though `docs/SUPERVISOR.md`, `RELEASE_MANAGEMENT.md`, and active bug state already made the true next boundary explicit: James must directly approve the formal `0.1.85` release flow before redeploy/restart/live validation continues.
 - **repo fix:** this run's status-boundary correction commit — update `project_status.md` so the next action explicitly asks James for release approval now, the blocker names the remaining `entity.py` drift plus the approval boundary, and `user_action` no longer incorrectly says `none`.
-- **closure evidence:** repo-side source-of-truth audit plus direct status-file correction in the same run; `project_status.md` now matches `docs/SUPERVISOR.md`, `RELEASE_MANAGEMENT.md`, and `ZNE-022` by making the formal `0.1.85` release approval ask explicit instead of implied.
+- **closure evidence:** repo-side source-of-truth audit plus direct status-file correction in the same run originally closed this bug. The current repo has since moved the same approval boundary forward to `0.1.86`, and `project_status.md` now asks James for the formal `0.1.86` release/reconciliation flow explicitly, so the older `0.1.85` wording is historical only.
+
+## ZNE-034 — Repo metadata and bug-tracker steering drifted back to `0.1.83` even though the active live release line is `0.1.85`
+- **closed on:** 2026-04-16
+- **severity:** `medium`
+- **area:** `release`
+- **historical behavior:** repo metadata and operator-facing status files had drifted back to `0.1.83`, which contradicted the then-current live Home Assistant manifest and steering. That intermediate `0.1.85` correction state is now historical only.
+- **repo fix:** this run restored the repo working version and release-target text to `0.1.85` in `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, `README.md`, `project_status.md`, and `tests/test_install_helper_scripts.py`.
+- **closure evidence:** later same-day source-of-truth updates superseded the temporary `0.1.85` release line. `docs/SUPERVISOR.md`, `project_status.md`, `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and live HA fingerprint evidence now align on `0.1.86`, so this bug is closed historical context rather than active release guidance.
 
 ## ZNE-032 — Release summary incorrectly reports a rollback as a normal update
 - **closed on:** 2026-04-16
