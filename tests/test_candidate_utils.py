@@ -60,7 +60,6 @@ class CandidateUtilsTests(unittest.TestCase):
                 "switch.ac_outlet_2",
                 "switch.hot_water",
                 "number.ev_charger_limit",
-                "light.patio",
                 "input_number.helper_limit",
                 "input_boolean.virtual_load",
                 "switch.bedroom_crossfade",
@@ -185,6 +184,21 @@ class CandidateUtilsTests(unittest.TestCase):
             ],
         )
 
+    def test_discover_candidate_devices_excludes_generic_lights_but_keeps_positive_load_names(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="light.patio", state="on", attributes={"friendly_name": "Patio lights"}),
+            SimpleNamespace(entity_id="light.pool_pump", state="on", attributes={"friendly_name": "Pool pump light"}),
+            SimpleNamespace(entity_id="switch.hot_water", state="off", attributes={"friendly_name": "Hot water relay"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            ["switch.hot_water", "light.pool_pump"],
+        )
+
     def test_discover_candidate_devices_excludes_variable_settings_and_telemetry_numbers(self) -> None:
         module = _load_candidate_utils_module()
         states = [
@@ -192,6 +206,9 @@ class CandidateUtilsTests(unittest.TestCase):
             SimpleNamespace(entity_id="number.bathroom_room_temperature_limit", state="30", attributes={"friendly_name": "Bathroom Room temperature limit", "device_class": "temperature"}),
             SimpleNamespace(entity_id="number.switchbot_lock_pro_auto_relock_time", state="0", attributes={"friendly_name": "SwitchBot Lock Pro Auto-relock time", "unit_of_measurement": "s"}),
             SimpleNamespace(entity_id="number.system_rome_dyn_price_fee", state="0", attributes={"friendly_name": "System Rome Dyn. price fee"}),
+            SimpleNamespace(entity_id="number.energy_buy_price", state="0.27", attributes={"friendly_name": "Energy buy price", "unit_of_measurement": "$/kWh"}),
+            SimpleNamespace(entity_id="input_number.sell_tax_percent", state="10", attributes={"friendly_name": "Sell tax percent", "unit_of_measurement": "%"}),
+            SimpleNamespace(entity_id="number.lounge_room_surround_level", state="3", attributes={"friendly_name": "Lounge Room Surround level"}),
             SimpleNamespace(entity_id="number.x1_p6k_us_s_battery_capacity", state="20000", attributes={"friendly_name": "X1 Battery capacity", "device_class": "energy_storage", "unit_of_measurement": "Wh"}),
             SimpleNamespace(entity_id="number.living_room_sub_gain_2", state="0", attributes={"friendly_name": "Living Room Sub gain"}),
         ]

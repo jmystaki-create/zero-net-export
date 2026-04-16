@@ -98,18 +98,27 @@ _EXCLUDED_VARIABLE_KEYWORDS = (
     "auto-relock",
     "auto relock",
     "battery capacity",
+    "buy price",
     "dyn. price",
+    "music surround level",
     "price fee",
     "price vat",
+    "sell price",
     "sub gain",
+    "surround level",
+    "tax percent",
     "temperature limit",
 )
 
 _EXCLUDED_VARIABLE_ENTITY_ID_FRAGMENTS = (
     "_auto_relock",
     "_battery_capacity",
+    "_buy_price",
     "_dyn_price_",
+    "_sell_price",
     "_sub_gain",
+    "_surround_level",
+    "_tax_percent",
     "_temperature_limit",
 )
 
@@ -155,6 +164,9 @@ def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     text = _candidate_text(candidate)
     entity_id = str(candidate.get("entity_id") or "").lower()
     device_class = str(candidate.get("device_class") or "").lower()
+
+    if domain == "light" and not any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
+        return True
 
     if kind != "variable" or domain not in {"number", "input_number"}:
         return False
