@@ -247,6 +247,24 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "variable load | Guarded | not usable | enabled | priority 60 | power 620 W | target 1400 W | guard blocked | action hold | last guard_blocked",
         )
 
+    def test_managed_fleet_overview_surfaces_unmanaged_backlog_when_fleet_is_empty(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+            {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
+        ]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | top AC Outlet 2")
+        self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
+        self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
+
     def test_unmanaged_candidate_overview_sensor_is_distinct_from_shortlist(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [

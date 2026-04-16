@@ -285,13 +285,24 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             return None
         if self._key == "managed_fleet_overview":
             counts = _managed_fleet_counts(state.device_details)
+            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
+            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            candidate_count = len(candidates)
+            top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
+            summary_parts = [f"{counts['managed_count']} managed"]
             if counts["managed_count"] == 0:
-                return "No managed devices yet"
-            summary_parts = [
-                f"{counts['managed_count']} managed",
-                f"{counts['enabled_count']} enabled",
-                f"{counts['usable_count']} usable",
-            ]
+                summary_parts.append(
+                    f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates"
+                )
+                if top_candidate_name:
+                    summary_parts.append(f"top {top_candidate_name}")
+                return " | ".join(summary_parts)
+            summary_parts.extend(
+                [
+                    f"{counts['enabled_count']} enabled",
+                    f"{counts['usable_count']} usable",
+                ]
+            )
             if counts["blocked_count"]:
                 summary_parts.append(f"{counts['blocked_count']} blocked")
             if counts["planned_count"]:
@@ -301,6 +312,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(f"{counts['variable_count']} variable")
             if counts["nominal_power_w"]:
                 summary_parts.append(f"{counts['nominal_power_w']} W nominal")
+            if candidate_count:
+                summary_parts.append(f"{candidate_count} unmanaged")
             return " | ".join(summary_parts)
         if self._key == "unmanaged_candidate_count":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
