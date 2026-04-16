@@ -336,6 +336,14 @@ Suggested area labels:
 
 ## Recently validated or closed bugs
 
+## ZNE-035 — Project status still hid the real `0.1.85` release-approval boundary
+- **closed on:** 2026-04-16
+- **severity:** `medium`
+- **area:** `process`
+- **historical behavior:** repo inspection in this run found `project_status.md` still said `user_action: none` and still listed the already-corrected `0.1.83` metadata drift as the main blocker, even though `docs/SUPERVISOR.md`, `RELEASE_MANAGEMENT.md`, and active bug state already made the true next boundary explicit: James must directly approve the formal `0.1.85` release flow before redeploy/restart/live validation continues.
+- **repo fix:** this run's status-boundary correction commit — update `project_status.md` so the next action explicitly asks James for release approval now, the blocker names the remaining `entity.py` drift plus the approval boundary, and `user_action` no longer incorrectly says `none`.
+- **closure evidence:** repo-side source-of-truth audit plus direct status-file correction in the same run; `project_status.md` now matches `docs/SUPERVISOR.md`, `RELEASE_MANAGEMENT.md`, and `ZNE-022` by making the formal `0.1.85` release approval ask explicit instead of implied.
+
 ## ZNE-004 — Live install version stamp mismatched the intended `0.1.82` release
 - **closed on:** 2026-04-15
 - **severity:** `high`
