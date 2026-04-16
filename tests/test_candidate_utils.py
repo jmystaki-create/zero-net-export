@@ -185,6 +185,21 @@ class CandidateUtilsTests(unittest.TestCase):
             ],
         )
 
+    def test_discover_candidate_devices_excludes_variable_settings_and_telemetry_numbers(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="number.ev_charger_limit", state="16", attributes={"friendly_name": "EV charger limit", "unit_of_measurement": "A"}),
+            SimpleNamespace(entity_id="number.bathroom_room_temperature_limit", state="30", attributes={"friendly_name": "Bathroom Room temperature limit", "device_class": "temperature"}),
+            SimpleNamespace(entity_id="number.switchbot_lock_pro_auto_relock_time", state="0", attributes={"friendly_name": "SwitchBot Lock Pro Auto-relock time", "unit_of_measurement": "s"}),
+            SimpleNamespace(entity_id="number.system_rome_dyn_price_fee", state="0", attributes={"friendly_name": "System Rome Dyn. price fee"}),
+            SimpleNamespace(entity_id="number.x1_p6k_us_s_battery_capacity", state="20000", attributes={"friendly_name": "X1 Battery capacity", "device_class": "energy_storage", "unit_of_measurement": "Wh"}),
+            SimpleNamespace(entity_id="number.living_room_sub_gain_2", state="0", attributes={"friendly_name": "Living Room Sub gain"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual([candidate["entity_id"] for candidate in candidates], ["number.ev_charger_limit"])
+
     def test_build_candidate_review_line_formats_label_level_and_summary(self) -> None:
         module = _load_candidate_utils_module()
 

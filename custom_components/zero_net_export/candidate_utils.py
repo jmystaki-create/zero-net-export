@@ -88,6 +88,31 @@ _NEGATIVE_ENTITY_ID_FRAGMENTS = (
     "_subwoofer",
 )
 
+_EXCLUDED_DEVICE_CLASSES = {
+    "energy_storage",
+    "temperature",
+}
+
+_EXCLUDED_VARIABLE_KEYWORDS = (
+    "audio delay",
+    "auto-relock",
+    "auto relock",
+    "battery capacity",
+    "dyn. price",
+    "price fee",
+    "price vat",
+    "sub gain",
+    "temperature limit",
+)
+
+_EXCLUDED_VARIABLE_ENTITY_ID_FRAGMENTS = (
+    "_auto_relock",
+    "_battery_capacity",
+    "_dyn_price_",
+    "_sub_gain",
+    "_temperature_limit",
+)
+
 
 def _candidate_text(candidate: dict[str, Any]) -> str:
     return " ".join(
@@ -121,6 +146,26 @@ def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
     if str(candidate.get("device_class") or "").lower() == "outlet":
         score -= 1
     return score
+
+
+def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
+    """Return True when an entity is clearly not a real managed-load promotion target."""
+    domain = str(candidate.get("domain") or "")
+    kind = str(candidate.get("kind") or "")
+    text = _candidate_text(candidate)
+    entity_id = str(candidate.get("entity_id") or "").lower()
+    device_class = str(candidate.get("device_class") or "").lower()
+
+    if kind != "variable" or domain not in {"number", "input_number"}:
+        return False
+
+    if device_class in _EXCLUDED_DEVICE_CLASSES:
+        return True
+    if any(keyword in text for keyword in _EXCLUDED_VARIABLE_KEYWORDS):
+        return True
+    if any(fragment in entity_id for fragment in _EXCLUDED_VARIABLE_ENTITY_ID_FRAGMENTS):
+        return True
+    return False
 
 
 def candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, int, int, str, str]:
@@ -367,15 +412,16 @@ def discover_candidate_devices(states: Iterable[Any], managed_entity_ids: set[st
         if state_value in {"unknown", "unavailable"}:
             continue
         attributes = getattr(state, "attributes", {}) or {}
-        candidates.append(
-            {
-                "entity_id": entity_id,
-                "name": str(attributes.get("friendly_name") or entity_id),
-                "domain": domain,
-                "kind": "fixed" if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else "variable",
-                "state": str(getattr(state, "state", "")),
-                "unit": str(attributes.get("unit_of_measurement") or ""),
-                "device_class": str(attributes.get("device_class") or ""),
-            }
-        )
+        candidate = {
+            "entity_id": entity_id,
+            "name": str(attributes.get("friendly_name") or entity_id),
+            "domain": domain,
+            "kind": "fixed" if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else "variable",
+            "state": str(getattr(state, "state", "")),
+            "unit": str(attributes.get("unit_of_measurement") or ""),
+            "device_class": str(attributes.get("device_class") or ""),
+        }
+        if _should_exclude_candidate(candidate):
+            continue
+        candidates.append(candidate)
     return rank_candidates(candidates)
