@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import importlib.util
 import sys
 import types
@@ -432,6 +433,69 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             blocker_summary,
             "No higher-priority Sensors, Controls, or Diagnostics blocker is currently ahead of fleet work.",
         )
+
+    def test_device_vetting_form_surfaces_blocker_summary_placeholder(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SOURCES_SECTION_LABEL,
+            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_path": module.SOURCES_CONFIGURE_PATH,
+            "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            }
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._pending_candidate_entity_id = "switch.ac_outlet_2"
+        flow._pending_candidate_summary = {
+            "name": "AC Outlet 2",
+            "entity_id": "switch.ac_outlet_2",
+            "kind": module.DEVICE_KIND_FIXED,
+            "fit_confidence": "high",
+            "fit_summary": "Strong match.",
+            "warnings": [],
+            "suggested_template_label": "Fixed plug",
+            "suggested_template_description": "Use the fixed plug preset.",
+        }
+
+        result = asyncio.run(flow.async_step_device_vetting())
+
+        self.assertEqual(result["description_placeholders"]["device_blocker_summary"], (
+            "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
+            "Why: Mapped source blockers remain."
+        ))
+
+    def test_device_add_form_surfaces_blocker_summary_placeholder(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SOURCES_SECTION_LABEL,
+            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_path": module.SOURCES_CONFIGURE_PATH,
+            "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            },
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+
+        result = asyncio.run(flow.async_step_device_add())
+
+        self.assertEqual(result["description_placeholders"]["device_blocker_summary"], (
+            "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
+            "Why: Mapped source blockers remain."
+        ))
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()

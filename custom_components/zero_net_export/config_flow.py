@@ -2141,6 +2141,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema({}),
             errors={},
             description_placeholders={
+                "device_blocker_summary": self._device_blocker_summary(),
                 "candidate_name": str(summary.get('name') or summary.get('entity_id') or 'candidate'),
                 "candidate_entity_id": str(summary.get('entity_id') or ''),
                 "candidate_domain": str(summary.get('domain') or 'unknown'),
@@ -2304,6 +2305,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             errors=errors,
             description_placeholders={
+                "device_blocker_summary": self._device_blocker_summary(),
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_mode": "Edit" if editing_key else "Add",
