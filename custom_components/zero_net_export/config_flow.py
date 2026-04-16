@@ -702,13 +702,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._pending_candidate_summary: dict[str, Any] | None = None
 
     @staticmethod
-    def _device_sort_key(device: dict[str, Any]) -> tuple[int, int, int, str]:
-        enabled_rank = 0 if device.get("effective_enabled", device.get("enabled", True)) else 1
+    def _device_sort_key(device: dict[str, Any]) -> tuple[int, int, int, int, str]:
+        effective_enabled = bool(device.get("effective_enabled", device.get("enabled", True)))
         usable = device.get("usable")
-        usable_rank = 0 if usable is True else 1 if usable is None else 2
+        blocked_rank = 0 if usable is False else 1
+        planned_rank = 0 if str(device.get("planned_action") or "") not in {"", "hold"} else 1
+        enabled_usable_rank = 0 if effective_enabled and usable is True else 1
         return (
-            enabled_rank,
-            usable_rank,
+            blocked_rank,
+            planned_rank,
+            enabled_usable_rank,
             int(device.get("priority", 0) or 0),
             str(device.get("name", "")).lower(),
         )

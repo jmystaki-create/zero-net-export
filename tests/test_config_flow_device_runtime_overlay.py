@@ -359,10 +359,49 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("1 usable", summary_lines[0])
         self.assertIn("1 blocked", summary_lines[0])
         self.assertIn("1 planned action(s)", summary_lines[0])
-        self.assertIn("Pool pump", summary_lines[1])
-        self.assertIn("plan=turn_on", summary_lines[1])
-        self.assertIn("EV charger", summary_lines[2])
-        self.assertIn("guard=cooldown", summary_lines[2])
+        self.assertIn("EV charger", summary_lines[1])
+        self.assertIn("guard=cooldown", summary_lines[1])
+        self.assertIn("Pool pump", summary_lines[2])
+        self.assertIn("plan=turn_on", summary_lines[2])
+
+    def test_device_sort_key_surfaces_blocked_devices_before_healthy_plans(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
+        devices = [
+            {
+                "key": "pool_pump",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "status": "Ready for control",
+                "guard_status": "ready",
+                "planned_action": "turn_on",
+                "priority": 10,
+                "nominal_power_w": 1200,
+            },
+            {
+                "key": "ev",
+                "name": "EV charger",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "entity_id": "number.ev_limit",
+                "enabled": True,
+                "effective_enabled": False,
+                "usable": False,
+                "status": "Held by guard",
+                "guard_status": "cooldown",
+                "planned_action": "hold",
+                "priority": 20,
+                "nominal_power_w": 7000,
+            },
+        ]
+
+        ordered = sorted(devices, key=flow._device_sort_key)
+
+        self.assertEqual(ordered[0]["name"], "EV charger")
+        self.assertEqual(ordered[1]["name"], "Pool pump")
 
     def test_device_next_step_prefers_global_blocker_guidance_before_local_promotion(self) -> None:
         module = _load_config_flow_module()
@@ -572,8 +611,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         summary_lines = flow._fleet_summary_lines(devices)
 
-        self.assertIn("Enabled and ready", summary_lines[1])
-        self.assertIn("Enabled but blocked", summary_lines[2])
+        self.assertIn("Enabled but blocked", summary_lines[1])
+        self.assertIn("Enabled and ready", summary_lines[2])
         self.assertIn("Disabled but ready", summary_lines[3])
 
 
