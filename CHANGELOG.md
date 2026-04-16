@@ -6,7 +6,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-Target release: `0.1.83`
+Target release: `0.1.85`
 
 ### Fixed
 - Warm the installed-package provenance cache from Home Assistant's executor during entry setup before native support, repairs, or diagnostics helpers read it, so release/install fingerprint metadata no longer performs its first manifest/hash disk scan on the event loop during startup.
@@ -20,10 +20,9 @@ Target release: `0.1.83`
 - Updated the native command-center blocker logic to treat those non-blocking stale energy totals as visible diagnostics instead of active blockers, so healthy power-path installs are steered toward the real next operator path again.
 - Documented the required Home Assistant SSH fallback path in `TOOLS.md`, including the `/config` check and rerun-discovery step the supervisor should try before declaring live deploy or restart validation blocked.
 - Strengthened the exact-build config-path discovery helper so it now reports Docker and Podman runtime status, inspects running Home Assistant container mounts for host-side `/config` paths, and prints an explicit container-runtime follow-up when discovery still cannot see the live install from the current shell.
-- Realigned the repo working version to `0.1.83` across the manifest, changelog, and project status so the UI-release candidate no longer advertises the old `0.1.82` version while source-of-truth UI docs target `0.1.83`.
+- Realigned the repo working version to `0.1.85` across the manifest, changelog, and project status so the active UI-correction line no longer drifts back behind the live release line defined in `docs/SUPERVISOR.md`.
 - Replaced the remaining vague `integration/device surfaces` wording in README, product spec, and optional dashboard follow-up docs with the exact native Configure plus device-path guidance, so operator-path docs stop drifting behind the source-of-truth UI design.
-- Reverted the premature repo working-version bump to `0.1.84`, so shipped manifest/changelog metadata stays aligned with the source-of-truth `0.1.83` UI release gate while live fingerprint drift is still being worked.
-- Reverted the newer premature repo working-version bump to `0.1.85`, so shipped manifest/changelog metadata and release-helper expectations are back on the documented `0.1.83` UI release target instead of silently moving the release gate forward again.
+- Removed the stale `0.1.83` release-target drift from shipped metadata and test expectations, so exact-build tooling now follows the active `0.1.85` release line instead of an older rollback candidate.
 
 ## [0.1.82] - 2026-04-14
 
