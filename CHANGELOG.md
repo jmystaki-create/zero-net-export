@@ -6,7 +6,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-Target release: `0.1.85`
+Target release: `0.1.83`
 
 ### Fixed
 - Warm the installed-package provenance cache from Home Assistant's executor during entry setup before native support, repairs, or diagnostics helpers read it, so release/install fingerprint metadata no longer performs its first manifest/hash disk scan on the event loop during startup.
@@ -23,6 +23,7 @@ Target release: `0.1.85`
 - Realigned the repo working version to `0.1.83` across the manifest, changelog, and project status so the UI-release candidate no longer advertises the old `0.1.82` version while source-of-truth UI docs target `0.1.83`.
 - Replaced the remaining vague `integration/device surfaces` wording in README, product spec, and optional dashboard follow-up docs with the exact native Configure plus device-path guidance, so operator-path docs stop drifting behind the source-of-truth UI design.
 - Reverted the premature repo working-version bump to `0.1.84`, so shipped manifest/changelog metadata stays aligned with the source-of-truth `0.1.83` UI release gate while live fingerprint drift is still being worked.
+- Reverted the newer premature repo working-version bump to `0.1.85`, so shipped manifest/changelog metadata and release-helper expectations are back on the documented `0.1.83` UI release target instead of silently moving the release gate forward again.
 
 ## [0.1.82] - 2026-04-14
 

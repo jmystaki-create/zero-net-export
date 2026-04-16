@@ -140,18 +140,18 @@ Suggested area labels:
 - **validation status:** repo-side fix remains covered by `python3 -m unittest tests.test_source_freshness_probes tests.test_release_info_install_guidance tests.test_release_update_details` plus `python3 -m py_compile custom_components/zero_net_export/coordinator.py`. Live validation is now good enough for this bug specifically: the fixed `coordinator.py` is present in the live install, the integration has an active config entry again, and the earlier missing-argument setup retry is no longer present in current log review.
 - **next action:** no further action for this specific bug beyond keeping future coordinator/release-info changes under regression coverage
 
-## ZNE-026 — Integration overview/device page still shows stale 0.1.83 version after 0.1.84 install
-- **status:** `fixed_pending_validation`
+## ZNE-026 — Integration overview/device page still shows stale version, and the first repo-side fix regressed into blocking I/O
+- **status:** `open`
 - **severity:** `high`
 - **area:** `release`
-- **where seen:** live Home Assistant UI after `0.1.84` deploy
-- **current observed behavior:** the integration overview and device info screenshots still show `Version 0.1.83` / `Firmware: 0.1.83` even though the release and deploy were executed as `0.1.84`
-- **expected behavior:** the Home Assistant integration and device surfaces should show the currently installed `0.1.84` version, not the previous release
-- **evidence:** user screenshots on 2026-04-16 show the integration header and device info card both rendering `Version 0.1.83` / `Firmware: 0.1.83` after the `0.1.84` release/deploy. Earlier live shell checks in the same run showed conflicting file states, including one post-release command still reporting remote manifest `0.1.83`, so the stale-version UI is consistent with unresolved live install/version-fidelity drift. In this run, the documented HA SSH/API path worked again: `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` still reports `overall_match=false`, and one of the current mismatches is `custom_components/zero_net_export/entity.py`, which means the live install is still missing the later repo-side device-surface version fix.
-- **suspected cause:** the original stale version was partly a real live mixed-build problem, and repo inspection in this run confirmed the bug-tracker state had drifted behind the shipped candidate because `custom_components/zero_net_export/entity.py` now reads the packaged `manifest.json` version for the Home Assistant device surface instead of blindly using an older imported constant.
-- **repo fix:** `057fcf5` — make the device surface version read the packaged `manifest.json` so Home Assistant device firmware/version labels follow the installed component tree, with regression coverage in `tests/test_device_surface_version.py`
-- **validation status:** repo-side fix is now present and covered by `python3 -m unittest tests.test_device_surface_version -q`, but live Home Assistant validation is still pending because the exact current repo candidate is not installed yet. This bug should not stay `open` in the tracker because a repo fix now exists; the remaining work is redeploy plus post-install device-surface verification.
-- **next action:** redeploy the exact current `0.1.83` repo candidate, rerun fingerprint validation until `overall_match=true`, then confirm the integration overview and Zero Net Export device page both read the installed package version from the deployed manifest
+- **where seen:** live Home Assistant UI after `0.1.84`, and again during `0.1.85` live validation
+- **current observed behavior:** version fidelity on the HA integration/device surfaces is unstable. Earlier screenshots showed `Version 0.1.83` / `Firmware: 0.1.83` after a `0.1.84` deploy, and the latest repo-side fix for this now triggers new Home Assistant blocking-I/O warnings from `entity.py` while reading `manifest.json` on the event loop during setup.
+- **expected behavior:** the Home Assistant integration and device surfaces should show the currently installed package version without introducing new blocking-call warnings during startup
+- **evidence:** user screenshots on 2026-04-16 showed the integration header and device info card rendering `0.1.83` after the `0.1.84` release/deploy. In this latest `0.1.85` run, post-restart HA logs show `Detected blocking call to read_text ... at custom_components/zero_net_export/entity.py, line 16` and `Detected blocking call to open ...` from `_device_surface_version()`, which was introduced to fix the stale-version display.
+- **suspected cause:** the original stale version was partly a real live mixed-build problem, but the current repo-side fix reads `manifest.json` synchronously from entity initialization, which violates HA async expectations and is not safe to ship as the final solution.
+- **repo fix attempt:** `057fcf5` — make the device surface version read the packaged `manifest.json` so Home Assistant device firmware/version labels follow the installed component tree, with regression coverage in `tests/test_device_surface_version.py`
+- **validation status:** not fixed. The latest approach has been deployed and produced new blocking-I/O warnings, so this bug is still active and the current implementation needs to be replaced.
+- **next action:** replace the manifest-on-init read in `entity.py` with a non-blocking cached/runtime-fed version source, then re-validate both version fidelity and clean startup without new blocking-call warnings
 
 ## ZNE-032 — Release summary incorrectly reports a rollback as a normal update
 - **status:** `fixed_pending_validation`
@@ -433,6 +433,14 @@ Suggested area labels:
 - **historical behavior:** repo inspection in this run found `custom_components/zero_net_export/manifest.json` and the top `CHANGELOG.md` target bumped to `0.1.84` even though `docs/SUPERVISOR.md`, `docs/UI_DESIGN.md`, and `docs/UI_IMPLEMENTATION_MAP.md` still define `0.1.83` as the active UI release. `project_status.md` also still asked for redeploy approval using an older shipped-component commit, which made the release boundary misleading in two different ways at once.
 - **repo fix:** this run's release-metadata sync commit — return the manifest and changelog target to `0.1.83`, add the correction to `CHANGELOG.md`, and remove the stale hard-coded redeploy commit from `project_status.md` so the approval ask points at the exact current shipped-component candidate instead of an outdated hash.
 - **closure evidence:** repo-side source-of-truth audit plus direct metadata correction in the same run; `custom_components/zero_net_export/manifest.json` and the changelog target now match the `0.1.83` UI release docs again, and `project_status.md` no longer points release approval at stale commit `f45618c`.
+
+## ZNE-033 — Repo working version drifted forward again to `0.1.85`
+- **closed on:** 2026-04-16
+- **severity:** `medium`
+- **area:** `release`
+- **historical behavior:** repo inspection in this run found `custom_components/zero_net_export/manifest.json`, the changelog target, and install-helper regression expectations bumped to `0.1.85` even though `docs/SUPERVISOR.md`, `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `README.md`, and `project_status.md` still define `0.1.83` as the active UI release. That reopened the same release-gate drift in a new form and made exact-build tooling report the wrong candidate version.
+- **repo fix:** this run's release-metadata correction commit — return the manifest and changelog target to `0.1.83`, realign `tests/test_install_helper_scripts.py` with the documented release target again, and record the correction in `CHANGELOG.md`.
+- **closure evidence:** repo-side source-of-truth audit plus direct correction in the same run; `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, `tests/test_install_helper_scripts.py`, and `project_status.md` now consistently point at the `0.1.83` UI candidate again instead of mixing `0.1.83` steering with `0.1.85` release metadata.
 
 ## Closure rule
 
