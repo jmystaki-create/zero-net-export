@@ -42,7 +42,7 @@ Do not drift into:
 
 ## Current goals
 
-- Treat `0.1.85` as the current live release under active correction, and keep the UI-shaping work aligned to the current release line rather than stale `0.1.83` wording.
+- Treat `0.1.86` as the current live release under active correction, and keep the UI-shaping work aligned to the current release line rather than stale `0.1.83` or `0.1.85` wording.
 - Make Configure the clear native command center for sources, policy, managed devices, and support.
 - Separate the operator information architecture into four obvious native buckets: Controls, Sensors, Managed Devices, and Diagnostics.
 - Keep the Zero Net Export brain/control surface focused on controller-level settings and decisions only, not managed-device inventory operations.
