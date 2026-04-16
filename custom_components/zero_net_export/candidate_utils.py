@@ -88,6 +88,15 @@ _NEGATIVE_ENTITY_ID_FRAGMENTS = (
     "_subwoofer",
 )
 
+_LIGHTING_KEYWORDS = (
+    " light",
+    " lights",
+    "lamp",
+    "downlight",
+    "spotlight",
+    "led",
+)
+
 _EXCLUDED_DEVICE_CLASSES = {
     "energy_storage",
     "temperature",
@@ -160,6 +169,13 @@ def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
     return score
 
 
+def _looks_like_lighting_candidate(candidate: dict[str, Any]) -> bool:
+    text = _candidate_text(candidate)
+    entity_id = str(candidate.get("entity_id") or "").lower().replace("_", " ")
+    return any(keyword in text or keyword in entity_id for keyword in _LIGHTING_KEYWORDS)
+
+
+
 def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     """Return True when an entity is clearly not a real managed-load promotion target."""
     domain = str(candidate.get("domain") or "")
@@ -170,6 +186,9 @@ def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     positive_name_signal = any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS)
 
     if domain == "light" and not positive_name_signal:
+        return True
+
+    if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and _looks_like_lighting_candidate(candidate) and not positive_name_signal:
         return True
 
     if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and _negative_non_load_penalty(candidate) >= 3 and not positive_name_signal:

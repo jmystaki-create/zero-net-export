@@ -195,6 +195,21 @@ class CandidateUtilsTests(unittest.TestCase):
             ["switch.hot_water", "light.pool_pump"],
         )
 
+    def test_discover_candidate_devices_excludes_switch_exposed_lighting_circuits(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.batten_roof_lights", state="off", attributes={"friendly_name": "Batten Roof Lights"}),
+            SimpleNamespace(entity_id="switch.workshop_lamp", state="off", attributes={"friendly_name": "Workshop Lamp"}),
+            SimpleNamespace(entity_id="switch.ebike_charger", state="off", attributes={"friendly_name": "Ebike Charger"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            ["switch.ebike_charger"],
+        )
+
     def test_discover_candidate_devices_excludes_variable_settings_and_telemetry_numbers(self) -> None:
         module = _load_candidate_utils_module()
         states = [
