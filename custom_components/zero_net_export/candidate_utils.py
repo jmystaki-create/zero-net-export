@@ -89,6 +89,11 @@ _NEGATIVE_ENTITY_ID_FRAGMENTS = (
     "_subwoofer",
 )
 
+_GENERIC_POWER_KEYWORDS = (
+    " power",
+    "power ",
+)
+
 _LIGHTING_KEYWORDS = (
     " light",
     " lights",
@@ -158,6 +163,22 @@ def _has_negative_non_load_signal(candidate: dict[str, Any]) -> bool:
     return _negative_non_load_penalty(candidate) > 0
 
 
+def _generic_power_penalty(candidate: dict[str, Any]) -> int:
+    """Return a mild penalty for vague room/circuit power labels.
+
+    These are still plausible candidates, but they should rank behind more explicit
+    appliance-style names like chargers, heated floors, towel rails, and purifiers.
+    """
+    text = _candidate_text(candidate)
+    if not any(keyword in text for keyword in _GENERIC_POWER_KEYWORDS):
+        return 0
+    if any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
+        return 0
+    if str(candidate.get("device_class") or "").lower() == "outlet":
+        return 0
+    return 1
+
+
 def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
     """Return a secondary rank that prefers likely real loads over obvious service toggles."""
     text = _candidate_text(candidate)
@@ -165,6 +186,7 @@ def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
     if any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
         score -= 2
     score += _negative_non_load_penalty(candidate)
+    score += _generic_power_penalty(candidate)
     if str(candidate.get("device_class") or "").lower() == "outlet":
         score -= 1
     return score

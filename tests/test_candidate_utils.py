@@ -249,6 +249,29 @@ class CandidateUtilsTests(unittest.TestCase):
             ["switch.ac_outlet_2"],
         )
 
+    def test_discover_candidate_devices_prefers_explicit_appliances_before_generic_power_labels(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.garage_power", state="off", attributes={"friendly_name": "Garage Power"}),
+            SimpleNamespace(entity_id="switch.third_bedroom_power", state="off", attributes={"friendly_name": "3rd Bedroom Power"}),
+            SimpleNamespace(entity_id="switch.ebike_charger", state="off", attributes={"friendly_name": "Ebike Charger"}),
+            SimpleNamespace(entity_id="switch.coffee_machine", state="off", attributes={"friendly_name": "Coffee machine"}),
+            SimpleNamespace(entity_id="switch.ac_outlet_2", state="off", attributes={"friendly_name": "AC Outlet 2", "device_class": "outlet"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            [
+                "switch.ac_outlet_2",
+                "switch.ebike_charger",
+                "switch.coffee_machine",
+                "switch.third_bedroom_power",
+                "switch.garage_power",
+            ],
+        )
+
     def test_build_candidate_review_line_formats_label_level_and_summary(self) -> None:
         module = _load_candidate_utils_module()
 
