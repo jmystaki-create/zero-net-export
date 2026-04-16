@@ -7,10 +7,10 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: ask James directly whether to proceed with the formal `0.1.86` release-reconciliation flow now, then deploy one exact repo build that resolves the live `manifest.json` plus `sensor.py` drift before any further UI claims
+next_action: ask James directly whether to proceed with the formal `0.1.86` release-reconciliation flow now, then deploy one exact repo build that resolves the remaining live `sensor.py` drift before any further UI claims
 
 # Current blocker or none
-blocker: the live Home Assistant install is still a mixed `0.1.86` state because `manifest.json` and `sensor.py` do not match repo HEAD, and the real next boundary is explicit release approval rather than more implied deploy/restart guidance
+blocker: the live Home Assistant install is still not fingerprint-aligned because `sensor.py` does not match repo HEAD, and the real next boundary is explicit release approval rather than more implied deploy/restart guidance
 
 # Exact user action needed or none
 user_action: James must explicitly approve the formal `0.1.86` release/reconciliation flow before deploy, restart, HACS refresh, or live validation continues
