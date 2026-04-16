@@ -7,7 +7,7 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: ask James directly whether to proceed with the formal `0.1.86` release-reconciliation flow now, then deploy one exact repo build from the current repo state, with `fca6632` still the latest component-surface commit under the current docs-only HEAD, to resolve the remaining live `button.py`, `config_flow.py`, `diagnostics.py`, `native_support.py`, and `sensor.py` drift before any `0.1.87` UI-release claim
+next_action: ask James directly whether to proceed with the formal `0.1.86` release-reconciliation flow now, then deploy one exact repo build from the current repo state, with `245eb09` now the latest component-surface commit, to resolve the remaining live `button.py`, `config_flow.py`, `diagnostics.py`, `native_support.py`, and `sensor.py` drift before any `0.1.87` UI-release claim
 
 # Current blocker or none
 blocker: the live Home Assistant install is still not fingerprint-aligned because `button.py`, `config_flow.py`, `diagnostics.py`, `native_support.py`, and `sensor.py` do not match repo HEAD, and the real next boundary is explicit release approval rather than more implied deploy/restart guidance
@@ -19,4 +19,4 @@ user_action: James must explicitly approve the formal `0.1.86` release/reconcili
 notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, and distinguish the live `0.1.86` correction line from the next `0.1.87` UI rollout target
 
 # Last time this file materially changed
-last_modified: 2026-04-16 22:06
+last_modified: 2026-04-16 22:19
