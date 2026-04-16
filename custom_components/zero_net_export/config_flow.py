@@ -824,6 +824,41 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         return candidates
 
+    def _managed_snapshot_text(self, devices: list[dict[str, Any]]) -> str:
+        if not devices:
+            return "Managed now: 0 | enabled: 0 | usable: 0 | blocked: none | plan: none"
+
+        enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
+        usable_count = sum(1 for device in devices if device.get("usable") is True)
+        blocked_name = next(
+            (
+                str(device.get("name") or device.get("entity_id") or "")
+                for device in sorted(devices, key=self._device_sort_key)
+                if device.get("usable") is False
+            ),
+            "",
+        )
+        planned_name = next(
+            (
+                str(device.get("name") or device.get("entity_id") or "")
+                for device in sorted(devices, key=self._device_sort_key)
+                if str(device.get("planned_action") or "") not in {"", "hold"}
+            ),
+            "",
+        )
+        return (
+            f"Managed now: {len(devices)} | enabled: {enabled_count} | usable: {usable_count}"
+            f" | blocked: {blocked_name or 'none'} | plan: {planned_name or 'none'}"
+        )
+
+    @staticmethod
+    def _unmanaged_snapshot_text(candidates: list[dict[str, Any]]) -> str:
+        fixed_count = sum(1 for item in candidates if item.get("kind") == DEVICE_KIND_FIXED)
+        variable_count = sum(1 for item in candidates if item.get("kind") == DEVICE_KIND_VARIABLE)
+        return (
+            f"Unmanaged now: {len(candidates)} | fixed candidates: {fixed_count} | variable candidates: {variable_count}"
+        )
+
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:
         candidates = self._device_candidates()
         if kind:
@@ -2086,6 +2121,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "3. Choose a preset.\n"
             "4. Save it into Managed Devices."
         )
+        devices, _ = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        all_candidates = self._device_candidates()
         return self.async_show_form(
             step_id="device_pick_candidate",
             data_schema=vol.Schema(
@@ -2101,6 +2139,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "candidate_count": str(len(options)),
                 "top_candidates": top_candidate_summary,
                 "candidate_path_summary": candidate_path_summary,
+                "device_blocker_summary": self._device_blocker_summary(),
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
+                "configure_path": DEVICES_CONFIGURE_PATH,
+                "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 
@@ -2123,6 +2166,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             *options,
         ]
         default_candidate = self._pending_candidate_entity_id or MANUAL_CANDIDATE_SELECTION
+        devices, _ = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        all_candidates = self._device_candidates()
         return self.async_show_form(
             step_id="device_pick_candidate_full",
             data_schema=vol.Schema(
@@ -2136,6 +2182,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "candidate_count": str(len(options)),
+                "device_blocker_summary": self._device_blocker_summary(),
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
+                "configure_path": DEVICES_CONFIGURE_PATH,
+                "detailed_management_summary": self._detailed_management_summary(),
             },
         )
 

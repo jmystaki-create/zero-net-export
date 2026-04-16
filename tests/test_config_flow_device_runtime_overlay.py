@@ -524,6 +524,84 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "No higher-priority Sensors, Controls, or Diagnostics blocker is currently ahead of fleet work.",
         )
 
+    def test_device_pick_candidate_forms_surface_blocker_and_workspace_snapshots(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SOURCES_SECTION_LABEL,
+            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_path": module.SOURCES_CONFIGURE_PATH,
+            "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            },
+            states=SimpleNamespace(
+                async_all=lambda: [],
+                get=lambda entity_id: None,
+            ),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+        flow._load_devices = lambda: ([
+            {
+                "key": "ev",
+                "name": "EV charger",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "entity_id": "number.ev_limit",
+                "enabled": True,
+                "effective_enabled": False,
+                "usable": False,
+                "planned_action": "hold",
+            },
+            {
+                "key": "pool",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "planned_action": "turn_on",
+            },
+        ], [])
+        flow._device_candidates = lambda: [
+            {"entity_id": "switch.ac_outlet_2", "name": "AC Outlet 2", "kind": module.DEVICE_KIND_FIXED, "label": "AC Outlet 2"},
+            {"entity_id": "switch.towel_rail", "name": "Towel Rail", "kind": module.DEVICE_KIND_FIXED, "label": "Towel Rail"},
+            {"entity_id": "number.ev_spare", "name": "Spare EV limit", "kind": module.DEVICE_KIND_VARIABLE, "label": "Spare EV limit"},
+        ]
+        flow._candidate_quick_picks = lambda kind: [
+            {"entity_id": "switch.ac_outlet_2", "name": "AC Outlet 2", "kind": module.DEVICE_KIND_FIXED, "label": "AC Outlet 2"},
+            {"entity_id": "switch.towel_rail", "name": "Towel Rail", "kind": module.DEVICE_KIND_FIXED, "label": "Towel Rail"},
+        ]
+        flow._candidate_options = lambda kind=None: [
+            {"value": "switch.ac_outlet_2", "label": "AC Outlet 2"},
+            {"value": "switch.towel_rail", "label": "Towel Rail"},
+        ] if kind == module.DEVICE_KIND_FIXED else []
+
+        shortlist = asyncio.run(flow.async_step_device_pick_candidate())
+        full_list = asyncio.run(flow.async_step_device_pick_candidate_full())
+
+        expected_blocker = (
+            "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
+            "Why: Mapped source blockers remain."
+        )
+        self.assertEqual(shortlist["description_placeholders"]["device_blocker_summary"], expected_blocker)
+        self.assertEqual(full_list["description_placeholders"]["device_blocker_summary"], expected_blocker)
+        self.assertEqual(
+            shortlist["description_placeholders"]["managed_snapshot"],
+            "Managed now: 2 | enabled: 1 | usable: 1 | blocked: EV charger | plan: Pool pump",
+        )
+        self.assertEqual(
+            full_list["description_placeholders"]["unmanaged_snapshot"],
+            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1",
+        )
+        self.assertEqual(shortlist["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
+        self.assertEqual(full_list["description_placeholders"]["detailed_management_summary"], flow._detailed_management_summary())
+
     def test_device_vetting_form_surfaces_blocker_summary_placeholder(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
