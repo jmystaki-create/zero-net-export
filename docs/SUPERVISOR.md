@@ -42,7 +42,7 @@ Do not drift into:
 
 ## Current goals
 
-- Treat `0.1.86` as the current live release under active correction, and keep the UI-shaping work aligned to the current release line rather than stale `0.1.83` or `0.1.85` wording.
+- Treat `0.1.86` as the current live correction line, but treat `0.1.87` as the current full UI rollout target defined by `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`.
 - Make Configure the clear native command center for sources, policy, managed devices, and support.
 - Separate the operator information architecture into four obvious native buckets: Controls, Sensors, Managed Devices, and Diagnostics.
 - Keep the Zero Net Export brain/control surface focused on controller-level settings and decisions only, not managed-device inventory operations.
@@ -98,14 +98,14 @@ This phase is in good shape when:
 ## Next actions
 
 Do next:
-1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict checklist for the current UI-shaping release line, and remove stale `0.1.83` or `0.1.85` assumptions whenever current live work is already on `0.1.86`.
+1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict staged checklist for `0.1.87`, and prefer the next unfinished UI stage over release-state bookkeeping whenever safe repo-side implementation work still exists.
 2. Make the Managed Devices native path visually separate already managed devices from unmanaged candidates ready for promotion.
 3. Make the native promote / vet / review path visibly first-class and easy to follow in live Home Assistant.
 4. Refactor the native surface model so Controls, Sensors, Managed Devices, and Diagnostics each have a clear role and do not repeat each other's content.
 5. Define and implement a separate detailed-management path for managed devices, reachable from the native device view, for deeper per-device review.
-6. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sources and source mapping.
+6. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sensors and source mapping.
 7. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
-8. When the next coherent release candidate is actually ready, ask James directly for formal release approval instead of only describing deploy/restart steps.
+8. Only ask James for formal release approval when the candidate has materially crossed a release boundary with new evidence, and otherwise continue building the next `0.1.87` UI stage instead of repeating the same release ask.
 
 Do later:
 - Validate a mixed-device fleet scenario, not just a single-device happy path.
@@ -123,6 +123,11 @@ Do later:
 ## Operating rules
 
 - Prefer confirmed real-install friction over speculative UX polish.
+- Supervisor is the builder, not a release-status clerk. Default to shipping the next meaningful `0.1.87` UI improvement whenever safe implementation work remains.
+- Do not spend a run only refreshing candidate hashes, docs heads, or approval wording unless that correction materially changes a real decision.
+- Treat repeated release-boundary reporting as edge-triggered, not level-triggered: ask once when a candidate newly becomes release-ready, then continue adjacent product work until there is materially new release evidence.
+- Throttle exact-build fingerprint checks. Re-run them when preparing for deploy, after deploy, after restart, or when live-vs-repo uncertainty materially affects the decision in that run, not as rote every-cycle bookkeeping.
+- If the same blocker is unchanged across recent runs and no new evidence was found, do not spend the run rephrasing it. Make adjacent product progress or send a concise no-change update.
 - Prefer practical outcomes over theory.
 - Prefer fewer stronger native surfaces over more surfaces.
 - Prefer release-proofing and validation over roadmap expansion.

@@ -180,7 +180,7 @@ The backend control engine is substantially built, and the project is now in a l
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 
-**Current highest-value next step:** fingerprint-align one exact **0.1.86** repo build in live Home Assistant, then validate the **0.1.87** rollout outcomes by making the Managed Devices native path visibly separate the existing managed fleet from unmanaged promotion candidates, making the promote/vet/review flow feel first-class in live Home Assistant, and only calling the UI release ready once James can see that four-bucket native structure clearly.
+**Current highest-value next step:** keep building the unfinished **0.1.87** rollout outcomes in repo and native HA design order, especially the stronger Managed Devices workspace, command-center reduction, promotion-flow polish, and notification cleanup. Exact-build alignment of one **0.1.86** live install still matters, but it should support honest validation rather than repeatedly displacing ongoing UI implementation work.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
