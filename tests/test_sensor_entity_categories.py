@@ -255,7 +255,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         ]
 
         coordinator = SimpleNamespace(
-            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
             data=SimpleNamespace(device_details={}),
         )
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
@@ -264,6 +264,8 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | top AC Outlet 2")
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
         self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
+        self.assertEqual(overview.extra_state_attributes["top_candidate_name"], "AC Outlet 2")
+        self.assertFalse(overview.extra_state_attributes["source_blocked"])
 
     def test_unmanaged_candidate_overview_sensor_is_distinct_from_shortlist(self) -> None:
         sensor_module = _load_sensor_module()
@@ -296,7 +298,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         ]
 
         coordinator = SimpleNamespace(
-            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
             data=SimpleNamespace(
                 device_details={
                     "pool": {
@@ -316,6 +318,36 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(
             overview.native_value,
             "1 managed | 1 enabled | 1 usable | 1 fixed | 1185 W nominal | 2 unmanaged | top AC Outlet 2",
+        )
+
+    def test_managed_fleet_overview_surfaces_source_repair_before_promotion_backlog(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+        ]
+        sensor_module.build_source_attention_summary = lambda state, merged, limit=2, blocking_only=False: (
+            "Missing required source roles: Solar power" if blocking_only else "None"
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            overview.native_value,
+            "0 managed | 1 unmanaged | repair sources first | top AC Outlet 2",
+        )
+        self.assertTrue(overview.extra_state_attributes["source_blocked"])
+        self.assertEqual(
+            overview.extra_state_attributes["source_blocker_summary"],
+            "Missing required source roles: Solar power",
+        )
+        self.assertEqual(
+            overview.extra_state_attributes["source_repair_path"],
+            "sources path",
         )
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:

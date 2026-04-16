@@ -312,11 +312,17 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             candidate_count = len(candidates)
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
+            merged = _merged_entry_config(self.coordinator.entry)
+            blocking_source_summary = build_source_attention_summary(state, merged, limit=2, blocking_only=True)
+            blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=1)
+            source_blocked = blocking_source_summary != "None" or blocking_validation_details != "None"
             summary_parts = [f"{counts['managed_count']} managed"]
             if counts["managed_count"] == 0:
                 summary_parts.append(
                     f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates"
                 )
+                if source_blocked:
+                    summary_parts.append("repair sources first")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                 return _truncate_sensor_state(" | ".join(summary_parts))
@@ -330,6 +336,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(f"{counts['blocked_count']} blocked")
             if counts["planned_count"]:
                 summary_parts.append(f"{counts['planned_count']} active plan")
+            if source_blocked:
+                summary_parts.append("repair sources first")
             summary_parts.append(f"{counts['fixed_count']} fixed")
             if counts["variable_count"]:
                 summary_parts.append(f"{counts['variable_count']} variable")
@@ -535,6 +543,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             top_candidate = candidates[0] if candidates else None
+            merged = _merged_entry_config(self.coordinator.entry)
+            blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
+            blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
             return {
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "managed_devices": list((state.device_details or {}).values()),
@@ -544,6 +555,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "fixed_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'fixed'),
                 "variable_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'variable'),
                 "top_candidate": top_candidate,
+                "top_candidate_name": str(top_candidate.get('name') or top_candidate.get('entity_id') or '').strip() if top_candidate else None,
+                "source_blocked": blocking_source_summary != "None" or blocking_validation_details != "None",
+                "source_blocker_summary": blocking_source_summary,
+                "blocking_validation_details": blocking_validation_details,
+                "source_repair_path": SOURCES_CONFIGURE_PATH,
                 "top_candidate_fit": _candidate_fit_details(top_candidate) if top_candidate else None,
             }
         if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
