@@ -62,8 +62,6 @@ class CandidateUtilsTests(unittest.TestCase):
                 "number.ev_charger_limit",
                 "input_number.helper_limit",
                 "input_boolean.virtual_load",
-                "switch.bedroom_crossfade",
-                "switch.adguard_home_filtering",
             ],
         )
 
@@ -161,7 +159,7 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("feature toggle or service control", fit["suitability_summary"])
         self.assertIn("does not clearly look like a physical discretionary load", fit["safety_summary"])
 
-    def test_discover_candidate_devices_demotes_media_feature_toggles_below_real_loads(self) -> None:
+    def test_discover_candidate_devices_excludes_media_feature_toggles_but_keeps_real_loads(self) -> None:
         module = _load_candidate_utils_module()
         states = [
             SimpleNamespace(entity_id="switch.master_bedroom_speech_enhancement", state="off", attributes={"friendly_name": "Living Room Speech enhancement"}),
@@ -179,8 +177,6 @@ class CandidateUtilsTests(unittest.TestCase):
                 "switch.ac_outlet_2",
                 "switch.ebike_charger",
                 "switch.lounge_room_none",
-                "switch.master_bedroom_speech_enhancement",
-                "switch.living_room_subwoofer_enabled_2",
             ],
         )
 
@@ -209,6 +205,9 @@ class CandidateUtilsTests(unittest.TestCase):
             SimpleNamespace(entity_id="number.energy_buy_price", state="0.27", attributes={"friendly_name": "Energy buy price", "unit_of_measurement": "$/kWh"}),
             SimpleNamespace(entity_id="input_number.sell_tax_percent", state="10", attributes={"friendly_name": "Sell tax percent", "unit_of_measurement": "%"}),
             SimpleNamespace(entity_id="number.lounge_room_surround_level", state="3", attributes={"friendly_name": "Lounge Room Surround level"}),
+            SimpleNamespace(entity_id="number.living_room_balance", state="0", attributes={"friendly_name": "Living Room Balance"}),
+            SimpleNamespace(entity_id="number.living_room_bass", state="0", attributes={"friendly_name": "Living Room Bass"}),
+            SimpleNamespace(entity_id="number.living_room_treble", state="0", attributes={"friendly_name": "Living Room Treble"}),
             SimpleNamespace(entity_id="number.x1_p6k_us_s_battery_capacity", state="20000", attributes={"friendly_name": "X1 Battery capacity", "device_class": "energy_storage", "unit_of_measurement": "Wh"}),
             SimpleNamespace(entity_id="number.living_room_sub_gain_2", state="0", attributes={"friendly_name": "Living Room Sub gain"}),
         ]
@@ -216,6 +215,24 @@ class CandidateUtilsTests(unittest.TestCase):
         candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
 
         self.assertEqual([candidate["entity_id"] for candidate in candidates], ["number.ev_charger_limit"])
+
+    def test_discover_candidate_devices_excludes_obvious_service_and_media_switches(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.ac_outlet_2", state="off", attributes={"friendly_name": "AC Outlet 2", "device_class": "outlet"}),
+            SimpleNamespace(entity_id="switch.bedroom_crossfade", state="off", attributes={"friendly_name": "3rd Bedroom Crossfade"}),
+            SimpleNamespace(entity_id="switch.adguard_home_filtering", state="on", attributes={"friendly_name": "AdGuard Home Filtering"}),
+            SimpleNamespace(entity_id="switch.sonos_alarm_28", state="off", attributes={"friendly_name": "Garage On_36 alarm 10:45"}),
+            SimpleNamespace(entity_id="switch.lounge_room_streamer", state="off", attributes={"friendly_name": "Lounge Room Streamer"}),
+            SimpleNamespace(entity_id="switch.living_room_none", state="off", attributes={"friendly_name": "Living Room Power"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            ["switch.ac_outlet_2", "switch.living_room_none"],
+        )
 
     def test_build_candidate_review_line_formats_label_level_and_summary(self) -> None:
         module = _load_candidate_utils_module()

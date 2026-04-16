@@ -97,6 +97,8 @@ _EXCLUDED_VARIABLE_KEYWORDS = (
     "audio delay",
     "auto-relock",
     "auto relock",
+    "balance",
+    "bass",
     "battery capacity",
     "buy price",
     "dyn. price",
@@ -108,6 +110,7 @@ _EXCLUDED_VARIABLE_KEYWORDS = (
     "surround level",
     "tax percent",
     "temperature limit",
+    "treble",
 )
 
 _EXCLUDED_VARIABLE_ENTITY_ID_FRAGMENTS = (
@@ -164,8 +167,12 @@ def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     text = _candidate_text(candidate)
     entity_id = str(candidate.get("entity_id") or "").lower()
     device_class = str(candidate.get("device_class") or "").lower()
+    positive_name_signal = any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS)
 
-    if domain == "light" and not any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
+    if domain == "light" and not positive_name_signal:
+        return True
+
+    if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and _negative_non_load_penalty(candidate) >= 3 and not positive_name_signal:
         return True
 
     if kind != "variable" or domain not in {"number", "input_number"}:
