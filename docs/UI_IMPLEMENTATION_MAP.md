@@ -296,7 +296,7 @@ This is the explicit `0.1.87` rollout target James asked for. It converts the st
    - managed devices clearly on top
    - unmanaged candidates clearly below
    - visually obvious managed vs unmanaged split
-   - stronger fleet-workspace feel on the device page
+   - Configure -> Managed Devices clearly feels like the primary fleet workspace, with the device page supporting deeper review
 
 4. **Promotion workflow completion**
    - shortlist -> review -> promote path reads as one coherent native flow
@@ -320,7 +320,7 @@ This is the explicit `0.1.87` rollout target James asked for. It converts the st
 ### 0.1.87 acceptance test
 `0.1.87` is only successful if James can open the live HA surfaces and see:
 - command center behaving like setup only
-- device page clearly functioning as the managed-devices workspace
+- Configure -> Managed Devices clearly functioning as the managed-devices workspace, with the device page acting as the deeper review path
 - managed vs unmanaged visually obvious
 - promotion/review workflow clearly visible
 - notifications noticeably cleaner and tighter
