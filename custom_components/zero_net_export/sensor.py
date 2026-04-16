@@ -282,6 +282,12 @@ def _truncate_sensor_state(text: str, *, max_chars: int = 255) -> str:
     return f"{text[: max_chars - 3].rstrip()}..."
 
 
+def _merged_entry_config(entry) -> dict[str, object]:
+    merged = dict(getattr(entry, "data", {}) or {})
+    merged.update(dict(getattr(entry, "options", {}) or {}))
+    return merged
+
+
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def native_value(self):
@@ -384,6 +390,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
             counts = _managed_fleet_counts(state.device_details)
+            merged = _merged_entry_config(self.coordinator.entry)
+            blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
+            blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
@@ -393,6 +402,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 state.device_details,
                 predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
             )
+            if blocking_source_summary != "None" or blocking_validation_details != "None":
+                return _truncate_sensor_state(
+                    f"Open {SOURCES_CONFIGURE_PATH}, repair blocking source roles first, then return to {DEVICES_CONFIGURE_PATH}"
+                )
             if counts["managed_count"] == 0 and candidates:
                 return _truncate_sensor_state(
                     f"Open {DEVICES_CONFIGURE_PATH} and tag {top_candidate_name or 'the top candidate'} into the fleet"
@@ -415,8 +428,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
             )
         if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
-            merged = dict(self.coordinator.entry.data)
-            merged.update(self.coordinator.entry.options)
+            merged = _merged_entry_config(self.coordinator.entry)
             summary = build_source_attention_summary(state, merged, limit=4)
             brief = build_source_attention_brief(state, merged, limit=3)
             if self._key == "mapped_source_blocker_summary":
@@ -538,8 +550,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             state = self._state
             if state is None:
                 return None
-            merged = dict(self.coordinator.entry.data)
-            merged.update(self.coordinator.entry.options)
+            merged = _merged_entry_config(self.coordinator.entry)
             readiness = build_native_operator_readiness(self.coordinator)
             attention = build_source_attention_details(state)
             return {

@@ -72,9 +72,9 @@ def _load_sensor_module():
     native_support_module.build_native_command_center_summary = lambda coordinator: {}
     native_support_module.build_native_operator_readiness = lambda coordinator: {}
     native_support_module.build_source_attention_details = lambda state: {}
-    native_support_module.build_source_attention_brief = lambda state, merged, limit=3: "None"
-    native_support_module.build_source_attention_role_summary = lambda state, merged, limit=6: "None"
-    native_support_module.build_source_attention_summary = lambda state, merged, limit=4: "None"
+    native_support_module.build_source_attention_brief = lambda state, merged, limit=3, blocking_only=False: "None"
+    native_support_module.build_source_attention_role_summary = lambda state, merged, limit=6, blocking_only=False: "None"
+    native_support_module.build_source_attention_summary = lambda state, merged, limit=4, blocking_only=False: "None"
     native_support_module.summarize_validation_issue_messages = lambda state, severities=None, limit=3: "None"
     sys.modules[native_support_module.__name__] = native_support_module
 
@@ -363,6 +363,27 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(
             next_step.native_value,
             "Open devices path and tag AC Outlet 2 into the fleet",
+        )
+
+    def test_fleet_console_next_step_prioritizes_source_repair_before_fleet_work(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+        ]
+        sensor_module.build_source_attention_summary = lambda state, merged, limit=3, blocking_only=False: (
+            "Missing required source roles: Solar power" if blocking_only else "None"
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Fleet console next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open sources path, repair blocking source roles first, then return to devices path",
         )
 
 

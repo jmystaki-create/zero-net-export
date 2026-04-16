@@ -230,6 +230,19 @@ Suggested area labels:
 - **validation status:** confirmed live, not fixed
 - **next action:** explicitly refresh HACS metadata for Zero Net Export, verify whether HACS sees `v0.1.86` as the latest GitHub release, and treat stale HACS version visibility as a release-management bug until the repository page matches the actual published release
 
+## ZNE-038 — Fleet workspace next step ignores blocking source repair and sends operators to Managed Devices first
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** live Home Assistant API inspection on 2026-04-16 while the current install still had required source-role blockers
+- **current observed behavior:** `sensor.zero_net_export_fleet_console_next_step` still told the operator to open `Configure -> Managed Devices` and tag the first candidate into the fleet even while `sensor.zero_net_export_command_center_status` was simultaneously reporting missing required source roles for solar/grid mappings.
+- **expected behavior:** when required mapped sources are still missing or otherwise blocking runtime, the fleet workspace next-step sensor should point operators back to `Configure -> Sensors` first, then only send them into Managed Devices after source repair is out of the way.
+- **evidence:** documented Home Assistant API inspection in this run returned `sensor.zero_net_export_command_center_status = Missing required source roles: Solar power, Solar energy, Grid import power, Grid export power, Grid import energy, Grid export energy` while `sensor.zero_net_export_fleet_console_next_step = Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices and tag the first candidate into the fleet`.
+- **suspected cause:** the fleet workspace next-step sensor was ranking fleet actions from managed-device state alone and was not gating those recommendations on the same blocking mapped-source attention signals already used by the command center and source-blocker sensors.
+- **repo fix:** this run's fleet-next-step source-gating fix updates `custom_components/zero_net_export/sensor.py` so `fleet_console_next_step` checks blocking mapped-source attention first and sends operators to `Configure -> Sensors` before any fleet-promotion guidance; `tests/test_sensor_entity_categories.py` now covers that ordering.
+- **validation status:** repo-side fix implemented in this run and verified with `python3 -m unittest tests.test_sensor_entity_categories -q` plus `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build redeploy.
+- **next action:** redeploy the current repo candidate, then confirm `sensor.zero_net_export_fleet_console_next_step` points to `Configure -> Sensors` while required mapped-source blockers remain and only returns to Managed Devices guidance after those blockers are cleared
+
 ## ZNE-014 — Post-install log review confirms the live install state is still not fully healthy
 - **status:** `fixed_pending_validation`
 - **severity:** `high`
