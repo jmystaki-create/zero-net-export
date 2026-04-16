@@ -89,7 +89,7 @@
       },
       "devices": {
         "title": "Managed Devices",
-        "description": "Use this native Configure screen as the main managed-device workspace. If you are looking for where to tag, review, edit, enable, disable, or remove controllable loads, this is it. Only drop into JSON editing for recovery or bulk changes.\n\nThink of this screen as a native fleet review with two clear halves: what is already managed, and what is still unmanaged and ready for promotion.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\n\nManaged snapshot: {managed_snapshot}\nManaged Devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged snapshot: {unmanaged_snapshot}\nUnmanaged candidate devices: {candidate_count}\nFixed-load candidates ready for promotion: {fixed_candidate_count}\n{fixed_candidate_summary}\nVariable-load candidates ready for promotion: {variable_candidate_count}\n{variable_candidate_summary}\n\nCandidate snapshot:\n{candidate_summary}\nTop unmanaged candidate right now: {top_candidate}\nRecommended fleet action: {device_next_step}\n\nDevice issues:\n{device_issues}",
+        "description": "Use this native Configure screen as the main managed-device workspace. If you are looking for where to tag, review, edit, enable, disable, or remove controllable loads, this is it. Only drop into JSON editing for recovery or bulk changes.\n\nThink of this screen as a native fleet review with two clear halves: what is already managed, and what is still unmanaged and ready for promotion.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nBefore fleet work:\n{device_blocker_summary}\n\nManaged snapshot: {managed_snapshot}\nManaged Devices: {device_count}\nCurrent managed fleet:\n{device_summary}\n\nUnmanaged snapshot: {unmanaged_snapshot}\nUnmanaged candidate devices: {candidate_count}\nFixed-load candidates ready for promotion: {fixed_candidate_count}\n{fixed_candidate_summary}\nVariable-load candidates ready for promotion: {variable_candidate_count}\n{variable_candidate_summary}\n\nCandidate snapshot:\n{candidate_summary}\nTop unmanaged candidate right now: {top_candidate}\nRecommended fleet action: {device_next_step}\n\nDevice issues:\n{device_issues}",
         "data": {
           "device_action": "Managed-device action"
         },
@@ -99,14 +99,14 @@
       },
       "device_bulk_enable": {
         "title": "Review fleet and enabled devices",
-        "description": "Use this native fleet review to temporarily stage larger installs without raw JSON. Select the devices that should stay enabled for control right now.\n\nEnabled now: {enabled_count} of {device_count}\n\nCurrent fleet:\n{device_summary}\n\nDetailed native review path: {detailed_management_summary}",
+        "description": "Use this native fleet review to temporarily stage larger installs without raw JSON. Select the devices that should stay enabled for control right now.\n\nBefore fleet work:\n{device_blocker_summary}\n\nEnabled now: {enabled_count} of {device_count}\n\nCurrent fleet:\n{device_summary}\n\nDetailed native review path: {detailed_management_summary}",
         "data": {
           "enabled_devices": "Enabled managed devices"
         }
       },
       "device_edit_pick": {
         "title": "Edit managed device",
-        "description": "Choose which managed device to edit from the native fleet list. This is the in-place native edit path for correcting names, priorities, power limits, cooldowns, or enablement without dropping into JSON.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action: {device_next_step}",
+        "description": "Choose which managed device to edit from the native fleet list. This is the in-place native edit path for correcting names, priorities, power limits, cooldowns, or enablement without dropping into JSON.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nBefore fleet work:\n{device_blocker_summary}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action: {device_next_step}",
         "data": {
           "device_key": "Managed device"
         }
@@ -157,7 +157,7 @@
       },
       "device_remove": {
         "title": "Remove managed device",
-        "description": "Choose which managed device should be removed from the native fleet. Use this only when a controllable load should leave Zero Net Export entirely, not just be disabled temporarily.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action after removal: {device_next_step}",
+        "description": "Choose which managed device should be removed from the native fleet. Use this only when a controllable load should leave Zero Net Export entirely, not just be disabled temporarily.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nBefore fleet work:\n{device_blocker_summary}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action after removal: {device_next_step}",
         "data": {
           "device_key": "Managed device"
         }

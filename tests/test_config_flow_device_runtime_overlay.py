@@ -389,6 +389,50 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Open sources path and finish source repair before promoting more devices.",
         )
 
+    def test_device_blocker_summary_surfaces_global_blocker_reason_and_path(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SOURCES_SECTION_LABEL,
+            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_path": module.SOURCES_CONFIGURE_PATH,
+            "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            }
+        )
+
+        blocker_summary = flow._device_blocker_summary()
+
+        self.assertIn("Before fleet work: Open sources path and finish source repair before promoting more devices.", blocker_summary)
+        self.assertIn("Why: Mapped source blockers remain.", blocker_summary)
+
+    def test_device_blocker_summary_confirms_when_fleet_work_can_proceed(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.DEVICES_SECTION_LABEL,
+            "next_action_summary": "Review the managed fleet next.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            }
+        )
+
+        blocker_summary = flow._device_blocker_summary()
+
+        self.assertEqual(
+            blocker_summary,
+            "No higher-priority Sensors, Controls, or Diagnostics blocker is currently ahead of fleet work.",
+        )
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))

@@ -752,6 +752,41 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         lines.extend(f"- {self._device_status_label(device)}" for device in ordered)
         return lines
 
+    def _device_blocker_summary(self) -> str:
+        coordinator = self._coordinator()
+        if coordinator is None:
+            return "No higher-priority Sensors, Controls, or Diagnostics blocker is currently ahead of fleet work."
+
+        command_center = build_native_command_center_summary(coordinator)
+        recommended_section = str(command_center.get("recommended_section") or "").strip()
+        recommended_reason = str(command_center.get("recommended_reason") or "").strip()
+        recommended_path = str(command_center.get("recommended_path") or "").strip()
+        next_action = str(
+            command_center.get("next_action_summary")
+            or command_center.get("device_next_step")
+            or ""
+        ).strip()
+        device_blocker_step = str(command_center.get("device_next_step") or "").strip()
+
+        blocker_step = ""
+        if recommended_section and recommended_section != DEVICES_SECTION_LABEL and next_action:
+            blocker_step = next_action
+        elif any(
+            path in device_blocker_step
+            for path in (SOURCES_CONFIGURE_PATH, POLICY_CONFIGURE_PATH, SUPPORT_CONFIGURE_PATH)
+        ):
+            blocker_step = device_blocker_step
+
+        if blocker_step:
+            detail_parts = [f"Before fleet work: {blocker_step}"]
+            if recommended_reason:
+                detail_parts.append(f"Why: {recommended_reason}")
+            if recommended_path and recommended_path not in blocker_step:
+                detail_parts.append(f"Path: {recommended_path}")
+            return "\n".join(detail_parts)
+
+        return "No higher-priority Sensors, Controls, or Diagnostics blocker is currently ahead of fleet work."
+
     def _device_candidates(self) -> list[dict[str, Any]]:
         devices, _ = self._load_devices()
         managed_ids = {str(device.get("entity_id")) for device in devices if device.get("entity_id")}
@@ -1986,6 +2021,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     else "None discovered right now"
                 ),
                 "device_next_step": device_next_step,
+                "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
                 "device_issues": "\n".join(f"- {issue}" for issue in issues[:6]) if issues else "None",
             },
@@ -2322,6 +2358,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "enabled_count": str(len(enabled_keys)),
                 "device_count": str(len(devices)),
+                "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
         )
@@ -2361,6 +2398,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
+                "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
         )
@@ -2395,6 +2433,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
+                "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
         )
