@@ -30,6 +30,21 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Not here:", devices_description)
         self.assertIn("Target export, reserve, deadband, and live mode stay under Controls.", devices_description)
 
+        bulk_enable_description = steps["device_bulk_enable"]["description"]
+        self.assertIn("Managed Devices owns fleet enablement", bulk_enable_description)
+        self.assertIn("Managed devices (top section)", bulk_enable_description)
+        self.assertIn("Unmanaged candidates (bottom section)", bulk_enable_description)
+
+        edit_pick_description = steps["device_edit_pick"]["description"]
+        self.assertIn("Managed Devices owns this fleet-edit workflow", edit_pick_description)
+        self.assertIn("Managed devices (top section)", edit_pick_description)
+        self.assertIn("Unmanaged candidates (bottom section)", edit_pick_description)
+
+        remove_description = steps["device_remove"]["description"]
+        self.assertIn("Managed Devices owns this fleet-removal workflow", remove_description)
+        self.assertIn("Managed devices (top section)", remove_description)
+        self.assertIn("Unmanaged candidates (bottom section)", remove_description)
+
         policy_description = steps["policy"]["description"]
         self.assertIn("Controls owns controller behaviour", policy_description)
         self.assertIn("keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics", policy_description)

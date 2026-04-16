@@ -99,14 +99,14 @@
       },
       "device_bulk_enable": {
         "title": "Review fleet and enabled devices",
-        "description": "Use this native fleet review to temporarily stage larger installs without raw JSON. Select the devices that should stay enabled for control right now.\n\nBefore fleet work:\n{device_blocker_summary}\n\nEnabled now: {enabled_count} of {device_count}\n\nCurrent fleet:\n{device_summary}\n\nDetailed native review path: {detailed_management_summary}",
+        "description": "Use this native fleet review to temporarily stage larger installs without raw JSON. Managed Devices owns fleet enablement, so keep source repair in Sensors, controller tuning in Controls, and troubleshooting in Diagnostics while you use this screen. Select the devices that should stay enabled for control right now.\n\nBefore fleet work:\n{device_blocker_summary}\n\nManaged devices (top section)\nManaged snapshot: {managed_snapshot}\nEnabled now: {enabled_count} of {device_count}\nCurrent fleet:\n{device_summary}\n\nUnmanaged candidates (bottom section)\nUnmanaged snapshot: {unmanaged_snapshot}\nTop unmanaged candidate right now: {top_candidate}\n\nDetailed native review path: {detailed_management_summary}",
         "data": {
           "enabled_devices": "Enabled managed devices"
         }
       },
       "device_edit_pick": {
         "title": "Edit managed device",
-        "description": "Choose which managed device to edit from the native fleet list. This is the in-place native edit path for correcting names, priorities, power limits, cooldowns, or enablement without dropping into JSON.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nBefore fleet work:\n{device_blocker_summary}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action: {device_next_step}",
+        "description": "Choose which managed device to edit from the native fleet list. This is the in-place native edit path for correcting names, priorities, power limits, cooldowns, or enablement without dropping into JSON. Managed Devices owns this fleet-edit workflow, with the managed fleet on top and unmanaged promotion backlog below.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nBefore fleet work:\n{device_blocker_summary}\n\nManaged devices (top section)\nManaged snapshot: {managed_snapshot}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nUnmanaged candidates (bottom section)\nUnmanaged snapshot: {unmanaged_snapshot}\nTop unmanaged candidate right now: {top_candidate}\n\nRecommended next device action: {device_next_step}",
         "data": {
           "device_key": "Managed device"
         }
@@ -157,7 +157,7 @@
       },
       "device_remove": {
         "title": "Remove managed device",
-        "description": "Choose which managed device should be removed from the native fleet. Use this only when a controllable load should leave Zero Net Export entirely, not just be disabled temporarily.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nBefore fleet work:\n{device_blocker_summary}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nRecommended next device action after removal: {device_next_step}",
+        "description": "Choose which managed device should be removed from the native fleet. Use this only when a controllable load should leave Zero Net Export entirely, not just be disabled temporarily. Managed Devices owns this fleet-removal workflow, with the current managed fleet on top and the unmanaged promotion backlog still visible below.\n\nPrimary path: {configure_path}.\nDetailed native review path: {detailed_management_summary}\nBefore fleet work:\n{device_blocker_summary}\n\nManaged devices (top section)\nManaged snapshot: {managed_snapshot}\nManaged Devices: {device_count}\nCurrent fleet:\n{device_summary}\n\nUnmanaged candidates (bottom section)\nUnmanaged snapshot: {unmanaged_snapshot}\nTop unmanaged candidate right now: {top_candidate}\n\nRecommended next device action after removal: {device_next_step}",
         "data": {
           "device_key": "Managed device"
         }

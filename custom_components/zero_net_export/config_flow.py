@@ -2400,6 +2400,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_devices()
 
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        candidates = self._device_candidates()
+        top_candidate = candidates[0] if candidates else None
         enabled_keys = [device["key"] for device in devices if device.get("enabled", True)]
         if user_input is not None:
             selected_keys = {str(key) for key in user_input.get("enabled_devices", [])}
@@ -2432,6 +2434,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "enabled_count": str(len(enabled_keys)),
                 "device_count": str(len(devices)),
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "top_candidate": (
+                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else "none discovered right now"
+                ),
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2470,6 +2479,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "top_candidate": (
+                    f"{candidates[0]['name']} ({candidates[0]['entity_id']}, {candidates[0]['kind']})"
+                    if candidates
+                    else "none discovered right now"
+                ),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
@@ -2505,6 +2521,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_count": str(len(devices)),
+                "managed_snapshot": self._managed_snapshot_text(display_devices),
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "top_candidate": (
+                    f"{candidates[0]['name']} ({candidates[0]['entity_id']}, {candidates[0]['kind']})"
+                    if candidates
+                    else "none discovered right now"
+                ),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
