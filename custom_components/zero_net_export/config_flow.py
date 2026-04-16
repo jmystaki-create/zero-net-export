@@ -1854,6 +1854,26 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
 
     def _device_next_step(self, devices: list[dict[str, Any]], issues: list[str], candidates: list[dict[str, Any]]) -> str:
+        coordinator = self._coordinator()
+        if coordinator is not None:
+            command_center = build_native_command_center_summary(coordinator)
+            recommended_section = str(command_center.get("recommended_section") or "").strip()
+            if recommended_section and recommended_section != DEVICES_SECTION_LABEL:
+                blocker_next_step = str(
+                    command_center.get("next_action_summary")
+                    or command_center.get("device_next_step")
+                    or ""
+                ).strip()
+                if blocker_next_step:
+                    return blocker_next_step
+
+            device_blocker_step = str(command_center.get("device_next_step") or "").strip()
+            if any(
+                path in device_blocker_step
+                for path in (SOURCES_CONFIGURE_PATH, POLICY_CONFIGURE_PATH, SUPPORT_CONFIGURE_PATH)
+            ):
+                return device_blocker_step
+
         top_candidate = candidates[0] if candidates else None
         if issues:
             return "Repair the managed-device issues first, then return here to review enablement or add another load."

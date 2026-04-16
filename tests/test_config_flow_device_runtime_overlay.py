@@ -363,6 +363,32 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("EV charger", summary_lines[2])
         self.assertIn("guard=cooldown", summary_lines[2])
 
+    def test_device_next_step_prefers_global_blocker_guidance_before_local_promotion(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SOURCES_SECTION_LABEL,
+            "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            }
+        )
+
+        next_step = flow._device_next_step(
+            devices=[],
+            issues=[],
+            candidates=[{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": module.DEVICE_KIND_FIXED}],
+        )
+
+        self.assertEqual(
+            next_step,
+            "Open sources path and finish source repair before promoting more devices.",
+        )
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
