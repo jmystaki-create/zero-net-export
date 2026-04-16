@@ -5,7 +5,13 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, Sen
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
 
-from .candidate_utils import assess_candidate, build_candidate_name_summary, build_candidate_preview, discover_candidate_devices
+from .candidate_utils import (
+    assess_candidate,
+    build_candidate_name_summary,
+    build_candidate_overview_summary,
+    build_candidate_preview,
+    discover_candidate_devices,
+)
 from .const import DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
 from .native_support import (
@@ -276,9 +282,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key == "unmanaged_candidate_overview":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
-            if not candidates:
-                return "No unmanaged candidate devices discovered"
-            return build_candidate_name_summary(candidates)
+            return build_candidate_overview_summary(candidates)
         if self._key == "top_unmanaged_candidate":
             managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
             candidates = _candidate_devices_for_hass(self.hass, managed_ids)
@@ -440,6 +444,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "managed_devices": list((state.device_details or {}).values()),
                 "candidate_devices": candidates[:12],
                 "candidate_count": len(candidates),
+                "fixed_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'fixed'),
+                "variable_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'variable'),
                 "top_candidate": top_candidate,
                 "top_candidate_fit": _candidate_fit_details(top_candidate) if top_candidate else None,
             }

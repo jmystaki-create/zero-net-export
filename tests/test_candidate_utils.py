@@ -257,6 +257,21 @@ class CandidateUtilsTests(unittest.TestCase):
         )
         self.assertLessEqual(len(summary), 240)
 
+    def test_build_candidate_overview_summary_distinguishes_overview_from_shortlist(self) -> None:
+        module = _load_candidate_utils_module()
+
+        candidates = [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+            {"name": "Hot water relay", "entity_id": "switch.hot_water", "kind": "fixed"},
+            {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
+            {"name": "Pool pump", "entity_id": "switch.pool_pump", "kind": "fixed"},
+        ]
+
+        summary = module.build_candidate_overview_summary(candidates)
+
+        self.assertEqual(summary, "4 candidates | 3 fixed | 1 variable | top AC Outlet 2")
+        self.assertLessEqual(len(summary), 240)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -322,6 +322,35 @@ def build_candidate_name_summary(
     return summary[: max_chars - 1].rstrip() + "…"
 
 
+def build_candidate_overview_summary(
+    candidates: Iterable[dict[str, Any]],
+    *,
+    max_chars: int = 240,
+) -> str:
+    """Return a compact managed-vs-unmanaged snapshot distinct from the shortlist."""
+    candidate_list = list(candidates)
+    if not candidate_list:
+        return "No unmanaged candidate devices discovered"
+
+    fixed_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "fixed")
+    variable_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "variable")
+    top_name = str(candidate_list[0].get("name") or candidate_list[0].get("entity_id") or "").strip()
+    summary_parts = [f"{len(candidate_list)} candidates", f"{fixed_count} fixed"]
+    if variable_count:
+        summary_parts.append(f"{variable_count} variable")
+    if top_name:
+        summary_parts.append(f"top {top_name}")
+
+    summary = " | ".join(summary_parts)
+    while len(summary_parts) > 2 and len(summary) > max_chars:
+        summary_parts.pop()
+        summary = " | ".join(summary_parts)
+
+    if len(summary) <= max_chars:
+        return summary
+    return summary[: max_chars - 1].rstrip() + "…"
+
+
 def discover_candidate_devices(states: Iterable[Any], managed_entity_ids: set[str]) -> list[dict[str, str]]:
     """Return unmanaged controllable-device candidates in promotion order."""
     candidates: list[dict[str, str]] = []

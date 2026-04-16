@@ -89,6 +89,7 @@ def _load_sensor_module():
         "warnings": [],
     }
     candidate_utils_module.build_candidate_name_summary = lambda candidates, **kwargs: "candidate names"
+    candidate_utils_module.build_candidate_overview_summary = lambda candidates, **kwargs: "candidate overview"
     candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
@@ -233,6 +234,29 @@ class SensorEntityCategoryTests(unittest.TestCase):
             summary.native_value,
             "variable load | Guarded | not usable | enabled | priority 60 | power 620 W | target 1400 W | guard blocked | action hold | last guard_blocked",
         )
+
+    def test_unmanaged_candidate_overview_sensor_is_distinct_from_shortlist(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+            {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
+        ]
+        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed | 1 variable | top AC Outlet 2"
+        sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2; EV charger limit"
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "unmanaged_candidate_overview", "Unmanaged candidate overview")
+        shortlist = sensor_module.ZeroNetExportSensor(coordinator, "candidate_shortlist", "Candidate shortlist")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        shortlist.hass = overview.hass
+
+        self.assertEqual(overview.native_value, "2 candidates | 1 fixed | 1 variable | top AC Outlet 2")
+        self.assertEqual(shortlist.native_value, "AC Outlet 2; EV charger limit")
+        self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
+        self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
 
 
 if __name__ == "__main__":
