@@ -239,6 +239,7 @@ class CandidateUtilsTests(unittest.TestCase):
             SimpleNamespace(entity_id="switch.adguard_home_filtering", state="on", attributes={"friendly_name": "AdGuard Home Filtering"}),
             SimpleNamespace(entity_id="switch.sonos_alarm_28", state="off", attributes={"friendly_name": "Garage On_36 alarm 10:45"}),
             SimpleNamespace(entity_id="switch.lounge_room_streamer", state="off", attributes={"friendly_name": "Lounge Room Streamer"}),
+            SimpleNamespace(entity_id="switch.shellyproem50_a0dd6ca0970c_switch_0", state="off", attributes={"friendly_name": "shellyproem50-a0dd6ca0970c"}),
             SimpleNamespace(entity_id="switch.living_room_none", state="off", attributes={"friendly_name": "Living Room Power"}),
         ]
 

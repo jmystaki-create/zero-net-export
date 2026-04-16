@@ -80,6 +80,7 @@ _NEGATIVE_NON_LOAD_KEYWORDS = (
     "treble",
     "balance",
     "audio delay",
+    "shellyproem",
 )
 
 _NEGATIVE_ENTITY_ID_FRAGMENTS = (
