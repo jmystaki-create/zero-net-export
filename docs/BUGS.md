@@ -486,6 +486,14 @@ Suggested area labels:
 - **repo fix:** this run's release-metadata correction commit — return the manifest and changelog target to `0.1.83`, realign `tests/test_install_helper_scripts.py` with the documented release target again, and record the correction in `CHANGELOG.md`.
 - **closure evidence:** historical only. That closure was later superseded by `docs/SUPERVISOR.md` and live fingerprint evidence confirming `0.1.85` as the active correction line; current release-metadata reality is tracked under ZNE-034.
 
+## ZNE-039 — README and project status still treated `0.1.86` as the future UI target after the implementation map moved the rollout checklist to `0.1.87`
+- **closed on:** 2026-04-16
+- **severity:** `low`
+- **area:** `docs`
+- **historical behavior:** repo inspection in this watchdog run found `README.md` still describing `0.1.86` as the active UI-correction target, and `project_status.md` still framed the next exact-build reconciliation without distinguishing the current live `0.1.86` correction line from the next `0.1.87` UI rollout target. That drift contradicted `docs/UI_IMPLEMENTATION_MAP.md`, which now defines `0.1.87` as the rollout checklist while keeping `0.1.86` as the live correction line.
+- **repo fix:** this run's doc-state sync commit — update `README.md` and `project_status.md` so they distinguish the current live `0.1.86` correction line from the next `0.1.87` UI rollout target, and make the release-approval boundary explicitly block any `0.1.87` UI-release claim until the exact `0.1.86` live reconciliation is done.
+- **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `README.md`, `project_status.md`, and `docs/UI_IMPLEMENTATION_MAP.md` now agree that `0.1.86` is the live correction line while `0.1.87` is the next UI rollout target.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
