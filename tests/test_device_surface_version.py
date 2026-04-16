@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import importlib.util
-import json
 import sys
 import tempfile
 import types
@@ -11,11 +10,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ENTITY_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "entity.py"
-CONST_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "const.py"
 
 
 class DeviceSurfaceVersionTests(unittest.TestCase):
-    def test_device_surface_version_reads_packaged_manifest(self) -> None:
+    def test_device_surface_uses_integration_version_without_manifest_io(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             base = Path(tmpdir)
             package_dir = base / "custom_components" / "zero_net_export"
@@ -23,9 +21,10 @@ class DeviceSurfaceVersionTests(unittest.TestCase):
             (base / "custom_components").mkdir(exist_ok=True)
             (base / "custom_components" / "__init__.py").write_text("")
             (package_dir / "__init__.py").write_text("")
-            (package_dir / "manifest.json").write_text(json.dumps({"version": "9.9.9"}))
             (package_dir / "entity.py").write_text(ENTITY_PATH.read_text())
-            (package_dir / "const.py").write_text(CONST_PATH.read_text())
+            (package_dir / "const.py").write_text(
+                'DOMAIN = "zero_net_export"\nINTEGRATION_VERSION = "7.7.7"\n'
+            )
 
             custom_components_pkg = sys.modules.setdefault("custom_components", types.ModuleType("custom_components"))
             custom_components_pkg.__path__ = [str(base / "custom_components")]
@@ -40,7 +39,16 @@ class DeviceSurfaceVersionTests(unittest.TestCase):
                 "homeassistant.helpers.update_coordinator",
                 types.ModuleType("homeassistant.helpers.update_coordinator"),
             )
-            update_module.CoordinatorEntity = object
+
+            class DummyCoordinatorEntity:
+                def __init__(self, coordinator) -> None:
+                    self.coordinator = coordinator
+
+                @property
+                def device_info(self):
+                    return self._attr_device_info
+
+            update_module.CoordinatorEntity = DummyCoordinatorEntity
             helpers_pkg.update_coordinator = update_module
 
             const_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.const", package_dir / "const.py")
@@ -55,7 +63,12 @@ class DeviceSurfaceVersionTests(unittest.TestCase):
             sys.modules[entity_spec.name] = entity_module
             entity_spec.loader.exec_module(entity_module)
 
-            self.assertEqual(entity_module._device_surface_version(), "9.9.9")
+            class FakeCoordinator:
+                def __init__(self) -> None:
+                    self.entry = types.SimpleNamespace(entry_id="entry-1", title="Zero Net Export")
+
+            entity = entity_module.ZeroNetExportEntity(FakeCoordinator(), "status", "Status")
+            self.assertEqual(entity.device_info["sw_version"], "7.7.7")
 
 
 if __name__ == "__main__":

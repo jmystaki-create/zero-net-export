@@ -1,23 +1,9 @@
 """Base entity helpers."""
 from __future__ import annotations
 
-import json
-from pathlib import Path
-
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, INTEGRATION_VERSION
-
-
-def _device_surface_version() -> str:
-    """Return the version shown on the HA device surface."""
-    manifest_path = Path(__file__).with_name("manifest.json")
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return INTEGRATION_VERSION
-    version = manifest.get("version")
-    return str(version) if version is not None else INTEGRATION_VERSION
 
 
 class ZeroNetExportEntity(CoordinatorEntity):
@@ -33,7 +19,7 @@ class ZeroNetExportEntity(CoordinatorEntity):
             "name": coordinator.entry.title,
             "manufacturer": "OpenClaw",
             "model": "Zero Net Export",
-            "sw_version": _device_surface_version(),
+            "sw_version": INTEGRATION_VERSION,
         }
 
     @property
