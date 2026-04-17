@@ -884,14 +884,22 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     @classmethod
     def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
         fixed_count, variable_count = cls._candidate_mix_counts(candidates)
+        review_needed_count = sum(1 for item in candidates if str(_candidate_usefulness_label(assess_candidate(item))) == "review first")
         top_candidate = candidates[0] if candidates else None
         top_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "none")
         summary = (
             f"Unmanaged now: {len(candidates)} | fixed candidates: {fixed_count} | variable candidates: {variable_count}"
             f" | top candidate: {top_name}"
         )
+        if review_needed_count:
+            summary += f" | {'1 needs review' if review_needed_count == 1 else f'{review_needed_count} need review'}"
         if top_candidate:
-            summary += f" | top fit: {build_candidate_review_hint(top_candidate)}"
+            top_fit = build_candidate_review_hint(top_candidate, include_warning=False)
+            summary += f" | top fit: {top_fit}"
+            top_warning_hint = build_candidate_review_hint(top_candidate, include_warning=True, max_warning_chars=40)
+            if " | warn " in top_warning_hint:
+                _, _, warning = top_warning_hint.partition(" | warn ")
+                summary += f" | top warning: {warning}"
         return summary
 
     @staticmethod

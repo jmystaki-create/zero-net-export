@@ -1002,6 +1002,40 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             feedback["message"],
         )
 
+    def test_unmanaged_snapshot_surfaces_review_first_backlog_and_top_warning(self) -> None:
+        module = _load_config_flow_module()
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium",
+            "summary": "Review before promotion.",
+            "warnings": ["This is an input_boolean helper."] if candidate.get("entity_id") == "input_boolean.virtual_load" else [],
+        }
+        module.build_candidate_review_hint = lambda candidate, include_warning=True, max_warning_chars=56, **kwargs: (
+            "review carefully | warn This is an input_boolean helper."
+            if candidate.get("entity_id") == "input_boolean.virtual_load" and include_warning
+            else "review carefully"
+            if candidate.get("entity_id") == "input_boolean.virtual_load"
+            else "likely useful"
+        )
+        summary = module.ZeroNetExportOptionsFlow._unmanaged_snapshot_text(
+            [
+                {
+                    "entity_id": "input_boolean.virtual_load",
+                    "name": "Virtual load",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+                {
+                    "entity_id": "switch.hot_water",
+                    "name": "Hot water relay",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+            ]
+        )
+
+        self.assertEqual(
+            summary,
+            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Virtual load | 1 needs review | top fit: review carefully | top warning: This is an input_boolean helper.",
+        )
+
     def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
