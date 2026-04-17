@@ -39,6 +39,11 @@ def candidate_usefulness_label(fit: dict[str, Any]) -> str:
     return _FIT_USEFULNESS_LABELS.get(confidence, confidence)
 
 
+def candidate_needs_review(fit: dict[str, Any]) -> bool:
+    """Return True when the candidate still needs explicit operator review."""
+    return candidate_usefulness_label(fit) != "likely useful"
+
+
 def format_count_label(count: int, singular: str, plural: str | None = None) -> str:
     """Return a compact count label with correct singular/plural wording."""
     if plural is None:
@@ -691,12 +696,15 @@ def build_candidate_overview_summary(
 
     fixed_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "fixed")
     variable_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "variable")
+    review_needed_count = sum(1 for item in candidate_list if candidate_needs_review(assess_candidate(item)))
     top_name = str(candidate_list[0].get("name") or candidate_list[0].get("entity_id") or "").strip()
     summary_parts = [format_count_label(len(candidate_list), "candidate")]
     if fixed_count:
         summary_parts.append(format_count_label(fixed_count, "fixed candidate"))
     if variable_count:
         summary_parts.append(format_count_label(variable_count, "variable candidate"))
+    if review_needed_count:
+        summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
     if top_name:
         summary_parts.append(f"top {top_name}")
     if include_top_review_hint and candidate_list:

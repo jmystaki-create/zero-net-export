@@ -228,6 +228,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("managed 1", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed candidate", summary["fleet_activity_summary"])
+        self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
         self.assertIn("review first", summary["fleet_activity_summary"])
         self.assertIn("generic outlet hardware", summary["fleet_activity_summary"])

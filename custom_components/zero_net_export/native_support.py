@@ -7,7 +7,7 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .candidate_utils import build_candidate_review_hint, discover_candidate_devices
+from .candidate_utils import assess_candidate, build_candidate_review_hint, candidate_needs_review, discover_candidate_devices
 from .const import (
     CONF_BATTERY_RESERVE_SOC,
     CONF_BATTERY_CHARGE_POWER_ENTITY,
@@ -1187,6 +1187,7 @@ def _build_command_center_fleet_activity_summary(
     candidate_count: int,
     fixed_candidate_count: int,
     variable_candidate_count: int,
+    review_needed_count: int,
     top_candidate_name: str,
     top_candidate_review_hint: str,
     source_blocked: bool,
@@ -1230,6 +1231,8 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         if variable_candidate_count:
             summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+        if review_needed_count:
+            summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
         if top_candidate_name:
             summary_parts.append(f"top {top_candidate_name}")
             if top_candidate_review_hint:
@@ -1258,6 +1261,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     candidate_count = len(candidates)
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
+    review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
     readiness_phase = str(readiness.get("phase") or "")
     install_consistency = build_install_consistency_summary(install_provenance)
     install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
@@ -1525,6 +1529,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             candidate_count=candidate_count,
             fixed_candidate_count=fixed_candidate_count,
             variable_candidate_count=variable_candidate_count,
+            review_needed_count=review_needed_count,
             top_candidate_name=top_candidate_name,
             top_candidate_review_hint=top_candidate_review_hint,
             source_blocked=bool(missing_required_sources or runtime_source_attention),

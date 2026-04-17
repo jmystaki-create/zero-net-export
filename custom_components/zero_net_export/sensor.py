@@ -12,6 +12,7 @@ from .candidate_utils import (
     build_candidate_overview_summary,
     build_candidate_preview,
     build_candidate_review_hint,
+    candidate_needs_review,
     discover_candidate_devices,
 )
 from .const import DOMAIN, INTEGRATION_VERSION
@@ -362,6 +363,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             candidate_count = len(candidates)
             fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
             variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
+            review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
@@ -386,6 +388,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+                if review_needed_count:
+                    summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
@@ -404,6 +408,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+                if review_needed_count:
+                    summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
