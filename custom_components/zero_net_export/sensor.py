@@ -407,12 +407,6 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
             if source_blocked:
                 summary_parts.append("repair sources first")
-            summary_parts.extend(
-                [
-                    f"{counts['enabled_count']} enabled",
-                    f"{counts['usable_count']} usable",
-                ]
-            )
             if counts["blocked_count"]:
                 summary_parts.append(
                     f"blocked {first_blocked_name}" if first_blocked_name else f"{counts['blocked_count']} blocked"
@@ -421,6 +415,12 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(
                     f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
                 )
+            summary_parts.extend(
+                [
+                    f"{counts['enabled_count']} enabled",
+                    f"{counts['usable_count']} usable",
+                ]
+            )
             summary_parts.append(f"{counts['fixed_count']} fixed managed")
             if counts["variable_count"]:
                 summary_parts.append(f"{counts['variable_count']} variable managed")

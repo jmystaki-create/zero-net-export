@@ -211,7 +211,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(summary._attr_name, "Pool pump managed summary")
         self.assertEqual(
             managed_overview.native_value,
-            "1 managed | 1 enabled | 1 usable | plan Pool pump | 1 fixed managed",
+            "1 managed | plan Pool pump | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(managed_overview.extra_state_attributes["planned_count"], 1)
         self.assertEqual(managed_overview.extra_state_attributes["usable_count"], 1)
@@ -416,7 +416,11 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | 2 enabled | 1 usable | blocked Pool pump | plan Pool pump | 1 fixed managed | 1 variable managed | 1185 W nominal",
+            "2 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | blocked Pool pump | plan Pool pump | 2 enabled | 1 usable | 1 fixed managed | 1 variable managed | 1185 W nominal",
+        )
+        self.assertLess(
+            overview.native_value.index("blocked Pool pump"),
+            overview.native_value.index("2 enabled"),
         )
         self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
         self.assertEqual(overview.extra_state_attributes["first_active_plan_device"], "Pool pump")
