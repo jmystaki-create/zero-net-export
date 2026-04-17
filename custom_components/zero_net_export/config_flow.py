@@ -743,19 +743,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             runtime_bits.append("usable" if device.get("usable") else "not usable")
         if device.get("status"):
             runtime_bits.append(str(device.get("status")))
-        runtime_bits.append(f"power={_format_runtime_power_label(device.get('current_power_w'))}")
+        runtime_bits.append(f"power {_format_runtime_power_label(device.get('current_power_w'))}")
         if device.get("kind") == DEVICE_KIND_VARIABLE and device.get("current_target_power_w") is not None:
-            runtime_bits.append(f"target={_format_runtime_power_label(device.get('current_target_power_w'))}")
+            runtime_bits.append(f"target {_format_runtime_power_label(device.get('current_target_power_w'))}")
         if device.get("guard_status"):
-            runtime_bits.append(f"guard={device.get('guard_status')}")
+            runtime_bits.append(f"guard {device.get('guard_status')}")
         if device.get("planned_action"):
-            runtime_bits.append(f"plan={device.get('planned_action')}")
+            runtime_bits.append(f"action {device.get('planned_action')}")
         if device.get("last_action_status"):
-            runtime_bits.append(f"last={device.get('last_action_status')}")
+            runtime_bits.append(f"last {device.get('last_action_status')}")
         if operator_priority_override is not None:
-            runtime_bits.append(f"priority_override={int(operator_priority_override)}")
+            runtime_bits.append(f"priority override {int(operator_priority_override)}")
         if operator_enabled_override is not None:
-            runtime_bits.append(f"enabled_override={'on' if operator_enabled_override else 'off'}")
+            runtime_bits.append(f"enabled override {'on' if operator_enabled_override else 'off'}")
         runtime_summary = f" [{' | '.join(runtime_bits)}]" if runtime_bits else ""
         return (
             f"{device.get('name', 'Unnamed device')}{runtime_summary} "

@@ -102,21 +102,21 @@ def _format_device_review_line(detail: dict) -> str:
     ]
     priority = detail.get("priority")
     if priority is not None:
-        runtime_bits.append(f"priority={int(priority)}")
+        runtime_bits.append(f"priority {int(priority)}")
     operator_priority_override = detail.get("operator_priority_override")
     if operator_priority_override is not None:
-        runtime_bits.append(f"priority_override={int(operator_priority_override)}")
+        runtime_bits.append(f"priority override {int(operator_priority_override)}")
     operator_enabled_override = detail.get("operator_enabled_override")
     if operator_enabled_override is not None:
-        runtime_bits.append(f"enabled_override={'on' if operator_enabled_override else 'off'}")
-    runtime_bits.append(f"power={_format_power(detail.get('current_power_w'))}")
+        runtime_bits.append(f"enabled override {'on' if operator_enabled_override else 'off'}")
+    runtime_bits.append(f"power {_format_power(detail.get('current_power_w'))}")
     if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
-        runtime_bits.append(f"target={_format_power(detail.get('current_target_power_w'))}")
-    runtime_bits.append(f"guard={detail.get('guard_status') or 'unknown'}")
-    runtime_bits.append(f"plan={detail.get('planned_action') or 'hold'}")
+        runtime_bits.append(f"target {_format_power(detail.get('current_target_power_w'))}")
+    runtime_bits.append(f"guard {detail.get('guard_status') or 'unknown'}")
+    runtime_bits.append(f"action {detail.get('planned_action') or 'hold'}")
     last_action_status = str(detail.get("last_action_status") or "").strip()
     if last_action_status and last_action_status not in {"ok", "applied", "success"}:
-        runtime_bits.append(f"last={last_action_status}")
+        runtime_bits.append(f"last {last_action_status}")
     device_label = str(detail.get("name") or detail.get("entity_id") or "managed device")
     return f"- {device_label}: {' | '.join(runtime_bits)}"
 
