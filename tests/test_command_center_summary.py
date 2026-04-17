@@ -140,7 +140,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("planned actions 1", summary["control_outcome_summary"])
         self.assertIn("active load 1200.0 W", summary["control_outcome_summary"])
         self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("enabled 1", summary["fleet_activity_summary"])
         self.assertIn("usable 1", summary["fleet_activity_summary"])
+        self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
 
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
@@ -213,10 +215,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
+        self.assertIn("managed 1", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed candidates", summary["fleet_activity_summary"])
         self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
+        self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged ready", summary["device_status"])
 
     def test_command_center_summary_names_blocked_and_planned_devices_in_fleet_activity(self) -> None:
@@ -371,6 +375,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Mapped-source blockers: Grid export power is unavailable", summary["alert_summary"])
         self.assertIn("Managed-device configuration needs repair for 1 item(s).", summary["alert_summary"])
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
+        self.assertIn("repair sources first", summary["fleet_activity_summary"])
 
     def test_command_center_summary_promotes_install_provenance_blockers_to_top_alert_and_diagnostics(self) -> None:
         native_support = _load_native_support_module()

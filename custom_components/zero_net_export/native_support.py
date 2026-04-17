@@ -1176,6 +1176,62 @@ def _command_center_candidate_snapshot(coordinator: Any, state: Any) -> tuple[li
     return candidates, top_candidate_name
 
 
+def _build_command_center_fleet_activity_summary(
+    state: Any,
+    *,
+    candidate_count: int,
+    fixed_candidate_count: int,
+    variable_candidate_count: int,
+    top_candidate_name: str,
+    source_blocked: bool,
+) -> str:
+    managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
+    enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
+    usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
+    first_blocked_device_name = _first_runtime_device_name(
+        state,
+        predicate=lambda detail: detail.get("usable") is False,
+    )
+    blocked_device_count = (
+        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if detail.get("usable") is False)
+        if state is not None
+        else 0
+    )
+    blocked_activity_count = blocked_device_count or (
+        int(getattr(state, "blocked_planned_action_count", 0) or 0) if state is not None else 0
+    )
+    first_planned_device_name = _first_runtime_device_name(
+        state,
+        predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+    )
+
+    summary_parts: list[str] = [f"managed {managed_count}"]
+    if managed_count > 0:
+        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+    if source_blocked:
+        summary_parts.append("repair sources first")
+    if blocked_activity_count:
+        summary_parts.append(
+            f"blocked {first_blocked_device_name}"
+            if first_blocked_device_name
+            else f"blocked {blocked_activity_count}"
+        )
+    if first_planned_device_name:
+        summary_parts.append(f"plan {first_planned_device_name}")
+    if candidate_count:
+        summary_parts.append(f"{candidate_count} unmanaged")
+        if fixed_candidate_count:
+            summary_parts.append(f"{fixed_candidate_count} fixed candidates")
+        if variable_candidate_count:
+            summary_parts.append(f"{variable_candidate_count} variable candidates")
+        if top_candidate_name:
+            summary_parts.append(f"top {top_candidate_name}")
+    elif managed_count == 0:
+        summary_parts.append("no unmanaged candidates")
+
+    return " | ".join(summary_parts)
+
+
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     """Return the command-center summary shown in Configure and device surfaces."""
     state = getattr(coordinator, "data", None) if coordinator is not None else None
@@ -1358,23 +1414,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if source_attention_summary != "None"
         else "No mapped-source blockers currently highlighted"
     )
-    first_blocked_device_name = _first_runtime_device_name(
-        state,
-        predicate=lambda detail: detail.get("usable") is False,
-    )
-    blocked_device_count = sum(
-        1
-        for detail in (getattr(state, "device_details", {}) or {}).values()
-        if detail.get("usable") is False
-    ) if state is not None else 0
-    blocked_activity_count = blocked_device_count or (
-        int(getattr(state, "blocked_planned_action_count", 0) or 0) if state is not None else 0
-    )
-    first_planned_device_name = _first_runtime_device_name(
-        state,
-        predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
-    )
-
     top_alerts: list[str] = []
     if install_provenance_pending:
         top_alerts.append(f"Install provenance refresh still pending: {install_consistency}")
@@ -1472,28 +1511,14 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         fallback="Control outcome will appear here after runtime loads.",
     )
     fleet_activity_summary = _truncate_state_summary(
-        " | ".join(
-            part
-            for part in [
-                device_status,
-                f"{candidate_count} unmanaged" if candidate_count else None,
-                f"{fixed_candidate_count} fixed candidates" if fixed_candidate_count else None,
-                f"{variable_candidate_count} variable candidates" if variable_candidate_count else None,
-                f"top {top_candidate_name}" if top_candidate_name else None,
-                f"managed {getattr(state, 'device_count', None)}" if state is not None and getattr(state, 'device_count', None) is not None else None,
-                f"enabled {getattr(state, 'enabled_device_count', None)}" if state is not None and getattr(state, 'enabled_device_count', None) is not None else None,
-                f"usable {getattr(state, 'usable_device_count', None)}" if state is not None and getattr(state, 'usable_device_count', None) is not None else None,
-                (
-                    f"blocked {first_blocked_device_name}"
-                    if first_blocked_device_name
-                    else f"blocked {blocked_activity_count}"
-                )
-                if blocked_activity_count
-                else None,
-                f"plan {first_planned_device_name}" if first_planned_device_name else None,
-            ]
-            if part is not None
-        ) or device_status,
+        _build_command_center_fleet_activity_summary(
+            state,
+            candidate_count=candidate_count,
+            fixed_candidate_count=fixed_candidate_count,
+            variable_candidate_count=variable_candidate_count,
+            top_candidate_name=top_candidate_name,
+            source_blocked=bool(missing_required_sources or runtime_source_attention),
+        ),
         fallback=device_status,
     )
 
