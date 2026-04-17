@@ -426,6 +426,23 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Diagnostics: runtime health, install consistency, and troubleshooting guidance.", support_center)
         self.assertIn("Diagnostics snapshot", support_center)
 
+    def test_support_snapshot_uses_diagnostics_snapshot_wording(self) -> None:
+        native_support = _load_native_support_module()
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={},
+                options={},
+            )
+            data = None
+
+        snapshot = native_support.build_native_support_snapshot(_FakeCoordinator())
+        self.assertIn("Zero Net Export diagnostics snapshot", snapshot)
+        self.assertNotIn("Zero Net Export support snapshot", snapshot)
+
     def test_command_center_summary_uses_positive_source_blocker_copy_when_none_exist(self) -> None:
         native_support = _load_native_support_module()
 

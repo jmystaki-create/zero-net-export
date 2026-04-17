@@ -784,7 +784,7 @@ def build_detailed_management_handoff(
 
 
 def build_native_support_snapshot(coordinator: Any) -> str:
-    """Return the operator support snapshot for native HA surfaces."""
+    """Return the operator diagnostics snapshot for native HA surfaces."""
     state, configured_devices, device_parse_issues, operator_readiness = _build_support_sections(coordinator)
     command_center = build_native_command_center_summary(coordinator)
     release_info = build_release_info(INTEGRATION_VERSION, include_changelog=False)
@@ -859,7 +859,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
     ]
 
     sections = [
-        "Zero Net Export support snapshot",
+        "Zero Net Export diagnostics snapshot",
         f"Generated: {dt_util.now().isoformat()}",
         f"Entry title: {coordinator.entry.title}",
         f"Entry id: {coordinator.entry.entry_id}",
