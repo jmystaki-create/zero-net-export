@@ -689,6 +689,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 result["description_placeholders"]["unmanaged_snapshot"],
                 "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2",
             )
+            self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
+            self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
                 "AC Outlet 2 (switch.ac_outlet_2, fixed)",
@@ -861,6 +863,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 result["description_placeholders"]["unmanaged_snapshot"],
                 "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2",
             )
+            self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
+            self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
                 "AC Outlet 2 (switch.ac_outlet_2, fixed)",

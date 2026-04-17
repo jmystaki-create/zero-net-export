@@ -853,9 +853,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
 
     @staticmethod
-    def _unmanaged_snapshot_text(candidates: list[dict[str, Any]]) -> str:
+    def _candidate_mix_counts(candidates: list[dict[str, Any]]) -> tuple[int, int]:
         fixed_count = sum(1 for item in candidates if item.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for item in candidates if item.get("kind") == DEVICE_KIND_VARIABLE)
+        return fixed_count, variable_count
+
+    @classmethod
+    def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
+        fixed_count, variable_count = cls._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         top_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "none")
         return (
@@ -2145,6 +2150,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         all_candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(all_candidates)
         top_candidate = all_candidates[0] if all_candidates else None
         return self.async_show_form(
             step_id="device_pick_candidate",
@@ -2165,8 +2171,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], all_candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
-                "fixed_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_FIXED)),
-                "variable_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_VARIABLE)),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -2199,6 +2205,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         all_candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(all_candidates)
         top_candidate = all_candidates[0] if all_candidates else None
         candidate_path_summary = (
             "1. Pick a candidate from the shortlist or full list.\n"
@@ -2224,8 +2231,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], all_candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
-                "fixed_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_FIXED)),
-                "variable_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_VARIABLE)),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -2257,6 +2264,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         return self.async_show_form(
             step_id="device_vetting",
@@ -2267,6 +2275,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -2323,6 +2333,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         return self.async_show_form(
             step_id="device_template",
@@ -2343,6 +2354,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -2399,6 +2412,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             candidate_summary=self._pending_candidate_summary if not editing_key else None,
         )
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         if not editing_key and self._pending_candidate_entity_id:
             selected_candidate = next((item for item in candidates if item["entity_id"] == self._pending_candidate_entity_id), None)
@@ -2458,6 +2472,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -2485,6 +2501,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         enabled_keys = [device["key"] for device in devices if device.get("enabled", True)]
         if user_input is not None:
@@ -2521,6 +2538,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
                     if top_candidate
@@ -2535,6 +2554,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, issues = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         if user_input is not None:
             selected_key = user_input["device_key"]
             selected_device = next((device for device in devices if device.get("key") == selected_key), None)
@@ -2566,6 +2586,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{candidates[0]['name']} ({candidates[0]['entity_id']}, {candidates[0]['kind']})"
                     if candidates
@@ -2582,6 +2604,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, issues = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         if user_input is not None:
             remove_name = user_input["device_key"]
             removed_device = next((device for device in devices if device.get("key") == remove_name), None)
@@ -2608,6 +2631,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "fixed_candidate_count": str(fixed_candidate_count),
+                "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": (
                     f"{candidates[0]['name']} ({candidates[0]['entity_id']}, {candidates[0]['kind']})"
                     if candidates
