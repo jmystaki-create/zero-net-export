@@ -85,6 +85,9 @@ _NEGATIVE_NON_LOAD_KEYWORDS = (
     "treble",
     "balance",
     "audio delay",
+    "child lock",
+    "childlock",
+    "eco dry",
     "shellyproem",
 )
 
@@ -126,6 +129,7 @@ _EXCLUDED_VARIABLE_KEYWORDS = (
     "price fee",
     "price vat",
     "sell price",
+    "start in relative",
     "sub gain",
     "surround level",
     "tax percent",
@@ -139,6 +143,7 @@ _EXCLUDED_VARIABLE_ENTITY_ID_FRAGMENTS = (
     "_buy_price",
     "_dyn_price_",
     "_sell_price",
+    "_start_in_relative",
     "_sub_gain",
     "_surround_level",
     "_tax_percent",

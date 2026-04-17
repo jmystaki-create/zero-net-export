@@ -224,6 +224,7 @@ class CandidateUtilsTests(unittest.TestCase):
             SimpleNamespace(entity_id="number.living_room_treble", state="0", attributes={"friendly_name": "Living Room Treble"}),
             SimpleNamespace(entity_id="number.x1_p6k_us_s_battery_capacity", state="20000", attributes={"friendly_name": "X1 Battery capacity", "device_class": "energy_storage", "unit_of_measurement": "Wh"}),
             SimpleNamespace(entity_id="number.living_room_sub_gain_2", state="0", attributes={"friendly_name": "Living Room Sub gain"}),
+            SimpleNamespace(entity_id="number.dishwasher_start_in_relative", state="0", attributes={"friendly_name": "Dishwasher Start in relative", "unit_of_measurement": "h"}),
         ]
 
         candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
@@ -240,6 +241,8 @@ class CandidateUtilsTests(unittest.TestCase):
             SimpleNamespace(entity_id="switch.lounge_room_streamer", state="off", attributes={"friendly_name": "Lounge Room Streamer"}),
             SimpleNamespace(entity_id="switch.shellyproem50_a0dd6ca0970c_switch_0", state="off", attributes={"friendly_name": "shellyproem50-a0dd6ca0970c"}),
             SimpleNamespace(entity_id="switch.living_room_none", state="off", attributes={"friendly_name": "Living Room Power"}),
+            SimpleNamespace(entity_id="switch.dishwasher_childlock", state="off", attributes={"friendly_name": "Dishwasher Child lock"}),
+            SimpleNamespace(entity_id="switch.dishwasher_eco_dry", state="off", attributes={"friendly_name": "Dishwasher Eco dry"}),
         ]
 
         candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
