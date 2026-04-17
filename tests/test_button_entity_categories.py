@@ -607,7 +607,17 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             ),
         )
         button = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
-        button.hass = SimpleNamespace()
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    )
+                ]
+            )
+        )
 
         import asyncio
         asyncio.run(button.async_press())
@@ -617,6 +627,12 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
         self.assertIn("Managed Devices path: devices path", message)
+        self.assertIn("Recommended next step: Review the next managed device.", message)
+        self.assertIn("Before fleet work:", message)
+        self.assertIn("Managed devices workspace context:", message)
+        self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump", message)
+        self.assertIn("- Unmanaged snapshot: 1 candidate(s) | top candidate Hot water (fixed)", message)
+        self.assertIn("- Top unmanaged candidate right now: Hot water (switch.hot_water, fixed)", message)
         self.assertIn("Device: Pool pump", message)
         self.assertIn("Entity: switch.pool_pump", message)
         self.assertIn("Guard state: ready", message)
@@ -625,7 +641,50 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Planned power delta: 1200 W", message)
         self.assertIn("- Priority override: 75", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
-        self.assertIn("Use devices path to edit enablement, priority, or power limits.", message)
+        self.assertIn("Return to devices path as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
+
+    def test_managed_device_detail_button_exposes_workspace_context_attributes(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "kind": "fixed",
+                        "usable": False,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Blocked",
+                        "guard_status": "source blocked",
+                        "planned_action": "hold",
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    )
+                ]
+            )
+        )
+
+        attrs = button.extra_state_attributes
+
+        self.assertEqual(attrs["recommended_section"], "Sensors")
+        self.assertEqual(attrs["recommended_path"], "sources path")
+        self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
+        self.assertIn("Before fleet work:", attrs["blocker_first"])
+        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | blocked Pool pump | 0 planned action(s)")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate(s) | top candidate Hot water (fixed)")
+        self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
 
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
         notification_calls: list[dict] = []

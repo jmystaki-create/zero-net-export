@@ -214,13 +214,33 @@ def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict
     return lines
 
 
-def _build_managed_device_detail_lines(detail: dict) -> list[str]:
+def _build_managed_device_detail_lines(
+    detail: dict,
+    *,
+    command_center: dict,
+    managed_snapshot: str,
+    unmanaged_snapshot: str,
+    top_candidate: dict | None,
+) -> list[str]:
     entity_id = str(detail.get("entity_id") or "unknown entity")
+    blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
     lines = [
         "Zero Net Export managed-device detail review",
         "",
         f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
         f"Detailed device-view path: {DETAILED_MANAGEMENT_PATH}",
+        f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
+        *(["", *blocker_first_lines] if blocker_first_lines else []),
+        "",
+        "Managed devices workspace context:",
+        f"- Managed snapshot: {managed_snapshot}",
+        f"- Unmanaged snapshot: {unmanaged_snapshot}",
+        (
+            f"- Top unmanaged candidate right now: {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+            if top_candidate
+            else "- Top unmanaged candidate right now: none"
+        ),
+        "",
         f"Device: {detail.get('name') or entity_id}",
         f"Entity: {entity_id}",
         f"Kind: {detail.get('kind') or 'unknown'}",
@@ -258,7 +278,7 @@ def _build_managed_device_detail_lines(detail: dict) -> list[str]:
         f"- Failure count: {int(detail.get('failed_action_count') or 0)}",
         "",
         "Next native actions:",
-        f"- Use {DEVICES_CONFIGURE_PATH} to edit enablement, priority, or power limits.",
+        f"- Return to {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace for edits, enablement, promotion, or removal.",
         f"- Use {entity_id} sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]
@@ -560,17 +580,60 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
     @property
     def extra_state_attributes(self):
         detail = self._detail()
+        state = self._state
+        managed = list((state.device_details or {}).values()) if state is not None else []
+        ordered = sorted(managed, key=_device_runtime_sort_key)
+        managed_ids = {str(item.get("entity_id")) for item in managed if item.get("entity_id")}
+        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids) if self.hass else []
+        top_candidate = candidates[0] if candidates else None
+        command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
+            "recommended_section": command_center.get("recommended_section"),
+            "recommended_path": command_center.get("recommended_path"),
+            "recommended_reason": command_center.get("recommended_reason"),
+            "blocker_first": "\n".join(_managed_devices_blocker_first_lines(command_center)),
+            "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
+            "unmanaged_snapshot": (
+                f"{len(candidates)} candidate(s)"
+                + (
+                    f" | top candidate {top_candidate['name']} ({top_candidate['kind']})"
+                    if top_candidate
+                    else ""
+                )
+            ),
+            "top_unmanaged_candidate": top_candidate,
             **detail,
         }
 
     async def async_press(self) -> None:
         detail = self._detail()
+        state = self._state
+        managed = list((state.device_details or {}).values()) if state is not None else []
+        ordered = sorted(managed, key=_device_runtime_sort_key)
+        managed_ids = {str(item.get("entity_id")) for item in managed if item.get("entity_id")}
+        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids) if self.hass else []
+        top_candidate = candidates[0] if candidates else None
+        command_center = build_native_command_center_summary(self.coordinator)
         persistent_notification.async_create(
             self.hass,
-            "\n".join(_build_managed_device_detail_lines(detail)),
+            "\n".join(
+                _build_managed_device_detail_lines(
+                    detail,
+                    command_center=command_center,
+                    managed_snapshot=_managed_snapshot_summary(ordered, include_planned_count=True),
+                    unmanaged_snapshot=(
+                        f"{len(candidates)} candidate(s)"
+                        + (
+                            f" | top candidate {top_candidate['name']} ({top_candidate['kind']})"
+                            if top_candidate
+                            else ""
+                        )
+                    ),
+                    top_candidate=top_candidate,
+                )
+            ),
             title=f"{self.coordinator.entry.title}: review {detail.get('name') or self._device_key}",
             notification_id=_managed_device_detail_notification_id(self.coordinator.entry.entry_id, self._device_key),
         )
