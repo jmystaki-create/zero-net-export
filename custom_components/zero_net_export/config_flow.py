@@ -1145,7 +1145,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         disabled_count = managed_count - enabled_count
         kind_label = "fixed load" if str((device or previous_device or {}).get("kind")) == DEVICE_KIND_FIXED else "variable load"
         current_name = str((device or {}).get("name") or (previous_device or {}).get("name") or "Managed device")
-        current_entity_id = str((device or {}).get("entity_id") or (previous_device or {}).get("entity_id") or "")
         blocker_summary = self._device_blocker_summary()
         blocker_lines = [line.strip() for line in blocker_summary.splitlines() if line.strip()]
         blocker_active = any(line.startswith("Before fleet work:") for line in blocker_lines)
@@ -1161,21 +1160,21 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         if action == "promote" and device is not None:
             title = "managed-device promotion saved"
-            changed = f"Promoted {current_name} ({current_entity_id}) into Managed Devices as a {kind_label}."
+            changed = f"Promoted {current_name} into Managed Devices as a {kind_label}."
             next_step = (
                 f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the fleet snapshot, then use {DETAILED_MANAGEMENT_PATH} "
                 "for per-device runtime review, guards, and reset actions."
             )
         elif action == "edit" and device is not None:
             title = "managed-device update saved"
-            changed = f"Updated {current_name} ({current_entity_id}) in Managed Devices."
+            changed = f"Updated {current_name} in Managed Devices."
             next_step = (
                 f"Next step: reopen {DEVICES_CONFIGURE_PATH} if more fleet tuning is needed, then use {DETAILED_MANAGEMENT_PATH} "
                 "only if you need deeper per-device runtime review after that main fleet step."
             )
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
-            changed = f"Removed {current_name} ({current_entity_id}) from Managed Devices."
+            changed = f"Removed {current_name} from Managed Devices."
             next_step = (
                 f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the remaining fleet and promote the next unmanaged candidate if needed."
             )
@@ -2010,13 +2009,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "Repair the managed-device issues first, then return here to review enablement or add another load."
         if not devices and top_candidate:
             return (
-                f"Start with {top_candidate['name']} ({top_candidate['entity_id']}) by choosing the matching add action below, then review the candidate and save it into the fleet."
+                f"Start with {self._top_candidate_focus_text(top_candidate)} by choosing the matching add action below, then review the candidate and save it into the fleet."
             )
         if not devices:
             return "Choose Add fixed load device or Add variable load device to tag the first controllable load into the fleet."
         if top_candidate:
             return (
-                f"Review the current fleet, then consider promoting the next unmanaged candidate: {top_candidate['name']} ({top_candidate['entity_id']})."
+                f"Review the current fleet, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(top_candidate)}."
             )
         return "Use Review fleet to stage enablement, or edit an existing device if the current fleet still needs tuning."
 

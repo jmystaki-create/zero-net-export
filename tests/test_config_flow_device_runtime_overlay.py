@@ -907,7 +907,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertEqual(feedback["title"], "managed-device promotion saved")
-        self.assertIn("Promoted Pool pump (switch.pool_pump) into Managed Devices as a fixed load.", feedback["message"])
+        self.assertIn("Promoted Pool pump into Managed Devices as a fixed load.", feedback["message"])
+        self.assertNotIn("switch.pool_pump", feedback["message"])
         self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | blocked first: none | next plan: none", feedback["message"])
         self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2", feedback["message"])
         self.assertIn("Managed Devices path: devices path", feedback["message"])
@@ -953,6 +954,21 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("- Before fleet work: Open sources path and finish the required source mapping.", feedback["message"])
         self.assertIn("- Why: Missing required source roles.", feedback["message"])
         self.assertIn("Next step: Open sources path and finish the required source mapping.", feedback["message"])
+
+    def test_device_next_step_uses_candidate_preview_without_raw_entity_id(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": None}})
+        flow._top_candidate_focus_text = lambda candidate: "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings"
+
+        next_step = flow._device_next_step(
+            devices=[],
+            issues=[],
+            candidates=[{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": module.DEVICE_KIND_FIXED}],
+        )
+
+        self.assertIn("Start with AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings", next_step)
+        self.assertNotIn("switch.ac_outlet_2", next_step)
 
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
         module = _load_config_flow_module()
