@@ -212,7 +212,7 @@ This is the current highest-value path because native onboarding is now the only
 ## Optional Lovelace / Native Surface Validation
 
 - [ ] Configure opens and saves without any custom panel, sidebar, or external UI handoff
-- [ ] Configure clearly communicates where sources, policy, managed devices, and support actions live
+- [ ] Configure clearly communicates where sources, policy, managed devices, and diagnostics actions live
 - [ ] Device-page diagnostic buttons create the expected native notifications
 - [ ] Lovelace YAML imports without errors
 - [ ] All entity IDs resolve to real entities

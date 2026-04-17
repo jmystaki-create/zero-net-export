@@ -64,7 +64,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Clear native section ownership is now a product goal**: Controls should hold the Zero Net Export brain, Sensors should hold mapped/system telemetry, Managed Devices should hold fleet operations, and Diagnostics should hold troubleshooting/support.
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, unmanaged-candidate discovery plus promotion review, and a fleet-review enable/disable step for staging larger installs without dropping into raw JSON.
 - **Native Home Assistant operator surfaces**: Configure, the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, entities, notifications, and Repairs are the supported operator path.
-- **Native support actions**: device-page diagnostic buttons can raise a combined support center, a setup checklist, and a detailed support snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
+- **Native diagnostics actions**: device-page diagnostic buttons can raise a diagnostics guide, a setup checklist, and a detailed diagnostics snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
 - **Native Repairs guidance**: Home Assistant's Repairs surface now flags incomplete setup, invalid managed-device configuration, and runtime attention states with actionable next steps.
 
 ---
@@ -119,7 +119,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 - The initial add-integration flow remains bootstrap-only, and the normal post-install path is **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
 - Managed devices are still persisted internally as structured inventory JSON, but **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure** now hides most of that behind add/edit/remove forms for fixed and variable devices.
-- The integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device** exposes native support actions, **Show support center**, **Show native diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
+- The integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device** exposes native diagnostics actions, **Review diagnostics**, **Review diagnostics snapshot**, and **Show setup checklist**, so operators can surface troubleshooting state from normal Home Assistant device views or trigger the same actions from Scripts.
 - Home Assistant **Repairs** now mirrors the most important setup/runtime blockers, which gives operators one more built-in native surface for triage without hunting through multiple entity sections first.
 
 ---
@@ -193,7 +193,7 @@ The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md
 - [x] Keep source mapping, managed devices, and controller tuning available from native Home Assistant surfaces
 - [x] Reduce normal managed-device onboarding JSON leakage by adding native add/edit/remove device flows while keeping JSON as an advanced recovery path
 - [x] Publish native readiness guidance so operators can see the current setup phase, blockers, and highest-value next step from Home Assistant notifications and diagnostics
-- [x] Publish a native support center and support snapshot so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
+- [x] Publish native diagnostics guide and diagnostics snapshot actions so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
 - [x] Remove the custom panel route and related launcher/frontend code from the shipped integration
 - [ ] Real-world validation of the rebuilt operator flow
 - [ ] Final install/runtime hardening based on real HA feedback
