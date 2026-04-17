@@ -828,6 +828,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             detail = {
                 "key": spec.key,
                 "entity_id": binding.entity_id,
+                "friendly_name": str(getattr(state, "name", None) or state.attributes.get("friendly_name") or "").strip() or None,
                 "binding": spec.entity_id,
                 "required": spec.required,
                 "stale_blocks_runtime": self._stale_source_blocks_runtime(spec),

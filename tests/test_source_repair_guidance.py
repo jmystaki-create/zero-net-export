@@ -78,13 +78,13 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             unavailable_source_keys=["solar_power_entity"],
             stale_source_keys=["grid_export_power_entity"],
             affected_roles=(
-                "Solar power -> sensor.pv_power (unavailable); "
-                "Grid export power -> sensor.grid_export (stale 245 s)"
+                "Solar power -> Pv Power (unavailable); "
+                "Grid export power -> Grid Export (stale 245 s)"
             ),
         )
         self.assertIn("repair these mapped-source blockers first", guidance)
-        self.assertIn("Solar power -> sensor.pv_power (unavailable)", guidance)
-        self.assertIn("Grid export power -> sensor.grid_export (stale 245 s)", guidance)
+        self.assertIn("Solar power -> Pv Power (unavailable)", guidance)
+        self.assertIn("Grid export power -> Grid Export (stale 245 s)", guidance)
         self.assertIn("make sure the mapped entities still exist and are reporting fresh numeric values", guidance)
         self.assertIn("restore live availability for Solar power", guidance)
         self.assertIn("refresh or replace stale readings for Grid export power", guidance)
@@ -136,7 +136,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             state,
             {"solar_power_entity": "sensor.pv_power"},
         )
-        self.assertIn("Solar power (sensor.pv_power, unavailable)", summary)
+        self.assertIn("Solar power (Pv Power, unavailable)", summary)
         self.assertNotIn("stale 245 s", summary)
 
     def test_repair_step_without_affected_role_summary_still_names_roles_in_recovery_check(self) -> None:
@@ -180,13 +180,13 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             state,
             {"grid_import_power_entity": "sensor.grid_import"},
         )
-        self.assertIn("Grid import power (sensor.grid_import, stale 245 s)", summary)
+        self.assertIn("Grid import power (Grid Import, stale 245 s)", summary)
 
         role_summary = native_support.build_source_attention_role_summary(
             state,
             {"grid_import_power_entity": "sensor.grid_import"},
         )
-        self.assertIn("Grid import power -> sensor.grid_import (stale 245 s)", role_summary)
+        self.assertIn("Grid import power -> Grid Import (stale 245 s)", role_summary)
 
     def test_energy_sources_respect_extended_stale_threshold_in_attention_details(self) -> None:
         native_support = _load_native_support_module()
@@ -250,10 +250,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             state,
             {"battery_soc_entity": "sensor.battery_soc"},
         )
-        self.assertIn("Battery state of charge -> sensor.battery_soc", summary)
+        self.assertIn("Battery state of charge -> Battery Soc", summary)
         self.assertIn("is not numeric", summary)
         self.assertIn(
-            "Battery state of charge (sensor.battery_soc, Battery state of charge entity sensor.battery_soc is not numeric)",
+            "Battery state of charge (Battery Soc, Battery state of charge entity sensor.battery_soc is not numeric)",
             concise,
         )
 
@@ -280,7 +280,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         native_support = _load_native_support_module()
         recommendation = native_support.build_native_setup_recommendation(
             missing_source_keys=["solar_power_entity"],
-            source_attention_roles="Solar power -> sensor.pv_power (unavailable)",
+            source_attention_roles="Solar power -> Pv Power (unavailable)",
             device_issues=[],
             has_devices=False,
             readiness_phase="operator_setup",
@@ -320,8 +320,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "source_mapping_summary": "Solar power -> sensor.pv_power",
                 "unavailable_sources": "Solar power",
                 "stale_sources": "Grid export power",
-                "source_attention_summary": "Solar power (sensor.pv_power, unavailable)",
-                "source_attention_roles": "Solar power -> sensor.pv_power (unavailable)",
+                "source_attention_summary": "Solar power (Pv Power, unavailable)",
+                "source_attention_roles": "Solar power -> Pv Power (unavailable)",
                 "device_status": "No managed devices configured yet",
                 "device_next_step": "Add a controllable load.",
                 "policy_status": "Mode Automatic",
@@ -347,7 +347,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Setup check", guide)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", guide)
         self.assertIn("- Runtime health: Runtime attention remains.", guide)
-        self.assertIn("- Source blockers: Solar power (sensor.pv_power, unavailable)", guide)
+        self.assertIn("- Source blockers: Solar power (Pv Power, unavailable)", guide)
         self.assertIn("Basic setup paths", guide)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", guide)
@@ -759,11 +759,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         support_center = native_support.build_native_support_center(_FakeCoordinator())
         self.assertIn(
-            "Current mapped-source blockers: Solar power (sensor.pv_power, unavailable)",
+            "Current mapped-source blockers: Solar power (Pv Power, unavailable)",
             support_center,
         )
         self.assertIn(
-            "Affected mapped roles: Solar power -> sensor.pv_power (unavailable; Solar power entity sensor.pv_power is unavailable)",
+            "Affected mapped roles: Solar power -> Pv Power (unavailable; Solar power entity sensor.pv_power is unavailable)",
             support_center,
         )
         self.assertIn("Unavailable mapped roles: Solar power", support_center)

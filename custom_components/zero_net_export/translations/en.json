@@ -24,7 +24,7 @@
     },
     "runtime_attention": {
       "title": "Zero Net Export runtime blockers",
-      "description": "Zero Net Export is running, but control is still constrained by one or more active blockers.\n\nNow\n• Health: {health_summary}\n• Reasons: {reason_summary}\n• Installed package: {install_status}\n• Install consistency: {install_consistency}\n\nMapped-source blockers\n• Unavailable roles: {unavailable_sources}\n• Stale roles: {stale_sources}\n• Affected roles and entities: {source_attention_roles}\n• Blocking validation details: {blocking_validation_details}\n\nDo next\n• Mapped-source repair path: {source_repair_step}\n• Next step: {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n• {fallback_hint}\n\nOpen\n• Configure: {configure_path}\n• Diagnostics: {support_path}"
+      "description": "Zero Net Export is running, but control is still constrained by one or more active blockers.\n\nNow\n• Health: {health_summary}\n• Reasons: {reason_summary}\n• Installed package: {install_status}\n• Install consistency: {install_consistency}\n\nMapped-source blockers\n• Unavailable roles: {unavailable_sources}\n• Stale roles: {stale_sources}\n• Affected mapped sources: {source_attention_roles}\n• Blocking validation details: {blocking_validation_details}\n\nDo next\n• Mapped-source repair path: {source_repair_step}\n• Next step: {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n• {fallback_hint}\n\nOpen\n• Configure: {configure_path}\n• Diagnostics: {support_path}"
     }
   },
   "options": {

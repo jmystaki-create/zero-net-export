@@ -102,8 +102,8 @@ class SourceAttentionBriefTests(unittest.TestCase):
             limit=3,
         )
 
-        self.assertIn("Grid import power: sensor.grid_import_power (unavailable)", summary)
-        self.assertIn("Solar power: sensor.solar_power (stale)", summary)
+        self.assertIn("Grid import power (unavailable)", summary)
+        self.assertIn("Solar power (stale)", summary)
 
 
 if __name__ == "__main__":

@@ -211,6 +211,38 @@ def _validation_issue_message_for_role(source_attention: dict[str, Any], key: st
     return ""
 
 
+def _looks_like_entity_id(value: str) -> bool:
+    domain, separator, object_id = value.partition(".")
+    return bool(separator and domain and object_id and " " not in value)
+
+
+
+def _humanize_entity_id(value: str) -> str:
+    _, _, object_id = value.partition(".")
+    text = (object_id or value).replace("_", " ").strip()
+    return text.title() if text else value
+
+
+
+def _source_attention_target_label(key: str, details: dict[str, Any], configured_label: str | None) -> str:
+    role_label = str(SOURCE_ROLE_LABELS.get(key, key) or "").strip().lower()
+    for raw_label in (
+        details.get("friendly_name"),
+        configured_label,
+        details.get("entity_id"),
+    ):
+        label = str(raw_label or "").strip()
+        if not label:
+            continue
+        if _looks_like_entity_id(label):
+            label = _humanize_entity_id(label)
+        if label.strip().lower() == role_label:
+            continue
+        return label
+    return ""
+
+
+
 def build_source_attention_role_summary(
     state: Any,
     config: dict[str, Any] | None = None,
@@ -218,7 +250,7 @@ def build_source_attention_role_summary(
     limit: int = 6,
     blocking_only: bool = False,
 ) -> str:
-    """Return concise role -> entity guidance for unavailable or stale mapped sources."""
+    """Return concise operator-facing guidance for unavailable or stale mapped sources."""
     source_attention = build_source_attention_details(state)
     source_diagnostics = source_attention["source_diagnostics"]
     configured = config or {}
@@ -232,7 +264,7 @@ def build_source_attention_role_summary(
     for key in attention_keys[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
-        entity_label = str(details.get("entity_id") or configured_label or "not resolved")
+        target_label = _source_attention_target_label(key, details, configured_label)
 
         markers: list[str] = []
         is_unavailable = details.get("status") == "unavailable"
@@ -253,7 +285,12 @@ def build_source_attention_role_summary(
                 markers.append(validation_message)
 
         marker_text = "; ".join(markers) if markers else "needs attention"
-        details_lines.append(f"{SOURCE_ROLE_LABELS.get(key, key)} -> {entity_label} ({marker_text})")
+        role_label = SOURCE_ROLE_LABELS.get(key, key)
+        details_lines.append(
+            f"{role_label} -> {target_label} ({marker_text})"
+            if target_label
+            else f"{role_label} ({marker_text})"
+        )
 
     return "; ".join(details_lines) if details_lines else "None"
 
@@ -282,7 +319,7 @@ def build_source_attention_summary(
     for key in attention_keys[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
-        entity_label = str(details.get("entity_id") or configured_label or "not resolved")
+        target_label = _source_attention_target_label(key, details, configured_label)
         status_bits: list[str] = []
         is_unavailable = details.get("status") == "unavailable"
         if is_unavailable:
@@ -295,7 +332,13 @@ def build_source_attention_summary(
             status_bits.append(validation_message)
         if not status_bits:
             status_bits.append("needs attention")
-        parts.append(f"{SOURCE_ROLE_LABELS.get(key, key)} ({entity_label}, {', '.join(status_bits)})")
+        role_label = SOURCE_ROLE_LABELS.get(key, key)
+        status_text = ", ".join(status_bits)
+        parts.append(
+            f"{role_label} ({target_label}, {status_text})"
+            if target_label
+            else f"{role_label} ({status_text})"
+        )
 
     remaining = len(attention_keys) - len(parts)
     if remaining > 0:
@@ -327,7 +370,7 @@ def build_source_attention_brief(
     for key in attention_keys[:limit]:
         details = source_diagnostics.get(key, {})
         configured_label = format_source_binding_label(configured.get(key)) if configured.get(key) else None
-        entity_label = str(details.get("entity_id") or configured_label or "not resolved")
+        target_label = _source_attention_target_label(key, details, configured_label)
         status_bits: list[str] = []
         is_unavailable = details.get("status") == "unavailable"
         if is_unavailable:
@@ -338,7 +381,12 @@ def build_source_attention_brief(
         if validation_message:
             status_bits.append(validation_message)
         marker = ", ".join(status_bits) if status_bits else "needs attention"
-        parts.append(f"{SOURCE_ROLE_LABELS.get(key, key)}: {entity_label} ({marker})")
+        role_label = SOURCE_ROLE_LABELS.get(key, key)
+        parts.append(
+            f"{role_label} ({target_label}, {marker})"
+            if target_label
+            else f"{role_label} ({marker})"
+        )
 
     remaining = len(attention_keys) - len(parts)
     if remaining > 0:
