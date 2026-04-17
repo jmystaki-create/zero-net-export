@@ -140,10 +140,10 @@ views:
                 name: Stale source summary
               - entity: sensor.zero_net_export_last_reconciliation_error
                 name: Reconciliation error
-              - entity: button.zero_net_export_show_support_center
-                name: Show support center
-              - entity: button.zero_net_export_show_native_diagnostics_snapshot
-                name: Show diagnostics snapshot
+              - entity: button.zero_net_export_show_native_support_center
+                name: Review diagnostics
+              - entity: button.zero_net_export_show_native_diagnostics
+                name: Review diagnostics snapshot
               - entity: button.zero_net_export_show_setup_checklist
                 name: Show setup checklist
 

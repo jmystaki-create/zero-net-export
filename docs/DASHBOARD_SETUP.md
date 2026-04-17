@@ -6,7 +6,7 @@ This project includes an optional Lovelace dashboard scaffold at:
 
 It is intentionally plain Lovelace YAML, not a custom frontend. It lives fully inside Home Assistant and is supplementary debug visibility for operators who want to see controller, battery, grid, and managed-load state in one place.
 
-This dashboard complements, rather than replaces, the integration's native Configure, Repairs, device-page entities, and support buttons. It is not part of the supported operator path.
+This dashboard complements, rather than replaces, the integration's native Configure, Repairs, device-page entities, and Diagnostics actions. It is not part of the supported operator path.
 
 ## What this scaffold covers
 
@@ -14,9 +14,9 @@ The dashboard is structured as optional debug visibility around the native opera
 
 1. **Live power picture** — solar, home load, grid import/export, battery SOC, controlled load, surplus, export error
 2. **Controller intent and overrides** — enable switch, mode, target export, deadband, battery reserve, override visibility, and controller reasoning
-3. **Health, guards, and support** — safe mode, source mismatch, stale data, command failure, reserve gating, health summary, and native support buttons
+3. **Health, guards, and diagnostics** — safe mode, source mismatch, stale data, command failure, reserve gating, health summary, and native Diagnostics actions
 4. **Source-level diagnostics** — mapped source status, readings, age, and staleness
-5. **Fleet and planning summary** — configured/usable devices and current planned vs blocked control state
+5. **Fleet and planning summary** — managed/usable devices and current planned vs blocked control state
 6. **Action and failure timeline** — last action, last success, recent failure, and cycle totals
 7. **Daily impact** — daily action counts and redirected-energy estimate
 8. **Managed-load card template** — how to add one serious per-device control card per configured load using the existing per-device entities
