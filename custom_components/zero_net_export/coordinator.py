@@ -825,10 +825,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             )
             age_seconds = max((now - effective_last_updated).total_seconds(), 0.0) if effective_last_updated else None
             stale = bool(age_seconds is not None and age_seconds > threshold_seconds)
+            attributes = getattr(state, "attributes", None) or {}
             detail = {
                 "key": spec.key,
                 "entity_id": binding.entity_id,
-                "friendly_name": str(getattr(state, "name", None) or state.attributes.get("friendly_name") or "").strip() or None,
+                "friendly_name": str(getattr(state, "name", None) or attributes.get("friendly_name") or "").strip() or None,
                 "binding": spec.entity_id,
                 "required": spec.required,
                 "stale_blocks_runtime": self._stale_source_blocks_runtime(spec),
