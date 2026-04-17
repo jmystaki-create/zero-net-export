@@ -201,9 +201,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path.", handoff)
+        self.assertIn("- Open devices path as the primary Managed Devices workspace.", handoff)
         self.assertIn("- Choose Add fixed load device.", handoff)
         self.assertIn("- In Pick unmanaged candidate, select switch.hot_water.", handoff)
+        self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
 
     def test_primary_operator_buttons_stay_out_of_diagnostics(self) -> None:
         button_module = _load_button_module()
@@ -315,6 +316,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Open sources path first.", message)
         self.assertIn("- Why: Mapped source blockers remain.", message)
         self.assertIn("- Next fleet step after repair: Review the next managed device.", message)
+        self.assertIn("- Then reopen devices path for Managed Devices.", message)
+        self.assertIn("- Use detailed device path only for deeper per-device review after the main fleet step is clear.", message)
 
     def test_managed_device_review_button_renders_runtime_fleet_summary(self) -> None:
         notification_calls: list[dict] = []
@@ -394,6 +397,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Return after blocker repair:", message)
         self.assertIn("- Open sources path first.", message)
         self.assertIn("- Why: Mapped source blockers remain.", message)
+        self.assertIn("- Then reopen devices path for Managed Devices.", message)
+        self.assertIn("- Use detailed device path only for deeper per-device review after the main fleet step is clear.", message)
 
     def test_managed_device_review_button_exposes_unmanaged_candidate_attributes(self) -> None:
         button_module = _load_button_module()

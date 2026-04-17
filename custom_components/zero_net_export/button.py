@@ -189,6 +189,8 @@ def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict
             lines.append(f"- Why: {recommended_reason}")
         if next_step:
             lines.append(f"- Next fleet step after repair: {next_step}")
+        lines.append(f"- Then reopen {DEVICES_CONFIGURE_PATH} for Managed Devices.")
+        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for deeper per-device review after the main fleet step is clear.")
         return lines
 
     lines = ["Promotion handoff:"]
@@ -196,10 +198,11 @@ def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict
         top_add_label = "fixed load device" if top_candidate["kind"] == "fixed" else "variable load device"
         lines.extend(
             [
-                f"- Open {DEVICES_CONFIGURE_PATH}.",
+                f"- Open {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace.",
                 f"- Choose Add {top_add_label}.",
                 f"- In Pick unmanaged candidate, select {top_candidate['entity_id']}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
+                f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
             ]
         )
     else:
