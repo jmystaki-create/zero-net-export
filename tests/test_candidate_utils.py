@@ -423,7 +423,7 @@ class CandidateUtilsTests(unittest.TestCase):
             }
         )
 
-        self.assertIn("plausible match", preview)
+        self.assertIn("review first", preview)
         self.assertIn("input_number.lounge_room_heated_floor", preview)
         self.assertIn("input_number helper", preview)
 
@@ -442,7 +442,7 @@ class CandidateUtilsTests(unittest.TestCase):
             }
         )
 
-        self.assertIn("plausible match", preview)
+        self.assertIn("review first", preview)
         self.assertIn("generic power/circuit wording", preview)
 
     def test_build_candidate_name_summary_stays_compact_for_sensor_states(self) -> None:
@@ -458,8 +458,8 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_name_summary(candidates)
 
-        self.assertIn("AC Outlet 2 (fixed | plausible match | generic outlet label)", summary)
-        self.assertIn("AdGuard Home Filtering (fixed | plausible match | service-style label)", summary)
+        self.assertIn("AC Outlet 2 (fixed | review first | generic outlet label)", summary)
+        self.assertIn("AdGuard Home Filtering (fixed | review first | service-style label)", summary)
         self.assertIn("+2 more", summary)
         self.assertLessEqual(len(summary), 240)
 
@@ -482,7 +482,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Lounge Room Heated Floor (variable | plausible match | helper-backed)",
+            "Lounge Room Heated Floor (variable | review first | helper-backed)",
         )
 
     def test_build_candidate_fit_summary_carries_warning_hints(self) -> None:
@@ -527,7 +527,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_overview_summary(candidates)
 
-        self.assertIn("4 candidates | 3 fixed candidates | 1 variable candidate | top AC Outlet 2 | plausible match", summary)
+        self.assertIn("4 candidates | 3 fixed candidates | 1 variable candidate | top AC Outlet 2 | review first", summary)
         self.assertIn("generic outlet hardware", summary)
         self.assertLessEqual(len(summary), 240)
 

@@ -12,6 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "custom_components" / "zero_net_export"
 NATIVE_SUPPORT_PATH = PACKAGE_ROOT / "native_support.py"
 CONST_PATH = PACKAGE_ROOT / "const.py"
+CANDIDATE_UTILS_PATH = PACKAGE_ROOT / "candidate_utils.py"
 
 
 def _load_native_support_module():
@@ -58,6 +59,15 @@ def _load_native_support_module():
     validation_module.SourceSpec = object
     validation_module.format_source_binding_label = lambda *args, **kwargs: "label"
     sys.modules[validation_module.__name__] = validation_module
+
+    candidate_utils_spec = importlib.util.spec_from_file_location(
+        "custom_components.zero_net_export.candidate_utils",
+        CANDIDATE_UTILS_PATH,
+    )
+    assert candidate_utils_spec and candidate_utils_spec.loader
+    candidate_utils_module = importlib.util.module_from_spec(candidate_utils_spec)
+    sys.modules[candidate_utils_spec.name] = candidate_utils_module
+    candidate_utils_spec.loader.exec_module(candidate_utils_module)
 
     spec = importlib.util.spec_from_file_location(
         "custom_components.zero_net_export.native_support",
@@ -219,7 +229,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed candidate", summary["fleet_activity_summary"])
         self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
-        self.assertIn("plausible match", summary["fleet_activity_summary"])
+        self.assertIn("review first", summary["fleet_activity_summary"])
         self.assertIn("generic outlet hardware", summary["fleet_activity_summary"])
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])

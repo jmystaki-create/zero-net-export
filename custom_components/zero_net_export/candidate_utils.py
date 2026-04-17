@@ -29,6 +29,15 @@ _FIT_USEFULNESS_LABELS = {
 }
 
 
+def _candidate_usefulness_label(fit: dict[str, Any]) -> str:
+    """Return the operator-facing usefulness label for a candidate fit."""
+    confidence = str(fit.get("confidence") or "medium")
+    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
+    if confidence == "medium" and warnings:
+        return "review first"
+    return _FIT_USEFULNESS_LABELS.get(confidence, confidence)
+
+
 def format_count_label(count: int, singular: str, plural: str | None = None) -> str:
     """Return a compact count label with correct singular/plural wording."""
     if plural is None:
@@ -484,8 +493,7 @@ def build_candidate_review_hint(
 ) -> str:
     """Return a compact usefulness-plus-warning hint for dense unmanaged snapshots."""
     fit = assess_candidate(candidate)
-    confidence = str(fit.get("confidence") or "medium")
-    usefulness = _FIT_USEFULNESS_LABELS.get(confidence, confidence)
+    usefulness = _candidate_usefulness_label(fit)
     if not include_warning:
         return usefulness
 

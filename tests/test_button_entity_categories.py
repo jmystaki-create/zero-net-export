@@ -193,7 +193,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
             if bit
         )
         + ") | "
-        + ("strong match" if candidate["domain"] == "switch" else "plausible match")
+        + ("strong match" if candidate["domain"] == "switch" else "review first")
         + " | key warning: "
         + (
             "No immediate warnings"
@@ -470,7 +470,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["managed_count"], 1)
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable candidate | top EV limit | plausible match | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable candidate | top EV limit | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
         self.assertEqual(attrs["recommended_section"], "Sensors")
