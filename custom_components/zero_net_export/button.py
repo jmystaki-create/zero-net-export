@@ -111,8 +111,8 @@ def _format_device_review_line(detail: dict) -> str:
     last_action_status = str(detail.get("last_action_status") or "").strip()
     if last_action_status and last_action_status not in {"ok", "applied", "success"}:
         runtime_bits.append(f"last={last_action_status}")
-    entity_id = str(detail.get("entity_id") or "unknown entity")
-    return f"- {detail.get('name') or entity_id}: {' | '.join(runtime_bits)} | entity={entity_id}"
+    device_label = str(detail.get("name") or detail.get("entity_id") or "managed device")
+    return f"- {device_label}: {' | '.join(runtime_bits)}"
 
 
 def _first_matching_device_name(device_details: list[dict], *, predicate) -> str:

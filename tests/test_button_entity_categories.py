@@ -314,11 +314,13 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section):", message)
         self.assertIn("- Snapshot: 2 candidate(s) | top candidate Hot water (fixed) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
-        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold | entity=number.ev_limit"
-        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power=n/a | guard=ready | plan=turn_on | entity=switch.pool_pump"
+        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold"
+        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power=n/a | guard=ready | plan=turn_on"
         self.assertIn(blocked_line, message)
         self.assertIn(planned_line, message)
         self.assertLess(message.index(blocked_line), message.index(planned_line))
+        self.assertNotIn("entity=number.ev_limit", message)
+        self.assertNotIn("entity=switch.pool_pump", message)
         self.assertIn("- Hot water (fixed, state off) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Return after blocker repair:", message)
         self.assertIn("- Open sources path first.", message)
@@ -392,11 +394,13 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section): 2 candidate(s) | top candidate Hot water (fixed) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
-        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold | entity=number.ev_limit"
-        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power=n/a | guard=ready | plan=turn_on | entity=switch.pool_pump"
+        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold"
+        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power=n/a | guard=ready | plan=turn_on"
         self.assertIn(blocked_line, message)
         self.assertIn(planned_line, message)
         self.assertLess(message.index(blocked_line), message.index(planned_line))
+        self.assertNotIn("entity=number.ev_limit", message)
+        self.assertNotIn("entity=switch.pool_pump", message)
         self.assertIn("Top unmanaged candidates:", message)
         self.assertIn("- Hot water (fixed, state off)", message)
         self.assertIn("Detailed device-view path: detailed device path", message)
@@ -568,7 +572,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             line,
-            "- EV charger: variable | Tracking export | usable | enabled | priority=40 | power=1800 W | target=2200 W | guard=ready | plan=set_power | last=throttled | entity=number.ev_limit",
+            "- EV charger: variable | Tracking export | usable | enabled | priority=40 | power=1800 W | target=2200 W | guard=ready | plan=set_power | last=throttled",
         )
 
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:
@@ -644,6 +648,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Device: Pool pump", message)
         self.assertNotIn("Entity: switch.pool_pump", message)
         self.assertNotIn("Use switch.pool_pump sensors", message)
+        self.assertNotIn("entity=switch.pool_pump", message)
         self.assertIn("Use this device's sensors on the Zero Net Export device page", message)
         self.assertIn("Guard state: ready", message)
         self.assertIn("Planned action: turn_on", message)
