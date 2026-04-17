@@ -754,6 +754,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             result["description_placeholders"]["device_next_step"],
             "Open sources path and finish source repair before promoting more devices.",
         )
+        self.assertEqual(
+            result["description_placeholders"]["candidate_preview"],
+            "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+        )
+        self.assertNotIn("candidate_entity_id", result["description_placeholders"])
 
     def test_device_add_form_surfaces_blocker_summary_placeholder(self) -> None:
         module = _load_config_flow_module()
@@ -888,6 +893,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
+        self.assertEqual(
+            vetting["description_placeholders"]["candidate_preview"],
+            "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+        )
+        self.assertNotIn("candidate_entity_id", vetting["description_placeholders"])
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()

@@ -2272,8 +2272,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "configure_path": DEVICES_CONFIGURE_PATH,
-                "candidate_name": str(summary.get('name') or summary.get('entity_id') or 'candidate'),
-                "candidate_entity_id": str(summary.get('entity_id') or ''),
+                "candidate_preview": build_candidate_preview(
+                    summary,
+                    include_entity_id=False,
+                    include_state=False,
+                ),
                 "candidate_domain": str(summary.get('domain') or 'unknown'),
                 "candidate_kind": "fixed load" if summary.get('kind') == DEVICE_KIND_FIXED else "variable load",
                 "candidate_state": str(summary.get('state') or 'unknown'),
