@@ -818,7 +818,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             candidates.append(
                 {
                     **candidate,
-                    "label": build_candidate_preview(candidate, include_state=True),
+                    "label": build_candidate_preview(
+                        candidate,
+                        include_entity_id=False,
+                        include_state=True,
+                    ),
                     "fallback_label": _format_candidate_label(entity_id, state),
                 }
             )
@@ -2070,13 +2074,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         managed_snapshot = self._managed_snapshot_text(display_devices)
         unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
         candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item)}" for item in candidates[:12]
+            f"- {build_candidate_preview(item, include_entity_id=False)}" for item in candidates[:12]
         ) if candidates else "- No unmanaged candidate devices discovered right now"
         fixed_candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item)}" for item in fixed_candidates[:6]
+            f"- {build_candidate_preview(item, include_entity_id=False)}" for item in fixed_candidates[:6]
         ) if fixed_candidates else "- No fixed-load candidates discovered right now"
         variable_candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item)}" for item in variable_candidates[:6]
+            f"- {build_candidate_preview(item, include_entity_id=False)}" for item in variable_candidates[:6]
         ) if variable_candidates else "- No variable-load candidates discovered right now"
         top_candidate = candidates[0] if candidates else None
         device_next_step = self._device_next_step(display_devices, issues, candidates)
@@ -2139,7 +2143,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
         ]
         top_candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item, include_kind=False, include_state=True)}"
+            f"- {build_candidate_preview(item, include_entity_id=False, include_kind=False, include_state=True)}"
             for item in quick_picks
         ) if quick_picks else "- No suggested candidates right now"
         candidate_path_summary = (

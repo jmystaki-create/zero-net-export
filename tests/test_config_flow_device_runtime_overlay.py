@@ -899,6 +899,56 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertNotIn("candidate_entity_id", vetting["description_placeholders"])
 
+    def test_managed_devices_summaries_and_shortlist_hide_raw_candidate_entity_ids(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            },
+            states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._load_devices = lambda: ([], [])
+        flow._device_candidates = lambda: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+            },
+            {
+                "entity_id": "number.ev_spare",
+                "name": "Spare EV limit",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "label": "Spare EV limit (variable) | useful fallback | key warning: Variable power range should be checked before promotion",
+            },
+        ]
+        flow._candidate_quick_picks = lambda kind: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+                "state": "off",
+            }
+        ]
+        flow._candidate_options = lambda kind=None: [
+            {"value": "switch.ac_outlet_2", "label": "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings"},
+        ]
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+
+        devices_screen = asyncio.run(flow.async_step_devices())
+        shortlist = asyncio.run(flow.async_step_device_pick_candidate())
+
+        self.assertIn("AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings", devices_screen["description_placeholders"]["candidate_summary"])
+        self.assertNotIn("switch.ac_outlet_2", devices_screen["description_placeholders"]["candidate_summary"])
+        self.assertNotIn("number.ev_spare", devices_screen["description_placeholders"]["candidate_summary"])
+        self.assertIn("AC Outlet 2 (state off) | strong match | key warning: No immediate warnings", shortlist["description_placeholders"]["top_candidates"])
+        self.assertNotIn("switch.ac_outlet_2", shortlist["description_placeholders"]["top_candidates"])
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         module.discover_candidate_devices = lambda states, managed_ids: [
