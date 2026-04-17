@@ -362,9 +362,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if source_blocked:
                     summary_parts.append("repair sources first")
                 if fixed_candidate_count:
-                    summary_parts.append(f"{fixed_candidate_count} fixed")
+                    summary_parts.append(f"{fixed_candidate_count} fixed candidates")
                 if variable_candidate_count:
-                    summary_parts.append(f"{variable_candidate_count} variable")
+                    summary_parts.append(f"{variable_candidate_count} variable candidates")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
@@ -380,9 +380,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if candidate_count:
                 summary_parts.append(f"{candidate_count} unmanaged")
                 if fixed_candidate_count:
-                    summary_parts.append(f"{fixed_candidate_count} fixed")
+                    summary_parts.append(f"{fixed_candidate_count} fixed candidates")
                 if variable_candidate_count:
-                    summary_parts.append(f"{variable_candidate_count} variable")
+                    summary_parts.append(f"{variable_candidate_count} variable candidates")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
@@ -394,9 +394,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(
                     f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
                 )
-            summary_parts.append(f"{counts['fixed_count']} fixed")
+            summary_parts.append(f"{counts['fixed_count']} fixed managed")
             if counts["variable_count"]:
-                summary_parts.append(f"{counts['variable_count']} variable")
+                summary_parts.append(f"{counts['variable_count']} variable managed")
             if counts["nominal_power_w"]:
                 summary_parts.append(f"{counts['nominal_power_w']} W nominal")
             return _truncate_sensor_state(" | ".join(summary_parts))
