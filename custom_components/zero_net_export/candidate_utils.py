@@ -66,14 +66,19 @@ _POSITIVE_LOAD_KEYWORDS = (
     "purifier",
     "towel rail",
     "coffee",
+    "dishwasher",
     "aircon",
     "air conditioner",
+    "ac unit",
     "hvac",
-    "ac ",
 )
 
 _APPLIANCE_STYLE_KEYWORDS = tuple(
-    keyword for keyword in _POSITIVE_LOAD_KEYWORDS if keyword not in {"outlet", "plug", "ac "}
+    keyword for keyword in _POSITIVE_LOAD_KEYWORDS if keyword not in {"outlet", "plug"}
+)
+
+_FALSE_POSITIVE_LOAD_PHRASES = (
+    "ac outlet",
 )
 
 _NEGATIVE_NON_LOAD_KEYWORDS = (
@@ -182,6 +187,13 @@ def _candidate_text(candidate: dict[str, Any]) -> str:
     ).lower()
 
 
+def _has_positive_load_signal(candidate: dict[str, Any]) -> bool:
+    text = _candidate_text(candidate)
+    if any(phrase in text for phrase in _FALSE_POSITIVE_LOAD_PHRASES):
+        text = " ".join(part for part in text.split() if part not in {"ac", "outlet"})
+    return any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS)
+
+
 def _negative_non_load_penalty(candidate: dict[str, Any]) -> int:
     text = _candidate_text(candidate)
     entity_id = str(candidate.get("entity_id") or "").lower()
@@ -207,7 +219,7 @@ def _generic_power_penalty(candidate: dict[str, Any]) -> int:
     name_text = str(candidate.get("name") or "").lower()
     if not any(keyword in text for keyword in _GENERIC_POWER_KEYWORDS):
         return 0
-    if any(keyword in name_text for keyword in _POSITIVE_LOAD_KEYWORDS):
+    if _has_positive_load_signal(candidate):
         return 0
     if str(candidate.get("device_class") or "").lower() == "outlet":
         return 0
@@ -241,7 +253,7 @@ def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
     """Return a secondary rank that prefers likely real loads over obvious service toggles."""
     text = _candidate_text(candidate)
     score = 0
-    if any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS):
+    if _has_positive_load_signal(candidate):
         score -= 2
     score += _negative_non_load_penalty(candidate)
     score += _generic_power_penalty(candidate)
@@ -265,7 +277,7 @@ def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     text = _candidate_text(candidate)
     entity_id = str(candidate.get("entity_id") or "").lower()
     device_class = str(candidate.get("device_class") or "").lower()
-    positive_name_signal = any(keyword in text for keyword in _POSITIVE_LOAD_KEYWORDS)
+    positive_name_signal = _has_positive_load_signal(candidate)
 
     if domain == "light" and not positive_name_signal:
         return True
@@ -273,14 +285,10 @@ def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and _looks_like_lighting_candidate(candidate) and not positive_name_signal:
         return True
 
-    if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and _negative_non_load_penalty(candidate) >= 3 and not positive_name_signal:
+    if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and _negative_non_load_penalty(candidate) >= 3:
         return True
 
-    if (
-        domain in DEVICE_CANDIDATE_FIXED_DOMAINS
-        and any(fragment in entity_id for fragment in _NEGATIVE_ENTITY_ID_FRAGMENTS)
-        and not positive_name_signal
-    ):
+    if domain in DEVICE_CANDIDATE_FIXED_DOMAINS and any(fragment in entity_id for fragment in _NEGATIVE_ENTITY_ID_FRAGMENTS):
         return True
 
     if kind != "variable" or domain not in {"number", "input_number"}:
@@ -332,7 +340,7 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     operational_value_summary = "This candidate could help absorb export, but confirm it represents a meaningful discretionary load."
 
     candidate_text = _candidate_text(candidate)
-    positive_name_signal = any(keyword in candidate_text for keyword in _POSITIVE_LOAD_KEYWORDS)
+    positive_name_signal = _has_positive_load_signal(candidate)
     negative_name_signal = _has_negative_non_load_signal(candidate)
 
     if domain == "switch" and kind == "fixed":

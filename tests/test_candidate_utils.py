@@ -474,6 +474,25 @@ class CandidateUtilsTests(unittest.TestCase):
             ],
         )
 
+    def test_discover_candidate_devices_does_not_treat_ac_outlets_as_aircon_loads(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.ac_outlet_2", state="off", attributes={"friendly_name": "AC Outlet 2", "device_class": "outlet"}),
+            SimpleNamespace(entity_id="switch.dishwasher_power", state="off", attributes={"friendly_name": "Dishwasher Power"}),
+            SimpleNamespace(entity_id="switch.garage_power", state="off", attributes={"friendly_name": "Garage Power"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            [
+                "switch.dishwasher_power",
+                "switch.ac_outlet_2",
+                "switch.garage_power",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
