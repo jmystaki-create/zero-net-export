@@ -856,15 +856,18 @@ def build_native_support_snapshot(coordinator: Any) -> str:
             CONF_BATTERY_DISCHARGE_POWER_ENTITY,
         )
     ]
-    source_health_lines = [
-        (
+    source_health_lines = []
+    for key, details in source_diagnostics.items():
+        configured_label = format_source_binding_label(coordinator.entry.data.get(key))
+        target_label = _source_attention_target_label(key, details, configured_label)
+        line = (
             f"- {SOURCE_ROLE_LABELS.get(key, key)}: status={details.get('status') or 'unknown'}, "
             f"age_s={details.get('age_seconds') if details.get('age_seconds') is not None else 'n/a'}, "
-            f"issues={len(details.get('issues') or [])}, "
-            f"entity={details.get('entity_id') or 'n/a'}"
+            f"issues={len(details.get('issues') or [])}"
         )
-        for key, details in source_diagnostics.items()
-    ]
+        if target_label:
+            line += f", mapped={target_label}"
+        source_health_lines.append(line)
     unavailable_source_roles = [
         SOURCE_ROLE_LABELS.get(key, key)
         for key in source_attention["unavailable_source_keys"]
@@ -877,15 +880,20 @@ def build_native_support_snapshot(coordinator: Any) -> str:
     device_lines = []
     for item in configured_devices:
         runtime = runtime_device_details.get(item.get("key"), {})
+        device_label = str(
+            runtime.get("name")
+            or item.get("name")
+            or _humanize_entity_id(str(item.get("entity_id") or "managed_device"))
+        ).strip()
         device_lines.append(
             (
-                f"- {item.get('key')}: enabled={item.get('enabled')}, "
+                f"- {device_label}: enabled={item.get('enabled')}, "
                 f"usable={runtime.get('usable', 'n/a')}, "
                 f"status={runtime.get('status', 'n/a')}, "
                 f"planned={runtime.get('planned_action', 'n/a')}, "
                 f"guard={runtime.get('guard_status', 'n/a')}, "
                 f"kind={item.get('kind')}, adapter={item.get('adapter')}, "
-                f"priority={item.get('priority')}, entity={item.get('entity_id')}"
+                f"priority={item.get('priority')}"
             )
         )
     recent_issues = list(validation_details.get("issues", []))[:5]

@@ -449,6 +449,89 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Zero Net Export diagnostics snapshot", snapshot)
         self.assertNotIn("Zero Net Export support snapshot", snapshot)
 
+    def test_support_snapshot_uses_friendly_source_and_device_labels(self) -> None:
+        native_support = _load_native_support_module(
+            parse_device_result=(
+                [
+                    SimpleNamespace(
+                        key="pool_pump",
+                        name="Pool Pump",
+                        kind="fixed",
+                        entity_id="switch.pool_pump",
+                        adapter="switch",
+                        nominal_power_w=1200,
+                        min_power_w=0,
+                        max_power_w=1200,
+                        step_w=1200,
+                        priority=100,
+                        enabled=True,
+                        min_on_seconds=0,
+                        min_off_seconds=0,
+                        cooldown_seconds=0,
+                        max_active_seconds=0,
+                    )
+                ],
+                [],
+            )
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={native_support.CONF_SOLAR_POWER_ENTITY: "sensor.pv_power"},
+                options={},
+            ),
+            data=SimpleNamespace(
+                validation_details={
+                    "source_diagnostics": {
+                        native_support.CONF_SOLAR_POWER_ENTITY: {
+                            "status": "unavailable",
+                            "entity_id": "sensor.pv_power",
+                            "issues": ["Solar power is unavailable"],
+                        }
+                    },
+                    "source_freshness": {
+                        native_support.CONF_SOLAR_POWER_ENTITY: {
+                            "age_seconds": 245,
+                            "entity_id": "sensor.pv_power",
+                        }
+                    },
+                    "issues": [],
+                },
+                device_details={
+                    "pool_pump": {
+                        "name": "Pool Pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": False,
+                        "status": "Blocked",
+                        "planned_action": "hold",
+                        "guard_status": "source blocked",
+                    }
+                },
+            ),
+        )
+
+        snapshot = native_support.build_native_support_snapshot(coordinator)
+
+        self.assertIn(
+            "- Solar power: status=unavailable, age_s=245, issues=1, mapped=Pv Power",
+            snapshot,
+        )
+        self.assertIn(
+            "- Pool Pump: enabled=True, usable=False, status=Blocked, planned=hold, guard=source blocked, kind=fixed, adapter=switch, priority=100",
+            snapshot,
+        )
+        self.assertNotIn(
+            "- Solar power: status=unavailable, age_s=245, issues=1, entity=sensor.pv_power",
+            snapshot,
+        )
+        self.assertNotIn(
+            "- pool_pump: enabled=True, usable=False, status=Blocked, planned=hold, guard=source blocked, kind=fixed, adapter=switch, priority=100, entity=switch.pool_pump",
+            snapshot,
+        )
+
     def test_operator_ready_next_step_uses_diagnostics_actions_wording(self) -> None:
         native_support = _load_native_support_module(
             parse_device_result=([
