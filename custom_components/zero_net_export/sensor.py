@@ -564,8 +564,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             state = self._state
             if state is None:
                 return None
-            managed_ids = {str(detail.get('entity_id')) for detail in (state.device_details or {}).values() if detail.get('entity_id')}
-            candidates = _candidate_devices_for_hass(self.hass, managed_ids)
+            candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
             top_candidate = candidates[0] if candidates else None
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)

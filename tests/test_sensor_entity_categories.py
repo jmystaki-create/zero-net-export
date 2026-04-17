@@ -547,6 +547,44 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Open sources path, repair blocking source roles first, then return to devices path",
         )
 
+    def test_fleet_workspace_attributes_reuse_cached_candidate_discovery(self) -> None:
+        sensor_module = _load_sensor_module()
+        calls: list[tuple[list[object], set[str]]] = []
+
+        def discover(states, managed_entity_ids):
+            calls.append((list(states), set(managed_entity_ids)))
+            return [{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"}]
+
+        sensor_module.discover_candidate_devices = discover
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "kind": "fixed",
+                    }
+                },
+                validation_details={},
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(
+            states=SimpleNamespace(async_all=lambda: [SimpleNamespace(entity_id="switch.ac_outlet_2")])
+        )
+
+        self.assertEqual(
+            overview.native_value,
+            "1 managed | 1 enabled | 1 usable | 1 unmanaged | top AC Outlet 2 | 1 fixed",
+        )
+        self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0][1], {"switch.pool_pump"})
+
 
 if __name__ == "__main__":
     unittest.main()
