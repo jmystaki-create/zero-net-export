@@ -656,7 +656,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Planned action: turn_on", message)
         self.assertIn("- Priority: 90", message)
         self.assertIn("- Planned power delta: 1200 W", message)
-        self.assertIn("- Priority override: 75", message)
+        self.assertNotIn("- Variable range:", message)
+        self.assertNotIn("- Step size:", message)
+        self.assertNotIn("- Requested target power:", message)
+        self.assertIn("- Priority override: forcing 75", message)
+        self.assertIn("- Enabled override: none", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
         self.assertIn("Return to devices path as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
 

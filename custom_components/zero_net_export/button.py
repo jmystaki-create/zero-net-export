@@ -162,6 +162,21 @@ def _format_power(value: object) -> str:
         return str(value)
 
 
+def _format_enabled_override(value: object) -> str:
+    if value is None:
+        return "none"
+    return "forcing on" if bool(value) else "forcing off"
+
+
+def _format_priority_override(value: object) -> str:
+    if value is None:
+        return "none"
+    try:
+        return f"forcing {int(value)}"
+    except (TypeError, ValueError):
+        return f"forcing {value}"
+
+
 def _managed_devices_blocker_first_lines(command_center: dict) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
@@ -231,6 +246,39 @@ def _build_managed_device_detail_lines(
     entity_id = str(detail.get("entity_id") or "unknown entity")
     device_label = str(detail.get("name") or entity_id)
     blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
+    kind = str(detail.get("kind") or "unknown")
+    requested_target_power = detail.get("planned_requested_power_w")
+    if requested_target_power is None:
+        requested_target_power = detail.get("current_target_power_w")
+
+    control_profile_lines = [
+        f"- Enabled: {'yes' if detail.get('effective_enabled', detail.get('enabled', True)) else 'no'}",
+        f"- Usable: {'yes' if detail.get('usable') else 'no'}",
+        f"- Priority: {detail.get('priority') if detail.get('priority') is not None else 'n/a'}",
+        f"- Current power: {_format_power(detail.get('current_power_w'))}",
+    ]
+    if detail.get("planned_power_delta_w") is not None:
+        control_profile_lines.append(f"- Planned power delta: {_format_power(detail.get('planned_power_delta_w'))}")
+    if requested_target_power is not None:
+        control_profile_lines.append(f"- Requested target power: {_format_power(requested_target_power)}")
+    if detail.get("nominal_power_w") is not None:
+        control_profile_lines.append(f"- Nominal power: {_format_power(detail.get('nominal_power_w'))}")
+    if kind == "variable":
+        min_power = detail.get("min_power_w")
+        max_power = detail.get("max_power_w")
+        if min_power is not None or max_power is not None:
+            control_profile_lines.append(f"- Variable range: {_format_power(min_power)} to {_format_power(max_power)}")
+        if detail.get("step_w") is not None:
+            control_profile_lines.append(f"- Step size: {_format_power(detail.get('step_w'))}")
+    control_profile_lines.extend(
+        [
+            f"- Cooldown: {int(detail.get('cooldown_seconds') or 0)} s",
+            f"- Min on time: {int(detail.get('min_on_seconds') or 0)} s",
+            f"- Min off time: {int(detail.get('min_off_seconds') or 0)} s",
+            f"- Max active time: {int(detail.get('max_active_seconds') or 0)} s",
+        ]
+    )
+
     lines = [
         "Zero Net Export managed-device detail review",
         "",
@@ -249,7 +297,7 @@ def _build_managed_device_detail_lines(
         ),
         "",
         f"Device: {device_label}",
-        f"Kind: {detail.get('kind') or 'unknown'}",
+        f"Kind: {kind}",
         f"Runtime status: {detail.get('status') or 'status unknown'}",
         f"Guard state: {detail.get('guard_status') or 'unknown'}",
         f"Planned action: {detail.get('planned_action') or 'hold'}",
@@ -257,23 +305,11 @@ def _build_managed_device_detail_lines(
         f"Reason: {detail.get('reason') or 'No runtime reason recorded.'}",
         "",
         "Control profile:",
-        f"- Enabled: {'yes' if detail.get('effective_enabled', detail.get('enabled', True)) else 'no'}",
-        f"- Usable: {'yes' if detail.get('usable') else 'no'}",
-        f"- Priority: {detail.get('priority') if detail.get('priority') is not None else 'n/a'}",
-        f"- Current power: {_format_power(detail.get('current_power_w'))}",
-        f"- Planned power delta: {_format_power(detail.get('planned_power_delta_w'))}",
-        f"- Requested target power: {_format_power(detail.get('planned_requested_power_w') or detail.get('current_target_power_w'))}",
-        f"- Nominal power: {_format_power(detail.get('nominal_power_w'))}",
-        f"- Variable range: {_format_power(detail.get('min_power_w'))} to {_format_power(detail.get('max_power_w'))}",
-        f"- Step size: {_format_power(detail.get('step_w'))}",
-        f"- Cooldown: {int(detail.get('cooldown_seconds') or 0)} s",
-        f"- Min on time: {int(detail.get('min_on_seconds') or 0)} s",
-        f"- Min off time: {int(detail.get('min_off_seconds') or 0)} s",
-        f"- Max active time: {int(detail.get('max_active_seconds') or 0)} s",
+        *control_profile_lines,
         "",
         "Operator overrides:",
-        f"- Enabled override: {detail.get('operator_enabled_override') if detail.get('operator_enabled_override') is not None else 'none'}",
-        f"- Priority override: {detail.get('operator_priority_override') if detail.get('operator_priority_override') is not None else 'none'}",
+        f"- Enabled override: {_format_enabled_override(detail.get('operator_enabled_override'))}",
+        f"- Priority override: {_format_priority_override(detail.get('operator_priority_override'))}",
         "",
         "Latest execution:",
         f"- Last action status: {detail.get('last_action_status') or 'No recent action'}",
