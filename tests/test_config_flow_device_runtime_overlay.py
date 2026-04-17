@@ -652,6 +652,53 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(shortlist["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(full_list["description_placeholders"]["detailed_management_summary"], flow._detailed_management_summary())
 
+    def test_support_form_exposes_exact_bucket_paths(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SUPPORT_SECTION_LABEL,
+            "recommended_reason": "Review diagnostics details.",
+            "recommended_path": module.SUPPORT_CONFIGURE_PATH,
+            "next_action_summary": "Open support path and review the current blocker.",
+        }
+        module.build_native_operator_readiness = lambda coordinator: {
+            "phase": "support_needed",
+            "summary": "Diagnostics needed.",
+            "next_step": "Open support path and review the current blocker.",
+        }
+        module.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "validation_details": {"issues": []},
+        }
+        module.build_source_attention_summary = lambda *args, **kwargs: "None"
+        module.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        module.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        module.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar"
+        module.build_install_provenance = lambda *args, **kwargs: {
+            "live_validation_safe": True,
+            "summary": "Installed package ok",
+        }
+        module._infer_grid_sensor_mode = lambda merged: module.GRID_SENSOR_MODE_SEPARATE
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(health_summary="Healthy"), entry=SimpleNamespace(data={}, options={}))
+                }
+            },
+            states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+
+        result = asyncio.run(flow.async_step_support())
+        placeholders = result["description_placeholders"]
+
+        self.assertEqual(placeholders["sources_path"], module.SOURCES_CONFIGURE_PATH)
+        self.assertEqual(placeholders["policy_path"], module.POLICY_CONFIGURE_PATH)
+        self.assertEqual(placeholders["devices_path"], module.DEVICES_CONFIGURE_PATH)
+        self.assertEqual(placeholders["mode_path"], module.MODE_CONTROL_PATH)
+        self.assertEqual(placeholders["support_path"], module.SUPPORT_CONFIGURE_PATH)
+
     def test_existing_fleet_forms_keep_managed_and_unmanaged_snapshots_visible(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {

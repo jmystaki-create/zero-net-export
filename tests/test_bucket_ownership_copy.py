@@ -82,7 +82,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Mapped-source triage", support_description)
         self.assertIn("Install validation", support_description)
         self.assertIn("Bucket ownership and paths", support_description)
-        self.assertIn("Managed Devices stays in Configure after setup is healthy.", support_description)
+        self.assertIn("- Sensors: {sources_path}", support_description)
+        self.assertIn("- Controls: {policy_path}", support_description)
+        self.assertIn("- Live mode control: {mode_path}", support_description)
+        self.assertIn("- Managed Devices: {devices_path}", support_description)
+        self.assertIn("- Diagnostics: {support_path}", support_description)
 
 
 if __name__ == "__main__":
