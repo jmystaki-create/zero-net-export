@@ -110,7 +110,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("- Runtime health: Runtime attention remains.", text)
         self.assertIn("Bucket ownership", text)
         self.assertIn(
-            f"- Managed Devices owns fleet onboarding, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}",
+            f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}",
             text,
         )
         self.assertNotIn("Installed package:", text)

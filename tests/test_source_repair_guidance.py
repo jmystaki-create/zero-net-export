@@ -353,7 +353,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Change live control mode: {native_support.MODE_CONTROL_PATH}", guide)
         self.assertIn("Bucket ownership", guide)
-        self.assertIn(f"- Managed Devices owns fleet onboarding, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Diagnostics owns troubleshooting, repairs, and install validation: {native_support.SUPPORT_CONFIGURE_PATH}.", guide)
         self.assertNotIn("Not here", guide)
 
@@ -422,7 +422,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             f"- {native_support.SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
             support_center,
         )
-        self.assertIn("- Managed Devices: fleet onboarding, edits, enablement, and removal.", support_center)
+        self.assertIn("- Managed Devices: fleet onboarding, promotion, edits, enablement, and removal.", support_center)
         self.assertIn("- Controls: controller policy defaults, thresholds, and readiness.", support_center)
         self.assertIn("- Diagnostics: runtime health, install consistency, and troubleshooting guidance.", support_center)
         self.assertIn("Diagnostics snapshot", support_center)

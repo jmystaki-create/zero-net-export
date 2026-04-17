@@ -1080,7 +1080,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "Bucket ownership",
             "- Sensors owns source mapping and source health.",
             "- Controls owns target export, reserve, deadband, and live mode.",
-            f"- Managed Devices owns fleet onboarding, edits, enablement, and removal: {command_center.get('devices_path')}",
+            f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {command_center.get('devices_path')}",
             f"- Diagnostics owns troubleshooting, repairs, and install validation: {command_center.get('support_path')}.",
         ]
     )
@@ -1590,7 +1590,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Live mode control: {command_center.get('mode_path')}",
             "What each command-center section is for:",
             f"- {SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
-            f"- {DEVICES_SECTION_LABEL}: fleet onboarding, edits, enablement, and removal.",
+            f"- {DEVICES_SECTION_LABEL}: fleet onboarding, promotion, edits, enablement, and removal.",
             f"- {POLICY_SECTION_LABEL}: controller policy defaults, thresholds, and readiness.",
             f"- {SUPPORT_SECTION_LABEL}: runtime health, install consistency, and troubleshooting guidance.",
             f"Recommended command-center section: {command_center.get('recommended_section')}",

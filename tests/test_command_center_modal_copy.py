@@ -18,7 +18,7 @@ class TestCommandCenterModalCopy(unittest.TestCase):
         self.assertIn("\n\nSetup check\n- Sensors:", description)
         self.assertIn("\n\nBasic setup paths\n- Sensors:", description)
         self.assertIn("\n\nBucket ownership\n- Sensors owns source mapping and source health.", description)
-        self.assertIn("Managed Devices owns fleet onboarding, edits, enablement, and removal: {devices_path}", description)
+        self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {devices_path}", description)
         self.assertNotIn("Installed package details", description)
         self.assertNotIn("Recommended path right now", description)
         self.assertNotIn("Current mapped roles:", description)
