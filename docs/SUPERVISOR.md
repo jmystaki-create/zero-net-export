@@ -98,14 +98,12 @@ This phase is in good shape when:
 ## Next actions
 
 Do next:
-1. Treat `docs/UI_IMPLEMENTATION_MAP.md` as the strict staged checklist for `0.1.87`, and prefer the next unfinished UI stage over release-state bookkeeping whenever safe repo-side implementation work still exists.
-2. Make the Managed Devices native path visually separate already managed devices from unmanaged candidates ready for promotion.
-3. Make the native promote / vet / review path visibly first-class and easy to follow in live Home Assistant.
-4. Refactor the native surface model so Controls, Sensors, Managed Devices, and Diagnostics each have a clear role and do not repeat each other's content.
-5. Define and implement a separate detailed-management path for managed devices, reachable from the native device view, for deeper per-device review.
-6. Improve operator-facing remediation clarity for live source-validation blockers, especially by naming the unavailable or stale mapped source roles and pointing operators back to Configure -> Sensors and source mapping.
-7. Re-run restart and reload validation and record whether the integration stays alive after install in the real Home Assistant environment.
-8. Only ask James for formal release approval when the candidate has materially crossed a release boundary with new evidence, and otherwise continue building the next `0.1.87` UI stage instead of repeating the same release ask.
+1. Treat `docs/UI_IMPLEMENTATION_MAP.md`, especially its `Detailed remaining work map`, as the strict staged checklist for finishing the full `0.1.87` UI design scope.
+2. Work the remaining steps in workstream order: opening operator console, Managed Devices workspace, promotion flow, four-bucket IA, deeper device-page review path, notification/support cleanup, then exact-build release execution.
+3. Prefer the next unfinished UI workstream step over release-state bookkeeping whenever safe repo-side implementation work still exists.
+4. Keep logging real remaining gaps against `docs/BUGS.md` so the release cut line is based on explicit evidence rather than vague feeling.
+5. Once the remaining repo-side UI work is coherent enough, freeze the `0.1.87` cut line, bump versioned metadata, run the full validation pass, and execute the release flow.
+6. Only ask James for formal release approval when the candidate has materially crossed a release boundary with new evidence, and otherwise continue building the next mapped `0.1.87` step instead of repeating the same release ask.
 
 Do later:
 - Validate a mixed-device fleet scenario, not just a single-device happy path.

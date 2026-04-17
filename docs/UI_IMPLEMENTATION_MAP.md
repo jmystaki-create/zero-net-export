@@ -74,6 +74,121 @@ If a change does not materially improve one of those visible outcomes, it should
 
 This section is now the explicit staged delivery map. Each phase should be implemented, validated, and then advanced rather than treated as one vague UI bucket.
 
+## Detailed remaining work map
+
+This is the detailed remaining-step map for finishing the full `docs/UI_DESIGN.md` scope and getting the `0.1.87` release out.
+Use this list to decide what still has to be built, what has to be proven live, and what order the remaining work should happen in.
+
+### Workstream A. Finish the opening operator console
+**Goal**
+- make Configure open as a dense, screenshot-grade operator console that clearly explains what the optimizer is doing now, what energy state it is reacting to, and what fleet state matters next
+
+**Still to do**
+1. Confirm the top board reads as one coherent operator console in the installed UI, not just in repo previews.
+2. Tighten any remaining weak spots in the `Fleet activity` block so it tells the same managed/unmanaged story as the Managed Devices workspace below it.
+3. Make sure the top board uses grouped operational signals, not helper-text narration, to carry the main legibility burden.
+4. Verify the command-center modal and the device-page command-center guide stay compact and setup-first in live HA.
+
+**Done when**
+- James can open Configure and immediately understand decision, energy state, control outcome, and fleet posture without needing to read long prose.
+
+### Workstream B. Finish the Managed Devices workspace
+**Goal**
+- make `Configure -> Managed Devices` feel like the unquestionable primary fleet workspace
+
+**Still to do**
+1. Make the managed-on-top / unmanaged-below split visually obvious on the exact deployed build.
+2. Make managed summaries show enough operational detail that the top of the workspace feels active, not skeletal.
+3. Make unmanaged summaries show enough backlog mix, review burden, and top-candidate quality that the bottom of the workspace feels actionable.
+4. Remove any remaining wording, ordering, or summary behavior that makes Configure -> Managed Devices feel like a thin helper layer instead of the real fleet workspace.
+5. Confirm blocked or review-first items are easy to spot at a glance.
+
+**Done when**
+- the workspace reads as a real managed/unmanaged fleet console in screenshots, not just a list of entities plus helper text.
+
+### Workstream C. Finish the full promotion flow
+**Goal**
+- make shortlist -> review -> promote -> success feel like one native workflow
+
+**Still to do**
+1. Verify the shortlist and full-list selection screens still preserve enough managed/unmanaged context on the exact deployed build.
+2. Verify candidate review clearly communicates usefulness, warnings, and operational value in real HA rendering.
+3. Verify preset choice and save screens keep the same context instead of dropping the operator into isolated forms.
+4. Verify success landing clearly says what changed and what the next sensible action is.
+5. Remove any remaining raw-id, helper-ish, or ambiguous wording that weakens trust in the promotion path.
+
+**Done when**
+- an operator can move from unmanaged discovery to successful promotion without losing context or wondering what to do next.
+
+### Workstream D. Finish the four-bucket information architecture
+**Goal**
+- make Controls, Sensors, Managed Devices, and Diagnostics feel like distinct native homes
+
+**Still to do**
+1. Audit and remove any remaining content leakage between Controls, Sensors, Managed Devices, and Diagnostics.
+2. Keep Controls focused on the controller brain and outcome, not fleet inventory.
+3. Keep Sensors focused on telemetry and source health, not fleet management.
+4. Keep Managed Devices focused on fleet operations and promotion flow.
+5. Keep Diagnostics focused on troubleshooting, checklists, repairs, and install/package trust.
+6. Recheck all jump-off text and section ownership text so the buckets reinforce one another instead of overlapping.
+
+**Done when**
+- an operator can tell where to go next without guessing, and the live UI no longer feels like overlapping narrative sections.
+
+### Workstream E. Finish the device-page deeper review path
+**Goal**
+- make the device page a genuinely useful secondary inspection path without competing with Configure -> Managed Devices
+
+**Still to do**
+1. Validate live that the device-page managed review actions are clearly secondary to Configure -> Managed Devices.
+2. Make sure per-device review rows feel richer and more audit-friendly than the top-level fleet workspace.
+3. Remove any remaining wording that implies the device page is the primary place to manage the fleet.
+4. Confirm save feedback and handoff text consistently point back to Configure -> Managed Devices as primary.
+
+**Done when**
+- the device page is clearly the deeper review path, not a competing workspace.
+
+### Workstream F. Finish notification and support-surface cleanup
+**Goal**
+- make runtime/setup/support signals compact, scannable, and consistent with the stronger UI design
+
+**Still to do**
+1. Validate the tightened runtime-attention notifications in the exact installed HA UI.
+2. Validate the tightened setup-finished/setup-warning notifications in the exact installed HA UI.
+3. Confirm spacing, headings, and next-step wording stay readable in real HA rendering.
+4. Remove any remaining overly wordy support or diagnostics surfaces that still feel like walls of text.
+
+**Done when**
+- runtime and setup problems feel crisp, not noisy, and they point to the correct local/native path.
+
+### Workstream G. Exact-build validation and release execution
+**Goal**
+- convert the repo candidate into a real shipped and validated `0.1.87` release
+
+**Still to do**
+1. Freeze the `0.1.87` candidate and stop adding low-value polish once the release cut line is chosen.
+2. Bump `custom_components/zero_net_export/manifest.json` and all version-coupled metadata to `0.1.87`.
+3. Align `CHANGELOG.md`, release-note text, and any version-coupled tests or helper expectations to `0.1.87`.
+4. Re-run the full validation pass on the exact candidate.
+5. Push the final candidate to `main`.
+6. Create and push tag `v0.1.87`.
+7. Publish the GitHub release.
+8. Deploy the exact `0.1.87` build to Home Assistant.
+9. Restart/reload Home Assistant and confirm the installed package matches the intended candidate.
+10. Capture live evidence that the UI outcome is actually present on the exact installed build.
+
+**Done when**
+- `0.1.87` is tagged, published, deployed, and live-validated as the intended native UI build.
+
+### Order of execution from here
+1. Finish repo-side UI work only where a remaining stage is still visibly incomplete.
+2. Freeze the `0.1.87` cut line.
+3. Bump version + release metadata.
+4. Run full validation.
+5. Tag/publish/deploy.
+6. Perform live screenshot-grade acceptance review.
+7. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.87` work instead of silently rolling the cut line forever.
+
 ### Stage 0. Baseline and source-of-truth consolidation
 **Purpose**
 - stop direction drift
