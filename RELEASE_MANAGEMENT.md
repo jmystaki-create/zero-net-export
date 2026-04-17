@@ -108,7 +108,7 @@ After restart and log review, verify live Home Assistant state, ideally via API 
 - presence of Zero Net Export entities
 - whether the release-specific bug is fixed
 - whether a new blocker appears
-- whether the installed package fingerprint shown in Configure or Health/support matches the intended repo build from `python3 scripts/print_expected_install_fingerprint.py`
+- whether the installed package fingerprint shown in Configure or Diagnostics matches the intended repo build from `python3 scripts/print_expected_install_fingerprint.py`
 
 ### 11. Report completion
 A release completion report should include:

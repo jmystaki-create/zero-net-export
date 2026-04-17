@@ -536,6 +536,14 @@ Suggested area labels:
 - **repo fix:** this run updates `scripts/print_expected_install_fingerprint.py` to emit `preferred_validation_commit` alongside `expected_component_commit`, adds `--expected-component-commit` to `scripts/deploy_exact_repo_build.py`, and rewrites `README.md` plus `docs/VALIDATION_CHECKLIST.md` so release/deploy checks anchor on the component-changing commit rather than full repo HEAD when doc-only commits are the only delta.
 - **closure evidence:** repo-side source-of-truth audit plus direct tooling/doc correction in the same run; validation guidance now distinguishes repo HEAD from the shipped component commit, and deploy tooling can pin the component commit directly so unchanged live fingerprint mismatch is not re-labeled as a new candidate just because docs moved.
 
+## ZNE-044 — Release procedure still used retired `Health/support` bucket wording
+- **closed on:** 2026-04-18
+- **severity:** `low`
+- **area:** `docs`
+- **historical behavior:** this watchdog run found one remaining source-of-truth leak in `RELEASE_MANAGEMENT.md`. Step 10 still told operators to verify the installed package fingerprint in `Configure or Health/support`, even though the current native UI source of truth has already renamed that bucket and device-page path to Diagnostics.
+- **repo fix:** this run updates `RELEASE_MANAGEMENT.md` so the live verification step now points to `Configure or Diagnostics`, matching `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `README.md`, and `docs/VALIDATION_CHECKLIST.md`.
+- **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; the remaining release procedure no longer points operators at retired support-bucket wording during fingerprint validation.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
