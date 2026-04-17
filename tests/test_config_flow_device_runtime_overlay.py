@@ -851,7 +851,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(feedback["title"], "managed-device promotion saved")
         self.assertIn("Promoted Pool pump (switch.pool_pump) into Managed Devices as a fixed load.", feedback["message"])
         self.assertIn("Managed Devices path: devices path", feedback["message"])
-        self.assertIn("Detailed review path: detailed device path", feedback["message"])
+        self.assertIn(
+            "Detailed review path, only after the main fleet step is clear: detailed device path",
+            feedback["message"],
+        )
 
     def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:
         module = _load_config_flow_module()

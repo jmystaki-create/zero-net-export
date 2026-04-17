@@ -1147,8 +1147,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             title = "managed-device update saved"
             changed = f"Updated {current_name} ({current_entity_id}) in Managed Devices."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} if more fleet tuning is needed, or use {DETAILED_MANAGEMENT_PATH} "
-                "to review runtime status after this change."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} if more fleet tuning is needed, then use {DETAILED_MANAGEMENT_PATH} "
+                "only if you need deeper per-device runtime review after that main fleet step."
             )
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
@@ -1160,7 +1160,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             title = "managed-device enablement saved"
             changed = "Saved the Managed Devices enablement review."
             next_step = (
-                f"Next step: use {DETAILED_MANAGEMENT_PATH} to confirm which enabled devices are now usable at runtime."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} if more enablement changes are needed, then use {DETAILED_MANAGEMENT_PATH} "
+                "only if you need deeper per-device runtime review after that main fleet step."
             )
         else:
             return None
@@ -1175,7 +1176,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 changed,
                 fleet_snapshot,
                 f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
-                f"Detailed review path: {DETAILED_MANAGEMENT_PATH}",
+                f"Detailed review path, only after the main fleet step is clear: {DETAILED_MANAGEMENT_PATH}",
                 next_step,
             ]
         )
