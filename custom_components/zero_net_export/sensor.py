@@ -10,6 +10,7 @@ from .candidate_utils import (
     build_candidate_name_summary,
     build_candidate_overview_summary,
     build_candidate_preview,
+    build_candidate_review_hint,
     discover_candidate_devices,
 )
 from .const import DOMAIN, INTEGRATION_VERSION
@@ -366,6 +367,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(f"{variable_candidate_count} variable")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
+                    summary_parts.append(build_candidate_review_hint(candidates[0]))
                 return _truncate_sensor_state(" | ".join(summary_parts))
             summary_parts.extend(
                 [
@@ -383,6 +385,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(f"{variable_candidate_count} variable")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
+                    summary_parts.append(build_candidate_review_hint(candidates[0]))
             if counts["blocked_count"]:
                 summary_parts.append(
                     f"blocked {first_blocked_name}" if first_blocked_name else f"{counts['blocked_count']} blocked"

@@ -28,6 +28,13 @@ _FIT_USEFULNESS_LABELS = {
     "low": "needs extra review",
 }
 
+
+def _truncate_summary(text: str, *, max_chars: int) -> str:
+    normalized = " ".join(str(text or "").split()).strip()
+    if len(normalized) <= max_chars:
+        return normalized
+    return normalized[: max_chars - 1].rstrip() + "…"
+
 _REVIEW_LEVEL_LABELS = {
     "high": "strong",
     "medium": "review",
@@ -409,6 +416,27 @@ def build_candidate_review_line(label: str, level: str, summary: str) -> str:
     return f"{label}: {level_label} - {summary}"
 
 
+def build_candidate_review_hint(
+    candidate: dict[str, Any],
+    *,
+    include_warning: bool = True,
+    max_warning_chars: int = 56,
+) -> str:
+    """Return a compact usefulness-plus-warning hint for dense unmanaged snapshots."""
+    fit = assess_candidate(candidate)
+    confidence = str(fit.get("confidence") or "medium")
+    usefulness = _FIT_USEFULNESS_LABELS.get(confidence, confidence)
+    if not include_warning:
+        return usefulness
+
+    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
+    if not warnings:
+        return usefulness
+
+    warning = _truncate_summary(warnings[0], max_chars=max_warning_chars)
+    return f"{usefulness} | warn {warning}"
+
+
 def build_candidate_preview(
     candidate: dict[str, Any],
     *,
@@ -417,7 +445,6 @@ def build_candidate_preview(
     include_state: bool = False,
 ) -> str:
     """Return a concise operator-facing preview for unmanaged candidate rows."""
-    fit = assess_candidate(candidate)
     name = str(candidate.get("name") or candidate.get("entity_id") or "candidate")
     entity_id = str(candidate.get("entity_id") or "")
     kind = str(candidate.get("kind") or "unknown")
@@ -432,10 +459,12 @@ def build_candidate_preview(
         detail_bits.append(f"state {state}")
 
     heading = name if not detail_bits else f"{name} ({', '.join(detail_bits)})"
-    confidence = str(fit.get("confidence") or "medium")
-    usefulness = _FIT_USEFULNESS_LABELS.get(confidence, confidence)
-    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
-    key_warning = warnings[0] if warnings else "No immediate warnings"
+    review_hint = build_candidate_review_hint(candidate, include_warning=True, max_warning_chars=96)
+    key_warning = "No immediate warnings"
+    if " | warn " in review_hint:
+        _, _, warning = review_hint.partition(" | warn ")
+        key_warning = warning
+    usefulness = build_candidate_review_hint(candidate, include_warning=False)
 
     return f"{heading} | {usefulness} | key warning: {key_warning}"
 
@@ -478,6 +507,7 @@ def build_candidate_overview_summary(
     candidates: Iterable[dict[str, Any]],
     *,
     max_chars: int = 240,
+    include_top_review_hint: bool = True,
 ) -> str:
     """Return a compact managed-vs-unmanaged snapshot distinct from the shortlist."""
     candidate_list = list(candidates)
@@ -495,6 +525,8 @@ def build_candidate_overview_summary(
         summary_parts.append(f"{variable_count} variable")
     if top_name:
         summary_parts.append(f"top {top_name}")
+    if include_top_review_hint and candidate_list:
+        summary_parts.append(build_candidate_review_hint(candidate_list[0]))
 
     summary = " | ".join(summary_parts)
     while len(summary_parts) > 2 and len(summary) > max_chars:

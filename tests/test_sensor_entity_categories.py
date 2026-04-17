@@ -91,6 +91,7 @@ def _load_sensor_module():
     candidate_utils_module.build_candidate_name_summary = lambda candidates, **kwargs: "candidate names"
     candidate_utils_module.build_candidate_overview_summary = lambda candidates, **kwargs: "candidate overview"
     candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
+    candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "strong match"
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 
@@ -271,7 +272,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed | 1 variable | top AC Outlet 2")
+        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed | 1 variable | top AC Outlet 2 | strong match")
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
         self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
         self.assertEqual(overview.extra_state_attributes["top_candidate_name"], "AC Outlet 2")
@@ -377,7 +378,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 2 unmanaged | 1 fixed | 1 variable | top AC Outlet 2 | 1 fixed | 1185 W nominal",
+            "1 managed | 1 enabled | 1 usable | 2 unmanaged | 1 fixed | 1 variable | top AC Outlet 2 | strong match | 1 fixed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
@@ -413,7 +414,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | 2 enabled | 1 usable | 1 unmanaged | 1 fixed | top AC Outlet 2 | blocked Pool pump | plan Pool pump | 1 fixed | 1 variable | 1185 W nominal",
+            "2 managed | 2 enabled | 1 usable | 1 unmanaged | 1 fixed | top AC Outlet 2 | strong match | blocked Pool pump | plan Pool pump | 1 fixed | 1 variable | 1185 W nominal",
         )
         self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
         self.assertEqual(overview.extra_state_attributes["first_active_plan_device"], "Pool pump")
@@ -436,7 +437,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "0 managed | 1 unmanaged | repair sources first | 1 fixed | top AC Outlet 2",
+            "0 managed | 1 unmanaged | repair sources first | 1 fixed | top AC Outlet 2 | strong match",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -478,7 +479,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | repair sources first | 2 unmanaged | 1 fixed | 1 variable | top AC Outlet 2 | 1 fixed | 1185 W nominal",
+            "1 managed | 1 enabled | 1 usable | repair sources first | 2 unmanaged | 1 fixed | 1 variable | top AC Outlet 2 | strong match | 1 fixed | 1185 W nominal",
         )
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
@@ -581,7 +582,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 1 unmanaged | 1 fixed | top AC Outlet 2 | 1 fixed",
+            "1 managed | 1 enabled | 1 usable | 1 unmanaged | 1 fixed | top AC Outlet 2 | strong match | 1 fixed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)

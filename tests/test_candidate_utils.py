@@ -380,7 +380,29 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_overview_summary(candidates)
 
-        self.assertEqual(summary, "4 candidates | 3 fixed | 1 variable | top AC Outlet 2")
+        self.assertEqual(summary, "4 candidates | 3 fixed | 1 variable | top AC Outlet 2 | strong match")
+        self.assertLessEqual(len(summary), 240)
+
+    def test_build_candidate_overview_summary_carries_top_warning_hint(self) -> None:
+        module = _load_candidate_utils_module()
+
+        summary = module.build_candidate_overview_summary(
+            [
+                {
+                    "name": "Virtual load",
+                    "entity_id": "input_boolean.virtual_load",
+                    "kind": "fixed",
+                    "domain": "input_boolean",
+                    "state": "on",
+                    "unit": "",
+                    "device_class": "",
+                },
+                {"name": "Hot water relay", "entity_id": "switch.hot_water", "kind": "fixed"},
+            ]
+        )
+
+        self.assertIn("2 candidates | 2 fixed | top Virtual load | needs extra review", summary)
+        self.assertIn("warn This is an input_boolean helper.", summary)
         self.assertLessEqual(len(summary), 240)
 
     def test_discover_candidate_devices_demotes_anonymous_numbered_outlets_below_named_appliances(self) -> None:

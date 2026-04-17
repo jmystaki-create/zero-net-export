@@ -159,7 +159,7 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
 
 
 def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
-    overview = build_candidate_overview_summary(candidates)
+    overview = build_candidate_overview_summary(candidates, include_top_review_hint=False)
     if not candidates:
         return overview
 

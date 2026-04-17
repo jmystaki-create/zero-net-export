@@ -180,6 +180,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     candidate_utils_module.discover_candidate_devices = _discover_candidate_devices
     candidate_utils_module.assess_candidate = _assess_candidate
     candidate_utils_module.build_candidate_overview_summary = _build_candidate_overview_summary
+    candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "strong match"
     candidate_utils_module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
         f"{candidate['name']} ("
         + ", ".join(

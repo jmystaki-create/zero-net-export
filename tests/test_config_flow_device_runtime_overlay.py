@@ -104,6 +104,7 @@ def _load_config_flow_module():
         + " | strong match | key warning: No immediate warnings"
     )
     candidate_utils_module.build_candidate_review_line = lambda label, level, summary: f"{label}: {level} - {summary}"
+    candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "strong match"
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 

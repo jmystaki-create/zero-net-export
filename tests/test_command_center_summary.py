@@ -219,6 +219,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed candidates", summary["fleet_activity_summary"])
         self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
+        self.assertIn("strong match", summary["fleet_activity_summary"])
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged ready", summary["device_status"])

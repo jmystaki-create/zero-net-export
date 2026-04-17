@@ -7,7 +7,7 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .candidate_utils import discover_candidate_devices
+from .candidate_utils import build_candidate_review_hint, discover_candidate_devices
 from .const import (
     CONF_BATTERY_RESERVE_SOC,
     CONF_BATTERY_CHARGE_POWER_ENTITY,
@@ -1183,6 +1183,7 @@ def _build_command_center_fleet_activity_summary(
     fixed_candidate_count: int,
     variable_candidate_count: int,
     top_candidate_name: str,
+    top_candidate_review_hint: str,
     source_blocked: bool,
 ) -> str:
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
@@ -1226,6 +1227,8 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(f"{variable_candidate_count} variable candidates")
         if top_candidate_name:
             summary_parts.append(f"top {top_candidate_name}")
+            if top_candidate_review_hint:
+                summary_parts.append(top_candidate_review_hint)
     elif managed_count == 0:
         summary_parts.append("no unmanaged candidates")
 
@@ -1246,6 +1249,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
     candidates, top_candidate_name = _command_center_candidate_snapshot(coordinator, state)
+    top_candidate_review_hint = build_candidate_review_hint(candidates[0]) if candidates else ""
     candidate_count = len(candidates)
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
@@ -1517,6 +1521,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             fixed_candidate_count=fixed_candidate_count,
             variable_candidate_count=variable_candidate_count,
             top_candidate_name=top_candidate_name,
+            top_candidate_review_hint=top_candidate_review_hint,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         ),
         fallback=device_status,
