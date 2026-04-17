@@ -364,12 +364,14 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "entity_id": "number.ev_limit",
                 "enabled": True,
                 "effective_enabled": False,
+                "operator_enabled_override": False,
                 "usable": False,
                 "status": "Held by guard",
                 "guard_status": "cooldown",
                 "planned_action": "hold",
                 "last_action_status": "throttled",
                 "priority": 20,
+                "operator_priority_override": 20,
                 "nominal_power_w": 7000,
                 "current_power_w": 1800,
                 "current_target_power_w": 2200,
@@ -391,6 +393,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("power=1800 W", variable_label)
         self.assertIn("target=2200 W", variable_label)
         self.assertIn("last=throttled", variable_label)
+        self.assertIn("priority_override=20", variable_label)
+        self.assertIn("enabled_override=off", variable_label)
         self.assertIn("1 enabled", summary_lines[0])
         self.assertIn("1 usable", summary_lines[0])
         self.assertIn("1 blocked", summary_lines[0])
@@ -399,6 +403,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("power=1800 W", summary_lines[1])
         self.assertIn("target=2200 W", summary_lines[1])
         self.assertIn("guard=cooldown", summary_lines[1])
+        self.assertIn("priority_override=20", summary_lines[1])
+        self.assertIn("enabled_override=off", summary_lines[1])
         self.assertIn("Pool pump", summary_lines[2])
         self.assertIn("power=1185 W", summary_lines[2])
         self.assertIn("plan=turn_on", summary_lines[2])

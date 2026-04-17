@@ -736,6 +736,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         state = "enabled" if device.get("effective_enabled", device.get("enabled", True)) else "disabled"
         priority = int(device.get("priority", 0) or 0)
         nominal_power = int(float(device.get("nominal_power_w", 0) or 0))
+        operator_priority_override = device.get("operator_priority_override")
+        operator_enabled_override = device.get("operator_enabled_override")
         runtime_bits: list[str] = []
         if device.get("usable") is not None:
             runtime_bits.append("usable" if device.get("usable") else "not usable")
@@ -750,6 +752,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             runtime_bits.append(f"plan={device.get('planned_action')}")
         if device.get("last_action_status"):
             runtime_bits.append(f"last={device.get('last_action_status')}")
+        if operator_priority_override is not None:
+            runtime_bits.append(f"priority_override={int(operator_priority_override)}")
+        if operator_enabled_override is not None:
+            runtime_bits.append(f"enabled_override={'on' if operator_enabled_override else 'off'}")
         runtime_summary = f" [{' | '.join(runtime_bits)}]" if runtime_bits else ""
         return (
             f"{device.get('name', 'Unnamed device')}{runtime_summary} "

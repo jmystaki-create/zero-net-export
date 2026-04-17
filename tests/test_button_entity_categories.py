@@ -562,6 +562,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "enabled": True,
                 "effective_enabled": True,
                 "priority": 40,
+                "operator_priority_override": 55,
+                "operator_enabled_override": False,
                 "current_power_w": 1800,
                 "current_target_power_w": 2200,
                 "guard_status": "ready",
@@ -572,7 +574,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             line,
-            "- EV charger: variable | Tracking export | usable | enabled | priority=40 | power=1800 W | target=2200 W | guard=ready | plan=set_power | last=throttled",
+            "- EV charger: variable | Tracking export | usable | enabled | priority=40 | priority_override=55 | enabled_override=off | power=1800 W | target=2200 W | guard=ready | plan=set_power | last=throttled",
         )
 
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:

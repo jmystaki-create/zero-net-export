@@ -746,6 +746,12 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         priority = detail.get("priority")
         if priority is not None:
             runtime_bits.append(f"priority {priority}")
+        operator_priority_override = detail.get("operator_priority_override")
+        if operator_priority_override is not None:
+            runtime_bits.append(f"priority override {operator_priority_override}")
+        operator_enabled_override = detail.get("operator_enabled_override")
+        if operator_enabled_override is not None:
+            runtime_bits.append(f"enabled override {'on' if operator_enabled_override else 'off'}")
         runtime_bits.append(f"power {_format_device_power_summary(detail.get('current_power_w'))}")
         if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
             runtime_bits.append(f"target {_format_device_power_summary(detail.get('current_target_power_w'))}")
