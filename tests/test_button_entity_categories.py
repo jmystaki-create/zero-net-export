@@ -4,6 +4,7 @@ import importlib.util
 import sys
 import types
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -640,9 +641,13 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                         "operator_enabled_override": None,
                         "operator_priority_override": 75,
                         "last_action_status": "applied",
+                        "last_action_at": datetime(2026, 4, 18, 8, 32, tzinfo=timezone.utc),
+                        "last_action_seconds_ago": 125,
                         "last_action_result_message": "Turned on successfully.",
                         "last_requested_power_w": 1200,
                         "last_applied_power_w": 1200,
+                        "current_active_seconds": 930,
+                        "active_runtime_today_seconds": 4520,
                         "successful_action_count": 4,
                         "failed_action_count": 1,
                     }
@@ -685,11 +690,15 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Planned action: turn_on", message)
         self.assertIn("- Priority: 90", message)
         self.assertIn("- Planned power delta: 1200 W", message)
+        self.assertIn("- Active runtime now: 15m 30s", message)
+        self.assertIn("- Active runtime today: 1h 15m", message)
         self.assertNotIn("- Variable range:", message)
         self.assertNotIn("- Step size:", message)
         self.assertNotIn("- Requested target power:", message)
         self.assertIn("- Priority override: forcing 75", message)
         self.assertIn("- Enabled override: none", message)
+        self.assertIn("- Last action at: 2026-04-18T08:32:00Z", message)
+        self.assertIn("- Last action age: 2m 5s", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
         self.assertIn("Return to devices path as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
 

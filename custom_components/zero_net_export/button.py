@@ -217,6 +217,41 @@ def _format_priority_override(value: object) -> str:
         return f"forcing {value}"
 
 
+def _format_duration(seconds: object) -> str:
+    if seconds is None:
+        return "n/a"
+    try:
+        total_seconds = int(round(float(seconds)))
+    except (TypeError, ValueError):
+        return str(seconds)
+    if total_seconds < 60:
+        return f"{total_seconds}s"
+    minutes, remainder = divmod(total_seconds, 60)
+    if minutes < 60:
+        return f"{minutes}m {remainder}s" if remainder else f"{minutes}m"
+    hours, minutes = divmod(minutes, 60)
+    if hours < 24:
+        parts = [f"{hours}h"]
+        if minutes:
+            parts.append(f"{minutes}m")
+        return " ".join(parts)
+    days, hours = divmod(hours, 24)
+    parts = [f"{days}d"]
+    if hours:
+        parts.append(f"{hours}h")
+    return " ".join(parts)
+
+
+def _format_timestamp(value: object) -> str:
+    if value is None:
+        return "n/a"
+    try:
+        iso_value = value.isoformat()
+    except AttributeError:
+        iso_value = str(value)
+    return iso_value.replace("+00:00", "Z")
+
+
 def _managed_devices_blocker_first_lines(command_center: dict) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
@@ -318,6 +353,14 @@ def _build_managed_device_detail_lines(
             f"- Max active time: {int(detail.get('max_active_seconds') or 0)} s",
         ]
     )
+    if detail.get("current_active_seconds") is not None:
+        control_profile_lines.append(
+            f"- Active runtime now: {_format_duration(detail.get('current_active_seconds'))}"
+        )
+    if detail.get("active_runtime_today_seconds") is not None:
+        control_profile_lines.append(
+            f"- Active runtime today: {_format_duration(detail.get('active_runtime_today_seconds'))}"
+        )
 
     lines = [
         "Zero Net Export managed-device detail review",
@@ -353,6 +396,8 @@ def _build_managed_device_detail_lines(
         "",
         "Latest execution:",
         f"- Last action status: {detail.get('last_action_status') or 'No recent action'}",
+        f"- Last action at: {_format_timestamp(detail.get('last_action_at'))}",
+        f"- Last action age: {_format_duration(detail.get('last_action_seconds_ago'))}",
         f"- Last action result: {detail.get('last_action_result_message') or 'No recent action result recorded.'}",
         f"- Last requested power: {_format_power(detail.get('last_requested_power_w'))}",
         f"- Last applied power: {_format_power(detail.get('last_applied_power_w'))}",
