@@ -29,6 +29,14 @@ _FIT_USEFULNESS_LABELS = {
 }
 
 
+def format_count_label(count: int, singular: str, plural: str | None = None) -> str:
+    """Return a compact count label with correct singular/plural wording."""
+    if plural is None:
+        plural = f"{singular}s"
+    noun = singular if count == 1 else plural
+    return f"{count} {noun}"
+
+
 def _truncate_summary(text: str, *, max_chars: int) -> str:
     normalized = " ".join(str(text or "").split()).strip()
     if len(normalized) <= max_chars:
@@ -517,12 +525,11 @@ def build_candidate_overview_summary(
     fixed_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "fixed")
     variable_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "variable")
     top_name = str(candidate_list[0].get("name") or candidate_list[0].get("entity_id") or "").strip()
-    candidate_label = "candidate" if len(candidate_list) == 1 else "candidates"
-    summary_parts = [f"{len(candidate_list)} {candidate_label}"]
+    summary_parts = [format_count_label(len(candidate_list), "candidate")]
     if fixed_count:
-        summary_parts.append(f"{fixed_count} fixed candidates")
+        summary_parts.append(format_count_label(fixed_count, "fixed candidate"))
     if variable_count:
-        summary_parts.append(f"{variable_count} variable candidates")
+        summary_parts.append(format_count_label(variable_count, "variable candidate"))
     if top_name:
         summary_parts.append(f"top {top_name}")
     if include_top_review_hint and candidate_list:

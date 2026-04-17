@@ -134,6 +134,11 @@ FLEET_WORKSPACE_SENSOR_KEYS = {
     "candidate_shortlist_fit",
     "fleet_console_next_step",
 }
+
+
+def _count_label(count: int, singular: str, plural: str | None = None) -> str:
+    noun = singular if count == 1 else (plural or f"{singular}s")
+    return f"{count} {noun}"
 VALIDATION_ATTRIBUTE_SENSOR_KEYS = {
     "release_summary",
     "changes_preview",
@@ -362,9 +367,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if source_blocked:
                     summary_parts.append("repair sources first")
                 if fixed_candidate_count:
-                    summary_parts.append(f"{fixed_candidate_count} fixed candidates")
+                    summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
-                    summary_parts.append(f"{variable_candidate_count} variable candidates")
+                    summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
@@ -380,9 +385,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if candidate_count:
                 summary_parts.append(f"{candidate_count} unmanaged")
                 if fixed_candidate_count:
-                    summary_parts.append(f"{fixed_candidate_count} fixed candidates")
+                    summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
-                    summary_parts.append(f"{variable_candidate_count} variable candidates")
+                    summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))

@@ -272,7 +272,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidates | 1 variable candidates | top AC Outlet 2 | strong match")
+        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | top AC Outlet 2 | strong match")
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
         self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
         self.assertEqual(overview.extra_state_attributes["top_candidate_name"], "AC Outlet 2")
@@ -284,7 +284,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
             {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
         ]
-        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidates | 1 variable candidates | top AC Outlet 2"
+        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2"
         sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2; EV charger limit"
 
         coordinator = SimpleNamespace(
@@ -296,7 +296,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
         shortlist.hass = overview.hass
 
-        self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidates | 1 variable candidates | top AC Outlet 2")
+        self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2")
         self.assertEqual(shortlist.native_value, "AC Outlet 2; EV charger limit")
         self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
@@ -331,7 +331,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             ]
 
         sensor_module._candidate_devices_for_hass = _discover
-        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidates | 1 variable candidates | top AC Outlet 2"
+        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2"
         sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2; EV charger limit"
 
         coordinator = SimpleNamespace(
@@ -346,7 +346,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         shortlist.hass = hass
         top.hass = hass
 
-        self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidates | 1 variable candidates | top AC Outlet 2")
+        self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2")
         self.assertEqual(shortlist.native_value, "AC Outlet 2; EV charger limit")
         self.assertEqual(top.native_value, "candidate preview")
         self.assertEqual(len(calls), 1)
@@ -378,7 +378,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 2 unmanaged | 1 fixed candidates | 1 variable candidates | top AC Outlet 2 | strong match | 1 fixed managed | 1185 W nominal",
+            "1 managed | 1 enabled | 1 usable | 2 unmanaged | 1 fixed candidate | 1 variable candidate | top AC Outlet 2 | strong match | 1 fixed managed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
@@ -414,7 +414,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | 2 enabled | 1 usable | 1 unmanaged | 1 fixed candidates | top AC Outlet 2 | strong match | blocked Pool pump | plan Pool pump | 1 fixed managed | 1 variable managed | 1185 W nominal",
+            "2 managed | 2 enabled | 1 usable | 1 unmanaged | 1 fixed candidate | top AC Outlet 2 | strong match | blocked Pool pump | plan Pool pump | 1 fixed managed | 1 variable managed | 1185 W nominal",
         )
         self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
         self.assertEqual(overview.extra_state_attributes["first_active_plan_device"], "Pool pump")
@@ -437,7 +437,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidates | top AC Outlet 2 | strong match",
+            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | top AC Outlet 2 | strong match",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -479,7 +479,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | repair sources first | 2 unmanaged | 1 fixed candidates | 1 variable candidates | top AC Outlet 2 | strong match | 1 fixed managed | 1185 W nominal",
+            "1 managed | 1 enabled | 1 usable | repair sources first | 2 unmanaged | 1 fixed candidate | 1 variable candidate | top AC Outlet 2 | strong match | 1 fixed managed | 1185 W nominal",
         )
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
@@ -582,7 +582,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 1 unmanaged | 1 fixed candidates | top AC Outlet 2 | strong match | 1 fixed managed",
+            "1 managed | 1 enabled | 1 usable | 1 unmanaged | 1 fixed candidate | top AC Outlet 2 | strong match | 1 fixed managed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)

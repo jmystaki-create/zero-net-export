@@ -380,7 +380,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_overview_summary(candidates)
 
-        self.assertEqual(summary, "4 candidates | 3 fixed candidates | 1 variable candidates | top AC Outlet 2 | strong match")
+        self.assertEqual(summary, "4 candidates | 3 fixed candidates | 1 variable candidate | top AC Outlet 2 | strong match")
         self.assertLessEqual(len(summary), 240)
 
     def test_build_candidate_overview_summary_carries_top_warning_hint(self) -> None:

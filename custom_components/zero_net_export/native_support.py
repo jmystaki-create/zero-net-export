@@ -61,6 +61,11 @@ ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON ed
 DETAILED_MANAGEMENT_PATH = (
     f"{INTEGRATION_DEVICE_PATH} -> managed-device review buttons, per-device status sensors, reset-override buttons, and native diagnostics actions"
 )
+
+
+def _count_label(count: int, singular: str, plural: str | None = None) -> str:
+    noun = singular if count == 1 else (plural or f"{singular}s")
+    return f"{count} {noun}"
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {POLICY_SECTION_LABEL}"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
@@ -1222,9 +1227,9 @@ def _build_command_center_fleet_activity_summary(
     if candidate_count:
         summary_parts.append(f"{candidate_count} unmanaged")
         if fixed_candidate_count:
-            summary_parts.append(f"{fixed_candidate_count} fixed candidates")
+            summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         if variable_candidate_count:
-            summary_parts.append(f"{variable_candidate_count} variable candidates")
+            summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
         if top_candidate_name:
             summary_parts.append(f"top {top_candidate_name}")
             if top_candidate_review_hint:
