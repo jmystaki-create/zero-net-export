@@ -28,8 +28,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices (top section)", devices_description)
         self.assertIn("Unmanaged candidates (bottom section)", devices_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", devices_description)
-        self.assertIn("Not here:", devices_description)
-        self.assertIn("Target export, reserve, deadband, and live mode stay under Controls.", devices_description)
+        self.assertIn("Bucket ownership", devices_description)
+        self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal.", devices_description)
+        self.assertIn("Controls owns target export, reserve, deadband, and live mode.", devices_description)
 
         bulk_enable_description = steps["device_bulk_enable"]["description"]
         self.assertIn("Managed Devices owns fleet enablement", bulk_enable_description)
@@ -70,11 +71,12 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         support_description = steps["support"]["description"]
         self.assertIn("Diagnostics owns troubleshooting, repairs, and install validation", support_description)
-        self.assertIn("not normal source mapping, policy tuning, or managed-device promotion", support_description)
-        self.assertIn("Current blocker", support_description)
-        self.assertIn("Mapped-source diagnostics", support_description)
+        self.assertIn("It does not own normal source mapping, policy tuning, or managed-device promotion.", support_description)
+        self.assertIn("Diagnostics now", support_description)
+        self.assertIn("Mapped-source triage", support_description)
         self.assertIn("Install validation", support_description)
-        self.assertIn("Native paths", support_description)
+        self.assertIn("Bucket ownership and paths", support_description)
+        self.assertIn("Managed Devices stays in Configure after setup is healthy.", support_description)
 
 
 if __name__ == "__main__":
