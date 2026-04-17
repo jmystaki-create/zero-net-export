@@ -57,6 +57,10 @@ _POSITIVE_LOAD_KEYWORDS = (
     "ac ",
 )
 
+_APPLIANCE_STYLE_KEYWORDS = tuple(
+    keyword for keyword in _POSITIVE_LOAD_KEYWORDS if keyword not in {"outlet", "plug", "ac "}
+)
+
 _NEGATIVE_NON_LOAD_KEYWORDS = (
     "adguard",
     "crossfade",
@@ -190,6 +194,29 @@ def _generic_power_penalty(candidate: dict[str, Any]) -> int:
     return 1
 
 
+def _anonymous_outlet_penalty(candidate: dict[str, Any]) -> int:
+    """Return a mild penalty for numbered outlet/plug labels with no appliance context.
+
+    Generic outlet hardware names are still plausible fixed-load candidates, but they
+    should rank behind entities whose friendly names already identify a real appliance.
+    """
+    name_text = str(candidate.get("name") or "").lower().strip()
+    entity_id = str(candidate.get("entity_id") or "").lower()
+    combined_text = f"{name_text} {entity_id}".strip()
+    looks_like_outlet = (
+        str(candidate.get("device_class") or "").lower() == "outlet"
+        or "outlet" in combined_text
+        or "plug" in combined_text
+    )
+    if not looks_like_outlet:
+        return 0
+    if any(keyword in combined_text for keyword in _APPLIANCE_STYLE_KEYWORDS):
+        return 0
+    if any(char.isdigit() for char in combined_text):
+        return 2
+    return 1
+
+
 def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
     """Return a secondary rank that prefers likely real loads over obvious service toggles."""
     text = _candidate_text(candidate)
@@ -198,6 +225,7 @@ def _candidate_desirability_rank(candidate: dict[str, Any]) -> int:
         score -= 2
     score += _negative_non_load_penalty(candidate)
     score += _generic_power_penalty(candidate)
+    score += _anonymous_outlet_penalty(candidate)
     if str(candidate.get("device_class") or "").lower() == "outlet":
         score -= 1
     return score

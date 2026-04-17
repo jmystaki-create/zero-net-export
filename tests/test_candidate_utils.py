@@ -57,9 +57,9 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(
             [candidate["entity_id"] for candidate in candidates],
             [
-                "switch.ac_outlet_2",
                 "switch.hot_water",
                 "number.ev_charger_limit",
+                "switch.ac_outlet_2",
                 "input_number.helper_limit",
                 "input_boolean.virtual_load",
             ],
@@ -174,8 +174,8 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(
             [candidate["entity_id"] for candidate in candidates],
             [
-                "switch.ac_outlet_2",
                 "switch.ebike_charger",
+                "switch.ac_outlet_2",
             ],
         )
 
@@ -267,9 +267,9 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(
             [candidate["entity_id"] for candidate in candidates],
             [
-                "switch.ac_outlet_2",
                 "switch.coffee_machine",
                 "switch.ebike_charger",
+                "switch.ac_outlet_2",
                 "switch.third_bedroom_power",
                 "switch.garage_power",
             ],
@@ -382,6 +382,27 @@ class CandidateUtilsTests(unittest.TestCase):
 
         self.assertEqual(summary, "4 candidates | 3 fixed | 1 variable | top AC Outlet 2")
         self.assertLessEqual(len(summary), 240)
+
+    def test_discover_candidate_devices_demotes_anonymous_numbered_outlets_below_named_appliances(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.ac_outlet_2", state="off", attributes={"friendly_name": "AC Outlet 2", "device_class": "outlet"}),
+            SimpleNamespace(entity_id="switch.smart_plug_6", state="off", attributes={"friendly_name": "Smart Plug 6"}),
+            SimpleNamespace(entity_id="switch.coffee_machine", state="off", attributes={"friendly_name": "Coffee machine"}),
+            SimpleNamespace(entity_id="switch.air_purifier", state="off", attributes={"friendly_name": "Air Purifier"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            [
+                "switch.air_purifier",
+                "switch.coffee_machine",
+                "switch.ac_outlet_2",
+                "switch.smart_plug_6",
+            ],
+        )
 
 
 if __name__ == "__main__":
