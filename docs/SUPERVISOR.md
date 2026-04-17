@@ -18,7 +18,7 @@ What is already true:
 - The product is no longer primarily blocked by startup crashes.
 - The only supported operator path is now native Home Assistant surfaces, with Configure, the Zero Net Export device at Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device, entities, notifications, and Repairs as the intended path.
 - Managed-device onboarding already has native add, edit, remove, presets, unmanaged-candidate discovery, promotion review, shortlist guidance, and fleet review.
-- Support center, setup checklist, support snapshot, and Repairs guidance now exist as native support surfaces.
+- Diagnostics guide, diagnostics snapshot, setup checklist, and Repairs guidance now exist as native diagnostics surfaces.
 - At least one real managed device is now present in the live Home Assistant install.
 
 What is not yet true:
@@ -43,7 +43,7 @@ Do not drift into:
 ## Current goals
 
 - Treat `0.1.86` as the current live correction line, but treat `0.1.87` as the current full UI rollout target defined by `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`.
-- Make Configure the clear native command center for sources, policy, managed devices, and support.
+- Make Configure the clear native command center for sources, policy, managed devices, and diagnostics.
 - Separate the operator information architecture into four obvious native buckets: Controls, Sensors, Managed Devices, and Diagnostics.
 - Keep the Zero Net Export brain/control surface focused on controller-level settings and decisions only, not managed-device inventory operations.
 - Make Managed Devices a first-class native workspace for enablement, priority, overrides, promotion, and fleet review.
