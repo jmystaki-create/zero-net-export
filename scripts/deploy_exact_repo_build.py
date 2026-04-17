@@ -50,6 +50,14 @@ def git_commit_full(root: Path) -> str:
     ).strip()
 
 
+def git_component_commit(root: Path) -> str:
+    return subprocess.check_output(
+        ["git", "log", "-n", "1", "--format=%H", "--", str(source_component_root().relative_to(root))],
+        cwd=root,
+        text=True,
+    ).strip()
+
+
 def ensure_expected_commit(root: Path, expected_commit: str, parser: argparse.ArgumentParser) -> None:
     actual_commit = git_commit_full(root)
     expected = expected_commit.strip()
@@ -59,6 +67,19 @@ def ensure_expected_commit(root: Path, expected_commit: str, parser: argparse.Ar
         parser.exit(
             2,
             f"ERROR: repo HEAD {actual_commit} does not match --expected-commit {expected}.\n",
+        )
+
+
+def ensure_expected_component_commit(root: Path, expected_commit: str, parser: argparse.ArgumentParser) -> None:
+    actual_commit = git_component_commit(root)
+    expected = expected_commit.strip()
+    if not expected:
+        parser.exit(2, "ERROR: --expected-component-commit requires a non-empty commit value.\n")
+    if actual_commit != expected and not actual_commit.startswith(expected):
+        parser.exit(
+            2,
+            "ERROR: latest custom_components/zero_net_export commit "
+            f"{actual_commit} does not match --expected-component-commit {expected}.\n",
         )
 
 
@@ -199,6 +220,13 @@ def main() -> int:
         help="Require the repo HEAD commit to match this full or short commit before deploying.",
     )
     parser.add_argument(
+        "--expected-component-commit",
+        help=(
+            "Require the latest custom_components/zero_net_export commit to match this full or short commit "
+            "before deploying. Prefer this when doc-only repo commits should not move the deploy target."
+        ),
+    )
+    parser.add_argument(
         "--require-clean",
         action="store_true",
         help="Fail unless the repo has no tracked, staged, or untracked changes.",
@@ -237,6 +265,8 @@ def main() -> int:
 
     if args.expected_commit:
         ensure_expected_commit(root, args.expected_commit, parser)
+    if args.expected_component_commit:
+        ensure_expected_component_commit(root, args.expected_component_commit, parser)
     if args.require_clean:
         ensure_clean_repo(root, parser)
     if args.require_upstream_sync:
@@ -254,7 +284,9 @@ def main() -> int:
         print(f"Destination: {destination_root}")
         print(f"Commit:      {git_commit(root)}")
         if args.expected_commit:
-            print(f"Expected:    {args.expected_commit}")
+            print(f"Expected repo HEAD:      {args.expected_commit}")
+        if args.expected_component_commit:
+            print(f"Expected component HEAD: {args.expected_component_commit}")
         if args.require_clean:
             print("Require clean: yes")
         if args.require_upstream_sync:
@@ -282,7 +314,9 @@ def main() -> int:
     print(f"Destination: {destination_root}")
     print(f"Commit:      {git_commit(root)}")
     if args.expected_commit:
-        print(f"Expected:    {args.expected_commit}")
+        print(f"Expected repo HEAD:      {args.expected_commit}")
+    if args.expected_component_commit:
+        print(f"Expected component HEAD: {args.expected_component_commit}")
     if args.require_clean:
         print("Require clean: yes")
     if args.require_upstream_sync:

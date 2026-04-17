@@ -60,6 +60,7 @@ def build_expected_payload() -> dict[str, object]:
         "component_root": str(component_root),
         "expected_commit": commit,
         "expected_component_commit": component_commit,
+        "preferred_validation_commit": component_commit,
         "manifest_version": str(manifest.get("version") or "unknown"),
         "tracked_files": {},
     }

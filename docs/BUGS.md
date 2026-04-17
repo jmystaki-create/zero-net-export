@@ -528,6 +528,14 @@ Suggested area labels:
 - **repo fix:** this run's implementation-map correction commit — rewrite the Stage 4 remaining item so it keeps the device page framed as the deeper per-device review path that supports Configure -> Managed Devices, instead of competing with or replacing the main fleet workspace.
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_IMPLEMENTATION_MAP.md` Stage 4 now matches `docs/UI_DESIGN.md`, `docs/SUPERVISOR.md`, and the map's own `0.1.87` rollout/acceptance sections on Configure -> Managed Devices being primary.
 
+## ZNE-043 — Fingerprint guidance still anchored release/deploy decisions to repo HEAD instead of the shipped component commit
+- **closed on:** 2026-04-18
+- **severity:** `medium`
+- **area:** `process`
+- **historical behavior:** this watchdog run confirmed the documented HA SSH validation path still reports the same unchanged mixed install, but the repo guidance around fingerprint validation was still telling operators to compare the live package against the generic expected repo commit. That let doc-only or bug-tracker-only repo commits move the apparent release/deploy target even when `custom_components/zero_net_export` itself had not changed, which is the same bookkeeping churn `docs/SUPERVISOR.md` explicitly warns against.
+- **repo fix:** this run updates `scripts/print_expected_install_fingerprint.py` to emit `preferred_validation_commit` alongside `expected_component_commit`, adds `--expected-component-commit` to `scripts/deploy_exact_repo_build.py`, and rewrites `README.md` plus `docs/VALIDATION_CHECKLIST.md` so release/deploy checks anchor on the component-changing commit rather than full repo HEAD when doc-only commits are the only delta.
+- **closure evidence:** repo-side source-of-truth audit plus direct tooling/doc correction in the same run; validation guidance now distinguishes repo HEAD from the shipped component commit, and deploy tooling can pin the component commit directly so unchanged live fingerprint mismatch is not re-labeled as a new candidate just because docs moved.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

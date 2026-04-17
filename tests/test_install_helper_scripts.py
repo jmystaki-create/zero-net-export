@@ -51,6 +51,7 @@ class PrintExpectedInstallFingerprintTests(unittest.TestCase):
 
         self.assertEqual(payload["expected_commit"], "repohead1")
         self.assertEqual(payload["expected_component_commit"], "component2")
+        self.assertEqual(payload["preferred_validation_commit"], "component2")
         self.assertEqual(payload["manifest_version"], "0.1.86")
         self.assertIn("button.py", payload["tracked_files"])
 
@@ -201,6 +202,17 @@ class DeployExactRepoBuildTests(unittest.TestCase):
         with patch.object(deploy_script, "git_commit_full", return_value="abcdef1234567890"):
             with self.assertRaises(SystemExit) as mismatch:
                 deploy_script.ensure_expected_commit(REPO_ROOT, "deadbeef", argparse_parser())
+
+        self.assertEqual(mismatch.exception.code, 2)
+
+    def test_ensure_expected_component_commit_accepts_matching_short_prefix(self) -> None:
+        with patch.object(deploy_script, "git_component_commit", return_value="1234567890abcdef"):
+            deploy_script.ensure_expected_component_commit(REPO_ROOT, "12345678", argparse_parser())
+
+    def test_ensure_expected_component_commit_rejects_mismatch(self) -> None:
+        with patch.object(deploy_script, "git_component_commit", return_value="1234567890abcdef"):
+            with self.assertRaises(SystemExit) as mismatch:
+                deploy_script.ensure_expected_component_commit(REPO_ROOT, "deadbeef", argparse_parser())
 
         self.assertEqual(mismatch.exception.code, 2)
 
