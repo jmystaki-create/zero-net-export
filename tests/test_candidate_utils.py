@@ -353,19 +353,48 @@ class CandidateUtilsTests(unittest.TestCase):
         module = _load_candidate_utils_module()
 
         candidates = [
-            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2"},
-            {"name": "AdGuard Home Filtering", "entity_id": "switch.adguard_home_filtering"},
-            {"name": "AdGuard Home Parental control", "entity_id": "switch.adguard_home_parental_control"},
-            {"name": "3rd Bedroom Crossfade", "entity_id": "switch.bedroom_crossfade"},
-            {"name": "3rd Bedroom Loudness", "entity_id": "switch.bedroom_loudness"},
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed", "domain": "switch", "state": "off"},
+            {"name": "AdGuard Home Filtering", "entity_id": "switch.adguard_home_filtering", "kind": "fixed", "domain": "switch", "state": "off"},
+            {"name": "AdGuard Home Parental control", "entity_id": "switch.adguard_home_parental_control", "kind": "fixed", "domain": "switch", "state": "off"},
+            {"name": "3rd Bedroom Crossfade", "entity_id": "switch.bedroom_crossfade", "kind": "fixed", "domain": "switch", "state": "off"},
+            {"name": "3rd Bedroom Loudness", "entity_id": "switch.bedroom_loudness", "kind": "fixed", "domain": "switch", "state": "off"},
         ]
 
         summary = module.build_candidate_name_summary(candidates)
 
-        self.assertEqual(
-            summary,
-            "AC Outlet 2; AdGuard Home Filtering; AdGuard Home Parental control; +2 more",
+        self.assertIn("AC Outlet 2 (fixed | strong match)", summary)
+        self.assertIn("AdGuard Home Filtering (fixed | plausible match)", summary)
+        self.assertIn("+2 more", summary)
+        self.assertLessEqual(len(summary), 240)
+
+    def test_build_candidate_fit_summary_carries_warning_hints(self) -> None:
+        module = _load_candidate_utils_module()
+
+        summary = module.build_candidate_fit_summary(
+            [
+                {
+                    "name": "Virtual load",
+                    "entity_id": "input_boolean.virtual_load",
+                    "kind": "fixed",
+                    "domain": "input_boolean",
+                    "state": "on",
+                    "unit": "",
+                    "device_class": "",
+                },
+                {
+                    "name": "Hot water relay",
+                    "entity_id": "switch.hot_water",
+                    "kind": "fixed",
+                    "domain": "switch",
+                    "state": "off",
+                    "unit": "",
+                    "device_class": "",
+                },
+            ]
         )
+
+        self.assertIn("Virtual load: needs extra review | warn This is an input_boolean helper.", summary)
+        self.assertIn("Hot water relay: strong match", summary)
         self.assertLessEqual(len(summary), 240)
 
     def test_build_candidate_overview_summary_distinguishes_overview_from_shortlist(self) -> None:

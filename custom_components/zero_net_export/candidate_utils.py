@@ -483,19 +483,63 @@ def build_candidate_name_summary(
     limit: int = 3,
     max_chars: int = 240,
 ) -> str:
-    """Return a compact candidate name list safe for sensor state strings."""
+    """Return a compact shortlist summary with kind plus usefulness hints."""
     candidate_list = list(candidates)
     if not candidate_list:
         return "None"
 
-    names = [str(item.get("name") or item.get("entity_id") or "candidate").strip() for item in candidate_list[:limit]]
-    names = [name for name in names if name]
+    summary_parts = [
+        (
+            f"{str(item.get('name') or item.get('entity_id') or 'candidate').strip()} "
+            f"({str(item.get('kind') or 'candidate')} | {build_candidate_review_hint(item, include_warning=False)})"
+        ).strip()
+        for item in candidate_list[:limit]
+        if str(item.get('name') or item.get('entity_id') or '').strip()
+    ]
     remainder = len(candidate_list) - min(len(candidate_list), limit)
-    summary_parts = names[:]
     if remainder > 0:
         summary_parts.append(f"+{remainder} more")
 
     summary = "; ".join(summary_parts) or "None"
+    if len(summary) <= max_chars:
+        return summary
+
+    while len(summary_parts) > 1 and len(summary) > max_chars:
+        if summary_parts[-1].startswith("+"):
+            summary_parts.pop(-2)
+        else:
+            summary_parts.pop()
+        summary = "; ".join(summary_parts)
+
+    if len(summary) <= max_chars:
+        return summary
+    return summary[: max_chars - 1].rstrip() + "…"
+
+
+def build_candidate_fit_summary(
+    candidates: Iterable[dict[str, Any]],
+    *,
+    limit: int = 3,
+    max_chars: int = 240,
+) -> str:
+    """Return shortlist fit guidance with compact warning hints when needed."""
+    candidate_list = list(candidates)
+    if not candidate_list:
+        return "No shortlist fit guidance"
+
+    summary_parts = [
+        (
+            f"{str(item.get('name') or item.get('entity_id') or 'candidate').strip()}: "
+            f"{build_candidate_review_hint(item, include_warning=True, max_warning_chars=40)}"
+        ).strip()
+        for item in candidate_list[:limit]
+        if str(item.get('name') or item.get('entity_id') or '').strip()
+    ]
+    remainder = len(candidate_list) - min(len(candidate_list), limit)
+    if remainder > 0:
+        summary_parts.append(f"+{remainder} more")
+
+    summary = "; ".join(summary_parts) or "No shortlist fit guidance"
     if len(summary) <= max_chars:
         return summary
 

@@ -68,6 +68,7 @@ def _load_sensor_module():
 
     candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
     candidate_utils_module.assess_candidate = lambda candidate: {"confidence": "high", "summary": "good", "warnings": []}
+    candidate_utils_module.build_candidate_fit_summary = lambda *args, **kwargs: "fit"
     candidate_utils_module.build_candidate_name_summary = lambda *args, **kwargs: "summary"
     candidate_utils_module.build_candidate_overview_summary = lambda *args, **kwargs: "overview"
     candidate_utils_module.build_candidate_preview = lambda *args, **kwargs: "preview"

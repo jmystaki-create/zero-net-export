@@ -7,6 +7,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .candidate_utils import (
     assess_candidate,
+    build_candidate_fit_summary,
     build_candidate_name_summary,
     build_candidate_overview_summary,
     build_candidate_preview,
@@ -430,14 +431,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return "No additional candidates"
             return build_candidate_name_summary(candidates)
         if self._key == "candidate_shortlist_fit":
-            if not candidates:
-                return "No shortlist fit guidance"
-            shortlist = candidates[:3]
-            parts = []
-            for item in shortlist:
-                fit = _candidate_fit_details(item)
-                parts.append(f"{item['name']}: {fit['confidence']}")
-            return "; ".join(parts)
+            return build_candidate_fit_summary(candidates or [])
         if self._key == "fleet_console_next_step":
             counts = _managed_fleet_counts(state.device_details)
             merged = _merged_entry_config(self.coordinator.entry)

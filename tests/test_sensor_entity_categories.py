@@ -88,6 +88,7 @@ def _load_sensor_module():
         "summary": "Looks like a plausible controllable candidate, but review before promotion.",
         "warnings": [],
     }
+    candidate_utils_module.build_candidate_fit_summary = lambda candidates, **kwargs: "candidate fit"
     candidate_utils_module.build_candidate_name_summary = lambda candidates, **kwargs: "candidate names"
     candidate_utils_module.build_candidate_overview_summary = lambda candidates, **kwargs: "candidate overview"
     candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
@@ -285,7 +286,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
         ]
         sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2"
-        sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2; EV charger limit"
+        sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2 (fixed | strong match); EV charger limit (variable | strong match)"
 
         coordinator = SimpleNamespace(
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
@@ -297,7 +298,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         shortlist.hass = overview.hass
 
         self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2")
-        self.assertEqual(shortlist.native_value, "AC Outlet 2; EV charger limit")
+        self.assertEqual(shortlist.native_value, "AC Outlet 2 (fixed | strong match); EV charger limit (variable | strong match)")
         self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
 
@@ -332,7 +333,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         sensor_module._candidate_devices_for_hass = _discover
         sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2"
-        sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2; EV charger limit"
+        sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2 (fixed | strong match); EV charger limit (variable | strong match)"
 
         coordinator = SimpleNamespace(
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
@@ -347,7 +348,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         top.hass = hass
 
         self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2")
-        self.assertEqual(shortlist.native_value, "AC Outlet 2; EV charger limit")
+        self.assertEqual(shortlist.native_value, "AC Outlet 2 (fixed | strong match); EV charger limit (variable | strong match)")
         self.assertEqual(top.native_value, "candidate preview")
         self.assertEqual(len(calls), 1)
 
