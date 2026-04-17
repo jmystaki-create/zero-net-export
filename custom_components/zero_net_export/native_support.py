@@ -733,7 +733,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     else:
         phase = "operator_ready"
         next_step = (
-            f"Validate {PRIMARY_CONFIGURE_PATH} plus {INTEGRATION_DEVICE_PATH} support actions in a real "
+            f"Validate {PRIMARY_CONFIGURE_PATH} plus {INTEGRATION_DEVICE_PATH} diagnostics actions in a real "
             "Home Assistant install and refine any remaining friction there."
         )
         summary = "Setup and troubleshooting are available through native Home Assistant surfaces."
@@ -1250,7 +1250,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif readiness_phase == "operator_ready":
         next_action_summary = str(
             readiness.get("next_step")
-            or "Validate the native Configure path and device support actions in a real Home Assistant install."
+            or "Validate the native Configure path and device diagnostics actions in a real Home Assistant install."
         )
     else:
         next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."

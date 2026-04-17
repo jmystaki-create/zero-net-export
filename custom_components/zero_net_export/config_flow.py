@@ -1515,7 +1515,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if not support_next_step:
             support_next_step = (
                 f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
-                f"{INTEGRATION_DEVICE_PATH} support actions or Settings -> Repairs if deeper triage is still needed."
+                f"{INTEGRATION_DEVICE_PATH} diagnostics actions or Settings -> Repairs if deeper triage is still needed."
             )
         support_install_consistency = build_install_consistency_summary(install_provenance)
         support_install_fingerprint_summary = build_install_fingerprint_summary(install_provenance)
@@ -2674,7 +2674,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         else:
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
             policy_next_step = (
-                f"Adjust behaviour here, then use {INTEGRATION_DEVICE_PATH}, its entities, and support actions to verify runtime health."
+                f"Adjust behaviour here, then use {INTEGRATION_DEVICE_PATH}, its entities, and diagnostics actions to verify runtime health."
             )
 
         mode_label, mode_description = _live_mode_details(self._coordinator())

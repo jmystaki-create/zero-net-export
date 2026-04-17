@@ -171,6 +171,13 @@ def _load_config_flow_module():
 
 
 class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
+    def test_config_flow_copy_uses_diagnostics_actions_wording(self) -> None:
+        source = MODULE_PATH.read_text()
+
+        self.assertIn("diagnostics actions", source)
+        self.assertNotIn("support actions", source)
+        self.assertNotIn("device support actions", source)
+
     def test_best_source_candidate_prefers_explicit_grid_export_energy_sensor(self) -> None:
         module = _load_config_flow_module()
         states = [
