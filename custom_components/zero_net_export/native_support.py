@@ -627,6 +627,27 @@ def _first_runtime_device_name(state: Any, *, predicate) -> str:
     return ""
 
 
+def _managed_runtime_mix(state: Any) -> tuple[bool, int, int, int]:
+    if state is None:
+        return False, 0, 0, 0
+    device_details = list((getattr(state, "device_details", {}) or {}).values())
+    fixed_count = int(getattr(state, "fixed_device_count", 0) or 0)
+    variable_count = int(getattr(state, "variable_device_count", 0) or 0)
+    nominal_power = int(float(getattr(state, "controllable_nominal_power_w", 0) or 0))
+
+    if not fixed_count:
+        fixed_count = sum(1 for detail in device_details if str(detail.get("kind") or "") == "fixed")
+    if not variable_count:
+        variable_count = sum(1 for detail in device_details if str(detail.get("kind") or "") == "variable")
+    if not nominal_power:
+        nominal_power = int(sum(float(detail.get("nominal_power_w", 0) or 0) for detail in device_details))
+
+    kind_known = bool(fixed_count or variable_count) or any(
+        str(detail.get("kind") or "") in {"fixed", "variable"} for detail in device_details
+    )
+    return kind_known, fixed_count, variable_count, nominal_power
+
+
 def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
     state_stale_data = bool(getattr(state, "stale_data", False)) if state is not None else False
     state_usable_device_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
@@ -1195,6 +1216,7 @@ def _build_command_center_fleet_activity_summary(
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
     enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
+    kind_known, fixed_managed_count, variable_managed_count, nominal_power_w = _managed_runtime_mix(state)
     first_blocked_device_name = _first_runtime_device_name(
         state,
         predicate=lambda detail: detail.get("usable") is False,
@@ -1215,6 +1237,11 @@ def _build_command_center_fleet_activity_summary(
     summary_parts: list[str] = [f"managed {managed_count}"]
     if managed_count > 0:
         summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+        if kind_known:
+            summary_parts.append(f"{fixed_managed_count} fixed managed")
+            if variable_managed_count:
+                summary_parts.append(f"{variable_managed_count} variable managed")
+            summary_parts.append(f"{nominal_power_w} W nominal")
     if source_blocked:
         summary_parts.append("repair sources first")
     if blocked_activity_count:

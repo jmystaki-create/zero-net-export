@@ -131,6 +131,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
             device_count=1,
             enabled_device_count=1,
             usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1200.0,
             mode="monitoring",
             health_summary="Healthy",
             diagnostic_summary="Healthy",
@@ -152,6 +154,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("managed 1", summary["fleet_activity_summary"])
         self.assertIn("enabled 1", summary["fleet_activity_summary"])
         self.assertIn("usable 1", summary["fleet_activity_summary"])
+        self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
+        self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
 
@@ -197,6 +201,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
             device_count=1,
             enabled_device_count=1,
             usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1200.0,
             blocked_planned_action_count=1,
             mode="monitoring",
             health_summary="Healthy",
@@ -226,6 +232,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
+        self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed candidate", summary["fleet_activity_summary"])
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
