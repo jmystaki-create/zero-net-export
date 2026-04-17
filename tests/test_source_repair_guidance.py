@@ -408,6 +408,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             data = None
 
         support_center = native_support.build_native_support_center(_FakeCoordinator())
+        self.assertIn("Zero Net Export diagnostics guide", support_center)
+        self.assertNotIn("native support center", support_center)
         self.assertIn("Where each native path lives:", support_center)
         self.assertIn("Why this section is recommended:", support_center)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
@@ -422,6 +424,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Managed Devices: fleet onboarding, edits, enablement, and removal.", support_center)
         self.assertIn("- Controls: controller policy defaults, thresholds, and readiness.", support_center)
         self.assertIn("- Diagnostics: runtime health, install consistency, and troubleshooting guidance.", support_center)
+        self.assertIn("Diagnostics snapshot", support_center)
 
     def test_command_center_summary_uses_positive_source_blocker_copy_when_none_exist(self) -> None:
         native_support = _load_native_support_module()

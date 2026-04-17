@@ -1470,7 +1470,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
 
 def build_native_support_center(coordinator: Any) -> str:
-    """Return a single operator-facing support bundle for native HA surfaces."""
+    """Return a single operator-facing diagnostics guide for native HA surfaces."""
     _, _, _, operator_readiness = _build_support_sections(coordinator)
     command_center = build_native_command_center_summary(coordinator)
     snapshot = build_native_support_snapshot(coordinator)
@@ -1480,7 +1480,7 @@ def build_native_support_center(coordinator: Any) -> str:
     ]
     return "\n".join(
         [
-            "Zero Net Export native support center",
+            "Zero Net Export diagnostics guide",
             "",
             f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
             "Where each native path lives:",
@@ -1510,7 +1510,7 @@ def build_native_support_center(coordinator: Any) -> str:
             "Checklist",
             *(checklist_lines or ["- No checklist available yet."]),
             "",
-            "Support snapshot",
+            "Diagnostics snapshot",
             snapshot,
         ]
     )
