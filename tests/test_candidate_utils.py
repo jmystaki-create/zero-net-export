@@ -175,7 +175,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "strong match: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.",
+            "likely useful: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.",
         )
 
     def test_assess_candidate_penalizes_obvious_service_toggle_names(self) -> None:
@@ -405,7 +405,7 @@ class CandidateUtilsTests(unittest.TestCase):
         )
 
         self.assertIn("Virtual load (input_boolean.virtual_load, fixed)", preview)
-        self.assertIn("needs extra review", preview)
+        self.assertIn("review carefully", preview)
         self.assertIn("input_boolean helper", preview)
 
     def test_build_candidate_preview_uses_no_warning_fallback_for_strong_match(self) -> None:
@@ -424,7 +424,7 @@ class CandidateUtilsTests(unittest.TestCase):
             include_state=True,
         )
 
-        self.assertIn("strong match", preview)
+        self.assertIn("likely useful", preview)
         self.assertIn("state off", preview)
         self.assertIn("No immediate warnings", preview)
 
@@ -531,8 +531,8 @@ class CandidateUtilsTests(unittest.TestCase):
             ]
         )
 
-        self.assertIn("Virtual load: needs extra review | warn This is an input_boolean helper.", summary)
-        self.assertIn("Hot water relay: strong match", summary)
+        self.assertIn("Virtual load: review carefully | warn This is an input_boolean helper.", summary)
+        self.assertIn("Hot water relay: likely useful", summary)
         self.assertLessEqual(len(summary), 240)
 
     def test_build_candidate_overview_summary_distinguishes_overview_from_shortlist(self) -> None:
@@ -569,7 +569,7 @@ class CandidateUtilsTests(unittest.TestCase):
             ]
         )
 
-        self.assertIn("2 candidates | 2 fixed candidates | top Virtual load | needs extra review", summary)
+        self.assertIn("2 candidates | 2 fixed candidates | top Virtual load | review carefully", summary)
         self.assertIn("warn This is an input_boolean helper.", summary)
         self.assertLessEqual(len(summary), 240)
 

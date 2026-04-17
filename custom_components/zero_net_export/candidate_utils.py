@@ -24,9 +24,9 @@ _CANDIDATE_DOMAIN_ORDER = {
 }
 
 _FIT_USEFULNESS_LABELS = {
-    "high": "strong match",
-    "medium": "plausible match",
-    "low": "needs extra review",
+    "high": "likely useful",
+    "medium": "possible fit",
+    "low": "review carefully",
 }
 
 

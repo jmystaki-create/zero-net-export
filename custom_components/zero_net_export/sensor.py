@@ -131,9 +131,9 @@ def _candidate_usefulness_summary(candidate: dict) -> str:
     confidence = str(fit.get("confidence") or "medium")
     warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
     usefulness = "review first" if confidence == "medium" and warnings else {
-        "high": "strong match",
-        "medium": "plausible match",
-        "low": "unlikely fit",
+        "high": "likely useful",
+        "medium": "possible fit",
+        "low": "review carefully",
     }.get(confidence, confidence)
     summary = str(fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
     return f"{usefulness}: {summary}"

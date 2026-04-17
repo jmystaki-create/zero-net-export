@@ -118,9 +118,9 @@ def _candidate_usefulness_label(fit: dict[str, Any]) -> str:
     if confidence == "medium" and warnings:
         return "review first"
     return {
-        "high": "strong match",
-        "medium": "plausible match",
-        "low": "unlikely fit",
+        "high": "likely useful",
+        "medium": "possible fit",
+        "low": "review carefully",
     }.get(confidence, confidence)
 
 

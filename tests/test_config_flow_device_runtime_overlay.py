@@ -101,10 +101,10 @@ def _load_config_flow_module():
             )
             + ")"
         )
-        + " | strong match | key warning: No immediate warnings"
+        + " | likely useful | key warning: No immediate warnings"
     )
     candidate_utils_module.build_candidate_review_line = lambda label, level, summary: f"{label}: {level} - {summary}"
-    candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "strong match"
+    candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "likely useful"
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 
@@ -637,13 +637,13 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
-            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1 | top candidate: AC Outlet 2 | top fit: strong match",
+            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1 | top candidate: AC Outlet 2 | top fit: likely useful",
         )
         self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
         self.assertEqual(
             shortlist["description_placeholders"]["top_candidate"],
-            "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+            "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
         )
         self.assertIn(
             "Pick a candidate from the shortlist or full list.",
@@ -712,13 +712,13 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | top fit: strong match",
+                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | top fit: likely useful",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
-                "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+                "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
             )
 
     def test_device_vetting_form_surfaces_blocker_summary_placeholder(self) -> None:
@@ -763,7 +763,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             result["description_placeholders"]["candidate_preview"],
-            "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+            "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
         )
         self.assertNotIn("candidate_entity_id", result["description_placeholders"])
 
@@ -891,18 +891,18 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | top fit: strong match",
+                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | top fit: likely useful",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
-                "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+                "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(
             vetting["description_placeholders"]["candidate_preview"],
-            "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+            "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
         )
         self.assertNotIn("candidate_entity_id", vetting["description_placeholders"])
 
@@ -937,7 +937,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "entity_id": "switch.ac_outlet_2",
                 "name": "AC Outlet 2",
                 "kind": module.DEVICE_KIND_FIXED,
-                "label": "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+                "label": "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
             },
             {
                 "entity_id": "number.ev_spare",
@@ -951,12 +951,12 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "entity_id": "switch.ac_outlet_2",
                 "name": "AC Outlet 2",
                 "kind": module.DEVICE_KIND_FIXED,
-                "label": "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
+                "label": "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
                 "state": "off",
             }
         ]
         flow._candidate_options = lambda kind=None: [
-            {"value": "switch.ac_outlet_2", "label": "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings"},
+            {"value": "switch.ac_outlet_2", "label": "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"},
         ]
         flow._pending_device_kind = module.DEVICE_KIND_FIXED
 
@@ -966,10 +966,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Pool pump", devices_screen["description_placeholders"]["device_summary"])
         self.assertNotIn("switch.pool_pump", devices_screen["description_placeholders"]["device_summary"])
         self.assertIn("priority 40", devices_screen["description_placeholders"]["device_summary"])
-        self.assertIn("AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings", devices_screen["description_placeholders"]["candidate_summary"])
+        self.assertIn("AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", devices_screen["description_placeholders"]["candidate_summary"])
         self.assertNotIn("switch.ac_outlet_2", devices_screen["description_placeholders"]["candidate_summary"])
         self.assertNotIn("number.ev_spare", devices_screen["description_placeholders"]["candidate_summary"])
-        self.assertIn("AC Outlet 2 (state off) | strong match | key warning: No immediate warnings", shortlist["description_placeholders"]["top_candidates"])
+        self.assertIn("AC Outlet 2 (state off) | likely useful | key warning: No immediate warnings", shortlist["description_placeholders"]["top_candidates"])
         self.assertNotIn("switch.ac_outlet_2", shortlist["description_placeholders"]["top_candidates"])
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
@@ -993,7 +993,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Promoted Pool pump into Managed Devices as a fixed load.", feedback["message"])
         self.assertNotIn("switch.pool_pump", feedback["message"])
         self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | blocked first: none | next plan: none", feedback["message"])
-        self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | top fit: strong match", feedback["message"])
+        self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | top fit: likely useful", feedback["message"])
         self.assertIn("Managed Devices path: devices path", feedback["message"])
         self.assertIn(
             "Detailed review path, only after the main fleet step is clear: detailed device path",
@@ -1042,7 +1042,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
         flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": None}})
-        flow._top_candidate_focus_text = lambda candidate: "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings"
+        flow._top_candidate_focus_text = lambda candidate: "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"
 
         next_step = flow._device_next_step(
             devices=[],
@@ -1050,7 +1050,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             candidates=[{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": module.DEVICE_KIND_FIXED}],
         )
 
-        self.assertIn("Start with AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings", next_step)
+        self.assertIn("Start with AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", next_step)
         self.assertNotIn("switch.ac_outlet_2", next_step)
 
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
