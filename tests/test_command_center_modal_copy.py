@@ -13,14 +13,17 @@ class TestCommandCenterModalCopy(unittest.TestCase):
 
         self.assertIn("basic setup and current operating picture only", description)
         self.assertIn("Open Managed Devices only after the current setup blockers are clear", description)
-        self.assertIn("Structured control board:", description)
-        self.assertIn("Setup check:", description)
-        self.assertIn("Not here:", description)
-        self.assertIn("Managed Devices and candidate promotion", description)
+        self.assertIn("\n\nNow\n- Headline decision:", description)
+        self.assertIn("\n\nStructured control board\n- Energy state:", description)
+        self.assertIn("\n\nSetup check\n- Sensors:", description)
+        self.assertIn("\n\nBasic setup paths\n- Sensors:", description)
+        self.assertIn("\n\nBucket ownership\n- Sensors owns source mapping and source health.", description)
+        self.assertIn("Managed Devices owns fleet onboarding, edits, enablement, and removal: {devices_path}", description)
         self.assertNotIn("Installed package details", description)
         self.assertNotIn("Recommended path right now", description)
         self.assertNotIn("Current mapped roles:", description)
         self.assertNotIn("Live control mode:", description)
+        self.assertNotIn("Not here:", description)
 
 
 if __name__ == "__main__":

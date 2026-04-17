@@ -13,9 +13,11 @@ class RepairsCopyTests(unittest.TestCase):
         description = self.strings["issues"]["setup_incomplete"]["description"]
         self.assertIn("Status\n• Summary:", description)
         self.assertIn("\n\nDo next\n•", description)
+        self.assertIn("\n\nFallback, only if Home Assistant rejects a valid choice\n•", description)
         self.assertIn("\n\nOpen\n• Configure:", description)
         self.assertNotIn("Known selector workaround:", description)
         self.assertNotIn("Primary path:", description)
+        self.assertNotIn("Do next\n• {next_step}\n• Selector fallback", description)
 
     def test_runtime_attention_copy_uses_compact_sections(self) -> None:
         runtime_attention = self.strings["issues"]["runtime_attention"]
@@ -24,8 +26,10 @@ class RepairsCopyTests(unittest.TestCase):
         self.assertIn("Now\n• Health:", description)
         self.assertIn("\n\nMapped-source blockers\n• Unavailable roles:", description)
         self.assertIn("\n\nDo next\n• Mapped-source repair path:", description)
+        self.assertIn("\n\nFallback, only if Home Assistant rejects a valid choice\n•", description)
         self.assertIn("\n\nOpen\n• Configure:", description)
         self.assertNotIn("Best native troubleshooting path right now:", description)
+        self.assertNotIn("Do next\n• Mapped-source repair path: {source_repair_step}\n• Next step: {next_step}\n• Selector fallback", description)
 
 
 if __name__ == "__main__":
