@@ -1191,6 +1191,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
     candidates, top_candidate_name = _command_center_candidate_snapshot(coordinator, state)
     candidate_count = len(candidates)
+    fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
+    variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
     readiness_phase = str(readiness.get("phase") or "")
     install_consistency = build_install_consistency_summary(install_provenance)
     install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
@@ -1475,6 +1477,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             for part in [
                 device_status,
                 f"{candidate_count} unmanaged" if candidate_count else None,
+                f"{fixed_candidate_count} fixed candidates" if fixed_candidate_count else None,
+                f"{variable_candidate_count} variable candidates" if variable_candidate_count else None,
                 f"top {top_candidate_name}" if top_candidate_name else None,
                 f"managed {getattr(state, 'device_count', None)}" if state is not None and getattr(state, 'device_count', None) is not None else None,
                 f"enabled {getattr(state, 'enabled_device_count', None)}" if state is not None and getattr(state, 'enabled_device_count', None) is not None else None,

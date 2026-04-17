@@ -214,6 +214,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("1 fixed candidates", summary["fleet_activity_summary"])
         self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged ready", summary["device_status"])

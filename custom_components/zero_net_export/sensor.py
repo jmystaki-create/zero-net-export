@@ -338,6 +338,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key == "managed_fleet_overview":
             counts = _managed_fleet_counts(state.device_details)
             candidate_count = len(candidates)
+            fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
+            variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
@@ -358,6 +360,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 )
                 if source_blocked:
                     summary_parts.append("repair sources first")
+                if fixed_candidate_count:
+                    summary_parts.append(f"{fixed_candidate_count} fixed")
+                if variable_candidate_count:
+                    summary_parts.append(f"{variable_candidate_count} variable")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                 return _truncate_sensor_state(" | ".join(summary_parts))
@@ -371,6 +377,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append("repair sources first")
             if candidate_count:
                 summary_parts.append(f"{candidate_count} unmanaged")
+                if fixed_candidate_count:
+                    summary_parts.append(f"{fixed_candidate_count} fixed")
+                if variable_candidate_count:
+                    summary_parts.append(f"{variable_candidate_count} variable")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
             if counts["blocked_count"]:
