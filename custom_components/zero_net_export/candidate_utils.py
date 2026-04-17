@@ -435,6 +435,19 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         safety_summary = "Confidence is low because battery-class entities are often telemetry sensors rather than safe writable controls."
         operational_value_summary = "Operational value is unclear until you confirm this entity is a real control target instead of battery telemetry."
 
+    helper_confidence_cap = {
+        "input_boolean": "low",
+        "input_number": "medium",
+    }.get(domain)
+    if helper_confidence_cap == "medium" and confidence == "high":
+        confidence = "medium"
+        safety_summary = "Helper-backed variable control still needs extra review because the entity may be a dashboard or automation helper rather than the device's native control surface."
+        operational_value_summary = "Operational value can still be good, but helper-backed variable controls should stay review-first until the operator confirms they directly drive the real load."
+    elif helper_confidence_cap == "low" and confidence != "low":
+        confidence = "low"
+        safety_summary = "Helper-backed control stays low-confidence until the operator confirms it directly drives a safe physical load."
+        operational_value_summary = "Operational value stays uncertain until the helper is confirmed to control a meaningful real-world load."
+
     if not warnings and confidence == "high":
         safety_summary = "No immediate warning stands out in the current metadata, so this candidate looks safe enough to review and promote if the operator recognizes the load."
 

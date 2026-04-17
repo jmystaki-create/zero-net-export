@@ -116,6 +116,25 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(variable_fit["safety_level"], "medium")
         self.assertIn("Variable control", variable_fit["suitability_summary"])
 
+    def test_assess_candidate_caps_helper_backed_variable_controls_at_review_first_confidence(self) -> None:
+        module = _load_candidate_utils_module()
+
+        fit = module.assess_candidate(
+            {
+                "entity_id": "input_number.lounge_room_heated_floor",
+                "name": "Lounge Room Heated Floor",
+                "domain": "input_number",
+                "kind": "variable",
+                "state": "65",
+                "unit": "%",
+                "device_class": "",
+            }
+        )
+
+        self.assertEqual(fit["confidence"], "medium")
+        self.assertIn("Helper-backed variable control", fit["safety_summary"])
+        self.assertIn("review-first", fit["operational_value_summary"])
+
     def test_assess_candidate_adds_balanced_review_dimensions_for_strong_switch(self) -> None:
         module = _load_candidate_utils_module()
 
@@ -388,6 +407,25 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("strong match", preview)
         self.assertIn("state off", preview)
         self.assertIn("No immediate warnings", preview)
+
+    def test_build_candidate_preview_keeps_helper_backed_variable_controls_review_first(self) -> None:
+        module = _load_candidate_utils_module()
+
+        preview = module.build_candidate_preview(
+            {
+                "entity_id": "input_number.lounge_room_heated_floor",
+                "name": "Lounge Room Heated Floor",
+                "kind": "variable",
+                "domain": "input_number",
+                "state": "65",
+                "unit": "%",
+                "device_class": "",
+            }
+        )
+
+        self.assertIn("plausible match", preview)
+        self.assertIn("input_number.lounge_room_heated_floor", preview)
+        self.assertIn("input_number helper", preview)
 
     def test_build_candidate_preview_demotes_generic_power_labels_to_plausible_match(self) -> None:
         module = _load_candidate_utils_module()
