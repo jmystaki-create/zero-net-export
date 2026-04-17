@@ -101,11 +101,12 @@ This section is now the explicit staged delivery map. Each phase should be imple
 - major startup-crash and release/runtime stabilization work has already happened in earlier corrective releases
 - repairs-platform root cause was identified and a repo fix was added
 - integration/entity load is no longer in the earlier hard-crash state
+- the repo-side blocking-I/O version-surface regression in `entity.py` has been removed, so the remaining work is now exact-build redeploy plus live log confirmation rather than another repo-side runtime patch
 
 **Remaining**
-- remove the current blocking-I/O version-surface regression from `entity.py`
-- keep startup clean enough that the live UI can be judged without runtime noise dominating the result
+- keep startup clean enough on the exact deployed build that the live UI can be judged without runtime noise dominating the result
 - make sure the visible UI is not being masked by restored/unavailable entity failure states
+- re-validate restart and reload persistence on the exact deployed build before treating the runtime correction line as closed
 
 **Features in this stage**
 - repairs-platform correctness
@@ -120,11 +121,11 @@ This section is now the explicit staged delivery map. Each phase should be imple
 **Completed**
 - the command-center guide has been trimmed repo-side toward setup-only posture
 - the opening summary/board structure now exists in repo state
+- the shared device-page command-center guide has also been realigned repo-side to the same setup-first `Now` / `Structured control board` / `Setup check` / `Basic setup paths` / `Bucket ownership` hierarchy, so this stage is no longer primarily blocked on more repo-side wording churn
 
 **Remaining**
-- reduce command-center content further so it only covers setup, control posture, and next step
-- remove release/install/debug clutter from the primary command-center experience
-- tighten the wording and hierarchy so the surface feels like a basic setup console rather than a text-heavy helper
+- verify on the exact deployed build that command-center content now reads as setup-first rather than release/debug-first
+- confirm the installed modal hierarchy stays compact and scannable in real Home Assistant
 
 **Features in this stage**
 - headline decision summary
@@ -165,7 +166,7 @@ This section is now the explicit staged delivery map. Each phase should be imple
 
 **Remaining**
 - make the managed-on-top / unmanaged-below structure visually obvious in live HA
-- make the device-page deeper-review path feel clearly secondary to Configure -> Managed Devices, so it supports richer per-device inspection without competing with the primary fleet workspace
+- confirm on the exact deployed build that the device-page deeper-review path reads clearly as secondary to Configure -> Managed Devices, rather than relying on repo copy alone
 - confirm the next recommended fleet action is obvious at a glance in the installed UI, not just in repo copy
 
 **Features in this stage**
@@ -191,7 +192,7 @@ This section is now the explicit staged delivery map. Each phase should be imple
 **Remaining**
 - validate the full pick -> review -> promote journey in live HA so it feels first-class in the installed product rather than only coherent in repo state
 - confirm the post-vetting handoff and success landing read clearly on the exact deployed build
-- make promotion feel like an obvious workflow, not a scaffold of helper buttons and summaries
+- confirm the now-expanded blocker-first snapshots, managed/unmanaged context, and success landing feel like one obvious workflow in the installed UI rather than only in repo state
 
 **Features in this stage**
 - shortlist and full candidate selection
@@ -251,8 +252,8 @@ This section is now the explicit staged delivery map. Each phase should be imple
 
 **Remaining**
 - validate the concrete native entry path in live HA, including the new per-device review buttons on the Zero Net Export device page
-- refine what detail belongs there versus on the top-level Managed Devices path
-- make sure it supports richer device review without diluting the top-level fleet workflow
+- confirm the richer per-device row detail now lands in the right native surface split, with Configure -> Managed Devices staying primary and device-page review staying secondary
+- make sure the installed device-page review path supports richer device inspection without diluting the top-level fleet workflow
 
 **Features in this stage**
 - deeper fleet review
