@@ -59,7 +59,7 @@ SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {SOURCES_SECTION_LABEL}"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {DEVICES_SECTION_LABEL}"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 DETAILED_MANAGEMENT_PATH = (
-    f"{INTEGRATION_DEVICE_PATH} -> managed-device review buttons, per-device status sensors, reset-override buttons, and native support actions"
+    f"{INTEGRATION_DEVICE_PATH} -> managed-device review buttons, per-device status sensors, reset-override buttons, and native diagnostics actions"
 )
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {POLICY_SECTION_LABEL}"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"

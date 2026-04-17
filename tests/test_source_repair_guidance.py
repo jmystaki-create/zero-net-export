@@ -426,6 +426,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Diagnostics: runtime health, install consistency, and troubleshooting guidance.", support_center)
         self.assertIn("Diagnostics snapshot", support_center)
 
+    def test_detailed_management_path_uses_diagnostics_wording(self) -> None:
+        native_support = _load_native_support_module()
+        self.assertIn("native diagnostics actions", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertNotIn("native support actions", native_support.DETAILED_MANAGEMENT_PATH)
+
     def test_support_snapshot_uses_diagnostics_snapshot_wording(self) -> None:
         native_support = _load_native_support_module()
 
