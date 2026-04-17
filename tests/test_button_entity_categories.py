@@ -78,6 +78,16 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     sys.modules[entity_spec.name] = integration_entity_module
     entity_spec.loader.exec_module(integration_entity_module)
 
+    device_model_path = PACKAGE_ROOT / "device_model.py"
+    device_model_spec = importlib.util.spec_from_file_location(
+        "custom_components.zero_net_export.device_model",
+        device_model_path,
+    )
+    assert device_model_spec and device_model_spec.loader
+    device_model_module = importlib.util.module_from_spec(device_model_spec)
+    sys.modules[device_model_spec.name] = device_model_module
+    device_model_spec.loader.exec_module(device_model_module)
+
     native_support_module = types.ModuleType("custom_components.zero_net_export.native_support")
     native_support_module.DETAILED_MANAGEMENT_PATH = "detailed device path"
     native_support_module.DEVICES_CONFIGURE_PATH = "devices path"

@@ -448,6 +448,14 @@ Suggested area labels:
 - **repo fix:** this run's test-stub coverage fix commit — restore the test stub's `homeassistant` package hierarchy so the button entity-category test reflects the real import contract and the full repo suite passes again
 - **closure evidence:** `python3 -m unittest tests.test_button_entity_categories` passed after the stub fix, followed by `python3 -m unittest discover -s tests` passing repo-wide on 2026-04-15
 
+## ZNE-045 — Button entity-category test loader drifted behind the new managed-snapshot import
+- **closed on:** 2026-04-18
+- **severity:** `low`
+- **area:** `process`
+- **historical behavior:** after `33f6138` started importing `DEVICE_KIND_FIXED` and `DEVICE_KIND_VARIABLE` into `custom_components/zero_net_export/button.py`, `tests/test_button_entity_categories.py` still loaded the button module without first providing `custom_components.zero_net_export.device_model`, so the targeted repo verification set started failing with `ImportError: cannot import name 'DEVICE_KIND_FIXED'` before any button assertions ran.
+- **repo fix:** this run's test-loader alignment commit — load the real `device_model.py` module inside `tests/test_button_entity_categories.py` before importing `button.py`, so the button test harness matches the current module import contract instead of stubbing an incomplete package graph.
+- **closure evidence:** `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_candidate_utils tests.test_sensor_entity_categories tests.test_command_center_summary tests.test_translation_sync` passed after the loader fix on 2026-04-18
+
 ## ZNE-008 — Source-of-truth UI docs still treated dashboards as a required `0.1.83` deliverable
 - **closed on:** 2026-04-15
 - **severity:** `medium`
