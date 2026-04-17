@@ -43,7 +43,8 @@ If a change does not materially improve one of those visible outcomes, it should
 - Diagnostics/support text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
-- The live Home Assistant install no longer matches the current repo candidate, so exact-build redeploy plus fingerprint revalidation is blocking honest UI judgment.
+- The live Home Assistant install still does not match the current repo candidate. Current SSH fingerprint recheck still shows 10 tracked-file mismatches (`__init__.py`, `button.py`, `candidate_utils.py`, `config_flow.py`, `coordinator.py`, `diagnostics.py`, `native_support.py`, `sensor.py`, `strings.json`, `translations/en.json`), so exact-build redeploy plus fingerprint revalidation is still required before final release judgment or screenshot-grade acceptance proof.
+- That exact-build mismatch is a release/deploy gate, not the default next build-stage headline while unfinished repo-side work still remains in Workstreams A through F below.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reinstalled and reviewed.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
