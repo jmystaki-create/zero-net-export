@@ -845,7 +845,12 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
+        module.discover_candidate_devices = lambda states, managed_ids: [
+            {"entity_id": "switch.ac_outlet_2", "name": "AC Outlet 2", "kind": module.DEVICE_KIND_FIXED},
+            {"entity_id": "number.ev_charger", "name": "EV Charger", "kind": module.DEVICE_KIND_VARIABLE},
+        ]
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={})
 
         feedback = flow._build_device_action_feedback(
             action="promote",
@@ -857,6 +862,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         assert feedback is not None
         self.assertEqual(feedback["title"], "managed-device promotion saved")
         self.assertIn("Promoted Pool pump (switch.pool_pump) into Managed Devices as a fixed load.", feedback["message"])
+        self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | blocked first: none | next plan: none", feedback["message"])
+        self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2", feedback["message"])
         self.assertIn("Managed Devices path: devices path", feedback["message"])
         self.assertIn(
             "Detailed review path, only after the main fleet step is clear: detailed device path",
@@ -866,6 +873,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
     def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(data={})
 
         feedback = flow._build_device_action_feedback(
             action="bulk_enable",
@@ -879,6 +887,26 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         assert feedback is not None
         self.assertEqual(feedback["title"], "managed-device enablement saved")
         self.assertIn("Fleet now: 2 managed | 1 enabled | 1 disabled", feedback["message"])
+        self.assertIn("Managed now: 2 | enabled: 1 | usable: 0 | blocked first: none | next plan: none", feedback["message"])
+        self.assertIn("Unmanaged now: 0 | fixed candidates: 0 | variable candidates: 0 | top candidate: none", feedback["message"])
+
+    def test_build_device_action_feedback_prioritizes_blocker_first_handoff(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow._device_blocker_summary = lambda: "Before fleet work: Open sources path and finish the required source mapping.\nWhy: Missing required source roles.\nPath: sources path"
+
+        feedback = flow._build_device_action_feedback(
+            action="promote",
+            devices=[{"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True}],
+            device={"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertIn("Blocker-first handoff:", feedback["message"])
+        self.assertIn("- Before fleet work: Open sources path and finish the required source mapping.", feedback["message"])
+        self.assertIn("- Why: Missing required source roles.", feedback["message"])
+        self.assertIn("Next step: Open sources path and finish the required source mapping.", feedback["message"])
 
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
         module = _load_config_flow_module()

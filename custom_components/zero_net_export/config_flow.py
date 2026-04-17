@@ -1135,6 +1135,18 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         kind_label = "fixed load" if str((device or previous_device or {}).get("kind")) == DEVICE_KIND_FIXED else "variable load"
         current_name = str((device or {}).get("name") or (previous_device or {}).get("name") or "Managed device")
         current_entity_id = str((device or {}).get("entity_id") or (previous_device or {}).get("entity_id") or "")
+        blocker_summary = self._device_blocker_summary()
+        blocker_lines = [line.strip() for line in blocker_summary.splitlines() if line.strip()]
+        blocker_active = any(line.startswith("Before fleet work:") for line in blocker_lines)
+
+        managed_ids = {str(item.get("entity_id")) for item in devices if item.get("entity_id")}
+        candidates = (
+            discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+            if getattr(getattr(self, "hass", None), "states", None) is not None
+            else []
+        )
+        managed_snapshot = self._managed_snapshot_text(devices)
+        unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
 
         if action == "promote" and device is not None:
             title = "managed-device promotion saved"
@@ -1166,21 +1178,33 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         else:
             return None
 
-        fleet_snapshot = (
-            f"Fleet now: {managed_count} managed | {enabled_count} enabled | {disabled_count} disabled"
-        )
-        message = "\n".join(
-            [
-                "Zero Net Export managed-device update",
+        if blocker_active:
+            next_step = f"Next step: {blocker_lines[0].removeprefix('Before fleet work: ').strip()}"
+
+        fleet_snapshot = f"Fleet now: {managed_count} managed | {enabled_count} enabled | {disabled_count} disabled"
+        message_lines = [
+            "Zero Net Export managed-device update",
+            "",
+            changed,
+            fleet_snapshot,
+            managed_snapshot,
+            unmanaged_snapshot,
+        ]
+        if blocker_active:
+            message_lines.extend([
                 "",
-                changed,
-                fleet_snapshot,
+                "Blocker-first handoff:",
+                *[f"- {line}" for line in blocker_lines],
+            ])
+        message_lines.extend(
+            [
+                "",
                 f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
                 f"Detailed review path, only after the main fleet step is clear: {DETAILED_MANAGEMENT_PATH}",
                 next_step,
             ]
         )
-        return {"title": title, "message": message}
+        return {"title": title, "message": "\n".join(message_lines)}
 
     def _show_device_action_feedback(self, feedback: dict[str, str] | None) -> None:
         if not feedback:
