@@ -50,33 +50,33 @@ Target release: `0.1.87`
 ## [0.1.80] - 2026-04-12
 
 ### Fixed
-- Corrected the startup native setup notification so it now names all four Configure command-center sections, including **Health, support, and troubleshooting**, instead of implying the live operator path ends at sources, managed devices, and policy.
-- Corrected the native command-center recommendation logic so runtime-readiness and safe-mode blockers now send operators to **Health, support, and troubleshooting** with the live readiness next step, instead of incorrectly steering fully mapped installs toward policy tuning while runtime attention is still the real blocker.
+- Corrected the startup native setup notification so it now names all four Configure command-center sections, including **Diagnostics**, instead of implying the live operator path ends at sensors, managed devices, and policy.
+- Corrected the native command-center recommendation logic so runtime-readiness and safe-mode blockers now send operators to **Diagnostics** with the live readiness next step, instead of incorrectly steering fully mapped installs toward policy tuning while runtime attention is still the real blocker.
 - Renamed the native Configure source step from plain `Sources` to `Sensors and source mapping` so the actual command-center screen matches the landing guidance and keeps the main source-management path easier to recognize in Home Assistant.
 - Made the command-center landing screen and command-center guide show the current mapped source roles inline, and tightened live source-health summarising so healthy mappings no longer fall back to unrelated device/runtime reasons when operators are trying to understand source state.
 - Stopped the command-center and source-mapping screens from echoing whole-integration health summaries in the source-health slot once mappings were valid, so the native source row now stays source-specific instead of misleading operators about where remaining runtime issues live.
-- Wired the native health/support screen, support center, diagnostics snapshot, and setup checklist back to the command-center's recommended Configure section and exact path, so support-first triage now keeps pointing operators to the right native setup surface instead of dead-ending on generic health wording.
+- Wired the native Diagnostics screen, `Review diagnostics`, `Review diagnostics snapshot`, and setup checklist back to the command-center's recommended Configure section and exact path, so diagnostics-first triage now keeps pointing operators to the right native setup surface instead of dead-ending on generic health wording.
 - Tightened the remaining source-mapping remediation copy so Configure now points operators back to the exact **Sensors and source mapping** path instead of vague `here` or `reopen Configure` wording while source validation is still blocking progress.
 - Tightened native command-center, fleet-console, diagnostics, support-center, and checklist path guidance so those shipped Home Assistant surfaces now point to the exact Configure section they belong to instead of leaking the generic root Configure path during operator triage.
 - Broadened the native combined-grid energy and battery-SOC dropdown matching so Configure now lists compatible sensors that expose the right units or state class even when vendors omit the ideal Home Assistant device_class, reducing fallback-field friction in real installs.
 - Tightened the remaining native support and Repairs recovery wording so runtime-attention and invalid-managed-device issues now name the exact Configure, managed-device, and advanced JSON recovery paths instead of vague `open the native Configure flow` guidance.
 - Added native device-page diagnostic sensors for mapped-source blocker summary and mapped-source next step, so operators can see the current source blocker and the exact Configure -> Sensors and source mapping remediation path directly from the integration's entity surface while safe mode is holding control.
 - Corrected the new full managed-device candidate picker wording so it no longer implies the dropdown itself accepts a typed manual path, and instead tells operators to choose the explicit manual-selection option when the right entity is not listed.
-- Replaced the remaining vague `integration device page` runtime wording with the full native Home Assistant device path for Mode, diagnostics, and support actions, so command-center guidance no longer leaks a fuzzy non-path while the supervisor is pushing exact native operator discoverability.
+- Replaced the remaining vague `integration device page` runtime wording with the full native Home Assistant device path for Mode, diagnostics, and diagnostics actions, so command-center guidance no longer leaks a fuzzy non-path while the supervisor is pushing exact native operator discoverability.
 - Replaced the last shorthand `Open Configure` operator next-step prompts in Repairs, support readiness, and fleet guidance with exact native Home Assistant paths, so the shipped runtime surfaces stay aligned with the command-center discoverability push.
 - Fixed the native source-mapping validation redisplay so the Configure screen now always supplies the **Affected mapped sources** summary when blocking source errors send operators back through the form, instead of dropping that command-center guidance right at the point of failure.
 - Fixed the native command-center diagnostic sensor so **Command center status** now reports the current status of the recommended native section instead of incorrectly echoing the section name, and made the managed-device status read from live runtime usability when available.
-- Made the native Configure policy screen name the exact native paths back to sources, managed devices, and health/support, so operators do not have to infer where to go next from the command center once they start adjusting controller behaviour.
+- Made the native Configure policy screen name the exact native paths back to sensors, managed devices, and diagnostics, so operators do not have to infer where to go next from the command center once they start adjusting controller behaviour.
 - Made the native Configure source/support screens and startup setup notice name the exact mapped source roles and entity ids that are unavailable or stale, so live Home Assistant installs can see which source binding is holding safe mode without digging through raw diagnostics.
 - Made the native Configure copy more explicit about where to start after install and where device management versus policy tuning live, reducing the current operator-discoverability gap without adding any new surfaces.
 - Aligned the implementation trail with the supervisor's native-HA-only release stance so optional Lovelace/dashboard work is no longer presented as a near-term priority ahead of Configure, native diagnostics, and real-install validation.
-- Aligned the native support-path wording so the Configure command center and README both point operators to the full **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Health, support, and troubleshooting** path before deeper device-page and Repairs triage.
+- Aligned the native diagnostics-path wording so the Configure command center and README both point operators to the full **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Diagnostics** path before deeper device-page and Repairs triage.
 - Tightened the README native device/support guidance so it names the exact integration device path instead of the vague `integration device page` shorthand.
 - Clarified the README native Configure walkthrough so the main managed-device workspace is described once, in sequence, instead of splitting device management guidance across duplicated steps that obscured the intended operator flow.
 - Made the native managed-device edit and remove pickers self-orienting by showing the current fleet, the main Configure path, and the recommended next device action instead of dropping operators into bare selector-only screens.
 - Corrected the release-process background doc so it no longer claims the first formal GitHub release may still be unpublished, and instead reflects the current tagged-release line plus the requirement to complete the full `RELEASE_MANAGEMENT.md` ship path before calling work shipped.
 - Normalized the remaining native operator next-step guidance so notifications, repairs, sensors, and Configure screens now point to the full Home Assistant path for Sources, Managed devices, and Policy instead of shorthand `Open Configure -> ...` wording that made the command-center path less discoverable in live installs.
-- Fixed section-level Configure screens that were still showing the generic root Configure path instead of the exact Sources, Managed devices, Policy, Support, or Advanced recovery route, so operators can tell where they are inside the native command center without backtracking.
+- Fixed section-level Configure screens that were still showing the generic root Configure path instead of the exact Sensors, Managed devices, Policy, Diagnostics, or Advanced recovery route, so operators can tell where they are inside the native command center without backtracking.
 
 ## [0.1.79] - 2026-04-11
 
@@ -204,7 +204,7 @@ Target release: `0.1.87`
 
 ### Added
 - Added a native managed-device add/remove flow in Configure for common fixed and variable devices, so normal onboarding no longer requires hand-editing `device_inventory_json`.
-- Added a native **Show support center** device-page action that publishes one combined readiness/checklist/support snapshot notification for faster operator triage.
+- Added a native **Review diagnostics** device-page action that publishes one combined readiness/checklist/diagnostics snapshot notification for faster operator triage.
 
 ### Changed
 - Reframed README, product spec, implementation plan, and validation guidance around the current reality: the HA-first path is correct but still transitional, managed-device JSON still exists under the hood, and real-world validation remains in progress.
@@ -243,7 +243,7 @@ Target release: `0.1.87`
 - Added an explicit recommended validation run order to the validation checklist so the next project push stays focused on real Home Assistant install proof, panel-first onboarding, and Configure -> setup handoff verification.
 - Added a new overview-level **Diagnostics at a glance** section plus direct jumps into **Diagnostics** and **Setup**, so runtime health and troubleshooting are visible from the main operator surface instead of being easy to miss.
 - Added a diagnostics-tab **Support Snapshot** block with in-place copy action, so setup/runtime evidence is easier to grab without hunting through Settings first.
-- Added native Home Assistant diagnostic buttons on the integration device page, **Show native diagnostics snapshot** and **Show setup checklist**, so operators can surface troubleshooting state without relying on the custom `/zero-net-export` route.
+- Added native Home Assistant diagnostic buttons on the integration device page, **Review diagnostics snapshot** and **Show setup checklist**, so operators can surface troubleshooting state without relying on the custom `/zero-net-export` route.
 - Added native-surface operator-readiness detail to the config-entry diagnostics export, so exported diagnostics now reflect the same next-step guidance exposed by the device-page fallback path.
 
 ### Changed
