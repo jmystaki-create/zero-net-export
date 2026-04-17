@@ -159,6 +159,46 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("feature toggle or service control", fit["suitability_summary"])
         self.assertIn("does not clearly look like a physical discretionary load", fit["safety_summary"])
 
+    def test_assess_candidate_penalizes_generic_power_labels(self) -> None:
+        module = _load_candidate_utils_module()
+
+        fit = module.assess_candidate(
+            {
+                "entity_id": "switch.garage_power",
+                "name": "Garage Power",
+                "domain": "switch",
+                "kind": "fixed",
+                "state": "off",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+
+        self.assertEqual(fit["confidence"], "medium")
+        self.assertTrue(any("generic power/circuit wording" in warning for warning in fit["warnings"]))
+        self.assertIn("generic enough", fit["suitability_summary"])
+        self.assertIn("generic circuit labels", fit["operational_value_summary"])
+
+    def test_assess_candidate_penalizes_anonymous_outlets(self) -> None:
+        module = _load_candidate_utils_module()
+
+        fit = module.assess_candidate(
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "domain": "switch",
+                "kind": "fixed",
+                "state": "off",
+                "unit": "",
+                "device_class": "outlet",
+            }
+        )
+
+        self.assertEqual(fit["confidence"], "medium")
+        self.assertTrue(any("generic outlet hardware" in warning for warning in fit["warnings"]))
+        self.assertIn("anonymous outlet labels", fit["suitability_summary"])
+        self.assertIn("what is plugged into it", fit["warnings"][0] if fit["warnings"] else "")
+
     def test_discover_candidate_devices_excludes_media_feature_toggles_and_none_wrappers_but_keeps_real_loads(self) -> None:
         module = _load_candidate_utils_module()
         states = [
@@ -349,6 +389,24 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("state off", preview)
         self.assertIn("No immediate warnings", preview)
 
+    def test_build_candidate_preview_demotes_generic_power_labels_to_plausible_match(self) -> None:
+        module = _load_candidate_utils_module()
+
+        preview = module.build_candidate_preview(
+            {
+                "entity_id": "switch.garage_power",
+                "name": "Garage Power",
+                "kind": "fixed",
+                "domain": "switch",
+                "state": "off",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+
+        self.assertIn("plausible match", preview)
+        self.assertIn("generic power/circuit wording", preview)
+
     def test_build_candidate_name_summary_stays_compact_for_sensor_states(self) -> None:
         module = _load_candidate_utils_module()
 
@@ -362,7 +420,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_name_summary(candidates)
 
-        self.assertIn("AC Outlet 2 (fixed | strong match)", summary)
+        self.assertIn("AC Outlet 2 (fixed | plausible match)", summary)
         self.assertIn("AdGuard Home Filtering (fixed | plausible match)", summary)
         self.assertIn("+2 more", summary)
         self.assertLessEqual(len(summary), 240)
@@ -409,7 +467,8 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_overview_summary(candidates)
 
-        self.assertEqual(summary, "4 candidates | 3 fixed candidates | 1 variable candidate | top AC Outlet 2 | strong match")
+        self.assertIn("4 candidates | 3 fixed candidates | 1 variable candidate | top AC Outlet 2 | plausible match", summary)
+        self.assertIn("generic outlet hardware", summary)
         self.assertLessEqual(len(summary), 240)
 
     def test_build_candidate_overview_summary_carries_top_warning_hint(self) -> None:

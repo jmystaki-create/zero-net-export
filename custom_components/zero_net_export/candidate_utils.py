@@ -324,6 +324,15 @@ def rank_candidates(candidates: Iterable[dict[str, Any]]) -> list[dict[str, Any]
     return sorted(candidates, key=candidate_sort_key)
 
 
+def _degrade_confidence(current: str) -> str:
+    if current == "high":
+        return "medium"
+    if current == "medium":
+        return "low"
+    return current
+
+
+
 def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     """Return shared fit guidance for a discovered unmanaged candidate."""
     domain = str(candidate.get("domain") or "")
@@ -342,6 +351,8 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     candidate_text = _candidate_text(candidate)
     positive_name_signal = _has_positive_load_signal(candidate)
     negative_name_signal = _has_negative_non_load_signal(candidate)
+    generic_power_signal = _generic_power_penalty(candidate) > 0
+    anonymous_outlet_signal = _anonymous_outlet_penalty(candidate) > 0
 
     if domain == "switch" and kind == "fixed":
         confidence = "high"
@@ -384,13 +395,28 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         warnings.append(
             "The entity name looks more like a service, media feature, or software toggle than a discretionary power load. Confirm it really controls a real appliance before promotion."
         )
-        if confidence == "high":
-            confidence = "medium"
-        elif confidence == "medium":
-            confidence = "low"
+        confidence = _degrade_confidence(confidence)
         suitability_summary = "The native control shape may still work, but the entity name suggests this could be a feature toggle or service control instead of a real appliance."
         safety_summary = "Confidence is lower because the entity name does not clearly look like a physical discretionary load yet."
         operational_value_summary = "Operational value is doubtful until you confirm this entity maps to a real export-absorbing device rather than software behaviour."
+
+    if generic_power_signal:
+        warnings.append(
+            "The label is still generic power/circuit wording. Confirm this is a real discretionary appliance or circuit you actually want Zero Net Export to control."
+        )
+        confidence = _degrade_confidence(confidence)
+        suitability_summary = "The control shape may still work, but the name is generic enough that it could be a broad room circuit rather than a clearly intentional managed load."
+        safety_summary = "Confidence is lower until the operator confirms this generic power label really maps to the intended controllable appliance or circuit."
+        operational_value_summary = "Operational value is still plausible, but generic circuit labels usually need extra review because they do not clearly say which load will absorb export."
+
+    if anonymous_outlet_signal:
+        warnings.append(
+            "The label still looks like generic outlet hardware rather than a named appliance. Confirm what is plugged into it before promotion."
+        )
+        confidence = _degrade_confidence(confidence)
+        suitability_summary = "Outlet control is technically workable, but anonymous outlet labels need extra review because they do not identify the real appliance behind the relay."
+        safety_summary = "Confidence is lower until the operator confirms which appliance this outlet actually controls and whether it is safe to cycle automatically."
+        operational_value_summary = "Operational value depends on the real appliance behind the outlet, so generic numbered plugs should be reviewed before treating them as first-choice promotion targets."
 
     if raw_state in {"unknown", "unavailable"}:
         warnings.append(f"Entity state is currently {raw_state}. Promotion is risky until it reports cleanly.")
