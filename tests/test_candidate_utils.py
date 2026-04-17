@@ -175,7 +175,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "likely useful: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.",
+            "likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.",
         )
 
     def test_assess_candidate_penalizes_obvious_service_toggle_names(self) -> None:

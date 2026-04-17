@@ -381,7 +381,7 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     device_class = str(candidate.get("device_class") or "")
 
     confidence = "medium"
-    summary = "Looks like a plausible controllable candidate, but review before promotion."
+    summary = "Looks like a potentially useful controllable candidate, but review before promotion."
     warnings: list[str] = []
     suitability_summary = "The entity shape looks workable for Zero Net Export, but it still needs operator review before promotion."
     safety_summary = "No obvious safety blocker is visible yet, but confirm the entity really controls the intended device."
@@ -395,7 +395,7 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
 
     if domain == "switch" and kind == "fixed":
         confidence = "high"
-        summary = "Switch entities are usually strong fixed-load candidates when they control a real appliance or relay."
+        summary = "Switch entities are usually likely fixed-load candidates when they control a real appliance or relay."
         suitability_summary = "Switch control is usually a clean native fit for fixed loads because Zero Net Export can turn the load on or off directly."
         operational_value_summary = "Fixed relay-style loads are usually useful when they represent a real appliance that can absorb surplus export in simple blocks."
     elif domain == "light" and kind == "fixed":
@@ -416,7 +416,7 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         )
     elif domain in {"number", "input_number"} and kind == "variable":
         confidence = "high" if domain == "number" else "medium"
-        summary = "Number-style entities are strong variable-load candidates when they represent a real power or current target."
+        summary = "Number-style entities are usually likely variable-load candidates when they represent a real power or current target."
         suitability_summary = "Writable number entities are a strong fit for variable control when they directly represent power, current, or another real throttling target."
         operational_value_summary = "Variable loads often provide strong operational value because they can track export more smoothly than simple on/off loads."
         if domain == "input_number":
@@ -519,7 +519,7 @@ def build_candidate_usefulness_summary(candidate: dict[str, Any]) -> str:
     """Return an operator-facing usefulness plus explanation line."""
     fit = assess_candidate(candidate)
     usefulness = candidate_usefulness_label(fit)
-    summary = str(fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
+    summary = str(fit.get("summary") or "Looks like a potentially useful controllable candidate, but review before promotion.")
     return f"{usefulness}: {summary}"
 
 
