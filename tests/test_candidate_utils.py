@@ -455,6 +455,25 @@ class CandidateUtilsTests(unittest.TestCase):
             ],
         )
 
+    def test_discover_candidate_devices_excludes_ventilation_style_loads_from_promotion(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(entity_id="switch.exhaust_fan", state="off", attributes={"friendly_name": "Exhaust Fan"}),
+            SimpleNamespace(entity_id="switch.hood_power", state="off", attributes={"friendly_name": "Hood Power"}),
+            SimpleNamespace(entity_id="switch.dishwasher_power", state="off", attributes={"friendly_name": "Dishwasher Power"}),
+            SimpleNamespace(entity_id="switch.air_purifier", state="off", attributes={"friendly_name": "Air Purifier"}),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            [
+                "switch.air_purifier",
+                "switch.dishwasher_power",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

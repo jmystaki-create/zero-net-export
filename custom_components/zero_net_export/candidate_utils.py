@@ -107,6 +107,9 @@ _NEGATIVE_NON_LOAD_KEYWORDS = (
     "child lock",
     "childlock",
     "eco dry",
+    "exhaust fan",
+    "range hood",
+    "hood power",
     "shellyproem",
 )
 
@@ -114,6 +117,8 @@ _NEGATIVE_ENTITY_ID_FRAGMENTS = (
     "_none",
     "_speech_enhancement",
     "_subwoofer",
+    "_exhaust_fan",
+    "_hood_power",
 )
 
 _GENERIC_POWER_KEYWORDS = (
