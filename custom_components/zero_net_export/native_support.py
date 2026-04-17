@@ -1235,23 +1235,6 @@ def _build_command_center_fleet_activity_summary(
     )
 
     summary_parts: list[str] = [f"managed {managed_count}"]
-    if managed_count > 0:
-        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
-        if kind_known:
-            summary_parts.append(f"{fixed_managed_count} fixed managed")
-            if variable_managed_count:
-                summary_parts.append(f"{variable_managed_count} variable managed")
-            summary_parts.append(f"{nominal_power_w} W nominal")
-    if source_blocked:
-        summary_parts.append("repair sources first")
-    if blocked_activity_count:
-        summary_parts.append(
-            f"blocked {first_blocked_device_name}"
-            if first_blocked_device_name
-            else f"blocked {blocked_activity_count}"
-        )
-    if first_planned_device_name:
-        summary_parts.append(f"plan {first_planned_device_name}")
     if candidate_count:
         summary_parts.append(f"{candidate_count} unmanaged")
         if fixed_candidate_count:
@@ -1266,6 +1249,23 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(top_candidate_review_hint)
     elif managed_count == 0:
         summary_parts.append("no unmanaged candidates")
+    if source_blocked:
+        summary_parts.append("repair sources first")
+    if blocked_activity_count:
+        summary_parts.append(
+            f"blocked {first_blocked_device_name}"
+            if first_blocked_device_name
+            else f"blocked {blocked_activity_count}"
+        )
+    if first_planned_device_name:
+        summary_parts.append(f"plan {first_planned_device_name}")
+    if managed_count > 0:
+        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+        if kind_known:
+            summary_parts.append(f"{fixed_managed_count} fixed managed")
+            if variable_managed_count:
+                summary_parts.append(f"{variable_managed_count} variable managed")
+            summary_parts.append(f"{nominal_power_w} W nominal")
 
     return " | ".join(summary_parts)
 

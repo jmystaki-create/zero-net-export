@@ -232,6 +232,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("managed 1 | 1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
         self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
@@ -297,6 +298,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
         self.assertIn("plan Pool pump", summary["fleet_activity_summary"])
+        self.assertLess(
+            summary["fleet_activity_summary"].index("blocked Pool pump"),
+            summary["fleet_activity_summary"].index("enabled 2"),
+        )
 
     def test_command_center_summary_keeps_blocked_device_visible_even_without_a_blocked_plan_count(self) -> None:
         native_support = _load_native_support_module()
