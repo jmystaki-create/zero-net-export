@@ -236,7 +236,7 @@ def _build_managed_device_detail_lines(
         f"- Managed snapshot: {managed_snapshot}",
         f"- Unmanaged snapshot: {unmanaged_snapshot}",
         (
-            f"- Top unmanaged candidate right now: {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+            f"- Top unmanaged candidate right now: {build_candidate_preview(top_candidate, include_entity_id=False)}"
             if top_candidate
             else "- Top unmanaged candidate right now: none"
         ),

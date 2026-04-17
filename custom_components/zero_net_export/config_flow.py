@@ -868,6 +868,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             f" | top candidate: {top_name}"
         )
 
+    @staticmethod
+    def _top_candidate_focus_text(candidate: dict[str, Any] | None) -> str:
+        if not candidate:
+            return "none discovered right now"
+        return build_candidate_preview(candidate, include_entity_id=False)
+
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:
         candidates = self._device_candidates()
         if kind:
@@ -2097,11 +2103,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_summary": fixed_candidate_summary,
                 "variable_candidate_count": str(len(variable_candidates)),
                 "variable_candidate_summary": variable_candidate_summary,
-                "top_candidate": (
-                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
-                    if top_candidate
-                    else "None discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "device_next_step": device_next_step,
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
@@ -2173,11 +2175,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
-                    if top_candidate
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2233,11 +2231,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
-                    if top_candidate
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2277,11 +2271,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
-                    if top_candidate
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "candidate_name": str(summary.get('name') or summary.get('entity_id') or 'candidate'),
                 "candidate_entity_id": str(summary.get('entity_id') or ''),
@@ -2356,11 +2346,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
-                    if top_candidate
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
                 "template_summary": "\n".join(
@@ -2474,11 +2460,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
-                    if top_candidate
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_mode": "Edit" if editing_key else "Add",
                 "device_template": selected_template.label if selected_template else "Custom",
@@ -2540,11 +2522,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
-                    if top_candidate
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(top_candidate),
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2588,11 +2566,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{candidates[0]['name']} ({candidates[0]['entity_id']}, {candidates[0]['kind']})"
-                    if candidates
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
@@ -2633,11 +2607,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": (
-                    f"{candidates[0]['name']} ({candidates[0]['entity_id']}, {candidates[0]['kind']})"
-                    if candidates
-                    else "none discovered right now"
-                ),
+                "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),

@@ -164,9 +164,17 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
     candidate_utils_module.discover_candidate_devices = _discover_candidate_devices
     candidate_utils_module.assess_candidate = _assess_candidate
-    candidate_utils_module.build_candidate_preview = lambda candidate, include_state=False, **kwargs: (
-        f"{candidate['name']} ({candidate['entity_id']}, {candidate['kind']}"
-        + (f", state {candidate['state']}" if include_state else "")
+    candidate_utils_module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
+        f"{candidate['name']} ("
+        + ", ".join(
+            bit
+            for bit in [
+                candidate["entity_id"] if include_entity_id else "",
+                candidate["kind"] if include_kind else "",
+                f"state {candidate['state']}" if include_state else "",
+            ]
+            if bit
+        )
         + ") | "
         + ("strong match" if candidate["domain"] == "switch" else "plausible match")
         + " | key warning: "
@@ -632,7 +640,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices workspace context:", message)
         self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("- Unmanaged snapshot: 1 candidate(s) | top candidate Hot water (fixed)", message)
-        self.assertIn("- Top unmanaged candidate right now: Hot water (switch.hot_water, fixed)", message)
+        self.assertIn("- Top unmanaged candidate right now: Hot water (fixed) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Device: Pool pump", message)
         self.assertIn("Entity: switch.pool_pump", message)
         self.assertIn("Guard state: ready", message)

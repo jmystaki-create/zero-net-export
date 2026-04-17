@@ -84,7 +84,25 @@ def _load_config_flow_module():
         "summary": "Looks like a plausible controllable candidate, but review before promotion.",
         "warnings": [],
     }
-    candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
+    candidate_utils_module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
+        f"{candidate.get('name') or candidate.get('entity_id')}"
+        + (
+            ""
+            if not (include_entity_id or include_kind or include_state)
+            else " ("
+            + ", ".join(
+                bit
+                for bit in [
+                    candidate.get("entity_id") if include_entity_id else "",
+                    candidate.get("kind") if include_kind else "",
+                    f"state {candidate.get('state')}" if include_state and candidate.get("state") else "",
+                ]
+                if bit
+            )
+            + ")"
+        )
+        + " | strong match | key warning: No immediate warnings"
+    )
     candidate_utils_module.build_candidate_review_line = lambda label, level, summary: f"{label}: {level} - {summary}"
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
@@ -618,7 +636,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
         self.assertEqual(
             shortlist["description_placeholders"]["top_candidate"],
-            "AC Outlet 2 (switch.ac_outlet_2, fixed)",
+            "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
         )
         self.assertIn(
             "Pick a candidate from the shortlist or full list.",
@@ -693,7 +711,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
-                "AC Outlet 2 (switch.ac_outlet_2, fixed)",
+                "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
             )
 
     def test_device_vetting_form_surfaces_blocker_summary_placeholder(self) -> None:
@@ -867,7 +885,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
-                "AC Outlet 2 (switch.ac_outlet_2, fixed)",
+                "AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
 
