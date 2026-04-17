@@ -529,25 +529,50 @@ def build_candidate_preview(
     return f"{heading} | {usefulness} | key warning: {key_warning}"
 
 
+def _compact_candidate_warning(candidate: dict[str, Any], *, max_chars: int = 28) -> str:
+    """Return a shortlist-friendly warning label for dense unmanaged rows."""
+    warnings = [str(item).strip() for item in (assess_candidate(candidate).get("warnings") or []) if str(item).strip()]
+    if not warnings:
+        return ""
+
+    warning = warnings[0].lower()
+    if "input_number helper" in warning or "input_boolean helper" in warning:
+        return "helper-backed"
+    if "generic outlet hardware" in warning:
+        return "generic outlet label"
+    if "generic power/circuit wording" in warning:
+        return "generic circuit label"
+    if "service, media feature, or software toggle" in warning:
+        return "service-style label"
+    if "meaningful unit" in warning:
+        return "missing clear unit"
+    if "light is a real discretionary load" in warning:
+        return "lighting load"
+    return _truncate_summary(warnings[0], max_chars=max_chars)
+
+
+
 def build_candidate_name_summary(
     candidates: Iterable[dict[str, Any]],
     *,
     limit: int = 3,
     max_chars: int = 240,
 ) -> str:
-    """Return a compact shortlist summary with kind plus usefulness hints."""
+    """Return a compact shortlist summary with kind, usefulness, and key warning hints."""
     candidate_list = list(candidates)
     if not candidate_list:
         return "None"
 
-    summary_parts = [
-        (
-            f"{str(item.get('name') or item.get('entity_id') or 'candidate').strip()} "
-            f"({str(item.get('kind') or 'candidate')} | {build_candidate_review_hint(item, include_warning=False)})"
-        ).strip()
-        for item in candidate_list[:limit]
-        if str(item.get('name') or item.get('entity_id') or '').strip()
-    ]
+    summary_parts = []
+    for item in candidate_list[:limit]:
+        name = str(item.get('name') or item.get('entity_id') or '').strip()
+        if not name:
+            continue
+        detail = f"{str(item.get('kind') or 'candidate')} | {build_candidate_review_hint(item, include_warning=False)}"
+        warning = _compact_candidate_warning(item)
+        if warning:
+            detail += f" | {warning}"
+        summary_parts.append(f"{name} ({detail})")
     remainder = len(candidate_list) - min(len(candidate_list), limit)
     if remainder > 0:
         summary_parts.append(f"+{remainder} more")

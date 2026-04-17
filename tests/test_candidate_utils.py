@@ -458,10 +458,32 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_name_summary(candidates)
 
-        self.assertIn("AC Outlet 2 (fixed | plausible match)", summary)
-        self.assertIn("AdGuard Home Filtering (fixed | plausible match)", summary)
+        self.assertIn("AC Outlet 2 (fixed | plausible match | generic outlet label)", summary)
+        self.assertIn("AdGuard Home Filtering (fixed | plausible match | service-style label)", summary)
         self.assertIn("+2 more", summary)
         self.assertLessEqual(len(summary), 240)
+
+    def test_build_candidate_name_summary_marks_helper_backed_variable_controls(self) -> None:
+        module = _load_candidate_utils_module()
+
+        summary = module.build_candidate_name_summary(
+            [
+                {
+                    "name": "Lounge Room Heated Floor",
+                    "entity_id": "input_number.lounge_room_heated_floor",
+                    "kind": "variable",
+                    "domain": "input_number",
+                    "state": "65",
+                    "unit": "%",
+                    "device_class": "",
+                }
+            ]
+        )
+
+        self.assertEqual(
+            summary,
+            "Lounge Room Heated Floor (variable | plausible match | helper-backed)",
+        )
 
     def test_build_candidate_fit_summary_carries_warning_hints(self) -> None:
         module = _load_candidate_utils_module()
