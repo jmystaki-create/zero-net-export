@@ -7,7 +7,13 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .candidate_utils import assess_candidate, build_candidate_review_hint, candidate_needs_review, discover_candidate_devices
+from .candidate_utils import (
+    assess_candidate,
+    build_candidate_preview,
+    build_candidate_review_hint,
+    candidate_needs_review,
+    discover_candidate_devices,
+)
 from .const import (
     CONF_BATTERY_RESERVE_SOC,
     CONF_BATTERY_CHARGE_POWER_ENTITY,
@@ -1202,6 +1208,16 @@ def _command_center_candidate_snapshot(coordinator: Any, state: Any) -> tuple[li
     return candidates, top_candidate_name
 
 
+def _command_center_candidate_focus_text(candidate: dict[str, Any] | None) -> str:
+    if not candidate:
+        return "the top candidate"
+    name = str(candidate.get("name") or candidate.get("entity_id") or "the top candidate").strip()
+    kind = str(candidate.get("kind") or "candidate").strip()
+    review_hint = build_candidate_review_hint(candidate, include_warning=False)
+    focus = f"{name} ({kind})"
+    return f"{focus} | {review_hint}" if review_hint else focus
+
+
 def _build_command_center_fleet_activity_summary(
     state: Any,
     *,
@@ -1284,12 +1300,24 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
     candidates, top_candidate_name = _command_center_candidate_snapshot(coordinator, state)
+    top_candidate_preview = (
+        build_candidate_preview(candidates[0], include_entity_id=False, include_state=False)
+        if candidates
+        else ""
+    )
+    top_candidate_focus = _command_center_candidate_focus_text(candidates[0] if candidates else None)
     top_candidate_review_hint = build_candidate_review_hint(candidates[0]) if candidates else ""
     candidate_count = len(candidates)
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
     review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
     readiness_phase = str(readiness.get("phase") or "")
+    runtime_device_count = (
+        int(getattr(state, "device_count", len(configured_devices)) or 0)
+        if state is not None
+        else len(configured_devices)
+    )
+    has_managed_devices = runtime_device_count > 0
     install_consistency = build_install_consistency_summary(install_provenance)
     install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
     install_provenance_blocked = install_provenance_pending or install_provenance.get("manifest_matches_code_version") is False
@@ -1334,13 +1362,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if candidate_count:
             device_status += f"; {candidate_count} unmanaged ready"
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
-    elif configured_devices:
+    elif has_managed_devices:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
-        device_status = runtime_device_status or f"{len(configured_devices)} configured"
+        device_status = runtime_device_status or f"{runtime_device_count} configured"
         if candidate_count:
             device_status += f"; {candidate_count} unmanaged ready"
-            if top_candidate_name:
-                device_status += f"; top {top_candidate_name}"
+            if top_candidate_preview:
+                device_status += f"; top {top_candidate_preview}"
         device_next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
         )
@@ -1348,17 +1376,17 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_status = "No managed devices configured yet"
         if candidate_count:
             device_status += f"; {candidate_count} unmanaged ready"
-            if top_candidate_name:
-                device_status += f"; top {top_candidate_name}"
+            if top_candidate_preview:
+                device_status += f"; top {top_candidate_preview}"
         device_next_step = (
-            f"Open {DEVICES_CONFIGURE_PATH} and review {top_candidate_name or 'the top candidate'} first from the managed-device flow."
+            f"Open {DEVICES_CONFIGURE_PATH} and review {top_candidate_focus} first from the managed-device flow."
         )
 
     recommendation = build_native_setup_recommendation(
         missing_source_keys=missing_required_sources,
         source_attention_roles=source_attention_roles,
         device_issues=device_parse_issues,
-        has_devices=bool(configured_devices),
+        has_devices=has_managed_devices,
         readiness_phase=readiness_phase,
     )
     recommended_section = normalize_command_center_section(recommendation["recommended_section"])
@@ -1393,8 +1421,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
     elif device_parse_issues:
         next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
-    elif not configured_devices:
-        next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
+    elif not has_managed_devices:
+        if top_candidate_preview:
+            next_action_summary = (
+                f"Open {DEVICES_CONFIGURE_PATH} and review {top_candidate_focus} first so Zero Net Export has a credible managed load."
+            )
+        else:
+            next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
     elif readiness_phase == "runtime_readiness":
         next_action_summary = str(
             readiness.get("next_step")
@@ -1421,7 +1454,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         policy_readiness = f"Repair mapped-source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
     elif device_parse_issues:
         policy_readiness = "Repair the managed-device configuration first so policy changes apply to a trustworthy fleet."
-    elif not configured_devices:
+    elif not has_managed_devices:
         policy_readiness = "You can tune policy now, but no controllable device can act until at least one managed device is added."
     else:
         policy_readiness = "Sources are mapped and managed devices exist, so policy changes are actionable now."
@@ -1470,7 +1503,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     if device_parse_issues:
         top_alerts.append(f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s).")
-    elif not configured_devices:
+    elif not has_managed_devices:
         top_alerts.append("No managed devices configured yet.")
 
     if readiness_phase == "runtime_readiness":
@@ -1502,7 +1535,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             if missing_required_sources or runtime_source_attention
             else (
                 f"Open {DEVICES_CONFIGURE_PATH} to continue managed-device setup."
-                if device_parse_issues or not configured_devices
+                if device_parse_issues or not has_managed_devices
                 else f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
             )
         ),

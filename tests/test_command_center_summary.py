@@ -244,6 +244,68 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged ready", summary["device_status"])
+        self.assertIn(
+            "top AC Outlet 2 (fixed) | review first | key warning: The label still looks like generic outlet hardware",
+            summary["device_status"],
+        )
+
+    def test_command_center_summary_prefers_top_candidate_preview_for_empty_fleet_next_step(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"}],
+            "AC Outlet 2",
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="No managed devices configured yet",
+            device_count=0,
+            enabled_device_count=0,
+            usable_device_count=0,
+            device_details={},
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn(
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices and review AC Outlet 2 (fixed) | review first",
+            summary["next_action_summary"],
+        )
+        self.assertIn(
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices and review AC Outlet 2 (fixed) | review first",
+            summary["device_next_step"],
+        )
+        self.assertNotIn("generic outlet hardware", summary["next_action_summary"])
 
     def test_command_center_summary_names_blocked_and_planned_devices_in_fleet_activity(self) -> None:
         native_support = _load_native_support_module()
