@@ -223,6 +223,7 @@ def _build_managed_device_detail_lines(
     top_candidate: dict | None,
 ) -> list[str]:
     entity_id = str(detail.get("entity_id") or "unknown entity")
+    device_label = str(detail.get("name") or entity_id)
     blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
     lines = [
         "Zero Net Export managed-device detail review",
@@ -241,8 +242,7 @@ def _build_managed_device_detail_lines(
             else "- Top unmanaged candidate right now: none"
         ),
         "",
-        f"Device: {detail.get('name') or entity_id}",
-        f"Entity: {entity_id}",
+        f"Device: {device_label}",
         f"Kind: {detail.get('kind') or 'unknown'}",
         f"Runtime status: {detail.get('status') or 'status unknown'}",
         f"Guard state: {detail.get('guard_status') or 'unknown'}",
@@ -279,7 +279,7 @@ def _build_managed_device_detail_lines(
         "",
         "Next native actions:",
         f"- Return to {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace for edits, enablement, promotion, or removal.",
-        f"- Use {entity_id} sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
+        "- Use this device's sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]
     return lines
