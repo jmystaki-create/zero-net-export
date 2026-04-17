@@ -868,6 +868,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "entity_id": "switch.ac_outlet_2",
             "kind": module.DEVICE_KIND_FIXED,
             "fit_confidence": "high",
+            "fit_usefulness": "likely useful",
             "fit_summary": "Strong match.",
             "warnings": [],
             "suggested_template_key": "fixed_plug",
@@ -904,6 +905,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             vetting["description_placeholders"]["candidate_preview"],
             "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
         )
+        self.assertEqual(add["description_placeholders"]["selected_candidate_fit"], "likely useful")
         self.assertNotIn("candidate_entity_id", vetting["description_placeholders"])
 
     def test_managed_devices_summaries_and_shortlist_hide_raw_candidate_entity_ids(self) -> None:

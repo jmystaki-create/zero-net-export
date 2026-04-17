@@ -2497,7 +2497,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "template_description": selected_template.description if selected_template else "Use manual values for this device.",
                 "candidate_hint": next((item["label"] for item in candidates if item["entity_id"] == defaults.get("entity_id")), "Pick an unmanaged candidate entity from the selector or choose a manual entity."),
                 "default_guidance": self._default_guidance_text(kind, defaults),
-                "selected_candidate_fit": str((self._pending_candidate_summary or {}).get("fit_confidence") or "manual"),
+                "selected_candidate_fit": str((self._pending_candidate_summary or {}).get("fit_usefulness") or "manual review"),
                 "selected_candidate_summary": str((self._pending_candidate_summary or {}).get("fit_summary") or "Manual path, review the entity and settings before saving."),
                 "selected_candidate_warnings": "\n".join(
                     f"- {item}" for item in ((self._pending_candidate_summary or {}).get("warnings") or [])
