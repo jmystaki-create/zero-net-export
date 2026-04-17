@@ -380,7 +380,7 @@ class CandidateUtilsTests(unittest.TestCase):
 
         summary = module.build_candidate_overview_summary(candidates)
 
-        self.assertEqual(summary, "4 candidates | 3 fixed | 1 variable | top AC Outlet 2 | strong match")
+        self.assertEqual(summary, "4 candidates | 3 fixed candidates | 1 variable candidates | top AC Outlet 2 | strong match")
         self.assertLessEqual(len(summary), 240)
 
     def test_build_candidate_overview_summary_carries_top_warning_hint(self) -> None:
@@ -401,7 +401,7 @@ class CandidateUtilsTests(unittest.TestCase):
             ]
         )
 
-        self.assertIn("2 candidates | 2 fixed | top Virtual load | needs extra review", summary)
+        self.assertIn("2 candidates | 2 fixed candidates | top Virtual load | needs extra review", summary)
         self.assertIn("warn This is an input_boolean helper.", summary)
         self.assertLessEqual(len(summary), 240)
 

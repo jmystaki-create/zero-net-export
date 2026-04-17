@@ -170,9 +170,9 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         fixed_count = sum(1 for item in items if item["kind"] == "fixed")
         variable_count = sum(1 for item in items if item["kind"] == "variable")
         if fixed_count:
-            parts.append(f"{fixed_count} fixed")
+            parts.append(f"{fixed_count} fixed candidates")
         if variable_count:
-            parts.append(f"{variable_count} variable")
+            parts.append(f"{variable_count} variable candidates")
         if items[0].get("name"):
             parts.append(f"top {items[0]['name']}")
         return " | ".join(parts)
@@ -329,7 +329,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
-        self.assertIn("- Snapshot: 2 candidates | 2 fixed | top Hot water | strong match | key warning: No immediate warnings", message)
+        self.assertIn("- Snapshot: 2 candidates | 2 fixed candidates | top Hot water | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | guard ready | action turn_on"
@@ -408,7 +408,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
-        self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed | top Hot water | strong match | key warning: No immediate warnings", message)
+        self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | top Hot water | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
@@ -470,7 +470,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["managed_count"], 1)
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable | top EV limit | plausible match | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable candidates | top EV limit | plausible match | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
         self.assertEqual(attrs["recommended_section"], "Sensors")
@@ -526,7 +526,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["recommended_section"], "Sensors")
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | plan Pool pump")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed | top Hot water | strong match | key warning: No immediate warnings")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidates | top Hot water | strong match | key warning: No immediate warnings")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
@@ -664,7 +664,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
         self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump", message)
-        self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed | top Hot water | strong match | key warning: No immediate warnings", message)
+        self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed candidates | top Hot water | strong match | key warning: No immediate warnings", message)
         self.assertIn("- Top unmanaged candidate right now: Hot water (fixed) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Device: Pool pump", message)
         self.assertNotIn("Entity: switch.pool_pump", message)
@@ -723,7 +723,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | blocked Pool pump | 0 planned action(s)")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed | top Hot water | strong match | key warning: No immediate warnings")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidates | top Hot water | strong match | key warning: No immediate warnings")
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
 
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:

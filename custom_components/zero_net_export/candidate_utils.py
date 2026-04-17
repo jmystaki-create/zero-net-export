@@ -520,9 +520,9 @@ def build_candidate_overview_summary(
     candidate_label = "candidate" if len(candidate_list) == 1 else "candidates"
     summary_parts = [f"{len(candidate_list)} {candidate_label}"]
     if fixed_count:
-        summary_parts.append(f"{fixed_count} fixed")
+        summary_parts.append(f"{fixed_count} fixed candidates")
     if variable_count:
-        summary_parts.append(f"{variable_count} variable")
+        summary_parts.append(f"{variable_count} variable candidates")
     if top_name:
         summary_parts.append(f"top {top_name}")
     if include_top_review_hint and candidate_list:
