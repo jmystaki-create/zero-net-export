@@ -249,6 +249,55 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["device_status"],
         )
 
+    def test_command_center_summary_lists_source_repair_before_candidate_mix_for_empty_fleet(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Repair the mapped-source blockers first.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [native_support.CONF_GRID_EXPORT_POWER_ENTITY],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "Grid export power is unavailable"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "Grid export power"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources need attention"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Grid export: sensor.grid_export_power"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"}],
+            "AC Outlet 2",
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Needs attention",
+            diagnostic_summary="Needs attention",
+            device_status_summary="No managed devices configured yet",
+            device_count=0,
+            enabled_device_count=0,
+            usable_device_count=0,
+            device_details={},
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertTrue(
+            summary["fleet_activity_summary"].startswith(
+                "managed 0 | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | top AC Outlet 2"
+            )
+        )
+
     def test_command_center_summary_prefers_top_candidate_preview_for_empty_fleet_next_step(self) -> None:
         native_support = _load_native_support_module()
 
@@ -463,7 +512,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Mapped-source blockers: Grid export power is unavailable", summary["alert_summary"])
         self.assertIn("Managed-device configuration needs repair for 1 item(s).", summary["alert_summary"])
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
-        self.assertIn("repair sources first", summary["fleet_activity_summary"])
+        self.assertEqual(
+            summary["fleet_activity_summary"],
+            "managed 0 | no unmanaged candidates | repair sources first",
+        )
 
     def test_command_center_summary_promotes_install_provenance_blockers_to_top_alert_and_diagnostics(self) -> None:
         native_support = _load_native_support_module()

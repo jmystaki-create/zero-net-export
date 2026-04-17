@@ -1253,6 +1253,8 @@ def _build_command_center_fleet_activity_summary(
     summary_parts: list[str] = [f"managed {managed_count}"]
     if candidate_count:
         summary_parts.append(f"{candidate_count} unmanaged")
+        if managed_count == 0 and source_blocked:
+            summary_parts.append("repair sources first")
         if fixed_candidate_count:
             summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         if variable_candidate_count:
@@ -1265,7 +1267,9 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(top_candidate_review_hint)
     elif managed_count == 0:
         summary_parts.append("no unmanaged candidates")
-    if source_blocked:
+        if source_blocked:
+            summary_parts.append("repair sources first")
+    if source_blocked and managed_count > 0:
         summary_parts.append("repair sources first")
     if blocked_activity_count:
         summary_parts.append(
