@@ -14,6 +14,7 @@ from homeassistant.helpers import selector
 from .candidate_utils import (
     assess_candidate,
     build_candidate_preview,
+    build_candidate_review_hint,
     build_candidate_review_line,
     discover_candidate_devices,
 )
@@ -873,10 +874,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         fixed_count, variable_count = cls._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         top_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "none")
-        return (
+        summary = (
             f"Unmanaged now: {len(candidates)} | fixed candidates: {fixed_count} | variable candidates: {variable_count}"
             f" | top candidate: {top_name}"
         )
+        if top_candidate:
+            summary += f" | top fit: {build_candidate_review_hint(top_candidate)}"
+        return summary
 
     @staticmethod
     def _top_candidate_focus_text(candidate: dict[str, Any] | None) -> str:
