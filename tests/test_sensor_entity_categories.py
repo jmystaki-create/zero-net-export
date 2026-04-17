@@ -380,7 +380,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
@@ -416,7 +416,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | 2 enabled | 1 usable | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | blocked Pool pump | plan Pool pump | 1 fixed managed | 1 variable managed | 1185 W nominal",
+            "2 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | 2 enabled | 1 usable | blocked Pool pump | plan Pool pump | 1 fixed managed | 1 variable managed | 1185 W nominal",
         )
         self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
         self.assertEqual(overview.extra_state_attributes["first_active_plan_device"], "Pool pump")
@@ -481,7 +481,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | repair sources first | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful | repair sources first | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
@@ -584,7 +584,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 enabled | 1 usable | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | 1 fixed managed",
+            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)

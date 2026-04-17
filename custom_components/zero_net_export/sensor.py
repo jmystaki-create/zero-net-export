@@ -394,14 +394,6 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
                 return _truncate_sensor_state(" | ".join(summary_parts))
-            summary_parts.extend(
-                [
-                    f"{counts['enabled_count']} enabled",
-                    f"{counts['usable_count']} usable",
-                ]
-            )
-            if source_blocked:
-                summary_parts.append("repair sources first")
             if candidate_count:
                 summary_parts.append(f"{candidate_count} unmanaged")
                 if fixed_candidate_count:
@@ -413,6 +405,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
+            if source_blocked:
+                summary_parts.append("repair sources first")
+            summary_parts.extend(
+                [
+                    f"{counts['enabled_count']} enabled",
+                    f"{counts['usable_count']} usable",
+                ]
+            )
             if counts["blocked_count"]:
                 summary_parts.append(
                     f"blocked {first_blocked_name}" if first_blocked_name else f"{counts['blocked_count']} blocked"
