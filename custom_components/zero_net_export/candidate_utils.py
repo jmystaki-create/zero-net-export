@@ -30,7 +30,7 @@ _FIT_USEFULNESS_LABELS = {
 }
 
 
-def _candidate_usefulness_label(fit: dict[str, Any]) -> str:
+def candidate_usefulness_label(fit: dict[str, Any]) -> str:
     """Return the operator-facing usefulness label for a candidate fit."""
     confidence = str(fit.get("confidence") or "medium")
     warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
@@ -515,6 +515,14 @@ def build_candidate_review_line(label: str, level: str, summary: str) -> str:
     return f"{label}: {level_label} - {summary}"
 
 
+def build_candidate_usefulness_summary(candidate: dict[str, Any]) -> str:
+    """Return an operator-facing usefulness plus explanation line."""
+    fit = assess_candidate(candidate)
+    usefulness = candidate_usefulness_label(fit)
+    summary = str(fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
+    return f"{usefulness}: {summary}"
+
+
 def build_candidate_review_hint(
     candidate: dict[str, Any],
     *,
@@ -523,7 +531,7 @@ def build_candidate_review_hint(
 ) -> str:
     """Return a compact usefulness-plus-warning hint for dense unmanaged snapshots."""
     fit = assess_candidate(candidate)
-    usefulness = _candidate_usefulness_label(fit)
+    usefulness = candidate_usefulness_label(fit)
     if not include_warning:
         return usefulness
 

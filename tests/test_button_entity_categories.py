@@ -330,7 +330,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
         self.assertIn("- Snapshot: 2 candidates | 2 fixed candidates | top Hot water | strong match | key warning: No immediate warnings", message)
-        self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn("Top candidate usefulness: strong match: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | guard ready | action turn_on"
         self.assertIn(blocked_line, message)
@@ -409,7 +409,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | top Hot water | strong match | key warning: No immediate warnings", message)
-        self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn("Top candidate usefulness: strong match: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | guard ready | action turn_on"

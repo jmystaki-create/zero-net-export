@@ -85,6 +85,19 @@ def _has_active_plan(detail: dict) -> bool:
     return str(detail.get("planned_action") or "") not in {"", "hold"}
 
 
+def _candidate_usefulness_summary(candidate: dict) -> str:
+    fit = assess_candidate(candidate)
+    confidence = str(fit.get("confidence") or "medium")
+    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
+    usefulness = "review first" if confidence == "medium" and warnings else {
+        "high": "strong match",
+        "medium": "plausible match",
+        "low": "unlikely fit",
+    }.get(confidence, confidence)
+    summary = str(fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
+    return f"{usefulness}: {summary}"
+
+
 def _device_runtime_sort_key(detail: dict) -> tuple[int, int, int, str]:
     effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
     usable = detail.get("usable") is True
@@ -466,9 +479,9 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'Unmanaged candidates (bottom section):',
             f"- Snapshot: {_unmanaged_snapshot_summary(candidates)}",
             (
-                f"- Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
+                f"- Top candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
                 if top_candidate_fit
-                else '- Top candidate fit: No unmanaged candidate guidance available right now.'
+                else '- Top candidate usefulness: No unmanaged candidate guidance available right now.'
             ),
             (
                 '- Top candidate warnings: '
@@ -574,9 +587,9 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             f"- Snapshot: {_managed_snapshot_summary(ordered, include_planned_count=True)}",
             f"Unmanaged candidates (bottom section): {_unmanaged_snapshot_summary(candidates)}",
             (
-                f"Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
+                f"Top candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
                 if top_candidate_fit
-                else "Top candidate fit: No unmanaged candidate guidance available right now."
+                else "Top candidate usefulness: No unmanaged candidate guidance available right now."
             ),
             (
                 "Top candidate warnings: "

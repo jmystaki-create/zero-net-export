@@ -158,6 +158,26 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("safe enough", fit["safety_summary"])
         self.assertIn("more likely to matter operationally", fit["operational_value_summary"])
 
+    def test_build_candidate_usefulness_summary_uses_operator_facing_labels(self) -> None:
+        module = _load_candidate_utils_module()
+
+        summary = module.build_candidate_usefulness_summary(
+            {
+                "entity_id": "switch.hot_water",
+                "name": "Hot water relay",
+                "domain": "switch",
+                "kind": "fixed",
+                "state": "off",
+                "unit": "",
+                "device_class": "",
+            }
+        )
+
+        self.assertEqual(
+            summary,
+            "strong match: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.",
+        )
+
     def test_assess_candidate_penalizes_obvious_service_toggle_names(self) -> None:
         module = _load_candidate_utils_module()
 

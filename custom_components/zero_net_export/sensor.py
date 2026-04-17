@@ -98,10 +98,10 @@ SENSOR_DEFS = {
     "unmanaged_candidate_count": "Unmanaged candidate devices",
     "unmanaged_candidate_overview": "Unmanaged candidate overview",
     "top_unmanaged_candidate": "Top unmanaged candidate",
-    "top_candidate_fit": "Top candidate fit",
+    "top_candidate_fit": "Top candidate usefulness",
     "top_candidate_warnings": "Top candidate warnings",
     "candidate_shortlist": "Candidate shortlist",
-    "candidate_shortlist_fit": "Candidate shortlist fit",
+    "candidate_shortlist_fit": "Candidate shortlist usefulness",
     "fleet_console_next_step": "Managed devices next step",
     "mapped_source_blocker_summary": "Mapped-source blocker summary",
     "mapped_source_blocker_next_step": "Mapped-source blocker next step",
@@ -124,6 +124,21 @@ SOURCE_LABELS = {
 }
 
 TIMESTAMP_SENSOR_KEYS = {"last_action_at", "last_successful_action_at", "last_failed_action_at"}
+
+
+def _candidate_usefulness_summary(candidate: dict) -> str:
+    fit = assess_candidate(candidate)
+    confidence = str(fit.get("confidence") or "medium")
+    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
+    usefulness = "review first" if confidence == "medium" and warnings else {
+        "high": "strong match",
+        "medium": "plausible match",
+        "low": "unlikely fit",
+    }.get(confidence, confidence)
+    summary = str(fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
+    return f"{usefulness}: {summary}"
+
+
 FLEET_WORKSPACE_SENSOR_KEYS = {
     "managed_fleet_overview",
     "unmanaged_candidate_count",
@@ -417,9 +432,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             return build_candidate_preview(top, include_entity_id=False)
         if self._key == "top_candidate_fit":
             if not candidates:
-                return "No candidate fit guidance available"
-            fit = _candidate_fit_details(candidates[0])
-            return f"{fit['confidence']}: {fit['summary']}"
+                return "No candidate usefulness guidance available"
+            return _candidate_usefulness_summary(candidates[0])
         if self._key == "top_candidate_warnings":
             if not candidates:
                 return "No warnings"

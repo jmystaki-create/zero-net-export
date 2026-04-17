@@ -112,6 +112,18 @@ from .validation import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _candidate_usefulness_label(fit: dict[str, Any]) -> str:
+    confidence = str(fit.get("confidence") or "medium")
+    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
+    if confidence == "medium" and warnings:
+        return "review first"
+    return {
+        "high": "strong match",
+        "medium": "plausible match",
+        "low": "unlikely fit",
+    }.get(confidence, confidence)
+
+
 def _coerce_number(value: Any, fallback: int | float) -> int | float:
     if value in (None, ""):
         return fallback
@@ -1092,6 +1104,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             }
         )
         confidence = str(candidate_fit.get("confidence") or "medium")
+        fit_usefulness = _candidate_usefulness_label(candidate_fit)
         fit_summary = str(candidate_fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
         warnings: list[str] = list(candidate_fit.get("warnings") or [])
 
@@ -1114,6 +1127,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             'suggested_template_label': suggested_template.label if suggested_template else 'Custom',
             'suggested_template_description': suggested_template.description if suggested_template else 'Use a custom configuration for this entity.',
             'fit_confidence': confidence,
+            'fit_usefulness': fit_usefulness,
             'fit_summary': fit_summary,
             'warnings': warnings,
         }
@@ -2296,7 +2310,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "candidate_state": str(summary.get('state') or 'unknown'),
                 "candidate_unit": str(summary.get('unit') or 'none'),
                 "candidate_device_class": str(summary.get('device_class') or 'none'),
-                "candidate_fit_confidence": str(summary.get('fit_confidence') or 'unknown'),
+                "candidate_fit_usefulness": str(summary.get('fit_usefulness') or 'review first'),
                 "candidate_fit_summary": str(summary.get('fit_summary') or 'No fit guidance available.'),
                 "candidate_suitability": build_candidate_review_line(
                     "Control suitability",
