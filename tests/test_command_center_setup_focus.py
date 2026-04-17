@@ -79,7 +79,11 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
                 "next_action_summary": "Open Configure > Sensors next.",
                 "source_status": "Missing required source roles: Solar power",
                 "policy_status": "Mode zero export; target 0 W",
+                "support_status": "Runtime attention remains.",
+                "energy_state_summary": "solar 4200 W | grid export 1800 W",
                 "control_decision_summary": "mode zero export | target 0 W",
+                "control_outcome_summary": "planned actions 1 | active load 1200 W",
+                "fleet_activity_summary": "0 managed | 3 unmanaged | top AC Outlet 2",
                 "recommended_section": native_support.SOURCES_SECTION_LABEL,
                 "recommended_path": native_support.SOURCES_CONFIGURE_PATH,
                 "sources_path": native_support.SOURCES_CONFIGURE_PATH,
@@ -95,6 +99,12 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             "Managed Devices lives in Configure, while the Zero Net Export device page is the deeper per-device review path.",
             text,
         )
+        self.assertIn("Structured control board", text)
+        self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
+        self.assertIn("- Control outcome: planned actions 1 | active load 1200 W", text)
+        self.assertIn("- Fleet activity: 0 managed | 3 unmanaged | top AC Outlet 2", text)
+        self.assertIn("Setup check", text)
+        self.assertIn("- Runtime health: Runtime attention remains.", text)
         self.assertNotIn("Installed package:", text)
         self.assertNotIn("Install consistency:", text)
         self.assertNotIn("Managed-device deep review", text)

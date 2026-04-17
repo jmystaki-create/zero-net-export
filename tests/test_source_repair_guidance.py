@@ -310,6 +310,12 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "next_action_summary": "Repair the mapped-source blockers first.",
                 "install_status": "install summary",
                 "install_consistency": "install consistency",
+                "headline_decision": "Source data needs attention, control is constrained.",
+                "alert_summary": "Missing required source roles: Solar power",
+                "energy_state_summary": "solar 0 W | grid import 900 W",
+                "control_decision_summary": "mode automatic | target 0 W",
+                "control_outcome_summary": "planned actions 0 | active load 0 W",
+                "fleet_activity_summary": "0 managed | 4 unmanaged | top AC Outlet 2",
                 "source_status": "Mapped source blockers: Solar power unavailable.",
                 "source_mapping_summary": "Solar power -> sensor.pv_power",
                 "unavailable_sources": "Solar power",
@@ -337,6 +343,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Recommended section: Sensors", guide)
         self.assertNotIn("- Recommended section: Sensors and source mapping", guide)
         self.assertIn(f"- Recommended path: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn("Structured control board", guide)
+        self.assertIn("- Energy state: solar 0 W | grid import 900 W", guide)
+        self.assertIn("- Fleet activity: 0 managed | 4 unmanaged | top AC Outlet 2", guide)
+        self.assertIn("Setup check", guide)
+        self.assertIn("- Runtime health: Runtime attention remains.", guide)
         self.assertIn("Basic setup paths", guide)
         self.assertIn(f"- Finish source mapping: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Tune control settings: {native_support.POLICY_CONFIGURE_PATH}", guide)
