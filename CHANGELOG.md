@@ -6,9 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-Target release: `0.1.86`
+Target release: `0.1.87`
 
 ### Fixed
+- Tightened the Home Assistant command-center operator board copy so the setup surface stays more compact and clearly setup-first instead of drifting back into a broader support-heavy console.
+- Tightened Home Assistant Diagnostics bucket wording and aligned diagnostics guide, snapshot, and runtime-attention copy so the native IA split stays clearer between operator workflow and troubleshooting surfaces.
+- Realigned the detailed Home Assistant managed-device review path wording so deeper review stays framed as a secondary inspection path instead of competing with the primary Managed Devices workspace.
 - Realigned the repo working version back to the active `0.1.86` live correction line after confirming via the documented Home Assistant fingerprint path that the installed component manifest is still `0.1.86`, so the next exact-build release candidate no longer bakes in a version-line mismatch before deploy.
 - Warm the installed-package provenance cache from Home Assistant's executor during entry setup before native support, repairs, or diagnostics helpers read it, so release/install fingerprint metadata no longer performs its first manifest/hash disk scan on the event loop during startup.
 - Committed the pending `docs/UI_DESIGN.md` build checklist, implementation-gap analysis, and explicit `1A` headline-decision-summary execution slice so the shipped UI design source of truth no longer trails the working-tree steering.
