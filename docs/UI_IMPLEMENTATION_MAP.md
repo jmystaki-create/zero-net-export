@@ -160,8 +160,8 @@ This section is now the explicit staged delivery map. Each phase should be imple
 - fleet summary and candidate-summary text exists
 - Configure Managed Devices now overlays live runtime readiness/status into fleet summaries, usable counts, and selector labels
 - managed-device rows now surface guard state, planned action, and last action status directly in the native fleet view
-- selector ordering now prefers enabled and usable devices before blocked or disabled entries
-- the device page now exposes a first-class `Show managed-device review` handoff for deeper fleet review
+- selector ordering now surfaces blocked managed devices first, then actively planned loads, then healthy enabled/usable rows so the first exception stays visible in native fleet workflows
+- the device page now exposes first-class `Review managed devices workspace` and `Review managed devices` handoffs for deeper fleet review without competing with Configure -> Managed Devices
 
 **Remaining**
 - make the managed-on-top / unmanaged-below structure visually obvious in live HA
@@ -245,7 +245,7 @@ This section is now the explicit staged delivery map. Each phase should be imple
 
 **Completed**
 - concept and requirement are documented
-- the Zero Net Export device page now exposes a first-class `Show managed-device review` entry point
+- the Zero Net Export device page now exposes first-class `Review managed devices workspace` and `Review managed devices` entry points
 - the device page now also exposes per-device managed review buttons for each configured load, alongside the paired per-device status/reset actions
 - the deep-review handoff is now referenced directly from managed-device save feedback
 
