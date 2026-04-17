@@ -36,33 +36,39 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed Devices owns fleet enablement", bulk_enable_description)
         self.assertIn("Managed devices (top section)", bulk_enable_description)
         self.assertIn("Unmanaged candidates (bottom section)", bulk_enable_description)
+        self.assertIn("Candidate snapshot", bulk_enable_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", bulk_enable_description)
 
         edit_pick_description = steps["device_edit_pick"]["description"]
         self.assertIn("Managed Devices owns this fleet-edit workflow", edit_pick_description)
         self.assertIn("Managed devices (top section)", edit_pick_description)
         self.assertIn("Unmanaged candidates (bottom section)", edit_pick_description)
+        self.assertIn("Candidate snapshot", edit_pick_description)
 
         remove_description = steps["device_remove"]["description"]
         self.assertIn("Managed Devices owns this fleet-removal workflow", remove_description)
         self.assertIn("Managed devices (top section)", remove_description)
         self.assertIn("Unmanaged candidates (bottom section)", remove_description)
+        self.assertIn("Candidate snapshot", remove_description)
 
         vetting_description = steps["device_vetting"]["description"]
         self.assertIn("Managed Devices owns this promotion workflow", vetting_description)
         self.assertIn("Managed devices (top section)", vetting_description)
         self.assertIn("Unmanaged candidates (bottom section)", vetting_description)
+        self.assertIn("Candidate snapshot", vetting_description)
         self.assertIn("Detailed native review path after promotion, only if you need deeper per-device review", vetting_description)
 
         template_description = steps["device_template"]["description"]
         self.assertIn("Managed Devices still owns this step", template_description)
         self.assertIn("Managed devices (top section)", template_description)
         self.assertIn("Unmanaged candidates (bottom section)", template_description)
+        self.assertIn("Candidate snapshot", template_description)
 
         add_description = steps["device_add"]["description"]
         self.assertIn("Managed Devices still owns this save step", add_description)
         self.assertIn("Managed devices (top section)", add_description)
         self.assertIn("Unmanaged candidates (bottom section)", add_description)
+        self.assertIn("Candidate snapshot", add_description)
         self.assertIn("Detailed native review path after save, only if you need deeper per-device review", add_description)
 
         policy_description = steps["policy"]["description"]

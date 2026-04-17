@@ -720,6 +720,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 result["description_placeholders"]["top_candidate"],
                 "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
             )
+            self.assertEqual(
+                result["description_placeholders"]["candidate_summary"],
+                "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
+                "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
+            )
 
     def test_device_vetting_form_surfaces_blocker_summary_placeholder(self) -> None:
         module = _load_config_flow_module()
@@ -765,6 +770,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             result["description_placeholders"]["candidate_preview"],
             "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
         )
+        self.assertEqual(
+            result["description_placeholders"]["candidate_summary"],
+            "- No unmanaged candidate devices discovered right now",
+        )
         self.assertNotIn("candidate_entity_id", result["description_placeholders"])
 
     def test_device_add_form_surfaces_blocker_summary_placeholder(self) -> None:
@@ -796,6 +805,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(
             result["description_placeholders"]["device_next_step"],
             "Open sources path and finish source repair before promoting more devices.",
+        )
+        self.assertEqual(
+            result["description_placeholders"]["candidate_summary"],
+            "- No unmanaged candidate devices discovered right now",
         )
 
     def test_promotion_forms_keep_managed_and_unmanaged_context_visible(self) -> None:
@@ -899,6 +912,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
                 "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
+            )
+            self.assertEqual(
+                result["description_placeholders"]["candidate_summary"],
+                "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
+                "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(

@@ -927,6 +927,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "none discovered right now"
         return build_candidate_preview(candidate, include_entity_id=False)
 
+    @staticmethod
+    def _candidate_snapshot_text(candidates: list[dict[str, Any]], *, limit: int = 12) -> str:
+        return (
+            "\n".join(f"- {build_candidate_preview(item, include_entity_id=False)}" for item in candidates[:limit])
+            if candidates
+            else "- No unmanaged candidate devices discovered right now"
+        )
+
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:
         candidates = self._device_candidates()
         if kind:
@@ -2124,9 +2132,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
         managed_snapshot = self._managed_snapshot_text(display_devices)
         unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
-        candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item, include_entity_id=False)}" for item in candidates[:12]
-        ) if candidates else "- No unmanaged candidate devices discovered right now"
+        candidate_summary = self._candidate_snapshot_text(candidates)
         fixed_candidate_summary = "\n".join(
             f"- {build_candidate_preview(item, include_entity_id=False)}" for item in fixed_candidates[:6]
         ) if fixed_candidates else "- No fixed-load candidates discovered right now"
@@ -2227,6 +2233,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], all_candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
+                "candidate_summary": self._candidate_snapshot_text(all_candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
@@ -2283,6 +2290,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], all_candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
+                "candidate_summary": self._candidate_snapshot_text(all_candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
@@ -2323,6 +2331,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "candidate_summary": self._candidate_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
@@ -2401,6 +2410,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "candidate_summary": self._candidate_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
@@ -2515,6 +2525,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "candidate_summary": self._candidate_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
@@ -2577,6 +2588,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "candidate_summary": self._candidate_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
@@ -2621,6 +2633,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "candidate_summary": self._candidate_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
@@ -2662,6 +2675,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_count": str(len(devices)),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "candidate_summary": self._candidate_snapshot_text(candidates),
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
