@@ -2162,6 +2162,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "top_candidates": top_candidate_summary,
                 "candidate_path_summary": candidate_path_summary,
                 "device_blocker_summary": self._device_blocker_summary(),
+                "device_next_step": self._device_next_step(display_devices, [], all_candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
                 "fixed_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_FIXED)),
@@ -2220,6 +2221,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "candidate_count": str(len(options)),
                 "candidate_path_summary": candidate_path_summary,
                 "device_blocker_summary": self._device_blocker_summary(),
+                "device_next_step": self._device_next_step(display_devices, [], all_candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
                 "fixed_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_FIXED)),
@@ -2262,6 +2264,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors={},
             description_placeholders={
                 "device_blocker_summary": self._device_blocker_summary(),
+                "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "top_candidate": (
@@ -2337,6 +2340,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "device_blocker_summary": self._device_blocker_summary(),
+                "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "top_candidate": (
@@ -2450,6 +2454,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
             description_placeholders={
                 "device_blocker_summary": self._device_blocker_summary(),
+                "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
@@ -2513,6 +2518,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "enabled_count": str(len(enabled_keys)),
                 "device_count": str(len(devices)),
+                "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "top_candidate": (

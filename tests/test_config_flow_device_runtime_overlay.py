@@ -599,6 +599,14 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(shortlist["description_placeholders"]["device_blocker_summary"], expected_blocker)
         self.assertEqual(full_list["description_placeholders"]["device_blocker_summary"], expected_blocker)
         self.assertEqual(
+            shortlist["description_placeholders"]["device_next_step"],
+            "Open sources path and finish source repair before promoting more devices.",
+        )
+        self.assertEqual(
+            full_list["description_placeholders"]["device_next_step"],
+            "Open sources path and finish source repair before promoting more devices.",
+        )
+        self.assertEqual(
             shortlist["description_placeholders"]["managed_snapshot"],
             "Managed now: 2 | enabled: 1 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
         )
@@ -670,6 +678,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         for result in (bulk_enable, edit_pick, remove):
             self.assertEqual(
+                result["description_placeholders"]["device_next_step"],
+                "Open sources path and finish source repair before fleet edits.",
+            )
+            self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
                 "Managed now: 2 | enabled: 1 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
             )
@@ -718,6 +730,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
             "Why: Mapped source blockers remain."
         ))
+        self.assertEqual(
+            result["description_placeholders"]["device_next_step"],
+            "Open sources path and finish source repair before promoting more devices.",
+        )
 
     def test_device_add_form_surfaces_blocker_summary_placeholder(self) -> None:
         module = _load_config_flow_module()
@@ -745,6 +761,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
             "Why: Mapped source blockers remain."
         ))
+        self.assertEqual(
+            result["description_placeholders"]["device_next_step"],
+            "Open sources path and finish source repair before promoting more devices.",
+        )
 
     def test_promotion_forms_keep_managed_and_unmanaged_context_visible(self) -> None:
         module = _load_config_flow_module()
@@ -829,6 +849,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         add = asyncio.run(flow.async_step_device_add())
 
         for result in (vetting, template, add):
+            self.assertEqual(
+                result["description_placeholders"]["device_next_step"],
+                "Open sources path and finish source repair before promoting more devices.",
+            )
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
                 "Managed now: 2 | enabled: 2 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
