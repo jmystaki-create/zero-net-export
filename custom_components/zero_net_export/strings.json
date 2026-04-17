@@ -23,7 +23,7 @@
       "description": "One or more managed devices could not be parsed cleanly. Open {configure_path} to repair the affected fleet entries, or use {advanced_recovery_path} if the normal native device editor is no longer enough.\n\nIssue count: {issue_count}\nExamples: {issue_examples}\n\nPrimary repair path: {configure_path}.\nAdvanced recovery path: {advanced_recovery_path}."
     },
     "runtime_attention": {
-      "title": "Runtime attention needed",
+      "title": "Zero Net Export runtime blockers",
       "description": "Zero Net Export is running, but control is still constrained by one or more active blockers.\n\nNow\n• Health: {health_summary}\n• Reasons: {reason_summary}\n• Installed package: {install_status}\n• Install consistency: {install_consistency}\n\nMapped-source blockers\n• Unavailable roles: {unavailable_sources}\n• Stale roles: {stale_sources}\n• Affected roles and entities: {source_attention_roles}\n• Blocking validation details: {blocking_validation_details}\n\nDo next\n• Mapped-source repair path: {source_repair_step}\n• Next step: {next_step}\n• Selector fallback, only if Home Assistant rejects a valid choice: {fallback_hint}\n\nOpen\n• Configure: {configure_path}\n• Diagnostics: {support_path}"
     }
   },

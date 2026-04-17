@@ -18,7 +18,9 @@ class RepairsCopyTests(unittest.TestCase):
         self.assertNotIn("Primary path:", description)
 
     def test_runtime_attention_copy_uses_compact_sections(self) -> None:
-        description = self.strings["issues"]["runtime_attention"]["description"]
+        runtime_attention = self.strings["issues"]["runtime_attention"]
+        description = runtime_attention["description"]
+        self.assertEqual(runtime_attention["title"], "Zero Net Export runtime blockers")
         self.assertIn("Now\n• Health:", description)
         self.assertIn("\n\nMapped-source blockers\n• Unavailable roles:", description)
         self.assertIn("\n\nDo next\n• Mapped-source repair path:", description)
