@@ -21,12 +21,20 @@
 ### Buttons
 - `button.zero_net_export_reset_controller_overrides`
   - clears persisted target-export and deadband runtime overrides so the controller falls back to the options-flow defaults
-- `button.zero_net_export_show_support_center`
-  - publishes a combined native support-center notification with readiness, next-step guidance, checklist, and an embedded support snapshot
-- `button.zero_net_export_show_native_diagnostics_snapshot`
-  - publishes a persistent-notification support snapshot from `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device` so diagnostics stay reachable from native Home Assistant surfaces and Scripts
+- `button.zero_net_export_show_native_command_center`
+  - publishes the native command-center guide with the recommended Configure bucket, blocker-first next step, and deeper-review handoff
+- `button.zero_net_export_show_fleet_console`
+  - publishes the Managed Devices workspace snapshot with managed devices on top, unmanaged candidates below, and the primary Configure handoff back into `Configure -> Managed Devices`
+- `button.zero_net_export_show_managed_device_review`
+  - publishes the deeper managed-devices review with runtime-ranked managed rows, top unmanaged candidates, and the secondary device-page review handoff
+- `button.zero_net_export_show_native_support_center`
+  - publishes the native Diagnostics guide with readiness, blocker-first troubleshooting guidance, and the current Configure / Diagnostics paths
+- `button.zero_net_export_show_native_diagnostics`
+  - publishes a persistent-notification diagnostics snapshot from `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device` so diagnostics stay reachable from native Home Assistant surfaces and Scripts
 - `button.zero_net_export_show_setup_checklist`
   - publishes the current readiness phase, checklist, and next step as a persistent notification from native Home Assistant surfaces
+- `button.zero_net_export_device_<device_key>_review`
+  - publishes the deeper per-device managed review from the Zero Net Export device page for each configured load
 - `button.zero_net_export_<device_key>_reset_overrides`
   - clears persisted per-device enable / priority overrides so a device falls back to its JSON-defined defaults
 
@@ -167,11 +175,15 @@ Options now also include:
 The integration now also supports Home Assistant config-entry diagnostics download.
 
 Native Home Assistant diagnostics surfaces now also include scriptable device-page buttons for:
-- support-center notification publishing
-- support snapshot notification publishing
-- setup checklist notification publishing
+- command-center guide publishing
+- Managed Devices workspace publishing
+- managed-devices review publishing
+- diagnostics guide publishing
+- diagnostics snapshot publishing
+- setup checklist publishing
+- per-device managed review publishing for each configured load
 
-These are intended to support the native Home Assistant setup and troubleshooting path directly during live-install troubleshooting.
+These are intended to support the native Home Assistant setup, fleet review, and troubleshooting path directly during live-install troubleshooting.
 
 Current diagnostics payload includes:
 - redacted config-entry data and options
