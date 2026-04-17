@@ -92,7 +92,7 @@ async def _async_update_native_setup_notice(
         f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} as the Zero Net Export command center for Sensors, Managed Devices, Controls, and Diagnostics.\n\n"
         + "\n".join(f"- {item}" for item in bullets)
         + f"\n\nNext step: {next_step}"
-        + f"\n\nUse {INTEGRATION_DEVICE_PATH} support actions for a combined support center, setup checklist, and detailed diagnostics snapshot."
+        + f"\n\nUse {INTEGRATION_DEVICE_PATH} diagnostics actions for Review diagnostics, Show setup checklist, and Review diagnostics snapshot."
     )
     persistent_notification.async_create(
         hass,

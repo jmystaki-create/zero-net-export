@@ -65,7 +65,7 @@ POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {POLICY_SECTION_LABEL}"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
     f"{PRIMARY_CONFIGURE_PATH} -> {SUPPORT_SECTION_LABEL}; deeper health review: "
-    f"{INTEGRATION_DEVICE_PATH} -> Show support center / Show setup checklist / Show native diagnostics snapshot; "
+    f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics / Show setup checklist / Review diagnostics snapshot; "
     "Settings -> Repairs"
 )
 MAX_NATIVE_SENSOR_STATE_CHARS = 255
@@ -694,7 +694,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
             )
         elif state_stale_data and stale_summary:
             next_step = (
-                f"Open {SOURCES_CONFIGURE_PATH} or {INTEGRATION_DEVICE_PATH} -> Show native diagnostics snapshot, "
+                f"Open {SOURCES_CONFIGURE_PATH} or {INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot, "
                 f"then fix the stale mapped sources. {stale_summary}."
             )
         else:
@@ -719,7 +719,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     elif not state_usable_device_count:
         phase = "runtime_readiness"
         next_step = (
-            f"Use {INTEGRATION_DEVICE_PATH} -> Show native diagnostics snapshot, then return to {DEVICES_CONFIGURE_PATH} "
+            f"Use {INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot, then return to {DEVICES_CONFIGURE_PATH} "
             "to unblock at least one usable device."
         )
         summary = "Managed Devices exist, but none are currently eligible for control."

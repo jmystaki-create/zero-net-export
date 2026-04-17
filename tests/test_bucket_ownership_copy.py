@@ -67,6 +67,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         support_description = steps["support"]["description"]
         self.assertIn("Diagnostics owns troubleshooting, repairs, and install validation", support_description)
         self.assertIn("not normal source mapping, policy tuning, or managed-device promotion", support_description)
+        self.assertIn("Current blocker", support_description)
+        self.assertIn("Mapped-source diagnostics", support_description)
+        self.assertIn("Install validation", support_description)
+        self.assertIn("Native paths", support_description)
 
 
 if __name__ == "__main__":

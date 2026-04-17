@@ -575,7 +575,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_native_support_center", "Show support center")
+        super().__init__(coordinator, "show_native_support_center", "Review diagnostics")
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_icon = "mdi:lifebuoy"
 
@@ -598,14 +598,14 @@ class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEnti
         persistent_notification.async_create(
             self.hass,
             f"```\n{support_center}\n```",
-            title=f"{self.coordinator.entry.title}: support center",
+            title=f"{self.coordinator.entry.title}: diagnostics guide",
             notification_id=_support_notification_id(self.coordinator.entry.entry_id),
         )
 
 
 class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_native_diagnostics", "Show native diagnostics snapshot")
+        super().__init__(coordinator, "show_native_diagnostics", "Review diagnostics snapshot")
         self._attr_entity_category = EntityCategory.DIAGNOSTIC
         self._attr_icon = "mdi:clipboard-pulse-outline"
 
@@ -633,7 +633,7 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
         persistent_notification.async_create(
             self.hass,
             message,
-            title=f"{self.coordinator.entry.title}: native diagnostics snapshot",
+            title=f"{self.coordinator.entry.title}: diagnostics snapshot",
             notification_id=_diagnostics_notification_id(self.coordinator.entry.entry_id),
         )
 

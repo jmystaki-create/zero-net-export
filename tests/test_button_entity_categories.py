@@ -222,6 +222,19 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIsNone(getattr(managed_review, "_attr_entity_category", None))
         self.assertEqual(diagnostics._attr_entity_category, button_module.EntityCategory.DIAGNOSTIC)
 
+    def test_diagnostics_buttons_use_diagnostics_first_labels(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+
+        support = button_module.ZeroNetExportShowNativeSupportCenterButton(coordinator)
+        diagnostics = button_module.ZeroNetExportShowNativeDiagnosticsButton(coordinator)
+
+        self.assertEqual(getattr(support, "_attr_name", None), "Review diagnostics")
+        self.assertEqual(getattr(diagnostics, "_attr_name", None), "Review diagnostics snapshot")
+
     def test_fleet_console_button_renders_managed_vs_unmanaged_workspace(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)
