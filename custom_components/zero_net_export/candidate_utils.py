@@ -1,6 +1,7 @@
 """Managed-device candidate discovery helpers for native HA surfaces."""
 from __future__ import annotations
 
+import re
 from typing import Any, Iterable
 
 from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS, DOMAIN
@@ -196,6 +197,12 @@ def _candidate_text(candidate: dict[str, Any]) -> str:
     ).lower()
 
 
+def _normalized_candidate_name(candidate: dict[str, Any]) -> str:
+    """Return a normalized candidate label for cross-surface duplicate detection."""
+    name = str(candidate.get("name") or candidate.get("entity_id") or "").lower().replace("-", " ")
+    return re.sub(r"[^a-z0-9]+", " ", name).strip()
+
+
 def _has_positive_load_signal(candidate: dict[str, Any]) -> bool:
     text = _candidate_text(candidate)
     if any(phrase in text for phrase in _FALSE_POSITIVE_LOAD_PHRASES):
@@ -331,6 +338,29 @@ def candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, int, int, str, s
 def rank_candidates(candidates: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     """Return candidates in the native promotion order used across UI surfaces."""
     return sorted(candidates, key=candidate_sort_key)
+
+
+def _deduplicate_shadowed_helper_candidates(candidates: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Drop helper duplicates when a stronger native candidate already names the same load.
+
+    Helper-backed entities can be useful fallbacks, but when the same load already has a
+    native switch/light/number candidate with the same friendly label they mostly add noise
+    to Managed Devices promotion lists and make the managed-versus-unmanaged split less clear.
+    """
+    candidate_list = list(candidates)
+    non_helper_names = {
+        _normalized_candidate_name(candidate)
+        for candidate in candidate_list
+        if str(candidate.get("domain") or "") not in {"input_boolean", "input_number"}
+    }
+    return [
+        candidate
+        for candidate in candidate_list
+        if not (
+            str(candidate.get("domain") or "") in {"input_boolean", "input_number"}
+            and _normalized_candidate_name(candidate) in non_helper_names
+        )
+    ]
 
 
 def _degrade_confidence(current: str) -> str:
@@ -702,4 +732,4 @@ def discover_candidate_devices(states: Iterable[Any], managed_entity_ids: set[st
         if _should_exclude_candidate(candidate):
             continue
         candidates.append(candidate)
-    return rank_candidates(candidates)
+    return rank_candidates(_deduplicate_shadowed_helper_candidates(candidates))

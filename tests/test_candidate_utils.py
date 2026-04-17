@@ -612,6 +612,36 @@ class CandidateUtilsTests(unittest.TestCase):
             ],
         )
 
+    def test_discover_candidate_devices_drops_helper_duplicates_when_native_load_label_matches(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(
+                entity_id="switch.ac_outlet_1",
+                state="off",
+                attributes={"friendly_name": "Lounge Room - Heated Floor"},
+            ),
+            SimpleNamespace(
+                entity_id="input_number.lounge_room_heated_floor",
+                state="18",
+                attributes={"friendly_name": "Lounge Room Heated Floor"},
+            ),
+            SimpleNamespace(
+                entity_id="input_number.powder_room_heated_floor",
+                state="18",
+                attributes={"friendly_name": "Powder Room Heated Floor"},
+            ),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual(
+            [candidate["entity_id"] for candidate in candidates],
+            [
+                "switch.ac_outlet_1",
+                "input_number.powder_room_heated_floor",
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
