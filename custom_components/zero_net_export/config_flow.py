@@ -826,14 +826,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     def _managed_snapshot_text(self, devices: list[dict[str, Any]]) -> str:
         if not devices:
-            return "Managed now: 0 | enabled: 0 | usable: 0 | blocked: none | plan: none"
+            return "Managed now: 0 | enabled: 0 | usable: 0 | blocked first: none | next plan: none"
 
+        ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
         blocked_name = next(
             (
                 str(device.get("name") or device.get("entity_id") or "")
-                for device in sorted(devices, key=self._device_sort_key)
+                for device in ordered
                 if device.get("usable") is False
             ),
             "",
@@ -841,22 +842,25 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         planned_name = next(
             (
                 str(device.get("name") or device.get("entity_id") or "")
-                for device in sorted(devices, key=self._device_sort_key)
+                for device in ordered
                 if str(device.get("planned_action") or "") not in {"", "hold"}
             ),
             "",
         )
         return (
             f"Managed now: {len(devices)} | enabled: {enabled_count} | usable: {usable_count}"
-            f" | blocked: {blocked_name or 'none'} | plan: {planned_name or 'none'}"
+            f" | blocked first: {blocked_name or 'none'} | next plan: {planned_name or 'none'}"
         )
 
     @staticmethod
     def _unmanaged_snapshot_text(candidates: list[dict[str, Any]]) -> str:
         fixed_count = sum(1 for item in candidates if item.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for item in candidates if item.get("kind") == DEVICE_KIND_VARIABLE)
+        top_candidate = candidates[0] if candidates else None
+        top_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "none")
         return (
             f"Unmanaged now: {len(candidates)} | fixed candidates: {fixed_count} | variable candidates: {variable_count}"
+            f" | top candidate: {top_name}"
         )
 
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:
@@ -2028,16 +2032,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         summary = "\n".join(self._fleet_summary_lines(display_devices))
         fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
         variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
-        managed_snapshot = (
-            f"Managed now: {len(display_devices)} | enabled: {sum(1 for device in display_devices if device.get('effective_enabled', device.get('enabled', True)))} | usable: {sum(1 for device in display_devices if device.get('usable'))}"
-            if display_devices
-            else "Managed now: 0 | enabled: 0 | usable: 0"
-        )
-        unmanaged_snapshot = (
-            f"Unmanaged now: {len(candidates)} | fixed candidates: {len(fixed_candidates)} | variable candidates: {len(variable_candidates)}"
-            if candidates
-            else "Unmanaged now: 0 | fixed candidates: 0 | variable candidates: 0"
-        )
+        managed_snapshot = self._managed_snapshot_text(display_devices)
+        unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
         candidate_summary = "\n".join(
             f"- {build_candidate_preview(item)}" for item in candidates[:12]
         ) if candidates else "- No unmanaged candidate devices discovered right now"
@@ -2065,7 +2061,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": summary,
                 "managed_snapshot": managed_snapshot,
                 "candidate_count": str(len(candidates)),
-                "unmanaged_snapshot": unmanaged_snapshot,
+                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
                 "candidate_summary": candidate_summary,
                 "fixed_candidate_count": str(len(fixed_candidates)),
                 "fixed_candidate_summary": fixed_candidate_summary,

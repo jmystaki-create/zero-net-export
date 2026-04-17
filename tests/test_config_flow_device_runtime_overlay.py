@@ -593,11 +593,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(full_list["description_placeholders"]["device_blocker_summary"], expected_blocker)
         self.assertEqual(
             shortlist["description_placeholders"]["managed_snapshot"],
-            "Managed now: 2 | enabled: 1 | usable: 1 | blocked: EV charger | plan: Pool pump",
+            "Managed now: 2 | enabled: 1 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
         )
         self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
-            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1",
+            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1 | top candidate: AC Outlet 2",
         )
         self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
@@ -664,11 +664,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         for result in (bulk_enable, edit_pick, remove):
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 1 | usable: 1 | blocked: EV charger | plan: Pool pump",
+                "Managed now: 2 | enabled: 1 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0",
+                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2",
             )
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
@@ -824,11 +824,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         for result in (vetting, template, add):
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 2 | usable: 1 | blocked: EV charger | plan: Pool pump",
+                "Managed now: 2 | enabled: 2 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0",
+                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2",
             )
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
