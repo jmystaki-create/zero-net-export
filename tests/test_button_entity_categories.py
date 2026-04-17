@@ -205,13 +205,13 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "recommended_reason": "Managed fleet work is the current priority.",
                 "device_next_step": "Promote the next candidate.",
             },
-            {"entity_id": "switch.hot_water", "kind": "fixed"},
+            {"name": "Hot water", "entity_id": "switch.hot_water", "kind": "fixed", "domain": "switch"},
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Open devices path as the primary Managed Devices workspace.", handoff)
         self.assertIn("- Choose Add fixed load device.", handoff)
-        self.assertIn("- In Pick unmanaged candidate, select switch.hot_water.", handoff)
+        self.assertIn("- In Pick unmanaged candidate, select Hot water (fixed) | strong match | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
 
     def test_primary_operator_buttons_stay_out_of_diagnostics(self) -> None:
@@ -312,7 +312,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
-        self.assertIn("- Snapshot: 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
+        self.assertIn("- Snapshot: 2 candidate(s) | top candidate Hot water (fixed) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold | entity=number.ev_limit"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power=n/a | guard=ready | plan=turn_on | entity=switch.pool_pump"
@@ -389,7 +389,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
-        self.assertIn("Unmanaged candidates (bottom section): 2 candidate(s) | top candidate Hot water (switch.hot_water, fixed)", message)
+        self.assertIn("Unmanaged candidates (bottom section): 2 candidate(s) | top candidate Hot water (fixed) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power=n/a | guard=blocked | plan=hold | entity=number.ev_limit"

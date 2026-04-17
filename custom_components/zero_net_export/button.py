@@ -200,7 +200,7 @@ def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict
             [
                 f"- Open {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace.",
                 f"- Choose Add {top_add_label}.",
-                f"- In Pick unmanaged candidate, select {top_candidate['entity_id']}.",
+                f"- In Pick unmanaged candidate, select {build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
                 f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
             ]
@@ -407,7 +407,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             (
                 f"- Snapshot: {len(candidates)} candidate(s)"
                 + (
-                    f" | top candidate {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    f" | top candidate {build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)}"
                     if top_candidate
                     else ''
                 )
@@ -522,7 +522,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 "Unmanaged candidates (bottom section): "
                 f"{len(candidates)} candidate(s)"
                 + (
-                    f" | top candidate {top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    f" | top candidate {build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)}"
                     if top_candidate
                     else ""
                 )
