@@ -336,10 +336,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             }
         )
         self.assertIn("This surface is for the basic setup only.", guide)
-        self.assertIn(
-            "Managed Devices lives in Configure, while the Zero Net Export device page is the deeper per-device review path.",
-            guide,
-        )
+        self.assertIn("Open Managed Devices only after the current setup blockers are clear.", guide)
+        self.assertIn("Now", guide)
         self.assertIn("- Recommended section: Sensors", guide)
         self.assertNotIn("- Recommended section: Sensors and source mapping", guide)
         self.assertIn(f"- Recommended path: {native_support.SOURCES_CONFIGURE_PATH}", guide)
@@ -347,14 +345,17 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Energy state: solar 0 W | grid import 900 W", guide)
         self.assertIn("- Fleet activity: 0 managed | 4 unmanaged | top AC Outlet 2", guide)
         self.assertIn("Setup check", guide)
+        self.assertIn("- Source map: Solar power -> sensor.pv_power", guide)
         self.assertIn("- Runtime health: Runtime attention remains.", guide)
+        self.assertIn("- Source blockers: Solar power (sensor.pv_power, unavailable)", guide)
         self.assertIn("Basic setup paths", guide)
-        self.assertIn(f"- Finish source mapping: {native_support.SOURCES_CONFIGURE_PATH}", guide)
-        self.assertIn(f"- Tune control settings: {native_support.POLICY_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Change live control mode: {native_support.MODE_CONTROL_PATH}", guide)
-        self.assertIn(f"- Open diagnostics only if setup is blocked: {native_support.SUPPORT_CONFIGURE_PATH}", guide)
-        self.assertIn("Not here", guide)
-        self.assertIn(f"- Managed Devices and candidate promotion: {native_support.DEVICES_CONFIGURE_PATH}", guide)
+        self.assertIn("Bucket ownership", guide)
+        self.assertIn(f"- Managed Devices owns fleet onboarding, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}", guide)
+        self.assertIn(f"- Diagnostics owns troubleshooting, repairs, and install validation: {native_support.SUPPORT_CONFIGURE_PATH}.", guide)
+        self.assertNotIn("Not here", guide)
 
     def test_normalize_command_center_section_upgrades_legacy_sensors_label(self) -> None:
         native_support = _load_native_support_module()

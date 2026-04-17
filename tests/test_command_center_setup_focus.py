@@ -86,6 +86,9 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
                 "fleet_activity_summary": "0 managed | 3 unmanaged | top AC Outlet 2",
                 "recommended_section": native_support.SOURCES_SECTION_LABEL,
                 "recommended_path": native_support.SOURCES_CONFIGURE_PATH,
+                "source_mapping_summary": "Solar power -> sensor.pv_power",
+                "source_attention_summary": "Solar power unavailable",
+                "source_repair_step": "Open Sensors and remap Solar power.",
                 "sources_path": native_support.SOURCES_CONFIGURE_PATH,
                 "policy_path": native_support.POLICY_CONFIGURE_PATH,
                 "mode_path": native_support.MODE_CONTROL_PATH,
@@ -95,19 +98,25 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         )
 
         self.assertIn("This surface is for the basic setup only.", text)
-        self.assertIn(
-            "Managed Devices lives in Configure, while the Zero Net Export device page is the deeper per-device review path.",
-            text,
-        )
+        self.assertIn("Open Managed Devices only after the current setup blockers are clear.", text)
+        self.assertIn("Now", text)
+        self.assertIn("- Top alert / next step: Open Configure > Sensors next.", text)
         self.assertIn("Structured control board", text)
         self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
         self.assertIn("- Control outcome: planned actions 1 | active load 1200 W", text)
         self.assertIn("- Fleet activity: 0 managed | 3 unmanaged | top AC Outlet 2", text)
         self.assertIn("Setup check", text)
+        self.assertIn("- Source map: Solar power -> sensor.pv_power", text)
         self.assertIn("- Runtime health: Runtime attention remains.", text)
+        self.assertIn("Bucket ownership", text)
+        self.assertIn(
+            f"- Managed Devices owns fleet onboarding, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}",
+            text,
+        )
         self.assertNotIn("Installed package:", text)
         self.assertNotIn("Install consistency:", text)
         self.assertNotIn("Managed-device deep review", text)
+        self.assertNotIn("Not here", text)
 
 
 if __name__ == "__main__":
