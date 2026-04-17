@@ -298,6 +298,24 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
 
+    def test_top_unmanaged_candidate_hides_raw_entity_id(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
+        ]
+        sensor_module.build_candidate_preview = lambda candidate, **kwargs: (
+            f"{candidate['name']} | include_entity_id={kwargs.get('include_entity_id', True)}"
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        top = sensor_module.ZeroNetExportSensor(coordinator, "top_unmanaged_candidate", "Top unmanaged candidate")
+        top.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(top.native_value, "AC Outlet 2 | include_entity_id=False")
+
     def test_fleet_workspace_candidate_discovery_is_cached_per_coordinator_state(self) -> None:
         sensor_module = _load_sensor_module()
         calls: list[tuple[str, ...]] = []

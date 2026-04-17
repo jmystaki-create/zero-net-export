@@ -395,7 +395,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if not candidates:
                 return "None"
             top = candidates[0]
-            return build_candidate_preview(top)
+            return build_candidate_preview(top, include_entity_id=False)
         if self._key == "top_candidate_fit":
             if not candidates:
                 return "No candidate fit guidance available"
