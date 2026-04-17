@@ -159,11 +159,27 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         return {
             "confidence": "medium",
             "summary": "Looks like a plausible controllable candidate, but review before promotion.",
-            "warnings": ["Variable candidates are safer when the entity exposes a meaningful unit such as A, W, or %."],
+            "warnings": ["Variable power controls need a meaningful unit, sane range, and clear relation to real device power."],
         }
+
+    def _build_candidate_overview_summary(candidates, **kwargs):
+        items = list(candidates)
+        if not items:
+            return "No unmanaged candidate devices discovered"
+        parts = [f"{len(items)} {'candidate' if len(items) == 1 else 'candidates'}"]
+        fixed_count = sum(1 for item in items if item["kind"] == "fixed")
+        variable_count = sum(1 for item in items if item["kind"] == "variable")
+        if fixed_count:
+            parts.append(f"{fixed_count} fixed")
+        if variable_count:
+            parts.append(f"{variable_count} variable")
+        if items[0].get("name"):
+            parts.append(f"top {items[0]['name']}")
+        return " | ".join(parts)
 
     candidate_utils_module.discover_candidate_devices = _discover_candidate_devices
     candidate_utils_module.assess_candidate = _assess_candidate
+    candidate_utils_module.build_candidate_overview_summary = _build_candidate_overview_summary
     candidate_utils_module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
         f"{candidate['name']} ("
         + ", ".join(
@@ -181,7 +197,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         + (
             "No immediate warnings"
             if candidate["domain"] == "switch"
-            else "Variable candidates are safer when the entity exposes a meaningful unit such as A, W, or %."
+            else "Variable power controls need a meaningful unit, sane range, and clear relation to real device power."
         )
     )
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
@@ -312,7 +328,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
-        self.assertIn("- Snapshot: 2 candidate(s) | top candidate Hot water (fixed) | strong match | key warning: No immediate warnings", message)
+        self.assertIn("- Snapshot: 2 candidates | 2 fixed | top Hot water | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | guard ready | action turn_on"
@@ -391,7 +407,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
-        self.assertIn("Unmanaged candidates (bottom section): 2 candidate(s) | top candidate Hot water (fixed) | strong match | key warning: No immediate warnings", message)
+        self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed | top Hot water | strong match | key warning: No immediate warnings", message)
         self.assertIn("Top candidate fit: high: Switch entities are usually strong fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
@@ -453,6 +469,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["managed_count"], 1)
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable | top EV limit | plausible match | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
         self.assertEqual(attrs["recommended_section"], "Sensors")
@@ -508,6 +525,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["recommended_section"], "Sensors")
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | plan Pool pump")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed | top Hot water | strong match | key warning: No immediate warnings")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
@@ -645,7 +663,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
         self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump", message)
-        self.assertIn("- Unmanaged snapshot: 1 candidate(s) | top candidate Hot water (fixed)", message)
+        self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed | top Hot water | strong match | key warning: No immediate warnings", message)
         self.assertIn("- Top unmanaged candidate right now: Hot water (fixed) | strong match | key warning: No immediate warnings", message)
         self.assertIn("Device: Pool pump", message)
         self.assertNotIn("Entity: switch.pool_pump", message)
@@ -704,7 +722,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | blocked Pool pump | 0 planned action(s)")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate(s) | top candidate Hot water (fixed)")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed | top Hot water | strong match | key warning: No immediate warnings")
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
 
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:

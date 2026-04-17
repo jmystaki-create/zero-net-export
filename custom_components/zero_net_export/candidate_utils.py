@@ -487,7 +487,10 @@ def build_candidate_overview_summary(
     fixed_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "fixed")
     variable_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "variable")
     top_name = str(candidate_list[0].get("name") or candidate_list[0].get("entity_id") or "").strip()
-    summary_parts = [f"{len(candidate_list)} candidates", f"{fixed_count} fixed"]
+    candidate_label = "candidate" if len(candidate_list) == 1 else "candidates"
+    summary_parts = [f"{len(candidate_list)} {candidate_label}"]
+    if fixed_count:
+        summary_parts.append(f"{fixed_count} fixed")
     if variable_count:
         summary_parts.append(f"{variable_count} variable")
     if top_name:

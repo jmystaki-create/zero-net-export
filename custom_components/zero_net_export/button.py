@@ -5,7 +5,12 @@ from homeassistant.components import persistent_notification
 from homeassistant.components.button import ButtonEntity
 from homeassistant.helpers.entity import EntityCategory
 
-from .candidate_utils import assess_candidate, build_candidate_preview, discover_candidate_devices
+from .candidate_utils import (
+    assess_candidate,
+    build_candidate_overview_summary,
+    build_candidate_preview,
+    discover_candidate_devices,
+)
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity
 from .native_support import (
@@ -151,6 +156,18 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
     if first_planned_name:
         parts.append(f"plan {first_planned_name}")
     return " | ".join(parts)
+
+
+def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
+    overview = build_candidate_overview_summary(candidates)
+    if not candidates:
+        return overview
+
+    top_preview = build_candidate_preview(candidates[0], include_entity_id=False, include_state=False)
+    _, separator, preview_tail = top_preview.partition(" | ")
+    if separator and preview_tail:
+        return f"{overview} | {preview_tail}"
+    return overview
 
 
 def _format_power(value: object) -> str:
@@ -414,6 +431,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 predicate=_has_active_plan,
             ),
             'managed_snapshot': _managed_snapshot_summary(ordered),
+            'unmanaged_snapshot': _unmanaged_snapshot_summary(candidates),
             'candidate_count': len(candidates),
             'candidate_devices': candidates[:12],
             'top_candidate': top_candidate,
@@ -446,14 +464,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             *([_format_device_review_line(detail) for detail in ordered[:12]] or ['- No managed devices configured yet.']),
             '',
             'Unmanaged candidates (bottom section):',
-            (
-                f"- Snapshot: {len(candidates)} candidate(s)"
-                + (
-                    f" | top candidate {build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)}"
-                    if top_candidate
-                    else ''
-                )
-            ),
+            f"- Snapshot: {_unmanaged_snapshot_summary(candidates)}",
             (
                 f"- Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
                 if top_candidate_fit
@@ -532,6 +543,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 predicate=_has_active_plan,
             ),
             "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
+            "unmanaged_snapshot": _unmanaged_snapshot_summary(candidates),
             "unmanaged_candidate_count": len(candidates),
             "top_unmanaged_candidate": top_candidate,
             "top_candidate_fit": assess_candidate(top_candidate) if top_candidate else None,
@@ -560,15 +572,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "",
             "Managed devices (top section):",
             f"- Snapshot: {_managed_snapshot_summary(ordered, include_planned_count=True)}",
-            (
-                "Unmanaged candidates (bottom section): "
-                f"{len(candidates)} candidate(s)"
-                + (
-                    f" | top candidate {build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)}"
-                    if top_candidate
-                    else ""
-                )
-            ),
+            f"Unmanaged candidates (bottom section): {_unmanaged_snapshot_summary(candidates)}",
             (
                 f"Top candidate fit: {top_candidate_fit['confidence']}: {top_candidate_fit['summary']}"
                 if top_candidate_fit
@@ -637,14 +641,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
             "recommended_reason": command_center.get("recommended_reason"),
             "blocker_first": "\n".join(_managed_devices_blocker_first_lines(command_center)),
             "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
-            "unmanaged_snapshot": (
-                f"{len(candidates)} candidate(s)"
-                + (
-                    f" | top candidate {top_candidate['name']} ({top_candidate['kind']})"
-                    if top_candidate
-                    else ""
-                )
-            ),
+            "unmanaged_snapshot": _unmanaged_snapshot_summary(candidates),
             "top_unmanaged_candidate": top_candidate,
             **detail,
         }
@@ -665,14 +662,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
                     detail,
                     command_center=command_center,
                     managed_snapshot=_managed_snapshot_summary(ordered, include_planned_count=True),
-                    unmanaged_snapshot=(
-                        f"{len(candidates)} candidate(s)"
-                        + (
-                            f" | top candidate {top_candidate['name']} ({top_candidate['kind']})"
-                            if top_candidate
-                            else ""
-                        )
-                    ),
+                    unmanaged_snapshot=_unmanaged_snapshot_summary(candidates),
                     top_candidate=top_candidate,
                 )
             ),
