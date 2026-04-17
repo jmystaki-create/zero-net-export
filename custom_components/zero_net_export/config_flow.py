@@ -2124,6 +2124,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         all_candidates = self._device_candidates()
+        top_candidate = all_candidates[0] if all_candidates else None
         return self.async_show_form(
             step_id="device_pick_candidate",
             data_schema=vol.Schema(
@@ -2142,6 +2143,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_blocker_summary": self._device_blocker_summary(),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
+                "fixed_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_FIXED)),
+                "variable_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_VARIABLE)),
+                "top_candidate": (
+                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else "none discovered right now"
+                ),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2169,6 +2177,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         all_candidates = self._device_candidates()
+        top_candidate = all_candidates[0] if all_candidates else None
+        candidate_path_summary = (
+            "1. Pick a candidate from the shortlist or full list.\n"
+            "2. Review fit and warnings.\n"
+            "3. Choose a preset.\n"
+            "4. Save it into Managed Devices."
+        )
         return self.async_show_form(
             step_id="device_pick_candidate_full",
             data_schema=vol.Schema(
@@ -2182,9 +2197,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "candidate_count": str(len(options)),
+                "candidate_path_summary": candidate_path_summary,
                 "device_blocker_summary": self._device_blocker_summary(),
                 "managed_snapshot": self._managed_snapshot_text(display_devices),
                 "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
+                "fixed_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_FIXED)),
+                "variable_candidate_count": str(sum(1 for item in all_candidates if str(item.get("kind") or "") == DEVICE_KIND_VARIABLE)),
+                "top_candidate": (
+                    f"{top_candidate['name']} ({top_candidate['entity_id']}, {top_candidate['kind']})"
+                    if top_candidate
+                    else "none discovered right now"
+                ),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },

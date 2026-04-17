@@ -599,6 +599,16 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             full_list["description_placeholders"]["unmanaged_snapshot"],
             "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1",
         )
+        self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
+        self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
+        self.assertEqual(
+            shortlist["description_placeholders"]["top_candidate"],
+            "AC Outlet 2 (switch.ac_outlet_2, fixed)",
+        )
+        self.assertIn(
+            "Pick a candidate from the shortlist or full list.",
+            full_list["description_placeholders"]["candidate_path_summary"],
+        )
         self.assertEqual(shortlist["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(full_list["description_placeholders"]["detailed_management_summary"], flow._detailed_management_summary())
 
