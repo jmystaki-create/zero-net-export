@@ -53,11 +53,11 @@ Primary support, detail, and troubleshooting path:
 
 This path should expose:
 - setup checklist
-- support and diagnostics actions
-- support snapshot access
+- diagnostics actions
+- diagnostics snapshot access
 - detailed runtime visibility
 - repair guidance and next-step clues
-- deeper device/support detail that does not belong in the primary landing console
+- deeper device/diagnostics detail that does not belong in the primary landing console
 
 ### 3. Entities, notifications, automations/scripts, and Repairs
 These remain valid native Home Assistant surfaces for runtime, support, and automation workflows.
@@ -265,7 +265,7 @@ Health is part of the product’s normal posture.
 Diagnostics should provide:
 - health summary
 - blocker summary
-- support snapshot
+- diagnostics snapshot
 - setup checklist
 - repair guidance
 - install provenance / package validation
@@ -343,7 +343,7 @@ Diagnostics owns health, troubleshooting, and support.
 It should contain:
 - health summary
 - blocker summary
-- support snapshot
+- diagnostics snapshot
 - setup checklist
 - repair guidance
 - install provenance / package validation
@@ -493,11 +493,11 @@ This checklist translates the current design into implementation work buckets.
 - [ ] Move or preserve deeper telemetry in a secondary supporting path
 - [ ] Avoid making deeper sensor detail compete with the main landing console
 
-### H. Diagnostics and support path
-- [ ] Preserve/support a deeper diagnostics path for:
+### H. Diagnostics path
+- [ ] Preserve a deeper diagnostics path for:
   - [ ] health summary
   - [ ] blocker summary
-  - [ ] support snapshot
+  - [ ] diagnostics snapshot
   - [ ] setup checklist
   - [ ] repair guidance
   - [ ] install provenance / package validation
@@ -522,7 +522,7 @@ These are already present in some meaningful form and should be refined rather t
 - shortlist and full-list pick flows
 - candidate vetting/review scaffolding
 - fleet review / bulk enable-disable scaffolding
-- native support/snapshot/checklist surfaces
+- native diagnostics/snapshot/checklist surfaces
 - high-level four-bucket IA language
 
 ### Partially present but not yet delivered in the new design shape
