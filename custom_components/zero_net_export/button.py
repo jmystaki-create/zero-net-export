@@ -427,7 +427,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             ),
             *(
                 [
-                    f"- {build_candidate_preview(item, include_state=True)}"
+                    f"- {build_candidate_preview(item, include_entity_id=False, include_state=True)}"
                     for item in candidates[:6]
                 ]
                 or ['- No unmanaged candidate devices discovered right now.']
@@ -547,7 +547,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "Top unmanaged candidates:",
             *(
                 [
-                    f"- {build_candidate_preview(item, include_state=True)}"
+                    f"- {build_candidate_preview(item, include_entity_id=False, include_state=True)}"
                     for item in candidates[:6]
                 ]
                 or ["- No unmanaged candidate devices discovered right now."]
