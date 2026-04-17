@@ -854,6 +854,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
+        fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
+        variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
+        nominal_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
+        kind_known = any(device.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for device in devices)
         blocked_name = next(
             (
                 str(device.get("name") or device.get("entity_id") or "")
@@ -870,10 +874,23 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ),
             "",
         )
-        return (
-            f"Managed now: {len(devices)} | enabled: {enabled_count} | usable: {usable_count}"
-            f" | blocked first: {blocked_name or 'none'} | next plan: {planned_name or 'none'}"
+        summary_parts = [
+            f"Managed now: {len(devices)}",
+            f"enabled: {enabled_count}",
+            f"usable: {usable_count}",
+        ]
+        if kind_known:
+            summary_parts.append(f"fixed managed: {fixed_count}")
+            if variable_count:
+                summary_parts.append(f"variable managed: {variable_count}")
+            summary_parts.append(f"nominal: {nominal_power} W")
+        summary_parts.extend(
+            [
+                f"blocked first: {blocked_name or 'none'}",
+                f"next plan: {planned_name or 'none'}",
+            ]
         )
+        return " | ".join(summary_parts)
 
     @staticmethod
     def _candidate_mix_counts(candidates: list[dict[str, Any]]) -> tuple[int, int]:

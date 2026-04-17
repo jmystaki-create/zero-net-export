@@ -12,6 +12,7 @@ from .candidate_utils import (
     discover_candidate_devices,
 )
 from .const import DOMAIN
+from .device_model import DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE
 from .entity import ZeroNetExportEntity
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
@@ -153,6 +154,10 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
     )
     usable_count = sum(1 for detail in device_details if detail.get("usable") is True)
     planned_count = sum(1 for detail in device_details if _has_active_plan(detail))
+    fixed_count = sum(1 for detail in device_details if detail.get("kind") == DEVICE_KIND_FIXED)
+    variable_count = sum(1 for detail in device_details if detail.get("kind") == DEVICE_KIND_VARIABLE)
+    nominal_power = int(sum(float(detail.get("nominal_power_w", 0) or 0) for detail in device_details))
+    kind_known = any(detail.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for detail in device_details)
     first_blocked_name = _first_matching_device_name(
         device_details,
         predicate=lambda detail: detail.get("usable") is False,
@@ -162,6 +167,11 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
         predicate=_has_active_plan,
     )
     parts = [f"{managed_count} managed", f"{enabled_count} enabled", f"{usable_count} usable"]
+    if kind_known:
+        parts.append(f"{fixed_count} fixed managed")
+        if variable_count:
+            parts.append(f"{variable_count} variable managed")
+        parts.append(f"{nominal_power} W nominal")
     if first_blocked_name:
         parts.append(f"blocked {first_blocked_name}")
     if include_planned_count:

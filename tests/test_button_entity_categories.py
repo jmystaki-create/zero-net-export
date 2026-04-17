@@ -663,7 +663,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Recommended next step: Review the next managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
-        self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump", message)
+        self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | 1 fixed managed | 1200 W nominal | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("- Top unmanaged candidate right now: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Device: Pool pump", message)
@@ -722,7 +722,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["recommended_path"], "sources path")
         self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
-        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | blocked Pool pump | 0 planned action(s)")
+        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | 1 fixed managed | 0 W nominal | blocked Pool pump | 0 planned action(s)")
         self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
 

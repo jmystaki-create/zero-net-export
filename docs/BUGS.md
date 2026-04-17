@@ -115,7 +115,7 @@ Suggested area labels:
 - **severity:** `high`
 - **area:** `managed_devices`
 - **where seen:** product-level review against live/native UI expectations
-- **current observed behavior:** some UI scaffolding exists, but the requested visible native UI outcome still does not feel complete to James. Repo-side native device-page review surfaces are stronger again after this run, and the main fleet surfaces now also call out how much of the unmanaged backlog still needs explicit review, but live HA validation is still needed before the bug can move past `fixed_pending_validation`.
+- **current observed behavior:** some UI scaffolding exists, but the requested visible native UI outcome still does not feel complete to James. Repo-side native device-page review surfaces are stronger again after this run, the main fleet surfaces now also call out how much of the unmanaged backlog still needs explicit review, and the shared managed-fleet snapshots now carry fixed-versus-variable mix plus nominal power so Configure and device-page review read more like an operational fleet workspace, but live HA validation is still needed before the bug can move past `fixed_pending_validation`.
 - **expected behavior:** the product visibly delivers:
   1. clear managed vs unmanaged device experience
   2. clear promote / vet / review flow

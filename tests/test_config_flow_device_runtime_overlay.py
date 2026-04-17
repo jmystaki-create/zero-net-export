@@ -633,7 +633,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             shortlist["description_placeholders"]["managed_snapshot"],
-            "Managed now: 2 | enabled: 1 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
+            "Managed now: 2 | enabled: 1 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
         )
         self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
@@ -708,7 +708,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 1 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
+                "Managed now: 2 | enabled: 1 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
@@ -888,7 +888,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 2 | usable: 1 | blocked first: EV charger | next plan: Pool pump",
+                "Managed now: 2 | enabled: 2 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
@@ -994,7 +994,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(feedback["title"], "managed-device promotion saved")
         self.assertIn("Promoted Pool pump into Managed Devices as a fixed load.", feedback["message"])
         self.assertNotIn("switch.pool_pump", feedback["message"])
-        self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | blocked first: none | next plan: none", feedback["message"])
+        self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | fixed managed: 1 | nominal: 0 W | blocked first: none | next plan: none", feedback["message"])
         self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | top fit: likely useful", feedback["message"])
         self.assertIn("Managed Devices path: devices path", feedback["message"])
         self.assertIn(
