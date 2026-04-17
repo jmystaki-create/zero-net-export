@@ -911,7 +911,20 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None),
         )
         flow.async_show_form = lambda **kwargs: kwargs
-        flow._load_devices = lambda: ([], [])
+        flow._load_devices = lambda: (
+            [
+                {
+                    "key": "pool",
+                    "entity_id": "switch.pool_pump",
+                    "name": "Pool pump",
+                    "kind": module.DEVICE_KIND_FIXED,
+                    "enabled": True,
+                    "priority": 40,
+                    "nominal_power_w": 900,
+                }
+            ],
+            [],
+        )
         flow._device_candidates = lambda: [
             {
                 "entity_id": "switch.ac_outlet_2",
@@ -943,6 +956,9 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         devices_screen = asyncio.run(flow.async_step_devices())
         shortlist = asyncio.run(flow.async_step_device_pick_candidate())
 
+        self.assertIn("Pool pump", devices_screen["description_placeholders"]["device_summary"])
+        self.assertNotIn("switch.pool_pump", devices_screen["description_placeholders"]["device_summary"])
+        self.assertIn("priority 40", devices_screen["description_placeholders"]["device_summary"])
         self.assertIn("AC Outlet 2 (fixed) | strong match | key warning: No immediate warnings", devices_screen["description_placeholders"]["candidate_summary"])
         self.assertNotIn("switch.ac_outlet_2", devices_screen["description_placeholders"]["candidate_summary"])
         self.assertNotIn("number.ev_spare", devices_screen["description_placeholders"]["candidate_summary"])

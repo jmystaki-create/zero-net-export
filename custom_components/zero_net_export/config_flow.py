@@ -753,7 +753,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         runtime_summary = f" [{' | '.join(runtime_bits)}]" if runtime_bits else ""
         return (
             f"{device.get('name', 'Unnamed device')}{runtime_summary} "
-            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, nominal {nominal_power} W, {device.get('entity_id', 'unknown entity')})"
+            f"({device.get('kind', 'unknown')}, {state}, priority {priority}, nominal {nominal_power} W)"
         )
 
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
