@@ -415,6 +415,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                         "nominal_power_w": 1200,
                         "current_active_seconds": 930,
                         "active_runtime_today_seconds": 4520,
+                        "last_requested_power_w": 1200,
+                        "last_applied_power_w": 1200,
+                        "successful_action_count": 4,
+                        "failed_action_count": 1,
                         "last_action_seconds_ago": 125,
                         "last_applied_at": datetime(2026, 4, 18, 8, 31, tzinfo=timezone.utc),
                     },
@@ -476,8 +480,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "First review-first candidate usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.",
             message,
         )
-        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold | last act 3m ago | applied 2026-04-18T08:29:00Z"
-        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | nominal 1200 W | runtime 15m 30s | today 1h 15m | guard ready | action turn_on | last act 2m 5s ago | applied 2026-04-18T08:31:00Z"
+        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold | last act 3m ago | last applied at 2026-04-18T08:29:00Z"
+        planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | nominal 1200 W | runtime 15m 30s | today 1h 15m | guard ready | action turn_on | last req 1200 W | last applied 1200 W | runs 4 ok/1 fail | last act 2m 5s ago | last applied at 2026-04-18T08:31:00Z"
         self.assertIn(blocked_line, message)
         self.assertIn(planned_line, message)
         self.assertLess(message.index(blocked_line), message.index(planned_line))
@@ -709,6 +713,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "nominal_power_w": 1200,
                 "guard_status": "ready",
                 "planned_action": "turn_on",
+                "last_requested_power_w": 1200,
+                "last_applied_power_w": 1200,
+                "successful_action_count": 4,
+                "failed_action_count": 1,
                 "last_action_seconds_ago": 125,
                 "last_applied_at": datetime(2026, 4, 18, 8, 31, tzinfo=timezone.utc),
             },
@@ -717,7 +725,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             line,
-            "- Pool pump: fixed | Tracking export | usable | enabled | priority 90 | power 1180 W | nominal 1200 W | guard ready | action turn_on | last act 2m 5s ago | applied 2026-04-18T08:31:00Z",
+            "- Pool pump: fixed | Tracking export | usable | enabled | priority 90 | power 1180 W | nominal 1200 W | guard ready | action turn_on | last req 1200 W | last applied 1200 W | runs 4 ok/1 fail | last act 2m 5s ago | last applied at 2026-04-18T08:31:00Z",
         )
 
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:

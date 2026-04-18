@@ -165,12 +165,22 @@ def _format_device_review_line(detail: dict, *, audit: bool = False) -> str:
     if last_action_status and last_action_status not in {"ok", "applied", "success"}:
         runtime_bits.append(f"last {last_action_status}")
     if audit:
+        last_requested_power = detail.get("last_requested_power_w")
+        if last_requested_power is not None:
+            runtime_bits.append(f"last req {_format_power(last_requested_power)}")
+        last_applied_power = detail.get("last_applied_power_w")
+        if last_applied_power is not None:
+            runtime_bits.append(f"last applied {_format_power(last_applied_power)}")
+        success_count = int(detail.get("successful_action_count") or 0)
+        failure_count = int(detail.get("failed_action_count") or 0)
+        if success_count or failure_count:
+            runtime_bits.append(f"runs {success_count} ok/{failure_count} fail")
         last_action_age = detail.get("last_action_seconds_ago")
         if last_action_age not in (None, 0, 0.0):
             runtime_bits.append(f"last act {_format_duration(last_action_age)} ago")
         last_applied_at = detail.get("last_applied_at")
         if last_applied_at is not None:
-            runtime_bits.append(f"applied {_format_timestamp(last_applied_at)}")
+            runtime_bits.append(f"last applied at {_format_timestamp(last_applied_at)}")
     device_label = str(detail.get("name") or detail.get("entity_id") or "managed device")
     return f"- {device_label}: {' | '.join(runtime_bits)}"
 
