@@ -551,6 +551,26 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("generic outlet hardware", summary)
         self.assertLessEqual(len(summary), 240)
 
+    def test_build_candidate_overview_summary_names_first_review_candidate_when_top_is_usable(self) -> None:
+        module = _load_candidate_utils_module()
+
+        summary = module.build_candidate_overview_summary(
+            [
+                {"name": "Hot water relay", "entity_id": "switch.hot_water", "kind": "fixed"},
+                {
+                    "name": "Virtual load",
+                    "entity_id": "input_boolean.virtual_load",
+                    "kind": "fixed",
+                    "domain": "input_boolean",
+                    "state": "on",
+                    "unit": "",
+                    "device_class": "",
+                },
+            ]
+        )
+
+        self.assertIn("2 candidates | 2 fixed candidates | 1 needs review | review Virtual load | top Hot water relay | likely useful", summary)
+
     def test_build_candidate_overview_summary_carries_top_warning_hint(self) -> None:
         module = _load_candidate_utils_module()
 

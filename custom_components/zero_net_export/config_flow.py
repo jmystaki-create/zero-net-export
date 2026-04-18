@@ -16,6 +16,7 @@ from .candidate_utils import (
     build_candidate_preview,
     build_candidate_review_hint,
     build_candidate_review_line,
+    candidate_needs_review,
     discover_candidate_devices,
 )
 from .const import (
@@ -901,17 +902,22 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     @classmethod
     def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
         fixed_count, variable_count = cls._candidate_mix_counts(candidates)
-        review_needed_count = sum(
-            1 for item in candidates if _candidate_usefulness_label(assess_candidate(item)) != "likely useful"
-        )
+        review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
         top_candidate = candidates[0] if candidates else None
         top_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "none")
+        review_candidate = next(
+            (item for item in candidates if candidate_needs_review(assess_candidate(item))),
+            None,
+        )
+        review_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
         summary = (
             f"Unmanaged now: {len(candidates)} | fixed candidates: {fixed_count} | variable candidates: {variable_count}"
             f" | top candidate: {top_name}"
         )
         if review_needed_count:
             summary += f" | {'1 needs review' if review_needed_count == 1 else f'{review_needed_count} need review'}"
+            if review_name and review_candidate is not top_candidate:
+                summary += f" | review first: {review_name}"
         if top_candidate:
             top_fit = build_candidate_review_hint(top_candidate, include_warning=False)
             summary += f" | top fit: {top_fit}"

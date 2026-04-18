@@ -105,6 +105,15 @@ def _load_config_flow_module():
     )
     candidate_utils_module.build_candidate_review_line = lambda label, level, summary: f"{label}: {level} - {summary}"
     candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "likely useful"
+    candidate_utils_module.candidate_needs_review = lambda fit: str((fit or {}).get("confidence") or "medium") != "high"
+    candidate_utils_module.first_review_candidate = lambda candidates: next(
+        (
+            candidate
+            for candidate in candidates
+            if candidate_utils_module.candidate_needs_review(candidate_utils_module.assess_candidate(candidate))
+        ),
+        None,
+    )
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 
@@ -1128,7 +1137,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | top fit: likely useful",
+            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | review first: Virtual load | top fit: likely useful",
         )
 
     def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:

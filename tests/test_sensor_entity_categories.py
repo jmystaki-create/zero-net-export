@@ -94,6 +94,14 @@ def _load_sensor_module():
     candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
     candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "likely useful"
     candidate_utils_module.candidate_needs_review = lambda fit: str((fit or {}).get("confidence") or "medium") != "high"
+    candidate_utils_module.first_review_candidate = lambda candidates: next(
+        (
+            candidate
+            for candidate in candidates
+            if candidate_utils_module.candidate_needs_review(candidate_utils_module.assess_candidate(candidate))
+        ),
+        None,
+    )
     candidate_utils_module.discover_candidate_devices = lambda states, managed_entity_ids: []
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 
@@ -352,6 +360,44 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(shortlist.native_value, "AC Outlet 2 (fixed | likely useful); EV charger limit (variable | likely useful)")
         self.assertEqual(top.native_value, "candidate preview")
         self.assertEqual(len(calls), 1)
+
+    def test_managed_fleet_overview_names_review_candidate_when_top_target_looks_usable(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "Hot water relay", "entity_id": "switch.hot_water", "kind": "fixed"},
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+        ]
+        sensor_module.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("entity_id") == "switch.hot_water" else "low",
+            "summary": "Review before promotion.",
+            "warnings": [],
+        }
+        sensor_module.build_candidate_review_hint = lambda candidate, **kwargs: (
+            "likely useful" if candidate.get("entity_id") == "switch.hot_water" else "review carefully"
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                        "nominal_power_w": 1185,
+                    }
+                }
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            overview.native_value,
+            "1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review | review Virtual load | top Hot water relay | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+        )
 
     def test_managed_fleet_overview_keeps_top_unmanaged_target_visible_with_existing_fleet(self) -> None:
         sensor_module = _load_sensor_module()
