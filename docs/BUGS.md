@@ -565,7 +565,7 @@ Suggested area labels:
 - **repo fix:** this run updates `RELEASE_MANAGEMENT.md` so the live verification step now points to `Configure or Diagnostics`, matching `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `README.md`, and `docs/VALIDATION_CHECKLIST.md`.
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; the remaining release procedure no longer points operators at retired support-bucket wording during fingerprint validation.
 
-## ZNE-045 — Repo working version jumped to `0.1.87` before the mapped release freeze
+## ZNE-047 — Repo working version jumped to `0.1.87` before the mapped release freeze
 - **closed on:** 2026-04-18
 - **severity:** `medium`
 - **area:** `release`
