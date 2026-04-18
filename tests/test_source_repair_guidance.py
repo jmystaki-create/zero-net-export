@@ -11,6 +11,7 @@ from types import SimpleNamespace
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPO_ROOT / "custom_components" / "zero_net_export"
 CONST_PATH = PACKAGE_ROOT / "const.py"
+CANDIDATE_UTILS_PATH = PACKAGE_ROOT / "candidate_utils.py"
 NATIVE_SUPPORT_PATH = PACKAGE_ROOT / "native_support.py"
 
 
@@ -59,6 +60,15 @@ def _load_native_support_module(*, parse_device_result=([], [])):
     )
     validation_module.format_source_binding_label = lambda value: str(value)
     sys.modules[validation_module.__name__] = validation_module
+
+    candidate_utils_spec = importlib.util.spec_from_file_location(
+        "custom_components.zero_net_export.candidate_utils",
+        CANDIDATE_UTILS_PATH,
+    )
+    assert candidate_utils_spec and candidate_utils_spec.loader
+    candidate_utils_module = importlib.util.module_from_spec(candidate_utils_spec)
+    sys.modules[candidate_utils_spec.name] = candidate_utils_module
+    candidate_utils_spec.loader.exec_module(candidate_utils_module)
 
     native_support_spec = importlib.util.spec_from_file_location(
         "custom_components.zero_net_export.native_support",
