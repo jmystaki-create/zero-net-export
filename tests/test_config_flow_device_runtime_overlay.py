@@ -501,6 +501,53 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(ordered[0]["name"], "EV charger")
         self.assertEqual(ordered[1]["name"], "Pool pump")
 
+    def test_device_sort_key_and_fleet_summary_surface_recent_failures_as_attention(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
+        devices = [
+            {
+                "key": "pool_pump",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "status": "Ready for control",
+                "guard_status": "ready",
+                "planned_action": "hold",
+                "last_action_status": "failed",
+                "priority": 10,
+                "nominal_power_w": 1200,
+                "current_power_w": 0,
+            },
+            {
+                "key": "water_heater",
+                "name": "Water heater",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.water_heater",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "status": "Ready for control",
+                "guard_status": "ready",
+                "planned_action": "hold",
+                "priority": 20,
+                "nominal_power_w": 900,
+                "current_power_w": 0,
+            },
+        ]
+
+        ordered = sorted(devices, key=flow._device_sort_key)
+        summary_lines = flow._fleet_summary_lines(devices)
+
+        self.assertEqual(ordered[0]["name"], "Pool pump")
+        self.assertEqual(summary_lines[1], "- Managed devices needing attention first:")
+        self.assertIn("Pool pump", summary_lines[2])
+        self.assertIn("last failed", summary_lines[2])
+        self.assertEqual(summary_lines[3], "- Other managed devices:")
+        self.assertIn("Water heater", summary_lines[4])
+
     def test_device_next_step_prefers_global_blocker_guidance_before_local_promotion(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {

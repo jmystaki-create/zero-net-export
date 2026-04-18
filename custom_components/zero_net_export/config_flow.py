@@ -756,16 +756,31 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return True
         return bool(cls._active_planned_action(device)) and device.get("action_executable") is False
 
+    @staticmethod
+    def _device_has_recent_attention(device: dict[str, Any]) -> bool:
+        last_action_status = str(device.get("last_action_status") or "").strip().lower()
+        return bool(last_action_status and last_action_status not in {"ok", "applied", "success"})
+
     @classmethod
-    def _device_sort_key(cls, device: dict[str, Any]) -> tuple[int, int, int, int, str]:
+    def _device_needs_attention(cls, device: dict[str, Any]) -> bool:
+        return bool(
+            cls._device_has_blocked_activity(device)
+            or cls._active_planned_action(device)
+            or cls._device_has_recent_attention(device)
+        )
+
+    @classmethod
+    def _device_sort_key(cls, device: dict[str, Any]) -> tuple[int, int, int, int, int, str]:
         effective_enabled = bool(device.get("effective_enabled", device.get("enabled", True)))
         usable = device.get("usable")
         blocked_rank = 0 if cls._device_has_blocked_activity(device) else 1
         planned_rank = 0 if cls._active_planned_action(device) else 1
+        recent_attention_rank = 0 if cls._device_has_recent_attention(device) else 1
         enabled_usable_rank = 0 if effective_enabled and usable is True else 1
         return (
             blocked_rank,
             planned_rank,
+            recent_attention_rank,
             enabled_usable_rank,
             int(device.get("priority", 0) or 0),
             str(device.get("name", "")).lower(),
@@ -814,10 +829,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return ["- None"]
         ordered = sorted(devices, key=self._device_sort_key)
         attention_devices = [
-            device for device in ordered if self._device_has_blocked_activity(device) or self._active_planned_action(device)
+            device for device in ordered if self._device_needs_attention(device)
         ]
         other_devices = [
-            device for device in ordered if not (self._device_has_blocked_activity(device) or self._active_planned_action(device))
+            device for device in ordered if not self._device_needs_attention(device)
         ]
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
