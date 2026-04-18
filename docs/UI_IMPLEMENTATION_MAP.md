@@ -115,7 +115,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Still to do**
 1. Verify the shortlist and full-list selection screens still preserve enough managed/unmanaged context on the exact deployed build.
 2. Verify candidate review clearly communicates usefulness, warnings, and operational value in real HA rendering.
-3. Verify preset choice and save screens keep the same context instead of dropping the operator into isolated forms.
+3. Verify the exact deployed build keeps the new preset/save `Promotion path` context visible instead of regressing back into isolated forms.
 4. Verify success landing clearly says what changed and what the next sensible action is.
 5. Remove any remaining raw-id, helper-ish, or ambiguous wording that weakens trust in the promotion path.
 
