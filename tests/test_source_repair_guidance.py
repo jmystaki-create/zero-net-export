@@ -411,21 +411,25 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         support_center = native_support.build_native_support_center(_FakeCoordinator())
         self.assertIn("Zero Net Export diagnostics guide", support_center)
         self.assertNotIn("native support center", support_center)
-        self.assertIn("Where each native path lives:", support_center)
+        self.assertIn("Use Diagnostics when setup is blocked", support_center)
+        self.assertIn("Now", support_center)
+        self.assertIn("Mapped-source triage", support_center)
+        self.assertIn("Install validation", support_center)
+        self.assertIn("Native paths", support_center)
         self.assertIn("Why this section is recommended:", support_center)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
-        self.assertIn("What each command-center section is for:", support_center)
         self.assertIn(
-            f"- {native_support.SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
+            f"- Review diagnostics snapshot: {native_support.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
             support_center,
         )
-        self.assertIn("- Managed Devices: fleet onboarding, promotion, edits, enablement, and removal.", support_center)
-        self.assertIn("- Controls: controller policy defaults, thresholds, and readiness.", support_center)
-        self.assertIn("- Diagnostics: runtime health, install consistency, and troubleshooting guidance.", support_center)
-        self.assertIn("Diagnostics snapshot", support_center)
+        self.assertIn(
+            f"- Show setup checklist: {native_support.INTEGRATION_DEVICE_PATH} -> Show setup checklist",
+            support_center,
+        )
+        self.assertNotIn("Diagnostics snapshot\nZero Net Export diagnostics snapshot", support_center)
 
     def test_detailed_management_path_uses_diagnostics_wording(self) -> None:
         native_support = _load_native_support_module()

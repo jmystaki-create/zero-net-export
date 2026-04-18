@@ -1693,47 +1693,58 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
 
 def build_native_support_center(coordinator: Any) -> str:
-    """Return a single operator-facing diagnostics guide for native HA surfaces."""
-    _, _, _, operator_readiness = _build_support_sections(coordinator)
+    """Return a compact operator-facing diagnostics guide for native HA surfaces."""
+    state, _, _, operator_readiness = _build_support_sections(coordinator)
     command_center = build_native_command_center_summary(coordinator)
-    snapshot = build_native_support_snapshot(coordinator)
+    install_provenance = build_install_provenance()
+    source_attention = build_source_attention_details(state)
+    blocking_keys = _blocking_source_attention_keys(source_attention)
     checklist_lines = [
         f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
         for item in operator_readiness.get('checklist', [])
     ]
+    snapshot_path = f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot"
+    checklist_path = f"{INTEGRATION_DEVICE_PATH} -> Show setup checklist"
     return "\n".join(
         [
             "Zero Net Export diagnostics guide",
             "",
+            "Use Diagnostics when setup is blocked, runtime health needs explanation, or install trust needs proof.",
             f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
-            "Where each native path lives:",
+            "",
+            "Now",
+            f"- Readiness phase: {operator_readiness.get('phase')}",
+            f"- Summary: {operator_readiness.get('summary')}",
+            f"- Top alerts: {command_center.get('alert_summary')}",
+            f"- Recommended command-center section: {command_center.get('recommended_section')}",
+            f"- Recommended command-center path: {command_center.get('recommended_path')}",
+            f"- Next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
+            "",
+            "Mapped-source triage",
+            f"- Current mapped-source blockers: {command_center.get('source_attention_summary')}",
+            f"- Blocking roles now: {_format_source_role_list(blocking_keys) if blocking_keys else 'None'}",
+            f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
+            f"- Unavailable mapped roles: {command_center.get('unavailable_sources')}",
+            f"- Stale mapped roles: {command_center.get('stale_sources')}",
+            f"- Mapped-source repair path: {command_center.get('source_repair_step')}",
+            "",
+            "Install validation",
+            f"- Installed package: {command_center.get('install_status')}",
+            f"- Install consistency: {command_center.get('install_consistency')}",
+            f"- Install provenance: {install_provenance.get('summary', 'n/a')}",
+            f"- Why this section is recommended: {command_center.get('recommended_reason')}",
+            "",
+            "Native paths",
             f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
             f"- {DEVICES_SECTION_LABEL}: {command_center.get('devices_path')}",
             f"- {POLICY_SECTION_LABEL}: {command_center.get('policy_path')}",
             f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_path')}",
             f"- Live mode control: {command_center.get('mode_path')}",
-            "What each command-center section is for:",
-            f"- {SOURCES_SECTION_LABEL}: source mapping, mapped-source health, and source-remediation guidance.",
-            f"- {DEVICES_SECTION_LABEL}: fleet onboarding, promotion, edits, enablement, and removal.",
-            f"- {POLICY_SECTION_LABEL}: controller policy defaults, thresholds, and readiness.",
-            f"- {SUPPORT_SECTION_LABEL}: runtime health, install consistency, and troubleshooting guidance.",
-            f"Recommended command-center section: {command_center.get('recommended_section')}",
-            f"Recommended command-center path: {command_center.get('recommended_path')}",
-            f"Top alerts: {command_center.get('alert_summary')}",
-            f"Why this section is recommended: {command_center.get('recommended_reason')}",
-            f"Current mapped-source blockers: {command_center.get('source_attention_summary')}",
-            f"Affected mapped roles: {command_center.get('source_attention_roles')}",
-            f"Unavailable mapped roles: {command_center.get('unavailable_sources')}",
-            f"Stale mapped roles: {command_center.get('stale_sources')}",
-            f"Managed-device deep review: {command_center.get('detailed_management_summary')}",
-            f"Readiness phase: {operator_readiness.get('phase')}",
-            f"Summary: {operator_readiness.get('summary')}",
-            f"Next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
+            f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
+            f"- Review diagnostics snapshot: {snapshot_path}",
+            f"- Show setup checklist: {checklist_path}",
             "",
             "Checklist",
             *(checklist_lines or ["- No checklist available yet."]),
-            "",
-            "Diagnostics snapshot",
-            snapshot,
         ]
     )
