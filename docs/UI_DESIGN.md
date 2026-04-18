@@ -530,7 +530,7 @@ These appear to exist in code/copy/scaffolding, but not yet in the stronger prod
 
 #### 1. Top landing console
 Current state:
-- the product already has native Configure direction and runtime/support surfaces
+- the product already has native Configure direction and runtime/Diagnostics surfaces
 - but the implementation map says the UI is still described more than it is felt
 
 Gap:
@@ -585,8 +585,8 @@ Gap:
 
 #### 7. Problem signal behavior
 Current state:
-- support/checklist/diagnostics/Repairs surfaces exist
-- support wording currently carries too much UX burden
+- diagnostics/checklist/Repairs surfaces exist
+- diagnostics wording currently carries too much UX burden
 
 Gap:
 - the new design requires problems to appear both globally and locally
@@ -602,8 +602,8 @@ Gap:
 
 #### 9. Diagnostics posture
 Current state:
-- diagnostics/support surfaces exist
-- implementation map says diagnostics/support text carries too much UX burden
+- Diagnostics surfaces exist
+- implementation map says Diagnostics text still carries too much UX burden in places
 
 Gap:
 - the new design requires diagnostics to remain visible but secondary
