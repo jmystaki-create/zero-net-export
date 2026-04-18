@@ -661,7 +661,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
-            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1 | top candidate: AC Outlet 2 | 3 need review | top usefulness: likely useful",
+            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1 | top candidate: AC Outlet 2 | 3 need review | fixed review: 2 | variable review: 1 | top usefulness: likely useful",
         )
         self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
@@ -922,7 +922,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | 2 need review | top usefulness: likely useful",
+                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | 2 need review | fixed review: 2 | top usefulness: likely useful",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -1128,7 +1128,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | 2 need review | top usefulness: likely useful",
+                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | 2 need review | fixed review: 2 | top usefulness: likely useful",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -1371,7 +1371,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Promoted Pool pump into Managed Devices as a fixed load.", feedback["message"])
         self.assertNotIn("switch.pool_pump", feedback["message"])
         self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | fixed managed: 1 | nominal: 0 W | blocked first: none | next plan: none", feedback["message"])
-        self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | 2 need review | top usefulness: likely useful", feedback["message"])
+        self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | 2 need review | fixed review: 1 | variable review: 1 | top usefulness: likely useful", feedback["message"])
         self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Managed Devices path: devices path", feedback["message"])
         self.assertIn(
@@ -1414,7 +1414,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Virtual load | 1 needs review | top usefulness: review carefully | top warning: This is an input_boolean helper.",
+            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Virtual load | 1 needs review | fixed review: 1 | top usefulness: review carefully | top warning: This is an input_boolean helper.",
         )
 
     def test_unmanaged_snapshot_counts_low_confidence_candidates_as_needing_review(self) -> None:
@@ -1450,7 +1450,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | review first: Virtual load | review usefulness: review carefully | review warning: Helper-backed load needs review. | top usefulness: likely useful",
+            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | fixed review: 1 | review first: Virtual load | review usefulness: review carefully | review warning: Helper-backed load needs review. | top usefulness: likely useful",
         )
 
     def test_candidate_summary_passes_name_and_entity_id_into_fit_assessment(self) -> None:

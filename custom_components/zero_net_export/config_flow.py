@@ -114,6 +114,19 @@ from .validation import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def _candidate_review_kind_counts(candidates: list[dict[str, Any]]) -> tuple[int, int]:
+    fixed_review_count = 0
+    variable_review_count = 0
+    for candidate in candidates:
+        if not candidate_needs_review(assess_candidate(candidate)):
+            continue
+        if candidate.get("kind") == DEVICE_KIND_VARIABLE:
+            variable_review_count += 1
+        else:
+            fixed_review_count += 1
+    return fixed_review_count, variable_review_count
+
+
 def _candidate_usefulness_label(fit: dict[str, Any]) -> str:
     confidence = str(fit.get("confidence") or "medium")
     warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
@@ -954,6 +967,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
         fixed_count, variable_count = cls._candidate_mix_counts(candidates)
         review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
+        fixed_review_count, variable_review_count = _candidate_review_kind_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         top_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "none")
         review_candidate = next(
@@ -967,6 +981,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         if review_needed_count:
             summary += f" | {'1 needs review' if review_needed_count == 1 else f'{review_needed_count} need review'}"
+            if fixed_review_count:
+                summary += f" | fixed review: {fixed_review_count}"
+            if variable_review_count:
+                summary += f" | variable review: {variable_review_count}"
             if review_name and review_candidate is not top_candidate:
                 summary += f" | review first: {review_name}"
                 review_usefulness = build_candidate_review_hint(review_candidate, include_warning=False)
