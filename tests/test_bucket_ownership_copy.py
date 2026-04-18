@@ -19,10 +19,24 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         native_setup_description = steps["native_setup"]["description"]
         self.assertIn("Sensors owns mapped roles and source health.", native_setup_description)
         self.assertIn("not managed-device promotion or controller-policy tuning", native_setup_description)
+        self.assertIn("Sensors now", native_setup_description)
+        self.assertIn("Bucket ownership and paths", native_setup_description)
+        self.assertIn("- Sensors: {sources_path}", native_setup_description)
+        self.assertIn("- Controls: {policy_path}", native_setup_description)
+        self.assertIn("- Live mode control: {mode_path}", native_setup_description)
+        self.assertIn("- Managed Devices: {devices_path}", native_setup_description)
+        self.assertIn("- Diagnostics: {support_path}", native_setup_description)
 
         source_mapping_description = steps["native_setup_sources"]["description"]
         self.assertIn("Sensors owns source repair and source-health work", source_mapping_description)
         self.assertIn("keep fleet onboarding in Managed Devices and controller tuning in Controls", source_mapping_description)
+        self.assertIn("Sensors now", source_mapping_description)
+        self.assertIn("Bucket ownership and paths", source_mapping_description)
+        self.assertIn("- Sensors: {sources_path}", source_mapping_description)
+        self.assertIn("- Controls: {policy_path}", source_mapping_description)
+        self.assertIn("- Live mode control: {mode_path}", source_mapping_description)
+        self.assertIn("- Managed Devices: {devices_path}", source_mapping_description)
+        self.assertIn("- Diagnostics: {support_path}", source_mapping_description)
 
         devices_description = steps["devices"]["description"]
         self.assertIn("Managed devices (top section)", devices_description)
@@ -74,6 +88,13 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         policy_description = steps["policy"]["description"]
         self.assertIn("Controls owns controller behaviour", policy_description)
         self.assertIn("keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics", policy_description)
+        self.assertIn("Controls now", policy_description)
+        self.assertIn("Bucket ownership and paths", policy_description)
+        self.assertIn("- Controls: {policy_path}", policy_description)
+        self.assertIn("- Live mode control: {mode_path}", policy_description)
+        self.assertIn("- Sensors: {sources_path}", policy_description)
+        self.assertIn("- Managed Devices: {devices_path}", policy_description)
+        self.assertIn("- Diagnostics: {support_path}", policy_description)
 
         support_description = steps["support"]["description"]
         self.assertIn("Diagnostics owns troubleshooting, repairs, and install validation", support_description)

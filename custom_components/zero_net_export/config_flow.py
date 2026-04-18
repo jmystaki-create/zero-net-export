@@ -1837,6 +1837,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors={},
             description_placeholders={
                 "configure_path": SOURCES_CONFIGURE_PATH,
+                "sources_path": SOURCES_CONFIGURE_PATH,
+                "policy_path": POLICY_CONFIGURE_PATH,
+                "mode_path": MODE_CONTROL_PATH,
+                "devices_path": DEVICES_CONFIGURE_PATH,
+                "support_path": SUPPORT_CONFIGURE_PATH,
                 **source_placeholders,
             },
         )
@@ -2143,6 +2148,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "grid_mode": "Combined / net sensors" if grid_mode == GRID_SENSOR_MODE_COMBINED else "Separate import and export sensors",
                 "configure_path": SOURCES_CONFIGURE_PATH,
+                "sources_path": SOURCES_CONFIGURE_PATH,
+                "policy_path": POLICY_CONFIGURE_PATH,
+                "mode_path": MODE_CONTROL_PATH,
+                "devices_path": DEVICES_CONFIGURE_PATH,
+                "support_path": SUPPORT_CONFIGURE_PATH,
                 "grid_mapping_note": grid_mapping_note,
                 "fallback_guidance": fallback_guidance,
                 "source_candidate_hints": source_candidate_hints,
