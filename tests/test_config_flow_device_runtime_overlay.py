@@ -1178,6 +1178,41 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | review first: Virtual load | review usefulness: review carefully | review warning: Helper-backed load needs review. | top usefulness: likely useful",
         )
 
+    def test_candidate_summary_passes_name_and_entity_id_into_fit_assessment(self) -> None:
+        module = _load_config_flow_module()
+        captured: dict[str, object] = {}
+
+        def _assess_candidate(candidate):
+            captured.update(candidate)
+            return {
+                "confidence": "medium",
+                "summary": "Review before promotion.",
+                "warnings": [],
+            }
+
+        module.assess_candidate = _assess_candidate
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                get=lambda entity_id: SimpleNamespace(
+                    state="off",
+                    attributes={
+                        "friendly_name": "AC Outlet 2",
+                        "device_class": "outlet",
+                        "unit_of_measurement": "",
+                    },
+                )
+            )
+        )
+
+        summary = flow._candidate_summary("switch.ac_outlet_2")
+
+        self.assertIsNotNone(summary)
+        self.assertEqual(captured["entity_id"], "switch.ac_outlet_2")
+        self.assertEqual(captured["name"], "AC Outlet 2")
+        self.assertEqual(captured["domain"], "switch")
+        self.assertEqual(captured["device_class"], "outlet")
+
     def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))

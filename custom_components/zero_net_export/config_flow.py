@@ -1177,6 +1177,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         suggested_template = templates[0] if templates else None
         candidate_fit = assess_candidate(
             {
+                "entity_id": entity_id,
+                "name": str(state.attributes.get('friendly_name') or entity_id),
                 "domain": domain,
                 "kind": kind,
                 "state": str(state.state),
