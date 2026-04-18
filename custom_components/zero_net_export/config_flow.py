@@ -2622,7 +2622,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_mode": "Edit" if editing_key else "Add",
                 "device_template": selected_template.label if selected_template else "Custom",
                 "template_description": selected_template.description if selected_template else "Use manual values for this device.",
-                "candidate_hint": next((item["label"] for item in candidates if item["entity_id"] == defaults.get("entity_id")), "Pick an unmanaged candidate entity from the selector or choose a manual entity."),
+                "candidate_preview": build_candidate_preview(
+                    self._pending_candidate_summary or {},
+                    include_entity_id=False,
+                    include_state=False,
+                ) if self._pending_candidate_summary else "Manual path, review the entity and settings before saving.",
                 "default_guidance": self._default_guidance_text(kind, defaults),
                 "selected_candidate_fit": str((self._pending_candidate_summary or {}).get("fit_usefulness") or "manual review"),
                 "selected_candidate_summary": str((self._pending_candidate_summary or {}).get("fit_summary") or "Manual path, review the entity and settings before saving."),
