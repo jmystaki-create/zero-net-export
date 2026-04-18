@@ -1092,6 +1092,34 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("AC Outlet 2 (state off) | likely useful | key warning: No immediate warnings", shortlist["description_placeholders"]["top_candidates"])
         self.assertNotIn("switch.ac_outlet_2", shortlist["description_placeholders"]["top_candidates"])
 
+    def test_candidate_quick_picks_keep_first_review_first_candidate_visible(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._top_candidates_for_kind = lambda kind, limit=12: [
+            {"entity_id": "switch.air_purifier", "name": "Air Purifier", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+            {"entity_id": "switch.coffee_machine", "name": "Coffee machine", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+            {"entity_id": "switch.dishwasher_power", "name": "Dishwasher Power", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+            {"entity_id": "switch.ac_outlet_2", "name": "AC Outlet 2", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+        ]
+        flow._candidate_summary = lambda entity_id: {
+            "switch.air_purifier": {"fit_confidence": "high"},
+            "switch.coffee_machine": {"fit_confidence": "high"},
+            "switch.dishwasher_power": {"fit_confidence": "high"},
+            "switch.ac_outlet_2": {"fit_confidence": "medium"},
+        }.get(entity_id, {"fit_confidence": "high"})
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "switch.ac_outlet_2" else "high",
+            "summary": "Needs review." if candidate.get("entity_id") == "switch.ac_outlet_2" else "Strong match.",
+            "warnings": ["Generic outlet label."] if candidate.get("entity_id") == "switch.ac_outlet_2" else [],
+        }
+
+        quick_picks = flow._candidate_quick_picks(module.DEVICE_KIND_FIXED)
+
+        self.assertEqual(
+            [item["entity_id"] for item in quick_picks],
+            ["switch.air_purifier", "switch.coffee_machine", "switch.ac_outlet_2"],
+        )
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         module.discover_candidate_devices = lambda states, managed_ids: [

@@ -1005,7 +1005,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 str(item.get("name") or item.get("entity_id") or ""),
             ),
         )
-        return ranked[:3]
+        quick_picks = ranked[:3]
+        review_candidate = next(
+            (item for item in ranked if candidate_needs_review(assess_candidate(item))),
+            None,
+        )
+        if review_candidate and all(item.get("entity_id") != review_candidate.get("entity_id") for item in quick_picks):
+            if len(quick_picks) >= 3:
+                quick_picks = [*quick_picks[:2], review_candidate]
+            else:
+                quick_picks = [*quick_picks, review_candidate]
+        return quick_picks
 
     def _source_entity_options(
         self,
