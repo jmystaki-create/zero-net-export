@@ -630,7 +630,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(review_attrs["planned_action_count"], 0)
         self.assertEqual(review_attrs["first_planned_device"], "")
 
-    def test_managed_device_review_line_carries_kind_priority_and_power_context(self) -> None:
+    def test_managed_device_review_line_carries_kind_priority_power_and_plan_reason_context(self) -> None:
         button_module = _load_button_module()
 
         line = button_module._format_device_review_line(
@@ -651,13 +651,38 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "active_runtime_today_seconds": 4520,
                 "guard_status": "ready",
                 "planned_action": "set_power",
+                "planned_action_reason": "Lift target to absorb the current export spike before grid feed-in rises further.",
                 "last_action_status": "throttled",
             }
         )
 
         self.assertEqual(
             line,
-            "- EV charger: variable | Tracking export | usable | enabled | priority 40 | priority override 55 | enabled override off | power 1800 W | target 2200 W | runtime 15m 30s | today 1h 15m | guard ready | action set_power | last throttled",
+            "- EV charger: variable | Tracking export | usable | enabled | priority 40 | priority override 55 | enabled override off | power 1800 W | target 2200 W | runtime 15m 30s | today 1h 15m | guard ready | action set_power | why Lift target to absorb the current export spike before grid feed-in ri... | last throttled",
+        )
+
+    def test_managed_device_review_line_uses_block_reason_for_unusable_device(self) -> None:
+        button_module = _load_button_module()
+
+        line = button_module._format_device_review_line(
+            {
+                "name": "Pool pump",
+                "entity_id": "switch.pool_pump",
+                "kind": "fixed",
+                "status": "Waiting for source repair",
+                "usable": False,
+                "enabled": True,
+                "effective_enabled": True,
+                "current_power_w": 0,
+                "guard_status": "blocked",
+                "planned_action": "hold",
+                "reason": "Solar power source is unavailable, so this device cannot be evaluated safely right now.",
+            }
+        )
+
+        self.assertEqual(
+            line,
+            "- Pool pump: fixed | Waiting for source repair | not usable | enabled | power 0 W | guard blocked | action hold | why Solar power source is unavailable, so this device cannot be evaluated...",
         )
 
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:

@@ -113,6 +113,21 @@ def _device_runtime_sort_key(detail: dict) -> tuple[int, int, int, str]:
     )
 
 
+def _compact_reason_fragment(detail: dict) -> str:
+    if _has_active_plan(detail):
+        reason = str(detail.get("planned_action_reason") or "").strip()
+    elif detail.get("usable") is False:
+        reason = str(detail.get("reason") or "").strip()
+    else:
+        reason = ""
+    if not reason or reason.lower().startswith("no "):
+        return ""
+    normalized = " ".join(reason.split()).strip().rstrip(". ")
+    if len(normalized) > 72:
+        normalized = normalized[:69].rstrip() + "..."
+    return normalized
+
+
 def _format_device_review_line(detail: dict) -> str:
     runtime_bits = [
         str(detail.get("kind") or "unknown"),
@@ -140,6 +155,9 @@ def _format_device_review_line(detail: dict) -> str:
         runtime_bits.append(f"today {_format_duration(runtime_today)}")
     runtime_bits.append(f"guard {detail.get('guard_status') or 'unknown'}")
     runtime_bits.append(f"action {detail.get('planned_action') or 'hold'}")
+    reason_fragment = _compact_reason_fragment(detail)
+    if reason_fragment:
+        runtime_bits.append(f"why {reason_fragment}")
     last_action_status = str(detail.get("last_action_status") or "").strip()
     if last_action_status and last_action_status not in {"ok", "applied", "success"}:
         runtime_bits.append(f"last {last_action_status}")
