@@ -1767,6 +1767,22 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Choose Add fixed load device or Add variable load device to start the first managed-device promotion flow.",
         )
 
+    def test_device_next_step_uses_managed_devices_workspace_wording_for_enablement(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": None}})
+
+        next_step = flow._device_next_step(
+            devices=[{"name": "Pool pump", "kind": module.DEVICE_KIND_FIXED}],
+            issues=[],
+            candidates=[],
+        )
+
+        self.assertEqual(
+            next_step,
+            "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning.",
+        )
+
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())

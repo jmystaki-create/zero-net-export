@@ -94,11 +94,11 @@
           "device_action": "Managed-device action"
         },
         "data_description": {
-          "device_action": "Choose whether to add a fixed load, add a variable load, review the fleet and toggle which devices stay enabled, edit an existing device, remove a device, or open the advanced JSON editor."
+          "device_action": "Choose whether to add a fixed load, add a variable load, open the Managed Devices workspace to toggle which devices stay enabled, edit an existing device, remove a device, or open the advanced JSON editor."
         }
       },
       "device_bulk_enable": {
-        "title": "Review fleet and enabled devices",
+        "title": "Review managed devices workspace and enablement",
         "description": "Use this native fleet review to temporarily stage larger installs without raw JSON. Managed Devices owns fleet enablement, so keep source repair in Sensors, controller tuning in Controls, and troubleshooting in Diagnostics while you use this screen. Select the devices that should stay enabled for control right now.\n\nBefore fleet work:\n{device_blocker_summary}\nRecommended next fleet action: {device_next_step}\n\nManaged devices (top section)\nManaged snapshot: {managed_snapshot}\nEnabled now: {enabled_count} of {device_count}\nManaged devices review:\n{device_summary}\n\nUnmanaged candidates (bottom section)\nUnmanaged snapshot: {unmanaged_snapshot}\nFixed-load candidates surfaced for review: {fixed_candidate_count}\nVariable-load candidates surfaced for review: {variable_candidate_count}\nCandidate snapshot:\n{candidate_summary}\nTop unmanaged candidate right now: {top_candidate}\nFirst unmanaged candidate needing review: {review_candidate}\n\nDetailed native review path, only after the main fleet step is clear: {detailed_management_summary}",
         "data": {
           "enabled_devices": "Enabled managed devices"

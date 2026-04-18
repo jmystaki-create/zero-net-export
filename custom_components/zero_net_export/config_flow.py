@@ -2317,7 +2317,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return (
                 f"Review the current fleet, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."
             )
-        return "Use Review fleet to stage enablement, or edit an existing device if the current fleet still needs tuning."
+        return "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning."
 
     def _detailed_management_summary(self) -> str:
         command_center = build_native_command_center_summary(self._coordinator())
@@ -2360,7 +2360,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             selector.SelectOptionDict(value="add_variable", label="Add variable load device"),
         ]
         if devices:
-            choices.append(selector.SelectOptionDict(value="bulk_enable", label="Review fleet / enable or disable devices"))
+            choices.append(
+                selector.SelectOptionDict(
+                    value="bulk_enable",
+                    label="Review managed devices workspace / enable or disable devices",
+                )
+            )
             choices.append(selector.SelectOptionDict(value="edit", label="Edit managed device"))
             choices.append(selector.SelectOptionDict(value="remove", label="Remove managed device"))
         choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))

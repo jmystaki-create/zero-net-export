@@ -51,6 +51,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Controls owns target export, reserve, deadband, and live mode.", devices_description)
 
         bulk_enable_description = steps["device_bulk_enable"]["description"]
+        self.assertEqual(
+            steps["device_bulk_enable"]["title"],
+            "Review managed devices workspace and enablement",
+        )
         self.assertIn("Managed Devices owns fleet enablement", bulk_enable_description)
         self.assertIn("Managed devices (top section)", bulk_enable_description)
         self.assertIn("Managed devices review:", bulk_enable_description)
@@ -58,6 +62,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section)", bulk_enable_description)
         self.assertIn("Candidate snapshot", bulk_enable_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", bulk_enable_description)
+        self.assertIn(
+            "open the Managed Devices workspace to toggle which devices stay enabled",
+            steps["devices"]["data_description"]["device_action"],
+        )
 
         edit_pick_description = steps["device_edit_pick"]["description"]
         self.assertIn("Managed Devices owns this fleet-edit workflow", edit_pick_description)
