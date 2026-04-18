@@ -787,6 +787,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "live_validation_safe": True,
             "summary": "Installed package ok",
         }
+        module.build_install_consistency_summary = lambda provenance: "Installed package version metadata matches the running code version."
+        module.build_install_fingerprint_summary = lambda provenance: "- component_root: /config/custom_components/zero_net_export"
         module._infer_grid_sensor_mode = lambda merged: module.GRID_SENSOR_MODE_SEPARATE
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
         flow.hass = SimpleNamespace(
@@ -807,6 +809,14 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(placeholders["devices_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(placeholders["mode_path"], module.MODE_CONTROL_PATH)
         self.assertEqual(placeholders["support_path"], module.SUPPORT_CONFIGURE_PATH)
+        self.assertEqual(
+            placeholders["support_install_next_step"],
+            "Exact-build trust currently looks good. Use the device-page diagnostics snapshot only if you need the full install evidence.",
+        )
+        self.assertEqual(
+            placeholders["support_install_snapshot_path"],
+            f"{module.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
+        )
 
     def test_existing_fleet_forms_keep_managed_and_unmanaged_snapshots_visible(self) -> None:
         module = _load_config_flow_module()

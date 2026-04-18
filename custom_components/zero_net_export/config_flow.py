@@ -1739,6 +1739,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         support_install_consistency = build_install_consistency_summary(install_provenance)
         support_install_fingerprint_summary = build_install_fingerprint_summary(install_provenance)
+        support_install_next_step = (
+            "Exact-build trust currently looks good. Use the device-page diagnostics snapshot only if you need the full install evidence."
+            if install_provenance.get("live_validation_safe")
+            else build_install_repair_step(install_provenance)
+        )
         mode_label, mode_description = _live_mode_details(coordinator)
         return {
             "support_status": readiness.get("summary") or health_summary,
@@ -1767,6 +1772,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "support_fallback_hint": support_fallback_hint or "Not needed right now.",
             "support_install_status": str(install_provenance.get("summary") or "Installed package provenance unavailable"),
             "support_install_consistency": support_install_consistency,
+            "support_install_next_step": support_install_next_step,
+            "support_install_snapshot_path": f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
             "support_install_fingerprint_summary": support_install_fingerprint_summary,
             "support_candidate_hints": support_candidate_hints,
             "support_priority_candidate_hints": support_priority_candidate_hints,
