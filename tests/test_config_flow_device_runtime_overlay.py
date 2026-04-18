@@ -1102,6 +1102,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Detailed review path, only after the main fleet step is clear: detailed device path",
             feedback["message"],
         )
+        self.assertIn(
+            "Next step: reopen devices path to confirm the fleet snapshot, then review AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings first from the unmanaged section.",
+            feedback["message"],
+        )
 
     def test_unmanaged_snapshot_surfaces_review_first_backlog_and_top_warning(self) -> None:
         module = _load_config_flow_module()
@@ -1186,6 +1190,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Fleet now: 2 managed | 1 enabled | 1 disabled", feedback["message"])
         self.assertIn("Managed now: 2 | enabled: 1 | usable: 0 | blocked first: none | next plan: none", feedback["message"])
         self.assertIn("Unmanaged now: 0 | fixed candidates: 0 | variable candidates: 0 | top candidate: none", feedback["message"])
+        self.assertIn(
+            "Next step: reopen devices path to confirm the updated enablement snapshot, then use the deeper device review path only if you need more per-device runtime detail.",
+            feedback["message"],
+        )
 
     def test_build_device_action_feedback_prioritizes_blocker_first_handoff(self) -> None:
         module = _load_config_flow_module()
@@ -1204,6 +1212,38 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("- Before fleet work: Open sources path and finish the required source mapping.", feedback["message"])
         self.assertIn("- Why: Missing required source roles.", feedback["message"])
         self.assertIn("Next step: Open sources path and finish the required source mapping.", feedback["message"])
+
+    def test_build_device_action_feedback_remove_prefers_review_first_candidate(self) -> None:
+        module = _load_config_flow_module()
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "switch.virtual_load" else "high",
+            "summary": "Review before promotion.",
+            "warnings": ["Helper-backed load needs review."] if candidate.get("entity_id") == "switch.virtual_load" else [],
+        }
+        module.discover_candidate_devices = lambda states, managed_ids: [
+            {"entity_id": "switch.hot_water", "name": "Hot water", "kind": module.DEVICE_KIND_FIXED},
+            {"entity_id": "switch.virtual_load", "name": "Virtual load", "kind": module.DEVICE_KIND_FIXED},
+        ]
+        module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
+            "Virtual load (fixed) | review first | key warning: Helper-backed load needs review."
+            if candidate.get("entity_id") == "switch.virtual_load"
+            else "Hot water (fixed) | likely useful | key warning: No immediate warnings"
+        )
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={})
+
+        feedback = flow._build_device_action_feedback(
+            action="remove",
+            devices=[],
+            previous_device={"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertIn(
+            "Next step: reopen devices path to review the remaining fleet, then review Virtual load (fixed) | review first | key warning: Helper-backed load needs review. first from the unmanaged section.",
+            feedback["message"],
+        )
 
     def test_device_next_step_uses_candidate_preview_without_raw_entity_id(self) -> None:
         module = _load_config_flow_module()

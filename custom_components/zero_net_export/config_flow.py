@@ -950,6 +950,23 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "None flagged for review right now"
         return build_candidate_preview(review_candidate, include_entity_id=False)
 
+    @classmethod
+    def _post_save_candidate_follow_through(cls, candidates: list[dict[str, Any]]) -> str:
+        top_candidate = candidates[0] if candidates else None
+        review_candidate = next(
+            (item for item in candidates if candidate_needs_review(assess_candidate(item))),
+            None,
+        )
+        if review_candidate is not None:
+            return (
+                "review "
+                + cls._top_candidate_focus_text(review_candidate)
+                + " first from the unmanaged section"
+            )
+        if top_candidate is not None:
+            return "promote " + cls._top_candidate_focus_text(top_candidate) + " next"
+        return "use the deeper device review path only if you need more per-device runtime detail"
+
     @staticmethod
     def _candidate_snapshot_text(candidates: list[dict[str, Any]], *, limit: int = 12) -> str:
         return (
@@ -1245,32 +1262,31 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
         review_candidate = self._review_candidate_focus_text(candidates)
 
+        candidate_follow_through = self._post_save_candidate_follow_through(candidates)
+
         if action == "promote" and device is not None:
             title = "managed-device promotion saved"
             changed = f"Promoted {current_name} into Managed Devices as a {kind_label}."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the fleet snapshot, then use {DETAILED_MANAGEMENT_PATH} "
-                "for per-device runtime review, guards, and reset actions."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the fleet snapshot, then {candidate_follow_through}."
             )
         elif action == "edit" and device is not None:
             title = "managed-device update saved"
             changed = f"Updated {current_name} in Managed Devices."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} if more fleet tuning is needed, then use {DETAILED_MANAGEMENT_PATH} "
-                "only if you need deeper per-device runtime review after that main fleet step."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the updated fleet snapshot, then {candidate_follow_through}."
             )
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
             changed = f"Removed {current_name} from Managed Devices."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the remaining fleet and promote the next unmanaged candidate if needed."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the remaining fleet, then {candidate_follow_through}."
             )
         elif action == "bulk_enable":
             title = "managed-device enablement saved"
             changed = "Saved the Managed Devices enablement review."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} if more enablement changes are needed, then use {DETAILED_MANAGEMENT_PATH} "
-                "only if you need deeper per-device runtime review after that main fleet step."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the updated enablement snapshot, then {candidate_follow_through}."
             )
         else:
             return None
