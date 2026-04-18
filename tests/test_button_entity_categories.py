@@ -647,6 +647,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "operator_enabled_override": False,
                 "current_power_w": 1800,
                 "current_target_power_w": 2200,
+                "current_active_seconds": 930,
+                "active_runtime_today_seconds": 4520,
                 "guard_status": "ready",
                 "planned_action": "set_power",
                 "last_action_status": "throttled",
@@ -655,7 +657,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             line,
-            "- EV charger: variable | Tracking export | usable | enabled | priority 40 | priority override 55 | enabled override off | power 1800 W | target 2200 W | guard ready | action set_power | last throttled",
+            "- EV charger: variable | Tracking export | usable | enabled | priority 40 | priority override 55 | enabled override off | power 1800 W | target 2200 W | runtime 15m 30s | today 1h 15m | guard ready | action set_power | last throttled",
         )
 
     def test_managed_device_detail_button_renders_per_device_review(self) -> None:
@@ -697,6 +699,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                         "last_action_result_message": "Turned on successfully.",
                         "last_requested_power_w": 1200,
                         "last_applied_power_w": 1200,
+                        "last_applied_at": datetime(2026, 4, 18, 8, 31, tzinfo=timezone.utc),
                         "current_active_seconds": 930,
                         "active_runtime_today_seconds": 4520,
                         "successful_action_count": 4,
@@ -751,6 +754,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last action at: 2026-04-18T08:32:00Z", message)
         self.assertIn("- Last action age: 2m 5s", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
+        self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
         self.assertIn("Return to devices path as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
 
     def test_managed_device_detail_button_exposes_workspace_context_attributes(self) -> None:

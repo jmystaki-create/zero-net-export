@@ -132,6 +132,12 @@ def _format_device_review_line(detail: dict) -> str:
     runtime_bits.append(f"power {_format_power(detail.get('current_power_w'))}")
     if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
         runtime_bits.append(f"target {_format_power(detail.get('current_target_power_w'))}")
+    current_runtime = detail.get("current_active_seconds")
+    if current_runtime not in (None, 0, 0.0):
+        runtime_bits.append(f"runtime {_format_duration(current_runtime)}")
+    runtime_today = detail.get("active_runtime_today_seconds")
+    if runtime_today not in (None, 0, 0.0):
+        runtime_bits.append(f"today {_format_duration(runtime_today)}")
     runtime_bits.append(f"guard {detail.get('guard_status') or 'unknown'}")
     runtime_bits.append(f"action {detail.get('planned_action') or 'hold'}")
     last_action_status = str(detail.get("last_action_status") or "").strip()
@@ -417,6 +423,7 @@ def _build_managed_device_detail_lines(
         f"- Last action result: {detail.get('last_action_result_message') or 'No recent action result recorded.'}",
         f"- Last requested power: {_format_power(detail.get('last_requested_power_w'))}",
         f"- Last applied power: {_format_power(detail.get('last_applied_power_w'))}",
+        f"- Last applied at: {_format_timestamp(detail.get('last_applied_at'))}",
         f"- Success count: {int(detail.get('successful_action_count') or 0)}",
         f"- Failure count: {int(detail.get('failed_action_count') or 0)}",
         "",
