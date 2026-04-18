@@ -115,8 +115,14 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertNotIn("- Runtime health:", text)
         self.assertIn("Basic setup paths", text)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", text)
-        self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", text)
-        self.assertIn(f"- Change live control mode: {native_support.MODE_CONTROL_PATH}", text)
+        self.assertIn(
+            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            text,
+        )
+        self.assertIn(
+            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            text,
+        )
         self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", text)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", text)
         self.assertIn("Bucket ownership", text)

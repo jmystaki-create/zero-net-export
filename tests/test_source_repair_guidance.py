@@ -361,8 +361,14 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Source blockers: Solar power (Pv Power, unavailable)", guide)
         self.assertIn("Basic setup paths", guide)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
-        self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", guide)
-        self.assertIn(f"- Change live control mode: {native_support.MODE_CONTROL_PATH}", guide)
+        self.assertIn(
+            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            guide,
+        )
+        self.assertIn(
+            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            guide,
+        )
         self.assertIn("Bucket ownership", guide)
         self.assertIn(f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}", guide)
         self.assertIn(f"- Diagnostics owns troubleshooting, repairs, and install validation: {native_support.SUPPORT_CONFIGURE_PATH}.", guide)
@@ -437,7 +443,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Next incomplete checks:", support_center)
         self.assertNotIn("\nChecklist\n", support_center)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
-        self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
+        self.assertIn(
+            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            support_center,
+        )
         self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
         self.assertIn(
