@@ -462,7 +462,7 @@ Suggested area labels:
 - **repo fix:** this run's test-stub coverage fix commit — restore the test stub's `homeassistant` package hierarchy so the button entity-category test reflects the real import contract and the full repo suite passes again
 - **closure evidence:** `python3 -m unittest tests.test_button_entity_categories` passed after the stub fix, followed by `python3 -m unittest discover -s tests` passing repo-wide on 2026-04-15
 
-## ZNE-045 — Button entity-category test loader drifted behind the new managed-snapshot import
+## ZNE-046 — Button entity-category test loader drifted behind the new managed-snapshot import
 - **closed on:** 2026-04-18
 - **severity:** `low`
 - **area:** `process`
