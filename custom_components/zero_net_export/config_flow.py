@@ -966,7 +966,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return (
                 "review "
                 + cls._top_candidate_focus_text(review_candidate)
-                + " first from the unmanaged section"
+                + " first in the unmanaged section"
             )
         if top_candidate is not None:
             return "promote " + cls._top_candidate_focus_text(top_candidate) + " next"
