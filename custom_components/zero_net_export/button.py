@@ -339,6 +339,8 @@ def _build_managed_device_detail_lines(
     managed_snapshot: str,
     unmanaged_snapshot: str,
     top_candidate: dict | None,
+    review_candidate: dict | None,
+    review_candidate_fit: dict | None,
 ) -> list[str]:
     entity_id = str(detail.get("entity_id") or "unknown entity")
     device_label = str(detail.get("name") or entity_id)
@@ -399,6 +401,20 @@ def _build_managed_device_detail_lines(
             f"- Top unmanaged candidate right now: {build_candidate_preview(top_candidate, include_entity_id=False)}"
             if top_candidate
             else "- Top unmanaged candidate right now: none"
+        ),
+        *(
+            [
+                f"- First review-first unmanaged candidate: {build_candidate_preview(review_candidate, include_entity_id=False, include_state=False)}",
+                "- First review-first unmanaged usefulness: " + _candidate_usefulness_summary(review_candidate),
+                "- First review-first unmanaged warnings: "
+                + (
+                    "; ".join(review_candidate_fit.get("warnings") or [])
+                    if review_candidate_fit and review_candidate_fit.get("warnings")
+                    else "No immediate warnings."
+                ),
+            ]
+            if review_candidate and review_candidate != top_candidate
+            else []
         ),
         "",
         f"Device: {device_label}",
@@ -751,7 +767,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         ordered = sorted(managed, key=_device_runtime_sort_key)
         managed_ids = {str(item.get("entity_id")) for item in managed if item.get("entity_id")}
         candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids) if self.hass else []
-        top_candidate = candidates[0] if candidates else None
+        top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
@@ -763,6 +779,9 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
             "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
             "unmanaged_snapshot": _unmanaged_snapshot_summary(candidates),
             "top_unmanaged_candidate": top_candidate,
+            "top_candidate_fit": top_candidate_fit,
+            "first_review_candidate": review_candidate,
+            "first_review_candidate_fit": review_candidate_fit,
             **detail,
         }
 
@@ -773,7 +792,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         ordered = sorted(managed, key=_device_runtime_sort_key)
         managed_ids = {str(item.get("entity_id")) for item in managed if item.get("entity_id")}
         candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids) if self.hass else []
-        top_candidate = candidates[0] if candidates else None
+        top_candidate, _top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         persistent_notification.async_create(
             self.hass,
@@ -784,6 +803,8 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
                     managed_snapshot=_managed_snapshot_summary(ordered, include_planned_count=True),
                     unmanaged_snapshot=_unmanaged_snapshot_summary(candidates),
                     top_candidate=top_candidate,
+                    review_candidate=review_candidate,
+                    review_candidate_fit=review_candidate_fit,
                 )
             ),
             title=f"{self.coordinator.entry.title}: review {detail.get('name') or self._device_key}",

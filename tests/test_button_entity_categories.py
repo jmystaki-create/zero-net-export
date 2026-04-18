@@ -757,6 +757,54 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
         self.assertIn("Return to devices path as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
 
+    def test_managed_device_detail_button_surfaces_review_first_candidate_context(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="number.ev_limit",
+                        state="2200",
+                        attributes={"friendly_name": "EV limit"},
+                    ),
+                ]
+            )
+        )
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        message = notification_calls[0]["args"][1]
+        self.assertIn("- Top unmanaged candidate right now: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("- First review-first unmanaged candidate: EV limit (variable) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
+        self.assertIn("- First review-first unmanaged usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.", message)
+        self.assertIn("- First review-first unmanaged warnings: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
+
     def test_managed_device_detail_button_exposes_workspace_context_attributes(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(
@@ -785,7 +833,12 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                         entity_id="switch.hot_water",
                         state="off",
                         attributes={"friendly_name": "Hot water"},
-                    )
+                    ),
+                    SimpleNamespace(
+                        entity_id="number.ev_limit",
+                        state="2200",
+                        attributes={"friendly_name": "EV limit"},
+                    ),
                 ]
             )
         )
@@ -797,8 +850,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | 1 fixed managed | 0 W nominal | blocked Pool pump | 0 planned action(s)")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings")
+        self.assertEqual(attrs["unmanaged_snapshot"], "2 candidates | 1 fixed candidate | 1 variable candidate | top Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
+        self.assertEqual(attrs["first_review_candidate"]["entity_id"], "number.ev_limit")
+        self.assertEqual(attrs["first_review_candidate_fit"]["confidence"], "medium")
 
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
         notification_calls: list[dict] = []
