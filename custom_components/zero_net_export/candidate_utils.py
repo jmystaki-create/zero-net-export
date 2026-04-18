@@ -717,6 +717,7 @@ def build_candidate_overview_summary(
         summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
         if review_candidate_name and review_candidate_name != top_name:
             summary_parts.append(f"review {review_candidate_name}")
+            summary_parts.append(build_candidate_review_hint(review_candidate, include_warning=False))
     if top_name:
         summary_parts.append(f"top {top_name}")
     if include_top_review_hint and candidate_list:

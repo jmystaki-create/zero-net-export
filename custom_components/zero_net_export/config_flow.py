@@ -918,6 +918,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             summary += f" | {'1 needs review' if review_needed_count == 1 else f'{review_needed_count} need review'}"
             if review_name and review_candidate is not top_candidate:
                 summary += f" | review first: {review_name}"
+                summary += f" | review fit: {build_candidate_review_hint(review_candidate, include_warning=False)}"
         if top_candidate:
             top_fit = build_candidate_review_hint(top_candidate, include_warning=False)
             summary += f" | top fit: {top_fit}"

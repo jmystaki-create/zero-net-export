@@ -569,7 +569,7 @@ class CandidateUtilsTests(unittest.TestCase):
             ]
         )
 
-        self.assertIn("2 candidates | 2 fixed candidates | 1 needs review | review Virtual load | top Hot water relay | likely useful", summary)
+        self.assertIn("2 candidates | 2 fixed candidates | 1 needs review | review Virtual load | review carefully | top Hot water relay | likely useful", summary)
 
     def test_build_candidate_overview_summary_carries_top_warning_hint(self) -> None:
         module = _load_candidate_utils_module()

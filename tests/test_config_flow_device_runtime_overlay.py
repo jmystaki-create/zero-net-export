@@ -1137,7 +1137,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | review first: Virtual load | top fit: likely useful",
+            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | review first: Virtual load | review fit: review carefully | top fit: likely useful",
         )
 
     def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:

@@ -396,7 +396,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review | review Virtual load | top Hot water relay | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review | review Virtual load | review carefully | top Hot water relay | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_keeps_top_unmanaged_target_visible_with_existing_fleet(self) -> None:

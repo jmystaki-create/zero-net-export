@@ -397,6 +397,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if review_candidate_name and review_candidate_name != top_candidate_name:
                         summary_parts.append(f"review {review_candidate_name}")
+                        summary_parts.append(build_candidate_review_hint(review_candidate, include_warning=False))
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
@@ -411,6 +412,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if review_candidate_name and review_candidate_name != top_candidate_name:
                         summary_parts.append(f"review {review_candidate_name}")
+                        summary_parts.append(build_candidate_review_hint(review_candidate, include_warning=False))
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_name}")
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
