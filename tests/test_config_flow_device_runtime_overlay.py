@@ -654,6 +654,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             shortlist["description_placeholders"]["top_candidate"],
             "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
         )
+        self.assertEqual(
+            shortlist["description_placeholders"]["review_candidate"],
+            "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
+        )
         self.assertIn(
             "Pick a candidate from the shortlist or full list.",
             full_list["description_placeholders"]["candidate_path_summary"],
@@ -774,6 +778,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
+                "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
+            )
+            self.assertEqual(
+                result["description_placeholders"]["review_candidate"],
                 "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(
@@ -970,6 +978,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(
+                result["description_placeholders"]["review_candidate"],
+                "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
+            )
+            self.assertEqual(
                 result["description_placeholders"]["candidate_summary"],
                 "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
                 "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
@@ -1070,6 +1082,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertNotIn("switch.pool_pump", feedback["message"])
         self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | fixed managed: 1 | nominal: 0 W | blocked first: none | next plan: none", feedback["message"])
         self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | 2 need review | top usefulness: likely useful", feedback["message"])
+        self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Managed Devices path: devices path", feedback["message"])
         self.assertIn(
             "Detailed review path, only after the main fleet step is clear: detailed device path",

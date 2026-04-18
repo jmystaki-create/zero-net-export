@@ -935,6 +935,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return build_candidate_preview(candidate, include_entity_id=False)
 
     @staticmethod
+    def _review_candidate_focus_text(candidates: list[dict[str, Any]]) -> str:
+        review_candidate = next(
+            (item for item in candidates if candidate_needs_review(assess_candidate(item))),
+            None,
+        )
+        if not review_candidate:
+            return "None flagged for review right now"
+        return build_candidate_preview(review_candidate, include_entity_id=False)
+
+    @staticmethod
     def _candidate_snapshot_text(candidates: list[dict[str, Any]], *, limit: int = 12) -> str:
         return (
             "\n".join(f"- {build_candidate_preview(item, include_entity_id=False)}" for item in candidates[:limit])
@@ -1227,6 +1237,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         managed_snapshot = self._managed_snapshot_text(devices)
         unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
+        review_candidate = self._review_candidate_focus_text(candidates)
 
         if action == "promote" and device is not None:
             title = "managed-device promotion saved"
@@ -1269,6 +1280,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             fleet_snapshot,
             managed_snapshot,
             unmanaged_snapshot,
+            f"Review-first unmanaged candidate: {review_candidate}",
         ]
         if blocker_active:
             message_lines.extend([
@@ -2174,6 +2186,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "variable_candidate_count": str(len(variable_candidates)),
                 "variable_candidate_summary": variable_candidate_summary,
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
+                "review_candidate": self._review_candidate_focus_text(candidates),
                 "device_next_step": device_next_step,
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
@@ -2247,6 +2260,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
+                "review_candidate": self._review_candidate_focus_text(all_candidates),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2304,6 +2318,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
+                "review_candidate": self._review_candidate_focus_text(all_candidates),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2345,6 +2360,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
+                "review_candidate": self._review_candidate_focus_text(candidates),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "candidate_preview": build_candidate_preview(
                     summary,
@@ -2424,6 +2440,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
+                "review_candidate": self._review_candidate_focus_text(candidates),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
                 "template_summary": "\n".join(
@@ -2539,6 +2556,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
+                "review_candidate": self._review_candidate_focus_text(candidates),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_mode": "Edit" if editing_key else "Add",
                 "device_template": selected_template.label if selected_template else "Custom",
@@ -2602,6 +2620,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(top_candidate),
+                "review_candidate": self._review_candidate_focus_text(candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2647,6 +2666,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
+                "review_candidate": self._review_candidate_focus_text(candidates),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
@@ -2689,6 +2709,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "fixed_candidate_count": str(fixed_candidate_count),
                 "variable_candidate_count": str(variable_candidate_count),
                 "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
+                "review_candidate": self._review_candidate_focus_text(candidates),
                 "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
