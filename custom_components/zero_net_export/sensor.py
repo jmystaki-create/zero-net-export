@@ -309,7 +309,9 @@ def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -
         "enabled_count": sum(1 for detail in devices if detail.get("effective_enabled", detail.get("enabled", True))),
         "usable_count": sum(1 for detail in devices if detail.get("usable") is True),
         "blocked_count": sum(1 for detail in devices if detail.get("usable") is False),
-        "planned_count": sum(1 for detail in devices if str(detail.get("planned_action") or "") not in {"", "hold"}),
+        "planned_count": sum(1 for detail in devices if _device_has_active_plan(detail)),
+        "attention_count": sum(1 for detail in devices if _device_needs_attention(detail)),
+        "recent_attention_count": sum(1 for detail in devices if _device_has_recent_attention(detail)),
         "active_count": sum(1 for detail in devices if detail.get("observed_active") is True),
         "fixed_count": sum(1 for detail in devices if detail.get("kind") == "fixed"),
         "variable_count": sum(1 for detail in devices if detail.get("kind") == "variable"),
@@ -334,6 +336,23 @@ def _device_has_blocked_activity(detail: dict[str, object]) -> bool:
     if detail.get("usable") is False:
         return True
     return planned_action not in {"", "hold"} and detail.get("action_executable") is False
+
+
+def _device_has_active_plan(detail: dict[str, object]) -> bool:
+    return str(detail.get("planned_action") or "").strip().lower() not in {"", "hold"}
+
+
+def _device_has_recent_attention(detail: dict[str, object]) -> bool:
+    last_action_status = str(detail.get("last_action_status") or "").strip().lower()
+    return bool(last_action_status and last_action_status not in {"ok", "applied", "success"})
+
+
+def _device_needs_attention(detail: dict[str, object]) -> bool:
+    return bool(
+        _device_has_blocked_activity(detail)
+        or _device_has_active_plan(detail)
+        or _device_has_recent_attention(detail)
+    )
 
 
 def _truncate_sensor_state(text: str, *, max_chars: int = 255) -> str:
@@ -404,7 +423,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             )
             first_planned_name = _first_matching_device_name(
                 state.device_details,
-                predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+                predicate=_device_has_active_plan,
+            )
+            first_attention_name = _first_matching_device_name(
+                state.device_details,
+                predicate=_device_needs_attention,
             )
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=2, blocking_only=True)
@@ -449,6 +472,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
             if source_blocked:
                 summary_parts.append("repair sources first")
+            if counts["attention_count"]:
+                summary_parts.append(
+                    "1 managed device needs attention"
+                    if counts["attention_count"] == 1
+                    else f"{counts['attention_count']} managed devices need attention"
+                )
+            if first_attention_name and first_attention_name not in {first_blocked_name, first_planned_name}:
+                summary_parts.append(f"attention {first_attention_name}")
             if blocked_activity_count:
                 summary_parts.append(
                     f"blocked {first_blocked_name}" if first_blocked_name else f"blocked {blocked_activity_count}"
@@ -517,7 +548,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             )
             first_planned_name = _first_matching_device_name(
                 state.device_details,
-                predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+                predicate=_device_has_active_plan,
+            )
+            first_attention_name = _first_matching_device_name(
+                state.device_details,
+                predicate=_device_needs_attention,
             )
             if blocking_source_summary != "None" or blocking_validation_details != "None":
                 return _truncate_sensor_state(
@@ -540,6 +575,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 target = f" for {first_planned_name}" if first_planned_name else ""
                 return _truncate_sensor_state(
                     f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan{target} before changing the fleet"
+                )
+            if first_attention_name:
+                return _truncate_sensor_state(
+                    f"Open {DEVICES_CONFIGURE_PATH} and review managed-device attention starting with {first_attention_name} before changing the fleet"
                 )
             if candidates:
                 if review_candidate_name:
@@ -682,7 +721,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 ) or None,
                 "first_active_plan_device": _first_matching_device_name(
                     state.device_details,
-                    predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+                    predicate=_device_has_active_plan,
+                ) or None,
+                "first_attention_device": _first_matching_device_name(
+                    state.device_details,
+                    predicate=_device_needs_attention,
                 ) or None,
                 "source_blocked": blocking_source_summary != "None" or blocking_validation_details != "None",
                 "source_blocker_summary": blocking_source_summary,
