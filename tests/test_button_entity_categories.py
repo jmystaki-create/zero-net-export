@@ -372,7 +372,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Managed devices (top section):", message)
-        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | blocked EV charger | plan Pool pump", message)
+        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | 2 managed devices need attention | blocked EV charger | plan Pool pump", message)
         self.assertIn("Managed devices needing attention first:", message)
         self.assertIn("Other managed devices:", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
@@ -552,7 +552,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
-        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
+        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 2 managed devices need attention | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | top Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Top candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
@@ -628,7 +628,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         attrs = button.extra_state_attributes
 
         self.assertEqual(attrs["managed_count"], 1)
-        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 planned action(s) | plan Pool pump")
+        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | 1 planned action(s) | plan Pool pump")
         self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable candidate | top EV limit | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
         self.assertEqual(attrs["attention_count"], 1)
         self.assertEqual(attrs["first_attention_device"], "Pool pump")
@@ -690,7 +690,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         attrs = button.extra_state_attributes
 
         self.assertEqual(attrs["recommended_section"], "Sensors")
-        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | plan Pool pump")
+        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | plan Pool pump")
         self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["attention_count"], 1)
         self.assertEqual(attrs["first_attention_device"], "Pool pump")
@@ -964,7 +964,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Recommended next step: Review the next managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
-        self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 fixed managed | 1200 W nominal | 1 planned action(s) | plan Pool pump", message)
+        self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | 1 fixed managed | 1200 W nominal | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("- Top unmanaged candidate right now: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Device: Pool pump", message)
@@ -1081,7 +1081,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["recommended_path"], "sources path")
         self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
-        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | 1 fixed managed | 0 W nominal | blocked Pool pump | 0 planned action(s)")
+        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | 1 managed device needs attention | 1 fixed managed | 0 W nominal | blocked Pool pump | 0 planned action(s)")
         self.assertEqual(attrs["unmanaged_snapshot"], "2 candidates | 1 fixed candidate | 1 variable candidate | top Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
         self.assertEqual(attrs["first_review_candidate"]["entity_id"], "number.ev_limit")
@@ -1115,7 +1115,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         attrs = button.extra_state_attributes
 
         self.assertEqual(attrs["first_blocked_device"], "Pool pump")
-        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 fixed managed | 0 W nominal | blocked Pool pump | 1 planned action(s) | plan Pool pump")
+        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 managed device needs attention | 1 fixed managed | 0 W nominal | blocked Pool pump | 1 planned action(s) | plan Pool pump")
 
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
         notification_calls: list[dict] = []
