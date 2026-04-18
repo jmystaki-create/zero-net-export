@@ -128,7 +128,7 @@ def _compact_reason_fragment(detail: dict) -> str:
     return normalized
 
 
-def _format_device_review_line(detail: dict) -> str:
+def _format_device_review_line(detail: dict, *, audit: bool = False) -> str:
     runtime_bits = [
         str(detail.get("kind") or "unknown"),
         str(detail.get("status") or "status unknown"),
@@ -147,6 +147,9 @@ def _format_device_review_line(detail: dict) -> str:
     runtime_bits.append(f"power {_format_power(detail.get('current_power_w'))}")
     if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
         runtime_bits.append(f"target {_format_power(detail.get('current_target_power_w'))}")
+    nominal_power = detail.get("nominal_power_w")
+    if audit and nominal_power is not None:
+        runtime_bits.append(f"nominal {_format_power(nominal_power)}")
     current_runtime = detail.get("current_active_seconds")
     if current_runtime not in (None, 0, 0.0):
         runtime_bits.append(f"runtime {_format_duration(current_runtime)}")
@@ -161,6 +164,13 @@ def _format_device_review_line(detail: dict) -> str:
     last_action_status = str(detail.get("last_action_status") or "").strip()
     if last_action_status and last_action_status not in {"ok", "applied", "success"}:
         runtime_bits.append(f"last {last_action_status}")
+    if audit:
+        last_action_age = detail.get("last_action_seconds_ago")
+        if last_action_age not in (None, 0, 0.0):
+            runtime_bits.append(f"last act {_format_duration(last_action_age)} ago")
+        last_applied_at = detail.get("last_applied_at")
+        if last_applied_at is not None:
+            runtime_bits.append(f"applied {_format_timestamp(last_applied_at)}")
     device_label = str(detail.get("name") or detail.get("entity_id") or "managed device")
     return f"- {device_label}: {' | '.join(runtime_bits)}"
 
@@ -742,7 +752,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             ),
             "",
             "Managed devices right now:",
-            *([_format_device_review_line(detail) for detail in ordered[:20]] or ["- No managed devices configured yet."]),
+            *([_format_device_review_line(detail, audit=True) for detail in ordered[:20]] or ["- No managed devices configured yet."]),
             "",
             "Top unmanaged candidates:",
             *(
