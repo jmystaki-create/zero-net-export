@@ -221,6 +221,23 @@ def _format_device_review_line(detail: dict, *, audit: bool = False) -> str:
     return f"- {device_label}: {' | '.join(runtime_bits)}"
 
 
+def _device_needs_review_attention(detail: dict) -> bool:
+    if _device_has_blocked_activity(detail) or _has_active_plan(detail):
+        return True
+    last_action_status = str(detail.get("last_action_status") or "").strip().lower()
+    return bool(last_action_status and last_action_status not in {"ok", "applied", "success"})
+
+
+def _partition_review_devices(device_details: list[dict]) -> tuple[list[dict], list[dict]]:
+    attention = [detail for detail in device_details if _device_needs_review_attention(detail)]
+    remaining = [detail for detail in device_details if not _device_needs_review_attention(detail)]
+    return attention, remaining
+
+
+def _first_review_attention_device_name(device_details: list[dict]) -> str:
+    return _first_matching_device_name(device_details, predicate=_device_needs_review_attention)
+
+
 def _first_matching_device_name(device_details: list[dict], *, predicate) -> str:
     for detail in device_details:
         if predicate(detail):
@@ -807,6 +824,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         candidates = self._unmanaged_candidates()
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
+        attention_devices, remaining_devices = _partition_review_devices(ordered)
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
@@ -826,7 +844,9 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             ),
             "usable_count": sum(1 for detail in device_details if detail.get("usable") is True),
             "planned_action_count": sum(1 for detail in device_details if _has_active_plan(detail)),
-            "blocked_count": sum(1 for detail in device_details if detail.get("usable") is False),
+            "blocked_count": sum(1 for detail in device_details if _device_has_blocked_activity(detail)),
+            "attention_count": len(attention_devices),
+            "first_attention_device": _first_review_attention_device_name(ordered),
             "first_blocked_device": _first_matching_device_name(
                 ordered,
                 predicate=_device_has_blocked_activity,
@@ -844,6 +864,8 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "first_review_candidate_fit": review_candidate_fit,
             "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
+            "attention_devices": attention_devices[:12],
+            "steady_devices": remaining_devices[:12],
             "devices": ordered[:12],
             "promotion_handoff": "\n".join(
                 _managed_devices_workspace_handoff(
@@ -866,6 +888,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             candidates,
             has_managed_devices=bool(ordered),
         )
+        attention_devices, remaining_devices = _partition_review_devices(ordered)
         lines = [
             "Zero Net Export managed devices review",
             "",
@@ -905,8 +928,17 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 else []
             ),
             "",
-            "Managed devices right now:",
-            *([_format_device_review_line(detail, audit=True) for detail in ordered[:20]] or ["- No managed devices configured yet."]),
+            "Managed devices needing attention first:",
+            *(
+                [_format_device_review_line(detail, audit=True) for detail in attention_devices[:12]]
+                or ["- No blocked, active-plan, or recent-failure managed devices right now."]
+            ),
+            "",
+            "Other managed devices:",
+            *(
+                [_format_device_review_line(detail, audit=True) for detail in remaining_devices[:12]]
+                or ["- No additional steady managed devices right now."]
+            ),
             "",
             "Top unmanaged candidates:",
             *(

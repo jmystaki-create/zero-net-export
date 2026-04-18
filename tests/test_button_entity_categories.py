@@ -556,10 +556,13 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "First review-first candidate usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.",
             message,
         )
+        self.assertIn("Managed devices needing attention first:", message)
+        self.assertIn("Other managed devices:", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold | last guard_blocked | result Battery reserve blocked the last run | last act 3m ago | last applied at 2026-04-18T08:29:00Z"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | nominal 1200 W | runtime 15m 30s | today 1h 15m | guard ready | action turn_on | last req 1200 W | last applied 1200 W | runs 4 ok/1 fail | last act 2m 5s ago | last applied at 2026-04-18T08:31:00Z"
         self.assertIn(blocked_line, message)
         self.assertIn(planned_line, message)
+        self.assertLess(message.index("Managed devices needing attention first:"), message.index(blocked_line))
         self.assertLess(message.index(blocked_line), message.index(planned_line))
         self.assertNotIn("entity=number.ev_limit", message)
         self.assertNotIn("entity=switch.pool_pump", message)
@@ -616,6 +619,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["managed_count"], 1)
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 planned action(s) | plan Pool pump")
         self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable candidate | top EV limit | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
+        self.assertEqual(attrs["attention_count"], 1)
+        self.assertEqual(attrs["first_attention_device"], "Pool pump")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
         self.assertEqual(attrs["recommended_section"], "Sensors")
