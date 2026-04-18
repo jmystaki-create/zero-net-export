@@ -347,12 +347,14 @@ Suggested area labels:
 - **next action:** treat exact-build redeploy as the immediate prerequisite under ZNE-022, then rerun post-restart log review and close this only after the current installed build no longer emits the blocking `release_info.py` warnings
 
 ## ZNE-022 — Live HA install no longer matches the current repo candidate after fingerprint coverage widened
-- **closed on:** 2026-04-19
+- **status:** `open`
 - **severity:** `medium`
 - **area:** `release`
-- **historical behavior:** earlier watchdog runs kept finding the same unchanged repo-versus-live fingerprint drift and correctly called out the loop risk when docs-only churn started re-correcting the same mismatch count instead of moving product work or asking James for explicit deploy approval.
-- **live validation correction:** this watchdog run rechecked the documented HA SSH path and `python3 /root/.openclaw/workspace/projects/zero-net-export/scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config` now reports `overall_match=true`, `manifest_version_matches=true`, and no tracked-file mismatches. The live Home Assistant component payload is now an exact fingerprint match for the current repo candidate on the active `0.1.86` line.
-- **closure evidence:** documented HA SSH validation succeeded again in this run, and the comparison payload now reports `all_tracked_files_match=true`, `overall_match=true`, and an empty mismatch list. That clears the old exact-build drift as a current release blocker and means the next watchdog gap is product-level live UX proof, not another fingerprint-count refresh.
+- **where seen:** documented HA SSH fingerprint recheck on 2026-04-19
+- **current observed behavior:** this watchdog run rechecked the documented HA SSH path with `python3 /root/.openclaw/workspace/projects/zero-net-export/scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config` and the live install is drifted again, not aligned. The comparison now reports `overall_match=false`, `manifest_version_matches=false`, live `manifest_version=0.1.87` versus repo `0.1.86`, plus tracked-file mismatches in `manifest.json`, `native_support.py`, and `sensor.py`.
+- **expected behavior:** Home Assistant should be running one exact current repo build so fingerprint validation reports `all_tracked_files_match=true`, `overall_match=true`, and the active release line stays `0.1.86` until `0.1.87` is explicitly approved and shipped.
+- **evidence:** documented HA SSH access succeeded in this run, so the blocker is not access. The stale source-of-truth drift was in project docs and bug state: `docs/UI_IMPLEMENTATION_MAP.md` and this bug entry both still said exact-build drift had cleared, but the fresh comparison payload disproves that and reopens install drift as the active release blocker.
+- **next action:** ask James directly for explicit deploy/restart approval, then redeploy one exact repo build and rerun fingerprint validation before treating live UX validation as the main next step again.
 
 ## ZNE-045 — Fingerprint payload still let `expected_commit` drift with repo-head bookkeeping
 - **status:** `fixed_pending_validation`
