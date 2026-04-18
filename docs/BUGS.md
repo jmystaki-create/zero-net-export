@@ -367,6 +367,19 @@ Suggested area labels:
 - **validation status:** repo-side fix implemented in this run. Verification passed with the documented HA SSH validation path above plus `python3 -m unittest tests.test_install_helper_scripts -q`. This watchdog run's fingerprint recheck also closed ZNE-022, so the payload-anchor fix is now consistent with a live install that actually matches the current repo candidate.
 - **next action:** keep the watchdog focused on remaining `0.1.87` implementation work or an explicitly approved deploy, not another fingerprint-anchor wording refresh.
 
+## ZNE-050 — Repo working version jumped back to `0.1.87` before the mapped freeze step
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** repo HEAD on 2026-04-19 after the latest commit audit
+- **current observed behavior:** `custom_components/zero_net_export/manifest.json` had been bumped back to `0.1.87` even though `docs/SUPERVISOR.md` and `docs/UI_IMPLEMENTATION_MAP.md` still say unfinished Workstreams A-F remain and that versioned metadata should only move at the Workstream G freeze step. `tests/test_install_helper_scripts.py` had drifted with the same premature manifest expectation.
+- **expected behavior:** the repo working version should stay on the current live correction line `0.1.86` until the `0.1.87` candidate is explicitly frozen, then versioned metadata and tests should move together.
+- **evidence:** this watchdog run's repo audit found `custom_components/zero_net_export/manifest.json` at `0.1.87` while `docs/SUPERVISOR.md` still says to finish mapped `0.1.87` work first and only then bump versioned metadata. `tests/test_install_helper_scripts.py` was also asserting `payload["manifest_version"] == "0.1.87"`, so the release-line drift had already leaked into regression expectations.
+- **suspected cause:** the latest release-line bookkeeping regressed into a premature manifest bump even though the source-of-truth docs still treat `0.1.87` as the not-yet-frozen rollout target rather than the active shipped line.
+- **repo fix:** this run reverts `custom_components/zero_net_export/manifest.json` to `0.1.86`, realigns `tests/test_install_helper_scripts.py` to the same live correction line, and keeps `CHANGELOG.md` as the future `0.1.87` target instead of falsely advertising it as the current packaged build.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_install_helper_scripts`. This is enough evidence for this repo-only release-metadata drift.
+- **next action:** keep building the highest remaining mapped `0.1.87` UI step, and do not bump versioned metadata again until the Workstream G freeze boundary is actually reached.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 — Repo working version drifted forward to `0.1.86` without new release-line evidence
