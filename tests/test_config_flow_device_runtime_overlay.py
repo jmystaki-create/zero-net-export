@@ -645,6 +645,12 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Managed now: 2 | enabled: 1 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
         )
         self.assertEqual(
+            shortlist["description_placeholders"]["device_summary"],
+            "- Fleet summary: 2 device(s), 1 enabled, 1 usable, 1 blocked, 1 planned action(s), 1 fixed, 1 variable, 0 W nominal controllable power\n"
+            "- EV charger [not usable | power n/a | action hold] (variable, disabled, priority 0, nominal 0 W)\n"
+            "- Pool pump [usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)",
+        )
+        self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
             "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1 | top candidate: AC Outlet 2 | 3 need review | top usefulness: likely useful",
         )
@@ -966,6 +972,12 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
                 "Managed now: 2 | enabled: 2 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
+            )
+            self.assertEqual(
+                result["description_placeholders"]["device_summary"],
+                "- Fleet summary: 2 device(s), 2 enabled, 1 usable, 1 blocked, 1 planned action(s), 1 fixed, 1 variable, 0 W nominal controllable power\n"
+                "- EV charger [not usable | power n/a] (variable, enabled, priority 0, nominal 0 W)\n"
+                "- Pool pump [usable | power n/a | action on] (fixed, enabled, priority 0, nominal 0 W)",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
