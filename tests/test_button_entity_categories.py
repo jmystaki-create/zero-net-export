@@ -190,6 +190,14 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
     candidate_utils_module.discover_candidate_devices = _discover_candidate_devices
     candidate_utils_module.assess_candidate = _assess_candidate
+    candidate_utils_module.first_review_candidate = lambda candidates: next(
+        (
+            candidate
+            for candidate in candidates
+            if str((_assess_candidate(candidate) or {}).get("confidence") or "medium") != "high"
+        ),
+        next(iter(candidates), None),
+    )
     candidate_utils_module.build_candidate_overview_summary = _build_candidate_overview_summary
     candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "likely useful"
     candidate_utils_module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
@@ -365,6 +373,14 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section):", message)
         self.assertIn("- Snapshot: 2 candidates | 2 fixed candidates | top Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Top candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn(
+            "- First review-first candidate: Helper candidate (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.",
+            message,
+        )
+        self.assertIn(
+            "- First review-first candidate usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.",
+            message,
+        )
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | guard ready | action turn_on"
         self.assertIn(blocked_line, message)
@@ -445,6 +461,14 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | top Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Top candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Top candidate warnings: No immediate warnings.", message)
+        self.assertIn(
+            "First review-first candidate: Helper candidate (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.",
+            message,
+        )
+        self.assertIn(
+            "First review-first candidate usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.",
+            message,
+        )
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | guard ready | action turn_on"
         self.assertIn(blocked_line, message)
@@ -514,6 +538,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["unmanaged_candidate_count"], 1)
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "number.ev_limit")
         self.assertEqual(attrs["top_candidate_fit"]["confidence"], "medium")
+        self.assertEqual(attrs["first_review_candidate"]["entity_id"], "number.ev_limit")
+        self.assertEqual(attrs["first_review_candidate_fit"]["confidence"], "medium")
         self.assertTrue(any("meaningful unit" in warning for warning in attrs["top_candidate_fit"]["warnings"]))
         self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
@@ -563,6 +589,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
+        self.assertEqual(attrs["first_review_candidate"]["entity_id"], "switch.hot_water")
+        self.assertEqual(attrs["first_review_candidate_fit"]["confidence"], "high")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
         self.assertIn("- Open sources path first.", attrs["promotion_handoff"])

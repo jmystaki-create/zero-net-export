@@ -10,6 +10,7 @@ from .candidate_utils import (
     build_candidate_overview_summary,
     build_candidate_preview,
     discover_candidate_devices,
+    first_review_candidate,
 )
 from .const import DOMAIN
 from .device_model import DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE
@@ -271,6 +272,18 @@ def _managed_devices_blocker_first_lines(command_center: dict) -> list[str]:
     return lines
 
 
+def _managed_devices_review_focus(candidates: list[dict] | None) -> tuple[dict | None, dict | None, dict | None, dict | None]:
+    candidate_list = candidates or []
+    top_candidate = candidate_list[0] if candidate_list else None
+    review_candidate = first_review_candidate(candidate_list)
+    return (
+        top_candidate,
+        assess_candidate(top_candidate) if top_candidate else None,
+        review_candidate,
+        assess_candidate(review_candidate) if review_candidate else None,
+    )
+
+
 def _managed_devices_workspace_handoff(command_center: dict, candidates: list[dict] | None) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
@@ -289,15 +302,8 @@ def _managed_devices_workspace_handoff(command_center: dict, candidates: list[di
         lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for deeper per-device review after the main fleet step is clear.")
         return lines
 
-    candidate_list = candidates or []
-    primary_candidate = next(
-        (
-            candidate
-            for candidate in candidate_list
-            if str((assess_candidate(candidate) or {}).get("confidence") or "medium") != "high"
-        ),
-        None,
-    ) or (candidate_list[0] if candidate_list else None)
+    top_candidate, _, review_candidate, _ = _managed_devices_review_focus(candidates)
+    primary_candidate = review_candidate or top_candidate
 
     lines = ["Promotion handoff:"]
     if primary_candidate:
@@ -485,8 +491,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         ordered = sorted(managed, key=_device_runtime_sort_key)
         managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
         candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids)
-        top_candidate = candidates[0] if candidates else None
-        top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
+        top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             'configure_path': DEVICES_CONFIGURE_PATH,
@@ -514,6 +519,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'candidate_devices': candidates[:12],
             'top_candidate': top_candidate,
             'top_candidate_fit': top_candidate_fit,
+            'first_review_candidate': review_candidate,
+            'first_review_candidate_fit': review_candidate_fit,
             'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
             'devices': ordered[:12],
             'promotion_handoff': "\n".join(_managed_devices_workspace_handoff(command_center, candidates)),
@@ -525,8 +532,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         ordered = sorted(managed, key=_device_runtime_sort_key)
         managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
         candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids)
-        top_candidate = candidates[0] if candidates else None
-        top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
+        top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
         lines = [
@@ -555,6 +561,20 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                     if top_candidate_fit and top_candidate_fit.get('warnings')
                     else 'No immediate warnings.'
                 )
+            ),
+            *(
+                [
+                    f"- First review-first candidate: {build_candidate_preview(review_candidate, include_entity_id=False, include_state=False)}",
+                    f"- First review-first candidate usefulness: {_candidate_usefulness_summary(review_candidate)}",
+                    '- First review-first candidate warnings: '
+                    + (
+                        '; '.join(review_candidate_fit.get('warnings') or [])
+                        if review_candidate_fit and review_candidate_fit.get('warnings')
+                        else 'No immediate warnings.'
+                    ),
+                ]
+                if review_candidate and review_candidate != top_candidate
+                else []
             ),
             *(
                 [
@@ -596,7 +616,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         device_details = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(device_details, key=_device_runtime_sort_key)
         candidates = self._unmanaged_candidates()
-        top_candidate = candidates[0] if candidates else None
+        top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
@@ -624,7 +644,9 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "unmanaged_snapshot": _unmanaged_snapshot_summary(candidates),
             "unmanaged_candidate_count": len(candidates),
             "top_unmanaged_candidate": top_candidate,
-            "top_candidate_fit": assess_candidate(top_candidate) if top_candidate else None,
+            "top_candidate_fit": top_candidate_fit,
+            "first_review_candidate": review_candidate,
+            "first_review_candidate_fit": review_candidate_fit,
             "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
             "devices": ordered[:12],
@@ -636,8 +658,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         device_details = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(device_details, key=_device_runtime_sort_key)
         candidates = self._unmanaged_candidates()
-        top_candidate = candidates[0] if candidates else None
-        top_candidate_fit = assess_candidate(top_candidate) if top_candidate else None
+        top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
         lines = [
@@ -663,6 +684,20 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                     if top_candidate_fit and top_candidate_fit.get("warnings")
                     else "No immediate warnings."
                 )
+            ),
+            *(
+                [
+                    f"First review-first candidate: {build_candidate_preview(review_candidate, include_entity_id=False, include_state=False)}",
+                    "First review-first candidate usefulness: " + _candidate_usefulness_summary(review_candidate),
+                    "First review-first candidate warnings: "
+                    + (
+                        "; ".join(review_candidate_fit.get("warnings") or [])
+                        if review_candidate_fit and review_candidate_fit.get("warnings")
+                        else "No immediate warnings."
+                    ),
+                ]
+                if review_candidate and review_candidate != top_candidate
+                else []
             ),
             "",
             "Managed devices right now:",
