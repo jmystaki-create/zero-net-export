@@ -614,6 +614,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
+        self.assertIn("no unmanaged candidates", summary["fleet_activity_summary"])
         self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
         self.assertIn("plan Pool pump", summary["fleet_activity_summary"])
         self.assertLess(

@@ -1326,9 +1326,9 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
         if top_candidate_name:
             summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
-    elif managed_count == 0:
+    else:
         summary_parts.append("no unmanaged candidates")
-        if source_blocked:
+        if managed_count == 0 and source_blocked:
             summary_parts.append("repair sources first")
     if source_blocked and managed_count > 0:
         summary_parts.append("repair sources first")

@@ -268,7 +268,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(summary._attr_name, "Pool pump managed summary")
         self.assertEqual(
             managed_overview.native_value,
-            "1 managed | plan Pool pump | 1 enabled | 1 usable | 1 fixed managed",
+            "1 managed | no unmanaged candidates | plan Pool pump | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(managed_overview.extra_state_attributes["planned_count"], 1)
         self.assertEqual(managed_overview.extra_state_attributes["usable_count"], 1)

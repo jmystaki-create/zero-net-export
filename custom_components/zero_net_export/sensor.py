@@ -394,10 +394,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=1)
             source_blocked = blocking_source_summary != "None" or blocking_validation_details != "None"
             summary_parts = [f"{counts['managed_count']} managed"]
+            summary_parts.append(
+                f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates"
+            )
             if counts["managed_count"] == 0:
-                summary_parts.append(
-                    f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates"
-                )
                 if source_blocked:
                     summary_parts.append("repair sources first")
                 if fixed_candidate_count:
@@ -412,7 +412,6 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
                 return _truncate_sensor_state(" | ".join(summary_parts))
             if candidate_count:
-                summary_parts.append(f"{candidate_count} unmanaged")
                 if fixed_candidate_count:
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
