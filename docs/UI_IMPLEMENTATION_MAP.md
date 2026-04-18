@@ -43,10 +43,10 @@ If a change does not materially improve one of those visible outcomes, it should
 - Diagnostics/support text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
-- The live Home Assistant install still does not match the current repo candidate. This run's documented SSH fingerprint recheck still reports `overall_match=false`, but the active drift is the same unchanged ten-file mismatch, not the earlier overstated 23-file list: `__init__.py`, `button.py`, `candidate_utils.py`, `config_flow.py`, `coordinator.py`, `diagnostics.py`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json`. Exact-build redeploy plus fingerprint revalidation is still required before final release judgment or screenshot-grade acceptance proof.
-- That exact-build mismatch is a release/deploy gate, not the default next build-stage headline while unfinished repo-side work still remains in Workstreams A through F below.
+- This watchdog run's documented HA SSH fingerprint recheck now reports `overall_match=true`, so repo-versus-live exact-build drift is no longer the active release blocker.
+- Because that release-boundary mismatch is cleared, the next gap is screenshot-grade live proof that the current installed build really delivers the requested managed-versus-unmanaged workspace, promote/vet/review flow, and four-bucket IA outcome.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
-- The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reinstalled and reviewed.
+- The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
 
 ## What counts as success for 0.1.87
