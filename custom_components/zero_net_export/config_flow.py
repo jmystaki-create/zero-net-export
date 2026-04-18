@@ -2660,6 +2660,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if (summary or {}).get("fit_confidence") != "low"
             else "Choose a preset only if this entity really drives a controllable device. Otherwise go back and pick a different candidate or use manual selection."
         )
+        promotion_path_summary = (
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
+        )
 
         options = [
             selector.SelectOptionDict(value=template.key, label=template.label)
@@ -2708,6 +2711,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "suggested_template": str((summary or {}).get('suggested_template_label') or 'Custom'),
                 "suggested_template_description": str((summary or {}).get('suggested_template_description') or 'Use a custom configuration for this entity.'),
                 "candidate_next_step": next_step,
+                "promotion_path_summary": promotion_path_summary,
                 "template_summary": "\n".join(
                     f"- {template.label}: {template.description}" for template in templates
                 ),
@@ -2757,6 +2761,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             candidate_summary=self._pending_candidate_summary if not editing_key else None,
         )
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        promotion_path_summary = (
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
+        )
         fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         if not editing_key and self._pending_candidate_entity_id:
@@ -2838,6 +2845,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "selected_candidate_warnings": "\n".join(
                     f"- {item}" for item in ((self._pending_candidate_summary or {}).get("warnings") or [])
                 ) or "- No extra warnings captured for this candidate.",
+                "promotion_path_summary": promotion_path_summary,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
         )

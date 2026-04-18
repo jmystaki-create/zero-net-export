@@ -1245,6 +1245,14 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             template["description_placeholders"]["candidate_preview"],
             "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
         )
+        self.assertEqual(
+            template["description_placeholders"]["promotion_path_summary"],
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices.",
+        )
+        self.assertEqual(
+            add["description_placeholders"]["promotion_path_summary"],
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices.",
+        )
         self.assertEqual(template["description_placeholders"]["candidate_fit_usefulness"], "likely useful")
         self.assertEqual(template["description_placeholders"]["candidate_fit_summary"], "Strong match.")
         self.assertEqual(template["description_placeholders"]["candidate_warnings"], "- No immediate warnings detected.")

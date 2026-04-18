@@ -83,6 +83,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Detailed native review path after promotion, only if you need deeper per-device review", vetting_description)
 
         template_description = steps["device_template"]["description"]
+        self.assertIn("Promotion path:", template_description)
+        self.assertIn("{promotion_path_summary}", template_description)
         self.assertIn("Managed Devices still owns this step", template_description)
         self.assertIn("Managed devices (top section)", template_description)
         self.assertIn("Managed devices review:", template_description)
@@ -91,6 +93,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Candidate snapshot", template_description)
 
         add_description = steps["device_add"]["description"]
+        self.assertIn("Promotion path:", add_description)
+        self.assertIn("{promotion_path_summary}", add_description)
         self.assertIn("Managed Devices still owns this save step", add_description)
         self.assertIn("Managed devices (top section)", add_description)
         self.assertIn("Managed devices review:", add_description)
