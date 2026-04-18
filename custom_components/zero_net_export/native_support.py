@@ -1226,6 +1226,7 @@ def _build_command_center_fleet_activity_summary(
     variable_candidate_count: int,
     review_needed_count: int,
     review_candidate_name: str,
+    review_candidate_hint: str,
     top_candidate_name: str,
     top_candidate_review_hint: str,
     source_blocked: bool,
@@ -1264,6 +1265,8 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
             if review_candidate_name and review_candidate_name != top_candidate_name:
                 summary_parts.append(f"review {review_candidate_name}")
+                if review_candidate_hint:
+                    summary_parts.append(review_candidate_hint)
         if top_candidate_name:
             summary_parts.append(f"top {top_candidate_name}")
             if top_candidate_review_hint:
@@ -1319,6 +1322,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         None,
     )
     review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+    review_candidate_hint = build_candidate_review_hint(review_candidate, include_warning=False) if review_candidate else ""
     candidate_count = len(candidates)
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
@@ -1603,6 +1607,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             variable_candidate_count=variable_candidate_count,
             review_needed_count=review_needed_count,
             review_candidate_name=review_candidate_name,
+            review_candidate_hint=review_candidate_hint,
             top_candidate_name=top_candidate_name,
             top_candidate_review_hint=top_candidate_review_hint,
             source_blocked=bool(missing_required_sources or runtime_source_attention),

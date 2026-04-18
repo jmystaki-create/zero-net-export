@@ -249,6 +249,83 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["device_status"],
         )
 
+    def test_command_center_summary_keeps_review_first_hint_when_review_target_differs_from_top_candidate(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": "fixed"},
+                {"name": "Garage Power", "entity_id": "switch.garage_power", "kind": "fixed"},
+            ],
+            "Dishwasher Power",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("name") == "Dishwasher Power" else "low",
+            "warnings": [] if candidate.get("name") == "Dishwasher Power" else ["generic circuit label"],
+        }
+        native_support.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        native_support.build_candidate_review_hint = lambda candidate, include_warning=True: (
+            "likely useful" if candidate and candidate.get("name") == "Dishwasher Power" else "review carefully"
+        )
+        native_support.build_candidate_preview = lambda candidate, include_entity_id=False, include_state=False: (
+            "Dishwasher Power (fixed) | likely useful"
+            if candidate and candidate.get("name") == "Dishwasher Power"
+            else "Garage Power (fixed) | review carefully | key warning: generic circuit label"
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            reason="Monitoring export drift before acting.",
+            control_reason="Waiting for min-off timer to clear.",
+            status="Active",
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1200.0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "pool_pump": {"entity_id": "switch.pool_pump"},
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("1 needs review", summary["fleet_activity_summary"])
+        self.assertIn("review Garage Power", summary["fleet_activity_summary"])
+        self.assertIn("review carefully", summary["fleet_activity_summary"])
+        self.assertIn("top Dishwasher Power", summary["fleet_activity_summary"])
+        self.assertIn("likely useful", summary["fleet_activity_summary"])
+
     def test_command_center_summary_lists_source_repair_before_candidate_mix_for_empty_fleet(self) -> None:
         native_support = _load_native_support_module()
 
