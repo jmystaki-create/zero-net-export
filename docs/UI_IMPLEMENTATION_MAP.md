@@ -56,7 +56,7 @@ If a change does not materially improve one of those visible outcomes, it should
 
 1. **Managed vs unmanaged is visually obvious**
    - the Managed Devices path clearly shows the current managed fleet
-   - the same path clearly shows unmanaged candidates ready for promotion
+   - the same path clearly shows unmanaged candidates ready for review or promotion, with review-first items easy to spot
    - the difference is obvious without depending on long explanatory text
 
 2. **Promote / vet / review is visibly first-class**
