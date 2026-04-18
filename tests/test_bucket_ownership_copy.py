@@ -40,6 +40,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         devices_description = steps["devices"]["description"]
         self.assertIn("Managed devices (top section)", devices_description)
+        self.assertIn("Managed devices review:", devices_description)
+        self.assertNotIn("Current managed fleet:", devices_description)
         self.assertIn("Unmanaged candidates (bottom section)", devices_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", devices_description)
         self.assertIn("Bucket ownership", devices_description)
@@ -49,6 +51,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         bulk_enable_description = steps["device_bulk_enable"]["description"]
         self.assertIn("Managed Devices owns fleet enablement", bulk_enable_description)
         self.assertIn("Managed devices (top section)", bulk_enable_description)
+        self.assertIn("Managed devices review:", bulk_enable_description)
+        self.assertNotIn("Current managed fleet:", bulk_enable_description)
         self.assertIn("Unmanaged candidates (bottom section)", bulk_enable_description)
         self.assertIn("Candidate snapshot", bulk_enable_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", bulk_enable_description)
@@ -56,18 +60,24 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         edit_pick_description = steps["device_edit_pick"]["description"]
         self.assertIn("Managed Devices owns this fleet-edit workflow", edit_pick_description)
         self.assertIn("Managed devices (top section)", edit_pick_description)
+        self.assertIn("Managed devices review:", edit_pick_description)
+        self.assertNotIn("Current managed fleet:", edit_pick_description)
         self.assertIn("Unmanaged candidates (bottom section)", edit_pick_description)
         self.assertIn("Candidate snapshot", edit_pick_description)
 
         remove_description = steps["device_remove"]["description"]
         self.assertIn("Managed Devices owns this fleet-removal workflow", remove_description)
         self.assertIn("Managed devices (top section)", remove_description)
+        self.assertIn("Managed devices review:", remove_description)
+        self.assertNotIn("Current managed fleet:", remove_description)
         self.assertIn("Unmanaged candidates (bottom section)", remove_description)
         self.assertIn("Candidate snapshot", remove_description)
 
         vetting_description = steps["device_vetting"]["description"]
         self.assertIn("Managed Devices owns this promotion workflow", vetting_description)
         self.assertIn("Managed devices (top section)", vetting_description)
+        self.assertIn("Managed devices review:", vetting_description)
+        self.assertNotIn("Current managed fleet:", vetting_description)
         self.assertIn("Unmanaged candidates (bottom section)", vetting_description)
         self.assertIn("Candidate snapshot", vetting_description)
         self.assertIn("Detailed native review path after promotion, only if you need deeper per-device review", vetting_description)
@@ -75,15 +85,28 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         template_description = steps["device_template"]["description"]
         self.assertIn("Managed Devices still owns this step", template_description)
         self.assertIn("Managed devices (top section)", template_description)
+        self.assertIn("Managed devices review:", template_description)
+        self.assertNotIn("Current managed fleet:", template_description)
         self.assertIn("Unmanaged candidates (bottom section)", template_description)
         self.assertIn("Candidate snapshot", template_description)
 
         add_description = steps["device_add"]["description"]
         self.assertIn("Managed Devices still owns this save step", add_description)
         self.assertIn("Managed devices (top section)", add_description)
+        self.assertIn("Managed devices review:", add_description)
+        self.assertNotIn("Current managed fleet:", add_description)
         self.assertIn("Unmanaged candidates (bottom section)", add_description)
         self.assertIn("Candidate snapshot", add_description)
         self.assertIn("Detailed native review path after save, only if you need deeper per-device review", add_description)
+
+        shortlist_step = steps["device_pick_candidate"]
+        self.assertEqual(shortlist_step["data"]["quick_pick"], "Promotion shortlist")
+
+        full_list_description = steps["device_pick_candidate_full"]["description"]
+        self.assertIn("continue with the native Managed Devices form", full_list_description)
+        self.assertNotIn("continue with the normal native form", full_list_description)
+        self.assertIn("Managed devices review:", full_list_description)
+        self.assertNotIn("Current managed fleet:", full_list_description)
 
         policy_description = steps["policy"]["description"]
         self.assertIn("Controls owns controller behaviour", policy_description)
