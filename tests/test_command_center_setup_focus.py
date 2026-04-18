@@ -113,6 +113,12 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("- Source map: Solar power -> sensor.pv_power", text)
         self.assertIn("- Diagnostics: Runtime attention remains.", text)
         self.assertNotIn("- Runtime health:", text)
+        self.assertIn("Basic setup paths", text)
+        self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", text)
+        self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", text)
+        self.assertIn(f"- Change live control mode: {native_support.MODE_CONTROL_PATH}", text)
+        self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", text)
+        self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", text)
         self.assertIn("Bucket ownership", text)
         self.assertIn(
             f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}",

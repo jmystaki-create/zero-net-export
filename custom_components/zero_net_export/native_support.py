@@ -1205,6 +1205,8 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Sensors: {command_center.get('sources_path')}",
             f"- Controls: {command_center.get('policy_path')}",
             f"- Change live control mode: {command_center.get('mode_path')}",
+            f"- Managed Devices: {command_center.get('devices_path')}",
+            f"- Diagnostics: {command_center.get('support_path')}",
             "",
             "Bucket ownership",
             "- Sensors owns source mapping and source health.",
