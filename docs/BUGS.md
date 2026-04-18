@@ -577,32 +577,21 @@ Suggested area labels:
 - **status:** `open`
 - **severity:** `high`
 - **area:** `release`
-- **where seen:** live Home Assistant after installing `v0.1.87` (James screenshot, 2026-04-18 23:47)
-- **current observed behavior:** the integration/device page reports firmware/version as `0.1.86` even though `v0.1.87` was just pushed, tagged, and deployed.
-- **expected behavior:** the live Home Assistant UI should display `0.1.87` as the installed version immediately after restart/reload.
-- **evidence:** James screenshot showing version `0.1.86` post-deploy of `v0.1.87`.
-- **suspected cause:** manifest.json may not have been copied correctly during deploy, or Home Assistant may be caching the old manifest. The live `/config/custom_components/zero_net_export/manifest.json` may still show `"version": "0.1.86"`.
-- **next action:** verify live manifest via SSH: `cat /config/custom_components/zero_net_export/manifest.json | jq .version`. If it shows `0.1.86`, re-copy manifest.json explicitly and restart HA. If it shows `0.1.87` but UI still shows `0.1.86`, investigate entity/device registration caching.
+- **where seen:** live Home Assistant after installing `v0.1.87` (James screenshot, 2026-04-18 23:47), rechecked via documented HA SSH access on 2026-04-18 23:33
+- **current observed behavior:** the integration/device page reports firmware/version as `0.1.86`, and the live Home Assistant install itself still has `manifest.json` version `0.1.86`.
+- **expected behavior:** the live Home Assistant UI should display `0.1.87` as the installed version immediately after a real `0.1.87` deploy/restart.
+- **evidence:** James screenshot showed version `0.1.86` post-deploy claim, and this run confirmed the live file directly with `ssh root@192.168.86.200 -p 2222 'jq -r .version /config/custom_components/zero_net_export/manifest.json'` returning `0.1.86`.
+- **suspected cause:** this is not just UI caching. The live Home Assistant component root is still on the `0.1.86` manifest, so the claimed `0.1.87` deploy was incomplete or never actually landed as one exact build.
+- **next action:** stop treating the version display as a mystery UI cache issue. Ask James directly for explicit redeploy/restart approval, then ship one exact `0.1.87` build to `/config/custom_components/zero_net_export` and re-run fingerprint validation after deploy instead of repeating unchanged pre-deploy bookkeeping.
 
-## ZNE-049 — No evidence of Managed Devices UI after installing 0.1.87
-- **status:** `open`
+## ZNE-049 — Managed Devices UI absence report was stale; live HA already exposes the workspace entities
+- **closed on:** 2026-04-18
 - **severity:** `high`
 - **area:** `managed_devices`
-- **where seen:** live Home Assistant after installing `v0.1.87` (James screenshot, 2026-04-18 23:47)
-- **current observed behavior:** the Managed Devices workspace / Configure -> Managed Devices surface does not show the expected rich fleet summaries, promotion flow, or managed/unmanaged split implemented in the `0.1.87` release.
-- **expected behavior:** Configure -> Managed Devices should display the full Managed Devices workspace with:
-  - Managed vs unmanaged device split
-  - Rich fleet summaries (fixed-vs-variable mix)
-  - Review-first candidate hints
-  - Promotion flow entry points
-- **evidence:** James screenshot showing absence of Managed Devices UI elements.
-- **suspected cause:** either the deploy did not include the new code (manifest mismatch, partial copy), the integration did not reload properly, or there is a runtime error preventing the new config flow from loading.
-- **next action:**
-  1. Verify live code hashes match repo: `ssh root@192.168.86.200 -p 2222 'sha256sum /config/custom_components/zero_net_export/{config_flow.py,button.py,candidate_utils.py,native_support.py}'`
-  2. Check HA logs for config_flow errors: `ssh root@192.168.86.200 -p 2222 'ha core logs | grep -i zero_net_export | tail -30'`
-  3. If code matches but UI missing, force reload integration: `ssh root@192.168.86.200 -p 2222 'ha core reload'`
-  4. If logs show errors, capture full traceback and add to bug entry.
-
+- **historical behavior:** a screenshot taken right after the claimed `v0.1.87` install appeared to show no evidence of the Managed Devices workspace, so this bug was opened as if the rich fleet summaries and review entry points were missing live.
+- **live validation correction:** this run used the documented HA API path and confirmed the Managed Devices workspace is already present in live Home Assistant. `sensor.zero_net_export_managed_fleet_overview`, `sensor.zero_net_export_unmanaged_candidate_overview`, `sensor.zero_net_export_candidate_shortlist`, `sensor.zero_net_export_fleet_console_next_step`, `button.zero_net_export_show_fleet_console`, and `button.zero_net_export_show_managed_device_review` all exist and expose the managed/unmanaged split, fixed-vs-variable candidate mix, review-first hints, and workspace/review entry points.
+- **remaining live drift:** the install is still not an exact repo match. This run's fingerprint check found one undeployed file, `candidate_utils.py`, so shortlist wording/details may still lag the repo candidate even though the Managed Devices workspace itself is present.
+- **closure evidence:** live Home Assistant API inspection in this run, plus an exact-build fingerprint comparison that narrowed the remaining drift to `candidate_utils.py` rather than absence of the Managed Devices workspace.
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
