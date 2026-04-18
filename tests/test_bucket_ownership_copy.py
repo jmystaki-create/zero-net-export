@@ -101,6 +101,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         shortlist_step = steps["device_pick_candidate"]
         self.assertEqual(shortlist_step["data"]["quick_pick"], "Promotion shortlist")
+        shortlist_description = shortlist_step["description"]
+        self.assertIn("Managed devices review:", shortlist_description)
+        self.assertNotIn("Current managed fleet:", shortlist_description)
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
         self.assertIn("continue with the native Managed Devices form", full_list_description)
