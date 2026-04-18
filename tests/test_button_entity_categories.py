@@ -770,6 +770,32 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "- Pool pump: fixed | Waiting for source repair | not usable | enabled | power 0 W | guard blocked | action hold | why Solar power source is unavailable, so this device cannot be evaluated...",
         )
 
+    def test_managed_device_review_line_surfaces_guard_reason_for_blocked_planned_action(self) -> None:
+        button_module = _load_button_module()
+
+        line = button_module._format_device_review_line(
+            {
+                "name": "Pool pump",
+                "entity_id": "switch.pool_pump",
+                "kind": "fixed",
+                "status": "Ready for control",
+                "usable": True,
+                "enabled": True,
+                "effective_enabled": True,
+                "current_power_w": 0,
+                "guard_status": "blocked",
+                "guard_reason": "Action cooldown is still active for about 120 more second(s).",
+                "action_executable": False,
+                "planned_action": "turn_on",
+                "planned_action_reason": "Use the pump to absorb export.",
+            }
+        )
+
+        self.assertEqual(
+            line,
+            "- Pool pump: fixed | Ready for control | usable | enabled | power 0 W | guard blocked | action turn_on | why Use the pump to absorb export | guard why Action cooldown is still active for about 120 more second(s)",
+        )
+
     def test_managed_device_review_line_audit_mode_adds_nominal_and_last_action_timing(self) -> None:
         button_module = _load_button_module()
 
@@ -996,6 +1022,36 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
         self.assertEqual(attrs["first_review_candidate"]["entity_id"], "number.ev_limit")
         self.assertEqual(attrs["first_review_candidate_fit"]["confidence"], "medium")
+
+    def test_managed_device_review_attributes_treat_blocked_plans_as_blocked_activity(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "blocked",
+                        "guard_reason": "Action cooldown is still active for about 120 more second(s).",
+                        "action_executable": False,
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        button.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        attrs = button.extra_state_attributes
+
+        self.assertEqual(attrs["first_blocked_device"], "Pool pump")
+        self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 fixed managed | 0 W nominal | blocked Pool pump | 1 planned action(s) | plan Pool pump")
 
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
         notification_calls: list[dict] = []

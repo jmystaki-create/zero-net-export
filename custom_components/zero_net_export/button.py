@@ -141,6 +141,23 @@ def _compact_last_result_fragment(detail: dict) -> str:
     return normalized
 
 
+def _compact_guard_reason_fragment(detail: dict) -> str:
+    guard_reason = str(detail.get("guard_reason") or "").strip()
+    if not guard_reason or guard_reason.lower().startswith("no action is currently planned"):
+        return ""
+    normalized = " ".join(guard_reason.split()).strip().rstrip(". ")
+    if len(normalized) > 72:
+        normalized = normalized[:69].rstrip() + "..."
+    return normalized
+
+
+def _device_has_blocked_activity(detail: dict) -> bool:
+    planned_action = str(detail.get("planned_action") or "").strip().lower()
+    if detail.get("usable") is False:
+        return True
+    return planned_action not in {"", "hold"} and detail.get("action_executable") is False
+
+
 def _format_device_review_line(detail: dict, *, audit: bool = False) -> str:
     runtime_bits = [
         str(detail.get("kind") or "unknown"),
@@ -174,6 +191,9 @@ def _format_device_review_line(detail: dict, *, audit: bool = False) -> str:
     reason_fragment = _compact_reason_fragment(detail)
     if reason_fragment:
         runtime_bits.append(f"why {reason_fragment}")
+    guard_reason_fragment = _compact_guard_reason_fragment(detail)
+    if guard_reason_fragment and _device_has_blocked_activity(detail):
+        runtime_bits.append(f"guard why {guard_reason_fragment}")
     last_action_status = str(detail.get("last_action_status") or "").strip()
     if last_action_status and last_action_status not in {"ok", "applied", "success"}:
         runtime_bits.append(f"last {last_action_status}")
@@ -249,7 +269,7 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
     kind_known = any(detail.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for detail in device_details)
     first_blocked_name = _first_matching_device_name(
         device_details,
-        predicate=lambda detail: detail.get("usable") is False,
+        predicate=_device_has_blocked_activity,
     )
     first_planned_name = _first_matching_device_name(
         device_details,
@@ -503,6 +523,8 @@ def _build_managed_device_detail_lines(
         f"Kind: {kind}",
         f"Runtime status: {detail.get('status') or 'status unknown'}",
         f"Guard state: {detail.get('guard_status') or 'unknown'}",
+        f"Guard reason: {detail.get('guard_reason') or 'No current guard constraint recorded.'}",
+        f"Blocked by: {detail.get('blocked_by') or 'none'}",
         f"Planned action: {detail.get('planned_action') or 'hold'}",
         f"Planned action reason: {detail.get('planned_action_reason') or 'No planned action reason recorded.'}",
         f"Reason: {detail.get('reason') or 'No runtime reason recorded.'}",
@@ -611,7 +633,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'usable_count': sum(1 for detail in managed if detail.get('usable') is True),
             'first_blocked_device': _first_matching_device_name(
                 ordered,
-                predicate=lambda detail: detail.get('usable') is False,
+                predicate=_device_has_blocked_activity,
             ),
             'first_planned_device': _first_matching_device_name(
                 ordered,
@@ -729,7 +751,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "blocked_count": sum(1 for detail in device_details if detail.get("usable") is False),
             "first_blocked_device": _first_matching_device_name(
                 ordered,
-                predicate=lambda detail: detail.get("usable") is False,
+                predicate=_device_has_blocked_activity,
             ),
             "first_planned_device": _first_matching_device_name(
                 ordered,
