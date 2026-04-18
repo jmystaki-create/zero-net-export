@@ -769,6 +769,17 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(shortlist["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(full_list["description_placeholders"]["detailed_management_summary"], flow._detailed_management_summary())
 
+    def test_detailed_management_summary_falls_back_to_secondary_review_path_wording(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        module.build_native_command_center_summary = lambda coordinator: {}
+
+        self.assertEqual(
+            flow._detailed_management_summary(),
+            f"Use {module.DETAILED_MANAGEMENT_PATH} for deeper managed-device review.",
+        )
+
     def test_managed_snapshot_treats_non_executable_plans_as_blocked_before_usable_flips_false(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
