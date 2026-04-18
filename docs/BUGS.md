@@ -573,6 +573,36 @@ Suggested area labels:
 - **repo fix:** this run reverts `custom_components/zero_net_export/manifest.json` back to `0.1.86` so the repo working version stays aligned with the current live correction line until the actual `0.1.87` freeze step in `docs/UI_IMPLEMENTATION_MAP.md` Workstream G.
 - **closure evidence:** repo-side source-of-truth audit plus direct metadata correction in the same run; `manifest.json`, `docs/SUPERVISOR.md`, `README.md`, and `docs/UI_IMPLEMENTATION_MAP.md` are aligned again on `0.1.86` as the live correction line and `0.1.87` as the not-yet-frozen rollout target.
 
+## ZNE-048 — Firmware/version display shows 0.1.86 after installing 0.1.87
+- **status:** `open`
+- **severity:** `high`
+- **area:** `release`
+- **where seen:** live Home Assistant after installing `v0.1.87` (James screenshot, 2026-04-18 23:47)
+- **current observed behavior:** the integration/device page reports firmware/version as `0.1.86` even though `v0.1.87` was just pushed, tagged, and deployed.
+- **expected behavior:** the live Home Assistant UI should display `0.1.87` as the installed version immediately after restart/reload.
+- **evidence:** James screenshot showing version `0.1.86` post-deploy of `v0.1.87`.
+- **suspected cause:** manifest.json may not have been copied correctly during deploy, or Home Assistant may be caching the old manifest. The live `/config/custom_components/zero_net_export/manifest.json` may still show `"version": "0.1.86"`.
+- **next action:** verify live manifest via SSH: `cat /config/custom_components/zero_net_export/manifest.json | jq .version`. If it shows `0.1.86`, re-copy manifest.json explicitly and restart HA. If it shows `0.1.87` but UI still shows `0.1.86`, investigate entity/device registration caching.
+
+## ZNE-049 — No evidence of Managed Devices UI after installing 0.1.87
+- **status:** `open`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** live Home Assistant after installing `v0.1.87` (James screenshot, 2026-04-18 23:47)
+- **current observed behavior:** the Managed Devices workspace / Configure -> Managed Devices surface does not show the expected rich fleet summaries, promotion flow, or managed/unmanaged split implemented in the `0.1.87` release.
+- **expected behavior:** Configure -> Managed Devices should display the full Managed Devices workspace with:
+  - Managed vs unmanaged device split
+  - Rich fleet summaries (fixed-vs-variable mix)
+  - Review-first candidate hints
+  - Promotion flow entry points
+- **evidence:** James screenshot showing absence of Managed Devices UI elements.
+- **suspected cause:** either the deploy did not include the new code (manifest mismatch, partial copy), the integration did not reload properly, or there is a runtime error preventing the new config flow from loading.
+- **next action:**
+  1. Verify live code hashes match repo: `ssh root@192.168.86.200 -p 2222 'sha256sum /config/custom_components/zero_net_export/{config_flow.py,button.py,candidate_utils.py,native_support.py}'`
+  2. Check HA logs for config_flow errors: `ssh root@192.168.86.200 -p 2222 'ha core logs | grep -i zero_net_export | tail -30'`
+  3. If code matches but UI missing, force reload integration: `ssh root@192.168.86.200 -p 2222 'ha core reload'`
+  4. If logs show errors, capture full traceback and add to bug entry.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
