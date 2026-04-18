@@ -1344,6 +1344,8 @@ def _build_command_center_fleet_activity_summary(
     fixed_candidate_count: int,
     variable_candidate_count: int,
     review_needed_count: int,
+    fixed_review_count: int,
+    variable_review_count: int,
     review_candidate_name: str,
     review_candidate_preview: str,
     top_candidate_name: str,
@@ -1383,6 +1385,10 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
         if review_needed_count:
             summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
+            if fixed_review_count:
+                summary_parts.append(_count_label(fixed_review_count, "fixed review"))
+            if variable_review_count:
+                summary_parts.append(_count_label(variable_review_count, "variable review"))
             if review_candidate_name and review_candidate_name != top_candidate_name:
                 summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
         if top_candidate_name:
@@ -1416,7 +1422,20 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(f"{variable_managed_count} variable managed")
             summary_parts.append(f"{nominal_power_w} W nominal")
 
-    return " | ".join(summary_parts)
+    summary = " | ".join(summary_parts)
+    if len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return summary
+
+    compact_summary_parts = [
+        part
+        for part in summary_parts
+        if part not in {
+            _count_label(fixed_review_count, "fixed review") if fixed_review_count else "",
+            _count_label(variable_review_count, "variable review") if variable_review_count else "",
+        }
+    ]
+    compact_summary = " | ".join(compact_summary_parts)
+    return compact_summary if compact_summary else summary
 
 
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
@@ -1454,6 +1473,16 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
     review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
+    fixed_review_count = sum(
+        1
+        for item in candidates
+        if str(item.get("kind") or "") == "fixed" and candidate_needs_review(assess_candidate(item))
+    )
+    variable_review_count = sum(
+        1
+        for item in candidates
+        if str(item.get("kind") or "") == "variable" and candidate_needs_review(assess_candidate(item))
+    )
     readiness_phase = str(readiness.get("phase") or "")
     runtime_device_count = (
         int(getattr(state, "device_count", len(configured_devices)) or 0)
@@ -1739,6 +1768,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             fixed_candidate_count=fixed_candidate_count,
             variable_candidate_count=variable_candidate_count,
             review_needed_count=review_needed_count,
+            fixed_review_count=fixed_review_count,
+            variable_review_count=variable_review_count,
             review_candidate_name=review_candidate_name,
             review_candidate_preview=review_candidate_preview,
             top_candidate_name=top_candidate_name,
