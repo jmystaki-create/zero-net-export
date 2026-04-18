@@ -133,7 +133,7 @@ class SourceFreshnessProbeTests(unittest.TestCase):
             captured["include_changelog"] = include_changelog
             return {
                 "current_version": current_version,
-                "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
+                "changes_preview": "Release notes deferred until Diagnostics surfaces request them.",
                 "summary": f"Installed version {current_version}",
             }
 

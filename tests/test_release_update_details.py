@@ -133,7 +133,7 @@ class ReleaseUpdateDetailsTests(unittest.TestCase):
             captured["include_changelog"] = include_changelog
             return {
                 "current_version": current_version,
-                "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
+                "changes_preview": "Release notes deferred until Diagnostics surfaces request them.",
                 "summary": f"Installed version {current_version}",
             }
 
@@ -155,7 +155,7 @@ class ReleaseUpdateDetailsTests(unittest.TestCase):
 
         coordinator_module.build_release_info = lambda *args, **kwargs: {
             "current_version": "0.1.83",
-            "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
+            "changes_preview": "Release notes deferred until Diagnostics surfaces request them.",
             "summary": "Installed version 0.1.83",
         }
         coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)
@@ -176,7 +176,7 @@ class ReleaseUpdateDetailsTests(unittest.TestCase):
 
         coordinator_module.build_release_info = lambda *args, **kwargs: {
             "current_version": "0.1.84",
-            "changes_preview": "Release notes deferred until diagnostics/support surfaces request them.",
+            "changes_preview": "Release notes deferred until Diagnostics surfaces request them.",
             "summary": "Installed version 0.1.84",
         }
         coordinator = coordinator_module.ZeroNetExportCoordinator.__new__(coordinator_module.ZeroNetExportCoordinator)

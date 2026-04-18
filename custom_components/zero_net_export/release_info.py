@@ -343,7 +343,7 @@ def build_release_info(current_version: str, *, include_changelog: bool = True) 
         summary += "; no highlights recorded"
 
     preview = (
-        "Release notes deferred until diagnostics/support surfaces request them."
+        "Release notes deferred until Diagnostics surfaces request them."
         if not include_changelog
         else ("; ".join(highlights[:3]) if highlights else "No release highlights recorded.")
     )
