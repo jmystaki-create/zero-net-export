@@ -91,6 +91,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
     native_support_module = types.ModuleType("custom_components.zero_net_export.native_support")
     native_support_module.DETAILED_MANAGEMENT_PATH = "detailed device path"
+    native_support_module.DIAGNOSTICS_DEVICE_ACTIONS_PATH = "device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot"
     native_support_module.DEVICES_CONFIGURE_PATH = "devices path"
     native_support_module.DEVICES_SECTION_LABEL = "Managed Devices"
     native_support_module.POLICY_CONFIGURE_PATH = "policy path"

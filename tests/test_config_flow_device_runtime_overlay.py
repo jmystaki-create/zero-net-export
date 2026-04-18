@@ -137,6 +137,7 @@ def _load_config_flow_module():
     native_support_module = types.ModuleType("custom_components.zero_net_export.native_support")
     native_support_module.ADVANCED_DEVICES_CONFIGURE_PATH = "advanced path"
     native_support_module.DETAILED_MANAGEMENT_PATH = "detailed device path"
+    native_support_module.DIAGNOSTICS_DEVICE_ACTIONS_PATH = "device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot"
     native_support_module.DEVICES_CONFIGURE_PATH = "devices path"
     native_support_module.DEVICES_SECTION_LABEL = "Managed Devices"
     native_support_module.INTEGRATION_DEVICE_PATH = "device path"
@@ -199,10 +200,10 @@ def _load_config_flow_module():
 
 
 class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
-    def test_config_flow_copy_uses_diagnostics_actions_wording(self) -> None:
+    def test_config_flow_copy_uses_explicit_diagnostics_path_wording(self) -> None:
         source = MODULE_PATH.read_text()
 
-        self.assertIn("diagnostics actions", source)
+        self.assertIn("DIAGNOSTICS_DEVICE_ACTIONS_PATH", source)
         self.assertNotIn("support actions", source)
         self.assertNotIn("device support actions", source)
 

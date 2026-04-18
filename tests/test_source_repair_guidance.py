@@ -356,7 +356,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Fleet activity: 0 managed | 4 unmanaged | top AC Outlet 2", guide)
         self.assertIn("Setup check", guide)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", guide)
-        self.assertIn("- Runtime health: Runtime attention remains.", guide)
+        self.assertIn("- Diagnostics: Runtime attention remains.", guide)
+        self.assertNotIn("- Runtime health:", guide)
         self.assertIn("- Source blockers: Solar power (Pv Power, unavailable)", guide)
         self.assertIn("Basic setup paths", guide)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
@@ -449,8 +450,9 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
     def test_detailed_management_path_uses_diagnostics_wording(self) -> None:
         native_support = _load_native_support_module()
-        self.assertIn("native diagnostics actions", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertNotIn("diagnostics actions", native_support.DETAILED_MANAGEMENT_PATH)
         self.assertNotIn("native support actions", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertIn("managed-device review buttons", native_support.DETAILED_MANAGEMENT_PATH)
 
     def test_support_snapshot_uses_diagnostics_snapshot_wording(self) -> None:
         native_support = _load_native_support_module()
@@ -601,7 +603,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         readiness = native_support.build_native_operator_readiness(coordinator)
 
-        self.assertIn("diagnostics actions", readiness["next_step"])
+        self.assertIn("Review diagnostics", readiness["next_step"])
+        self.assertIn(native_support.DIAGNOSTICS_DEVICE_ACTIONS_PATH, readiness["next_step"])
         self.assertNotIn("support actions", readiness["next_step"])
 
     def test_command_center_summary_operator_ready_fallback_uses_diagnostics_actions_wording(self) -> None:
@@ -674,7 +677,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("device diagnostics actions", summary["next_action_summary"])
+        self.assertIn(native_support.DIAGNOSTICS_DEVICE_ACTIONS_PATH, summary["next_action_summary"])
         self.assertNotIn("device support actions", summary["next_action_summary"])
 
     def test_command_center_summary_uses_positive_source_blocker_copy_when_none_exist(self) -> None:

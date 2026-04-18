@@ -65,7 +65,10 @@ SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {SOURCES_SECTION_LABEL}"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {DEVICES_SECTION_LABEL}"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 DETAILED_MANAGEMENT_PATH = (
-    f"{INTEGRATION_DEVICE_PATH} -> managed-device review buttons, per-device status sensors, reset-override buttons, and native diagnostics actions"
+    f"{INTEGRATION_DEVICE_PATH} -> managed-device review buttons, per-device status sensors, and reset-override buttons"
+)
+DIAGNOSTICS_DEVICE_ACTIONS_PATH = (
+    f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics / Show setup checklist / Review diagnostics snapshot"
 )
 
 
@@ -75,9 +78,8 @@ def _count_label(count: int, singular: str, plural: str | None = None) -> str:
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {POLICY_SECTION_LABEL}"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
-    f"{PRIMARY_CONFIGURE_PATH} -> {SUPPORT_SECTION_LABEL}; deeper health review: "
-    f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics / Show setup checklist / Review diagnostics snapshot; "
-    "Settings -> Repairs"
+    f"{PRIMARY_CONFIGURE_PATH} -> {SUPPORT_SECTION_LABEL}; device-page diagnostics: "
+    f"{DIAGNOSTICS_DEVICE_ACTIONS_PATH}; Settings -> Repairs"
 )
 MAX_NATIVE_SENSOR_STATE_CHARS = 255
 
@@ -813,7 +815,7 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
     else:
         phase = "operator_ready"
         next_step = (
-            f"Validate {PRIMARY_CONFIGURE_PATH} plus {INTEGRATION_DEVICE_PATH} diagnostics actions in a real "
+            f"Validate {PRIMARY_CONFIGURE_PATH} plus {DIAGNOSTICS_DEVICE_ACTIONS_PATH} in a real "
             "Home Assistant install and refine any remaining friction there."
         )
         summary = "Setup and troubleshooting are available through native Home Assistant surfaces."
@@ -1095,7 +1097,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Sensors: {command_center.get('source_status')}",
             f"- Source map: {command_center.get('source_mapping_summary')}",
             f"- Controls: {command_center.get('policy_status')}",
-            f"- Runtime health: {command_center.get('support_status')}",
+            f"- Diagnostics: {command_center.get('support_status')}",
             f"- Source blockers: {command_center.get('source_attention_summary')}",
             f"- Repair path: {command_center.get('source_repair_step')}",
             "",
@@ -1488,16 +1490,16 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif readiness_phase == "runtime_readiness":
         next_action_summary = str(
             readiness.get("next_step")
-            or f"Open {SUPPORT_CONFIGURE_PATH} and the native diagnostics surfaces to clear the current runtime blocker."
+            or f"Open {SUPPORT_CONFIGURE_PATH} and {DIAGNOSTICS_DEVICE_ACTIONS_PATH} to clear the current runtime blocker."
         )
         recommended_section = SUPPORT_SECTION_LABEL
     elif readiness_phase == "operator_ready":
         next_action_summary = str(
             readiness.get("next_step")
-            or "Validate the native Configure path and device diagnostics actions in a real Home Assistant install."
+            or f"Validate the native Configure path plus {DIAGNOSTICS_DEVICE_ACTIONS_PATH} in a real Home Assistant install."
         )
     else:
-        next_action_summary = "Sources and devices are in place, so policy tuning or support review are the next useful steps."
+        next_action_summary = "Sources and devices are in place, so policy tuning or diagnostics review are the next useful steps."
 
     current_mode = _decision_mode_text(state)
     policy_status = (

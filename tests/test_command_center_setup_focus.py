@@ -107,7 +107,8 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("- Fleet activity: 0 managed | 3 unmanaged | top AC Outlet 2", text)
         self.assertIn("Setup check", text)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", text)
-        self.assertIn("- Runtime health: Runtime attention remains.", text)
+        self.assertIn("- Diagnostics: Runtime attention remains.", text)
+        self.assertNotIn("- Runtime health:", text)
         self.assertIn("Bucket ownership", text)
         self.assertIn(
             f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}",
