@@ -732,11 +732,22 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         self._pending_candidate_summary: dict[str, Any] | None = None
 
     @staticmethod
-    def _device_sort_key(device: dict[str, Any]) -> tuple[int, int, int, int, str]:
+    def _active_planned_action(device: dict[str, Any]) -> str:
+        planned_action = str(device.get("planned_action") or "").strip()
+        return planned_action if planned_action not in {"", "hold"} else ""
+
+    @classmethod
+    def _device_has_blocked_activity(cls, device: dict[str, Any]) -> bool:
+        if device.get("usable") is False:
+            return True
+        return bool(cls._active_planned_action(device)) and device.get("action_executable") is False
+
+    @classmethod
+    def _device_sort_key(cls, device: dict[str, Any]) -> tuple[int, int, int, int, str]:
         effective_enabled = bool(device.get("effective_enabled", device.get("enabled", True)))
         usable = device.get("usable")
-        blocked_rank = 0 if usable is False else 1
-        planned_rank = 0 if str(device.get("planned_action") or "") not in {"", "hold"} else 1
+        blocked_rank = 0 if cls._device_has_blocked_activity(device) else 1
+        planned_rank = 0 if cls._active_planned_action(device) else 1
         enabled_usable_rank = 0 if effective_enabled and usable is True else 1
         return (
             blocked_rank,
@@ -745,11 +756,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             int(device.get("priority", 0) or 0),
             str(device.get("name", "")).lower(),
         )
-
-    @staticmethod
-    def _active_planned_action(device: dict[str, Any]) -> str:
-        planned_action = str(device.get("planned_action") or "").strip()
-        return planned_action if planned_action not in {"", "hold"} else ""
 
     @staticmethod
     def _device_status_label(device: dict[str, Any]) -> str:
@@ -789,7 +795,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
-        blocked_count = sum(1 for device in devices if device.get("usable") is False)
+        blocked_count = sum(1 for device in devices if self._device_has_blocked_activity(device))
         planned_count = sum(1 for device in devices if self._active_planned_action(device))
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
@@ -870,7 +876,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (
                 str(device.get("name") or device.get("entity_id") or "")
                 for device in ordered
-                if device.get("usable") is False
+                if self._device_has_blocked_activity(device)
             ),
             "",
         )

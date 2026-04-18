@@ -674,6 +674,48 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(shortlist["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(full_list["description_placeholders"]["detailed_management_summary"], flow._detailed_management_summary())
 
+    def test_managed_snapshot_treats_non_executable_plans_as_blocked_before_usable_flips_false(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+
+        devices = [
+            {
+                "key": "pool",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "planned_action": "turn_on",
+                "action_executable": False,
+            },
+            {
+                "key": "ev",
+                "name": "EV charger",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "entity_id": "number.ev_limit",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "planned_action": "set_power",
+                "action_executable": True,
+            },
+        ]
+
+        self.assertEqual(
+            flow._managed_snapshot_text(devices),
+            "Managed now: 2 | enabled: 2 | usable: 2 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: Pool pump | next plan: Pool pump",
+        )
+        self.assertEqual(
+            flow._fleet_summary_lines(devices)[0],
+            "- Fleet summary: 2 device(s), 2 enabled, 2 usable, 1 blocked, 2 planned action(s), 1 fixed, 1 variable, 0 W nominal controllable power",
+        )
+        self.assertEqual(
+            flow._fleet_summary_lines(devices)[1],
+            "- Pool pump [usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)",
+        )
+
     def test_support_form_exposes_exact_bucket_paths(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
