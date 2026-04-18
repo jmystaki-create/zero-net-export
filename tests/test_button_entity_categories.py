@@ -396,6 +396,77 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Then reopen devices path for Managed Devices.", message)
         self.assertIn("- Use detailed device path only for deeper per-device review after the main fleet step is clear.", message)
 
+    def test_candidate_discovery_cache_is_shared_across_button_surfaces_for_same_state(self) -> None:
+        button_module = _load_button_module()
+        discover_calls: list[tuple[str, ...]] = []
+        original_discover = button_module.discover_candidate_devices
+
+        def _counting_discover(states, managed_entity_ids):
+            discover_calls.append(tuple(sorted(managed_entity_ids)))
+            return original_discover(states, managed_entity_ids)
+
+        button_module.discover_candidate_devices = _counting_discover
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    },
+                    "ev": {
+                        "name": "EV charger",
+                        "entity_id": "number.ev_limit",
+                        "usable": False,
+                        "enabled": True,
+                        "effective_enabled": False,
+                        "status": "Held by guard",
+                        "guard_status": "blocked",
+                        "planned_action": "hold",
+                    },
+                }
+            ),
+        )
+        hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool pump"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="input_boolean.helper_candidate",
+                        state="on",
+                        attributes={"friendly_name": "Helper candidate"},
+                    ),
+                ]
+            )
+        )
+
+        fleet_button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        fleet_button.hass = hass
+        review_button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        review_button.hass = hass
+        detail_button = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
+        detail_button.hass = hass
+
+        self.assertEqual(fleet_button.extra_state_attributes["candidate_count"], 2)
+        self.assertEqual(review_button.extra_state_attributes["unmanaged_candidate_count"], 2)
+        self.assertEqual(detail_button.extra_state_attributes["top_unmanaged_candidate"]["name"], "Hot water")
+        self.assertEqual(discover_calls, [("number.ev_limit", "switch.pool_pump")])
+
     def test_managed_device_review_button_renders_runtime_fleet_summary(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)

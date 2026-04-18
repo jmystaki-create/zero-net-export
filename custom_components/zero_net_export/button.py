@@ -192,6 +192,34 @@ def _first_matching_device_name(device_details: list[dict], *, predicate) -> str
     return ""
 
 
+def _managed_entity_ids(state) -> set[str]:
+    return {
+        str(detail.get("entity_id"))
+        for detail in (getattr(state, "device_details", None) or {}).values()
+        if detail.get("entity_id")
+    }
+
+
+def _candidate_devices_for_state(coordinator, hass, state) -> list[dict[str, str]]:
+    if hass is None:
+        return []
+    managed_entity_ids = _managed_entity_ids(state)
+    cache_key = (id(state), tuple(sorted(managed_entity_ids)))
+    cached = getattr(coordinator, "_zne_candidate_button_cache", None)
+    if cached and cached.get("key") == cache_key:
+        return cached["candidates"]
+    candidates = discover_candidate_devices(hass.states.async_all(), managed_entity_ids)
+    setattr(
+        coordinator,
+        "_zne_candidate_button_cache",
+        {
+            "key": cache_key,
+            "candidates": candidates,
+        },
+    )
+    return candidates
+
+
 def _managed_snapshot_summary(device_details: list[dict], *, include_planned_count: bool = False) -> str:
     managed_count = len(device_details)
     enabled_count = sum(
@@ -550,8 +578,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(managed, key=_device_runtime_sort_key)
-        managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
-        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+        candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         return {
@@ -591,8 +618,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(managed, key=_device_runtime_sort_key)
-        managed_ids = {str(detail.get('entity_id')) for detail in managed if detail.get('entity_id')}
-        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+        candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
@@ -661,15 +687,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         self._attr_icon = "mdi:clipboard-list-outline"
 
     def _unmanaged_candidates(self) -> list[dict[str, str]]:
-        if self.hass is None:
-            return []
-        state = self._state
-        managed_ids = {
-            str(detail.get("entity_id"))
-            for detail in (getattr(state, "device_details", None) or {}).values()
-            if detail.get("entity_id")
-        }
-        return discover_candidate_devices(self.hass.states.async_all(), managed_ids)
+        return _candidate_devices_for_state(self.coordinator, self.hass, self._state)
 
     @property
     def extra_state_attributes(self):
@@ -803,8 +821,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(managed, key=_device_runtime_sort_key)
-        managed_ids = {str(item.get("entity_id")) for item in managed if item.get("entity_id")}
-        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids) if self.hass else []
+        candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         return {
@@ -828,8 +845,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         state = self._state
         managed = list((state.device_details or {}).values()) if state is not None else []
         ordered = sorted(managed, key=_device_runtime_sort_key)
-        managed_ids = {str(item.get("entity_id")) for item in managed if item.get("entity_id")}
-        candidates = discover_candidate_devices(self.hass.states.async_all(), managed_ids) if self.hass else []
+        candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, _top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         persistent_notification.async_create(
