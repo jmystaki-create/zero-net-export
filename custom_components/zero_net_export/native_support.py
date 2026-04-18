@@ -635,6 +635,13 @@ def _first_runtime_device_name(state: Any, *, predicate) -> str:
     return ""
 
 
+def _runtime_device_has_blocked_activity(detail: dict[str, Any]) -> bool:
+    planned_action = str(detail.get("planned_action") or "").strip().lower()
+    if detail.get("usable") is False:
+        return True
+    return planned_action not in {"", "hold"} and detail.get("action_executable") is False
+
+
 def _managed_runtime_mix(state: Any) -> tuple[bool, int, int, int]:
     if state is None:
         return False, 0, 0, 0
@@ -1268,7 +1275,7 @@ def _build_command_center_fleet_activity_summary(
     kind_known, fixed_managed_count, variable_managed_count, nominal_power_w = _managed_runtime_mix(state)
     first_blocked_device_name = _first_runtime_device_name(
         state,
-        predicate=lambda detail: detail.get("usable") is False,
+        predicate=_runtime_device_has_blocked_activity,
     )
     blocked_device_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if detail.get("usable") is False)

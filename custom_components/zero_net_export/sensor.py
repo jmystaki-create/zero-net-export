@@ -326,6 +326,13 @@ def _first_matching_device_name(
     return ""
 
 
+def _device_has_blocked_activity(detail: dict[str, object]) -> bool:
+    planned_action = str(detail.get("planned_action") or "").strip().lower()
+    if detail.get("usable") is False:
+        return True
+    return planned_action not in {"", "hold"} and detail.get("action_executable") is False
+
+
 def _truncate_sensor_state(text: str, *, max_chars: int = 255) -> str:
     if len(text) <= max_chars:
         return text
@@ -374,7 +381,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
-                predicate=lambda detail: detail.get("usable") is False,
+                predicate=_device_has_blocked_activity,
             )
             first_planned_name = _first_matching_device_name(
                 state.device_details,
@@ -477,7 +484,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
-                predicate=lambda detail: detail.get("usable") is False,
+                predicate=_device_has_blocked_activity,
             )
             first_planned_name = _first_matching_device_name(
                 state.device_details,
@@ -642,7 +649,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "top_candidate_name": str(top_candidate.get('name') or top_candidate.get('entity_id') or '').strip() if top_candidate else None,
                 "first_blocked_device": _first_matching_device_name(
                     state.device_details,
-                    predicate=lambda detail: detail.get("usable") is False,
+                    predicate=_device_has_blocked_activity,
                 ) or None,
                 "first_active_plan_device": _first_matching_device_name(
                     state.device_details,

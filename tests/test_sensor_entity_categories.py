@@ -639,6 +639,38 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(next_step.extra_state_attributes["blocked_count"], 0)
         self.assertEqual(next_step.extra_state_attributes["blocked_activity_count"], 1)
 
+    def test_fleet_console_next_step_names_non_executable_blocked_device_before_usable_flips_false(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                blocked_planned_action_count=1,
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "on",
+                        "action_executable": False,
+                    }
+                },
+            ),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = next_step.hass
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open devices path, review blocked managed devices starting with Pool pump, then fix the next guard or readiness issue",
+        )
+        self.assertIn("blocked Pool pump", overview.native_value)
+        self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
+
     def test_fleet_console_next_step_names_top_candidate_when_fleet_is_empty(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
