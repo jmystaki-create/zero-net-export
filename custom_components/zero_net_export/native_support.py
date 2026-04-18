@@ -1099,6 +1099,7 @@ def build_native_setup_recommendation(
 def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
     """Return the basic setup focused command-center guide text."""
     recommended_section = normalize_command_center_section(command_center.get("recommended_section"))
+    alert_summary = _normalize_native_path_text(command_center.get("alert_summary"))
     next_action_summary = _normalize_native_path_text(command_center.get("next_action_summary"))
     recommended_path = _normalize_native_path_text(command_center.get("recommended_path"))
     return "\n".join(
@@ -1111,7 +1112,8 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "",
             "Now",
             f"- Headline decision: {command_center.get('headline_decision')}",
-            f"- Top alert / next step: {next_action_summary}",
+            f"- Top alerts: {alert_summary}",
+            f"- Recommended next step: {next_action_summary}",
             f"- Recommended section: {recommended_section}",
             f"- Recommended path: {recommended_path}",
             "",

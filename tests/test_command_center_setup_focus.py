@@ -100,8 +100,9 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("This surface is for the basic setup only.", text)
         self.assertIn("Open Managed Devices only after the current setup blockers are clear.", text)
         self.assertIn("Now", text)
+        self.assertIn("- Top alerts: Missing required source roles: Solar power", text)
         self.assertIn(
-            f"- Top alert / next step: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
+            f"- Recommended next step: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,
         )
         self.assertIn("Structured control board", text)
@@ -117,7 +118,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}",
             text,
         )
-        self.assertNotIn("Open Configure > Sensors next.", text)
+        self.assertEqual(text.count(f"Open {native_support.SOURCES_CONFIGURE_PATH} next."), 1)
         self.assertNotIn("Installed package:", text)
         self.assertNotIn("Install consistency:", text)
         self.assertNotIn("Managed-device deep review", text)
