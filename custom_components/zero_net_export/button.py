@@ -280,6 +280,9 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
     )
     usable_count = sum(1 for detail in device_details if detail.get("usable") is True)
     planned_count = sum(1 for detail in device_details if _has_active_plan(detail))
+    active_devices = [detail for detail in device_details if detail.get("observed_active") is True]
+    active_count = len(active_devices)
+    active_power = round(sum(float(detail.get("current_power_w", 0) or 0) for detail in active_devices), 1)
     fixed_count = sum(1 for detail in device_details if detail.get("kind") == DEVICE_KIND_FIXED)
     variable_count = sum(1 for detail in device_details if detail.get("kind") == DEVICE_KIND_VARIABLE)
     nominal_power = int(sum(float(detail.get("nominal_power_w", 0) or 0) for detail in device_details))
@@ -293,6 +296,9 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
         predicate=_has_active_plan,
     )
     parts = [f"{managed_count} managed", f"{enabled_count} enabled", f"{usable_count} usable"]
+    if active_count:
+        parts.append(f"active load {active_power:g} W")
+        parts.append("1 active managed device" if active_count == 1 else f"{active_count} active managed devices")
     if kind_known:
         parts.append(f"{fixed_count} fixed managed")
         if variable_count:
