@@ -44,7 +44,8 @@ If a change does not materially improve one of those visible outcomes, it should
 
 ### Still blocked or incomplete
 - This watchdog run's documented HA SSH fingerprint recheck now reports `overall_match=true`, so repo-versus-live exact-build drift is no longer the active release blocker.
-- Because that release-boundary mismatch is cleared, the next gap is screenshot-grade live proof that the current installed build really delivers the requested managed-versus-unmanaged workspace, promote/vet/review flow, and four-bucket IA outcome.
+- Live screenshot-grade proof still matters, but it is not the default next step while this document's own remaining-work map still lists unfinished repo-side `0.1.87` runway across Workstreams A-F.
+- The next gap is to finish or explicitly retire the highest remaining repo-side UI step in workstream order, then judge that exact candidate in live Home Assistant instead of elevating unchanged visual-validation bookkeeping ahead of product work.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
