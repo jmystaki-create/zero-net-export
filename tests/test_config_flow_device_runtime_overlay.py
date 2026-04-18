@@ -423,7 +423,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("power 1185 W", summary_lines[3])
         self.assertIn("action turn_on", summary_lines[3])
 
-    def test_overlay_runtime_device_details_carries_power_target_and_last_action(self) -> None:
+    def test_overlay_runtime_device_details_carries_power_target_last_action_and_active_runtime(self) -> None:
         module = _load_config_flow_module()
         devices = [
             {
@@ -449,6 +449,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                         "last_action_status": "throttled",
                         "current_power_w": 1800,
                         "current_target_power_w": 2200,
+                        "observed_active": True,
                     }
                 }
             )
@@ -459,6 +460,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(enriched[0]["current_power_w"], 1800)
         self.assertEqual(enriched[0]["current_target_power_w"], 2200)
         self.assertEqual(enriched[0]["last_action_status"], "throttled")
+        self.assertTrue(enriched[0]["observed_active"])
 
     def test_device_sort_key_surfaces_blocked_devices_before_healthy_plans(self) -> None:
         module = _load_config_flow_module()
@@ -721,6 +723,48 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "- Other managed devices:",
                 "- None",
             ],
+        )
+
+    def test_managed_snapshot_and_fleet_summary_surface_active_managed_runtime(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+
+        devices = [
+            {
+                "key": "pool",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "planned_action": "turn_on",
+                "observed_active": True,
+                "current_power_w": 1185,
+                "nominal_power_w": 1200,
+            },
+            {
+                "key": "ev",
+                "name": "EV charger",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "entity_id": "number.ev_limit",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "planned_action": "set_power",
+                "observed_active": True,
+                "current_power_w": 2200,
+                "nominal_power_w": 7000,
+            },
+        ]
+
+        self.assertEqual(
+            flow._managed_snapshot_text(devices),
+            "Managed now: 2 | enabled: 2 | usable: 2 | active load: 3385 W | active managed: 2 devices | fixed managed: 1 | variable managed: 1 | nominal: 8200 W | blocked first: none | next plan: EV charger",
+        )
+        self.assertEqual(
+            flow._fleet_summary_lines(devices)[0],
+            "- Fleet summary: 2 device(s), 2 enabled, 2 usable, 0 blocked, 2 planned action(s), active load 3385 W, 2 active managed devices, 1 fixed, 1 variable, 8200 W nominal controllable power",
         )
 
     def test_fleet_summary_lines_split_attention_first_from_other_managed_devices(self) -> None:

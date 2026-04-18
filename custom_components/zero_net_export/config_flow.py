@@ -199,6 +199,7 @@ def _overlay_runtime_device_details(
                     "last_action_status": runtime.get("last_action_status"),
                     "current_power_w": runtime.get("current_power_w"),
                     "current_target_power_w": runtime.get("current_target_power_w"),
+                    "observed_active": runtime.get("observed_active"),
                 }
             )
         enriched.append(merged)
@@ -789,6 +790,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             f"({device.get('kind', 'unknown')}, {state}, priority {priority}, nominal {nominal_power} W)"
         )
 
+    @staticmethod
+    def _managed_runtime_activity(devices: list[dict[str, Any]]) -> tuple[int, float]:
+        active_devices = [device for device in devices if device.get("observed_active") is True]
+        active_power_w = round(sum(float(device.get("current_power_w", 0) or 0) for device in active_devices), 1)
+        return len(active_devices), active_power_w
+
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
         if not devices:
             return ["- None"]
@@ -803,11 +810,21 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         usable_count = sum(1 for device in devices if device.get("usable") is True)
         blocked_count = sum(1 for device in devices if self._device_has_blocked_activity(device))
         planned_count = sum(1 for device in devices if self._active_planned_action(device))
+        active_count, active_power_w = self._managed_runtime_activity(devices)
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
+        fleet_summary = (
+            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {blocked_count} blocked, {planned_count} planned action(s)"
+        )
+        if active_count:
+            fleet_summary += (
+                f", active load {active_power_w:g} W, "
+                + ("1 active managed device" if active_count == 1 else f"{active_count} active managed devices")
+            )
+        fleet_summary += f", {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power"
         lines = [
-            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {blocked_count} blocked, {planned_count} planned action(s), {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power",
+            fleet_summary,
             "- Managed devices needing attention first:",
         ]
         if attention_devices:
@@ -883,6 +900,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
+        active_count, active_power_w = self._managed_runtime_activity(devices)
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         nominal_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
@@ -908,6 +926,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             f"enabled: {enabled_count}",
             f"usable: {usable_count}",
         ]
+        if active_count:
+            summary_parts.append(f"active load: {active_power_w:g} W")
+            summary_parts.append(
+                "active managed: 1 device" if active_count == 1 else f"active managed: {active_count} devices"
+            )
         if kind_known:
             summary_parts.append(f"fixed managed: {fixed_count}")
             if variable_count:
