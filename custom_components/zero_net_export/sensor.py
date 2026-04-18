@@ -96,7 +96,7 @@ SENSOR_DEFS = {
     "planned_power_delta_w": "Planned power delta",
     "variable_planned_power_delta_w": "Variable planned power delta",
     "fixed_planned_power_delta_w": "Fixed planned power delta",
-    "managed_fleet_overview": "Managed fleet overview",
+    "managed_fleet_overview": "Managed devices overview",
     "unmanaged_candidate_count": "Unmanaged candidate devices",
     "unmanaged_candidate_overview": "Unmanaged candidate overview",
     "top_unmanaged_candidate": "Top unmanaged candidate",

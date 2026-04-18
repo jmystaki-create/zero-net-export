@@ -122,6 +122,14 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Managed devices next step",
         )
 
+    def test_managed_overview_sensor_uses_managed_devices_label(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["managed_fleet_overview"],
+            "Managed devices overview",
+        )
+
     def test_fleet_workspace_sensors_are_primary_entities(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = SimpleNamespace(
@@ -132,7 +140,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         managed_overview = sensor_module.ZeroNetExportSensor(
             coordinator,
             "managed_fleet_overview",
-            "Managed fleet overview",
+            "Managed devices overview",
         )
         shortlist = sensor_module.ZeroNetExportSensor(
             coordinator,
@@ -178,7 +186,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         managed_overview = sensor_module.ZeroNetExportSensor(
             coordinator,
             "managed_fleet_overview",
-            "Managed fleet overview",
+            "Managed devices overview",
         )
         managed_overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
         summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool pump")
@@ -279,7 +287,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
             data=SimpleNamespace(device_details={}),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful")
@@ -391,7 +399,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 }
             ),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
@@ -421,7 +429,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 }
             ),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
@@ -457,7 +465,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 }
             ),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
@@ -484,7 +492,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
             data=SimpleNamespace(device_details={}),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
@@ -526,7 +534,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 }
             ),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(
@@ -666,7 +674,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 validation_details={},
             ),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(
             states=SimpleNamespace(async_all=lambda: [SimpleNamespace(entity_id="switch.ac_outlet_2")])
         )
@@ -724,7 +732,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                 validation_details={},
             ),
         )
-        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(
             states=SimpleNamespace(async_all=lambda: [SimpleNamespace(entity_id="switch.verbose_top")])
         )
