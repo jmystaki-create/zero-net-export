@@ -7,10 +7,10 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: finish or explicitly retire the next unfinished `0.1.87` repo-side UI workstream step in `docs/UI_IMPLEMENTATION_MAP.md` before elevating another unchanged deploy/fingerprint loop; if the repo-side cut line later becomes release-ready, then ask James directly for explicit deploy/restart approval
+next_action: finish or explicitly retire the next unfinished `0.1.87` repo-side UI workstream step in `docs/UI_IMPLEMENTATION_MAP.md` before elevating the same unchanged live fingerprint mismatch again; if the repo-side cut line later becomes release-ready, then ask James directly for explicit deploy/restart approval
 
 # Current blocker or none
-blocker: live Home Assistant is still drifted from current repo HEAD `74ae729` (`button.py`, `config_flow.py`, `manifest.json`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json` do not match, and the installed manifest is `0.1.87` while repo stays on the unfrozen `0.1.86` correction line), but that unchanged release boundary should not outrank the remaining mapped `0.1.87` repo-side UI runway
+blocker: none on the repo side; documented HA fingerprint recheck in this run still shows the live install differs from repo component commit `507a662`, but that unchanged deploy boundary should stay secondary while mapped `0.1.87` UI runway remains
 
 # Exact user action needed or none
 user_action: none until the current repo-side `0.1.87` cut line is coherent enough to justify an explicit deploy/restart approval ask
@@ -19,4 +19,4 @@ user_action: none until the current repo-side `0.1.87` cut line is coherent enou
 notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, and distinguish the live `0.1.86` correction line from the next `0.1.87` UI rollout target
 
 # Last time this file materially changed
-last_modified: 2026-04-19 04:30
+last_modified: 2026-04-19 04:48
