@@ -1193,6 +1193,18 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Start with AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", next_step)
         self.assertNotIn("switch.ac_outlet_2", next_step)
 
+    def test_device_next_step_uses_promotion_wording_when_no_candidates_exist_yet(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": None}})
+
+        next_step = flow._device_next_step(devices=[], issues=[], candidates=[])
+
+        self.assertEqual(
+            next_step,
+            "Choose Add fixed load device or Add variable load device to start the first managed-device promotion flow.",
+        )
+
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())

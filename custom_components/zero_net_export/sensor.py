@@ -491,7 +491,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         f"Open {DEVICES_CONFIGURE_PATH} and review {review_candidate_name} first from the unmanaged list"
                     )
                 return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and tag {top_candidate_name or 'the top candidate'} into the fleet"
+                    f"Open {DEVICES_CONFIGURE_PATH} and promote {top_candidate_name or 'the top candidate'} into Managed Devices"
                 )
             if counts["blocked_count"]:
                 target = f" starting with {first_blocked_name}" if first_blocked_name else ""
