@@ -203,12 +203,13 @@ class CommandCenterSummaryTests(unittest.TestCase):
             usable_device_count=1,
             fixed_device_count=1,
             controllable_nominal_power_w=1200.0,
+            active_controlled_power_w=1200.0,
             blocked_planned_action_count=1,
             mode="monitoring",
             health_summary="Healthy",
             diagnostic_summary="Healthy",
             device_details={
-                "pool_pump": {"entity_id": "switch.pool_pump"},
+                "pool_pump": {"entity_id": "switch.pool_pump", "observed_active": True, "current_power_w": 1200.0},
             },
         )
         hass = SimpleNamespace(
@@ -242,6 +243,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review first", summary["fleet_activity_summary"])
         self.assertIn("warn generic outlet label", summary["fleet_activity_summary"])
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
+        self.assertIn("active load 1200 W", summary["fleet_activity_summary"])
+        self.assertIn("1 active managed device", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged ready", summary["device_status"])
         self.assertIn(
@@ -290,6 +293,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             usable_device_count=1,
             fixed_device_count=1,
             controllable_nominal_power_w=1200.0,
+            active_controlled_power_w=1185.0,
             blocked_planned_action_count=1,
             mode="monitoring",
             health_summary="Healthy",
@@ -299,6 +303,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
                     "name": "Pool Pump",
                     "entity_id": "switch.pool_pump",
                     "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 1185.0,
                     "planned_action": "on",
                     "action_executable": False,
                 },
@@ -310,6 +316,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertIn("blocked Pool Pump", summary["fleet_activity_summary"])
         self.assertIn("action on", summary["fleet_activity_summary"])
+        self.assertIn("active load 1185 W", summary["fleet_activity_summary"])
+        self.assertIn("1 active managed device", summary["fleet_activity_summary"])
 
     def test_command_center_summary_keeps_review_first_hint_when_review_target_differs_from_top_candidate(self) -> None:
         native_support = _load_native_support_module()
@@ -1057,6 +1065,88 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(summary["headline_decision"], "Near target, holding current managed load.")
+
+
+    def test_command_center_summary_surfaces_active_managed_load_and_count_in_fleet_activity(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            reason="Monitoring export drift before acting.",
+            control_reason="Holding current load.",
+            status="Active",
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=2,
+            fixed_device_count=1,
+            variable_device_count=1,
+            controllable_nominal_power_w=3385.0,
+            active_controlled_power_w=2105.0,
+            blocked_planned_action_count=0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 1185.0,
+                    "planned_action": "hold",
+                    "nominal_power_w": 1185.0,
+                },
+                "heated_floor": {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920.0,
+                    "current_target_power_w": 920.0,
+                    "planned_action": "hold",
+                    "nominal_power_w": 2200.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("active load 2105 W", summary["fleet_activity_summary"])
+        self.assertIn("2 active managed devices", summary["fleet_activity_summary"])
+        self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
+        self.assertIn("1 variable managed", summary["fleet_activity_summary"])
+        self.assertIn("3385 W nominal", summary["fleet_activity_summary"])
 
 
 if __name__ == "__main__":

@@ -309,9 +309,11 @@ def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -
         "usable_count": sum(1 for detail in devices if detail.get("usable") is True),
         "blocked_count": sum(1 for detail in devices if detail.get("usable") is False),
         "planned_count": sum(1 for detail in devices if str(detail.get("planned_action") or "") not in {"", "hold"}),
+        "active_count": sum(1 for detail in devices if detail.get("observed_active") is True),
         "fixed_count": sum(1 for detail in devices if detail.get("kind") == "fixed"),
         "variable_count": sum(1 for detail in devices if detail.get("kind") == "variable"),
         "nominal_power_w": int(sum(float(detail.get("nominal_power_w", 0) or 0) for detail in devices)),
+        "active_power_w": round(sum(float(detail.get("current_power_w", 0) or 0) for detail in devices if detail.get("observed_active") is True), 1),
     }
 
 
@@ -431,6 +433,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if counts["planned_count"]:
                 summary_parts.append(
                     f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
+                )
+            if counts["active_power_w"] > 0:
+                summary_parts.append(f"active load {counts['active_power_w']:g} W")
+                summary_parts.append(
+                    "1 active managed device"
+                    if counts["active_count"] == 1
+                    else f"{counts['active_count']} active managed devices"
                 )
             summary_parts.extend(
                 [

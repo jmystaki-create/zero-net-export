@@ -725,6 +725,21 @@ def _managed_runtime_mix(state: Any) -> tuple[bool, int, int, int]:
     return kind_known, fixed_count, variable_count, nominal_power
 
 
+def _managed_runtime_activity(state: Any) -> tuple[int, float]:
+    if state is None:
+        return 0, 0.0
+    device_details = list((getattr(state, "device_details", {}) or {}).values())
+    active_count = sum(1 for detail in device_details if detail.get("observed_active") is True)
+    active_power_w = float(getattr(state, "active_controlled_power_w", 0) or 0)
+    if active_power_w <= 0 and active_count:
+        active_power_w = sum(
+            float(detail.get("current_power_w", 0) or 0)
+            for detail in device_details
+            if detail.get("observed_active") is True
+        )
+    return active_count, round(active_power_w, 1)
+
+
 def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
     state_stale_data = bool(getattr(state, "stale_data", False)) if state is not None else False
     state_usable_device_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
@@ -1339,6 +1354,7 @@ def _build_command_center_fleet_activity_summary(
     enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
     kind_known, fixed_managed_count, variable_managed_count, nominal_power_w = _managed_runtime_mix(state)
+    active_managed_count, active_managed_power_w = _managed_runtime_activity(state)
     first_blocked_device = _first_runtime_device_detail(
         state,
         predicate=_runtime_device_has_blocked_activity,
@@ -1386,6 +1402,13 @@ def _build_command_center_fleet_activity_summary(
     if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
         summary_parts.append(f"plan {_command_center_runtime_device_preview(first_planned_device)}")
     if managed_count > 0:
+        if active_managed_power_w > 0:
+            summary_parts.append(f"active load {active_managed_power_w:g} W")
+            summary_parts.append(
+                "1 active managed device"
+                if active_managed_count == 1
+                else f"{active_managed_count} active managed devices"
+            )
         summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
         if kind_known:
             summary_parts.append(f"{fixed_managed_count} fixed managed")

@@ -499,6 +499,8 @@ class SensorEntityCategoryTests(unittest.TestCase):
                         "kind": "fixed",
                         "usable": False,
                         "effective_enabled": True,
+                        "observed_active": True,
+                        "current_power_w": 1185,
                         "planned_action": "turn_on",
                         "nominal_power_w": 1185,
                     },
@@ -515,10 +517,10 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(
-            overview.native_value,
-            "2 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | blocked Pool pump | plan Pool pump | 2 enabled | 1 usable | 1 fixed managed | 1 variable managed | 1185 W nominal",
-        )
+        self.assertIn("blocked Pool pump", overview.native_value)
+        self.assertIn("plan Pool pump", overview.native_value)
+        self.assertIn("active load 1185 W", overview.native_value)
+        self.assertIn("1 active managed device", overview.native_value)
         self.assertLess(
             overview.native_value.index("blocked Pool pump"),
             overview.native_value.index("2 enabled"),
@@ -542,6 +544,8 @@ class SensorEntityCategoryTests(unittest.TestCase):
                         "kind": "fixed",
                         "usable": True,
                         "effective_enabled": True,
+                        "observed_active": True,
+                        "current_power_w": 730,
                         "planned_action": "hold",
                         "nominal_power_w": 1185,
                     },
@@ -553,7 +557,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | blocked 1 | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | blocked 1 | active load 730 W | 1 active managed device | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
         self.assertEqual(overview.extra_state_attributes["blocked_activity_count"], 1)
         self.assertEqual(overview.extra_state_attributes["blocked_planned_action_count"], 1)
@@ -883,6 +887,46 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertLessEqual(len(value), 255)
         self.assertTrue(value.endswith("..."))
         self.assertIn("2 managed | 2 unmanaged", value)
+
+
+    def test_managed_fleet_overview_surfaces_active_managed_load_and_count(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "observed_active": True,
+                        "current_power_w": 1185,
+                        "planned_action": "hold",
+                        "nominal_power_w": 1185,
+                    },
+                    "heater": {
+                        "name": "Heated floor",
+                        "kind": "variable",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "observed_active": True,
+                        "current_power_w": 920,
+                        "planned_action": "hold",
+                        "nominal_power_w": 2200,
+                    },
+                }
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            overview.native_value,
+            "2 managed | no unmanaged candidates | active load 2105 W | 2 active managed devices | 2 enabled | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
+        )
 
 
 if __name__ == "__main__":
