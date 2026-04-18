@@ -233,7 +233,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "recommended_reason": "Managed fleet work is the current priority.",
                 "device_next_step": "Promote the next candidate.",
             },
-            {"name": "Hot water", "entity_id": "switch.hot_water", "kind": "fixed", "domain": "switch"},
+            [{"name": "Hot water", "entity_id": "switch.hot_water", "kind": "fixed", "domain": "switch"}],
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
@@ -241,6 +241,29 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Choose Add fixed load device.", handoff)
         self.assertIn("- In Pick unmanaged candidate, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
+
+    def test_workspace_handoff_prefers_first_review_candidate_over_top_rank(self) -> None:
+        button_module = _load_button_module()
+
+        handoff = button_module._managed_devices_workspace_handoff(
+            {
+                "recommended_section": button_module.DEVICES_SECTION_LABEL,
+                "recommended_path": "devices path",
+                "recommended_reason": "Managed fleet work is the current priority.",
+                "device_next_step": "Promote the next candidate.",
+            },
+            [
+                {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": "fixed", "domain": "switch"},
+                {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed", "domain": "input_boolean"},
+            ],
+        )
+
+        self.assertIn("- Choose Add fixed load device.", handoff)
+        self.assertIn(
+            "- In Pick unmanaged candidate, select Virtual load (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power..",
+            handoff,
+        )
+        self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Pick unmanaged candidate" in line))
 
     def test_primary_operator_buttons_stay_out_of_diagnostics(self) -> None:
         button_module = _load_button_module()

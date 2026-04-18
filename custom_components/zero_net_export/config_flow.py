@@ -2090,17 +2090,22 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 return device_blocker_step
 
         top_candidate = candidates[0] if candidates else None
+        review_candidate = next(
+            (candidate for candidate in (candidates or []) if candidate_needs_review(assess_candidate(candidate))),
+            None,
+        )
+        primary_candidate = review_candidate or top_candidate
         if issues:
             return "Repair the managed-device issues first, then return here to review enablement or add another load."
-        if not devices and top_candidate:
+        if not devices and primary_candidate:
             return (
-                f"Start with {self._top_candidate_focus_text(top_candidate)} by choosing the matching add action below, then review the candidate and save it into the fleet."
+                f"Start with {self._top_candidate_focus_text(primary_candidate)} by choosing the matching add action below, then review the candidate and save it into the fleet."
             )
         if not devices:
             return "Choose Add fixed load device or Add variable load device to start the first managed-device promotion flow."
-        if top_candidate:
+        if primary_candidate:
             return (
-                f"Review the current fleet, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(top_candidate)}."
+                f"Review the current fleet, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."
             )
         return "Use Review fleet to stage enablement, or edit an existing device if the current fleet still needs tuning."
 

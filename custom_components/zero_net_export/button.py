@@ -271,7 +271,7 @@ def _managed_devices_blocker_first_lines(command_center: dict) -> list[str]:
     return lines
 
 
-def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict | None) -> list[str]:
+def _managed_devices_workspace_handoff(command_center: dict, candidates: list[dict] | None) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
     recommended_reason = str(command_center.get("recommended_reason") or "").strip()
@@ -289,14 +289,24 @@ def _managed_devices_workspace_handoff(command_center: dict, top_candidate: dict
         lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for deeper per-device review after the main fleet step is clear.")
         return lines
 
+    candidate_list = candidates or []
+    primary_candidate = next(
+        (
+            candidate
+            for candidate in candidate_list
+            if str((assess_candidate(candidate) or {}).get("confidence") or "medium") != "high"
+        ),
+        None,
+    ) or (candidate_list[0] if candidate_list else None)
+
     lines = ["Promotion handoff:"]
-    if top_candidate:
-        top_add_label = "fixed load device" if top_candidate["kind"] == "fixed" else "variable load device"
+    if primary_candidate:
+        top_add_label = "fixed load device" if primary_candidate["kind"] == "fixed" else "variable load device"
         lines.extend(
             [
                 f"- Open {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace.",
                 f"- Choose Add {top_add_label}.",
-                f"- In Pick unmanaged candidate, select {build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)}.",
+                f"- In Pick unmanaged candidate, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
                 f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
             ]
@@ -506,7 +516,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'top_candidate_fit': top_candidate_fit,
             'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
             'devices': ordered[:12],
-            'promotion_handoff': "\n".join(_managed_devices_workspace_handoff(command_center, top_candidate)),
+            'promotion_handoff': "\n".join(_managed_devices_workspace_handoff(command_center, candidates)),
         }
 
     async def async_press(self) -> None:
@@ -554,7 +564,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 or ['- No unmanaged candidate devices discovered right now.']
             ),
             '',
-            *_managed_devices_workspace_handoff(command_center, top_candidate),
+            *_managed_devices_workspace_handoff(command_center, candidates),
         ]
         persistent_notification.async_create(
             self.hass,
@@ -618,7 +628,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
             "devices": ordered[:12],
-            "promotion_handoff": "\n".join(_managed_devices_workspace_handoff(command_center, top_candidate)),
+            "promotion_handoff": "\n".join(_managed_devices_workspace_handoff(command_center, candidates)),
         }
 
     async def async_press(self) -> None:
@@ -667,7 +677,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 or ["- No unmanaged candidate devices discovered right now."]
             ),
             "",
-            *_managed_devices_workspace_handoff(command_center, top_candidate),
+            *_managed_devices_workspace_handoff(command_center, candidates),
             "",
             "Use each managed-device review button on the Zero Net Export device page for a deeper per-device snapshot, plus the paired status sensors and reset-override buttons.",
         ]

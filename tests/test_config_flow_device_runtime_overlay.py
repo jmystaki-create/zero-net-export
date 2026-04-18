@@ -1218,6 +1218,37 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Start with AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", next_step)
         self.assertNotIn("switch.ac_outlet_2", next_step)
 
+    def test_device_next_step_prefers_first_review_candidate_when_it_differs_from_top_rank(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": None}})
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "input_boolean.virtual_load" else "high",
+            "warnings": ["Helper entities may not reflect a controllable appliance load."]
+            if candidate.get("entity_id") == "input_boolean.virtual_load"
+            else [],
+        }
+        flow._top_candidate_focus_text = lambda candidate: (
+            "Virtual load (fixed) | review first | key warning: Helper entities may not reflect a controllable appliance load."
+            if candidate["name"] == "Virtual load"
+            else "Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings"
+        )
+
+        next_step = flow._device_next_step(
+            devices=[],
+            issues=[],
+            candidates=[
+                {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": module.DEVICE_KIND_FIXED},
+                {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": module.DEVICE_KIND_FIXED},
+            ],
+        )
+
+        self.assertIn(
+            "Start with Virtual load (fixed) | review first | key warning: Helper entities may not reflect a controllable appliance load.",
+            next_step,
+        )
+        self.assertNotIn("Dishwasher Power", next_step)
+
     def test_device_next_step_uses_promotion_wording_when_no_candidates_exist_yet(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
