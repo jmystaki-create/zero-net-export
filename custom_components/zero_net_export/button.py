@@ -361,11 +361,49 @@ def _format_timestamp(value: object) -> str:
     return iso_value.replace("+00:00", "Z")
 
 
-def _managed_devices_blocker_first_lines(command_center: dict) -> list[str]:
+def _managed_devices_post_blocker_step(
+    command_center: dict,
+    candidates: list[dict] | None,
+    *,
+    has_managed_devices: bool,
+) -> str:
+    next_step = str(command_center.get("device_next_step") or command_center.get("next_action_summary") or "").strip()
+    recommended_path = str(command_center.get("recommended_path") or "").strip()
+    blocker_owned_paths = (SOURCES_CONFIGURE_PATH, POLICY_CONFIGURE_PATH, SUPPORT_CONFIGURE_PATH)
+
+    if next_step and not (
+        (recommended_path and recommended_path in next_step)
+        or any(path in next_step for path in blocker_owned_paths)
+    ):
+        return next_step
+
+    top_candidate, _, review_candidate, _ = _managed_devices_review_focus(candidates)
+    primary_candidate = review_candidate or top_candidate
+    if primary_candidate:
+        return (
+            f"Open {DEVICES_CONFIGURE_PATH} and review "
+            f"{build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)} first."
+        )
+    if has_managed_devices:
+        return f"Open {DEVICES_CONFIGURE_PATH} and review the current managed fleet."
+    return f"Open {DEVICES_CONFIGURE_PATH} and check for the next unmanaged promotion candidate."
+
+
+
+def _managed_devices_blocker_first_lines(
+    command_center: dict,
+    candidates: list[dict] | None,
+    *,
+    has_managed_devices: bool,
+) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
     recommended_reason = str(command_center.get("recommended_reason") or "").strip()
-    next_step = str(command_center.get("device_next_step") or command_center.get("next_action_summary") or "").strip()
+    next_step = _managed_devices_post_blocker_step(
+        command_center,
+        candidates,
+        has_managed_devices=has_managed_devices,
+    )
 
     if not recommended_section or recommended_section == DEVICES_SECTION_LABEL:
         return []
@@ -392,11 +430,20 @@ def _managed_devices_review_focus(candidates: list[dict] | None) -> tuple[dict |
     )
 
 
-def _managed_devices_workspace_handoff(command_center: dict, candidates: list[dict] | None) -> list[str]:
+def _managed_devices_workspace_handoff(
+    command_center: dict,
+    candidates: list[dict] | None,
+    *,
+    has_managed_devices: bool,
+) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
     recommended_reason = str(command_center.get("recommended_reason") or "").strip()
-    next_step = str(command_center.get("device_next_step") or command_center.get("next_action_summary") or "").strip()
+    next_step = _managed_devices_post_blocker_step(
+        command_center,
+        candidates,
+        has_managed_devices=has_managed_devices,
+    )
 
     if recommended_section and recommended_section != DEVICES_SECTION_LABEL:
         lines = ["Return after blocker repair:"]
@@ -440,13 +487,18 @@ def _build_managed_device_detail_lines(
     command_center: dict,
     managed_snapshot: str,
     unmanaged_snapshot: str,
+    candidates: list[dict] | None,
     top_candidate: dict | None,
     review_candidate: dict | None,
     review_candidate_fit: dict | None,
 ) -> list[str]:
     entity_id = str(detail.get("entity_id") or "unknown entity")
     device_label = str(detail.get("name") or entity_id)
-    blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
+    blocker_first_lines = _managed_devices_blocker_first_lines(
+        command_center,
+        candidates,
+        has_managed_devices=bool(managed_snapshot and not managed_snapshot.startswith("0 managed")),
+    )
     kind = str(detail.get("kind") or "unknown")
     requested_target_power = detail.get("planned_requested_power_w")
     if requested_target_power is None:
@@ -625,7 +677,13 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'recommended_section': command_center.get('recommended_section'),
             'recommended_path': command_center.get('recommended_path'),
             'recommended_reason': command_center.get('recommended_reason'),
-            'blocker_first': "\n".join(_managed_devices_blocker_first_lines(command_center)),
+            'blocker_first': "\n".join(
+                _managed_devices_blocker_first_lines(
+                    command_center,
+                    candidates,
+                    has_managed_devices=bool(managed),
+                )
+            ),
             'managed_count': len(managed),
             'enabled_count': sum(
                 1 for detail in managed if detail.get('effective_enabled', detail.get('enabled', True))
@@ -649,7 +707,13 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'first_review_candidate_fit': review_candidate_fit,
             'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
             'devices': ordered[:12],
-            'promotion_handoff': "\n".join(_managed_devices_workspace_handoff(command_center, candidates)),
+            'promotion_handoff': "\n".join(
+                _managed_devices_workspace_handoff(
+                    command_center,
+                    candidates,
+                    has_managed_devices=bool(managed),
+                )
+            ),
         }
 
     async def async_press(self) -> None:
@@ -659,7 +723,11 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
-        blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
+        blocker_first_lines = _managed_devices_blocker_first_lines(
+            command_center,
+            candidates,
+            has_managed_devices=bool(ordered),
+        )
         lines = [
             'Zero Net Export managed devices workspace',
             '',
@@ -709,7 +777,11 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 or ['- No unmanaged candidate devices discovered right now.']
             ),
             '',
-            *_managed_devices_workspace_handoff(command_center, candidates),
+            *_managed_devices_workspace_handoff(
+                command_center,
+                candidates,
+                has_managed_devices=bool(ordered),
+            ),
         ]
         persistent_notification.async_create(
             self.hass,
@@ -741,7 +813,13 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
             "recommended_reason": command_center.get("recommended_reason"),
-            "blocker_first": "\n".join(_managed_devices_blocker_first_lines(command_center)),
+            "blocker_first": "\n".join(
+                _managed_devices_blocker_first_lines(
+                    command_center,
+                    candidates,
+                    has_managed_devices=bool(device_details),
+                )
+            ),
             "managed_count": len(device_details),
             "enabled_count": sum(
                 1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))
@@ -767,7 +845,13 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
             "devices": ordered[:12],
-            "promotion_handoff": "\n".join(_managed_devices_workspace_handoff(command_center, candidates)),
+            "promotion_handoff": "\n".join(
+                _managed_devices_workspace_handoff(
+                    command_center,
+                    candidates,
+                    has_managed_devices=bool(device_details),
+                )
+            ),
         }
 
     async def async_press(self) -> None:
@@ -777,7 +861,11 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         candidates = self._unmanaged_candidates()
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
-        blocker_first_lines = _managed_devices_blocker_first_lines(command_center)
+        blocker_first_lines = _managed_devices_blocker_first_lines(
+            command_center,
+            candidates,
+            has_managed_devices=bool(ordered),
+        )
         lines = [
             "Zero Net Export managed devices review",
             "",
@@ -829,7 +917,11 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 or ["- No unmanaged candidate devices discovered right now."]
             ),
             "",
-            *_managed_devices_workspace_handoff(command_center, candidates),
+            *_managed_devices_workspace_handoff(
+                command_center,
+                candidates,
+                has_managed_devices=bool(ordered),
+            ),
             "",
             "Use each managed-device review button on the Zero Net Export device page for a deeper per-device snapshot, plus the paired status sensors and reset-override buttons.",
         ]
@@ -868,7 +960,13 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
             "recommended_reason": command_center.get("recommended_reason"),
-            "blocker_first": "\n".join(_managed_devices_blocker_first_lines(command_center)),
+            "blocker_first": "\n".join(
+                _managed_devices_blocker_first_lines(
+                    command_center,
+                    candidates,
+                    has_managed_devices=bool(ordered),
+                )
+            ),
             "managed_snapshot": _managed_snapshot_summary(ordered, include_planned_count=True),
             "unmanaged_snapshot": _unmanaged_snapshot_summary(candidates),
             "top_unmanaged_candidate": top_candidate,
@@ -894,6 +992,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
                     command_center=command_center,
                     managed_snapshot=_managed_snapshot_summary(ordered, include_planned_count=True),
                     unmanaged_snapshot=_unmanaged_snapshot_summary(candidates),
+                    candidates=candidates,
                     top_candidate=top_candidate,
                     review_candidate=review_candidate,
                     review_candidate_fit=review_candidate_fit,

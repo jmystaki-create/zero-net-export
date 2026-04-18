@@ -243,6 +243,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "device_next_step": "Promote the next candidate.",
             },
             [{"name": "Hot water", "entity_id": "switch.hot_water", "kind": "fixed", "domain": "switch"}],
+            has_managed_devices=False,
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
@@ -265,6 +266,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": "fixed", "domain": "switch"},
                 {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed", "domain": "input_boolean"},
             ],
+            has_managed_devices=False,
         )
 
         self.assertIn("- Choose Add fixed load device.", handoff)
@@ -680,6 +682,47 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
         self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
         self.assertIn("- Why: Mapped source blockers remain.", attrs["promotion_handoff"])
+
+    def test_blocker_handoff_after_repair_uses_real_fleet_step_not_blocker_step(self) -> None:
+        button_module = _load_button_module()
+        button_module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": "Sensors",
+            "recommended_path": "sources path",
+            "recommended_reason": "Mapped source blockers remain.",
+            "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
+            "device_next_step": "Open sources path and finish source repair before promoting more devices.",
+        }
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    ),
+                ]
+            )
+        )
+
+        attrs = button.extra_state_attributes
+
+        self.assertIn(
+            "- Next fleet step after repair: Open devices path and review Hot water (fixed) | likely useful | key warning: No immediate warnings first.",
+            attrs["promotion_handoff"],
+        )
+        self.assertIn(
+            "- After repair: Open devices path and review Hot water (fixed) | likely useful | key warning: No immediate warnings first.",
+            attrs["blocker_first"],
+        )
+        self.assertNotIn(
+            "- Next fleet step after repair: Open sources path and finish source repair before promoting more devices.",
+            attrs["promotion_handoff"],
+        )
 
     def test_empty_planned_action_does_not_create_a_fake_active_plan_snapshot(self) -> None:
         button_module = _load_button_module()
