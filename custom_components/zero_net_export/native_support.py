@@ -1218,6 +1218,15 @@ def _command_center_candidate_focus_text(candidate: dict[str, Any] | None) -> st
     return f"{focus} | {review_hint}" if review_hint else focus
 
 
+def _primary_candidate_focus(candidates: list[dict[str, Any]]) -> tuple[dict[str, Any] | None, str]:
+    review_candidate = next(
+        (item for item in candidates if candidate_needs_review(assess_candidate(item))),
+        None,
+    )
+    primary_candidate = review_candidate or (candidates[0] if candidates else None)
+    return primary_candidate, _command_center_candidate_focus_text(primary_candidate)
+
+
 def _build_command_center_fleet_activity_summary(
     state: Any,
     *,
@@ -1323,6 +1332,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
     review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
     review_candidate_hint = build_candidate_review_hint(review_candidate, include_warning=False) if review_candidate else ""
+    _, primary_candidate_focus = _primary_candidate_focus(candidates)
     candidate_count = len(candidates)
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
@@ -1395,7 +1405,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             if top_candidate_preview:
                 device_status += f"; top {top_candidate_preview}"
         device_next_step = (
-            f"Open {DEVICES_CONFIGURE_PATH} and review {top_candidate_focus} first from the managed-device flow."
+            f"Open {DEVICES_CONFIGURE_PATH} and review {primary_candidate_focus} first from the managed-device flow."
         )
 
     recommendation = build_native_setup_recommendation(
@@ -1440,7 +1450,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif not has_managed_devices:
         if top_candidate_preview:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} and review {top_candidate_focus} first so Zero Net Export has a credible managed load."
+                f"Open {DEVICES_CONFIGURE_PATH} and review {primary_candidate_focus} first so Zero Net Export has a credible managed load."
             )
         else:
             next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."

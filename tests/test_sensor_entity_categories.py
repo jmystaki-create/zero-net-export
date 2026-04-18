@@ -578,7 +578,27 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path and tag AC Outlet 2 into the fleet",
+            "Open devices path and review AC Outlet 2 first from the unmanaged list",
+        )
+
+    def test_fleet_console_next_step_uses_review_first_candidate_before_promotion(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": "fixed"},
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+        ]
+        sensor_module.first_review_candidate = lambda candidates: candidates[1]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open devices path and review Virtual load first from the unmanaged list",
         )
 
     def test_fleet_console_next_step_prioritizes_source_repair_before_fleet_work(self) -> None:

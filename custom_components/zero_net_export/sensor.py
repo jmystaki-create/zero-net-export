@@ -14,6 +14,7 @@ from .candidate_utils import (
     build_candidate_review_hint,
     candidate_needs_review,
     discover_candidate_devices,
+    first_review_candidate,
 )
 from .const import DOMAIN, INTEGRATION_VERSION
 from .entity import ZeroNetExportEntity
@@ -468,7 +469,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
-            top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
+            top_candidate = candidates[0] if candidates else None
+            top_candidate_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "").strip()
+            review_candidate = first_review_candidate(candidates or [])
+            review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
                 predicate=lambda detail: detail.get("usable") is False,
@@ -482,6 +486,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     f"Open {SOURCES_CONFIGURE_PATH}, repair blocking source roles first, then return to {DEVICES_CONFIGURE_PATH}"
                 )
             if counts["managed_count"] == 0 and candidates:
+                if review_candidate_name:
+                    return _truncate_sensor_state(
+                        f"Open {DEVICES_CONFIGURE_PATH} and review {review_candidate_name} first from the unmanaged list"
+                    )
                 return _truncate_sensor_state(
                     f"Open {DEVICES_CONFIGURE_PATH} and tag {top_candidate_name or 'the top candidate'} into the fleet"
                 )
@@ -496,6 +504,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan{target} before changing the fleet"
                 )
             if candidates:
+                if review_candidate_name:
+                    return _truncate_sensor_state(
+                        f"Review unmanaged candidates, starting with {review_candidate_name}, from {DEVICES_CONFIGURE_PATH}"
+                    )
                 return _truncate_sensor_state(
                     f"Review unmanaged candidates, then promote {top_candidate_name or 'the next controllable device'} from {DEVICES_CONFIGURE_PATH}"
                 )
