@@ -89,15 +89,18 @@ class CleanLegacyDiscoveryArtifactsTests(unittest.TestCase):
             component_pycache_dir = live_component / "__pycache__"
             in_component_backup_dir = live_component / "backup_20260419_0009"
             in_component_backup_file = live_component / "backup_20260419_0009.py"
+            legacy_backup_file = live_component / "backup.py"
             live_component.mkdir(parents=True, exist_ok=True)
             backup_dir.mkdir(parents=True, exist_ok=True)
             other_backup_dir.mkdir(parents=True, exist_ok=True)
             unrelated_backup.mkdir(parents=True, exist_ok=True)
             in_component_backup_dir.mkdir(parents=True, exist_ok=True)
             in_component_backup_file.write_text("# legacy", encoding="utf-8")
+            legacy_backup_file.write_text("# stale backup module", encoding="utf-8")
             pycache_dir.mkdir(parents=True, exist_ok=True)
             component_pycache_dir.mkdir(parents=True, exist_ok=True)
             (pycache_dir / "zero_net_export.backup_openclaw_20260415_220427.cpython-313.pyc").write_bytes(b"legacy")
+            (component_pycache_dir / "backup.cpython-313.pyc").write_bytes(b"legacy")
             (component_pycache_dir / "backup_20260419_0009.cpython-313.pyc").write_bytes(b"legacy")
             (pycache_dir / "another_component.cpython-313.pyc").write_bytes(b"keep")
 
@@ -109,12 +112,13 @@ class CleanLegacyDiscoveryArtifactsTests(unittest.TestCase):
             )
             self.assertEqual(
                 payload["legacy_component_child_paths"],
-                [str(in_component_backup_dir), str(in_component_backup_file)],
+                [str(legacy_backup_file), str(in_component_backup_dir), str(in_component_backup_file)],
             )
             self.assertEqual(
                 payload["stale_bytecode_paths"],
                 [
                     str(pycache_dir / "zero_net_export.backup_openclaw_20260415_220427.cpython-313.pyc"),
+                    str(component_pycache_dir / "backup.cpython-313.pyc"),
                     str(component_pycache_dir / "backup_20260419_0009.cpython-313.pyc"),
                 ],
             )
@@ -126,18 +130,22 @@ class CleanLegacyDiscoveryArtifactsTests(unittest.TestCase):
             backup_dir = custom_components_dir / "zero_net_export.backup_openclaw_20260415_220427"
             in_component_backup_dir = live_component / "backup_20260419_0009"
             in_component_backup_file = live_component / "backup_20260419_0009.py"
+            legacy_backup_file = live_component / "backup.py"
             pycache_dir = custom_components_dir / "__pycache__"
             component_pycache_dir = live_component / "__pycache__"
             live_component.mkdir(parents=True, exist_ok=True)
             backup_dir.mkdir(parents=True, exist_ok=True)
             in_component_backup_dir.mkdir(parents=True, exist_ok=True)
             in_component_backup_file.write_text("# legacy", encoding="utf-8")
+            legacy_backup_file.write_text("# stale backup module", encoding="utf-8")
             pycache_dir.mkdir(parents=True, exist_ok=True)
             component_pycache_dir.mkdir(parents=True, exist_ok=True)
             stale_bytecode = pycache_dir / "zero_net_export.backup_openclaw_20260415_220427.cpython-313.pyc"
+            backup_module_bytecode = component_pycache_dir / "backup.cpython-313.pyc"
             nested_stale_bytecode = component_pycache_dir / "backup_20260419_0009.cpython-313.pyc"
             unrelated_bytecode = pycache_dir / "another_component.cpython-313.pyc"
             stale_bytecode.write_bytes(b"legacy")
+            backup_module_bytecode.write_bytes(b"legacy")
             nested_stale_bytecode.write_bytes(b"legacy")
             unrelated_bytecode.write_bytes(b"keep")
 
@@ -146,16 +154,18 @@ class CleanLegacyDiscoveryArtifactsTests(unittest.TestCase):
             self.assertEqual(payload["removed_backup_paths"], [str(backup_dir)])
             self.assertEqual(
                 payload["removed_component_child_paths"],
-                [str(in_component_backup_dir), str(in_component_backup_file)],
+                [str(legacy_backup_file), str(in_component_backup_dir), str(in_component_backup_file)],
             )
             self.assertEqual(
                 payload["removed_stale_bytecode_paths"],
-                [str(stale_bytecode), str(nested_stale_bytecode)],
+                [str(stale_bytecode), str(backup_module_bytecode), str(nested_stale_bytecode)],
             )
             self.assertFalse(backup_dir.exists())
             self.assertFalse(in_component_backup_dir.exists())
             self.assertFalse(in_component_backup_file.exists())
+            self.assertFalse(legacy_backup_file.exists())
             self.assertFalse(stale_bytecode.exists())
+            self.assertFalse(backup_module_bytecode.exists())
             self.assertFalse(nested_stale_bytecode.exists())
             self.assertTrue(live_component.exists())
             self.assertTrue(unrelated_bytecode.exists())

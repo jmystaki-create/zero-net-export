@@ -14,6 +14,7 @@ LEGACY_BACKUP_PREFIXES = (
     f"{COMPONENT_DIRNAME}.backup-",
 )
 LEGACY_COMPONENT_CHILD_PREFIXES = (
+    "backup",
     "backup_",
     "backup-",
 )
@@ -41,6 +42,10 @@ def legacy_backup_paths(custom_components_root: Path) -> list[Path]:
     return matches
 
 
+def is_legacy_component_child_name(name: str) -> bool:
+    return name == "backup" or name.startswith(LEGACY_COMPONENT_CHILD_PREFIXES)
+
+
 def legacy_component_child_paths(custom_components_root: Path) -> list[Path]:
     component_root = custom_components_root / COMPONENT_DIRNAME
     if not component_root.exists() or not component_root.is_dir():
@@ -48,7 +53,7 @@ def legacy_component_child_paths(custom_components_root: Path) -> list[Path]:
 
     matches: list[Path] = []
     for child in sorted(component_root.iterdir(), key=lambda item: item.name):
-        if any(child.name.startswith(prefix) for prefix in LEGACY_COMPONENT_CHILD_PREFIXES):
+        if is_legacy_component_child_name(child.name):
             matches.append(child)
     return matches
 
@@ -68,8 +73,8 @@ def stale_zero_net_export_bytecode_paths(custom_components_root: Path) -> list[P
             if artifact.name.startswith(f"{COMPONENT_DIRNAME}."):
                 matches.append(artifact)
                 continue
-            if component_pycache_root in artifact.parents and any(
-                artifact.name.startswith(prefix) for prefix in LEGACY_COMPONENT_CHILD_PREFIXES
+            if component_pycache_root in artifact.parents and is_legacy_component_child_name(
+                artifact.name.split(".cpython-", 1)[0]
             ):
                 matches.append(artifact)
     return matches
