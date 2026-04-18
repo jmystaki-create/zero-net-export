@@ -688,6 +688,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
+        attention_devices, remaining_devices = _partition_review_devices(ordered)
         return {
             'configure_path': DEVICES_CONFIGURE_PATH,
             'detailed_management_path': DETAILED_MANAGEMENT_PATH,
@@ -706,6 +707,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 1 for detail in managed if detail.get('effective_enabled', detail.get('enabled', True))
             ),
             'usable_count': sum(1 for detail in managed if detail.get('usable') is True),
+            'attention_count': len(attention_devices),
+            'first_attention_device': _first_review_attention_device_name(ordered),
             'first_blocked_device': _first_matching_device_name(
                 ordered,
                 predicate=_device_has_blocked_activity,
@@ -723,6 +726,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'first_review_candidate': review_candidate,
             'first_review_candidate_fit': review_candidate_fit,
             'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
+            'attention_devices': attention_devices[:12],
+            'steady_devices': remaining_devices[:12],
             'devices': ordered[:12],
             'promotion_handoff': "\n".join(
                 _managed_devices_workspace_handoff(
@@ -740,6 +745,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
+        attention_devices, remaining_devices = _partition_review_devices(ordered)
         blocker_first_lines = _managed_devices_blocker_first_lines(
             command_center,
             candidates,
@@ -755,7 +761,17 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             '',
             'Managed devices (top section):',
             f"- Snapshot: {_managed_snapshot_summary(ordered)}",
-            *([_format_device_review_line(detail) for detail in ordered[:12]] or ['- No managed devices configured yet.']),
+            'Managed devices needing attention first:',
+            *(
+                [_format_device_review_line(detail) for detail in attention_devices[:12]]
+                or ['- No blocked, active-plan, or recent-failure managed devices right now.']
+            ),
+            '',
+            'Other managed devices:',
+            *(
+                [_format_device_review_line(detail) for detail in remaining_devices[:12]]
+                or ['- No additional steady managed devices right now.']
+            ),
             '',
             'Unmanaged candidates (bottom section):',
             f"- Snapshot: {_unmanaged_snapshot_summary(candidates)}",
