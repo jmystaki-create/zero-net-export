@@ -1894,8 +1894,6 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Readiness phase: {operator_readiness.get('phase')}",
             f"- Health summary: {operator_readiness.get('summary')}",
             f"- Top alerts: {command_center.get('alert_summary')}",
-            f"- Live control mode: {_decision_mode_text(state)}",
-            f"- Mode summary: {command_center.get('policy_status')}",
             f"- Recommended command-center section: {command_center.get('recommended_section')}",
             f"- Recommended command-center path: {command_center.get('recommended_path')}",
             f"- Recommended next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",

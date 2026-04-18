@@ -1836,7 +1836,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if install_provenance.get("live_validation_safe")
             else build_install_repair_step(install_provenance)
         )
-        mode_label, mode_description = _live_mode_details(coordinator)
         return {
             "support_status": readiness.get("summary") or health_summary,
             "support_next_step": support_next_step,
@@ -1845,8 +1844,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "devices_path": DEVICES_CONFIGURE_PATH,
             "policy_path": POLICY_CONFIGURE_PATH,
             "mode_path": MODE_CONTROL_PATH,
-            "current_mode": mode_label,
-            "mode_summary": mode_description,
             "readiness_phase": str(readiness.get("phase") or "unknown"),
             "health_status": health_summary,
             "support_source_mapping_summary": build_source_mapping_summary(merged),
