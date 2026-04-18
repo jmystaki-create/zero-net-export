@@ -75,6 +75,7 @@ def _load_sensor_module():
     candidate_utils_module.build_candidate_review_hint = lambda *args, **kwargs: "likely useful"
     candidate_utils_module.candidate_needs_review = lambda fit: False
     candidate_utils_module.discover_candidate_devices = lambda *args, **kwargs: []
+    candidate_utils_module.first_review_candidate = lambda candidates: None
     sys.modules[candidate_utils_module.__name__] = candidate_utils_module
 
     native_support_module = types.ModuleType("custom_components.zero_net_export.native_support")
