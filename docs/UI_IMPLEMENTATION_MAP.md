@@ -32,7 +32,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Candidate vetting/review now includes an explicit balanced review shape covering control suitability, safety/confidence, and operational value.
 - Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
 - Fleet review / bulk enable-disable scaffolding exists.
-- The Zero Net Export device page now exposes a first-class managed-device review action, per-device managed review buttons for each configured load, keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization, and now carries richer audit detail such as runtime snapshots and last-applied timing through the deeper per-device review path.
+- The Zero Net Export device page now exposes a first-class managed-device review action, per-device managed review buttons for each configured load, and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
 - Native support/snapshot/checklist surfaces exist.
 - The four-bucket IA language already exists in project wording: Controls, Sensors, Managed Devices, Diagnostics.
 
@@ -142,8 +142,9 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 **Still to do**
 1. Validate live that the device-page managed review actions are clearly secondary to Configure -> Managed Devices.
-2. Confirm on the exact deployed build that the richer per-device review rows and save handoffs still read as secondary audit detail rather than a competing fleet workspace.
-3. Make sure the installed device-page review path keeps the stronger audit detail without diluting the top-level fleet workflow.
+2. Make sure per-device review rows feel richer and more audit-friendly than the top-level fleet workspace.
+3. Remove any remaining wording that implies the device page is the primary place to manage the fleet.
+4. Confirm save feedback and handoff text consistently point back to Configure -> Managed Devices as primary.
 
 **Done when**
 - the device page is clearly the deeper review path, not a competing workspace.
@@ -364,11 +365,10 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - the Zero Net Export device page now exposes first-class `Review managed devices workspace` and `Review managed devices` entry points
 - the device page now also exposes per-device managed review buttons for each configured load, alongside the paired per-device status/reset actions
 - the deep-review handoff is now referenced directly from managed-device save feedback
-- deeper review rows now carry richer audit detail such as runtime snapshots, last-action timing, and last-applied timing instead of relying on thinner helper-style summaries
 
 **Remaining**
 - validate the concrete native entry path in live HA, including the new per-device review buttons on the Zero Net Export device page
-- confirm on the exact deployed build that the richer per-device audit detail stays clearly secondary to Configure -> Managed Devices
+- confirm the richer per-device row detail now lands in the right native surface split, with Configure -> Managed Devices staying primary and device-page review staying secondary
 - make sure the installed device-page review path supports richer device inspection without diluting the top-level fleet workflow
 
 **Features in this stage**
