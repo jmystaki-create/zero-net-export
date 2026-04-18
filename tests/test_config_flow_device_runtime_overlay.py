@@ -548,6 +548,48 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(summary_lines[3], "- Other managed devices:")
         self.assertIn("Water heater", summary_lines[4])
 
+    def test_managed_snapshot_surfaces_failed_only_attention(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
+        devices = [
+            {
+                "key": "pool_pump",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "status": "Ready for control",
+                "guard_status": "ready",
+                "planned_action": "hold",
+                "last_action_status": "failed",
+                "priority": 10,
+                "nominal_power_w": 1200,
+                "current_power_w": 0,
+            },
+            {
+                "key": "water_heater",
+                "name": "Water heater",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.water_heater",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "status": "Ready for control",
+                "guard_status": "ready",
+                "planned_action": "hold",
+                "priority": 20,
+                "nominal_power_w": 900,
+                "current_power_w": 0,
+            },
+        ]
+
+        self.assertEqual(
+            flow._managed_snapshot_text(devices),
+            "Managed now: 2 | enabled: 2 | usable: 2 | 1 managed device needs attention | fixed managed: 2 | nominal: 2100 W | blocked first: none | next plan: none",
+        )
+
     def test_device_next_step_prefers_global_blocker_guidance_before_local_promotion(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
@@ -695,7 +737,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             shortlist["description_placeholders"]["managed_snapshot"],
-            "Managed now: 2 | enabled: 1 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
+            "Managed now: 2 | enabled: 1 | usable: 1 | 2 managed devices need attention | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
         )
         self.assertEqual(
             shortlist["description_placeholders"]["device_summary"],
@@ -758,7 +800,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "Managed now: 2 | enabled: 2 | usable: 2 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: Pool pump | next plan: Pool pump",
+            "Managed now: 2 | enabled: 2 | usable: 2 | 2 managed devices need attention | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: Pool pump | next plan: Pool pump",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices),
@@ -807,7 +849,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "Managed now: 2 | enabled: 2 | usable: 2 | active load: 3385 W | active managed: 2 devices | fixed managed: 1 | variable managed: 1 | nominal: 8200 W | blocked first: none | next plan: EV charger",
+            "Managed now: 2 | enabled: 2 | usable: 2 | active load: 3385 W | active managed: 2 devices | 2 managed devices need attention | fixed managed: 1 | variable managed: 1 | nominal: 8200 W | blocked first: none | next plan: EV charger",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices)[0],
@@ -965,7 +1007,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 1 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
+                "Managed now: 2 | enabled: 1 | usable: 1 | 2 managed devices need attention | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
@@ -1162,7 +1204,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 2 | usable: 1 | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
+                "Managed now: 2 | enabled: 2 | usable: 1 | 2 managed devices need attention | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["device_summary"],

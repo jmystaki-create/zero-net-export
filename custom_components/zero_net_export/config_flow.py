@@ -935,6 +935,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
+        attention_count = sum(1 for device in devices if self._device_needs_attention(device))
         active_count, active_power_w = self._managed_runtime_activity(devices)
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
@@ -965,6 +966,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             summary_parts.append(f"active load: {active_power_w:g} W")
             summary_parts.append(
                 "active managed: 1 device" if active_count == 1 else f"active managed: {active_count} devices"
+            )
+        if attention_count:
+            summary_parts.append(
+                "1 managed device needs attention"
+                if attention_count == 1
+                else f"{attention_count} managed devices need attention"
             )
         if kind_known:
             summary_parts.append(f"fixed managed: {fixed_count}")
