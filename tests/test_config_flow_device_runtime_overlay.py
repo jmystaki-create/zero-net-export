@@ -1025,6 +1025,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["candidate_summary"],
+                "- Review-first unmanaged candidates:\n"
                 "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
                 "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
             )
@@ -1231,6 +1232,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["candidate_summary"],
+                "- Review-first unmanaged candidates:\n"
                 "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
                 "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
             )
@@ -1541,6 +1543,43 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             summary,
             "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | fixed review: 1 | review first: Virtual load | review usefulness: review carefully | review warning: Helper-backed load needs review. | top usefulness: likely useful",
         )
+
+    def test_candidate_snapshot_groups_review_first_before_ready_candidates(self) -> None:
+        module = _load_config_flow_module()
+        module.assess_candidate = lambda candidate: {
+            "confidence": "low" if candidate.get("entity_id") == "input_boolean.virtual_load" else "high",
+            "summary": "Review before promotion.",
+            "warnings": ["Helper-backed load needs review."] if candidate.get("entity_id") == "input_boolean.virtual_load" else [],
+        }
+        module.build_candidate_review_hint = lambda candidate, include_warning=True, max_warning_chars=56, **kwargs: (
+            "review carefully | warn Helper-backed load needs review."
+            if candidate.get("entity_id") == "input_boolean.virtual_load" and include_warning
+            else "review carefully"
+            if candidate.get("entity_id") == "input_boolean.virtual_load"
+            else "likely useful"
+        )
+
+        summary = module.ZeroNetExportOptionsFlow._candidate_snapshot_text(
+            [
+                {
+                    "entity_id": "switch.hot_water",
+                    "name": "Hot water relay",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+                {
+                    "entity_id": "input_boolean.virtual_load",
+                    "name": "Virtual load",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+            ]
+        )
+
+        self.assertIn("- Review-first unmanaged candidates:", summary)
+        self.assertIn("- Ready to promote next:", summary)
+        self.assertIn("Virtual load (fixed)", summary)
+        self.assertIn("Hot water relay (fixed)", summary)
+        self.assertLess(summary.index("Virtual load (fixed)"), summary.index("- Ready to promote next:"))
+        self.assertLess(summary.index("- Ready to promote next:"), summary.index("Hot water relay (fixed)"))
 
     def test_candidate_summary_passes_name_and_entity_id_into_fit_assessment(self) -> None:
         module = _load_config_flow_module()

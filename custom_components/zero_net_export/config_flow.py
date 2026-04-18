@@ -1066,11 +1066,33 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     @staticmethod
     def _candidate_snapshot_text(candidates: list[dict[str, Any]], *, limit: int = 12) -> str:
-        return (
-            "\n".join(f"- {build_candidate_preview(item, include_entity_id=False)}" for item in candidates[:limit])
-            if candidates
-            else "- No unmanaged candidate devices discovered right now"
-        )
+        if not candidates:
+            return "- No unmanaged candidate devices discovered right now"
+
+        surfaced = candidates[:limit]
+        review_first = [item for item in surfaced if candidate_needs_review(assess_candidate(item))]
+        ready_now = [item for item in surfaced if item not in review_first]
+
+        lines: list[str] = []
+        if review_first:
+            lines.append("- Review-first unmanaged candidates:")
+            lines.extend(
+                f"- {build_candidate_preview(item, include_entity_id=False)}" for item in review_first
+            )
+        if ready_now:
+            lines.append("- Ready to promote next:")
+            lines.extend(
+                f"- {build_candidate_preview(item, include_entity_id=False)}" for item in ready_now
+            )
+
+        remaining_count = max(len(candidates) - len(surfaced), 0)
+        if remaining_count:
+            lines.append(
+                "- Additional surfaced candidates remain below: "
+                + ("1 more" if remaining_count == 1 else f"{remaining_count} more")
+            )
+
+        return "\n".join(lines)
 
     @staticmethod
     def _candidate_picker_role_prefix(
