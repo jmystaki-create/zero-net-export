@@ -9,7 +9,7 @@ from homeassistant.util import dt as dt_util
 
 from .candidate_utils import (
     assess_candidate,
-    build_candidate_preview,
+    build_candidate_compact_preview,
     build_candidate_review_hint,
     candidate_needs_review,
     discover_candidate_devices,
@@ -1285,9 +1285,9 @@ def _build_command_center_fleet_activity_summary(
     variable_candidate_count: int,
     review_needed_count: int,
     review_candidate_name: str,
-    review_candidate_hint: str,
+    review_candidate_preview: str,
     top_candidate_name: str,
-    top_candidate_review_hint: str,
+    top_candidate_preview: str,
     source_blocked: bool,
 ) -> str:
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
@@ -1323,13 +1323,9 @@ def _build_command_center_fleet_activity_summary(
         if review_needed_count:
             summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
             if review_candidate_name and review_candidate_name != top_candidate_name:
-                summary_parts.append(f"review {review_candidate_name}")
-                if review_candidate_hint:
-                    summary_parts.append(review_candidate_hint)
+                summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
         if top_candidate_name:
-            summary_parts.append(f"top {top_candidate_name}")
-            if top_candidate_review_hint:
-                summary_parts.append(top_candidate_review_hint)
+            summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
     elif managed_count == 0:
         summary_parts.append("no unmanaged candidates")
         if source_blocked:
@@ -1370,23 +1366,21 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     configured_devices, device_parse_issues = _configured_device_payloads(entry) if entry is not None else ([], [])
     candidates, top_candidate_name = _command_center_candidate_snapshot(coordinator, state)
     top_candidate_preview = (
-        build_candidate_preview(candidates[0], include_entity_id=False, include_state=False)
+        build_candidate_compact_preview(candidates[0], include_warning=True)
         if candidates
         else ""
     )
     top_candidate_focus = _command_center_candidate_focus_text(candidates[0] if candidates else None)
-    top_candidate_review_hint = build_candidate_review_hint(candidates[0]) if candidates else ""
     review_candidate = next(
         (item for item in candidates if candidate_needs_review(assess_candidate(item))),
         None,
     )
     review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
     review_candidate_preview = (
-        build_candidate_preview(review_candidate, include_entity_id=False, include_state=False)
+        build_candidate_compact_preview(review_candidate, include_warning=True)
         if review_candidate
         else ""
     )
-    review_candidate_hint = build_candidate_review_hint(review_candidate) if review_candidate else ""
     _, primary_candidate_focus = _primary_candidate_focus(candidates)
     candidate_count = len(candidates)
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
@@ -1678,9 +1672,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             variable_candidate_count=variable_candidate_count,
             review_needed_count=review_needed_count,
             review_candidate_name=review_candidate_name,
-            review_candidate_hint=review_candidate_hint,
+            review_candidate_preview=review_candidate_preview,
             top_candidate_name=top_candidate_name,
-            top_candidate_review_hint=top_candidate_review_hint,
+            top_candidate_preview=top_candidate_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         ),
         fallback=device_status,

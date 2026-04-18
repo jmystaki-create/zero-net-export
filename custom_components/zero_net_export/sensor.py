@@ -7,11 +7,11 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .candidate_utils import (
     assess_candidate,
+    build_candidate_compact_preview,
     build_candidate_fit_summary,
     build_candidate_name_summary,
     build_candidate_overview_summary,
     build_candidate_preview,
-    build_candidate_review_hint,
     candidate_needs_review,
     discover_candidate_devices,
     first_review_candidate,
@@ -374,11 +374,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
             review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
+            top_candidate_preview = build_candidate_compact_preview(candidates[0]) if candidates else ""
             review_candidate = next(
                 (item for item in candidates if candidate_needs_review(assess_candidate(item))),
                 None,
             )
             review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+            review_candidate_preview = build_candidate_compact_preview(review_candidate) if review_candidate else ""
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
                 predicate=_device_has_blocked_activity,
@@ -405,11 +407,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if review_candidate_name and review_candidate_name != top_candidate_name:
-                        summary_parts.append(f"review {review_candidate_name}")
-                        summary_parts.append(build_candidate_review_hint(review_candidate))
+                        summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
                 if top_candidate_name:
-                    summary_parts.append(f"top {top_candidate_name}")
-                    summary_parts.append(build_candidate_review_hint(candidates[0]))
+                    summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
                 return _truncate_sensor_state(" | ".join(summary_parts))
             if candidate_count:
                 summary_parts.append(f"{candidate_count} unmanaged")
@@ -420,11 +420,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if review_candidate_name and review_candidate_name != top_candidate_name:
-                        summary_parts.append(f"review {review_candidate_name}")
-                        summary_parts.append(build_candidate_review_hint(review_candidate))
+                        summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
                 if top_candidate_name:
-                    summary_parts.append(f"top {top_candidate_name}")
-                    summary_parts.append(build_candidate_review_hint(candidates[0]))
+                    summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
             if source_blocked:
                 summary_parts.append("repair sources first")
             if blocked_activity_count:

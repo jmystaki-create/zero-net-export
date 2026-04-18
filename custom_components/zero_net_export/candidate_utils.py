@@ -556,6 +556,24 @@ def build_candidate_review_hint(
     return f"{usefulness} | warn {warning}"
 
 
+def build_candidate_compact_preview(
+    candidate: dict[str, Any],
+    *,
+    include_warning: bool = True,
+    max_warning_chars: int = 36,
+) -> str:
+    """Return a short operator-facing candidate label for dense fleet summaries."""
+    name = str(candidate.get("name") or candidate.get("entity_id") or "candidate").strip()
+    kind = str(candidate.get("kind") or "unknown").strip()
+    heading = name if not kind else f"{name} ({kind})"
+    review_hint = build_candidate_review_hint(
+        candidate,
+        include_warning=include_warning,
+        max_warning_chars=max_warning_chars,
+    )
+    return f"{heading} | {review_hint}" if review_hint else heading
+
+
 def build_candidate_preview(
     candidate: dict[str, Any],
     *,
