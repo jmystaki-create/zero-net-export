@@ -566,12 +566,13 @@ def build_candidate_compact_preview(
     name = str(candidate.get("name") or candidate.get("entity_id") or "candidate").strip()
     kind = str(candidate.get("kind") or "unknown").strip()
     heading = name if not kind else f"{name} ({kind})"
-    review_hint = build_candidate_review_hint(
-        candidate,
-        include_warning=include_warning,
-        max_warning_chars=max_warning_chars,
-    )
-    return f"{heading} | {review_hint}" if review_hint else heading
+    detail_bits = [build_candidate_review_hint(candidate, include_warning=False)]
+    if include_warning:
+        warning = _compact_candidate_warning(candidate, max_chars=max_warning_chars)
+        if warning:
+            detail_bits.append(f"warn {warning}")
+    detail = " | ".join(bit for bit in detail_bits if bit)
+    return f"{heading} | {detail}" if detail else heading
 
 
 def build_candidate_preview(

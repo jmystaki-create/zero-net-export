@@ -240,12 +240,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
         self.assertIn("review first", summary["fleet_activity_summary"])
-        self.assertIn("generic outlet hardware", summary["fleet_activity_summary"])
+        self.assertIn("warn generic outlet label", summary["fleet_activity_summary"])
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged ready", summary["device_status"])
         self.assertIn(
-            "top AC Outlet 2 (fixed) | review first | key warning: The label still looks like generic outlet hardware",
+            "top AC Outlet 2 (fixed) | review first | warn generic outlet label",
             summary["device_status"],
         )
 
@@ -348,10 +348,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
             if candidate and candidate.get("name") == "Dishwasher Power"
             else ("review carefully | warn generic circuit label" if include_warning else "review carefully")
         )
-        native_support.build_candidate_preview = lambda candidate, include_entity_id=False, include_state=False: (
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
             "Dishwasher Power (fixed) | likely useful"
             if candidate and candidate.get("name") == "Dishwasher Power"
-            else "Garage Power (fixed) | review carefully | key warning: generic circuit label"
+            else "Garage Power (fixed) | review carefully | warn generic circuit label"
         )
 
         entry = SimpleNamespace(data={
@@ -390,7 +390,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("top Dishwasher Power", summary["fleet_activity_summary"])
         self.assertIn("likely useful", summary["fleet_activity_summary"])
         self.assertIn("2 unmanaged ready", summary["device_status"])
-        self.assertIn("review Garage Power (fixed) | review carefully | key warning: generic circuit label", summary["device_status"])
+        self.assertIn("review Garage Power (fixed) | review carefully | warn generic circuit label", summary["device_status"])
         self.assertIn("top Dishwasher Power (fixed) | likely useful", summary["device_status"])
 
     def test_command_center_summary_lists_source_repair_before_candidate_mix_for_empty_fleet(self) -> None:

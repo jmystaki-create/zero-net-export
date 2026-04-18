@@ -53,6 +53,15 @@ def _load_native_support_module():
     release_info_module.build_install_validation_cli_steps = lambda *args, **kwargs: {}
     sys.modules[release_info_module.__name__] = release_info_module
 
+    candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
+    candidate_utils_module.assess_candidate = lambda candidate: {"confidence": "high", "summary": "good", "warnings": []}
+    candidate_utils_module.build_candidate_compact_preview = lambda *args, **kwargs: "compact preview"
+    candidate_utils_module.build_candidate_preview = lambda *args, **kwargs: "preview"
+    candidate_utils_module.build_candidate_review_hint = lambda *args, **kwargs: "likely useful"
+    candidate_utils_module.candidate_needs_review = lambda fit: False
+    candidate_utils_module.discover_candidate_devices = lambda *args, **kwargs: []
+    sys.modules[candidate_utils_module.__name__] = candidate_utils_module
+
     validation_module = types.ModuleType("custom_components.zero_net_export.validation")
     validation_module.ValidationIssue = object
     validation_module.SourceSpec = object

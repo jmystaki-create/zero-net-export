@@ -72,6 +72,7 @@ def _load_sensor_module():
     candidate_utils_module.build_candidate_name_summary = lambda *args, **kwargs: "summary"
     candidate_utils_module.build_candidate_overview_summary = lambda *args, **kwargs: "overview"
     candidate_utils_module.build_candidate_preview = lambda *args, **kwargs: "preview"
+    candidate_utils_module.build_candidate_compact_preview = lambda *args, **kwargs: "compact preview"
     candidate_utils_module.build_candidate_review_hint = lambda *args, **kwargs: "likely useful"
     candidate_utils_module.candidate_needs_review = lambda fit: False
     candidate_utils_module.discover_candidate_devices = lambda *args, **kwargs: []

@@ -83,16 +83,57 @@ def _load_sensor_module():
     sys.modules[release_info_module.__name__] = release_info_module
 
     candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
-    candidate_utils_module.assess_candidate = lambda candidate: {
-        "confidence": "medium",
-        "summary": "Looks like a plausible controllable candidate, but review before promotion.",
-        "warnings": [],
-    }
+    def _assess_candidate(candidate):
+        name = str((candidate or {}).get("name") or (candidate or {}).get("entity_id") or "")
+        lowered = name.lower()
+        if "virtual load" in lowered:
+            return {
+                "confidence": "low",
+                "summary": "Looks helper-backed and needs review before promotion.",
+                "warnings": ["This is an input_boolean helper."],
+            }
+        if "ac outlet" in lowered:
+            return {
+                "confidence": "medium",
+                "summary": "Looks like a plausible controllable candidate, but review before promotion.",
+                "warnings": ["generic outlet label"],
+            }
+        return {
+            "confidence": "high",
+            "summary": "Looks like a plausible controllable candidate, but review before promotion.",
+            "warnings": [],
+        }
+
+    candidate_utils_module.assess_candidate = _assess_candidate
     candidate_utils_module.build_candidate_fit_summary = lambda candidates, **kwargs: "candidate fit"
     candidate_utils_module.build_candidate_name_summary = lambda candidates, **kwargs: "candidate names"
     candidate_utils_module.build_candidate_overview_summary = lambda candidates, **kwargs: "candidate overview"
     candidate_utils_module.build_candidate_preview = lambda candidate, **kwargs: "candidate preview"
-    candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "likely useful"
+    candidate_utils_module.build_candidate_compact_preview = lambda candidate, **kwargs: (
+        (
+            f"{candidate.get('name') or candidate.get('entity_id') or 'candidate'} ({candidate.get('kind') or 'unknown'})"
+            f" | {candidate_utils_module.build_candidate_review_hint(candidate, include_warning=False)}"
+            + (
+                f" | warn {((candidate_utils_module.assess_candidate(candidate).get('warnings') or [''])[0])}"
+                if (candidate_utils_module.assess_candidate(candidate).get('warnings') or [])
+                else ""
+            )
+        )
+        if candidate
+        else ""
+    )
+    candidate_utils_module.build_candidate_review_hint = lambda candidate, include_warning=True, **kwargs: (
+        (
+            "likely useful"
+            if str(candidate_utils_module.assess_candidate(candidate).get("confidence") or "medium") == "high"
+            else "review carefully"
+        )
+        + (
+            f" | warn {((candidate_utils_module.assess_candidate(candidate).get('warnings') or [''])[0])}"
+            if include_warning and (candidate_utils_module.assess_candidate(candidate).get("warnings") or [])
+            else ""
+        )
+    )
     candidate_utils_module.candidate_needs_review = lambda fit: str((fit or {}).get("confidence") or "medium") != "high"
     candidate_utils_module.first_review_candidate = lambda candidates: next(
         (
@@ -290,7 +331,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful")
+        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label")
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
         self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
         self.assertEqual(overview.extra_state_attributes["top_candidate_name"], "AC Outlet 2")
@@ -410,7 +451,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review | review Virtual load | review carefully | warn This is an input_boolean helper. | top Hot water relay | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review | review Virtual load (fixed) | review carefully | warn This is an input_boolean helper. | top Hot water relay (fixed) | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_keeps_top_unmanaged_target_visible_with_existing_fleet(self) -> None:
@@ -440,7 +481,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
@@ -476,7 +517,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | blocked Pool pump | plan Pool pump | 2 enabled | 1 usable | 1 fixed managed | 1 variable managed | 1185 W nominal",
+            "2 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | blocked Pool pump | plan Pool pump | 2 enabled | 1 usable | 1 fixed managed | 1 variable managed | 1185 W nominal",
         )
         self.assertLess(
             overview.native_value.index("blocked Pool pump"),
@@ -512,7 +553,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | blocked 1 | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | blocked 1 | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
         self.assertEqual(overview.extra_state_attributes["blocked_activity_count"], 1)
         self.assertEqual(overview.extra_state_attributes["blocked_planned_action_count"], 1)
@@ -535,7 +576,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful",
+            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -577,7 +618,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 2 need review | top AC Outlet 2 | likely useful | repair sources first | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | repair sources first | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
@@ -781,7 +822,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 | likely useful | 1 enabled | 1 usable | 1 fixed managed",
+            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)
