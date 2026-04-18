@@ -565,6 +565,14 @@ Suggested area labels:
 - **repo fix:** this run updates `RELEASE_MANAGEMENT.md` so the live verification step now points to `Configure or Diagnostics`, matching `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `README.md`, and `docs/VALIDATION_CHECKLIST.md`.
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; the remaining release procedure no longer points operators at retired support-bucket wording during fingerprint validation.
 
+## ZNE-045 — Repo working version jumped to `0.1.87` before the mapped release freeze
+- **closed on:** 2026-04-18
+- **severity:** `medium`
+- **area:** `release`
+- **historical behavior:** this watchdog run found a fresh repo-only release-line regression: `custom_components/zero_net_export/manifest.json` had been locally bumped to `0.1.87` even though `docs/SUPERVISOR.md` and `docs/UI_IMPLEMENTATION_MAP.md` still say to keep building unfinished `0.1.87` workstreams first, freeze the cut line only once the repo candidate is coherent, and only then bump versioned metadata. That premature manifest bump would have turned unchanged repo-side UI work into release-boundary churn again and risked another misleading exact-build target before approval or deploy.
+- **repo fix:** this run reverts `custom_components/zero_net_export/manifest.json` back to `0.1.86` so the repo working version stays aligned with the current live correction line until the actual `0.1.87` freeze step in `docs/UI_IMPLEMENTATION_MAP.md` Workstream G.
+- **closure evidence:** repo-side source-of-truth audit plus direct metadata correction in the same run; `manifest.json`, `docs/SUPERVISOR.md`, `README.md`, and `docs/UI_IMPLEMENTATION_MAP.md` are aligned again on `0.1.86` as the live correction line and `0.1.87` as the not-yet-frozen rollout target.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
