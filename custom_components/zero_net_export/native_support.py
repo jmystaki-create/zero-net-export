@@ -654,11 +654,54 @@ def _first_runtime_device_name(state: Any, *, predicate) -> str:
     return ""
 
 
+def _first_runtime_device_detail(state: Any, *, predicate) -> dict[str, Any] | None:
+    if state is None:
+        return None
+    for detail in (getattr(state, "device_details", {}) or {}).values():
+        if predicate(detail):
+            return detail
+    return None
+
+
 def _runtime_device_has_blocked_activity(detail: dict[str, Any]) -> bool:
     planned_action = str(detail.get("planned_action") or "").strip().lower()
     if detail.get("usable") is False:
         return True
     return planned_action not in {"", "hold"} and detail.get("action_executable") is False
+
+
+def _command_center_runtime_device_preview(detail: dict[str, Any] | None) -> str:
+    if not detail:
+        return ""
+    name = str(detail.get("name") or detail.get("entity_id") or "managed device").strip()
+    bits: list[str] = []
+    kind = str(detail.get("kind") or "").strip()
+    if kind:
+        bits.append(kind)
+    if detail.get("usable") is False:
+        bits.append("not usable")
+    current_power = detail.get("current_power_w")
+    if current_power is not None:
+        bits.append(f"power {current_power} W")
+    if kind == "variable" and detail.get("current_target_power_w") is not None:
+        bits.append(f"target {detail.get('current_target_power_w')} W")
+    planned_action = str(detail.get("planned_action") or "").strip()
+    if planned_action and planned_action.lower() != "hold":
+        bits.append(f"action {planned_action}")
+    last_action_status = str(detail.get("last_action_status") or "").strip().lower()
+    if last_action_status and last_action_status not in {"ok", "applied", "success"}:
+        bits.append(f"last {detail.get('last_action_status')}")
+    if not bits:
+        return name
+    return f"{name} ({' | '.join(bits[:4])})"
+
+
+def _same_runtime_device(left: dict[str, Any] | None, right: dict[str, Any] | None) -> bool:
+    if not left or not right:
+        return False
+    left_id = str(left.get("entity_id") or left.get("name") or "").strip()
+    right_id = str(right.get("entity_id") or right.get("name") or "").strip()
+    return bool(left_id and right_id and left_id == right_id)
 
 
 def _managed_runtime_mix(state: Any) -> tuple[bool, int, int, int]:
@@ -1296,7 +1339,7 @@ def _build_command_center_fleet_activity_summary(
     enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
     kind_known, fixed_managed_count, variable_managed_count, nominal_power_w = _managed_runtime_mix(state)
-    first_blocked_device_name = _first_runtime_device_name(
+    first_blocked_device = _first_runtime_device_detail(
         state,
         predicate=_runtime_device_has_blocked_activity,
     )
@@ -1308,7 +1351,7 @@ def _build_command_center_fleet_activity_summary(
     blocked_activity_count = blocked_device_count or (
         int(getattr(state, "blocked_planned_action_count", 0) or 0) if state is not None else 0
     )
-    first_planned_device_name = _first_runtime_device_name(
+    first_planned_device = _first_runtime_device_detail(
         state,
         predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
     )
@@ -1336,12 +1379,12 @@ def _build_command_center_fleet_activity_summary(
         summary_parts.append("repair sources first")
     if blocked_activity_count:
         summary_parts.append(
-            f"blocked {first_blocked_device_name}"
-            if first_blocked_device_name
+            f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
+            if first_blocked_device
             else f"blocked {blocked_activity_count}"
         )
-    if first_planned_device_name:
-        summary_parts.append(f"plan {first_planned_device_name}")
+    if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
+        summary_parts.append(f"plan {_command_center_runtime_device_preview(first_planned_device)}")
     if managed_count > 0:
         summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
         if kind_known:
