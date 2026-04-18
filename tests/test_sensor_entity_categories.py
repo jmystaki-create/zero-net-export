@@ -640,6 +640,62 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][1], {"switch.pool_pump"})
 
+    def test_managed_fleet_overview_truncates_long_state_to_255_chars(self) -> None:
+        sensor_module = _load_sensor_module()
+        long_top_name = "Extremely Verbose Candidate Label " * 5
+        long_review_name = "Needs Careful Review Before Promotion " * 4
+
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: [
+            {"name": long_top_name.strip(), "entity_id": "switch.verbose_top", "kind": "fixed"},
+            {"name": long_review_name.strip(), "entity_id": "switch.verbose_review", "kind": "variable"},
+        ]
+        sensor_module.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("entity_id") == "switch.verbose_top" else "medium",
+            "summary": "Verbose but plausible.",
+            "warnings": [] if candidate.get("entity_id") == "switch.verbose_top" else ["Manual review recommended"],
+        }
+        sensor_module.build_candidate_review_hint = lambda candidate, **kwargs: (
+            "likely useful after a fairly long operator-facing explanation that keeps going"
+        )
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump with an overly descriptive managed label",
+                        "entity_id": "switch.pool_pump",
+                        "usable": False,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "kind": "fixed",
+                        "planned_action": "turn_on",
+                        "nominal_power_w": 1800,
+                    },
+                    "heater": {
+                        "name": "Heated floor with another long descriptive name",
+                        "entity_id": "switch.heated_floor",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "kind": "variable",
+                        "planned_action": "",
+                        "nominal_power_w": 2200,
+                    },
+                },
+                validation_details={},
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed fleet overview")
+        overview.hass = SimpleNamespace(
+            states=SimpleNamespace(async_all=lambda: [SimpleNamespace(entity_id="switch.verbose_top")])
+        )
+
+        value = overview.native_value
+
+        self.assertLessEqual(len(value), 255)
+        self.assertTrue(value.endswith("..."))
+        self.assertIn("2 managed | 2 unmanaged", value)
+
 
 if __name__ == "__main__":
     unittest.main()
