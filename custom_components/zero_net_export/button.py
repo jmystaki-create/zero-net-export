@@ -128,6 +128,19 @@ def _compact_reason_fragment(detail: dict) -> str:
     return normalized
 
 
+def _compact_last_result_fragment(detail: dict) -> str:
+    last_action_status = str(detail.get("last_action_status") or "").strip().lower()
+    if not last_action_status or last_action_status in {"ok", "applied", "success"}:
+        return ""
+    message = str(detail.get("last_action_result_message") or "").strip()
+    if not message or message.lower().startswith("no recent"):
+        return ""
+    normalized = " ".join(message.split()).strip().rstrip(". ")
+    if len(normalized) > 72:
+        normalized = normalized[:69].rstrip() + "..."
+    return normalized
+
+
 def _format_device_review_line(detail: dict, *, audit: bool = False) -> str:
     runtime_bits = [
         str(detail.get("kind") or "unknown"),
@@ -171,6 +184,9 @@ def _format_device_review_line(detail: dict, *, audit: bool = False) -> str:
         last_applied_power = detail.get("last_applied_power_w")
         if last_applied_power is not None:
             runtime_bits.append(f"last applied {_format_power(last_applied_power)}")
+        result_fragment = _compact_last_result_fragment(detail)
+        if result_fragment:
+            runtime_bits.append(f"result {result_fragment}")
         success_count = int(detail.get("successful_action_count") or 0)
         failure_count = int(detail.get("failed_action_count") or 0)
         if success_count or failure_count:

@@ -502,6 +502,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                         "status": "Held by guard",
                         "guard_status": "blocked",
                         "planned_action": "hold",
+                        "last_action_status": "guard_blocked",
+                        "last_action_result_message": "Battery reserve blocked the last run.",
                         "last_action_seconds_ago": 180,
                         "last_applied_at": datetime(2026, 4, 18, 8, 29, tzinfo=timezone.utc),
                     },
@@ -551,7 +553,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "First review-first candidate usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.",
             message,
         )
-        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold | last act 3m ago | last applied at 2026-04-18T08:29:00Z"
+        blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold | last guard_blocked | result Battery reserve blocked the last run | last act 3m ago | last applied at 2026-04-18T08:29:00Z"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | nominal 1200 W | runtime 15m 30s | today 1h 15m | guard ready | action turn_on | last req 1200 W | last applied 1200 W | runs 4 ok/1 fail | last act 2m 5s ago | last applied at 2026-04-18T08:31:00Z"
         self.assertIn(blocked_line, message)
         self.assertIn(planned_line, message)
