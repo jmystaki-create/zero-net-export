@@ -72,6 +72,25 @@ DIAGNOSTICS_DEVICE_ACTIONS_PATH = (
 )
 
 
+def _normalize_native_path_text(text: Any) -> str:
+    value = str(text or "").strip()
+    if not value:
+        return ""
+    replacements = {
+        "Open Configure > Sensors": f"Open {SOURCES_CONFIGURE_PATH}",
+        "Open Configure > Controls": f"Open {POLICY_CONFIGURE_PATH}",
+        "Open Configure > Managed Devices": f"Open {DEVICES_CONFIGURE_PATH}",
+        "Open Configure > Diagnostics": f"Open {SUPPORT_CONFIGURE_PATH}",
+        "Configure > Sensors": SOURCES_CONFIGURE_PATH,
+        "Configure > Controls": POLICY_CONFIGURE_PATH,
+        "Configure > Managed Devices": DEVICES_CONFIGURE_PATH,
+        "Configure > Diagnostics": SUPPORT_CONFIGURE_PATH,
+    }
+    for old, new in replacements.items():
+        value = value.replace(old, new)
+    return value
+
+
 def _count_label(count: int, singular: str, plural: str | None = None) -> str:
     noun = singular if count == 1 else (plural or f"{singular}s")
     return f"{count} {noun}"
@@ -984,13 +1003,13 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- Recommended command-center section: {command_center.get('recommended_section')}",
         f"- Recommended command-center path: {command_center.get('recommended_path')}",
         f"- Why this section is recommended: {command_center.get('recommended_reason')}",
-        f"- Command-center next action: {command_center.get('next_action_summary')}",
+        f"- Command-center next action: {_normalize_native_path_text(command_center.get('next_action_summary'))}",
         f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
         "",
         "Readiness",
         f"- phase: {operator_readiness.get('phase')}",
         f"- summary: {operator_readiness.get('summary')}",
-        f"- next_step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
+        f"- next_step: {_normalize_native_path_text(command_center.get('next_action_summary') or operator_readiness.get('next_step'))}",
         *checklist_lines,
         "",
         "Runtime summary",
@@ -1080,6 +1099,8 @@ def build_native_setup_recommendation(
 def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
     """Return the basic setup focused command-center guide text."""
     recommended_section = normalize_command_center_section(command_center.get("recommended_section"))
+    next_action_summary = _normalize_native_path_text(command_center.get("next_action_summary"))
+    recommended_path = _normalize_native_path_text(command_center.get("recommended_path"))
     return "\n".join(
         [
             "Zero Net Export command center",
@@ -1090,9 +1111,9 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "",
             "Now",
             f"- Headline decision: {command_center.get('headline_decision')}",
-            f"- Top alert / next step: {command_center.get('next_action_summary')}",
+            f"- Top alert / next step: {next_action_summary}",
             f"- Recommended section: {recommended_section}",
-            f"- Recommended path: {command_center.get('recommended_path')}",
+            f"- Recommended path: {recommended_path}",
             "",
             "Structured control board",
             f"- Energy state: {command_center.get('energy_state_summary')}",

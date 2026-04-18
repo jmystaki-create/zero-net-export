@@ -100,7 +100,10 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("This surface is for the basic setup only.", text)
         self.assertIn("Open Managed Devices only after the current setup blockers are clear.", text)
         self.assertIn("Now", text)
-        self.assertIn("- Top alert / next step: Open Configure > Sensors next.", text)
+        self.assertIn(
+            f"- Top alert / next step: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
+            text,
+        )
         self.assertIn("Structured control board", text)
         self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
         self.assertIn("- Control outcome: planned actions 1 | active load 1200 W", text)
@@ -114,6 +117,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             f"- Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {native_support.DEVICES_CONFIGURE_PATH}",
             text,
         )
+        self.assertNotIn("Open Configure > Sensors next.", text)
         self.assertNotIn("Installed package:", text)
         self.assertNotIn("Install consistency:", text)
         self.assertNotIn("Managed-device deep review", text)
