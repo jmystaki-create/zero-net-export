@@ -43,9 +43,9 @@ If a change does not materially improve one of those visible outcomes, it should
 - Diagnostics/support text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
-- This watchdog run's documented HA SSH fingerprint recheck still reports `overall_match=false`; live Home Assistant is drifted again (`manifest_version=0.1.87` versus repo `0.1.86`, now with mismatches in `button.py`, `candidate_utils.py`, `config_flow.py`, `diagnostics.py`, `manifest.json`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json` against validation anchor `b76776b`), so repo-versus-live exact-build drift remains the active release blocker until James explicitly approves deploy/restart of one exact current repo build.
+- The latest documented HA SSH fingerprint check still shows the same known exact-build mismatch (`overall_match=false`; live `manifest_version=0.1.87` versus repo `0.1.86`, with tracked-file mismatches against validation anchor `b76776b`). Treat that as an unchanged release-authorization boundary, not as a reason for watchdog runs to keep refreshing the same mismatch set until James explicitly approves deploy/restart of one exact current repo build.
 - Live screenshot-grade proof still matters, but it is not the default next step while this document's own remaining-work map still lists unfinished repo-side `0.1.87` runway across Workstreams A-F.
-- The next gap is to finish or explicitly retire the highest remaining repo-side UI step in workstream order, then judge that exact candidate in live Home Assistant instead of elevating unchanged visual-validation bookkeeping ahead of product work.
+- The next gap is to finish or explicitly retire the highest remaining repo-side UI step in workstream order, then judge that exact candidate in live Home Assistant instead of elevating unchanged validation bookkeeping ahead of product work.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
