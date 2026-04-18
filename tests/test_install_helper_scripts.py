@@ -30,7 +30,7 @@ cleanup_script = load_script_module("clean_legacy_discovery_artifacts", "clean_l
 
 
 class PrintExpectedInstallFingerprintTests(unittest.TestCase):
-    def test_build_expected_payload_reports_repo_head_and_component_commit(self) -> None:
+    def test_build_expected_payload_anchors_expected_commit_to_component_commit(self) -> None:
         def fake_check_output(command, cwd=None, text=None):
             if command == ["git", "rev-parse", "--short", "HEAD"]:
                 return "repohead1\n"
@@ -49,7 +49,8 @@ class PrintExpectedInstallFingerprintTests(unittest.TestCase):
         with patch.object(print_expected_script.subprocess, "check_output", side_effect=fake_check_output):
             payload = print_expected_script.build_expected_payload()
 
-        self.assertEqual(payload["expected_commit"], "repohead1")
+        self.assertEqual(payload["repo_head_commit"], "repohead1")
+        self.assertEqual(payload["expected_commit"], "component2")
         self.assertEqual(payload["expected_component_commit"], "component2")
         self.assertEqual(payload["preferred_validation_commit"], "component2")
         self.assertEqual(payload["manifest_version"], "0.1.86")

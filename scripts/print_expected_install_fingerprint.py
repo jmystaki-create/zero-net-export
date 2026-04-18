@@ -49,7 +49,7 @@ def build_expected_payload() -> dict[str, object]:
     manifest_path = component_root / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
-    commit = git_short_commit(repo_root, ["rev-parse", "--short", "HEAD"])
+    repo_head_commit = git_short_commit(repo_root, ["rev-parse", "--short", "HEAD"])
     component_commit = git_short_commit(
         repo_root,
         ["log", "-n", "1", "--format=%h", "--", str(component_root.relative_to(repo_root))],
@@ -58,7 +58,8 @@ def build_expected_payload() -> dict[str, object]:
     payload: dict[str, object] = {
         "repo_root": str(repo_root),
         "component_root": str(component_root),
-        "expected_commit": commit,
+        "repo_head_commit": repo_head_commit,
+        "expected_commit": component_commit,
         "expected_component_commit": component_commit,
         "preferred_validation_commit": component_commit,
         "manifest_version": str(manifest.get("version") or "unknown"),

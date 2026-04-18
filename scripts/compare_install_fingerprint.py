@@ -337,8 +337,7 @@ def main() -> int:
     else:
         expected_component_root = repo_component_root
         expected = fingerprint(expected_component_root)
-        expected["expected_commit"] = git_commit(repo_root)
-        expected["expected_component_commit"] = git_commit(
+        component_commit = git_commit(
             repo_root,
             "log",
             "-n",
@@ -347,6 +346,10 @@ def main() -> int:
             "--",
             str(expected_component_root.relative_to(repo_root)),
         )
+        expected["repo_head_commit"] = git_commit(repo_root)
+        expected["expected_commit"] = component_commit
+        expected["expected_component_commit"] = component_commit
+        expected["preferred_validation_commit"] = component_commit
         expected["repo_root"] = str(repo_root)
         expected_source = "repo_head"
 
