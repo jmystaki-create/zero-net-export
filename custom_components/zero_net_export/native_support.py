@@ -1227,6 +1227,26 @@ def _primary_candidate_focus(candidates: list[dict[str, Any]]) -> tuple[dict[str
     return primary_candidate, _command_center_candidate_focus_text(primary_candidate)
 
 
+def _command_center_device_status_with_unmanaged_context(
+    base_status: str,
+    *,
+    candidate_count: int,
+    top_candidate_name: str,
+    top_candidate_preview: str,
+    review_candidate_name: str,
+    review_candidate_preview: str,
+) -> str:
+    summary = base_status
+    if candidate_count <= 0:
+        return summary
+    summary += f"; {candidate_count} unmanaged ready"
+    if review_candidate_preview and review_candidate_name and review_candidate_name != top_candidate_name:
+        summary += f"; review {review_candidate_preview}"
+    if top_candidate_preview:
+        summary += f"; top {top_candidate_preview}"
+    return summary
+
+
 def _build_command_center_fleet_activity_summary(
     state: Any,
     *,
@@ -1331,6 +1351,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         None,
     )
     review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+    review_candidate_preview = (
+        build_candidate_preview(review_candidate, include_entity_id=False, include_state=False)
+        if review_candidate
+        else ""
+    )
     review_candidate_hint = build_candidate_review_hint(review_candidate, include_warning=False) if review_candidate else ""
     _, primary_candidate_focus = _primary_candidate_focus(candidates)
     candidate_count = len(candidates)
@@ -1390,20 +1415,26 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
     elif has_managed_devices:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
-        device_status = runtime_device_status or f"{runtime_device_count} configured"
-        if candidate_count:
-            device_status += f"; {candidate_count} unmanaged ready"
-            if top_candidate_preview:
-                device_status += f"; top {top_candidate_preview}"
+        device_status = _command_center_device_status_with_unmanaged_context(
+            runtime_device_status or f"{runtime_device_count} configured",
+            candidate_count=candidate_count,
+            top_candidate_name=top_candidate_name,
+            top_candidate_preview=top_candidate_preview,
+            review_candidate_name=review_candidate_name,
+            review_candidate_preview=review_candidate_preview,
+        )
         device_next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
         )
     else:
-        device_status = "No managed devices configured yet"
-        if candidate_count:
-            device_status += f"; {candidate_count} unmanaged ready"
-            if top_candidate_preview:
-                device_status += f"; top {top_candidate_preview}"
+        device_status = _command_center_device_status_with_unmanaged_context(
+            "No managed devices configured yet",
+            candidate_count=candidate_count,
+            top_candidate_name=top_candidate_name,
+            top_candidate_preview=top_candidate_preview,
+            review_candidate_name=review_candidate_name,
+            review_candidate_preview=review_candidate_preview,
+        )
         device_next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} and review {primary_candidate_focus} first from the managed-device flow."
         )

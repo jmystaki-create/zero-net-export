@@ -325,6 +325,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review carefully", summary["fleet_activity_summary"])
         self.assertIn("top Dishwasher Power", summary["fleet_activity_summary"])
         self.assertIn("likely useful", summary["fleet_activity_summary"])
+        self.assertIn("2 unmanaged ready", summary["device_status"])
+        self.assertIn("review Garage Power (fixed) | review carefully | key warning: generic circuit label", summary["device_status"])
+        self.assertIn("top Dishwasher Power (fixed) | likely useful", summary["device_status"])
 
     def test_command_center_summary_lists_source_repair_before_candidate_mix_for_empty_fleet(self) -> None:
         native_support = _load_native_support_module()
@@ -493,6 +496,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["device_next_step"],
         )
         self.assertNotIn("Dishwasher Power", summary["next_action_summary"])
+        self.assertIn("review Virtual load (fixed)", summary["device_status"])
+        self.assertIn("top Dishwasher Power (fixed) | likely useful", summary["device_status"])
 
     def test_command_center_summary_names_blocked_and_planned_devices_in_fleet_activity(self) -> None:
         native_support = _load_native_support_module()
