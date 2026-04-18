@@ -394,7 +394,7 @@ Promotion should likely feel like:
 Diagnostics should likely be the place for:
 - install problems
 - source blockers
-- support snapshot
+- diagnostics snapshot
 - repair guidance
 - provenance/package validation
 Not the place where the core product meaning lives.

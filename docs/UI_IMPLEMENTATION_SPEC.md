@@ -377,17 +377,17 @@ This should not become the dominant primary experience.
 
 ## Screen 7. Diagnostics / health / support path
 
-This is the deeper support and troubleshooting path.
+This is the deeper diagnostics and troubleshooting path.
 
 ### Purpose
 
-Support investigation, support capture, and explicit troubleshooting without carrying the entire meaning of the product.
+Diagnostics investigation, diagnostics capture, and explicit troubleshooting without carrying the entire meaning of the product.
 
 ### Contains
 
 - health summary
 - blocker summary
-- support snapshot
+- diagnostics snapshot
 - setup checklist
 - repair guidance
 - install provenance / package validation
