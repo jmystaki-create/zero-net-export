@@ -1692,6 +1692,24 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     }
 
 
+def _compact_setup_checklist_lines(checklist: list[dict[str, Any]] | None) -> list[str]:
+    items = list(checklist or [])
+    if not items:
+        return ["- Setup checklist status: no checklist available yet."]
+
+    complete_count = sum(1 for item in items if item.get("complete"))
+    pending_labels = [str(item.get("label") or "Unnamed check").strip() for item in items if not item.get("complete")]
+    lines = [f"- Setup checklist status: {complete_count}/{len(items)} complete"]
+    if pending_labels:
+        preview = ", ".join(label for label in pending_labels[:3] if label)
+        remaining = len(pending_labels) - min(len(pending_labels), 3)
+        suffix = f", +{remaining} more" if remaining > 0 else ""
+        lines.append(f"- Next incomplete checks: {preview}{suffix}")
+    else:
+        lines.append("- Next incomplete checks: all current setup checks are complete")
+    return lines
+
+
 def build_native_support_center(coordinator: Any) -> str:
     """Return a compact operator-facing diagnostics guide for native HA surfaces."""
     state, _, _, operator_readiness = _build_support_sections(coordinator)
@@ -1699,10 +1717,7 @@ def build_native_support_center(coordinator: Any) -> str:
     install_provenance = build_install_provenance()
     source_attention = build_source_attention_details(state)
     blocking_keys = _blocking_source_attention_keys(source_attention)
-    checklist_lines = [
-        f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
-        for item in operator_readiness.get('checklist', [])
-    ]
+    checklist_lines = _compact_setup_checklist_lines(operator_readiness.get("checklist"))
     snapshot_path = f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot"
     checklist_path = f"{INTEGRATION_DEVICE_PATH} -> Show setup checklist"
     return "\n".join(
@@ -1718,23 +1733,20 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Top alerts: {command_center.get('alert_summary')}",
             f"- Live control mode: {_decision_mode_text(state)}",
             f"- Mode summary: {command_center.get('policy_status')}",
-            f"- Recommended command-center section: {command_center.get('recommended_section')}",
-            f"- Recommended command-center path: {command_center.get('recommended_path')}",
+            f"- Recommended path now: {command_center.get('recommended_section')} -> {command_center.get('recommended_path')}",
             f"- Recommended next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
-            f"- Why this section is recommended: {command_center.get('recommended_reason')}",
             "",
             "Mapped-source triage",
             f"- Current mapped-source blockers: {command_center.get('source_attention_summary')}",
             f"- Blocking roles now: {_format_source_role_list(blocking_keys) if blocking_keys else 'None'}",
             f"- Affected mapped roles: {command_center.get('source_attention_roles')}",
-            f"- Unavailable mapped roles: {command_center.get('unavailable_sources')}",
-            f"- Stale mapped roles: {command_center.get('stale_sources')}",
             f"- Mapped-source repair path: {command_center.get('source_repair_step')}",
             "",
             "Install validation",
             f"- Installed package: {command_center.get('install_status')}",
             f"- Install consistency: {command_center.get('install_consistency')}",
             f"- Install provenance: {install_provenance.get('summary', 'n/a')}",
+            *checklist_lines,
             "",
             "Bucket ownership and paths",
             f"- {SOURCES_SECTION_LABEL}: {command_center.get('sources_path')}",
@@ -1745,8 +1757,5 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
             f"- Review diagnostics snapshot: {snapshot_path}",
             f"- Show setup checklist: {checklist_path}",
-            "",
-            "Checklist",
-            *(checklist_lines or ["- No checklist available yet."]),
         ]
     )

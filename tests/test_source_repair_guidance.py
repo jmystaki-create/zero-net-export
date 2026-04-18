@@ -428,7 +428,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Bucket ownership and paths", support_center)
         self.assertIn("- Live control mode:", support_center)
         self.assertIn("- Mode summary:", support_center)
-        self.assertIn("- Why this section is recommended:", support_center)
+        self.assertIn("- Recommended path now:", support_center)
+        self.assertNotIn("- Why this section is recommended:", support_center)
+        self.assertIn("- Setup checklist status:", support_center)
+        self.assertIn("- Next incomplete checks:", support_center)
+        self.assertNotIn("\nChecklist\n", support_center)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Controls: {native_support.POLICY_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
@@ -865,8 +869,9 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             "Affected mapped roles: Solar power -> Pv Power (unavailable; Solar power entity sensor.pv_power is unavailable)",
             support_center,
         )
-        self.assertIn("Unavailable mapped roles: Solar power", support_center)
-        self.assertIn("Stale mapped roles: None", support_center)
+        self.assertIn("Blocking roles now: Solar power", support_center)
+        self.assertNotIn("Unavailable mapped roles:", support_center)
+        self.assertNotIn("Stale mapped roles:", support_center)
 
 
 if __name__ == "__main__":
