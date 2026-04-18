@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.87`
 
 ### Fixed
+- Extended the legacy discovery cleanup helper so it now removes nested `backup_*` artifacts and matching `backup_*.pyc` files from inside `custom_components/zero_net_export`, covering the newer `custom_components.zero_net_export.backup_*` import-failure variant that sibling-only cleanup missed.
 - Hardened the Home Assistant command-center guide and diagnostics snapshot against shorthand `Open Configure > ...` drift by expanding those prompts back to the exact native Configure paths in the rendered operator copy.
 - Tightened the Home Assistant command-center operator board copy so the setup surface stays more compact and clearly setup-first instead of drifting back into a broader support-heavy console.
 - Tightened Home Assistant Diagnostics bucket wording and aligned diagnostics guide, snapshot, and runtime-attention copy so the native IA split stays clearer between operator workflow and troubleshooting surfaces.

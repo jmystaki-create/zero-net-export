@@ -13,6 +13,10 @@ LEGACY_BACKUP_PREFIXES = (
     f"{COMPONENT_DIRNAME}.backup_",
     f"{COMPONENT_DIRNAME}.backup-",
 )
+LEGACY_COMPONENT_CHILD_PREFIXES = (
+    "backup_",
+    "backup-",
+)
 
 
 def normalize_custom_components_root(path: Path) -> Path:
@@ -37,14 +41,36 @@ def legacy_backup_paths(custom_components_root: Path) -> list[Path]:
     return matches
 
 
+def legacy_component_child_paths(custom_components_root: Path) -> list[Path]:
+    component_root = custom_components_root / COMPONENT_DIRNAME
+    if not component_root.exists() or not component_root.is_dir():
+        return []
+
+    matches: list[Path] = []
+    for child in sorted(component_root.iterdir(), key=lambda item: item.name):
+        if any(child.name.startswith(prefix) for prefix in LEGACY_COMPONENT_CHILD_PREFIXES):
+            matches.append(child)
+    return matches
+
+
 def stale_zero_net_export_bytecode_paths(custom_components_root: Path) -> list[Path]:
     if not custom_components_root.exists():
         return []
 
+    component_root = custom_components_root / COMPONENT_DIRNAME
+    component_pycache_root = component_root / "__pycache__"
+
     matches: list[Path] = []
     for cache_dir in sorted(custom_components_root.rglob("__pycache__"), key=lambda item: str(item)):
         for artifact in sorted(cache_dir.iterdir(), key=lambda item: item.name):
-            if artifact.is_file() and artifact.name.startswith(f"{COMPONENT_DIRNAME}."):
+            if not artifact.is_file():
+                continue
+            if artifact.name.startswith(f"{COMPONENT_DIRNAME}."):
+                matches.append(artifact)
+                continue
+            if component_pycache_root in artifact.parents and any(
+                artifact.name.startswith(prefix) for prefix in LEGACY_COMPONENT_CHILD_PREFIXES
+            ):
                 matches.append(artifact)
     return matches
 
@@ -52,23 +78,29 @@ def stale_zero_net_export_bytecode_paths(custom_components_root: Path) -> list[P
 def scan_artifacts(custom_components_root: Path) -> dict[str, list[str]]:
     return {
         "legacy_backup_paths": [str(path) for path in legacy_backup_paths(custom_components_root)],
+        "legacy_component_child_paths": [str(path) for path in legacy_component_child_paths(custom_components_root)],
         "stale_bytecode_paths": [str(path) for path in stale_zero_net_export_bytecode_paths(custom_components_root)],
     }
 
 
 def clean_artifacts(custom_components_root: Path) -> dict[str, list[str]]:
     backup_paths = legacy_backup_paths(custom_components_root)
+    component_child_paths = legacy_component_child_paths(custom_components_root)
     bytecode_paths = stale_zero_net_export_bytecode_paths(custom_components_root)
 
     removed_backups: list[str] = []
+    removed_component_children: list[str] = []
     removed_bytecode: list[str] = []
 
-    for path in backup_paths:
+    for path in backup_paths + component_child_paths:
         if path.is_dir():
             shutil.rmtree(path)
         else:
             path.unlink()
-        removed_backups.append(str(path))
+        if path in backup_paths:
+            removed_backups.append(str(path))
+        else:
+            removed_component_children.append(str(path))
 
     for path in bytecode_paths:
         path.unlink(missing_ok=True)
@@ -76,6 +108,7 @@ def clean_artifacts(custom_components_root: Path) -> dict[str, list[str]]:
 
     return {
         "removed_backup_paths": removed_backups,
+        "removed_component_child_paths": removed_component_children,
         "removed_stale_bytecode_paths": removed_bytecode,
     }
 
