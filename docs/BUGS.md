@@ -588,8 +588,8 @@ Suggested area labels:
 - **severity:** `high`
 - **area:** `release`
 - **historical behavior:** this bug was opened when a claimed `0.1.87` install still showed `0.1.86` on the device page, and the immediate evidence suggested the live manifest never actually moved off `0.1.86`.
-- **live validation correction:** this watchdog run rechecked the documented HA SSH fingerprint path and confirmed the current live install is an exact match for the current repo candidate, with both local and live `manifest.json` still intentionally aligned on `0.1.86`. There is no current repo-versus-live version-surface mismatch to debug.
-- **closure evidence:** `custom_components/zero_net_export/manifest.json` in repo is `0.1.86`, the live fingerprint recheck in this run reports `manifest_version_matches=true` and `overall_match=true`, and the broader source of truth still says `0.1.87` remains the not-yet-frozen rollout target rather than the active shipped line. That makes the earlier `0.1.87` display bug a stale release-claim issue, not an open current product defect.
+- **live validation correction:** this bug was closed because the earlier `0.1.87` display report turned out to be a stale release-claim issue, not because the current live install is guaranteed to match repo HEAD. Treat any current repo-versus-live version drift as a separate active blocker, not as evidence that this closed display bug has returned.
+- **closure evidence:** this entry stays closed because the original bug was a stale `0.1.87` release claim rather than a current version-surface defect in the repo candidate itself. The broader source of truth still says `0.1.87` remains the not-yet-frozen rollout target rather than the active shipped line. Do not reuse this closed entry as proof of current exact-build match; current repo-versus-live fingerprint drift is tracked separately under the active `0.1.87` blocker in ZNE-003.
 
 ## ZNE-049 - Managed Devices UI absence report was stale; live HA already exposes the workspace entities
 - **closed on:** 2026-04-18
@@ -597,8 +597,8 @@ Suggested area labels:
 - **area:** `managed_devices`
 - **historical behavior:** a screenshot taken right after the claimed `v0.1.87` install appeared to show no evidence of the Managed Devices workspace, so this bug was opened as if the rich fleet summaries and review entry points were missing live.
 - **live validation correction:** this run used the documented HA API path and confirmed the Managed Devices workspace is already present in live Home Assistant. `sensor.zero_net_export_managed_fleet_overview`, `sensor.zero_net_export_unmanaged_candidate_overview`, `sensor.zero_net_export_candidate_shortlist`, `sensor.zero_net_export_fleet_console_next_step`, `button.zero_net_export_show_fleet_console`, and `button.zero_net_export_show_managed_device_review` all exist and expose the managed/unmanaged split, fixed-vs-variable candidate mix, review-first hints, and workspace/review entry points.
-- **remaining live drift:** none from repo-versus-live install mismatch. This watchdog run's documented SSH fingerprint recheck now reports `overall_match=true`, so the closed bug remains accurately scoped to the earlier stale absence report rather than a still-mixed build.
-- **closure evidence:** live Home Assistant API inspection already proved the Managed Devices workspace exists, and this watchdog run's documented SSH fingerprint recheck removes the last old exact-build caveat by confirming the current live install now exactly matches the repo candidate too.
+- **remaining live drift:** the workspace-absence report remains stale, but this closed entry does not clear the separate active repo-versus-live fingerprint mismatch now tracked elsewhere. Presence of the Managed Devices workspace and exact-build parity must be treated as different questions.
+- **closure evidence:** live Home Assistant API inspection already proved the Managed Devices workspace exists. That keeps this bug closed as an absence-report correction only, without using it as evidence that the current live install exactly matches repo HEAD.
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
