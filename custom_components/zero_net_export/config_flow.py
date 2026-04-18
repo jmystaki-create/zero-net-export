@@ -918,10 +918,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             summary += f" | {'1 needs review' if review_needed_count == 1 else f'{review_needed_count} need review'}"
             if review_name and review_candidate is not top_candidate:
                 summary += f" | review first: {review_name}"
-                summary += f" | review fit: {build_candidate_review_hint(review_candidate, include_warning=False)}"
+                summary += f" | review usefulness: {build_candidate_review_hint(review_candidate, include_warning=False)}"
         if top_candidate:
-            top_fit = build_candidate_review_hint(top_candidate, include_warning=False)
-            summary += f" | top fit: {top_fit}"
+            top_usefulness = build_candidate_review_hint(top_candidate, include_warning=False)
+            summary += f" | top usefulness: {top_usefulness}"
             top_warning_hint = build_candidate_review_hint(top_candidate, include_warning=True, max_warning_chars=40)
             if " | warn " in top_warning_hint:
                 _, _, warning = top_warning_hint.partition(" | warn ")
