@@ -115,6 +115,8 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(variable_fit["suitability_level"], "medium")
         self.assertEqual(variable_fit["safety_level"], "medium")
         self.assertIn("Variable control", variable_fit["suitability_summary"])
+        self.assertNotIn("strong fit", variable_fit["suitability_summary"])
+        self.assertNotIn("strong operational value", variable_fit["operational_value_summary"])
 
     def test_assess_candidate_caps_helper_backed_variable_controls_at_review_first_confidence(self) -> None:
         module = _load_candidate_utils_module()

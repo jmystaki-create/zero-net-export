@@ -430,8 +430,8 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     elif domain in {"number", "input_number"} and kind == "variable":
         confidence = "high" if domain == "number" else "medium"
         summary = "Number-style entities are usually likely variable-load candidates when they represent a real power or current target."
-        suitability_summary = "Writable number entities are a strong fit for variable control when they directly represent power, current, or another real throttling target."
-        operational_value_summary = "Variable loads often provide strong operational value because they can track export more smoothly than simple on/off loads."
+        suitability_summary = "Writable number entities are usually a good native fit for variable control when they directly represent power, current, or another real throttling target."
+        operational_value_summary = "Variable loads often provide good operational value because they can track export more smoothly than simple on/off loads."
         if domain == "input_number":
             safety_summary = "Confidence is only moderate for helpers until you confirm this input_number actually drives a real device and is not just a dashboard helper."
             warnings.append(
