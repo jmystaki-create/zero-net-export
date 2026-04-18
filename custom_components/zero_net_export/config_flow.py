@@ -746,6 +746,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
 
     @staticmethod
+    def _active_planned_action(device: dict[str, Any]) -> str:
+        planned_action = str(device.get("planned_action") or "").strip()
+        return planned_action if planned_action not in {"", "hold"} else ""
+
+    @staticmethod
     def _device_status_label(device: dict[str, Any]) -> str:
         state = "enabled" if device.get("effective_enabled", device.get("enabled", True)) else "disabled"
         priority = int(device.get("priority", 0) or 0)
@@ -762,8 +767,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             runtime_bits.append(f"target {_format_runtime_power_label(device.get('current_target_power_w'))}")
         if device.get("guard_status"):
             runtime_bits.append(f"guard {device.get('guard_status')}")
-        if device.get("planned_action"):
-            runtime_bits.append(f"action {device.get('planned_action')}")
+        planned_action = ZeroNetExportOptionsFlow._active_planned_action(device)
+        if planned_action:
+            runtime_bits.append(f"action {planned_action}")
         if device.get("last_action_status"):
             runtime_bits.append(f"last {device.get('last_action_status')}")
         if operator_priority_override is not None:
@@ -783,7 +789,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
         blocked_count = sum(1 for device in devices if device.get("usable") is False)
-        planned_count = sum(1 for device in devices if str(device.get("planned_action") or "") not in {"", "hold"})
+        planned_count = sum(1 for device in devices if self._active_planned_action(device))
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
@@ -871,7 +877,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (
                 str(device.get("name") or device.get("entity_id") or "")
                 for device in ordered
-                if str(device.get("planned_action") or "") not in {"", "hold"}
+                if self._active_planned_action(device)
             ),
             "",
         )

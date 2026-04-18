@@ -415,6 +415,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("guard cooldown", summary_lines[1])
         self.assertIn("priority override 20", summary_lines[1])
         self.assertIn("enabled override off", summary_lines[1])
+        self.assertNotIn("action hold", variable_label)
+        self.assertNotIn("action hold", summary_lines[1])
         self.assertIn("Pool pump", summary_lines[2])
         self.assertIn("power 1185 W", summary_lines[2])
         self.assertIn("action turn_on", summary_lines[2])
@@ -647,7 +649,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(
             shortlist["description_placeholders"]["device_summary"],
             "- Fleet summary: 2 device(s), 1 enabled, 1 usable, 1 blocked, 1 planned action(s), 1 fixed, 1 variable, 0 W nominal controllable power\n"
-            "- EV charger [not usable | power n/a | action hold] (variable, disabled, priority 0, nominal 0 W)\n"
+            "- EV charger [not usable | power n/a] (variable, disabled, priority 0, nominal 0 W)\n"
             "- Pool pump [usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)",
         )
         self.assertEqual(

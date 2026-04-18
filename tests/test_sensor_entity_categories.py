@@ -265,7 +265,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             summary.native_value,
-            "variable load | Guarded | not usable | enabled | priority 60 | priority override 45 | enabled override off | power 620 W | target 1400 W | guard blocked | action hold | last guard_blocked",
+            "variable load | Guarded | not usable | enabled | priority 60 | priority override 45 | enabled override off | power 620 W | target 1400 W | guard blocked | last guard_blocked",
         )
 
     def test_managed_fleet_overview_surfaces_unmanaged_backlog_when_fleet_is_empty(self) -> None:

@@ -786,6 +786,11 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         super().__init__(coordinator, f"device_{device_key}_managed_summary", f"{device_name} managed summary")
         self._device_key = device_key
 
+    @staticmethod
+    def _active_planned_action(detail: dict[str, Any]) -> str:
+        planned_action = str(detail.get("planned_action") or "").strip()
+        return planned_action if planned_action not in {"", "hold"} else ""
+
     @property
     def native_value(self):
         state = self._state
@@ -813,7 +818,9 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         guard_status = str(detail.get("guard_status") or "").strip()
         if guard_status and guard_status not in {"ready", "idle"}:
             runtime_bits.append(f"guard {guard_status}")
-        runtime_bits.append(f"action {detail.get('planned_action') or 'hold'}")
+        planned_action = self._active_planned_action(detail)
+        if planned_action:
+            runtime_bits.append(f"action {planned_action}")
         last_action_status = str(detail.get("last_action_status") or "").strip()
         if last_action_status and last_action_status not in {"ok", "applied", "success"}:
             runtime_bits.append(f"last {last_action_status}")
