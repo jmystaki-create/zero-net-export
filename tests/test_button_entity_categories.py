@@ -367,8 +367,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices workspace")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
-        self.assertIn("Workspace path: devices path", message)
-        self.assertIn("Detailed review path: detailed device path", message)
+        self.assertIn("Primary Managed Devices workspace: devices path", message)
+        self.assertIn("Secondary device-page review path: detailed device path", message)
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Managed devices (top section):", message)
@@ -576,7 +576,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("entity=switch.pool_pump", message)
         self.assertIn("Top unmanaged candidates:", message)
         self.assertIn("- Hot water (fixed, state off)", message)
-        self.assertIn("Detailed device-view path: detailed device path", message)
+        self.assertIn("Secondary device-page audit path: detailed device path", message)
         self.assertIn("Use the per-device Review buttons on the Zero Net Export device page when you need a deeper audit trail for one managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
@@ -960,7 +960,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
-        self.assertIn("Managed Devices path: devices path", message)
+        self.assertIn("Primary Managed Devices workspace: devices path", message)
         self.assertIn("Recommended next step: Review the next managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)

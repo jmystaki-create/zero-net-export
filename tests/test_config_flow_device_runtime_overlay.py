@@ -777,7 +777,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._detailed_management_summary(),
-            f"Use {module.DETAILED_MANAGEMENT_PATH} for deeper managed-device review.",
+            f"Use {module.DETAILED_MANAGEMENT_PATH} as the secondary device-page review path for deeper managed-device review.",
         )
 
     def test_managed_snapshot_treats_non_executable_plans_as_blocked_before_usable_flips_false(self) -> None:
@@ -1483,9 +1483,9 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | fixed managed: 1 | nominal: 0 W | blocked first: none | next plan: none", feedback["message"])
         self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | 2 need review | fixed review: 1 | variable review: 1 | top usefulness: likely useful", feedback["message"])
         self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
-        self.assertIn("Managed Devices path: devices path", feedback["message"])
+        self.assertIn("Primary Managed Devices workspace: devices path", feedback["message"])
         self.assertIn(
-            "Detailed review path, only after the main fleet step is clear: detailed device path",
+            "Secondary device-page review path, only after the main fleet step is clear: detailed device path",
             feedback["message"],
         )
         self.assertIn(

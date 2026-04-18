@@ -1487,8 +1487,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         message_lines.extend(
             [
                 "",
-                f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
-                f"Detailed review path, only after the main fleet step is clear: {DETAILED_MANAGEMENT_PATH}",
+                f"Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
+                f"Secondary device-page review path, only after the main fleet step is clear: {DETAILED_MANAGEMENT_PATH}",
                 next_step,
             ]
         )
@@ -2323,7 +2323,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         command_center = build_native_command_center_summary(self._coordinator())
         return str(
             command_center.get("detailed_management_summary")
-            or f"Use {DETAILED_MANAGEMENT_PATH} for deeper managed-device review."
+            or f"Use {DETAILED_MANAGEMENT_PATH} as the secondary device-page review path for deeper managed-device review."
         )
 
     async def async_step_devices(self, user_input=None):

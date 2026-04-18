@@ -573,8 +573,8 @@ def _build_managed_device_detail_lines(
     lines = [
         "Zero Net Export managed-device detail review",
         "",
-        f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
-        f"Detailed device-view path: {DETAILED_MANAGEMENT_PATH}",
+        f"Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
+        f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
         f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
         "",
@@ -767,8 +767,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         lines = [
             'Zero Net Export managed devices workspace',
             '',
-            f'Workspace path: {DEVICES_CONFIGURE_PATH}',
-            f'Detailed review path: {DETAILED_MANAGEMENT_PATH}',
+            f'Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}',
+            f'Secondary device-page review path: {DETAILED_MANAGEMENT_PATH}',
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),
             '',
@@ -921,8 +921,8 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         lines = [
             "Zero Net Export managed devices review",
             "",
-            f"Managed Devices path: {DEVICES_CONFIGURE_PATH}",
-            f"Detailed device-view path: {DETAILED_MANAGEMENT_PATH}",
+            f"Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
+            f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
             *(["", *blocker_first_lines] if blocker_first_lines else []),
             "",
