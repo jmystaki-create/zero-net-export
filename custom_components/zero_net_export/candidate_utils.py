@@ -52,6 +52,20 @@ def first_review_candidate(candidates: Iterable[dict[str, Any]]) -> dict[str, An
     return None
 
 
+def candidate_review_kind_counts(candidates: Iterable[dict[str, Any]]) -> tuple[int, int]:
+    """Return fixed and variable review-first counts for the surfaced candidates."""
+    fixed_review_count = 0
+    variable_review_count = 0
+    for candidate in candidates:
+        if not candidate_needs_review(assess_candidate(candidate)):
+            continue
+        if str(candidate.get("kind") or "") == "variable":
+            variable_review_count += 1
+        else:
+            fixed_review_count += 1
+    return fixed_review_count, variable_review_count
+
+
 def format_count_label(count: int, singular: str, plural: str | None = None) -> str:
     """Return a compact count label with correct singular/plural wording."""
     if plural is None:
@@ -724,6 +738,7 @@ def build_candidate_overview_summary(
     fixed_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "fixed")
     variable_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "variable")
     review_needed_count = sum(1 for item in candidate_list if candidate_needs_review(assess_candidate(item)))
+    fixed_review_count, variable_review_count = candidate_review_kind_counts(candidate_list)
     review_candidate = first_review_candidate(candidate_list)
     review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
     top_name = str(candidate_list[0].get("name") or candidate_list[0].get("entity_id") or "").strip()
@@ -734,6 +749,10 @@ def build_candidate_overview_summary(
         summary_parts.append(format_count_label(variable_count, "variable candidate"))
     if review_needed_count:
         summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
+        if fixed_review_count:
+            summary_parts.append(format_count_label(fixed_review_count, "fixed review"))
+        if variable_review_count:
+            summary_parts.append(format_count_label(variable_review_count, "variable review"))
         if review_candidate_name and review_candidate_name != top_name:
             summary_parts.append(f"review {review_candidate_name}")
             summary_parts.append(build_candidate_review_hint(review_candidate))

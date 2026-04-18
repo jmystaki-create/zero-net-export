@@ -135,6 +135,20 @@ def _load_sensor_module():
         )
     )
     candidate_utils_module.candidate_needs_review = lambda fit: str((fit or {}).get("confidence") or "medium") != "high"
+    candidate_utils_module.candidate_review_kind_counts = lambda candidates: (
+        sum(
+            1
+            for candidate in candidates
+            if candidate_utils_module.candidate_needs_review(candidate_utils_module.assess_candidate(candidate))
+            and str((candidate or {}).get("kind") or "") != "variable"
+        ),
+        sum(
+            1
+            for candidate in candidates
+            if candidate_utils_module.candidate_needs_review(candidate_utils_module.assess_candidate(candidate))
+            and str((candidate or {}).get("kind") or "") == "variable"
+        ),
+    )
     candidate_utils_module.first_review_candidate = lambda candidates: next(
         (
             candidate
@@ -331,7 +345,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label")
+        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label")
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
         self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
         self.assertEqual(overview.extra_state_attributes["top_candidate_name"], "AC Outlet 2")
@@ -481,7 +495,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
@@ -580,7 +594,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
+            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -622,7 +636,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | repair sources first | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | repair sources first | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
         )
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
@@ -826,7 +840,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
+            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)

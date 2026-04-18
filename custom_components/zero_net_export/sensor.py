@@ -13,6 +13,7 @@ from .candidate_utils import (
     build_candidate_overview_summary,
     build_candidate_preview,
     candidate_needs_review,
+    candidate_review_kind_counts,
     discover_candidate_devices,
     first_review_candidate,
 )
@@ -341,6 +342,19 @@ def _truncate_sensor_state(text: str, *, max_chars: int = 255) -> str:
     return f"{text[: max_chars - 3].rstrip()}..."
 
 
+def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
+    summary = " | ".join(parts)
+    if len(summary) <= max_chars:
+        return summary
+    compact_parts = [
+        part
+        for part in parts
+        if " fixed review" not in part and " variable review" not in part
+    ]
+    compact_summary = " | ".join(compact_parts)
+    return _truncate_sensor_state(compact_summary, max_chars=max_chars)
+
+
 def _merged_entry_config(entry) -> dict[str, object]:
     merged = dict(getattr(entry, "data", {}) or {})
     merged.update(dict(getattr(entry, "options", {}) or {}))
@@ -381,6 +395,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 (item for item in candidates if candidate_needs_review(assess_candidate(item))),
                 None,
             )
+            fixed_review_count, variable_review_count = candidate_review_kind_counts(candidates)
             review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
             review_candidate_preview = build_candidate_compact_preview(review_candidate) if review_candidate else ""
             first_blocked_name = _first_matching_device_name(
@@ -408,11 +423,15 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
+                    if fixed_review_count:
+                        summary_parts.append(_count_label(fixed_review_count, "fixed review"))
+                    if variable_review_count:
+                        summary_parts.append(_count_label(variable_review_count, "variable review"))
                     if review_candidate_name and review_candidate_name != top_candidate_name:
                         summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
                 if top_candidate_name:
                     summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
-                return _truncate_sensor_state(" | ".join(summary_parts))
+                return _fleet_overview_state(summary_parts)
             if candidate_count:
                 if fixed_candidate_count:
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
@@ -420,6 +439,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
+                    if fixed_review_count:
+                        summary_parts.append(_count_label(fixed_review_count, "fixed review"))
+                    if variable_review_count:
+                        summary_parts.append(_count_label(variable_review_count, "variable review"))
                     if review_candidate_name and review_candidate_name != top_candidate_name:
                         summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
                 if top_candidate_name:
@@ -452,7 +475,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(f"{counts['variable_count']} variable managed")
             if counts["nominal_power_w"]:
                 summary_parts.append(f"{counts['nominal_power_w']} W nominal")
-            return _truncate_sensor_state(" | ".join(summary_parts))
+            return _fleet_overview_state(summary_parts)
         if self._key == "unmanaged_candidate_count":
             return len(candidates or [])
         if self._key == "unmanaged_candidate_overview":
