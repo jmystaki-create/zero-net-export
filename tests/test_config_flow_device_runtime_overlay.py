@@ -1149,7 +1149,13 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "warnings": [],
         }
         module.build_candidate_review_hint = lambda candidate, include_warning=True, max_warning_chars=56, **kwargs: (
-            "likely useful" if candidate.get("entity_id") == "switch.hot_water" else "review carefully"
+            "likely useful"
+            if candidate.get("entity_id") == "switch.hot_water"
+            else (
+                "review carefully | warn Helper-backed load needs review."
+                if include_warning
+                else "review carefully"
+            )
         )
         summary = module.ZeroNetExportOptionsFlow._unmanaged_snapshot_text(
             [
@@ -1168,7 +1174,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | review first: Virtual load | review usefulness: review carefully | top usefulness: likely useful",
+            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | review first: Virtual load | review usefulness: review carefully | review warning: Helper-backed load needs review. | top usefulness: likely useful",
         )
 
     def test_build_device_action_feedback_for_bulk_enable_summarizes_fleet(self) -> None:
