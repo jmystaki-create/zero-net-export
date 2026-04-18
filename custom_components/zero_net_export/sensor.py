@@ -361,6 +361,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         if self._key == "managed_fleet_overview":
             counts = _managed_fleet_counts(state.device_details)
+            blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
             candidate_count = len(candidates)
             fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
             variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
@@ -419,9 +420,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(build_candidate_review_hint(candidates[0]))
             if source_blocked:
                 summary_parts.append("repair sources first")
-            if counts["blocked_count"]:
+            if blocked_activity_count:
                 summary_parts.append(
-                    f"blocked {first_blocked_name}" if first_blocked_name else f"{counts['blocked_count']} blocked"
+                    f"blocked {first_blocked_name}" if first_blocked_name else f"blocked {blocked_activity_count}"
                 )
             if counts["planned_count"]:
                 summary_parts.append(
@@ -466,6 +467,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             return build_candidate_fit_summary(candidates or [])
         if self._key == "fleet_console_next_step":
             counts = _managed_fleet_counts(state.device_details)
+            blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
@@ -493,7 +495,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return _truncate_sensor_state(
                     f"Open {DEVICES_CONFIGURE_PATH} and promote {top_candidate_name or 'the top candidate'} into Managed Devices"
                 )
-            if counts["blocked_count"]:
+            if blocked_activity_count:
                 target = f" starting with {first_blocked_name}" if first_blocked_name else ""
                 return _truncate_sensor_state(
                     f"Open {DEVICES_CONFIGURE_PATH}, review blocked managed devices{target}, then fix the next guard or readiness issue"
@@ -620,6 +622,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if state is None:
                 return None
             candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
+            counts = _managed_fleet_counts(state.device_details)
+            blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
             top_candidate = candidates[0] if candidates else None
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
@@ -627,9 +631,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             return {
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "managed_devices": list((state.device_details or {}).values()),
-                **_managed_fleet_counts(state.device_details),
+                **counts,
                 "candidate_devices": candidates[:12],
                 "candidate_count": len(candidates),
+                "blocked_activity_count": blocked_activity_count,
+                "blocked_planned_action_count": int(getattr(state, "blocked_planned_action_count", 0) or 0),
                 "fixed_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'fixed'),
                 "variable_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'variable'),
                 "top_candidate": top_candidate,
