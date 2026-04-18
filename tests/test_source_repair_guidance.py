@@ -450,11 +450,13 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertNotIn("Diagnostics snapshot\nZero Net Export diagnostics snapshot", support_center)
 
-    def test_detailed_management_path_uses_diagnostics_wording(self) -> None:
+    def test_detailed_management_path_uses_review_action_wording(self) -> None:
         native_support = _load_native_support_module()
         self.assertNotIn("diagnostics actions", native_support.DETAILED_MANAGEMENT_PATH)
         self.assertNotIn("native support actions", native_support.DETAILED_MANAGEMENT_PATH)
-        self.assertIn("managed-device review buttons", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertIn("Review managed devices workspace", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertIn("Review managed devices", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertIn("per-device Review buttons", native_support.DETAILED_MANAGEMENT_PATH)
 
     def test_support_snapshot_uses_diagnostics_snapshot_wording(self) -> None:
         native_support = _load_native_support_module()

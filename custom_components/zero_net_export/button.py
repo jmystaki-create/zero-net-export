@@ -977,12 +977,12 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 has_managed_devices=bool(ordered),
             ),
             "",
-            "Use each managed-device review button on the Zero Net Export device page for a deeper per-device snapshot, plus the paired status sensors and reset-override buttons.",
+            "Use the per-device Review buttons on the Zero Net Export device page when you need a deeper audit trail for one managed device.",
         ]
         persistent_notification.async_create(
             self.hass,
             "\n".join(lines),
-            title=f"{self.coordinator.entry.title}: managed-device review",
+            title=f"{self.coordinator.entry.title}: managed devices review",
             notification_id=_managed_device_review_notification_id(self.coordinator.entry.entry_id),
         )
 

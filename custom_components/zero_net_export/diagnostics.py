@@ -185,7 +185,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "device_page_buttons": [
                 "Show command center guide",
                 "Review managed devices",
-                "Review buttons for each configured load",
+                "Review each managed device",
                 "Review diagnostics",
                 "Review diagnostics snapshot",
                 "Show setup checklist",

@@ -548,6 +548,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         asyncio.run(button.async_press())
 
         self.assertEqual(len(notification_calls), 1)
+        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices review")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
@@ -576,6 +577,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Top unmanaged candidates:", message)
         self.assertIn("- Hot water (fixed, state off)", message)
         self.assertIn("Detailed device-view path: detailed device path", message)
+        self.assertIn("Use the per-device Review buttons on the Zero Net Export device page when you need a deeper audit trail for one managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Return after blocker repair:", message)

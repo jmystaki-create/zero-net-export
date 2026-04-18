@@ -65,7 +65,7 @@ SOURCES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {SOURCES_SECTION_LABEL}"
 DEVICES_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {DEVICES_SECTION_LABEL}"
 ADVANCED_DEVICES_CONFIGURE_PATH = f"{DEVICES_CONFIGURE_PATH} -> Advanced JSON editor and recovery"
 DETAILED_MANAGEMENT_PATH = (
-    f"{INTEGRATION_DEVICE_PATH} -> managed-device review buttons, per-device status sensors, and reset-override buttons"
+    f"{INTEGRATION_DEVICE_PATH} -> Review managed devices workspace / Review managed devices / per-device Review buttons"
 )
 DIAGNOSTICS_DEVICE_ACTIONS_PATH = (
     f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics / Show setup checklist / Review diagnostics snapshot"
