@@ -283,7 +283,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         }
         native_support.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
         native_support.build_candidate_review_hint = lambda candidate, include_warning=True: (
-            "likely useful" if candidate and candidate.get("name") == "Dishwasher Power" else "review carefully"
+            "likely useful"
+            if candidate and candidate.get("name") == "Dishwasher Power"
+            else ("review carefully | warn generic circuit label" if include_warning else "review carefully")
         )
         native_support.build_candidate_preview = lambda candidate, include_entity_id=False, include_state=False: (
             "Dishwasher Power (fixed) | likely useful"
@@ -323,6 +325,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("review Garage Power", summary["fleet_activity_summary"])
         self.assertIn("review carefully", summary["fleet_activity_summary"])
+        self.assertIn("warn generic circuit label", summary["fleet_activity_summary"])
         self.assertIn("top Dishwasher Power", summary["fleet_activity_summary"])
         self.assertIn("likely useful", summary["fleet_activity_summary"])
         self.assertIn("2 unmanaged ready", summary["device_status"])

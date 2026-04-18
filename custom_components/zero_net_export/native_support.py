@@ -1356,7 +1356,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if review_candidate
         else ""
     )
-    review_candidate_hint = build_candidate_review_hint(review_candidate, include_warning=False) if review_candidate else ""
+    review_candidate_hint = build_candidate_review_hint(review_candidate) if review_candidate else ""
     _, primary_candidate_focus = _primary_candidate_focus(candidates)
     candidate_count = len(candidates)
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
