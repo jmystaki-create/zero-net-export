@@ -670,6 +670,18 @@ def _runtime_device_has_blocked_activity(detail: dict[str, Any]) -> bool:
     return planned_action not in {"", "hold"} and detail.get("action_executable") is False
 
 
+def _runtime_device_has_active_plan(detail: dict[str, Any]) -> bool:
+    planned_action = str(detail.get("planned_action") or "").strip().lower()
+    return planned_action not in {"", "hold"}
+
+
+def _runtime_device_needs_attention(detail: dict[str, Any]) -> bool:
+    if _runtime_device_has_blocked_activity(detail) or _runtime_device_has_active_plan(detail):
+        return True
+    last_action_status = str(detail.get("last_action_status") or "").strip().lower()
+    return bool(last_action_status and last_action_status not in {"ok", "applied", "success"})
+
+
 def _command_center_runtime_device_preview(detail: dict[str, Any] | None) -> str:
     if not detail:
         return ""
@@ -1357,6 +1369,15 @@ def _build_command_center_fleet_activity_summary(
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
     kind_known, fixed_managed_count, variable_managed_count, nominal_power_w = _managed_runtime_mix(state)
     active_managed_count, active_managed_power_w = _managed_runtime_activity(state)
+    first_attention_device = _first_runtime_device_detail(
+        state,
+        predicate=_runtime_device_needs_attention,
+    )
+    attention_device_count = (
+        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_needs_attention(detail))
+        if state is not None
+        else 0
+    )
     first_blocked_device = _first_runtime_device_detail(
         state,
         predicate=_runtime_device_has_blocked_activity,
@@ -1371,7 +1392,7 @@ def _build_command_center_fleet_activity_summary(
     )
     first_planned_device = _first_runtime_device_detail(
         state,
-        predicate=lambda detail: str(detail.get("planned_action") or "") not in {"", "hold"},
+        predicate=_runtime_device_has_active_plan,
     )
 
     summary_parts: list[str] = [f"managed {managed_count}"]
@@ -1399,6 +1420,14 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append("repair sources first")
     if source_blocked and managed_count > 0:
         summary_parts.append("repair sources first")
+    if attention_device_count:
+        summary_parts.append(
+            "1 managed device needs attention"
+            if attention_device_count == 1
+            else f"{attention_device_count} managed devices need attention"
+        )
+    if first_attention_device and not _same_runtime_device(first_attention_device, first_blocked_device) and not _same_runtime_device(first_attention_device, first_planned_device):
+        summary_parts.append(f"attention {_command_center_runtime_device_preview(first_attention_device)}")
     if blocked_activity_count:
         summary_parts.append(
             f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
@@ -1426,14 +1455,25 @@ def _build_command_center_fleet_activity_summary(
     if len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return summary
 
-    compact_summary_parts = [
-        part
-        for part in summary_parts
-        if part not in {
-            _count_label(fixed_review_count, "fixed review") if fixed_review_count else "",
-            _count_label(variable_review_count, "variable review") if variable_review_count else "",
-        }
+    compact_summary_parts = list(summary_parts)
+    optional_prefixes = [
+        "usable ",
+        "enabled ",
+        "active managed device",
+        "fixed review",
+        "variable review",
+        "fixed managed",
+        "variable managed",
+        "W nominal",
     ]
+    for prefix in optional_prefixes:
+        if len(" | ".join(compact_summary_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            break
+        for index, part in enumerate(list(compact_summary_parts)):
+            if part.startswith(prefix) or part.endswith(prefix):
+                del compact_summary_parts[index]
+                break
+
     compact_summary = " | ".join(compact_summary_parts)
     return compact_summary if compact_summary else summary
 
