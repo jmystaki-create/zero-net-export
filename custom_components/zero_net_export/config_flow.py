@@ -981,14 +981,57 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             else "- No unmanaged candidate devices discovered right now"
         )
 
+    @staticmethod
+    def _candidate_picker_role_prefix(
+        candidate: dict[str, Any],
+        *,
+        top_candidate: dict[str, Any] | None,
+        review_candidate: dict[str, Any] | None,
+    ) -> str:
+        candidate_id = str(candidate.get("entity_id") or "")
+        is_top = bool(candidate_id) and candidate_id == str((top_candidate or {}).get("entity_id") or "")
+        is_review = bool(candidate_id) and candidate_id == str((review_candidate or {}).get("entity_id") or "")
+        if is_top and is_review:
+            return "Suggested now, review first"
+        if is_top:
+            return "Suggested now"
+        if is_review:
+            return "Review first"
+        return ""
+
+    @classmethod
+    def _candidate_picker_label(
+        cls,
+        candidate: dict[str, Any],
+        *,
+        top_candidate: dict[str, Any] | None,
+        review_candidate: dict[str, Any] | None,
+    ) -> str:
+        label = str(candidate.get("label") or candidate.get("fallback_label") or candidate.get("entity_id") or "candidate")
+        prefix = cls._candidate_picker_role_prefix(
+            candidate,
+            top_candidate=top_candidate,
+            review_candidate=review_candidate,
+        )
+        return f"{prefix}: {label}" if prefix else label
+
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:
         candidates = self._device_candidates()
         if kind:
             candidates = [item for item in candidates if item["kind"] == kind]
+        top_candidate = candidates[0] if candidates else None
+        review_candidate = next(
+            (item for item in candidates if candidate_needs_review(assess_candidate(item))),
+            None,
+        )
         return [
             selector.SelectOptionDict(
                 value=item["entity_id"],
-                label=item.get("label") or item.get("fallback_label") or item["entity_id"],
+                label=self._candidate_picker_label(
+                    item,
+                    top_candidate=top_candidate,
+                    review_candidate=review_candidate,
+                ),
             )
             for item in candidates[:100]
         ]
@@ -2262,13 +2305,40 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             self._pending_candidate_summary = None
             return await self.async_step_device_template()
 
+        devices, _ = self._load_devices()
+        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
+        all_candidates = self._device_candidates()
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(all_candidates)
+        top_candidate = all_candidates[0] if all_candidates else None
+        review_candidate = next(
+            (item for item in all_candidates if candidate_needs_review(assess_candidate(item))),
+            None,
+        )
         quick_pick_options = [
-            *(selector.SelectOptionDict(value=item["entity_id"], label=item["label"]) for item in quick_picks),
+            *(
+                selector.SelectOptionDict(
+                    value=item["entity_id"],
+                    label=self._candidate_picker_label(
+                        item,
+                        top_candidate=top_candidate,
+                        review_candidate=review_candidate,
+                    ),
+                )
+                for item in quick_picks
+            ),
             selector.SelectOptionDict(value="more", label="Show full candidate list"),
             selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
         ]
         top_candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item, include_entity_id=False, include_kind=False, include_state=True)}"
+            "- "
+            + self._candidate_picker_label(
+                {
+                    **item,
+                    "label": build_candidate_preview(item, include_entity_id=False, include_kind=False, include_state=True),
+                },
+                top_candidate=top_candidate,
+                review_candidate=review_candidate,
+            )
             for item in quick_picks
         ) if quick_picks else "- No suggested candidates right now"
         candidate_path_summary = (
@@ -2277,11 +2347,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "3. Choose a preset.\n"
             "4. Save it into Managed Devices."
         )
-        devices, _ = self._load_devices()
-        display_devices = _overlay_runtime_device_details(devices, self._coordinator())
-        all_candidates = self._device_candidates()
-        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(all_candidates)
-        top_candidate = all_candidates[0] if all_candidates else None
         return self.async_show_form(
             step_id="device_pick_candidate",
             data_schema=vol.Schema(

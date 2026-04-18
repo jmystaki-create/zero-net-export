@@ -1120,6 +1120,92 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             ["switch.air_purifier", "switch.coffee_machine", "switch.ac_outlet_2"],
         )
 
+    def test_candidate_options_label_top_and_review_first_roles(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._device_candidates = lambda: [
+            {
+                "entity_id": "switch.air_purifier",
+                "name": "Air Purifier",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
+            },
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+            },
+        ]
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "switch.ac_outlet_2" else "high",
+            "summary": "Needs review." if candidate.get("entity_id") == "switch.ac_outlet_2" else "Strong match.",
+            "warnings": ["Generic outlet label"] if candidate.get("entity_id") == "switch.ac_outlet_2" else [],
+        }
+
+        options = flow._candidate_options(kind=module.DEVICE_KIND_FIXED)
+
+        self.assertEqual(
+            options[0]["label"],
+            "Suggested now: Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
+        )
+        self.assertEqual(
+            options[1]["label"],
+            "Review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+        )
+
+    def test_candidate_shortlist_summary_marks_review_first_top_candidate(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None), data={})
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._load_devices = lambda: ([], [])
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._device_blocker_summary = lambda: "No higher-priority Sensors, Controls, or Diagnostics blocker is currently ahead of fleet work."
+        flow._device_next_step = lambda devices, issues, candidates: "Review the shortlist and promote the next candidate."
+        flow._managed_snapshot_text = lambda devices: "Managed now: 0 | enabled: 0 | usable: 0 | blocked first: none | next plan: none"
+        flow._unmanaged_snapshot_text = lambda candidates: "Unmanaged now: 1 | fixed candidates: 1 | variable candidates: 0 | top candidate: AC Outlet 2 | 1 needs review | top usefulness: review first"
+        flow._candidate_snapshot_text = lambda candidates: "- AC Outlet 2 (fixed) | review first | key warning: Generic outlet label"
+        flow._detailed_management_summary = lambda: "device path"
+        flow._top_candidate_focus_text = lambda candidate: "AC Outlet 2 (fixed) | review first | key warning: Generic outlet label"
+        flow._review_candidate_focus_text = lambda candidates: "AC Outlet 2 (fixed) | review first | key warning: Generic outlet label"
+        flow._candidate_quick_picks = lambda kind: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+                "state": "off",
+            }
+        ]
+        flow._candidate_options = lambda kind=None: [
+            {"value": "switch.ac_outlet_2", "label": "Suggested now, review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label"},
+        ]
+        flow._device_candidates = lambda: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+                "state": "off",
+            }
+        ]
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium",
+            "summary": "Needs review.",
+            "warnings": ["Generic outlet label"],
+        }
+        module.build_candidate_preview = lambda candidate, include_entity_id=False, include_kind=False, include_state=True, **kwargs: (
+            "AC Outlet 2 (state off) | review first | key warning: Generic outlet label"
+        )
+
+        shortlist = asyncio.run(flow.async_step_device_pick_candidate())
+
+        self.assertIn(
+            "Suggested now, review first: AC Outlet 2 (state off) | review first | key warning: Generic outlet label",
+            shortlist["description_placeholders"]["top_candidates"],
+        )
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         module.discover_candidate_devices = lambda states, managed_ids: [
