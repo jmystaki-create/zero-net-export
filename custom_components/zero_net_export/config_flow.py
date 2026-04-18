@@ -793,6 +793,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if not devices:
             return ["- None"]
         ordered = sorted(devices, key=self._device_sort_key)
+        attention_devices = [
+            device for device in ordered if self._device_has_blocked_activity(device) or self._active_planned_action(device)
+        ]
+        other_devices = [
+            device for device in ordered if not (self._device_has_blocked_activity(device) or self._active_planned_action(device))
+        ]
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
         usable_count = sum(1 for device in devices if device.get("usable") is True)
         blocked_count = sum(1 for device in devices if self._device_has_blocked_activity(device))
@@ -802,8 +808,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
         lines = [
             f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {blocked_count} blocked, {planned_count} planned action(s), {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power",
+            "- Managed devices needing attention first:",
         ]
-        lines.extend(f"- {self._device_status_label(device)}" for device in ordered)
+        if attention_devices:
+            lines.extend(f"- {self._device_status_label(device)}" for device in attention_devices)
+        else:
+            lines.append("- None")
+        lines.append("- Other managed devices:")
+        if other_devices:
+            lines.extend(f"- {self._device_status_label(device)}" for device in other_devices)
+        else:
+            lines.append("- None")
         return lines
 
     def _device_blocker_summary(self) -> str:

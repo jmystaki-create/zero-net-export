@@ -279,6 +279,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - Configure Managed Devices now overlays live runtime readiness/status into fleet summaries, usable counts, and selector labels
 - managed-device rows now surface guard state, planned action, and last action status directly in the native fleet view
 - selector ordering now surfaces blocked managed devices first, then actively planned loads, then healthy enabled/usable rows so the first exception stays visible in native fleet workflows
+- Configure -> Managed Devices summary blocks now split `Managed devices needing attention first` from `Other managed devices`, so blocked or actively planned rows stay visually ahead of steady-state rows throughout the native fleet forms
 - the device page now exposes first-class `Review managed devices workspace` and `Review managed devices` handoffs for deeper fleet review without competing with Configure -> Managed Devices
 
 **Remaining**
