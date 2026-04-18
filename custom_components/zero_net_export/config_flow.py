@@ -2443,8 +2443,18 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             self._pending_device_template_key = user_input.get("device_template")
             return await self.async_step_device_add()
 
+        summary = self._pending_candidate_summary or self._candidate_summary(self._pending_candidate_entity_id)
+        if summary is not None:
+            self._pending_candidate_summary = summary
+
         if not self._pending_device_template_key and self._pending_candidate_summary and self._pending_candidate_summary.get("suggested_template_key"):
             self._pending_device_template_key = str(self._pending_candidate_summary["suggested_template_key"])
+
+        next_step = (
+            "Choose the closest preset, then confirm the final device settings before saving into Managed Devices."
+            if (summary or {}).get("fit_confidence") != "low"
+            else "Choose a preset only if this entity really drives a controllable device. Otherwise go back and pick a different candidate or use manual selection."
+        )
 
         options = [
             selector.SelectOptionDict(value=template.key, label=template.label)
@@ -2482,6 +2492,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "review_candidate": self._review_candidate_focus_text(candidates),
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
+                "candidate_preview": build_candidate_preview(
+                    summary or {},
+                    include_entity_id=False,
+                    include_state=False,
+                ) if summary else "No candidate selected yet.",
+                "candidate_fit_usefulness": str((summary or {}).get('fit_usefulness') or 'review first'),
+                "candidate_fit_summary": str((summary or {}).get('fit_summary') or 'No fit guidance available.'),
+                "candidate_warnings": "\n".join(f"- {item}" for item in ((summary or {}).get('warnings') or [])) or "- No immediate warnings detected.",
+                "suggested_template": str((summary or {}).get('suggested_template_label') or 'Custom'),
+                "suggested_template_description": str((summary or {}).get('suggested_template_description') or 'Use a custom configuration for this entity.'),
+                "candidate_next_step": next_step,
                 "template_summary": "\n".join(
                     f"- {template.label}: {template.description}" for template in templates
                 ),
