@@ -434,6 +434,19 @@ Suggested area labels:
 - **validation status:** repo-side source-of-truth audit plus direct supervisor-doc correction in this run. That is enough evidence for this steering-order bug.
 - **next action:** keep the next watchdog/supervisor pass on the highest remaining repo-side A-D/F gap, not another speculative Workstream E reopen.
 
+## ZNE-055 - Install-provenance repair guidance skipped the required release-approval ask
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** repo audit on 2026-04-19 while comparing install-provenance guidance against `RELEASE_MANAGEMENT.md`, `docs/SUPERVISOR.md`, and the active exact-build blocker state
+- **current observed behavior:** `custom_components/zero_net_export/release_info.py` was still telling operators to preview and run `deploy_exact_repo_build.py` plus fingerprint validation immediately when install provenance drifted, without first telling James explicitly that deploy/restart approval was required. That leaked formal release execution steps into native guidance even though the current source of truth says approval is the real boundary once the candidate is release-ready.
+- **expected behavior:** install-provenance repair guidance should state the release boundary plainly: ask James directly for deploy/restart approval first, then show the exact dry-run, deploy, and validation commands only as post-approval steps.
+- **evidence:** this run re-read `RELEASE_MANAGEMENT.md`, `docs/SUPERVISOR.md`, and `docs/UI_IMPLEMENTATION_MAP.md`, all of which require an explicit approval ask when formal deploy/restart becomes the real next step. Repo inspection then confirmed `build_install_repair_step(...)` in `custom_components/zero_net_export/release_info.py` still skipped that approval step and jumped straight into deploy-command wording for both manifest-mismatch and manifest-error cases.
+- **suspected cause:** earlier release-guidance hardening fixed fingerprint anchoring and candidate-hash churn, but the operator-facing install-provenance repair text itself never got realigned to the explicit approval boundary.
+- **repo fix:** this run updates `custom_components/zero_net_export/release_info.py` so install-provenance repair guidance now tells James to approve deploy/restart of the exact build before any release commands are run, while still preserving the dry-run, deploy, and validation command path for the post-approval step. `tests/test_release_info_install_guidance.py` now locks that approval-first wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_release_info_install_guidance`.
+- **next action:** keep the next live-facing release boundary explicit, then use the documented HA SSH path and exact-build validation only after James approves deploy/restart of exact build `6cb7062`
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence

@@ -89,6 +89,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
 
         self.assertIn("/srv/homeassistant/config/custom_components", message)
+        self.assertIn("Ask James directly to approve deploy/restart", message)
         self.assertIn("--dry-run", message)
         self.assertIn("deploy_exact_repo_build.py", message)
         self.assertIn("validate_install_fingerprint.py", message)
@@ -103,6 +104,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
 
         self.assertIn("Confirm the exact live Zero Net Export install path", message)
+        self.assertIn("ask James directly to approve deploy/restart", message)
         self.assertIn("/srv/homeassistant/config/custom_components", message)
         self.assertIn("that same live install path", message)
 

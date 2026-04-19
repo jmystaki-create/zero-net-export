@@ -217,13 +217,13 @@ def build_install_repair_step(install_provenance: dict[str, Any] | None = None) 
         )
     if provenance.get("manifest_matches_code_version") is False:
         return (
-            f"Preview the exact repo deploy target for {compare_target} with "
-            f"`{cli_steps['deploy_dry_run_command']}` first, then run `{cli_steps['deploy_command']}` and `{cli_steps['combined_command']}` from the repo against that live install path so {component_root} is replaced by one synchronized build before restarting Home Assistant core or trusting live validation."
+            f"Ask James directly to approve deploy/restart of the exact build for {compare_target} before running release steps. "
+            f"After approval, preview the exact repo deploy target with `{cli_steps['deploy_dry_run_command']}` first, then run `{cli_steps['deploy_command']}` and `{cli_steps['combined_command']}` from the repo against that live install path so {component_root} is replaced by one synchronized build before restarting Home Assistant core or trusting live validation."
         )
     if provenance.get("manifest_error"):
         return (
-            f"Confirm the exact live Zero Net Export install path at {component_root}, then preview the resolved deploy target "
-            f"{compare_target} with `{cli_steps['deploy_dry_run_command']}` before using `{cli_steps['deploy_command']}` if you need to recopy the repo build, and run `{cli_steps['combined_command']}` from the repo against that same live install path before restarting Home Assistant core or trusting live validation."
+            f"Confirm the exact live Zero Net Export install path at {component_root}, then ask James directly to approve deploy/restart of the exact build for {compare_target} before using release commands. "
+            f"After approval, preview the resolved deploy target with `{cli_steps['deploy_dry_run_command']}` before using `{cli_steps['deploy_command']}` if you need to recopy the repo build, and run `{cli_steps['combined_command']}` from the repo against that same live install path before restarting Home Assistant core or trusting live validation."
         )
     return "Installed package provenance looks consistent."
 
