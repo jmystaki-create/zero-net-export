@@ -333,13 +333,18 @@ def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
     if not candidates:
         return overview
 
-    parts = [overview]
+    review_candidate = first_review_candidate(candidates)
+    review_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+    parts = overview.split(" | ")
+
     top_preview = build_candidate_preview(candidates[0], include_entity_id=False, include_state=False)
     _, separator, preview_tail = top_preview.partition(" | ")
-    if separator and preview_tail and preview_tail not in overview:
+    if review_name and preview_tail.startswith(("review first", "review carefully")) and f"review {review_name}" not in parts:
+        top_index = next((index for index, part in enumerate(parts) if part.startswith("top ")), len(parts))
+        parts.insert(top_index, f"review {review_name}")
+    if separator and preview_tail and preview_tail not in " | ".join(parts):
         parts.append(preview_tail)
 
-    review_candidate = first_review_candidate(candidates)
     ready_candidate = next(
         (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
         None,
