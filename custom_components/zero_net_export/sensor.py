@@ -373,11 +373,25 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
     compact_summary = " | ".join(compact_parts)
     if len(compact_summary) <= max_chars:
         return compact_summary
+
+    optional_markers = (" enabled", " usable")
+    trimmed_parts = list(compact_parts)
+    for marker in optional_markers:
+        if len(" | ".join(trimmed_parts)) <= max_chars:
+            break
+        for index, part in enumerate(list(trimmed_parts)):
+            if part.endswith(marker):
+                del trimmed_parts[index]
+                break
+    trimmed_summary = " | ".join(trimmed_parts)
+    if len(trimmed_summary) <= max_chars:
+        return trimmed_summary
+
     compact_parts = [
         _truncate_sensor_state(part, max_chars=56)
         if part.startswith(("review ", "ready ", "top "))
         else part
-        for part in compact_parts
+        for part in trimmed_parts
     ]
     compact_summary = " | ".join(compact_parts)
     return _truncate_sensor_state(compact_summary, max_chars=max_chars)
@@ -468,6 +482,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
             variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
             review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
+            ready_candidate_count = max(candidate_count - review_needed_count, 0)
             top_candidate_name = str(candidates[0].get("name") or candidates[0].get("entity_id") or "").strip() if candidates else ""
             top_candidate_preview = build_candidate_compact_preview(candidates[0]) if candidates else ""
             review_candidate = next(
@@ -518,6 +533,12 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         summary_parts.append(_count_label(variable_review_count, "variable review"))
                     if review_candidate_name:
                         summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
+                if ready_candidate_count:
+                    summary_parts.append(
+                        "1 ready to promote"
+                        if ready_candidate_count == 1
+                        else f"{ready_candidate_count} ready to promote"
+                    )
                 if ready_candidate_name:
                     summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
                 if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
@@ -536,6 +557,12 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         summary_parts.append(_count_label(variable_review_count, "variable review"))
                     if review_candidate_name:
                         summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
+                if ready_candidate_count:
+                    summary_parts.append(
+                        "1 ready to promote"
+                        if ready_candidate_count == 1
+                        else f"{ready_candidate_count} ready to promote"
+                    )
                 if ready_candidate_name:
                     summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
                 if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
@@ -780,7 +807,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
             counts = _managed_fleet_counts(state.device_details)
             blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
+            review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
             top_candidate = candidates[0] if candidates else None
+            review_candidate = first_review_candidate(candidates)
+            ready_candidate = next(
+                (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+                None,
+            )
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
@@ -790,12 +823,16 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **counts,
                 "candidate_devices": candidates[:12],
                 "candidate_count": len(candidates),
+                "review_needed_count": review_needed_count,
+                "ready_candidate_count": max(len(candidates) - review_needed_count, 0),
                 "blocked_activity_count": blocked_activity_count,
                 "blocked_planned_action_count": int(getattr(state, "blocked_planned_action_count", 0) or 0),
                 "fixed_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'fixed'),
                 "variable_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'variable'),
                 "top_candidate": top_candidate,
                 "top_candidate_name": str(top_candidate.get('name') or top_candidate.get('entity_id') or '').strip() if top_candidate else None,
+                "review_candidate": review_candidate,
+                "ready_candidate": ready_candidate,
                 "first_blocked_device": _first_matching_device_name(
                     state.device_details,
                     predicate=_device_has_blocked_activity,

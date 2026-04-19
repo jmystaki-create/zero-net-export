@@ -346,12 +346,17 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertIn("0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review", overview.native_value)
+        self.assertIn("1 ready to promote", overview.native_value)
         self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn generic outlet label", overview.native_value)
         self.assertIn("ready EV charger limit (variable) | likely useful", overview.native_value)
         self.assertNotIn("top AC Outlet 2", overview.native_value)
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
+        self.assertEqual(overview.extra_state_attributes["review_needed_count"], 1)
+        self.assertEqual(overview.extra_state_attributes["ready_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
         self.assertEqual(overview.extra_state_attributes["top_candidate_name"], "AC Outlet 2")
+        self.assertEqual(overview.extra_state_attributes["review_candidate"]["name"], "AC Outlet 2")
+        self.assertEqual(overview.extra_state_attributes["ready_candidate"]["name"], "EV charger limit")
         self.assertFalse(overview.extra_state_attributes["source_blocked"])
 
     def test_unmanaged_candidate_overview_sensor_is_distinct_from_shortlist(self) -> None:
@@ -468,6 +473,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertIn("1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review", overview.native_value)
+        self.assertIn("1 ready to promote", overview.native_value)
         self.assertIn("review Virtual load (fixed) | review carefully | warn", overview.native_value)
         self.assertIn("ready Hot water relay (fixed) | likely useful", overview.native_value)
         self.assertNotIn("top Hot water relay", overview.native_value)
@@ -532,6 +538,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertIn("1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review", overview.native_value)
+        self.assertIn("1 ready to promote", overview.native_value)
         self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn", overview.native_value)
         self.assertIn("ready EV charger limit (variable) | likely useful", overview.native_value)
         self.assertNotIn("top AC Outlet 2", overview.native_value)
