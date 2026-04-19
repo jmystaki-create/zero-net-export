@@ -180,7 +180,7 @@ The backend control engine is substantially built, and the project is now in a l
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 
-**Current highest-value next step:** ask James directly for deploy/restart approval on exact build `2d730e1`. The documented HA SSH fingerprint check is still unchanged, `scripts/print_expected_install_fingerprint.py` still resolves the current component-changing candidate to `2d730e1`, and another round of approval-target or fingerprint bookkeeping would be churn rather than product progress.
+**Current highest-value next step:** ask James directly for deploy/restart approval on exact build `21049b5`. The documented HA SSH fingerprint check is still unchanged, `scripts/print_expected_install_fingerprint.py` now resolves the current component-changing candidate to `21049b5`, and another round of approval-target or fingerprint bookkeeping would be churn rather than product progress.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
