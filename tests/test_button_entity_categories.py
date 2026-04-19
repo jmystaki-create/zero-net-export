@@ -1251,6 +1251,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
         self.assertEqual(attrs["first_review_candidate"]["entity_id"], "number.ev_limit")
         self.assertEqual(attrs["first_review_candidate_fit"]["confidence"], "medium")
+        self.assertEqual(attrs["ready_next_candidate"]["entity_id"], "switch.hot_water")
+        self.assertEqual(attrs["ready_next_candidate_fit"]["confidence"], "high")
 
     def test_managed_device_review_attributes_treat_blocked_plans_as_blocked_activity(self) -> None:
         button_module = _load_button_module()

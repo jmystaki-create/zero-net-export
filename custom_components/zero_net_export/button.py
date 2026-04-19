@@ -1180,6 +1180,8 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
+        ready_candidate = _first_ready_candidate(candidates)
+        ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
@@ -1200,6 +1202,8 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
             "top_candidate_fit": top_candidate_fit,
             "first_review_candidate": review_candidate,
             "first_review_candidate_fit": review_candidate_fit,
+            "ready_next_candidate": ready_candidate,
+            "ready_next_candidate_fit": ready_candidate_fit,
             **detail,
         }
 
