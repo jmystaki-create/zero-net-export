@@ -1349,8 +1349,8 @@ def _command_center_candidate_snapshot(coordinator: Any, state: Any) -> tuple[li
 
 def _command_center_candidate_focus_text(candidate: dict[str, Any] | None) -> str:
     if not candidate:
-        return "the top candidate"
-    name = str(candidate.get("name") or candidate.get("entity_id") or "the top candidate").strip()
+        return "the surfaced candidate"
+    name = str(candidate.get("name") or candidate.get("entity_id") or "the surfaced candidate").strip()
     kind = str(candidate.get("kind") or "candidate").strip()
     review_hint = build_candidate_review_hint(candidate, include_warning=False)
     focus = f"{name} ({kind})"
@@ -1392,7 +1392,7 @@ def _command_center_device_status_with_unmanaged_context(
     if ready_candidate_preview and ready_candidate_name:
         summary += f"; ready {ready_candidate_preview}"
     if top_candidate_preview and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-        summary += f"; top {top_candidate_preview}"
+        summary += f"; surfaced {top_candidate_preview}"
     return summary
 
 
@@ -1471,7 +1471,7 @@ def _build_command_center_fleet_activity_summary(
         if ready_candidate_name:
             summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
         if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-            summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
+            summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
     else:
         summary_parts.append("no unmanaged candidates")
         if managed_count == 0 and source_blocked:
@@ -1599,9 +1599,9 @@ def _build_command_center_fleet_activity_summary(
             minimal_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=72))
 
     if top_candidate_preview and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-        minimal_parts.append(_clip_part(f"top {top_candidate_preview}", max_chars=72))
+        minimal_parts.append(_clip_part(f"surfaced {top_candidate_preview}", max_chars=72))
     elif top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-        minimal_parts.append(_clip_part(f"top {top_candidate_name}", max_chars=72))
+        minimal_parts.append(_clip_part(f"surfaced {top_candidate_name}", max_chars=72))
 
     if managed_count > 0:
         minimal_parts.append(f"enabled {enabled_count}")
@@ -1615,7 +1615,7 @@ def _build_command_center_fleet_activity_summary(
         return minimal_summary
 
     for removable_prefix in (
-        "top ",
+        "surfaced ",
         "enabled ",
         "usable ",
         "W nominal",
@@ -1635,7 +1635,7 @@ def _build_command_center_fleet_activity_summary(
 
     compact_minimal_parts = [
         _clip_part(part, max_chars=48)
-        if part.startswith(("blocked ", "attention ", "review ", "ready ", "top "))
+        if part.startswith(("blocked ", "attention ", "review ", "ready ", "surfaced "))
         else part
         for part in minimal_parts
     ]

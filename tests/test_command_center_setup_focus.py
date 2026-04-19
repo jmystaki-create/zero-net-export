@@ -91,7 +91,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
                 "energy_state_summary": "solar 4200 W | grid export 1800 W",
                 "control_decision_summary": "mode zero export | target 0 W",
                 "control_outcome_summary": "planned actions 1 | active load 1200 W",
-                "fleet_activity_summary": "0 managed | 3 unmanaged | top AC Outlet 2",
+                "fleet_activity_summary": "0 managed | 3 unmanaged | surfaced AC Outlet 2",
                 "recommended_section": native_support.SOURCES_SECTION_LABEL,
                 "recommended_path": native_support.SOURCES_CONFIGURE_PATH,
                 "source_mapping_summary": "Solar power -> sensor.pv_power",
@@ -116,7 +116,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("Structured control board", text)
         self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
         self.assertIn("- Control outcome: planned actions 1 | active load 1200 W", text)
-        self.assertIn("- Fleet activity: 0 managed | 3 unmanaged | top AC Outlet 2", text)
+        self.assertIn("- Fleet activity: 0 managed | 3 unmanaged | surfaced AC Outlet 2", text)
         self.assertIn("Setup check", text)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", text)
         self.assertIn("- Diagnostics: Runtime attention remains.", text)

@@ -339,7 +339,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "energy_state_summary": "solar 0 W | grid import 900 W",
                 "control_decision_summary": "mode automatic | target 0 W",
                 "control_outcome_summary": "planned actions 0 | active load 0 W",
-                "fleet_activity_summary": "0 managed | 4 unmanaged | top AC Outlet 2",
+                "fleet_activity_summary": "0 managed | 4 unmanaged | surfaced AC Outlet 2",
                 "source_status": "Mapped source blockers: Solar power unavailable.",
                 "source_mapping_summary": "Solar power -> sensor.pv_power",
                 "unavailable_sources": "Solar power",
@@ -367,7 +367,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(f"- Recommended path: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn("Structured control board", guide)
         self.assertIn("- Energy state: solar 0 W | grid import 900 W", guide)
-        self.assertIn("- Fleet activity: 0 managed | 4 unmanaged | top AC Outlet 2", guide)
+        self.assertIn("- Fleet activity: 0 managed | 4 unmanaged | surfaced AC Outlet 2", guide)
         self.assertIn("Setup check", guide)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", guide)
         self.assertIn("- Diagnostics: Runtime attention remains.", guide)

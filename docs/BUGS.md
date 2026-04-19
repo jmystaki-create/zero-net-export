@@ -486,6 +486,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_bucket_ownership_copy tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/button.py`, which keeps the picker labels, shared strings, and device-page review copy aligned on the more neutral `Currently surfaced` wording. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this wording cleanup in the next exact-build deploy, then confirm the live shortlist/full-list selectors and device-page review surfaces keep the stronger shortlist-style preview without the leftover `Top surfaced` ranking language in Home Assistant.
 
+## ZNE-059 - Command-center candidate copy still over-ranked one unmanaged device as `top`
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing `custom_components/zero_net_export/native_support.py` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the promotion flow had already been moved onto more neutral `Currently surfaced` wording, but the opening command center still called the fallback unmanaged candidate `the top candidate` and still emitted `top ...` fragments in `Fleet activity` and the device-status summary whenever a candidate was neither review-first nor ready-next. That kept one remaining Workstream C ranking leak in the opening operator console even after the shortlist and device-page review copy were neutralized.
+- **expected behavior:** the command center should use the same neutral surfaced-candidate posture as the rest of Managed Devices, preserving review-first and ready-next cues without sounding like the product has already picked the one correct unmanaged device.
+- **evidence:** repo grep on this run still found `return "the top candidate"` plus `top {top_candidate_preview}` branches in `custom_components/zero_net_export/native_support.py`, while `docs/UI_DESIGN.md` says unmanaged surfacing should stay useful but neutral in posture rather than strongly ranked. Recent commits `1176e18`, `109bc54`, `af0c22b`, and `4a1165c` already neutralized the picker and device-review copy, which left the command-center wording as the strongest remaining repo-side ranking drift in the same promotion story.
+- **suspected cause:** the recent Workstream C cleanup focused on config-flow labels and device-page review text first, but the shared command-center fleet-summary helper still had the older `top` fallback wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the opening operator console now says `the surfaced candidate` and uses `surfaced ...` instead of `top ...` in unmanaged fallback summaries. Focused regressions in `tests/test_command_center_setup_focus.py` and `tests/test_source_repair_guidance.py` now lock that command-center wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** run the focused command-center regressions plus the relevant summary tests, then include this wording cleanup in the next exact-build deploy and confirm the live command center no longer reintroduces `top ...` ranking language.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
