@@ -1047,7 +1047,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             parts.append(f"ready {ready_name}")
             parts.append(build_candidate_review_hint(ready_candidate, include_warning=False, max_warning_chars=32))
         elif top_name and top_candidate is not review_candidate:
-            parts.append(f"top {top_name}")
+            parts.append(f"surfaced {top_name}")
         if top_candidate is ready_candidate:
             if " | warn " in top_hint:
                 _, _, warning = top_hint.partition(" | warn ")

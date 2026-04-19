@@ -785,7 +785,7 @@ def build_candidate_overview_summary(
         summary_parts.append(f"ready {ready_candidate_name}")
         summary_parts.append(build_candidate_review_hint(ready_candidate, include_warning=False, max_warning_chars=32))
     elif top_name and top_name != review_candidate_name:
-        summary_parts.append(f"top {top_name}")
+        summary_parts.append(f"surfaced {top_name}")
     if include_top_review_hint and candidate_list and review_candidate_name != top_name:
         top_hint = build_candidate_review_hint(candidate_list[0], max_warning_chars=32)
         if ready_candidate_name == top_name:

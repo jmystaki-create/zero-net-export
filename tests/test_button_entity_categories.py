@@ -186,7 +186,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         if variable_count:
             parts.append(f"{variable_count} variable candidate" if variable_count == 1 else f"{variable_count} variable candidates")
         if items[0].get("name"):
-            parts.append(f"top {items[0]['name']}")
+            parts.append(f"surfaced {items[0]['name']}")
         return " | ".join(parts)
 
     candidate_utils_module.discover_candidate_devices = _discover_candidate_devices
@@ -377,7 +377,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices needing attention first:", message)
         self.assertIn("Other managed devices:", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
-        self.assertIn("- Snapshot: 2 candidates | 2 fixed candidates | top Hot water | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("- Snapshot: 2 candidates | 2 fixed candidates | surfaced Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Currently surfaced candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn(
             "- First review-first candidate: Helper candidate (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.",
@@ -564,7 +564,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 2 managed devices need attention | attention first EV charger | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
-        self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | top Hot water | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | surfaced Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Currently surfaced candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Currently surfaced candidate warnings: No immediate warnings.", message)
         self.assertIn(
@@ -713,7 +713,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["recommended_section"], "Sensors")
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | attention first Pool pump | plan Pool pump")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidate | surfaced Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["attention_count"], 1)
         self.assertEqual(attrs["first_attention_device"], "Pool pump")
         self.assertEqual(attrs["first_blocked_device"], "")
@@ -1080,7 +1080,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
         self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 1200 W nominal | 1 planned action(s) | plan Pool pump", message)
-        self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed candidate | surfaced Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("- Currently surfaced unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Fleet attention context:", message)
         self.assertIn("- This device is currently in the attention-first review bucket.", message)
@@ -1291,7 +1291,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 0 W nominal | blocked Pool pump | 0 planned action(s)")
-        self.assertEqual(attrs["unmanaged_snapshot"], "2 candidates | 1 fixed candidate | 1 variable candidate | top Hot water | likely useful | key warning: No immediate warnings")
+        self.assertEqual(attrs["unmanaged_snapshot"], "2 candidates | 1 fixed candidate | 1 variable candidate | surfaced Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "switch.hot_water")
         self.assertEqual(attrs["first_review_candidate"]["entity_id"], "number.ev_limit")
         self.assertEqual(attrs["first_review_candidate_fit"]["confidence"], "medium")

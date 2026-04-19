@@ -465,7 +465,7 @@ def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> 
     if ready_candidate_name:
         parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
     if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-        parts.append(f"top {top_candidate_preview or top_candidate_name}")
+        parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
 
     return _fleet_overview_state(parts)
 
@@ -617,7 +617,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if ready_candidate_name:
                     summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
                 if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-                    summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
+                    summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
                 return _fleet_overview_state(summary_parts)
             if source_blocked:
                 summary_parts.append("repair sources first")
@@ -666,7 +666,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 if ready_candidate_name:
                     summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
                 if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-                    summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
+                    summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
             summary_parts.extend(
                 [
                     f"{counts['enabled_count']} enabled",

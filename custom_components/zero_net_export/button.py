@@ -395,19 +395,20 @@ def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
     _, separator, preview_tail = top_preview.partition(" | ")
     if review_name and preview_tail.startswith(("review first", "review carefully")):
         if not any(part.endswith("needs review") or part.endswith("need review") for part in parts):
-            top_index = next((index for index, part in enumerate(parts) if part.startswith(("top ", "review "))), len(parts))
+            top_index = next((index for index, part in enumerate(parts) if part.startswith(("surfaced ", "top ", "review "))), len(parts))
             parts.insert(top_index, "1 needs review")
             review_kind = str((review_candidate or {}).get("kind") or "").strip()
             if review_kind in {"fixed", "variable"}:
                 parts.insert(top_index + 1, f"1 {review_kind} review")
-        top_label = f"top {review_name}"
-        if top_label in parts:
+        candidate_labels = [f"surfaced {review_name}", f"top {review_name}"]
+        existing_label = next((label for label in candidate_labels if label in parts), None)
+        if existing_label:
             if f"review {review_name}" in parts:
-                parts.remove(top_label)
+                parts.remove(existing_label)
             else:
-                parts[parts.index(top_label)] = f"review {review_name}"
+                parts[parts.index(existing_label)] = f"review {review_name}"
         elif f"review {review_name}" not in parts:
-            top_index = next((index for index, part in enumerate(parts) if part.startswith("top ")), len(parts))
+            top_index = next((index for index, part in enumerate(parts) if part.startswith(("surfaced ", "top "))), len(parts))
             parts.insert(top_index, f"review {review_name}")
     if separator and preview_tail and preview_tail not in " | ".join(parts):
         preview_summary = " | ".join([*parts, preview_tail])

@@ -525,6 +525,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`.
 - **next action:** include this promotion-feedback wording cleanup in the next exact-build deploy, then confirm the Managed Devices success landing reads cleanly in live Home Assistant after promote/remove flows.
 
+## ZNE-062 - Shared unmanaged snapshot summaries still ranked one surfaced candidate as `top`
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing remaining `0.1.87` Managed Devices wording against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the main config-flow descriptions and command-center/device-page copy had already moved to neutral surfaced-candidate wording, but the shared unmanaged snapshot helpers still emitted `top ...` fallback labels in repo state. That leak still fed the candidate-overview helper in `candidate_utils.py`, the config-flow unmanaged snapshot in `config_flow.py`, and the fleet-overview sensors in `sensor.py`, which meant several native Managed Devices summaries could still over-rank one candidate even after the rest of the promotion story had been neutralized.
+- **expected behavior:** shared unmanaged snapshot summaries should stay neutral and say `surfaced ...` when they need a fallback candidate label, while still preserving explicit `review ...` and `ready ...` cues when those are available.
+- **evidence:** `rg -n '\\btop \\{top_candidate|\\btop [A-Za-z]' custom_components/zero_net_export/{candidate_utils.py,config_flow.py,sensor.py}` on this run still hit fallback `top ...` branches in all three files, even though the source-of-truth UI docs now frame unmanaged discovery around surfaced/review-first/ready-next posture instead of strong ranking.
+- **suspected cause:** the earlier wording cleanup landed first on the higher-visibility config-flow labels, command-center copy, and helper-sensor display names, but the shared one-line snapshot builders were left on older fallback text.
+- **repo fix:** this run replaces the remaining shared `top ...` fallback labels with `surfaced ...` in `custom_components/zero_net_export/candidate_utils.py`, `custom_components/zero_net_export/config_flow.py`, and `custom_components/zero_net_export/sensor.py`, while `custom_components/zero_net_export/button.py` now normalizes either legacy or new labels when it upgrades shared snapshots into review-first summaries. `tests/test_button_entity_categories.py` now expects the neutral surfaced wording in those shared snapshots.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/candidate_utils.py custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/sensor.py`.
+- **next action:** include this shared-summary wording cleanup in the next exact-build deploy, then confirm the live Managed Devices snapshots and helper sensors no longer reintroduce `top ...` ranking language anywhere in Home Assistant.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
