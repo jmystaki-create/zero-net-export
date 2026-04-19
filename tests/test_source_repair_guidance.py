@@ -455,6 +455,14 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Diagnostics follow-through:", support_center)
         self.assertNotIn("- Recommended path now:", support_center)
         self.assertNotIn("- Why this section is recommended:", support_center)
+        self.assertIn(
+            f"- For deeper source-map detail, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
+            support_center,
+        )
+        self.assertIn(
+            "- Best live candidate cues for blocked roles: Not needed right now.",
+            support_center,
+        )
         self.assertIn("- Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.", support_center)
         self.assertIn("- Exact-build next step: install repair step", support_center)
         self.assertIn(
@@ -484,6 +492,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             f"- Show setup checklist: {native_support.INTEGRATION_DEVICE_PATH} -> Show setup checklist",
             support_center,
         )
+        self.assertNotIn("Current mapped roles for reference", support_center)
         self.assertNotIn("Diagnostics snapshot\nZero Net Export diagnostics snapshot", support_center)
 
     def test_detailed_management_path_uses_review_action_wording(self) -> None:
@@ -920,7 +929,15 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             support_center,
         )
         self.assertIn("Exact-build next step: install repair step", support_center)
-        self.assertIn("Current mapped roles for reference: - Solar power: sensor.pv_power", support_center)
+        self.assertIn(
+            f"For deeper source-map detail, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
+            support_center,
+        )
+        self.assertIn(
+            f"Best live candidate cues for blocked roles: Open {native_support.SOURCES_CONFIGURE_PATH} to review the ranked live source candidates for the blocked roles.",
+            support_center,
+        )
+        self.assertNotIn("Current mapped roles for reference", support_center)
         self.assertNotIn("Unavailable mapped roles:", support_center)
         self.assertNotIn("Stale mapped roles:", support_center)
         self.assertNotIn("Affected mapped roles:", support_center)

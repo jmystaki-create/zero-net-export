@@ -2161,6 +2161,12 @@ def build_native_support_center(coordinator: Any) -> str:
         if install_provenance.get("live_validation_safe")
         else build_install_repair_step(install_provenance)
     )
+    if blocking_keys or blocking_validation_issues:
+        priority_candidate_hints = (
+            f"Open {SOURCES_CONFIGURE_PATH} to review the ranked live source candidates for the blocked roles."
+        )
+    else:
+        priority_candidate_hints = "Not needed right now."
     checklist_lines = _compact_setup_checklist_lines(operator_readiness.get("checklist"))
     snapshot_path = f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot"
     checklist_path = f"{INTEGRATION_DEVICE_PATH} -> Show setup checklist"
@@ -2185,7 +2191,8 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Blocking mapped roles: {_format_source_role_list(blocking_keys) if blocking_keys else 'None'}",
             f"- Blocking validation details: {command_center.get('blocking_validation_details')}",
             f"- If Sensors owns the repair, use: {command_center.get('source_repair_step')}",
-            f"- Current mapped roles for reference: {command_center.get('source_mapping_summary')}",
+            f"- For deeper source-map detail, open Sensors: {command_center.get('sources_path')}",
+            f"- Best live candidate cues for blocked roles: {priority_candidate_hints}",
             f"- Selector workaround, only if Home Assistant rejects a valid choice: {fallback_hint}",
             "",
             "Install validation",
