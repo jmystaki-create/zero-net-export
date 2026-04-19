@@ -393,6 +393,19 @@ Suggested area labels:
 - **validation status:** repo-side source-of-truth audit plus direct status-file correction in this run. This is enough evidence for a project-status wording bug.
 - **next action:** keep the next watchdog/supervisor ranking focused on unfinished mapped `0.1.87` repo work or an explicitly approved deploy, not on treating the divergent live manifest as a new steering baseline
 
+## ZNE-052 - Device-page review copy still described the device path as the primary Managed Devices workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-19 after comparing `button.py` and config-flow feedback against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** several native review surfaces still said `Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}` or `Open {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace`, which let the secondary device-page audit path read like the primary fleet workspace even though the source-of-truth docs keep `Configure -> Managed Devices` primary and the device page secondary.
+- **expected behavior:** all device-page review and save-feedback copy should explicitly describe the primary fleet workspace as the Configure path, with the device page framed only as the secondary review or audit path.
+- **evidence:** this run's repo grep found the stale primary-workspace wording in `custom_components/zero_net_export/button.py`, `custom_components/zero_net_export/config_flow.py`, and the matching regression expectations in `tests/test_button_entity_categories.py` plus `tests/test_config_flow_device_runtime_overlay.py`.
+- **suspected cause:** earlier wording cleanup strengthened primary-versus-secondary path ownership in most places, but these remaining review and success-summary strings kept the older ambiguous phrasing and were never realigned after the implementation map locked Configure -> Managed Devices as primary.
+- **repo fix:** this run updates the affected review, handoff, and save-feedback strings to say `Primary Managed Devices workspace in Configure`, and refreshes the focused regression expectations so the device page cannot drift back into being described as the main fleet workspace.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay` plus `python3 -m unittest discover -s tests -q`.
+- **next action:** include this copy fix in the next exact-build deploy, then confirm the live device-page review surfaces now keep Configure -> Managed Devices clearly primary.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence

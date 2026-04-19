@@ -568,7 +568,7 @@ def _managed_devices_workspace_handoff(
         top_add_label = "fixed load device" if primary_candidate["kind"] == "fixed" else "variable load device"
         lines.extend(
             [
-                f"- Open {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace.",
+                f"- Open {DEVICES_CONFIGURE_PATH} in Configure as the primary Managed Devices workspace.",
                 f"- Choose Add {top_add_label}.",
                 f"- In Pick unmanaged candidate, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
@@ -676,7 +676,7 @@ def _build_managed_device_detail_lines(
     lines = [
         "Zero Net Export managed-device detail review",
         "",
-        f"Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
+        f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
         f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
         f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
@@ -803,7 +803,7 @@ def _build_managed_device_detail_lines(
         f"- Failure count: {int(detail.get('failed_action_count') or 0)}",
         "",
         "Next native actions:",
-        f"- Return to {DEVICES_CONFIGURE_PATH} as the primary Managed Devices workspace for edits, enablement, promotion, or removal.",
+        f"- Return to {DEVICES_CONFIGURE_PATH} in Configure as the primary Managed Devices workspace for edits, enablement, promotion, or removal.",
         "- Use this device's sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]
@@ -946,7 +946,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         lines = [
             'Zero Net Export managed devices workspace',
             '',
-            f'Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}',
+            f'Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
             f'Secondary device-page review path: {DETAILED_MANAGEMENT_PATH}',
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),
@@ -1120,7 +1120,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         lines = [
             "Zero Net Export managed devices review",
             "",
-            f"Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
+            f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
             f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the current fleet state.'}",
             *(["", *blocker_first_lines] if blocker_first_lines else []),

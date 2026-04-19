@@ -1529,7 +1529,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         message_lines.extend(
             [
                 "",
-                f"Primary Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
+                f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
                 f"Secondary device-page review path, only after the main fleet step is clear: {DETAILED_MANAGEMENT_PATH}",
                 next_step,
             ]

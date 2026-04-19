@@ -1527,7 +1527,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("1 managed | 1 enabled | 0 usable | 1 fixed managed | 0 W nominal", feedback["message"])
         self.assertIn("2 candidates | 1 fixed candidate | 1 variable candidate | 2 need review | 1 fixed review | 1 variable review | review AC Outlet 2 | likely useful | top AC Outlet 2 | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
-        self.assertIn("Primary Managed Devices workspace: devices path", feedback["message"])
+        self.assertIn("Primary Managed Devices workspace in Configure: devices path", feedback["message"])
         self.assertIn(
             "Secondary device-page review path, only after the main fleet step is clear: detailed device path",
             feedback["message"],

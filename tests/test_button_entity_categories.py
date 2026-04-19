@@ -248,7 +248,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path as the primary Managed Devices workspace.", handoff)
+        self.assertIn("- Open devices path in Configure as the primary Managed Devices workspace.", handoff)
         self.assertIn("- Choose Add fixed load device.", handoff)
         self.assertIn("- In Pick unmanaged candidate, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
@@ -368,7 +368,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices workspace")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
-        self.assertIn("Primary Managed Devices workspace: devices path", message)
+        self.assertIn("Primary Managed Devices workspace in Configure: devices path", message)
         self.assertIn("Secondary device-page review path: detailed device path", message)
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
@@ -1040,7 +1040,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
-        self.assertIn("Primary Managed Devices workspace: devices path", message)
+        self.assertIn("Primary Managed Devices workspace in Configure: devices path", message)
         self.assertIn("Recommended next step: Review the next managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
@@ -1072,7 +1072,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last action age: 2m 5s", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
         self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
-        self.assertIn("Return to devices path as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
+        self.assertIn("Return to devices path in Configure as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
 
     def test_managed_device_detail_button_surfaces_review_first_candidate_context(self) -> None:
         notification_calls: list[dict] = []
