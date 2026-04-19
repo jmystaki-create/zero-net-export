@@ -232,6 +232,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                         "effective_enabled": True,
                         "priority": 90,
                         "current_power_w": 1185,
+                        "nominal_power_w": 1200,
                         "planned_action": "turn_on",
                     }
                 }
@@ -282,13 +283,13 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(summary._attr_name, "Pool pump managed summary")
         self.assertEqual(
             managed_overview.native_value,
-            "1 managed | no unmanaged candidates | 1 managed device needs attention | plan Pool pump | 1 enabled | 1 usable | 1 fixed managed",
+            "1 managed | no unmanaged candidates | 1 managed device needs attention | plan Pool pump | 1 enabled | 1 usable | 1 fixed managed | 1200 W nominal",
         )
         self.assertEqual(managed_overview.extra_state_attributes["planned_count"], 1)
         self.assertEqual(managed_overview.extra_state_attributes["usable_count"], 1)
         self.assertEqual(
             summary.native_value,
-            "fixed load | Ready for control | usable | enabled | priority 90 | power 1185 W | action turn_on",
+            "fixed load | Ready for control | usable | enabled | priority 90 | power 1185 W | nominal 1200 W | action turn_on",
         )
         self.assertIsNone(getattr(summary, "_attr_entity_category", None))
         self.assertIsNone(getattr(current_power, "_attr_entity_category", None))
@@ -315,6 +316,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
                         "operator_enabled_override": False,
                         "status": "Guarded",
                         "current_power_w": 620,
+                        "nominal_power_w": 7400,
                         "current_target_power_w": 1400,
                         "guard_status": "blocked",
                         "planned_action": "hold",
@@ -328,7 +330,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             summary.native_value,
-            "variable load | Guarded | not usable | enabled | priority 60 | priority override 45 | enabled override off | power 620 W | target 1400 W | guard blocked | last guard_blocked",
+            "variable load | Guarded | not usable | enabled | priority 60 | priority override 45 | enabled override off | power 620 W | nominal 7400 W | target 1400 W | guard blocked | last guard_blocked",
         )
 
     def test_managed_fleet_overview_surfaces_unmanaged_backlog_when_fleet_is_empty(self) -> None:

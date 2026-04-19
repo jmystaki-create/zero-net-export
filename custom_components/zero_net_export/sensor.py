@@ -1034,6 +1034,14 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         if operator_enabled_override is not None:
             runtime_bits.append(f"enabled override {'on' if operator_enabled_override else 'off'}")
         runtime_bits.append(f"power {_format_device_power_summary(detail.get('current_power_w'))}")
+        nominal_power = detail.get("nominal_power_w")
+        if nominal_power not in (None, ""):
+            try:
+                nominal_value = float(nominal_power)
+            except (TypeError, ValueError):
+                nominal_value = 0
+            if nominal_value > 0:
+                runtime_bits.append(f"nominal {nominal_value:g} W")
         if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
             runtime_bits.append(f"target {_format_device_power_summary(detail.get('current_target_power_w'))}")
         guard_status = str(detail.get("guard_status") or "").strip()
