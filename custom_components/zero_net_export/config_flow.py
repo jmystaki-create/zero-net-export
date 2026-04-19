@@ -1502,25 +1502,25 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             title = "managed-device promotion saved"
             changed = f"Promoted {current_name} into Managed Devices as a {kind_label}."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the fleet snapshot, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, confirm the fleet snapshot, then {candidate_follow_through}."
             )
         elif action == "edit" and device is not None:
             title = "managed-device update saved"
             changed = f"Updated {current_name} in Managed Devices."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the updated fleet snapshot, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, confirm the updated fleet snapshot, then {candidate_follow_through}."
             )
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
             changed = f"Removed {current_name} from Managed Devices."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the remaining fleet, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and remaining fleet, then {candidate_follow_through}."
             )
         elif action == "bulk_enable":
             title = "managed-device enablement saved"
             changed = "Saved the Managed Devices enablement review."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to confirm the updated enablement snapshot, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, confirm the updated enablement snapshot, then {candidate_follow_through}."
             )
         else:
             return None

@@ -1617,7 +1617,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             feedback["message"],
         )
         self.assertIn(
-            "Next step: reopen devices path to confirm the fleet snapshot, then review AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings first in the unmanaged section.",
+            "Next step: reopen devices path to review the Managed Devices workspace, confirm the fleet snapshot, then review AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings first in the unmanaged section.",
             feedback["message"],
         )
 
@@ -1783,7 +1783,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("2 managed | 1 enabled | 0 usable", feedback["message"])
         self.assertIn("0 candidates", feedback["message"])
         self.assertIn(
-            "Next step: reopen devices path to confirm the updated enablement snapshot, then use the deeper device review path only if you need more per-device runtime detail.",
+            "Next step: reopen devices path to review the Managed Devices workspace, confirm the updated enablement snapshot, then use the deeper device review path only if you need more per-device runtime detail.",
             feedback["message"],
         )
 
@@ -1833,7 +1833,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: reopen devices path to review the remaining fleet, then review Virtual load (fixed) | review first | key warning: Helper-backed load needs review. first in the unmanaged section.",
+            "Next step: reopen devices path to review the Managed Devices workspace and remaining fleet, then review Virtual load (fixed) | review first | key warning: Helper-backed load needs review. first in the unmanaged section.",
             feedback["message"],
         )
 
