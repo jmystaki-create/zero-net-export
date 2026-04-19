@@ -180,7 +180,7 @@ The backend control engine is substantially built, and the project is now in a l
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 
-**Current highest-value next step:** stop treating `840695e` as the live approval target. `scripts/print_expected_install_fingerprint.py` now resolves the latest component-changing candidate to exact build `2d730e1`, which is a real Workstream F follow-on in `strings.json` and `translations/en.json`, not docs-only churn. The next repo-side question is no longer another promotion-flow wording pass. It is whether this tighter Configure Diagnostics triage copy leaves any fresh mapped drift before freeze. If not, James should be asked directly for deploy/restart approval on exact build `2d730e1` instead of spending another run on unchanged fingerprint bookkeeping.
+**Current highest-value next step:** ask James directly for deploy/restart approval on exact build `2d730e1`. The documented HA SSH fingerprint check is still unchanged, `scripts/print_expected_install_fingerprint.py` still resolves the current component-changing candidate to `2d730e1`, and another round of approval-target or fingerprint bookkeeping would be churn rather than product progress.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
