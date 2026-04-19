@@ -590,6 +590,14 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py`.
 - **next action:** include this handoff wording cleanup in the next exact-build deploy, then confirm the device-page Managed Devices promotion handoff no longer drifts back to generic `Add ... device` language in live Home Assistant.
 
+## ZNE-067 - UI implementation map still described promotion completion with stale `ranking helpers` wording
+- **closed on:** 2026-04-20
+- **severity:** `low`
+- **area:** `docs`
+- **historical behavior:** `docs/UI_IMPLEMENTATION_MAP.md` still said the shortlist and promotion flow had stronger `runtime ranking helpers` / `ranking helpers`, even though `docs/UI_DESIGN.md` explicitly requires unmanaged candidate surfacing to stay neutral and recent repo fixes have been removing `top` / `suggested now` wording in favor of `Currently surfaced`, `review first`, and `ready next` cues.
+- **repo fix:** this run updates `docs/UI_IMPLEMENTATION_MAP.md` so the completed-promotion bullets now describe the shipped posture accurately as shared fit/warning guidance plus `review-first / ready-next surfaced-candidate` cues.
+- **closure evidence:** source-of-truth doc audit plus direct wording correction in the same run. No repo/runtime behavior changed; the correction is to keep the implementation map aligned with the design doc and the current Managed Devices wording direction.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence

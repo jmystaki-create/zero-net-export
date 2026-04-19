@@ -28,7 +28,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Managed-device add/edit/remove flows exist.
 - Managed Devices now overlays live runtime readiness/detail into fleet summaries and selector labels instead of showing config-only inventory placeholders.
 - Unmanaged-candidate discovery exists.
-- Candidate shortlist and full-list pick flows exist, and they now share the same fit/warning signals and stronger runtime ranking helpers.
+- Candidate shortlist and full-list pick flows exist, and they now share the same fit/warning signals plus the stronger review-first / ready-next surfaced-candidate guidance.
 - Candidate vetting/review now includes an explicit balanced review shape covering control suitability, safety/confidence, and operational value.
 - Unmanaged backlog summaries now carry explicit ready-to-promote counts across the opening operator console, Managed Devices snapshots, and fleet-workspace overview surfaces instead of only naming review debt plus one ready candidate.
 - Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
@@ -308,7 +308,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - template-selection and save path exist
 - managed-device save flows now post a native success landing with what changed plus the next Managed Devices and deep-review path
 - candidate review now uses a balanced native summary of control suitability, safety/confidence, and operational value
-- candidate discovery, shortlist, review, and managed-device review now share the same fit/warning guidance and stronger ranking helpers
+- candidate discovery, shortlist, review, and managed-device review now share the same fit/warning guidance plus the stronger review-first / ready-next surfaced-candidate cues
 
 **Remaining**
 - validate the full pick -> review -> promote journey in live HA so it feels first-class in the installed product rather than only coherent in repo state
