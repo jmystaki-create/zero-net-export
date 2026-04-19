@@ -1180,6 +1180,48 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         }
 
     @staticmethod
+    def _count_label(count: int, singular: str, plural: str | None = None) -> str:
+        if count == 1:
+            return f"1 {singular}"
+        return f"{count} {plural or singular + 's'}"
+
+    @classmethod
+    def _device_action_label(
+        cls,
+        action: str,
+        *,
+        managed_count: int,
+        fixed_candidate_count: int,
+        variable_candidate_count: int,
+    ) -> str:
+        if action == "add_fixed":
+            if fixed_candidate_count:
+                return (
+                    "Add fixed load device"
+                    f" / {cls._count_label(fixed_candidate_count, 'fixed candidate')} surfaced"
+                )
+            return "Add fixed load device"
+        if action == "add_variable":
+            if variable_candidate_count:
+                return (
+                    "Add variable load device"
+                    f" / {cls._count_label(variable_candidate_count, 'variable candidate')} surfaced"
+                )
+            return "Add variable load device"
+        if action == "bulk_enable":
+            return (
+                "Review managed devices workspace / enable or disable devices"
+                f" / {cls._count_label(managed_count, 'managed device')}"
+            )
+        if action == "edit":
+            return f"Edit managed device / {cls._count_label(managed_count, 'managed device')}"
+        if action == "remove":
+            return f"Remove managed device / {cls._count_label(managed_count, 'managed device')}"
+        if action == "json":
+            return "Advanced JSON editor / recovery"
+        return action
+
+    @staticmethod
     def _candidate_picker_role_prefix(
         candidate: dict[str, Any],
         *,
@@ -2479,23 +2521,74 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if choice == "json":
                 return await self.async_step_devices_json()
 
+        fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
+        variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
         choices = [
-            selector.SelectOptionDict(value="add_fixed", label="Add fixed load device"),
-            selector.SelectOptionDict(value="add_variable", label="Add variable load device"),
+            selector.SelectOptionDict(
+                value="add_fixed",
+                label=self._device_action_label(
+                    "add_fixed",
+                    managed_count=len(devices),
+                    fixed_candidate_count=len(fixed_candidates),
+                    variable_candidate_count=len(variable_candidates),
+                ),
+            ),
+            selector.SelectOptionDict(
+                value="add_variable",
+                label=self._device_action_label(
+                    "add_variable",
+                    managed_count=len(devices),
+                    fixed_candidate_count=len(fixed_candidates),
+                    variable_candidate_count=len(variable_candidates),
+                ),
+            ),
         ]
         if devices:
             choices.append(
                 selector.SelectOptionDict(
                     value="bulk_enable",
-                    label="Review managed devices workspace / enable or disable devices",
+                    label=self._device_action_label(
+                        "bulk_enable",
+                        managed_count=len(devices),
+                        fixed_candidate_count=len(fixed_candidates),
+                        variable_candidate_count=len(variable_candidates),
+                    ),
                 )
             )
-            choices.append(selector.SelectOptionDict(value="edit", label="Edit managed device"))
-            choices.append(selector.SelectOptionDict(value="remove", label="Remove managed device"))
-        choices.append(selector.SelectOptionDict(value="json", label="Advanced JSON editor / recovery"))
+            choices.append(
+                selector.SelectOptionDict(
+                    value="edit",
+                    label=self._device_action_label(
+                        "edit",
+                        managed_count=len(devices),
+                        fixed_candidate_count=len(fixed_candidates),
+                        variable_candidate_count=len(variable_candidates),
+                    ),
+                )
+            )
+            choices.append(
+                selector.SelectOptionDict(
+                    value="remove",
+                    label=self._device_action_label(
+                        "remove",
+                        managed_count=len(devices),
+                        fixed_candidate_count=len(fixed_candidates),
+                        variable_candidate_count=len(variable_candidates),
+                    ),
+                )
+            )
+        choices.append(
+            selector.SelectOptionDict(
+                value="json",
+                label=self._device_action_label(
+                    "json",
+                    managed_count=len(devices),
+                    fixed_candidate_count=len(fixed_candidates),
+                    variable_candidate_count=len(variable_candidates),
+                ),
+            )
+        )
         summary = "\n".join(self._fleet_summary_lines(display_devices))
-        fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
-        variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
         workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         managed_snapshot = workspace_placeholders["managed_snapshot"]
         unmanaged_snapshot = workspace_placeholders["unmanaged_snapshot"]

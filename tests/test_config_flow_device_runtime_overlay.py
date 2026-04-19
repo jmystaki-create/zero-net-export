@@ -824,6 +824,38 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "Hot water (fixed) | likely useful | key warning: No immediate warnings",
             )
 
+    def test_device_actions_surface_managed_and_unmanaged_counts_in_selector_labels(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={module.DOMAIN: {"entry-1": None}})
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._load_devices = lambda: (
+            [
+                {"key": "pool", "name": "Pool pump", "kind": module.DEVICE_KIND_FIXED},
+                {"key": "ev", "name": "EV charger", "kind": module.DEVICE_KIND_VARIABLE},
+            ],
+            [],
+        )
+        flow._device_candidates = lambda: [
+            {"entity_id": "switch.hot_water", "name": "Hot water", "kind": module.DEVICE_KIND_FIXED},
+            {"entity_id": "switch.ac_outlet_2", "name": "AC Outlet 2", "kind": module.DEVICE_KIND_FIXED},
+            {"entity_id": "number.ev_limit", "name": "EV limit", "kind": module.DEVICE_KIND_VARIABLE},
+        ]
+
+        devices = asyncio.run(flow.async_step_devices())
+        options = devices["data_schema"]["device_action"]["options"]
+
+        self.assertEqual(options[0]["label"], "Add fixed load device / 2 fixed candidates surfaced")
+        self.assertEqual(options[1]["label"], "Add variable load device / 1 variable candidate surfaced")
+        self.assertEqual(
+            options[2]["label"],
+            "Review managed devices workspace / enable or disable devices / 2 managed devices",
+        )
+        self.assertEqual(options[3]["label"], "Edit managed device / 2 managed devices")
+        self.assertEqual(options[4]["label"], "Remove managed device / 2 managed devices")
+        self.assertEqual(options[5]["label"], "Advanced JSON editor / recovery")
+
     def test_detailed_management_summary_falls_back_to_secondary_review_path_wording(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
