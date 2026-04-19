@@ -941,6 +941,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         nominal_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
         kind_known = any(device.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for device in devices)
+        attention_name = next(
+            (
+                str(device.get("name") or device.get("entity_id") or "")
+                for device in ordered
+                if self._device_needs_attention(device)
+            ),
+            "",
+        )
         blocked_name = next(
             (
                 str(device.get("name") or device.get("entity_id") or "")
@@ -973,6 +981,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if attention_count == 1
                 else f"{attention_count} managed devices need attention"
             )
+            summary_parts.append(f"attention first: {attention_name or 'none'}")
         if kind_known:
             summary_parts.append(f"fixed managed: {fixed_count}")
             if variable_count:
