@@ -909,7 +909,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     "label": build_candidate_preview(
                         candidate,
                         include_entity_id=False,
-                        include_state=True,
+                        include_state=False,
                     ),
                     "fallback_label": _format_candidate_label(entity_id, state),
                 }

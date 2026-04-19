@@ -1441,6 +1441,33 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             ["switch.ac_outlet_2", "switch.pool_pump", "number.air_purifier_limit"],
         )
 
+    def test_candidate_discovery_labels_drop_state_from_picker_preview(self) -> None:
+        module = _load_config_flow_module()
+        module.discover_candidate_devices = lambda states, managed_ids: [
+            {
+                "entity_id": "switch.air_purifier",
+                "name": "Air Purifier",
+                "kind": module.DEVICE_KIND_FIXED,
+                "state": "on",
+            }
+        ]
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [],
+                get=lambda entity_id: SimpleNamespace(state="on", attributes={"friendly_name": "Air Purifier"}),
+            )
+        )
+        flow._load_devices = lambda: ([], [])
+
+        candidates = flow._device_candidates()
+
+        self.assertEqual(
+            candidates[0]["label"],
+            "Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
+        )
+        self.assertNotIn("state on", candidates[0]["label"])
+
     def test_candidate_options_label_top_and_review_first_roles(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))

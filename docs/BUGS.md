@@ -473,6 +473,19 @@ Suggested area labels:
 - **validation status:** repo-side source-of-truth audit plus direct doc correction in this run. `rg -n "e298061|bade75f|Current highest-value next step|next_action:|user_action:" README.md project_status.md docs/UI_IMPLEMENTATION_MAP.md docs/BUGS.md` now shows the stale `e298061` approval target removed from README and project status while the current `bade75f` boundary stays aligned with the implementation map and bug tracker.
 - **next action:** stop spending watchdog/supervisor runs on approval-target refreshes when the live mismatch is unchanged; if the candidate is being presented as release-ready, ask James directly to approve deploy/restart of the current exact component-changing build from `scripts/print_expected_install_fingerprint.py`, otherwise keep advancing the next mapped non-live repo step.
 
+## ZNE-058 - Promotion picker labels still leaked live state into shortlist-style candidate previews
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing `custom_components/zero_net_export/config_flow.py` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the managed-device promotion picker was still building its candidate option labels with `include_state=True`, so shortlist/full-list selection rows could render `state on` or `state off` inside the main candidate preview even though the design source of truth says unmanaged candidates should stay on concise shortlist-style name, type, usefulness, and key-warning cues.
+- **expected behavior:** promotion picker labels should match the same shortlist-style unmanaged preview used elsewhere in Managed Devices, without lower-value live-state fragments diluting the review-first or ready-next story.
+- **evidence:** this run's repo inspection found `_device_candidates()` in `custom_components/zero_net_export/config_flow.py` still calling `build_candidate_preview(..., include_state=True)` for the label reused by `_candidate_options()`. `docs/UI_DESIGN.md` explicitly says each unmanaged candidate should show a concise shortlist-style preview with name, type, likely usefulness, and key warning, and `docs/UI_IMPLEMENTATION_MAP.md` says Workstream C should remove remaining raw-id, helper-ish, or ambiguous wording from the promotion flow.
+- **suspected cause:** earlier Workstream C cleanup fixed the promotion shortlist recap and device-page review copy, but the picker-label helper itself was still carrying the older state-heavy candidate preview.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so discovered candidate labels now call `build_candidate_preview(..., include_state=False)` and adds a focused regression in `tests/test_config_flow_device_runtime_overlay.py` to lock the picker preview on shortlist-style copy without `state ...` drift.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay`.
+- **next action:** include this promotion-picker copy fix in the next exact-build deploy, then confirm the live shortlist/full-list selectors keep the stronger shortlist-style preview in Home Assistant.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
