@@ -45,6 +45,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices review:", devices_description)
         self.assertNotIn("Current managed fleet:", devices_description)
         self.assertIn("Unmanaged candidates (bottom section)", devices_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", devices_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", devices_description)
         self.assertIn("Bucket ownership", devices_description)
         self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal.", devices_description)
@@ -60,6 +61,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices review:", bulk_enable_description)
         self.assertNotIn("Current managed fleet:", bulk_enable_description)
         self.assertIn("Unmanaged candidates (bottom section)", bulk_enable_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", bulk_enable_description)
         self.assertIn("Candidate snapshot", bulk_enable_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", bulk_enable_description)
         self.assertIn(
@@ -73,6 +75,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices review:", edit_pick_description)
         self.assertNotIn("Current managed fleet:", edit_pick_description)
         self.assertIn("Unmanaged candidates (bottom section)", edit_pick_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", edit_pick_description)
         self.assertIn("Candidate snapshot", edit_pick_description)
 
         remove_description = steps["device_remove"]["description"]
@@ -81,6 +84,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices review:", remove_description)
         self.assertNotIn("Current managed fleet:", remove_description)
         self.assertIn("Unmanaged candidates (bottom section)", remove_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", remove_description)
         self.assertIn("Candidate snapshot", remove_description)
 
         vetting_description = steps["device_vetting"]["description"]
@@ -89,6 +93,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices review:", vetting_description)
         self.assertNotIn("Current managed fleet:", vetting_description)
         self.assertIn("Unmanaged candidates (bottom section)", vetting_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", vetting_description)
         self.assertIn("Candidate snapshot", vetting_description)
         self.assertIn("Detailed native review path after promotion, only if you need deeper per-device review", vetting_description)
 
@@ -100,6 +105,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices review:", template_description)
         self.assertNotIn("Current managed fleet:", template_description)
         self.assertIn("Unmanaged candidates (bottom section)", template_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", template_description)
         self.assertIn("Candidate snapshot", template_description)
 
         add_description = steps["device_add"]["description"]
@@ -110,6 +116,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices review:", add_description)
         self.assertNotIn("Current managed fleet:", add_description)
         self.assertIn("Unmanaged candidates (bottom section)", add_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", add_description)
         self.assertIn("Candidate snapshot", add_description)
         self.assertIn("Detailed native review path after save, only if you need deeper per-device review", add_description)
 
@@ -117,12 +124,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertEqual(shortlist_step["data"]["quick_pick"], "Promotion shortlist")
         shortlist_description = shortlist_step["description"]
         self.assertIn("Managed devices review:", shortlist_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", shortlist_description)
         self.assertNotIn("Current managed fleet:", shortlist_description)
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
         self.assertIn("continue with the native Managed Devices form", full_list_description)
         self.assertNotIn("continue with the normal native form", full_list_description)
         self.assertIn("Managed devices review:", full_list_description)
+        self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", full_list_description)
         self.assertNotIn("Current managed fleet:", full_list_description)
 
         policy_description = steps["policy"]["description"]

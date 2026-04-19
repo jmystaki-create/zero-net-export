@@ -769,6 +769,50 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(shortlist["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(full_list["description_placeholders"]["detailed_management_summary"], flow._detailed_management_summary())
 
+    def test_device_forms_surface_ready_next_candidate_placeholder(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={module.DOMAIN: {"entry-1": None}})
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._load_devices = lambda: ([], [])
+        candidates = [
+            {"entity_id": "switch.virtual_load", "name": "Virtual load", "kind": module.DEVICE_KIND_FIXED},
+            {"entity_id": "switch.hot_water", "name": "Hot water", "kind": module.DEVICE_KIND_FIXED},
+        ]
+        flow._device_candidates = lambda: candidates
+        flow._candidate_quick_picks = lambda kind: candidates
+        flow._candidate_options = lambda kind=None: [
+            {"value": "switch.virtual_load", "label": "Virtual load"},
+            {"value": "switch.hot_water", "label": "Hot water"},
+        ]
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "switch.virtual_load" else "high",
+            "summary": "Review before promotion." if candidate.get("entity_id") == "switch.virtual_load" else "Ready to promote.",
+            "warnings": ["Helper-backed load needs review."] if candidate.get("entity_id") == "switch.virtual_load" else [],
+        }
+        module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
+            "Virtual load (fixed) | review first | key warning: Helper-backed load needs review."
+            if candidate.get("entity_id") == "switch.virtual_load"
+            else "Hot water (fixed) | likely useful | key warning: No immediate warnings"
+        )
+
+        shortlist = asyncio.run(flow.async_step_device_pick_candidate())
+        full_list = asyncio.run(flow.async_step_device_pick_candidate_full())
+        vetting = asyncio.run(flow.async_step_device_vetting())
+        template = asyncio.run(flow.async_step_device_template())
+        add = asyncio.run(flow.async_step_device_add())
+        bulk_enable = asyncio.run(flow.async_step_device_bulk_enable())
+        edit_pick = asyncio.run(flow.async_step_device_edit_pick())
+        remove = asyncio.run(flow.async_step_device_remove())
+        devices = asyncio.run(flow.async_step_devices())
+
+        for result in [shortlist, full_list, vetting, template, add, bulk_enable, edit_pick, remove, devices]:
+            self.assertEqual(
+                result["description_placeholders"]["ready_candidate"],
+                "Hot water (fixed) | likely useful | key warning: No immediate warnings",
+            )
+
     def test_detailed_management_summary_falls_back_to_secondary_review_path_wording(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
