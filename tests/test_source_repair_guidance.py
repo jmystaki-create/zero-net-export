@@ -656,7 +656,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(native_support.DIAGNOSTICS_DEVICE_ACTIONS_PATH, readiness["next_step"])
         self.assertNotIn("support actions", readiness["next_step"])
 
-    def test_command_center_summary_operator_ready_fallback_uses_diagnostics_actions_wording(self) -> None:
+    def test_command_center_summary_operator_ready_prefers_managed_devices_when_fleet_follow_up_exists(self) -> None:
         native_support = _load_native_support_module(
             parse_device_result=([
                 SimpleNamespace(
@@ -726,7 +726,9 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn(native_support.DIAGNOSTICS_DEVICE_ACTIONS_PATH, summary["next_action_summary"])
+        self.assertEqual(native_support.DEVICES_SECTION_LABEL, summary["recommended_section"])
+        self.assertIn(native_support.DEVICES_CONFIGURE_PATH, summary["next_action_summary"])
+        self.assertNotIn(native_support.DIAGNOSTICS_DEVICE_ACTIONS_PATH, summary["next_action_summary"])
         self.assertNotIn("device support actions", summary["next_action_summary"])
 
     def test_command_center_summary_uses_positive_source_blocker_copy_when_none_exist(self) -> None:
