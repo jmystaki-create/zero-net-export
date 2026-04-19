@@ -7,10 +7,10 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: stop pointing release execution at stale exact build `5070a7c`; the current repo candidate is now `a61ea30`, so either ask James directly for explicit deploy/restart approval on that build or keep moving the next mapped non-live stage instead of repeating unchanged fingerprint bookkeeping
+next_action: stop spending runs on stale-hash cleanup; the repo candidate is still exact build `a61ea30`, so either ask James directly for explicit deploy/restart approval on that build or keep moving the next mapped non-live stage instead of repeating unchanged fingerprint bookkeeping
 
 # Current blocker or none
-blocker: unchanged live exact-build drift, confirmed again over the documented HA SSH path, but the release-steering docs had also gone stale on the candidate hash; the live install is still on a divergent `0.1.87` build and approval/deploy wording must target `a61ea30`, not `5070a7c`
+blocker: unchanged live exact-build drift, confirmed again over the documented HA SSH path; the live install is still a divergent `0.1.87` build, and the real boundary is explicit deploy/restart approval for exact build `a61ea30`, not another release-target wording refresh
 
 # Exact user action needed or none
 user_action: James must explicitly approve deploy/restart of exact build `a61ea30` before formal release execution
@@ -19,4 +19,4 @@ user_action: James must explicitly approve deploy/restart of exact build `a61ea3
 notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, and keep `0.1.86` as the current live correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated. A live divergent `0.1.87` install is release drift, not a steering change.
 
 # Last time this file materially changed
-last_modified: 2026-04-19 18:19
+last_modified: 2026-04-19 18:34
