@@ -1750,6 +1750,107 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(summary["headline_decision"], "Near target, holding current managed load.")
 
 
+    def test_command_center_summary_keeps_live_managed_activity_ahead_of_unmanaged_backlog(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+                {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
+            ],
+            "Virtual load",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "low" if candidate.get("entity_id") == "input_boolean.virtual_load" else "high",
+            "summary": "Review before promotion.",
+            "warnings": [],
+        }
+        native_support.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        native_support.build_candidate_review_hint = lambda candidate, include_warning=True: (
+            "review carefully | warn This is an input_boolean helper."
+            if candidate.get("entity_id") == "input_boolean.virtual_load"
+            else "likely useful"
+        )
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Virtual load (fixed) | review carefully | warn This is an input_boolean helper."
+            if candidate.get("entity_id") == "input_boolean.virtual_load"
+            else "EV charger limit (variable) | likely useful"
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            reason="Monitoring export drift before acting.",
+            control_reason="Holding current load.",
+            status="Active",
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1185.0,
+            active_controlled_power_w=1185.0,
+            blocked_planned_action_count=0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "effective_enabled": True,
+                    "observed_active": True,
+                    "current_power_w": 1185.0,
+                    "planned_action": "turn_on",
+                    "nominal_power_w": 1185.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("active load 1185 W", summary["fleet_activity_summary"])
+        self.assertIn("1 active managed device", summary["fleet_activity_summary"])
+        self.assertIn("1 needs review", summary["fleet_activity_summary"])
+        self.assertIn("1 ready to promote", summary["fleet_activity_summary"])
+        self.assertIn("review Virtual load (fixed)", summary["fleet_activity_summary"])
+        self.assertIn("ready EV charger limit (variable)", summary["fleet_activity_summary"])
+        self.assertLess(
+            summary["fleet_activity_summary"].index("active load 1185 W"),
+            summary["fleet_activity_summary"].index("1 needs review"),
+        )
+        self.assertLess(
+            summary["fleet_activity_summary"].index("1 active managed device"),
+            summary["fleet_activity_summary"].index("review Virtual load (fixed)"),
+        )
+
     def test_command_center_summary_surfaces_active_managed_load_and_count_in_fleet_activity(self) -> None:
         native_support = _load_native_support_module()
 

@@ -1447,8 +1447,42 @@ def _build_command_center_fleet_activity_summary(
     summary_parts: list[str] = [f"managed {managed_count}"]
     if candidate_count:
         summary_parts.append(f"{candidate_count} unmanaged")
-        if managed_count == 0 and source_blocked:
-            summary_parts.append("repair sources first")
+    else:
+        summary_parts.append("no unmanaged candidates")
+
+    ready_candidate_count = max(candidate_count - review_needed_count, 0)
+
+    if managed_count == 0 and source_blocked:
+        summary_parts.append("repair sources first")
+    elif source_blocked and managed_count > 0:
+        summary_parts.append("repair sources first")
+
+    if managed_count > 0:
+        if attention_device_count:
+            summary_parts.append(
+                "1 managed device needs attention"
+                if attention_device_count == 1
+                else f"{attention_device_count} managed devices need attention"
+            )
+        if first_attention_device and not _same_runtime_device(first_attention_device, first_blocked_device) and not _same_runtime_device(first_attention_device, first_planned_device):
+            summary_parts.append(f"attention {_command_center_runtime_device_preview(first_attention_device)}")
+        if blocked_activity_count:
+            summary_parts.append(
+                f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
+                if first_blocked_device
+                else f"blocked {blocked_activity_count}"
+            )
+        if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
+            summary_parts.append(f"plan {_command_center_runtime_device_preview(first_planned_device)}")
+        if active_managed_power_w > 0:
+            summary_parts.append(f"active load {active_managed_power_w:g} W")
+            summary_parts.append(
+                "1 active managed device"
+                if active_managed_count == 1
+                else f"{active_managed_count} active managed devices"
+            )
+
+    if candidate_count:
         if fixed_candidate_count:
             summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         if variable_candidate_count:
@@ -1461,7 +1495,6 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(_count_label(variable_review_count, "variable review"))
             if review_candidate_name:
                 summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
-        ready_candidate_count = max(candidate_count - review_needed_count, 0)
         if ready_candidate_count:
             summary_parts.append(
                 "1 ready to promote"
@@ -1472,36 +1505,8 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
         if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
             summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
-    else:
-        summary_parts.append("no unmanaged candidates")
-        if managed_count == 0 and source_blocked:
-            summary_parts.append("repair sources first")
-    if source_blocked and managed_count > 0:
-        summary_parts.append("repair sources first")
-    if attention_device_count:
-        summary_parts.append(
-            "1 managed device needs attention"
-            if attention_device_count == 1
-            else f"{attention_device_count} managed devices need attention"
-        )
-    if first_attention_device and not _same_runtime_device(first_attention_device, first_blocked_device) and not _same_runtime_device(first_attention_device, first_planned_device):
-        summary_parts.append(f"attention {_command_center_runtime_device_preview(first_attention_device)}")
-    if blocked_activity_count:
-        summary_parts.append(
-            f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
-            if first_blocked_device
-            else f"blocked {blocked_activity_count}"
-        )
-    if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
-        summary_parts.append(f"plan {_command_center_runtime_device_preview(first_planned_device)}")
+
     if managed_count > 0:
-        if active_managed_power_w > 0:
-            summary_parts.append(f"active load {active_managed_power_w:g} W")
-            summary_parts.append(
-                "1 active managed device"
-                if active_managed_count == 1
-                else f"{active_managed_count} active managed devices"
-            )
         summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
         if kind_known:
             summary_parts.append(f"{fixed_managed_count} fixed managed")
@@ -1517,12 +1522,13 @@ def _build_command_center_fleet_activity_summary(
     optional_prefixes = [
         "usable ",
         "enabled ",
-        "active managed device",
         "fixed review",
         "variable review",
         "fixed managed",
         "variable managed",
         "W nominal",
+        "attention ",
+        "plan ",
     ]
     for prefix in optional_prefixes:
         if len(" | ".join(compact_summary_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -1577,6 +1583,14 @@ def _build_command_center_fleet_activity_summary(
             )
         )
 
+    if active_managed_power_w > 0:
+        minimal_parts.append(f"active load {active_managed_power_w:g} W")
+        minimal_parts.append(
+            "1 active managed device"
+            if active_managed_count == 1
+            else f"{active_managed_count} active managed devices"
+        )
+
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     if review_needed_count:
         minimal_parts.append(
@@ -1619,6 +1633,8 @@ def _build_command_center_fleet_activity_summary(
         "enabled ",
         "usable ",
         "W nominal",
+        "attention ",
+        "plan ",
     ):
         if len(minimal_parts) <= 2:
             break
