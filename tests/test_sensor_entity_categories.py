@@ -855,7 +855,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Open devices path and review Virtual load first from the unmanaged list, then promote Dishwasher Power next",
         )
 
-    def test_fleet_console_next_step_uses_promote_wording_when_no_review_first_candidate_exists(self) -> None:
+    def test_fleet_console_next_step_uses_ready_next_wording_when_no_review_first_candidate_exists(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
             {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": "fixed"},
@@ -871,7 +871,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path and promote Dishwasher Power into Managed Devices",
+            "Open devices path and promote Dishwasher Power next",
         )
 
     def test_fleet_console_next_step_names_ready_next_candidate_after_review_when_backlog_is_mixed(self) -> None:

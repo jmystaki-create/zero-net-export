@@ -744,7 +744,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         next_step += f", then promote {ready_candidate_name} next"
                     return _truncate_sensor_state(next_step)
                 return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and promote {top_candidate_name or 'the top candidate'} into Managed Devices"
+                    f"Open {DEVICES_CONFIGURE_PATH} and promote {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'} next"
                 )
             if blocked_activity_count:
                 target = f" starting with {first_blocked_name}" if first_blocked_name else ""
@@ -769,7 +769,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         next_step += f", then promote {ready_candidate_name} next"
                     return _truncate_sensor_state(next_step)
                 return _truncate_sensor_state(
-                    f"Review unmanaged candidates, then promote {top_candidate_name or 'the next controllable device'} from {DEVICES_CONFIGURE_PATH}"
+                    f"Review unmanaged candidates, then promote {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'} from {DEVICES_CONFIGURE_PATH}"
                 )
             return _truncate_sensor_state(
                 f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
