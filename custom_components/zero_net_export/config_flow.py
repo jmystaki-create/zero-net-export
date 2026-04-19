@@ -1180,6 +1180,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             review_candidate=review_candidate,
             ready_candidate=ready_candidate,
         )
+        if prefix in {"Review first", "Suggested now, review first"}:
+            label = label.replace(" | review first |", " |", 1)
+            if label.endswith(" | review first"):
+                label = label[: -len(" | review first")]
         return f"{prefix}: {label}" if prefix else label
 
     def _candidate_options(self, *, kind: str | None = None) -> list[selector.SelectOptionDict]:

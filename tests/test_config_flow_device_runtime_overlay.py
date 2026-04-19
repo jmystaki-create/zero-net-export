@@ -1499,7 +1499,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             options[1]["label"],
-            "Review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+            "Review first: AC Outlet 2 (fixed) | key warning: Generic outlet label",
         )
 
     def test_candidate_options_label_marks_ready_next_when_top_needs_review(self) -> None:
@@ -1529,7 +1529,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             options[0]["label"],
-            "Suggested now, review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+            "Suggested now, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label",
         )
         self.assertEqual(
             options[1]["label"],
@@ -1561,7 +1561,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             }
         ]
         flow._candidate_options = lambda kind=None: [
-            {"value": "switch.ac_outlet_2", "label": "Suggested now, review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label"},
+            {"value": "switch.ac_outlet_2", "label": "Suggested now, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label"},
         ]
         flow._device_candidates = lambda: [
             {
@@ -1584,7 +1584,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         shortlist = asyncio.run(flow.async_step_device_pick_candidate())
 
         self.assertIn(
-            "Suggested now, review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+            "Suggested now, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label",
             shortlist["description_placeholders"]["top_candidates"],
         )
 
