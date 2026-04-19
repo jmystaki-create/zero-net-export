@@ -1221,15 +1221,37 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ),
         )
         quick_picks = ranked[:3]
+        top_candidate = ranked[0] if ranked else None
         review_candidate = next(
             (item for item in ranked if candidate_needs_review(assess_candidate(item))),
             None,
         )
-        if review_candidate and all(item.get("entity_id") != review_candidate.get("entity_id") for item in quick_picks):
-            if len(quick_picks) >= 3:
-                quick_picks = [*quick_picks[:2], review_candidate]
-            else:
-                quick_picks = [*quick_picks, review_candidate]
+        ready_candidate = next(
+            (item for item in ranked if not candidate_needs_review(assess_candidate(item))),
+            None,
+        )
+
+        def _ensure_visible(candidate: dict[str, Any] | None) -> None:
+            if not candidate:
+                return
+            candidate_id = str(candidate.get("entity_id") or "")
+            if not candidate_id or any(str(item.get("entity_id") or "") == candidate_id for item in quick_picks):
+                return
+            protected_ids = {
+                str((top_candidate or {}).get("entity_id") or ""),
+                str((review_candidate or {}).get("entity_id") or ""),
+                str((ready_candidate or {}).get("entity_id") or ""),
+            }
+            for index in range(len(quick_picks) - 1, -1, -1):
+                quick_pick_id = str(quick_picks[index].get("entity_id") or "")
+                if quick_pick_id not in protected_ids:
+                    quick_picks[index] = candidate
+                    return
+            if len(quick_picks) < 3:
+                quick_picks.append(candidate)
+
+        _ensure_visible(review_candidate)
+        _ensure_visible(ready_candidate)
         return quick_picks
 
     def _source_entity_options(

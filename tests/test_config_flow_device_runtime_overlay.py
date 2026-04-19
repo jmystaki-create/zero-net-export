@@ -1418,6 +1418,29 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             ["switch.air_purifier", "switch.coffee_machine", "switch.ac_outlet_2"],
         )
 
+    def test_candidate_quick_picks_keep_first_ready_next_candidate_visible_when_top_three_need_review(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._top_candidates_for_kind = lambda kind, limit=12: [
+            {"entity_id": "switch.ac_outlet_2", "name": "AC Outlet 2", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+            {"entity_id": "switch.pool_pump", "name": "Pool pump", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+            {"entity_id": "switch.spa_heater", "name": "Spa heater", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+            {"entity_id": "number.air_purifier_limit", "name": "Air Purifier", "kind": module.DEVICE_KIND_FIXED, "domain": "number"},
+        ]
+        flow._candidate_summary = lambda entity_id: {"fit_confidence": "high"}
+        module.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("entity_id") == "number.air_purifier_limit" else "medium",
+            "summary": "Strong match." if candidate.get("entity_id") == "number.air_purifier_limit" else "Needs review.",
+            "warnings": [] if candidate.get("entity_id") == "number.air_purifier_limit" else ["Review before promotion."],
+        }
+
+        quick_picks = flow._candidate_quick_picks(module.DEVICE_KIND_FIXED)
+
+        self.assertEqual(
+            [item["entity_id"] for item in quick_picks],
+            ["switch.ac_outlet_2", "switch.pool_pump", "number.air_purifier_limit"],
+        )
+
     def test_candidate_options_label_top_and_review_first_roles(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
