@@ -645,19 +645,22 @@ def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[
     return payloads, issues
 
 
-def _first_runtime_device_name(state: Any, *, predicate) -> str:
+def _ordered_runtime_device_details(state: Any) -> list[dict[str, Any]]:
     if state is None:
-        return ""
-    for detail in (getattr(state, "device_details", {}) or {}).values():
+        return []
+    details = list((getattr(state, "device_details", {}) or {}).values())
+    return sorted(details, key=_runtime_device_sort_key)
+
+
+def _first_runtime_device_name(state: Any, *, predicate) -> str:
+    for detail in _ordered_runtime_device_details(state):
         if predicate(detail):
             return str(detail.get("name") or detail.get("entity_id") or "").strip()
     return ""
 
 
 def _first_runtime_device_detail(state: Any, *, predicate) -> dict[str, Any] | None:
-    if state is None:
-        return None
-    for detail in (getattr(state, "device_details", {}) or {}).values():
+    for detail in _ordered_runtime_device_details(state):
         if predicate(detail):
             return detail
     return None
@@ -675,11 +678,34 @@ def _runtime_device_has_active_plan(detail: dict[str, Any]) -> bool:
     return planned_action not in {"", "hold"}
 
 
-def _runtime_device_needs_attention(detail: dict[str, Any]) -> bool:
-    if _runtime_device_has_blocked_activity(detail) or _runtime_device_has_active_plan(detail):
-        return True
+def _runtime_device_has_recent_attention(detail: dict[str, Any]) -> bool:
     last_action_status = str(detail.get("last_action_status") or "").strip().lower()
     return bool(last_action_status and last_action_status not in {"ok", "applied", "success"})
+
+
+def _runtime_device_needs_attention(detail: dict[str, Any]) -> bool:
+    return bool(
+        _runtime_device_has_blocked_activity(detail)
+        or _runtime_device_has_active_plan(detail)
+        or _runtime_device_has_recent_attention(detail)
+    )
+
+
+def _runtime_device_sort_key(detail: dict[str, Any]) -> tuple[int, int, int, int, int, str]:
+    effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
+    usable = detail.get("usable")
+    blocked_rank = 0 if _runtime_device_has_blocked_activity(detail) else 1
+    planned_rank = 0 if _runtime_device_has_active_plan(detail) else 1
+    recent_attention_rank = 0 if _runtime_device_has_recent_attention(detail) else 1
+    enabled_usable_rank = 0 if effective_enabled and usable is True else 1
+    return (
+        blocked_rank,
+        planned_rank,
+        recent_attention_rank,
+        enabled_usable_rank,
+        int(detail.get("priority", 0) or 0),
+        str(detail.get("name") or detail.get("entity_id") or "").lower(),
+    )
 
 
 def _command_center_runtime_device_preview(detail: dict[str, Any] | None) -> str:

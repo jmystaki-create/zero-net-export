@@ -613,6 +613,102 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("blocked Pool Pump", summary["fleet_activity_summary"])
         self.assertNotIn("plan Pool Pump", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_prefers_attention_first_runtime_order_over_config_insertion_order(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support.build_install_provenance = lambda *args, **kwargs: {
+            "pending_async_refresh": False,
+            "manifest_matches_code_version": True,
+        }
+        native_support.build_install_consistency_summary = lambda provenance: "Installed build matches repo candidate"
+        native_support.build_install_status_summary = lambda provenance: "Installed package matches current repo"
+        native_support.build_install_next_step = lambda provenance: "No install action needed"
+        native_support.build_install_snapshot_path = lambda provenance: "Open Diagnostics for install details"
+        native_support.discover_candidate_devices = lambda *args, **kwargs: []
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            reason="Holding steady.",
+            control_reason="Waiting for the next load action.",
+            status="Active",
+            device_status_summary="3 configured devices available",
+            device_count=3,
+            enabled_device_count=3,
+            usable_device_count=2,
+            fixed_device_count=2,
+            variable_device_count=1,
+            controllable_nominal_power_w=4700.0,
+            active_controlled_power_w=2400.0,
+            blocked_planned_action_count=1,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "steady_floor": {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor",
+                    "kind": "variable",
+                    "usable": True,
+                    "effective_enabled": True,
+                    "priority": 50,
+                    "planned_action": "hold",
+                    "nominal_power_w": 2200.0,
+                },
+                "late_blocked": {
+                    "name": "Water heater",
+                    "entity_id": "switch.water_heater",
+                    "kind": "fixed",
+                    "usable": False,
+                    "effective_enabled": True,
+                    "priority": 120,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                    "nominal_power_w": 1800.0,
+                },
+                "earlier_plan": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "effective_enabled": True,
+                    "priority": 80,
+                    "planned_action": "turn_on",
+                    "action_executable": True,
+                    "nominal_power_w": 700.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("blocked Water heater (fixed | not usable", summary["fleet_activity_summary"])
+        self.assertIn(
+            f"Open {native_support.DEVICES_CONFIGURE_PATH} and review blocked managed devices, starting with Water heater",
+            summary["next_action_summary"],
+        )
+
     def test_command_center_summary_keeps_unmanaged_split_when_device_config_needs_repair(self) -> None:
         native_support = _load_native_support_module()
 
