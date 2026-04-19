@@ -371,6 +371,15 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
         if " fixed review" not in part and " variable review" not in part
     ]
     compact_summary = " | ".join(compact_parts)
+    if len(compact_summary) <= max_chars:
+        return compact_summary
+    compact_parts = [
+        _truncate_sensor_state(part, max_chars=56)
+        if part.startswith(("review ", "ready ", "top "))
+        else part
+        for part in compact_parts
+    ]
+    compact_summary = " | ".join(compact_parts)
     return _truncate_sensor_state(compact_summary, max_chars=max_chars)
 
 
@@ -410,11 +419,9 @@ def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> 
             parts.append(_count_label(variable_review_count, "variable review"))
         if review_candidate_name:
             parts.append(f"review {review_candidate_preview or review_candidate_name}")
-        if ready_candidate_name and ready_candidate is not top_candidate:
-            parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
-    if top_candidate_name and top_candidate is not review_candidate:
-        parts.append(f"top {top_candidate_preview or top_candidate_name}")
-    elif top_candidate_name and not review_needed_count:
+    if ready_candidate_name:
+        parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+    if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
         parts.append(f"top {top_candidate_preview or top_candidate_name}")
 
     return _fleet_overview_state(parts)
@@ -460,9 +467,15 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 (item for item in candidates if candidate_needs_review(assess_candidate(item))),
                 None,
             )
+            ready_candidate = next(
+                (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+                None,
+            )
             fixed_review_count, variable_review_count = candidate_review_kind_counts(candidates)
             review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
             review_candidate_preview = build_candidate_compact_preview(review_candidate) if review_candidate else ""
+            ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
+            ready_candidate_preview = build_candidate_compact_preview(ready_candidate) if ready_candidate else ""
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
                 predicate=_device_has_blocked_activity,
@@ -496,9 +509,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         summary_parts.append(_count_label(fixed_review_count, "fixed review"))
                     if variable_review_count:
                         summary_parts.append(_count_label(variable_review_count, "variable review"))
-                    if review_candidate_name and review_candidate_name != top_candidate_name:
+                    if review_candidate_name:
                         summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
-                if top_candidate_name:
+                if ready_candidate_name:
+                    summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+                if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
                     summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
                 return _fleet_overview_state(summary_parts)
             if candidate_count:
@@ -512,9 +527,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         summary_parts.append(_count_label(fixed_review_count, "fixed review"))
                     if variable_review_count:
                         summary_parts.append(_count_label(variable_review_count, "variable review"))
-                    if review_candidate_name and review_candidate_name != top_candidate_name:
+                    if review_candidate_name:
                         summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
-                if top_candidate_name:
+                if ready_candidate_name:
+                    summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+                if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
                     summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
             if source_blocked:
                 summary_parts.append("repair sources first")

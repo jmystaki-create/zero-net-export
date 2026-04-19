@@ -345,7 +345,10 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(overview.native_value, "0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label")
+        self.assertIn("0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review", overview.native_value)
+        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn generic outlet label", overview.native_value)
+        self.assertIn("ready EV charger limit (variable) | likely useful", overview.native_value)
+        self.assertNotIn("top AC Outlet 2", overview.native_value)
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 2)
         self.assertEqual(overview.extra_state_attributes["top_candidate"]["name"], "AC Outlet 2")
         self.assertEqual(overview.extra_state_attributes["top_candidate_name"], "AC Outlet 2")
@@ -464,9 +467,43 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
+        self.assertIn("1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review", overview.native_value)
+        self.assertIn("review Virtual load (fixed) | review carefully | warn", overview.native_value)
+        self.assertIn("ready Hot water relay (fixed) | likely useful", overview.native_value)
+        self.assertNotIn("top Hot water relay", overview.native_value)
+        self.assertIn("1 fixed managed | 1185 W nominal", overview.native_value)
+
+    def test_unmanaged_candidate_overview_prefers_ready_label_when_top_candidate_is_ready_next(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "Hot water relay", "entity_id": "switch.hot_water", "kind": "fixed"},
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+        ]
+        sensor_module.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("entity_id") == "switch.hot_water" else "low",
+            "summary": "Review before promotion.",
+            "warnings": [],
+        }
+        sensor_module.build_candidate_review_hint = lambda candidate, include_warning=True, **kwargs: (
+            "likely useful"
+            if candidate.get("entity_id") == "switch.hot_water"
+            else (
+                "review carefully | warn This is an input_boolean helper."
+                if include_warning
+                else "review carefully"
+            )
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "unmanaged_candidate_overview", "Unmanaged candidate overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
         self.assertEqual(
             overview.native_value,
-            "1 managed | 2 unmanaged | 2 fixed candidates | 1 needs review | review Virtual load (fixed) | review carefully | warn This is an input_boolean helper. | top Hot water relay (fixed) | likely useful | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load (fixed) | review carefully | warn This is an input_boolean helper. | ready Hot water relay (fixed) | likely useful",
         )
 
     def test_managed_fleet_overview_keeps_top_unmanaged_target_visible_with_existing_fleet(self) -> None:
@@ -494,10 +531,11 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(
-            overview.native_value,
-            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
-        )
+        self.assertIn("1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review", overview.native_value)
+        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn", overview.native_value)
+        self.assertIn("ready EV charger limit (variable) | likely useful", overview.native_value)
+        self.assertNotIn("top AC Outlet 2", overview.native_value)
+        self.assertIn("1 fixed managed | 1185 W nominal", overview.native_value)
 
     def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
         sensor_module = _load_sensor_module()
@@ -571,10 +609,11 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(
-            overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | blocked 1 | active load 730 W | 1 active managed device | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
-        )
+        self.assertIn("1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review", overview.native_value)
+        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn generic outlet label", overview.native_value)
+        self.assertIn("blocked 1 | active load 730 W | 1 active managed device", overview.native_value)
+        self.assertNotIn("top AC Outlet 2", overview.native_value)
+        self.assertIn("1 fixed managed | 1185 W nominal", overview.native_value)
         self.assertEqual(overview.extra_state_attributes["blocked_activity_count"], 1)
         self.assertEqual(overview.extra_state_attributes["blocked_planned_action_count"], 1)
 
@@ -596,7 +635,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
+            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -636,10 +675,11 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertEqual(
-            overview.native_value,
-            "1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | repair sources first | 1 enabled | 1 usable | 1 fixed managed | 1185 W nominal",
-        )
+        self.assertIn("1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate | 1 needs review", overview.native_value)
+        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn", overview.native_value)
+        self.assertIn("ready EV charger limit (variable) | likely useful", overview.native_value)
+        self.assertIn("repair sources first", overview.native_value)
+        self.assertNotIn("top AC Outlet 2", overview.native_value)
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
         sensor_module = _load_sensor_module()
@@ -872,7 +912,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | top AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
+            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)
