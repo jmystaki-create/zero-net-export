@@ -89,7 +89,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         )
 
         edit_pick_description = steps["device_edit_pick"]["description"]
+        self.assertIn("Use this Managed Devices screen to choose which managed device to edit from the native fleet list.", edit_pick_description)
         self.assertIn("Managed Devices owns this fleet-edit workflow", edit_pick_description)
+        self.assertNotIn("This is the in-place native edit path", edit_pick_description)
         self.assertIn("Managed devices (top section)", edit_pick_description)
         self.assertIn("Managed devices review:", edit_pick_description)
         self.assertNotIn("Current managed fleet:", edit_pick_description)
@@ -138,7 +140,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         add_description = steps["device_add"]["description"]
         self.assertIn("Promotion path:", add_description)
         self.assertIn("{promotion_path_summary}", add_description)
+        self.assertIn("{device_mode} this {device_kind} in Managed Devices through native Home Assistant selectors.", add_description)
         self.assertIn("Managed Devices still owns this save step", add_description)
+        self.assertNotIn("This is the main native promotion flow", add_description)
         self.assertIn("Managed devices (top section)", add_description)
         self.assertIn("Managed devices review:", add_description)
         self.assertNotIn("Current managed fleet:", add_description)
