@@ -374,6 +374,52 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
     return _truncate_sensor_state(compact_summary, max_chars=max_chars)
 
 
+def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> str:
+    if not candidates:
+        return build_candidate_overview_summary(candidates)
+
+    fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
+    variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
+    review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
+    fixed_review_count, variable_review_count = candidate_review_kind_counts(candidates)
+    top_candidate = candidates[0]
+    top_candidate_name = str(top_candidate.get("name") or top_candidate.get("entity_id") or "").strip()
+    top_candidate_preview = build_candidate_compact_preview(top_candidate)
+    review_candidate = first_review_candidate(candidates)
+    review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+    review_candidate_preview = build_candidate_compact_preview(review_candidate) if review_candidate else ""
+    ready_candidate = next(
+        (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+        None,
+    )
+    ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
+    ready_candidate_preview = build_candidate_compact_preview(ready_candidate) if ready_candidate else ""
+
+    parts = [
+        _count_label(len(candidates), "candidate"),
+    ]
+    if fixed_candidate_count:
+        parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
+    if variable_candidate_count:
+        parts.append(_count_label(variable_candidate_count, "variable candidate"))
+    if review_needed_count:
+        parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
+        if fixed_review_count:
+            parts.append(_count_label(fixed_review_count, "fixed review"))
+        if variable_review_count:
+            parts.append(_count_label(variable_review_count, "variable review"))
+        if review_candidate_name:
+            parts.append(f"review {review_candidate_preview or review_candidate_name}")
+        if ready_candidate_name and ready_candidate is not top_candidate:
+            parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+    if top_candidate_name and top_candidate is not review_candidate:
+        parts.append(f"top {top_candidate_preview or top_candidate_name}")
+    elif top_candidate_name and not review_needed_count:
+        parts.append(f"top {top_candidate_preview or top_candidate_name}")
+
+    return _fleet_overview_state(parts)
+
+
 def _merged_entry_config(entry) -> dict[str, object]:
     merged = dict(getattr(entry, "data", {}) or {})
     merged.update(dict(getattr(entry, "options", {}) or {}))
@@ -510,7 +556,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key == "unmanaged_candidate_count":
             return len(candidates or [])
         if self._key == "unmanaged_candidate_overview":
-            return build_candidate_overview_summary(candidates or [])
+            return _unmanaged_candidate_overview_state(candidates or [])
         if self._key == "top_unmanaged_candidate":
             if not candidates:
                 return "None"

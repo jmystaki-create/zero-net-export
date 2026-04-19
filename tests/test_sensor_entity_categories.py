@@ -357,7 +357,6 @@ class SensorEntityCategoryTests(unittest.TestCase):
             {"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"},
             {"name": "EV charger limit", "entity_id": "number.ev_charger_limit", "kind": "variable"},
         ]
-        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2"
         sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2 (fixed | likely useful); EV charger limit (variable | likely useful)"
 
         coordinator = SimpleNamespace(
@@ -369,7 +368,9 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
         shortlist.hass = overview.hass
 
-        self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2")
+        self.assertIn("2 candidates | 1 fixed candidate | 1 variable candidate | 1 needs review | 1 fixed review", overview.native_value)
+        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn generic outlet label", overview.native_value)
+        self.assertIn("ready EV charger limit (variable) | likely useful", overview.native_value)
         self.assertEqual(shortlist.native_value, "AC Outlet 2 (fixed | likely useful); EV charger limit (variable | likely useful)")
         self.assertEqual(overview.extra_state_attributes["fixed_candidate_count"], 1)
         self.assertEqual(overview.extra_state_attributes["variable_candidate_count"], 1)
@@ -404,7 +405,6 @@ class SensorEntityCategoryTests(unittest.TestCase):
             ]
 
         sensor_module._candidate_devices_for_hass = _discover
-        sensor_module.build_candidate_overview_summary = lambda candidates, **kwargs: "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2"
         sensor_module.build_candidate_name_summary = lambda candidates, **kwargs: "AC Outlet 2 (fixed | likely useful); EV charger limit (variable | likely useful)"
 
         coordinator = SimpleNamespace(
@@ -419,7 +419,8 @@ class SensorEntityCategoryTests(unittest.TestCase):
         shortlist.hass = hass
         top.hass = hass
 
-        self.assertEqual(overview.native_value, "2 candidates | 1 fixed candidate | 1 variable candidate | top AC Outlet 2")
+        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn generic outlet label", overview.native_value)
+        self.assertIn("ready EV charger limit (variable) | likely useful", overview.native_value)
         self.assertEqual(shortlist.native_value, "AC Outlet 2 (fixed | likely useful); EV charger limit (variable | likely useful)")
         self.assertEqual(top.native_value, "candidate preview")
         self.assertEqual(len(calls), 1)
