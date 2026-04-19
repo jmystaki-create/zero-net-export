@@ -551,6 +551,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this selector-label cleanup in the next exact-build deploy, then confirm the Managed Devices landing reads as a promotion-first fleet workspace in live Home Assistant instead of a generic add-device helper menu.
 
+## ZNE-064 - Device-page Managed Devices handoff still told operators to choose `Add` actions
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing the current device-page promotion handoff against the just-updated Managed Devices selector wording
+- **current observed behavior:** `custom_components/zero_net_export/button.py` was still telling operators `Choose Add fixed load device.` or `Choose Add variable load device.` inside the native `Promotion handoff:` lines, even after the primary Managed Devices selector had already moved to `Promote fixed-load candidate` / `Promote variable-load candidate`. That left the secondary device-page handoff lagging the same promotion-first wording now used in the main Configure workspace.
+- **expected behavior:** the device-page Managed Devices handoff should use the same promotion-first action names as the main Configure selector, while leaving manual add wording only for true no-candidate fallback paths.
+- **evidence:** this run's repo grep still hit `- Choose Add {top_add_label}.` in `_managed_devices_workspace_handoff(...)` inside `custom_components/zero_net_export/button.py`, and `tests/test_button_entity_categories.py` was still expecting the same helper-style wording. `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` both require promotion to feel first-class rather than like a generic add-device helper.
+- **suspected cause:** the promotion-first cleanup landed in `config_flow.py` first, but the parallel device-page handoff helper in `button.py` was left on the older add-action wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the handoff now says `Choose Promote fixed-load candidate.` or `Choose Promote variable-load candidate.` and refreshes `tests/test_button_entity_categories.py` to lock that wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py`.
+- **next action:** include this handoff wording cleanup in the next exact-build deploy, then confirm the device-page Managed Devices promotion handoff no longer drifts back to generic `Add ... device` language in live Home Assistant.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence

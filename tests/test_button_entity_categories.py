@@ -249,7 +249,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Open devices path in Configure as the primary Managed Devices workspace.", handoff)
-        self.assertIn("- Choose Add fixed load device.", handoff)
+        self.assertIn("- Choose Promote fixed-load candidate.", handoff)
         self.assertIn("- In Pick unmanaged candidate, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
 
@@ -270,7 +270,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             has_managed_devices=False,
         )
 
-        self.assertIn("- Choose Add fixed load device.", handoff)
+        self.assertIn("- Choose Promote fixed-load candidate.", handoff)
         self.assertIn(
             "- In Pick unmanaged candidate, select Virtual load (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power..",
             handoff,

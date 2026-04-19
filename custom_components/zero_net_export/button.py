@@ -637,11 +637,15 @@ def _managed_devices_workspace_handoff(
 
     lines = ["Promotion handoff:"]
     if primary_candidate:
-        top_add_label = "fixed load device" if primary_candidate["kind"] == "fixed" else "variable load device"
+        promote_label = (
+            "Promote fixed-load candidate"
+            if primary_candidate["kind"] == "fixed"
+            else "Promote variable-load candidate"
+        )
         lines.extend(
             [
                 f"- Open {DEVICES_CONFIGURE_PATH} in Configure as the primary Managed Devices workspace.",
-                f"- Choose Add {top_add_label}.",
+                f"- Choose {promote_label}.",
                 f"- In Pick unmanaged candidate, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
                 f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
