@@ -180,7 +180,7 @@ The backend control engine is substantially built, and the project is now in a l
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 
-**Current highest-value next step:** treat the current repo-side **0.1.87** UI shaping as materially complete enough that the main unresolved boundary is now explicit deploy/restart approval for exact build `47e157f`, not another default round of unchanged fingerprint bookkeeping. `222ce35` and `47e157f` are real component-changing follow-ons after `bade75f`, not docs-only churn. If another real repo-side drift appears, fix that first. Otherwise ask James directly for approval when presenting the current candidate as release-ready, then use the documented HA SSH path to validate the exact deployed build.
+**Current highest-value next step:** stop treating the stale `47e157f` approval target as current. `scripts/print_expected_install_fingerprint.py` now resolves the latest component-changing candidate to exact build `e316257`, which is a real Managed Devices workspace follow-on after `47e157f`, not docs-only churn. The next repo-side question is whether that managed-summary follow-on leaves any remaining mapped workspace drift worth fixing before freeze. Only after that cut line is coherent should James be asked directly for deploy/restart approval on exact build `e316257`, rather than spending another run on unchanged fingerprint bookkeeping.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
