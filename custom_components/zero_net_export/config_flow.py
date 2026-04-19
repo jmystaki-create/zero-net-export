@@ -1191,32 +1191,65 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         action: str,
         *,
         managed_count: int,
+        attention_count: int,
         fixed_candidate_count: int,
         variable_candidate_count: int,
+        fixed_review_candidate_count: int,
+        variable_review_candidate_count: int,
+        fixed_ready_candidate_count: int,
+        variable_ready_candidate_count: int,
     ) -> str:
+        def _review_count_label(count: int) -> str:
+            return "1 candidate needs review" if count == 1 else f"{count} candidates need review"
+
+        def _ready_count_label(count: int) -> str:
+            return "1 candidate ready to promote" if count == 1 else f"{count} candidates ready to promote"
+
+        def _attention_count_label(count: int) -> str:
+            return "1 managed device needs attention" if count == 1 else f"{count} managed devices need attention"
+
         if action == "add_fixed":
             if fixed_candidate_count:
-                return (
+                label = (
                     "Promote fixed-load candidate"
                     f" / {cls._count_label(fixed_candidate_count, 'fixed candidate')} surfaced"
                 )
+                if fixed_review_candidate_count:
+                    label += f" / {_review_count_label(fixed_review_candidate_count)}"
+                elif fixed_ready_candidate_count:
+                    label += f" / {_ready_count_label(fixed_ready_candidate_count)}"
+                return label
             return "Add fixed load device manually"
         if action == "add_variable":
             if variable_candidate_count:
-                return (
+                label = (
                     "Promote variable-load candidate"
                     f" / {cls._count_label(variable_candidate_count, 'variable candidate')} surfaced"
                 )
+                if variable_review_candidate_count:
+                    label += f" / {_review_count_label(variable_review_candidate_count)}"
+                elif variable_ready_candidate_count:
+                    label += f" / {_ready_count_label(variable_ready_candidate_count)}"
+                return label
             return "Add variable load device manually"
         if action == "bulk_enable":
-            return (
+            label = (
                 "Review managed devices workspace / enable or disable devices"
                 f" / {cls._count_label(managed_count, 'managed device')}"
             )
+            if attention_count:
+                label += f" / {_attention_count_label(attention_count)}"
+            return label
         if action == "edit":
-            return f"Edit managed device / {cls._count_label(managed_count, 'managed device')}"
+            label = f"Edit managed device / {cls._count_label(managed_count, 'managed device')}"
+            if attention_count:
+                label += f" / {_attention_count_label(attention_count)}"
+            return label
         if action == "remove":
-            return f"Remove managed device / {cls._count_label(managed_count, 'managed device')}"
+            label = f"Remove managed device / {cls._count_label(managed_count, 'managed device')}"
+            if attention_count:
+                label += f" / {_attention_count_label(attention_count)}"
+            return label
         if action == "json":
             return "Advanced JSON editor / recovery"
         return action
@@ -2523,14 +2556,28 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
         variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
+        fixed_review_candidate_count = sum(
+            1 for item in fixed_candidates if candidate_needs_review(assess_candidate(item))
+        )
+        variable_review_candidate_count = sum(
+            1 for item in variable_candidates if candidate_needs_review(assess_candidate(item))
+        )
+        fixed_ready_candidate_count = max(len(fixed_candidates) - fixed_review_candidate_count, 0)
+        variable_ready_candidate_count = max(len(variable_candidates) - variable_review_candidate_count, 0)
+        attention_count = sum(1 for device in display_devices if self._device_needs_attention(device))
         choices = [
             selector.SelectOptionDict(
                 value="add_fixed",
                 label=self._device_action_label(
                     "add_fixed",
                     managed_count=len(devices),
+                    attention_count=attention_count,
                     fixed_candidate_count=len(fixed_candidates),
                     variable_candidate_count=len(variable_candidates),
+                    fixed_review_candidate_count=fixed_review_candidate_count,
+                    variable_review_candidate_count=variable_review_candidate_count,
+                    fixed_ready_candidate_count=fixed_ready_candidate_count,
+                    variable_ready_candidate_count=variable_ready_candidate_count,
                 ),
             ),
             selector.SelectOptionDict(
@@ -2538,8 +2585,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 label=self._device_action_label(
                     "add_variable",
                     managed_count=len(devices),
+                    attention_count=attention_count,
                     fixed_candidate_count=len(fixed_candidates),
                     variable_candidate_count=len(variable_candidates),
+                    fixed_review_candidate_count=fixed_review_candidate_count,
+                    variable_review_candidate_count=variable_review_candidate_count,
+                    fixed_ready_candidate_count=fixed_ready_candidate_count,
+                    variable_ready_candidate_count=variable_ready_candidate_count,
                 ),
             ),
         ]
@@ -2550,8 +2602,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     label=self._device_action_label(
                         "bulk_enable",
                         managed_count=len(devices),
+                        attention_count=attention_count,
                         fixed_candidate_count=len(fixed_candidates),
                         variable_candidate_count=len(variable_candidates),
+                        fixed_review_candidate_count=fixed_review_candidate_count,
+                        variable_review_candidate_count=variable_review_candidate_count,
+                        fixed_ready_candidate_count=fixed_ready_candidate_count,
+                        variable_ready_candidate_count=variable_ready_candidate_count,
                     ),
                 )
             )
@@ -2561,8 +2618,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     label=self._device_action_label(
                         "edit",
                         managed_count=len(devices),
+                        attention_count=attention_count,
                         fixed_candidate_count=len(fixed_candidates),
                         variable_candidate_count=len(variable_candidates),
+                        fixed_review_candidate_count=fixed_review_candidate_count,
+                        variable_review_candidate_count=variable_review_candidate_count,
+                        fixed_ready_candidate_count=fixed_ready_candidate_count,
+                        variable_ready_candidate_count=variable_ready_candidate_count,
                     ),
                 )
             )
@@ -2572,8 +2634,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     label=self._device_action_label(
                         "remove",
                         managed_count=len(devices),
+                        attention_count=attention_count,
                         fixed_candidate_count=len(fixed_candidates),
                         variable_candidate_count=len(variable_candidates),
+                        fixed_review_candidate_count=fixed_review_candidate_count,
+                        variable_review_candidate_count=variable_review_candidate_count,
+                        fixed_ready_candidate_count=fixed_ready_candidate_count,
+                        variable_ready_candidate_count=variable_ready_candidate_count,
                     ),
                 )
             )
@@ -2583,8 +2650,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 label=self._device_action_label(
                     "json",
                     managed_count=len(devices),
+                    attention_count=attention_count,
                     fixed_candidate_count=len(fixed_candidates),
                     variable_candidate_count=len(variable_candidates),
+                    fixed_review_candidate_count=fixed_review_candidate_count,
+                    variable_review_candidate_count=variable_review_candidate_count,
+                    fixed_ready_candidate_count=fixed_ready_candidate_count,
+                    variable_ready_candidate_count=variable_ready_candidate_count,
                 ),
             )
         )
