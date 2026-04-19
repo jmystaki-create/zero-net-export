@@ -2533,7 +2533,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             + self._candidate_picker_label(
                 {
                     **item,
-                    "label": build_candidate_preview(item, include_entity_id=False, include_kind=False, include_state=True),
+                    "label": build_candidate_preview(item, include_entity_id=False, include_kind=True, include_state=False),
                 },
                 top_candidate=top_candidate,
                 review_candidate=review_candidate,

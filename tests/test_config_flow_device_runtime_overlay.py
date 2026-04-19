@@ -1387,7 +1387,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", devices_screen["description_placeholders"]["candidate_summary"])
         self.assertNotIn("switch.ac_outlet_2", devices_screen["description_placeholders"]["candidate_summary"])
         self.assertNotIn("number.ev_spare", devices_screen["description_placeholders"]["candidate_summary"])
-        self.assertIn("AC Outlet 2 (state off) | likely useful | key warning: No immediate warnings", shortlist["description_placeholders"]["top_candidates"])
+        self.assertIn("AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", shortlist["description_placeholders"]["top_candidates"])
         self.assertNotIn("switch.ac_outlet_2", shortlist["description_placeholders"]["top_candidates"])
 
     def test_candidate_quick_picks_keep_first_review_first_candidate_visible(self) -> None:
@@ -1527,14 +1527,14 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "summary": "Needs review.",
             "warnings": ["Generic outlet label"],
         }
-        module.build_candidate_preview = lambda candidate, include_entity_id=False, include_kind=False, include_state=True, **kwargs: (
-            "AC Outlet 2 (state off) | review first | key warning: Generic outlet label"
+        module.build_candidate_preview = lambda candidate, include_entity_id=False, include_kind=True, include_state=False, **kwargs: (
+            "AC Outlet 2 (fixed) | review first | key warning: Generic outlet label"
         )
 
         shortlist = asyncio.run(flow.async_step_device_pick_candidate())
 
         self.assertIn(
-            "Suggested now, review first: AC Outlet 2 (state off) | review first | key warning: Generic outlet label",
+            "Suggested now, review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
             shortlist["description_placeholders"]["top_candidates"],
         )
 
