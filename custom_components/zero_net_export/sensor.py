@@ -98,6 +98,8 @@ SENSOR_DEFS = {
     "variable_planned_power_delta_w": "Variable planned power delta",
     "fixed_planned_power_delta_w": "Fixed planned power delta",
     "managed_fleet_overview": "Managed devices overview",
+    "managed_fleet_attention": "Managed devices attention",
+    "managed_fleet_ready": "Managed devices ready next",
     "unmanaged_candidate_count": "Unmanaged candidate devices",
     "unmanaged_candidate_overview": "Unmanaged candidate overview",
     "top_unmanaged_candidate": "Top unmanaged candidate",
@@ -144,6 +146,8 @@ def _candidate_usefulness_summary(candidate: dict) -> str:
 
 FLEET_WORKSPACE_SENSOR_KEYS = {
     "managed_fleet_overview",
+    "managed_fleet_attention",
+    "managed_fleet_ready",
     "unmanaged_candidate_count",
     "unmanaged_candidate_overview",
     "top_unmanaged_candidate",
@@ -493,7 +497,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         candidates = None
         if self._key in FLEET_WORKSPACE_SENSOR_KEYS:
             candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
-        if self._key == "managed_fleet_overview":
+        if self._key in {"managed_fleet_overview", "managed_fleet_attention", "managed_fleet_ready"}:
             counts = _managed_fleet_counts(state.device_details)
             blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
             candidate_count = len(candidates)
@@ -532,6 +536,59 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             blocking_source_summary = build_source_attention_summary(state, merged, limit=2, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=1)
             source_blocked = blocking_source_summary != "None" or blocking_validation_details != "None"
+
+            if self._key == "managed_fleet_attention":
+                if counts["managed_count"] == 0:
+                    if source_blocked:
+                        return "Repair sources first before managed-device review"
+                    if review_candidate_name:
+                        return f"No managed devices yet | review {review_candidate_preview or review_candidate_name} first"
+                    return "No managed devices yet"
+                attention_parts = []
+                if counts["attention_count"]:
+                    attention_parts.append(
+                        "1 managed device needs attention"
+                        if counts["attention_count"] == 1
+                        else f"{counts['attention_count']} managed devices need attention"
+                    )
+                else:
+                    attention_parts.append("No managed-device attention right now")
+                if first_attention_name:
+                    attention_parts.append(f"attention {first_attention_name}")
+                if blocked_activity_count:
+                    attention_parts.append(
+                        f"blocked {first_blocked_name}" if first_blocked_name else f"blocked {blocked_activity_count}"
+                    )
+                if counts["planned_count"]:
+                    attention_parts.append(
+                        f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
+                    )
+                if counts["active_power_w"] > 0:
+                    attention_parts.append(f"active load {counts['active_power_w']:g} W")
+                return _fleet_overview_state(attention_parts)
+
+            if self._key == "managed_fleet_ready":
+                ready_parts = []
+                if ready_candidate_count:
+                    ready_parts.append(
+                        "1 ready to promote" if ready_candidate_count == 1 else f"{ready_candidate_count} ready to promote"
+                    )
+                    if ready_candidate_name:
+                        ready_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+                elif candidate_count:
+                    ready_parts.append("No ready-to-promote unmanaged devices yet")
+                else:
+                    ready_parts.append("No unmanaged candidates right now")
+                if review_needed_count:
+                    ready_parts.append(
+                        "1 still needs review" if review_needed_count == 1 else f"{review_needed_count} still need review"
+                    )
+                    if review_candidate_name:
+                        ready_parts.append(f"review {review_candidate_preview or review_candidate_name}")
+                if source_blocked:
+                    ready_parts.append("repair sources first")
+                return _fleet_overview_state(ready_parts)
+
             summary_parts = [f"{counts['managed_count']} managed"]
             summary_parts.append(
                 f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates"
@@ -818,7 +875,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
-        if self._key in {"managed_fleet_overview", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "candidate_shortlist", "candidate_shortlist_fit", "fleet_console_next_step"}:
+        if self._key in {"managed_fleet_overview", "managed_fleet_attention", "managed_fleet_ready", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "candidate_shortlist", "candidate_shortlist_fit", "fleet_console_next_step"}:
             state = self._state
             if state is None:
                 return None

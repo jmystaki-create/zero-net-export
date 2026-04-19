@@ -1088,15 +1088,72 @@ class SensorEntityCategoryTests(unittest.TestCase):
             ),
         )
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
-        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        attention = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_attention", "Managed devices attention")
+        ready = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_ready", "Managed devices ready next")
+        hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        overview.hass = hass
+        attention.hass = hass
+        ready.hass = hass
 
         self.assertEqual(
             overview.native_value,
             "2 managed | no unmanaged candidates | 1 managed device needs attention | attention Pool pump | 2 enabled | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
         )
+        self.assertEqual(
+            attention.native_value,
+            "1 managed device needs attention | attention Pool pump",
+        )
+        self.assertEqual(ready.native_value, "No unmanaged candidates right now")
         self.assertEqual(overview.extra_state_attributes["attention_count"], 1)
         self.assertEqual(overview.extra_state_attributes["recent_attention_count"], 1)
         self.assertEqual(overview.extra_state_attributes["first_attention_device"], "Pool pump")
+
+    def test_device_page_attention_and_ready_sensors_surface_mixed_fleet_state(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+            {"name": "Hot water relay", "entity_id": "switch.hot_water", "kind": "fixed"},
+        ]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pump": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": False,
+                        "effective_enabled": True,
+                        "planned_action": "turn_on",
+                        "nominal_power_w": 1185,
+                    },
+                    "heater": {
+                        "name": "Heated floor",
+                        "kind": "variable",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                        "nominal_power_w": 2200,
+                    },
+                }
+            ),
+        )
+        attention = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_attention", "Managed devices attention")
+        ready = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_ready", "Managed devices ready next")
+        hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        attention.hass = hass
+        ready.hass = hass
+
+        self.assertEqual(
+            attention.native_value,
+            "1 managed device needs attention | attention Pool pump | blocked Pool pump | plan Pool pump",
+        )
+        self.assertEqual(
+            ready.native_value,
+            "1 ready to promote | ready Hot water relay (fixed) | likely useful | 1 still needs review | review Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
+        )
+        self.assertEqual(attention.extra_state_attributes["first_attention_device"], "Pool pump")
+        self.assertEqual(ready.extra_state_attributes["ready_candidate"]["name"], "Hot water relay")
 
     def test_fleet_console_next_step_prioritizes_failed_only_attention_before_new_promotions(self) -> None:
         sensor_module = _load_sensor_module()

@@ -58,6 +58,14 @@ def _load_native_support_module():
     validation_module.format_source_binding_label = lambda value: str(value)
     sys.modules[validation_module.__name__] = validation_module
 
+    candidate_utils_module = types.ModuleType("custom_components.zero_net_export.candidate_utils")
+    candidate_utils_module.assess_candidate = lambda candidate: {"confidence": "medium", "summary": "summary", "warnings": []}
+    candidate_utils_module.build_candidate_compact_preview = lambda candidate, **kwargs: str((candidate or {}).get("name") or (candidate or {}).get("entity_id") or "candidate")
+    candidate_utils_module.build_candidate_review_hint = lambda candidate, **kwargs: "likely useful"
+    candidate_utils_module.candidate_needs_review = lambda assessment: False
+    candidate_utils_module.discover_candidate_devices = lambda *args, **kwargs: []
+    sys.modules[candidate_utils_module.__name__] = candidate_utils_module
+
     spec = importlib.util.spec_from_file_location(
         "custom_components.zero_net_export.native_support",
         NATIVE_SUPPORT_PATH,
