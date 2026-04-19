@@ -1346,9 +1346,9 @@ def _command_center_device_status_with_unmanaged_context(
     summary += f"; {candidate_count} unmanaged ready"
     if review_candidate_preview and review_candidate_name and review_candidate_name != top_candidate_name:
         summary += f"; review {review_candidate_preview}"
-    if ready_candidate_preview and ready_candidate_name and ready_candidate_name != top_candidate_name:
+    if ready_candidate_preview and ready_candidate_name:
         summary += f"; ready {ready_candidate_preview}"
-    if top_candidate_preview:
+    if top_candidate_preview and top_candidate_name != ready_candidate_name:
         summary += f"; top {top_candidate_preview}"
     return summary
 
@@ -1418,9 +1418,9 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(_count_label(variable_review_count, "variable review"))
             if review_candidate_name and review_candidate_name != top_candidate_name:
                 summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
-            if ready_candidate_name and ready_candidate_name != top_candidate_name:
-                summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
-        if top_candidate_name:
+        if ready_candidate_name:
+            summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+        if top_candidate_name and top_candidate_name != ready_candidate_name:
             summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
     else:
         summary_parts.append("no unmanaged candidates")
@@ -1532,14 +1532,14 @@ def _build_command_center_fleet_activity_summary(
     elif review_needed_count and review_candidate_name:
         minimal_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=72))
 
-    if ready_candidate_preview and ready_candidate_name and ready_candidate_name != top_candidate_name:
+    if ready_candidate_preview and ready_candidate_name:
         minimal_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=72))
-    elif ready_candidate_name and ready_candidate_name != top_candidate_name:
+    elif ready_candidate_name:
         minimal_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=72))
 
-    if top_candidate_preview:
+    if top_candidate_preview and top_candidate_name != ready_candidate_name:
         minimal_parts.append(_clip_part(f"top {top_candidate_preview}", max_chars=72))
-    elif top_candidate_name:
+    elif top_candidate_name and top_candidate_name != ready_candidate_name:
         minimal_parts.append(_clip_part(f"top {top_candidate_name}", max_chars=72))
 
     if managed_count > 0:
