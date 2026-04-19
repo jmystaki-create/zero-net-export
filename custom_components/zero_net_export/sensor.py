@@ -738,13 +738,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if counts["managed_count"] == 0 and candidates:
                 if review_candidate_name:
                     next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} and review {review_candidate_name} first from the unmanaged list"
+                        f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {review_candidate_name}"
                     )
                     if ready_candidate_name and ready_candidate_name != review_candidate_name:
-                        next_step += f", then promote {ready_candidate_name} next"
+                        next_step += f", then promote next from the unmanaged section: {ready_candidate_name}"
                     return _truncate_sensor_state(next_step)
                 return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and promote {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'} next"
+                    f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
                 )
             if blocked_activity_count:
                 target = f" starting with {first_blocked_name}" if first_blocked_name else ""
@@ -763,13 +763,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if candidates:
                 if review_candidate_name:
                     next_step = (
-                        f"Review unmanaged candidates, starting with {review_candidate_name}, from {DEVICES_CONFIGURE_PATH}"
+                        f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {review_candidate_name}"
                     )
                     if ready_candidate_name and ready_candidate_name != review_candidate_name:
-                        next_step += f", then promote {ready_candidate_name} next"
+                        next_step += f", then promote next from the unmanaged section: {ready_candidate_name}"
                     return _truncate_sensor_state(next_step)
                 return _truncate_sensor_state(
-                    f"Review unmanaged candidates, then promote {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'} from {DEVICES_CONFIGURE_PATH}"
+                    f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
                 )
             return _truncate_sensor_state(
                 f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
