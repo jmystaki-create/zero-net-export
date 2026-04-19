@@ -23,7 +23,7 @@ Zero Net Export is a Home Assistant custom integration that keeps grid export ne
 The HA-first direction is correct, and the live install has now crossed the startup-stability threshold, but the shipped implementation is still transitional:
 - managed devices still persist through `device_inventory_json` under the hood
 - native Configure can still become clumsy for larger or more heterogeneous fleets
-- diagnostics/support are stronger than before but still span notifications, device buttons, entities, and Configure steps
+- Diagnostics, checklist, and repair surfaces are stronger than before but still span notifications, device buttons, entities, and Configure steps
 - the installed experience still behaves more like a large entity pack than a polished operator UI, even when technically healthy
 - real-install validation is still incomplete and must continue to shape the roadmap
 
@@ -98,6 +98,6 @@ The HA-first direction is correct, and the live install has now crossed the star
 - controller with fixed + variable loads
 - mode select + target export setting
 - explanation / status sensors
-- native diagnostics/support surfaces inside Home Assistant, including a combined support-center summary
+- native Diagnostics surfaces inside Home Assistant, including a combined diagnostics snapshot, setup-checklist, and repair-guidance path
 - a clearly discoverable native operator path so a user can tell where to manage devices and where to set policy after install
 - daily action/reporting skeleton
