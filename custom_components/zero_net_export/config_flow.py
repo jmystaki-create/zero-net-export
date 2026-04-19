@@ -3186,6 +3186,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"Adjust behaviour here, then use {INTEGRATION_DEVICE_PATH}, its entities, and {DIAGNOSTICS_DEVICE_ACTIONS_PATH} to verify runtime health."
             )
 
+        command_center = build_native_command_center_summary(self._coordinator())
         mode_label, mode_description = _live_mode_details(self._coordinator())
         policy_summary = (
             f"Live mode {mode_label}; target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
@@ -3254,6 +3255,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "policy_readiness": policy_readiness,
                 "policy_summary": policy_summary,
                 "policy_next_step": policy_next_step,
+                "control_decision_summary": str(command_center.get("control_decision_summary") or "No live control decision is available yet."),
+                "control_outcome_summary": str(command_center.get("control_outcome_summary") or "Live control outcome will appear here after the integration loads."),
             },
         )
 
