@@ -1337,6 +1337,8 @@ def _command_center_device_status_with_unmanaged_context(
     top_candidate_preview: str,
     review_candidate_name: str,
     review_candidate_preview: str,
+    ready_candidate_name: str,
+    ready_candidate_preview: str,
 ) -> str:
     summary = base_status
     if candidate_count <= 0:
@@ -1344,6 +1346,8 @@ def _command_center_device_status_with_unmanaged_context(
     summary += f"; {candidate_count} unmanaged ready"
     if review_candidate_preview and review_candidate_name and review_candidate_name != top_candidate_name:
         summary += f"; review {review_candidate_preview}"
+    if ready_candidate_preview and ready_candidate_name and ready_candidate_name != top_candidate_name:
+        summary += f"; ready {ready_candidate_preview}"
     if top_candidate_preview:
         summary += f"; top {top_candidate_preview}"
     return summary
@@ -1360,6 +1364,8 @@ def _build_command_center_fleet_activity_summary(
     variable_review_count: int,
     review_candidate_name: str,
     review_candidate_preview: str,
+    ready_candidate_name: str,
+    ready_candidate_preview: str,
     top_candidate_name: str,
     top_candidate_preview: str,
     source_blocked: bool,
@@ -1412,6 +1418,8 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(_count_label(variable_review_count, "variable review"))
             if review_candidate_name and review_candidate_name != top_candidate_name:
                 summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
+            if ready_candidate_name and ready_candidate_name != top_candidate_name:
+                summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
         if top_candidate_name:
             summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
     else:
@@ -1524,6 +1532,11 @@ def _build_command_center_fleet_activity_summary(
     elif review_needed_count and review_candidate_name:
         minimal_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=72))
 
+    if ready_candidate_preview and ready_candidate_name and ready_candidate_name != top_candidate_name:
+        minimal_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=72))
+    elif ready_candidate_name and ready_candidate_name != top_candidate_name:
+        minimal_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=72))
+
     if top_candidate_preview:
         minimal_parts.append(_clip_part(f"top {top_candidate_preview}", max_chars=72))
     elif top_candidate_name:
@@ -1587,6 +1600,16 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     review_candidate_preview = (
         build_candidate_compact_preview(review_candidate, include_warning=True)
         if review_candidate
+        else ""
+    )
+    ready_candidate = next(
+        (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+        None,
+    )
+    ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
+    ready_candidate_preview = (
+        build_candidate_compact_preview(ready_candidate, include_warning=True)
+        if ready_candidate
         else ""
     )
     _, primary_candidate_focus = _primary_candidate_focus(candidates)
@@ -1664,6 +1687,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             top_candidate_preview=top_candidate_preview,
             review_candidate_name=review_candidate_name,
             review_candidate_preview=review_candidate_preview,
+            ready_candidate_name=ready_candidate_name,
+            ready_candidate_preview=ready_candidate_preview,
         )
         device_next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
@@ -1676,6 +1701,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             top_candidate_preview=top_candidate_preview,
             review_candidate_name=review_candidate_name,
             review_candidate_preview=review_candidate_preview,
+            ready_candidate_name=ready_candidate_name,
+            ready_candidate_preview=ready_candidate_preview,
         )
         device_next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} and review {primary_candidate_focus} first from the managed-device flow."
@@ -1893,6 +1920,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             variable_review_count=variable_review_count,
             review_candidate_name=review_candidate_name,
             review_candidate_preview=review_candidate_preview,
+            ready_candidate_name=ready_candidate_name,
+            ready_candidate_preview=ready_candidate_preview,
             top_candidate_name=top_candidate_name,
             top_candidate_preview=top_candidate_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
