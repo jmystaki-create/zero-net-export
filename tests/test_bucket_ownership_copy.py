@@ -144,6 +144,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertEqual(shortlist_step["data"]["quick_pick"], "Promotion shortlist")
         shortlist_description = shortlist_step["description"]
         self.assertIn("Managed devices review:", shortlist_description)
+        self.assertIn("Start with the surfaced unmanaged {device_kind} candidates below", shortlist_description)
+        self.assertIn("keeps the promotion shortlist compact without pretending it already knows the one right next choice", shortlist_description)
+        self.assertNotIn("best surfaced unmanaged", shortlist_description)
+        self.assertNotIn("short, opinionated promotion shortlist", shortlist_description)
         self.assertIn("Top surfaced unmanaged candidate: {top_candidate}", shortlist_description)
         self.assertNotIn("Top unmanaged candidate right now", shortlist_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", shortlist_description)
@@ -151,6 +155,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
         self.assertIn("open the manual Managed Devices form from this dropdown and continue there", full_list_description)
+        self.assertIn("when the compact shortlist does not yet show the right entity", full_list_description)
+        self.assertNotIn("when the quick shortlist does not contain the right entity", full_list_description)
         self.assertNotIn("continue with the native Managed Devices form", full_list_description)
         self.assertNotIn("continue with the normal native form", full_list_description)
         self.assertIn("Managed devices review:", full_list_description)
