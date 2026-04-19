@@ -43,9 +43,9 @@ If a change does not materially improve one of those visible outcomes, it should
 - Diagnostics text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
-- The latest documented HA SSH fingerprint check still shows the same known exact-build mismatch (`overall_match=false`; live `manifest_version=0.1.87` versus repo `0.1.86`, with the current eleven-file drift set against validation anchor `a95628a`: `button.py`, `candidate_utils.py`, `config_flow.py`, `diagnostics.py`, `manifest.json`, `native_support.py`, `release_info.py`, `repairs.py`, `sensor.py`, `strings.json`, and `translations/en.json`). Treat that as an unchanged release-authorization boundary, not as a reason for watchdog runs to keep refreshing the same mismatch set until James explicitly approves deploy/restart of one exact current repo build.
-- Live screenshot-grade proof still matters, but it is not the default next step while this document's own remaining-work map still lists unfinished repo-side `0.1.87` runway across Workstreams A-F.
-- The next gap is to finish or explicitly retire the highest remaining repo-side UI step in workstream order, then judge that exact candidate in live Home Assistant instead of elevating unchanged validation bookkeeping ahead of product work. A docs-only mismatch refresh, like another pass that merely rewrites the same fingerprint evidence without new deploy/restart evidence or a new repo-side UI retirement, is churn rather than progress.
+- The latest documented HA SSH fingerprint check still shows the same known exact-build mismatch (`overall_match=false`; live `manifest_version=0.1.87` versus repo `0.1.86`, with the current eleven-file drift set against validation anchor `26b501c`: `button.py`, `candidate_utils.py`, `config_flow.py`, `diagnostics.py`, `manifest.json`, `native_support.py`, `release_info.py`, `repairs.py`, `sensor.py`, `strings.json`, and `translations/en.json`). Treat that as an unchanged release-authorization boundary, not as a reason for watchdog runs to keep refreshing the same mismatch set until James explicitly approves deploy/restart of one exact current repo build.
+- Live screenshot-grade proof still matters, but it is not the default next step while this document's own remaining-work map still lists unfinished repo-side `0.1.87` runway across Workstreams A-D and F, with Workstream E now primarily in live-proof posture.
+- The next gap is to finish or explicitly retire the highest remaining repo-side UI step in workstream order, then judge exact build `26b501c` in live Home Assistant instead of elevating unchanged validation bookkeeping ahead of product work. A mismatch refresh without new deploy/restart evidence, a new exact-build anchor, or a newly retired repo-side UI step is churn rather than progress.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
@@ -143,9 +143,8 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 **Still to do**
 1. Validate live that the device-page managed review actions are clearly secondary to Configure -> Managed Devices.
-2. Make sure per-device review rows feel richer and more audit-friendly than the top-level fleet workspace.
-3. Remove any remaining wording that implies the device page is the primary place to manage the fleet.
-4. Confirm save feedback and handoff text consistently point back to Configure -> Managed Devices as primary.
+2. Confirm the richer per-device audit rows, save feedback, and handoff text render clearly on the exact deployed build.
+3. Make sure the installed device-page review path supports deeper inspection without diluting Configure -> Managed Devices as the primary workspace.
 
 **Done when**
 - the device page is clearly the deeper review path, not a competing workspace.
@@ -370,8 +369,8 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 **Remaining**
 - validate the concrete native entry path in live HA, including the new per-device review buttons on the Zero Net Export device page
-- confirm the richer per-device row detail now lands in the right native surface split, with Configure -> Managed Devices staying primary and device-page review staying secondary
-- make sure the installed device-page review path supports richer device inspection without diluting the top-level fleet workflow
+- confirm the richer per-device audit rows, save feedback, and handoff text render clearly on the exact deployed build
+- make sure the installed device-page review path supports deeper inspection while keeping Configure -> Managed Devices as the clear primary fleet workflow
 
 **Features in this stage**
 - deeper fleet review
