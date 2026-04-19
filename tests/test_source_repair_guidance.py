@@ -376,11 +376,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Basic setup paths", guide)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(
-            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            f"- Controls: {native_support.POLICY_CONFIGURE_PATH}",
             guide,
         )
         self.assertIn(
-            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            f"- Live mode shortcut (Controls device action): {native_support.MODE_CONTROL_PATH}",
             guide,
         )
         self.assertIn("Bucket ownership", guide)
@@ -467,7 +467,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("\nChecklist\n", support_center)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", support_center)
         self.assertIn(
-            f"- Controls, including the live mode shortcut: {native_support.POLICY_CONFIGURE_PATH} (device shortcut: {native_support.MODE_CONTROL_PATH})",
+            f"- Controls: {native_support.POLICY_CONFIGURE_PATH}",
+            support_center,
+        )
+        self.assertIn(
+            f"- Live mode shortcut (Controls device action): {native_support.MODE_CONTROL_PATH}",
             support_center,
         )
         self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)

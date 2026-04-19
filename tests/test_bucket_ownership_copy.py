@@ -13,7 +13,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         init_description = steps["init"]["description"]
         self.assertIn("\n\nBasic setup paths\n- Sensors: {sources_path}", init_description)
-        self.assertIn("- Controls, including the live mode shortcut: {policy_path} (device shortcut: {mode_path})", init_description)
+        self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", init_description)
         self.assertIn("- Managed Devices: {devices_path}", init_description)
         self.assertIn("- Diagnostics: {support_path}", init_description)
         self.assertIn("\n\nBucket ownership\n- Sensors owns source mapping and source health.", init_description)
@@ -26,7 +26,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Sensors now", native_setup_description)
         self.assertIn("Bucket ownership and paths", native_setup_description)
         self.assertIn("- Sensors: {sources_path}", native_setup_description)
-        self.assertIn("- Controls, including the live mode shortcut: {policy_path} (device shortcut: {mode_path})", native_setup_description)
+        self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", native_setup_description)
         self.assertIn("- Managed Devices: {devices_path}", native_setup_description)
         self.assertIn("- Diagnostics: {support_path}", native_setup_description)
 
@@ -36,7 +36,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Sensors now", source_mapping_description)
         self.assertIn("Bucket ownership and paths", source_mapping_description)
         self.assertIn("- Sensors: {sources_path}", source_mapping_description)
-        self.assertIn("- Controls, including the live mode shortcut: {policy_path} (device shortcut: {mode_path})", source_mapping_description)
+        self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", source_mapping_description)
         self.assertIn("- Managed Devices: {devices_path}", source_mapping_description)
         self.assertIn("- Diagnostics: {support_path}", source_mapping_description)
 
@@ -139,7 +139,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics", policy_description)
         self.assertIn("Controls now", policy_description)
         self.assertIn("Bucket ownership and paths", policy_description)
-        self.assertIn("- Controls, including the live mode shortcut: {policy_path} (device shortcut: {mode_path})", policy_description)
+        self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", policy_description)
         self.assertIn("- Sensors: {sources_path}", policy_description)
         self.assertIn("- Managed Devices: {devices_path}", policy_description)
         self.assertIn("- Diagnostics: {support_path}", policy_description)
@@ -167,7 +167,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Live hints", support_description)
         self.assertIn("Bucket ownership and paths", support_description)
         self.assertIn("- Sensors: {sources_path}", support_description)
-        self.assertIn("- Controls, including the live mode shortcut: {policy_path} (device shortcut: {mode_path})", support_description)
+        self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", support_description)
         self.assertIn("- Managed Devices: {devices_path}", support_description)
         self.assertIn("- Diagnostics: {support_path}", support_description)
         self.assertIn("Primary path: {support_path}.", support_description)
