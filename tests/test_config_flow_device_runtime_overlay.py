@@ -1636,7 +1636,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             options[0]["label"],
-            "Currently surfaced: Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
+            "Currently surfaced, ready next: Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(
             options[1]["label"],
@@ -1755,7 +1755,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             }
         ]
         flow._candidate_options = lambda kind=None: [
-            {"value": "switch.ac_outlet_2", "label": "Currently surfaced: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"},
+            {"value": "switch.ac_outlet_2", "label": "Currently surfaced, ready next: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"},
         ]
         flow._device_candidates = lambda: [
             {

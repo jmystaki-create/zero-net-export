@@ -1268,6 +1268,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         is_ready = bool(candidate_id) and candidate_id == str((ready_candidate or {}).get("entity_id") or "")
         if is_top and is_review:
             return "Currently surfaced, review first"
+        if is_top and is_ready:
+            return "Currently surfaced, ready next"
         if is_top:
             return "Currently surfaced"
         if is_review:
