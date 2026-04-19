@@ -102,6 +102,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Candidate snapshot", edit_pick_description)
 
         remove_description = steps["device_remove"]["description"]
+        self.assertIn("Use this Managed Devices screen to choose which managed device should leave the native fleet.", remove_description)
+        self.assertNotIn("Choose which managed device should be removed from the native fleet", remove_description)
         self.assertIn("Managed Devices owns this fleet-removal workflow", remove_description)
         self.assertIn("Managed devices (top section)", remove_description)
         self.assertIn("Managed devices review:", remove_description)
@@ -113,6 +115,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Candidate snapshot", remove_description)
 
         vetting_description = steps["device_vetting"]["description"]
+        self.assertIn("Use this Managed Devices review step to vet this unmanaged candidate before it enters the managed fleet.", vetting_description)
         self.assertIn("Managed Devices owns this promotion workflow", vetting_description)
         self.assertIn("Managed devices (top section)", vetting_description)
         self.assertIn("Managed devices review:", vetting_description)
@@ -127,6 +130,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         template_description = steps["device_template"]["description"]
         self.assertIn("Promotion path:", template_description)
         self.assertIn("{promotion_path_summary}", template_description)
+        self.assertIn("Use this Managed Devices preset step to start this {device_kind} with safer native defaults before save.", template_description)
+        self.assertNotIn("Start this {device_kind} from a preset", template_description)
         self.assertIn("Managed Devices still owns this step", template_description)
         self.assertIn("Managed devices (top section)", template_description)
         self.assertIn("Managed devices review:", template_description)
@@ -157,7 +162,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertEqual(shortlist_step["data"]["quick_pick"], "Promotion shortlist")
         shortlist_description = shortlist_step["description"]
         self.assertIn("Managed devices review:", shortlist_description)
-        self.assertIn("Start with the surfaced unmanaged {device_kind} candidates below", shortlist_description)
+        self.assertIn("Use this Managed Devices shortlist to review the currently surfaced unmanaged {device_kind} candidates below.", shortlist_description)
+        self.assertNotIn("Start with the surfaced unmanaged {device_kind} candidates below", shortlist_description)
         self.assertIn("keeps the promotion shortlist compact without pretending it already knows the one right next choice", shortlist_description)
         self.assertNotIn("best surfaced unmanaged", shortlist_description)
         self.assertNotIn("short, opinionated promotion shortlist", shortlist_description)
@@ -168,7 +174,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
         self.assertIn("open the manual Managed Devices form from this dropdown and continue there", full_list_description)
-        self.assertIn("when the compact shortlist does not yet show the right entity", full_list_description)
+        self.assertIn("Use this Managed Devices full list when the compact shortlist does not yet show the right surfaced unmanaged {device_kind} entity.", full_list_description)
+        self.assertNotIn("Choose from the full surfaced unmanaged {device_kind} list", full_list_description)
         self.assertNotIn("when the quick shortlist does not contain the right entity", full_list_description)
         self.assertNotIn("continue with the native Managed Devices form", full_list_description)
         self.assertNotIn("continue with the normal native form", full_list_description)
