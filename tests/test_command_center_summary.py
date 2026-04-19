@@ -239,7 +239,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed candidate", summary["fleet_activity_summary"])
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
-        self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
+        self.assertIn("review AC Outlet 2 (fixed) | review first | warn generic outlet label", summary["fleet_activity_summary"])
+        self.assertNotIn("top AC Outlet 2", summary["fleet_activity_summary"])
         self.assertIn("review first", summary["fleet_activity_summary"])
         self.assertIn("warn generic outlet label", summary["fleet_activity_summary"])
         self.assertIn("blocked 1", summary["fleet_activity_summary"])
@@ -393,7 +394,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("2 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("1 fixed review", summary["fleet_activity_summary"])
         self.assertIn("1 variable review", summary["fleet_activity_summary"])
-        self.assertIn("top AC Outlet 2", summary["fleet_activity_summary"])
+        self.assertIn("review AC Outlet 2", summary["fleet_activity_summary"])
+        self.assertNotIn("top AC Outlet 2", summary["fleet_activity_summary"])
 
     def test_command_center_summary_names_blocked_device_when_plan_is_non_executable_before_usable_flips_false(self) -> None:
         native_support = _load_native_support_module()
@@ -691,8 +693,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("ready Hot water relay", summary["fleet_activity_summary"])
-        self.assertIn("top Virtual load", summary["fleet_activity_summary"])
-        self.assertIn("review carefully", summary["fleet_activity_summary"])
+        self.assertIn("review Virtual load (fixed) | review carefully | warn helper-backed load needs review", summary["fleet_activity_summary"])
+        self.assertNotIn("top Virtual load", summary["fleet_activity_summary"])
         self.assertIn("review Virtual load (fixed) | review carefully | warn helper-backed load needs review", summary["device_status"])
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["device_status"])
         self.assertNotIn("top Virtual load (fixed) | review carefully | warn helper-backed load needs review", summary["device_status"])
@@ -804,7 +806,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertTrue(
             summary["fleet_activity_summary"].startswith(
-                "managed 0 | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | top AC Outlet 2"
+                "managed 0 | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2"
             )
         )
 
