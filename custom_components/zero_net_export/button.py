@@ -568,6 +568,7 @@ def _build_managed_device_detail_lines(
     top_candidate: dict | None,
     review_candidate: dict | None,
     review_candidate_fit: dict | None,
+    ready_candidate_fit: dict | None,
 ) -> list[str]:
     entity_id = str(detail.get("entity_id") or "unknown entity")
     device_label = str(detail.get("name") or entity_id)
@@ -675,6 +676,12 @@ def _build_managed_device_detail_lines(
             [
                 f"- Ready-next unmanaged candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
                 "- Ready-next unmanaged usefulness: " + _candidate_usefulness_summary(ready_candidate),
+                "- Ready-next unmanaged warnings: "
+                + (
+                    "; ".join(ready_candidate_fit.get("warnings") or [])
+                    if ready_candidate_fit and ready_candidate_fit.get("warnings")
+                    else "No immediate warnings."
+                ),
             ]
             if review_candidate and ready_candidate and ready_candidate is not review_candidate
             else []
@@ -881,6 +888,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         ready_candidate = _first_ready_candidate(candidates)
+        ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         attention_devices, remaining_devices = _partition_review_devices(ordered)
         blocker_first_lines = _managed_devices_blocker_first_lines(
@@ -943,6 +951,12 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 [
                     f"- Ready-next candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
                     f"- Ready-next candidate usefulness: {_candidate_usefulness_summary(ready_candidate)}",
+                    '- Ready-next candidate warnings: '
+                    + (
+                        '; '.join(ready_candidate_fit.get('warnings') or [])
+                        if ready_candidate_fit and ready_candidate_fit.get('warnings')
+                        else 'No immediate warnings.'
+                    ),
                 ]
                 if review_candidate and ready_candidate and ready_candidate is not review_candidate
                 else []
@@ -1048,6 +1062,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         candidates = self._unmanaged_candidates()
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
         ready_candidate = _first_ready_candidate(candidates)
+        ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         blocker_first_lines = _managed_devices_blocker_first_lines(
             command_center,
@@ -1097,6 +1112,12 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 [
                     f"Ready-next candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
                     "Ready-next candidate usefulness: " + _candidate_usefulness_summary(ready_candidate),
+                    "Ready-next candidate warnings: "
+                    + (
+                        "; ".join(ready_candidate_fit.get("warnings") or [])
+                        if ready_candidate_fit and ready_candidate_fit.get("warnings")
+                        else "No immediate warnings."
+                    ),
                 ]
                 if review_candidate and ready_candidate and ready_candidate is not review_candidate
                 else []
@@ -1189,6 +1210,8 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, _top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
+        ready_candidate = _first_ready_candidate(candidates)
+        ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         persistent_notification.async_create(
             self.hass,
@@ -1203,6 +1226,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
                     top_candidate=top_candidate,
                     review_candidate=review_candidate,
                     review_candidate_fit=review_candidate_fit,
+                    ready_candidate_fit=ready_candidate_fit,
                 )
             ),
             title=f"{self.coordinator.entry.title}: review {detail.get('name') or self._device_key}",
