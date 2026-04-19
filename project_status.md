@@ -16,7 +16,7 @@ blocker: none on the repo side; documented HA SSH fingerprint recheck in this ru
 user_action: none until the current repo-side `0.1.87` cut line is coherent enough to justify an explicit deploy/restart approval ask
 
 # One short durable constraint
-notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, and do not regress into stale `0.1.86` steering now that the documented HA SSH fingerprint check confirms the live install is already a divergent `0.1.87` build
+notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, and keep `0.1.86` as the current live correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated. A live divergent `0.1.87` install is release drift, not a steering change.
 
 # Last time this file materially changed
-last_modified: 2026-04-19 05:20
+last_modified: 2026-04-19 14:32

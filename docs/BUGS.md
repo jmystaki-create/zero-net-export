@@ -381,6 +381,18 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_install_helper_scripts`. This is enough evidence for this repo-only release-metadata drift.
 - **next action:** keep building the highest remaining mapped `0.1.87` UI step, and do not bump versioned metadata again until the Workstream G freeze boundary is actually reached.
 
+## ZNE-051 - `project_status.md` incorrectly treated divergent live `0.1.87` as a steering change
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** repo audit on 2026-04-19 after the latest watchdog/source-of-truth comparison
+- **current observed behavior:** `project_status.md` had drifted into saying `do not regress into stale 0.1.86 steering now that the documented HA SSH fingerprint check confirms the live install is already a divergent 0.1.87 build`. That contradicted `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the active fingerprint bugs, which still treat `0.1.86` as the current live correction line and the live `0.1.87` install as release mismatch, not a legit steering change.
+- **expected behavior:** project status should keep `0.1.86` as the current correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated. A divergent live `0.1.87` install should be described as release drift only.
+- **evidence:** this run rechecked the documented HA SSH path with `python3 scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config`, which still reports `overall_match=false`, live `manifest_version=0.1.87`, and the same eleven tracked-file mismatches against expected commit `65f9b95`. That is unchanged release drift, not proof that repo steering should move off `0.1.86`.
+- **repo fix:** this run updates `project_status.md` so the durable note now says to keep `0.1.86` as the live correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated, and explicitly says the divergent live `0.1.87` install is release drift rather than a steering change.
+- **validation status:** repo-side source-of-truth audit plus direct status-file correction in this run. This is enough evidence for a project-status wording bug.
+- **next action:** keep the next watchdog/supervisor ranking focused on unfinished mapped `0.1.87` repo work or an explicitly approved deploy, not on treating the divergent live manifest as a new steering baseline
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
