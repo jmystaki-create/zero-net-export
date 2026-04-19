@@ -384,9 +384,34 @@ def _truncate_sensor_state(text: str, *, max_chars: int = 255) -> str:
 
 
 def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
+    def _compress_part(part: str, *, part_max_chars: int = 64) -> str:
+        if len(part) <= part_max_chars:
+            return part
+        if " | " not in part:
+            return _truncate_sensor_state(part, max_chars=part_max_chars)
+
+        segments = part.split(" | ")
+        if part.startswith(("review ", "ready ", "surfaced ")):
+            if part.startswith("review "):
+                compact_segments = [_truncate_sensor_state(segments[0], max_chars=32)]
+                if len(segments) > 1:
+                    compact_segments.append(_truncate_sensor_state(segments[1], max_chars=16))
+                compact_segments.extend(
+                    "warn"
+                    if segment.startswith("warn")
+                    else _truncate_sensor_state(segment, max_chars=5)
+                    for segment in segments[2:]
+                )
+                return _truncate_sensor_state(" | ".join(compact_segments), max_chars=part_max_chars)
+            compact_segments = [_truncate_sensor_state(segments[0], max_chars=30)]
+            compact_segments.extend(_truncate_sensor_state(segment, max_chars=20) for segment in segments[1:])
+            return _truncate_sensor_state(" | ".join(compact_segments), max_chars=part_max_chars)
+        return _truncate_sensor_state(part, max_chars=part_max_chars)
+
     summary = " | ".join(parts)
     if len(summary) <= max_chars:
         return summary
+
     compact_parts = [
         part
         for part in parts
@@ -396,27 +421,101 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
     if len(compact_summary) <= max_chars:
         return compact_summary
 
-    optional_markers = (" enabled", " usable")
     trimmed_parts = list(compact_parts)
-    for marker in optional_markers:
+    for marker in (" enabled", " usable"):
         if len(" | ".join(trimmed_parts)) <= max_chars:
             break
         for index, part in enumerate(list(trimmed_parts)):
             if part.endswith(marker):
                 del trimmed_parts[index]
                 break
+
     trimmed_summary = " | ".join(trimmed_parts)
     if len(trimmed_summary) <= max_chars:
         return trimmed_summary
 
-    compact_parts = [
-        _truncate_sensor_state(part, max_chars=56)
-        if part.startswith(("review ", "ready ", "top "))
+    compact_trimmed_parts = [
+        _compress_part(part, part_max_chars=64)
+        if part.startswith(("review ", "ready ", "surfaced ", "attention ", "blocked ", "plan "))
         else part
         for part in trimmed_parts
     ]
-    compact_summary = " | ".join(compact_parts)
-    return _truncate_sensor_state(compact_summary, max_chars=max_chars)
+    compact_trimmed_summary = " | ".join(compact_trimmed_parts)
+    if len(compact_trimmed_summary) <= max_chars:
+        return compact_trimmed_summary
+
+    optional_parts = list(compact_trimmed_parts)
+    for marker in (" W nominal", " fixed managed", " variable managed", "surfaced "):
+        if len(" | ".join(optional_parts)) <= max_chars:
+            break
+        for index, part in enumerate(list(optional_parts)):
+            if part.endswith(marker) or part.startswith(marker):
+                del optional_parts[index]
+                break
+
+    optional_summary = " | ".join(optional_parts)
+    if optional_summary and len(optional_summary) <= max_chars:
+        return optional_summary
+
+    minimal_parts: list[str] = []
+    if parts:
+        minimal_parts.append(parts[0])
+    if len(parts) > 1:
+        minimal_parts.append(parts[1])
+
+    preserve_candidate_kind_counts = not any(
+        part == "repair sources first"
+        or part.endswith("needs attention")
+        or part.endswith("need attention")
+        or part.startswith("active load ")
+        for part in optional_parts
+    )
+
+    for part in optional_parts[2:]:
+        if part == "repair sources first" or part.endswith("needs attention") or part.endswith("need attention"):
+            minimal_parts.append(part)
+            continue
+        if part.startswith(("blocked ", "attention ", "plan ", "active load ")):
+            minimal_parts.append(_truncate_sensor_state(part, max_chars=56))
+            continue
+        if part.endswith("active managed device") or part.endswith("active managed devices"):
+            minimal_parts.append(part)
+            continue
+        if preserve_candidate_kind_counts and (part.endswith("fixed candidate") or part.endswith("fixed candidates")):
+            minimal_parts.append(part)
+            continue
+        if preserve_candidate_kind_counts and (part.endswith("variable candidate") or part.endswith("variable candidates")):
+            minimal_parts.append(part)
+            continue
+        if part.endswith("needs review") or part.endswith("need review"):
+            minimal_parts.append(part)
+            continue
+        if part.startswith("review "):
+            minimal_parts.append(_compress_part(part, part_max_chars=64))
+            continue
+        if part.endswith("ready to promote"):
+            minimal_parts.append(part)
+            continue
+        if part.startswith("ready "):
+            if preserve_candidate_kind_counts:
+                minimal_parts.append(_compress_part(part, part_max_chars=64))
+            continue
+
+    minimal_summary = " | ".join(dict.fromkeys(minimal_parts))
+    if minimal_summary and len(minimal_summary) <= max_chars:
+        return minimal_summary
+
+    compact_minimal_parts = [
+        _truncate_sensor_state(part, max_chars=32)
+        if part.startswith(("blocked ", "attention ", "plan ", "review ", "ready "))
+        else part
+        for part in dict.fromkeys(minimal_parts)
+    ]
+    compact_minimal_summary = " | ".join(compact_minimal_parts)
+    if compact_minimal_summary and len(compact_minimal_summary) <= max_chars:
+        return compact_minimal_summary
+
+    return _truncate_sensor_state(compact_minimal_summary or optional_summary or trimmed_summary, max_chars=max_chars)
 
 
 def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> str:

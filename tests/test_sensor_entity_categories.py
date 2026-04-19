@@ -1074,9 +1074,47 @@ class SensorEntityCategoryTests(unittest.TestCase):
         value = overview.native_value
 
         self.assertLessEqual(len(value), 255)
-        self.assertTrue(value.endswith("..."))
         self.assertIn("2 managed | 2 unmanaged", value)
+        self.assertIn("1 needs review", value)
+        self.assertIn("1 ready to promote", value)
+        self.assertIn("review ", value)
+        self.assertIn("ready ", value)
 
+    def test_unmanaged_candidate_overview_keeps_review_and_ready_split_when_long_state_overflows(self) -> None:
+        sensor_module = _load_sensor_module()
+        long_ready_name = "Likely Useful Candidate " * 5
+        long_review_name = "Needs Additional Review Candidate " * 5
+
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": long_ready_name.strip(), "entity_id": "switch.ready_candidate", "kind": "fixed"},
+            {"name": long_review_name.strip(), "entity_id": "switch.review_candidate", "kind": "variable"},
+        ]
+        sensor_module.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("entity_id") == "switch.ready_candidate" else "medium",
+            "summary": "Verbose but plausible.",
+            "warnings": [] if candidate.get("entity_id") == "switch.ready_candidate" else ["Manual review recommended"],
+        }
+        sensor_module.build_candidate_review_hint = lambda candidate, **kwargs: (
+            "likely useful after a fairly long operator-facing explanation that keeps going"
+            if candidate.get("entity_id") == "switch.ready_candidate"
+            else "review carefully after a fairly long operator-facing explanation that keeps going | warn Manual review recommended"
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "unmanaged_candidate_overview", "Unmanaged candidate overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        value = overview.native_value
+
+        self.assertLessEqual(len(value), 255)
+        self.assertIn("2 candidates", value)
+        self.assertIn("1 needs review", value)
+        self.assertIn("1 ready to promote", value)
+        self.assertIn("review ", value)
+        self.assertIn("ready ", value)
 
     def test_managed_fleet_overview_surfaces_active_managed_load_and_count(self) -> None:
         sensor_module = _load_sensor_module()
