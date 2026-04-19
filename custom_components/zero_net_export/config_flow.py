@@ -1146,6 +1146,40 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return "\n".join(lines)
 
     @staticmethod
+    def _candidate_kind_summary(candidates: list[dict[str, Any]], kind: str, *, limit: int = 6) -> str:
+        matching = [item for item in candidates if item.get("kind") == kind][:limit]
+        if matching:
+            return "\n".join(
+                f"- {build_candidate_preview(item, include_entity_id=False)}" for item in matching
+            )
+        if kind == DEVICE_KIND_FIXED:
+            return "- No fixed-load candidates discovered right now"
+        return "- No variable-load candidates discovered right now"
+
+    def _managed_devices_workspace_placeholders(
+        self,
+        display_devices: list[dict[str, Any]],
+        candidates: list[dict[str, Any]],
+    ) -> dict[str, str]:
+        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
+        top_candidate = candidates[0] if candidates else None
+        return {
+            "device_count": str(len(display_devices)),
+            "managed_snapshot": self._managed_snapshot_text(display_devices),
+            "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
+            "candidate_count": str(len(candidates)),
+            "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+            "candidate_summary": self._candidate_snapshot_text(candidates),
+            "fixed_candidate_count": str(fixed_candidate_count),
+            "fixed_candidate_summary": self._candidate_kind_summary(candidates, DEVICE_KIND_FIXED),
+            "variable_candidate_count": str(variable_candidate_count),
+            "variable_candidate_summary": self._candidate_kind_summary(candidates, DEVICE_KIND_VARIABLE),
+            "top_candidate": self._top_candidate_focus_text(top_candidate),
+            "review_candidate": self._review_candidate_focus_text(candidates),
+            "ready_candidate": self._ready_candidate_focus_text(candidates),
+        }
+
+    @staticmethod
     def _candidate_picker_role_prefix(
         candidate: dict[str, Any],
         *,
@@ -2462,15 +2496,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         summary = "\n".join(self._fleet_summary_lines(display_devices))
         fixed_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_FIXED]
         variable_candidates = [item for item in candidates if item['kind'] == DEVICE_KIND_VARIABLE]
-        managed_snapshot = self._managed_snapshot_text(display_devices)
-        unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
-        candidate_summary = self._candidate_snapshot_text(candidates)
-        fixed_candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item, include_entity_id=False)}" for item in fixed_candidates[:6]
-        ) if fixed_candidates else "- No fixed-load candidates discovered right now"
-        variable_candidate_summary = "\n".join(
-            f"- {build_candidate_preview(item, include_entity_id=False)}" for item in variable_candidates[:6]
-        ) if variable_candidates else "- No variable-load candidates discovered right now"
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
+        managed_snapshot = workspace_placeholders["managed_snapshot"]
+        unmanaged_snapshot = workspace_placeholders["unmanaged_snapshot"]
+        candidate_summary = workspace_placeholders["candidate_summary"]
+        fixed_candidate_summary = workspace_placeholders["fixed_candidate_summary"]
+        variable_candidate_summary = workspace_placeholders["variable_candidate_summary"]
         top_candidate = candidates[0] if candidates else None
         device_next_step = self._device_next_step(display_devices, issues, candidates)
         return self.async_show_form(
@@ -2489,7 +2520,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_summary": summary,
                 "managed_snapshot": managed_snapshot,
                 "candidate_count": str(len(candidates)),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
+                "unmanaged_snapshot": unmanaged_snapshot,
                 "candidate_summary": candidate_summary,
                 "fixed_candidate_count": str(len(fixed_candidates)),
                 "fixed_candidate_summary": fixed_candidate_summary,
@@ -2531,6 +2562,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         all_candidates = self._device_candidates()
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, all_candidates)
         fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(all_candidates)
         top_candidate = all_candidates[0] if all_candidates else None
         review_candidate = next(
@@ -2588,20 +2620,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors={},
             description_placeholders={
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
-                "candidate_count": str(len(options)),
                 "top_candidates": top_candidate_summary,
                 "candidate_path_summary": candidate_path_summary,
                 "device_blocker_summary": self._device_blocker_summary(),
                 "device_next_step": self._device_next_step(display_devices, [], all_candidates),
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
-                "candidate_summary": self._candidate_snapshot_text(all_candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(top_candidate),
-                "review_candidate": self._review_candidate_focus_text(all_candidates),
-                "ready_candidate": self._ready_candidate_focus_text(all_candidates),
+                **workspace_placeholders,
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2629,6 +2652,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         all_candidates = self._device_candidates()
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, all_candidates)
         fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(all_candidates)
         top_candidate = all_candidates[0] if all_candidates else None
         candidate_path_summary = (
@@ -2649,19 +2673,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors={},
             description_placeholders={
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
-                "candidate_count": str(len(options)),
                 "candidate_path_summary": candidate_path_summary,
                 "device_blocker_summary": self._device_blocker_summary(),
                 "device_next_step": self._device_next_step(display_devices, [], all_candidates),
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(all_candidates),
-                "candidate_summary": self._candidate_snapshot_text(all_candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(top_candidate),
-                "review_candidate": self._review_candidate_focus_text(all_candidates),
-                "ready_candidate": self._ready_candidate_focus_text(all_candidates),
+                **workspace_placeholders,
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -2688,8 +2703,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
-        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
-        top_candidate = candidates[0] if candidates else None
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         return self.async_show_form(
             step_id="device_vetting",
             data_schema=vol.Schema({}),
@@ -2697,15 +2711,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             description_placeholders={
                 "device_blocker_summary": self._device_blocker_summary(),
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
-                "candidate_summary": self._candidate_snapshot_text(candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(top_candidate),
-                "review_candidate": self._review_candidate_focus_text(candidates),
-                "ready_candidate": self._ready_candidate_focus_text(candidates),
+                **workspace_placeholders,
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "candidate_preview": build_candidate_preview(
                     summary,
@@ -2773,8 +2779,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
-        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
-        top_candidate = candidates[0] if candidates else None
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         return self.async_show_form(
             step_id="device_template",
             data_schema=vol.Schema(
@@ -2792,15 +2797,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
                 "device_blocker_summary": self._device_blocker_summary(),
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
-                "candidate_summary": self._candidate_snapshot_text(candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(top_candidate),
-                "review_candidate": self._review_candidate_focus_text(candidates),
-                "ready_candidate": self._ready_candidate_focus_text(candidates),
+                **workspace_placeholders,
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "detailed_management_summary": self._detailed_management_summary(),
                 "candidate_preview": build_candidate_preview(
@@ -2867,8 +2864,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         promotion_path_summary = (
             "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
         )
-        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
-        top_candidate = candidates[0] if candidates else None
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         if not editing_key and self._pending_candidate_entity_id:
             selected_candidate = next((item for item in candidates if item["entity_id"] == self._pending_candidate_entity_id), None)
             if selected_candidate is not None:
@@ -2925,15 +2921,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "device_blocker_summary": self._device_blocker_summary(),
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
                 "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
-                "candidate_summary": self._candidate_snapshot_text(candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(top_candidate),
-                "review_candidate": self._review_candidate_focus_text(candidates),
-                "ready_candidate": self._ready_candidate_focus_text(candidates),
+                **workspace_placeholders,
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "device_mode": "Edit" if editing_key else "Add",
                 "device_template": selected_template.label if selected_template else "Custom",
@@ -2961,8 +2949,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
-        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
-        top_candidate = candidates[0] if candidates else None
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         enabled_keys = [device["key"] for device in devices if device.get("enabled", True)]
         if user_input is not None:
             selected_keys = {str(key) for key in user_input.get("enabled_devices", [])}
@@ -2992,18 +2979,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ),
             errors={},
             description_placeholders={
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
                 "enabled_count": str(len(enabled_keys)),
-                "device_count": str(len(devices)),
                 "device_next_step": self._device_next_step(display_devices, [], candidates),
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
-                "candidate_summary": self._candidate_snapshot_text(candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(top_candidate),
-                "review_candidate": self._review_candidate_focus_text(candidates),
-                "ready_candidate": self._ready_candidate_focus_text(candidates),
+                **workspace_placeholders,
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
             },
@@ -3013,7 +2991,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, issues = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
-        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         if user_input is not None:
             selected_key = user_input["device_key"]
             selected_device = next((device for device in devices if device.get("key") == selected_key), None)
@@ -3042,16 +3020,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors={},
             description_placeholders={
                 "configure_path": DEVICES_CONFIGURE_PATH,
-                "device_count": str(len(devices)),
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
-                "candidate_summary": self._candidate_snapshot_text(candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
-                "review_candidate": self._review_candidate_focus_text(candidates),
-                "ready_candidate": self._ready_candidate_focus_text(candidates),
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
+                **workspace_placeholders,
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),
@@ -3062,7 +3031,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         devices, issues = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         candidates = self._device_candidates()
-        fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
+        workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         if user_input is not None:
             remove_name = user_input["device_key"]
             removed_device = next((device for device in devices if device.get("key") == remove_name), None)
@@ -3086,16 +3055,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             errors={},
             description_placeholders={
                 "configure_path": DEVICES_CONFIGURE_PATH,
-                "device_count": str(len(devices)),
-                "managed_snapshot": self._managed_snapshot_text(display_devices),
-                "unmanaged_snapshot": self._unmanaged_snapshot_text(candidates),
-                "candidate_summary": self._candidate_snapshot_text(candidates),
-                "fixed_candidate_count": str(fixed_candidate_count),
-                "variable_candidate_count": str(variable_candidate_count),
-                "top_candidate": self._top_candidate_focus_text(candidates[0] if candidates else None),
-                "review_candidate": self._review_candidate_focus_text(candidates),
-                "ready_candidate": self._ready_candidate_focus_text(candidates),
-                "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
+                **workspace_placeholders,
                 "device_next_step": self._device_next_step(display_devices, issues, candidates),
                 "device_blocker_summary": self._device_blocker_summary(),
                 "detailed_management_summary": self._detailed_management_summary(),

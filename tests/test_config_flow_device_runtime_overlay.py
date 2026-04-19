@@ -754,6 +754,17 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
+        self.assertEqual(shortlist["description_placeholders"]["device_count"], "2")
+        self.assertEqual(shortlist["description_placeholders"]["candidate_count"], "3")
+        self.assertEqual(
+            shortlist["description_placeholders"]["fixed_candidate_summary"],
+            "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
+            "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
+        )
+        self.assertEqual(
+            shortlist["description_placeholders"]["variable_candidate_summary"],
+            "- Spare EV limit (variable) | likely useful | key warning: No immediate warnings",
+        )
         self.assertEqual(
             shortlist["description_placeholders"]["top_candidate"],
             "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
@@ -1070,6 +1081,17 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
+            self.assertEqual(result["description_placeholders"]["device_count"], "2")
+            self.assertEqual(result["description_placeholders"]["candidate_count"], "2")
+            self.assertEqual(
+                result["description_placeholders"]["fixed_candidate_summary"],
+                "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
+                "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
+            )
+            self.assertEqual(
+                result["description_placeholders"]["variable_candidate_summary"],
+                "- No variable-load candidates discovered right now",
+            )
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
                 "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
@@ -1277,6 +1299,17 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
+            self.assertEqual(result["description_placeholders"]["device_count"], "2")
+            self.assertEqual(result["description_placeholders"]["candidate_count"], "2")
+            self.assertEqual(
+                result["description_placeholders"]["fixed_candidate_summary"],
+                "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
+                "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
+            )
+            self.assertEqual(
+                result["description_placeholders"]["variable_candidate_summary"],
+                "- No variable-load candidates discovered right now",
+            )
             self.assertEqual(
                 result["description_placeholders"]["top_candidate"],
                 "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
