@@ -308,7 +308,7 @@ class DeployExactRepoBuildTests(unittest.TestCase):
 
 class CompareInstallFingerprintTests(unittest.TestCase):
     def test_remote_fingerprint_uses_ssh_without_remote_python(self) -> None:
-        responses = {"manifest": "0.1.86"}
+        responses = {"manifest": "0.1.86", "legacy": "stale_bytecode_paths\t/config/custom_components/zero_net_export/__pycache__/backup.cpython-313.pyc"}
         for index, name in enumerate(compare_script.TRACKED_FILES, start=1):
             responses[name] = (
                 f"1\t{200 + index}\tsha{index:09d}\t/config/custom_components/zero_net_export/{name}"
@@ -335,6 +335,8 @@ class CompareInstallFingerprintTests(unittest.TestCase):
             self.assertEqual(port, 2222)
             if "sed -n" in command:
                 return responses["manifest"]
+            if "legacy_backup_paths" in command:
+                return responses["legacy"]
             for name in compare_script.TRACKED_FILES:
                 if name in command:
                     return responses[name]
@@ -357,6 +359,10 @@ class CompareInstallFingerprintTests(unittest.TestCase):
         self.assertEqual(payload["tracked_files"]["release_info.py"]["size_bytes"], 543)
         self.assertEqual(payload["tracked_files"]["sensor.py"]["sha256_12"], "sensor999000")
         self.assertEqual(payload["tracked_files"]["translations/en.json"]["size_bytes"], 111)
+        self.assertEqual(
+            payload["legacy_artifacts"]["stale_bytecode_paths"],
+            ["/config/custom_components/zero_net_export/__pycache__/backup.cpython-313.pyc"],
+        )
 
     def test_tracked_files_cover_all_source_files_and_skip_pycache(self) -> None:
         tracked = set(compare_script.TRACKED_FILES)
@@ -419,11 +425,17 @@ class CompareInstallFingerprintTests(unittest.TestCase):
     def test_compare_reports_match_for_identical_fingerprints(self) -> None:
         expected = compare_script.fingerprint(COMPONENT_ROOT)
         actual = compare_script.fingerprint(COMPONENT_ROOT)
+        actual["legacy_artifacts"] = {
+            "legacy_backup_paths": [],
+            "legacy_component_child_paths": [],
+            "stale_bytecode_paths": [],
+        }
 
         comparison = compare_script.compare(expected, actual)
 
         self.assertTrue(comparison["manifest_version_matches"])
         self.assertTrue(comparison["all_tracked_files_match"])
+        self.assertTrue(comparison["legacy_artifacts_match"])
         self.assertTrue(comparison["overall_match"])
         self.assertEqual(comparison["mismatches"], [])
 
@@ -432,6 +444,11 @@ class CompareInstallFingerprintTests(unittest.TestCase):
         actual = json.loads(json.dumps(expected))
         actual["manifest_version"] = "0.0.0-test"
         actual["tracked_files"]["manifest.json"]["sha256_12"] = "deadbeefcafe"
+        actual["legacy_artifacts"] = {
+            "legacy_backup_paths": [],
+            "legacy_component_child_paths": [],
+            "stale_bytecode_paths": [],
+        }
 
         comparison = compare_script.compare(expected, actual)
 
@@ -440,6 +457,23 @@ class CompareInstallFingerprintTests(unittest.TestCase):
         self.assertFalse(comparison["overall_match"])
         self.assertEqual(comparison["manifest_mismatch"]["actual"], "0.0.0-test")
         self.assertEqual(comparison["mismatches"][0]["file"], "manifest.json")
+
+    def test_compare_reports_legacy_artifacts_even_when_tracked_files_match(self) -> None:
+        expected = compare_script.fingerprint(COMPONENT_ROOT)
+        actual = json.loads(json.dumps(expected))
+        actual["legacy_artifacts"] = {
+            "legacy_backup_paths": [],
+            "legacy_component_child_paths": [],
+            "stale_bytecode_paths": ["/config/custom_components/zero_net_export/__pycache__/backup.cpython-313.pyc"],
+        }
+
+        comparison = compare_script.compare(expected, actual)
+
+        self.assertTrue(comparison["manifest_version_matches"])
+        self.assertTrue(comparison["all_tracked_files_match"])
+        self.assertFalse(comparison["legacy_artifacts_match"])
+        self.assertFalse(comparison["overall_match"])
+        self.assertIn("clean_legacy_discovery_artifacts.py", comparison["recommendation"])
 
     def test_cli_compare_rejects_repo_local_paths(self) -> None:
         source_result = subprocess.run(
@@ -501,6 +535,7 @@ class CompareInstallFingerprintTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, msg=result.stderr)
             payload = json.loads(result.stdout)
             self.assertTrue(payload["comparison"]["overall_match"])
+            self.assertTrue(payload["comparison"]["legacy_artifacts_match"])
             self.assertTrue(output_path.exists())
 
     def test_cli_validate_matches_live_install_copy_and_writes_json_artifacts(self) -> None:

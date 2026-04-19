@@ -11,6 +11,18 @@ from pathlib import Path
 from typing import Any
 
 
+COMPONENT_DIRNAME = "zero_net_export"
+LEGACY_BACKUP_PREFIXES = (
+    f"{COMPONENT_DIRNAME}.backup_",
+    f"{COMPONENT_DIRNAME}.backup-",
+)
+LEGACY_COMPONENT_CHILD_PREFIXES = (
+    "backup",
+    "backup_",
+    "backup-",
+)
+
+
 def tracked_component_files(component_root: Path) -> tuple[str, ...]:
     """Return the shipped source files that must match a live install exactly."""
     tracked: list[str] = []
@@ -102,12 +114,54 @@ def validate_component_root(
         )
 
 
+def is_legacy_component_child_name(name: str) -> bool:
+    return name == "backup" or name.startswith(LEGACY_COMPONENT_CHILD_PREFIXES)
+
+
+def local_legacy_artifacts(component_root: Path) -> dict[str, list[str]]:
+    custom_components_root = component_root.parent
+
+    backup_paths = [
+        str(child)
+        for child in sorted(custom_components_root.iterdir(), key=lambda item: item.name)
+        if child.name != COMPONENT_DIRNAME
+        and any(child.name.startswith(prefix) for prefix in LEGACY_BACKUP_PREFIXES)
+    ] if custom_components_root.exists() else []
+
+    component_child_paths = [
+        str(child)
+        for child in sorted(component_root.iterdir(), key=lambda item: item.name)
+        if is_legacy_component_child_name(child.name)
+    ] if component_root.exists() else []
+
+    component_pycache_root = component_root / "__pycache__"
+    stale_bytecode_paths: list[str] = []
+    if custom_components_root.exists():
+        for cache_dir in sorted(custom_components_root.rglob("__pycache__"), key=lambda item: str(item)):
+            for artifact in sorted(cache_dir.iterdir(), key=lambda item: item.name):
+                if not artifact.is_file():
+                    continue
+                if artifact.name.startswith(f"{COMPONENT_DIRNAME}."):
+                    stale_bytecode_paths.append(str(artifact))
+                    continue
+                stem = artifact.name.split(".cpython-", 1)[0]
+                if component_pycache_root in artifact.parents and is_legacy_component_child_name(stem):
+                    stale_bytecode_paths.append(str(artifact))
+
+    return {
+        "legacy_backup_paths": backup_paths,
+        "legacy_component_child_paths": component_child_paths,
+        "stale_bytecode_paths": stale_bytecode_paths,
+    }
+
+
 def fingerprint(component_root: Path) -> dict[str, Any]:
     manifest_path = component_root / "manifest.json"
     payload: dict[str, Any] = {
         "component_root": str(component_root),
         "manifest_version": read_manifest_version(manifest_path),
         "tracked_files": {},
+        "legacy_artifacts": local_legacy_artifacts(component_root),
     }
 
     tracked_files: dict[str, Any] = {}
@@ -172,6 +226,37 @@ def validate_remote_component_root(component_root: str, input_path: str, ssh_hos
         ) from err
 
 
+def remote_legacy_artifacts(component_root: str, ssh_host: str, ssh_port: int | None) -> dict[str, list[str]]:
+    custom_components_root = str(Path(component_root).parent)
+    remote_command = " ; ".join(
+        [
+            f"component_root={shlex.quote(component_root)}",
+            f"custom_root={shlex.quote(custom_components_root)}",
+            "find \"$custom_root\" -mindepth 1 -maxdepth 1 \\( -name 'zero_net_export.backup_*' -o -name 'zero_net_export.backup-*' \\) -print | sort | sed 's/^/legacy_backup_paths\\t/'",
+            "find \"$component_root\" -mindepth 1 -maxdepth 1 \\( -name 'backup' -o -name 'backup_*' -o -name 'backup-*' \\) -print | sort | sed 's/^/legacy_component_child_paths\\t/'",
+            "find \"$custom_root\" -path '*/__pycache__/*' -type f -print | sort | while IFS= read -r path; do "
+            "name=$(basename \"$path\"); "
+            "case \"$name\" in zero_net_export.*) printf 'stale_bytecode_paths\\t%s\\n' \"$path\"; continue ;; esac; "
+            "case \"$path\" in \"$component_root\"/__pycache__/backup*.pyc|\"$component_root\"/__pycache__/backup*.pyo) printf 'stale_bytecode_paths\\t%s\\n' \"$path\" ;; esac; "
+            "done",
+        ]
+    )
+    raw = run_ssh_command(ssh_host, ssh_port, remote_command)
+    payload = {
+        "legacy_backup_paths": [],
+        "legacy_component_child_paths": [],
+        "stale_bytecode_paths": [],
+    }
+    if not raw:
+        return payload
+
+    for line in raw.splitlines():
+        category, _, path = line.partition("\t")
+        if category in payload and path:
+            payload[category].append(path)
+    return payload
+
+
 def remote_fingerprint(component_root: str, ssh_host: str, ssh_port: int | None) -> dict[str, Any]:
     manifest_path = f"{component_root}/manifest.json"
     manifest_command = (
@@ -202,6 +287,7 @@ def remote_fingerprint(component_root: str, ssh_host: str, ssh_port: int | None)
         "component_root": component_root,
         "manifest_version": manifest_version,
         "tracked_files": tracked_files,
+        "legacy_artifacts": remote_legacy_artifacts(component_root, ssh_host, ssh_port),
         "inspection_transport": "ssh",
         "ssh_host": ssh_host,
         "ssh_port": ssh_port,
@@ -257,18 +343,32 @@ def compare(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, Any]:
             "actual": actual.get("manifest_version"),
         }
 
-    overall_match = bool(manifest_version_matches and all_files_match)
+    legacy_artifacts = actual.get("legacy_artifacts") or {}
+    legacy_artifact_paths = [
+        path
+        for key in ("legacy_backup_paths", "legacy_component_child_paths", "stale_bytecode_paths")
+        for path in (legacy_artifacts.get(key) or [])
+    ]
+    legacy_artifacts_match = not legacy_artifact_paths
+
+    overall_match = bool(manifest_version_matches and all_files_match and legacy_artifacts_match)
     if overall_match:
-        recommendation = "Install fingerprint matches the intended repo build. A Home Assistant restart from this install path should now be trustworthy."
-    else:
+        recommendation = "Install fingerprint matches the intended repo build and no legacy discovery artifacts were found. A Home Assistant restart from this install path should now be trustworthy."
+    elif legacy_artifacts_match:
         recommendation = (
             "Install fingerprint does not match the intended repo build. Deploy one exact repo build to one Home Assistant custom_components/zero_net_export path, rerun this comparison until it reports overall_match=true, then restart Home Assistant core before trusting live validation."
+        )
+    else:
+        recommendation = (
+            "Legacy Zero Net Export discovery artifacts are still present in this install path. Run scripts/clean_legacy_discovery_artifacts.py against the Home Assistant custom_components tree, redeploy one exact repo build if needed, rerun this comparison until it reports overall_match=true, then restart Home Assistant core before trusting live validation."
         )
 
     return {
         "manifest_version_matches": manifest_version_matches,
         "manifest_mismatch": manifest_mismatch,
         "all_tracked_files_match": all_files_match,
+        "legacy_artifacts_match": legacy_artifacts_match,
+        "legacy_artifacts": legacy_artifacts,
         "overall_match": overall_match,
         "tracked_files": tracked_files,
         "mismatches": mismatches,
