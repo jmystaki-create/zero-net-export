@@ -9,6 +9,8 @@ from .candidate_utils import (
     assess_candidate,
     build_candidate_overview_summary,
     build_candidate_preview,
+    build_candidate_review_hint,
+    candidate_needs_review,
     discover_candidate_devices,
     first_review_candidate,
 )
@@ -331,11 +333,33 @@ def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
     if not candidates:
         return overview
 
+    parts = [overview]
     top_preview = build_candidate_preview(candidates[0], include_entity_id=False, include_state=False)
     _, separator, preview_tail = top_preview.partition(" | ")
-    if separator and preview_tail:
-        return f"{overview} | {preview_tail}"
-    return overview
+    if separator and preview_tail and preview_tail not in overview:
+        parts.append(preview_tail)
+
+    review_candidate = first_review_candidate(candidates)
+    ready_candidate = next(
+        (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+        None,
+    )
+    ready_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
+    if review_candidate and ready_candidate and ready_candidate is not candidates[0] and ready_name:
+        ready_parts = [f"ready {ready_name}"]
+        ready_hint = build_candidate_review_hint(ready_candidate, include_warning=False)
+        if ready_hint:
+            ready_parts.append(ready_hint)
+        while ready_parts:
+            candidate_summary = " | ".join([*parts, *ready_parts])
+            if len(candidate_summary) <= 240:
+                return candidate_summary
+            ready_parts.pop()
+
+    summary = " | ".join(parts)
+    if len(summary) <= 240:
+        return summary
+    return summary[:239].rstrip() + "…"
 
 
 def _format_power(value: object) -> str:

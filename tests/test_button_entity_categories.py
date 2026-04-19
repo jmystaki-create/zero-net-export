@@ -191,6 +191,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
     candidate_utils_module.discover_candidate_devices = _discover_candidate_devices
     candidate_utils_module.assess_candidate = _assess_candidate
+    candidate_utils_module.candidate_needs_review = lambda fit: str((fit or {}).get("confidence") or "medium") != "high"
     candidate_utils_module.first_review_candidate = lambda candidates: next(
         (
             candidate
@@ -702,6 +703,35 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
         self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
         self.assertIn("- Why: Mapped source blockers remain.", attrs["promotion_handoff"])
+
+    def test_device_page_unmanaged_snapshot_names_ready_next_when_top_candidate_needs_review(self) -> None:
+        button_module = _load_button_module()
+
+        summary = button_module._unmanaged_snapshot_summary(
+            [
+                {
+                    "name": "Virtual load",
+                    "entity_id": "input_boolean.virtual_load",
+                    "kind": "fixed",
+                    "domain": "input_boolean",
+                    "state": "on",
+                    "unit": "",
+                    "device_class": "",
+                },
+                {
+                    "name": "Hot water relay",
+                    "entity_id": "switch.hot_water",
+                    "kind": "fixed",
+                    "domain": "switch",
+                    "state": "off",
+                    "unit": "",
+                    "device_class": "",
+                },
+            ]
+        )
+
+        self.assertIn("ready Hot water relay | likely useful", summary)
+        self.assertIn("top Virtual load | review first | key warning:", summary)
 
     def test_blocker_handoff_after_repair_uses_real_fleet_step_not_blocker_step(self) -> None:
         button_module = _load_button_module()
