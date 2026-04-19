@@ -431,7 +431,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Use Diagnostics when setup is blocked", support_center)
         self.assertIn("Diagnostics now", support_center)
         self.assertIn("- Top alerts:", support_center)
-        self.assertIn("Mapped-source triage", support_center)
+        self.assertIn("Blocker triage", support_center)
         self.assertIn("Install validation", support_center)
         self.assertIn("Bucket ownership and paths", support_center)
         self.assertNotIn("- Live control mode:", support_center)
@@ -879,16 +879,19 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         support_center = native_support.build_native_support_center(_FakeCoordinator())
         self.assertIn(
-            "Current mapped-source blockers: Solar power (Pv Power, unavailable)",
+            "Current blocker summary: Solar power (Pv Power, unavailable)",
             support_center,
         )
+        self.assertIn("Blocking mapped roles: Solar power", support_center)
+        self.assertIn("Blocking validation details:", support_center)
         self.assertIn(
-            "Affected mapped roles: Solar power -> Pv Power (unavailable; Solar power entity sensor.pv_power is unavailable)",
+            f"If Sensors owns the repair, use: Open {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
-        self.assertIn("Blocking roles now: Solar power", support_center)
+        self.assertIn("Current mapped roles for reference: - Solar power: sensor.pv_power", support_center)
         self.assertNotIn("Unavailable mapped roles:", support_center)
         self.assertNotIn("Stale mapped roles:", support_center)
+        self.assertNotIn("Affected mapped roles:", support_center)
 
 
 if __name__ == "__main__":
