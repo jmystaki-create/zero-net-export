@@ -1197,17 +1197,17 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if action == "add_fixed":
             if fixed_candidate_count:
                 return (
-                    "Add fixed load device"
+                    "Promote fixed-load candidate"
                     f" / {cls._count_label(fixed_candidate_count, 'fixed candidate')} surfaced"
                 )
-            return "Add fixed load device"
+            return "Add fixed load device manually"
         if action == "add_variable":
             if variable_candidate_count:
                 return (
-                    "Add variable load device"
+                    "Promote variable-load candidate"
                     f" / {cls._count_label(variable_candidate_count, 'variable candidate')} surfaced"
                 )
-            return "Add variable load device"
+            return "Add variable load device manually"
         if action == "bulk_enable":
             return (
                 "Review managed devices workspace / enable or disable devices"
@@ -2475,10 +2475,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "Repair the managed-device issues first, then return here to review enablement or add another load."
         if not devices and primary_candidate:
             return (
-                f"Start with {self._top_candidate_focus_text(primary_candidate)} by choosing the matching add action below, then review the candidate and save it into the fleet."
+                f"Start by reviewing {self._top_candidate_focus_text(primary_candidate)} through the matching promotion action below, then save it into Managed Devices."
             )
         if not devices:
-            return "Choose Add fixed load device or Add variable load device to start the first managed-device promotion flow."
+            return "Choose Add fixed load device manually or Add variable load device manually to start the first Managed Devices entry."
         if primary_candidate:
             return (
                 f"Review the current fleet, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."

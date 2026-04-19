@@ -846,8 +846,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         devices = asyncio.run(flow.async_step_devices())
         options = devices["data_schema"]["device_action"]["options"]
 
-        self.assertEqual(options[0]["label"], "Add fixed load device / 2 fixed candidates surfaced")
-        self.assertEqual(options[1]["label"], "Add variable load device / 1 variable candidate surfaced")
+        self.assertEqual(options[0]["label"], "Promote fixed-load candidate / 2 fixed candidates surfaced")
+        self.assertEqual(options[1]["label"], "Promote variable-load candidate / 1 variable candidate surfaced")
         self.assertEqual(
             options[2]["label"],
             "Review managed devices workspace / enable or disable devices / 2 managed devices",
@@ -855,6 +855,22 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(options[3]["label"], "Edit managed device / 2 managed devices")
         self.assertEqual(options[4]["label"], "Remove managed device / 2 managed devices")
         self.assertEqual(options[5]["label"], "Advanced JSON editor / recovery")
+
+    def test_device_actions_fall_back_to_manual_add_labels_when_no_candidates_are_surfaced(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={module.DOMAIN: {"entry-1": None}})
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._load_devices = lambda: ([], [])
+        flow._device_candidates = lambda: []
+
+        devices = asyncio.run(flow.async_step_devices())
+        options = devices["data_schema"]["device_action"]["options"]
+
+        self.assertEqual(options[0]["label"], "Add fixed load device manually")
+        self.assertEqual(options[1]["label"], "Add variable load device manually")
+        self.assertEqual(options[2]["label"], "Advanced JSON editor / recovery")
 
     def test_detailed_management_summary_falls_back_to_secondary_review_path_wording(self) -> None:
         module = _load_config_flow_module()
@@ -2000,7 +2016,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             candidates=[{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": module.DEVICE_KIND_FIXED}],
         )
 
-        self.assertIn("Start with AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", next_step)
+        self.assertIn("Start by reviewing AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", next_step)
         self.assertNotIn("switch.ac_outlet_2", next_step)
 
     def test_device_next_step_prefers_first_review_candidate_when_it_differs_from_top_rank(self) -> None:
@@ -2029,7 +2045,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "Start with Virtual load (fixed) | review first | key warning: Helper entities may not reflect a controllable appliance load.",
+            "Start by reviewing Virtual load (fixed) | review first | key warning: Helper entities may not reflect a controllable appliance load.",
             next_step,
         )
         self.assertNotIn("Dishwasher Power", next_step)
@@ -2043,7 +2059,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Choose Add fixed load device or Add variable load device to start the first managed-device promotion flow.",
+            "Choose Add fixed load device manually or Add variable load device manually to start the first Managed Devices entry.",
         )
 
     def test_device_next_step_uses_managed_devices_workspace_wording_for_enablement(self) -> None:

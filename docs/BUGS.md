@@ -538,6 +538,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/candidate_utils.py custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/sensor.py`.
 - **next action:** include this shared-summary wording cleanup in the next exact-build deploy, then confirm the live Managed Devices snapshots and helper sensors no longer reintroduce `top ...` ranking language anywhere in Home Assistant.
 
+## ZNE-063 - Managed Devices action selector still framed promotion as generic `Add` helper actions
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while reviewing the remaining `0.1.87` Managed Devices workspace wording against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the primary Managed Devices selector still led with `Add fixed load device` / `Add variable load device`, and the empty-fleet next-step copy still told operators to choose those add actions. That made the main fleet workspace read more like a helper menu than the first-class native promote / review path called for in Workstreams B and C, even when surfaced unmanaged candidates were already available for review.
+- **expected behavior:** when surfaced unmanaged candidates exist, the primary Managed Devices action selector should read as explicit promotion work, while the no-candidate fallback should stay clearly manual. The empty-fleet next-step handoff should match the same promotion-first posture.
+- **evidence:** repo inspection on this run found `_device_action_label(...)` in `custom_components/zero_net_export/config_flow.py` still returning `Add fixed load device / ... surfaced` and `Add variable load device / ... surfaced`, while `_device_next_step(...)` still said `choose the matching add action below` / `Choose Add fixed load device or Add variable load device...`. `docs/UI_DESIGN.md` says promotion must feel like a first-class workflow, and `docs/UI_IMPLEMENTATION_MAP.md` still lists removing helper-ish wording from Configure -> Managed Devices as unfinished Workstream B/C work.
+- **suspected cause:** earlier Managed Devices follow-ons improved counts, managed/unmanaged context, and shortlist copy, but the top-level selector labels were left on the older generic add-device wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so surfaced candidate actions now read `Promote fixed-load candidate` / `Promote variable-load candidate`, manual fallbacks read `Add ... device manually`, and the empty-fleet next-step handoff now points operators at the matching promotion action or manual path explicitly. `tests/test_config_flow_device_runtime_overlay.py` now locks both the promotion-first selector labels and the manual fallback labels in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this selector-label cleanup in the next exact-build deploy, then confirm the Managed Devices landing reads as a promotion-first fleet workspace in live Home Assistant instead of a generic add-device helper menu.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
