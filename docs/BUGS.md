@@ -406,6 +406,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay` plus `python3 -m unittest discover -s tests -q`.
 - **next action:** include this copy fix in the next exact-build deploy, then confirm the live device-page review surfaces now keep Configure -> Managed Devices clearly primary.
 
+## ZNE-053 - README and project status were still ranking device-page review as the default repo-side next step
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** repo audit on 2026-04-19 after comparing `README.md` and `project_status.md` against `docs/UI_IMPLEMENTATION_MAP.md` and current active bug state
+- **current observed behavior:** repo steering outside the main source-of-truth docs still nudged work back toward the device-page review path, with `README.md` listing the deeper device-page review path as part of the current highest-value repo-side next step and `project_status.md` not explicitly warning against reopening Workstream E by default.
+- **expected behavior:** repo-side next-step guidance should match the implementation map and active bug state by treating Workstream E as primarily live-proof posture, keeping remaining repo-side ranking on unfinished Workstreams A-D and F unless new device-page drift appears.
+- **evidence:** this run's repo audit found `README.md` still saying the next repo-side step should include `the deeper device-page review path`, even though `docs/UI_IMPLEMENTATION_MAP.md` already says unfinished repo-side runway remains across Workstreams A-D and F with Workstream E primarily in live-proof posture, and ZNE-028 already says to stop treating more speculative Workstream E hunting as the default path.
+- **suspected cause:** the source-of-truth workstream ordering had been tightened faster than the secondary status docs were updated, so the repo's thread-ready guidance lagged behind the current ranked implementation map.
+- **repo fix:** this run updates `README.md` to drop device-page review from the default repo-side next-step list and updates `project_status.md` so it explicitly says not to reopen Workstream E by default while the higher-ranked repo-side stages remain unfinished.
+- **validation status:** repo-side source-of-truth audit plus direct status-doc correction in this run. That is enough evidence for a docs-ranking bug.
+- **next action:** keep the next watchdog/supervisor ranking on the highest remaining repo-side A-D/F gap, and only reopen Workstream E if new installed-UI evidence shows a real device-page regression.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
