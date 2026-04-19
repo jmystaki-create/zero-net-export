@@ -229,6 +229,78 @@ class DeployExactRepoBuildTests(unittest.TestCase):
             self.assertFalse((destination / "__pycache__").exists())
             self.assertFalse((destination / "__pycache__" / "backup.cpython-311.pyc").exists())
 
+    def test_clean_legacy_artifacts_for_destination_removes_root_nested_and_bytecode_pollution(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            custom_components_dir = Path(tmp_dir) / "config" / "custom_components"
+            destination = custom_components_dir / "zero_net_export"
+            destination.mkdir(parents=True, exist_ok=True)
+            legacy_backup_dir = custom_components_dir / "zero_net_export.backup_20260419_0009"
+            nested_backup_dir = destination / "backup_20260419_0010"
+            nested_backup_file = destination / "backup.py"
+            custom_pycache_dir = custom_components_dir / "__pycache__"
+            component_pycache_dir = destination / "__pycache__"
+
+            legacy_backup_dir.mkdir(parents=True, exist_ok=True)
+            nested_backup_dir.mkdir(parents=True, exist_ok=True)
+            nested_backup_file.write_text("# legacy", encoding="utf-8")
+            custom_pycache_dir.mkdir(parents=True, exist_ok=True)
+            component_pycache_dir.mkdir(parents=True, exist_ok=True)
+            stale_root_bytecode = custom_pycache_dir / "zero_net_export.backup_20260419_0009.cpython-313.pyc"
+            stale_nested_bytecode = component_pycache_dir / "backup.cpython-313.pyc"
+            stale_root_bytecode.write_bytes(b"legacy")
+            stale_nested_bytecode.write_bytes(b"legacy")
+
+            payload = deploy_script.clean_legacy_artifacts_for_destination(destination)
+
+            self.assertEqual(payload["removed_backup_paths"], [str(legacy_backup_dir)])
+            self.assertEqual(
+                payload["removed_component_child_paths"],
+                [str(nested_backup_file), str(nested_backup_dir)],
+            )
+            self.assertEqual(
+                payload["removed_stale_bytecode_paths"],
+                [str(stale_root_bytecode), str(stale_nested_bytecode)],
+            )
+            self.assertFalse(legacy_backup_dir.exists())
+            self.assertFalse(nested_backup_dir.exists())
+            self.assertFalse(nested_backup_file.exists())
+            self.assertFalse(stale_root_bytecode.exists())
+            self.assertFalse(stale_nested_bytecode.exists())
+
+    def test_deploy_script_cleans_legacy_artifacts_before_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            config_dir = Path(tmp_dir) / "config"
+            custom_components_dir = config_dir / "custom_components"
+            destination = custom_components_dir / "zero_net_export"
+            destination.mkdir(parents=True, exist_ok=True)
+            (destination / "manifest.json").write_text('{"version": "0.0.0-test"}', encoding="utf-8")
+            legacy_backup_dir = custom_components_dir / "zero_net_export.backup_20260419_0009"
+            nested_backup_file = destination / "backup.py"
+            component_pycache_dir = destination / "__pycache__"
+            legacy_backup_dir.mkdir(parents=True, exist_ok=True)
+            nested_backup_file.write_text("# legacy", encoding="utf-8")
+            component_pycache_dir.mkdir(parents=True, exist_ok=True)
+            (component_pycache_dir / "backup.cpython-313.pyc").write_bytes(b"legacy")
+
+            result = subprocess.run(
+                [
+                    "python3",
+                    str(SCRIPTS_DIR / "deploy_exact_repo_build.py"),
+                    str(config_dir),
+                    "--no-backup",
+                ],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            self.assertIn("Legacy cleanup:", result.stdout)
+            self.assertFalse(legacy_backup_dir.exists())
+            self.assertFalse(nested_backup_file.exists())
+            self.assertFalse((component_pycache_dir / "backup.cpython-313.pyc").exists())
+
     def test_ensure_safe_destination_rejects_repo_local_destinations(self) -> None:
         repo_root = REPO_ROOT.resolve()
         source_root = COMPONENT_ROOT.resolve()
