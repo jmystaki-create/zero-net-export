@@ -756,9 +756,9 @@ def _build_managed_device_detail_lines(
         f"- Managed snapshot: {managed_snapshot}",
         f"- Unmanaged snapshot: {unmanaged_snapshot}",
         (
-            f"- Top unmanaged candidate right now: {build_candidate_preview(top_candidate, include_entity_id=False)}"
+            f"- Top surfaced unmanaged candidate: {build_candidate_preview(top_candidate, include_entity_id=False)}"
             if top_candidate
-            else "- Top unmanaged candidate right now: none"
+            else "- Top surfaced unmanaged candidate: none"
         ),
         *(
             [
