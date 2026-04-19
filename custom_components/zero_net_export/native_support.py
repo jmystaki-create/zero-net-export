@@ -2052,6 +2052,30 @@ def build_native_support_center(coordinator: Any) -> str:
     install_provenance = build_install_provenance()
     source_attention = build_source_attention_details(state)
     blocking_keys = _blocking_source_attention_keys(source_attention)
+    blocking_validation_issues = [
+        issue
+        for issue in (source_attention.get("validation_details", {}).get("issues", []) or [])
+        if str(issue.get("severity", "")).lower() == "error"
+    ]
+    fallback_hint = build_source_selector_fallback_hint(
+        role_keys=blocking_keys,
+        validation_issues=blocking_validation_issues,
+    ) or "Not needed right now."
+    support_next_step = str(operator_readiness.get("next_step") or "").strip()
+    if not support_next_step and not install_provenance.get("live_validation_safe"):
+        support_next_step = build_install_repair_step(install_provenance)
+    if not support_next_step and (blocking_keys or blocking_validation_issues):
+        support_next_step = str(command_center.get("source_repair_step") or "").strip()
+    if not support_next_step:
+        support_next_step = (
+            f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
+            f"{DIAGNOSTICS_DEVICE_ACTIONS_PATH} or Settings -> Repairs if deeper triage is still needed."
+        )
+    install_next_step = (
+        "Exact-build trust currently looks good. Use the device-page diagnostics snapshot only if you need the full install evidence."
+        if install_provenance.get("live_validation_safe")
+        else build_install_repair_step(install_provenance)
+    )
     checklist_lines = _compact_setup_checklist_lines(operator_readiness.get("checklist"))
     snapshot_path = f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot"
     checklist_path = f"{INTEGRATION_DEVICE_PATH} -> Show setup checklist"
@@ -2069,6 +2093,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Recommended command-center section: {command_center.get('recommended_section')}",
             f"- Recommended command-center path: {command_center.get('recommended_path')}",
             f"- Recommended next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
+            f"- Diagnostics follow-through: {support_next_step}",
             "",
             "Blocker triage",
             f"- Current blocker summary: {command_center.get('source_attention_summary')}",
@@ -2076,11 +2101,13 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Blocking validation details: {command_center.get('blocking_validation_details')}",
             f"- If Sensors owns the repair, use: {command_center.get('source_repair_step')}",
             f"- Current mapped roles for reference: {command_center.get('source_mapping_summary')}",
+            f"- Selector workaround, only if Home Assistant rejects a valid choice: {fallback_hint}",
             "",
             "Install validation",
             f"- Installed package: {command_center.get('install_status')}",
             f"- Install consistency: {command_center.get('install_consistency')}",
-            f"- Install provenance: {install_provenance.get('summary', 'n/a')}",
+            f"- Exact-build next step: {install_next_step}",
+            f"- Full install evidence: {snapshot_path}",
             *checklist_lines,
             "",
             "Bucket ownership and paths",

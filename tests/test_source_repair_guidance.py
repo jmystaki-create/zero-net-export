@@ -452,8 +452,16 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("- Mode summary:", support_center)
         self.assertIn("- Recommended command-center section:", support_center)
         self.assertIn("- Recommended command-center path:", support_center)
+        self.assertIn("- Diagnostics follow-through:", support_center)
         self.assertNotIn("- Recommended path now:", support_center)
         self.assertNotIn("- Why this section is recommended:", support_center)
+        self.assertIn("- Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.", support_center)
+        self.assertIn("- Exact-build next step: install repair step", support_center)
+        self.assertIn(
+            f"- Full install evidence: {native_support.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
+            support_center,
+        )
+        self.assertNotIn("- Install provenance:", support_center)
         self.assertIn("- Setup checklist status:", support_center)
         self.assertIn("- Next incomplete checks:", support_center)
         self.assertNotIn("\nChecklist\n", support_center)
@@ -902,6 +910,12 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             f"If Sensors owns the repair, use: Open {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
+        self.assertIn("Diagnostics follow-through:", support_center)
+        self.assertIn(
+            "Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.",
+            support_center,
+        )
+        self.assertIn("Exact-build next step: install repair step", support_center)
         self.assertIn("Current mapped roles for reference: - Solar power: sensor.pv_power", support_center)
         self.assertNotIn("Unavailable mapped roles:", support_center)
         self.assertNotIn("Stale mapped roles:", support_center)
