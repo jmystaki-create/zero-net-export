@@ -1900,7 +1900,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes."
             )
     else:
         device_status = _command_center_device_status_with_unmanaged_context(

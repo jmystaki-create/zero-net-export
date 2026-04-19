@@ -370,6 +370,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories`.
 - **next action:** include this final attention-first wording cleanup in the next exact-build deploy, then confirm the live command center and helper sensor keep the Managed Devices bucket name explicit when a managed load needs attention first.
 
+## ZNE-066 - Command-center no-candidate handoff still fell back to generic `review the fleet` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing the opening command-center fallback handoff against the current `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` primary-workspace wording
+- **current observed behavior:** when managed devices existed but no unmanaged candidates remained, the opening command-center fallback in `custom_components/zero_net_export/native_support.py` still said `Open ... to review the fleet, edit device settings, or stage enablement changes.` That left one remaining Workstream B wording leak in the primary operator console even after Configure, save feedback, button handoffs, and selector copy had already moved onto explicit `Managed Devices workspace` wording.
+- **expected behavior:** the command-center fallback should keep naming the `Managed Devices workspace` explicitly so the opening operator console stays aligned with the same primary fleet-workspace wording already used across Configure and the device-page review handoffs.
+- **evidence:** `rg -n 'review the fleet, edit device settings' custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py` on this run still found the operator-facing fallback string in `native_support.py` and no focused regression for the no-candidate managed-fleet path. `docs/UI_IMPLEMENTATION_MAP.md` says Workstream B should remove any wording that makes Configure -> Managed Devices feel like a thin helper layer instead of the real fleet workspace.
+- **suspected cause:** earlier Managed Devices wording cleanup covered attention-first, review-first, promotion, save-feedback, and device-page handoffs first, but the no-candidate command-center fallback branch was left on older generic `review the fleet` text.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the no-candidate managed-fleet handoff now says `review the Managed Devices workspace`, and adds a focused regression in `tests/test_command_center_summary.py` to keep the command-center fallback on workspace-first wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`.
+- **next action:** include this command-center fallback wording cleanup in the next exact-build deploy, then confirm the live opening console keeps the primary Managed Devices workspace name explicit even when no unmanaged candidates remain.
+
 ## ZNE-045 - Fingerprint payload still let `expected_commit` drift with repo-head bookkeeping
 - **status:** `fixed_pending_validation`
 - **severity:** `medium`
