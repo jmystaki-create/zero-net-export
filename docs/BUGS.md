@@ -447,6 +447,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_release_info_install_guidance`.
 - **next action:** keep the next live-facing release boundary explicit, then use the documented HA SSH path and exact-build validation only after James approves deploy/restart of exact build `e298061`
 
+## ZNE-056 - Public deploy docs still skipped the required release-approval ask
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** repo audit on 2026-04-19 while comparing `README.md` and `docs/VALIDATION_CHECKLIST.md` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `RELEASE_MANAGEMENT.md`
+- **current observed behavior:** the repo had already fixed approval-first wording in native install-provenance guidance, but the public install and validation docs still told operators to run `scripts/deploy_exact_repo_build.py` immediately when reconciling a mixed live install. That left a second release-boundary leak in the repo docs even though the current source of truth says formal deploy/restart requires an explicit ask to James first.
+- **expected behavior:** the public deploy instructions should match the native guidance and the supervisor rules: ask James directly for deploy/restart approval first, then show the exact dry-run and deploy commands as the post-approval path.
+- **evidence:** this run re-read `README.md`, `docs/VALIDATION_CHECKLIST.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `RELEASE_MANAGEMENT.md`. `README.md` still had two install sections that jumped straight from mixed-build drift into `python3 scripts/deploy_exact_repo_build.py ...`, and `docs/VALIDATION_CHECKLIST.md` still did the same in its recommended validation run.
+- **suspected cause:** release-boundary hardening was applied in `custom_components/zero_net_export/release_info.py`, but the operator-facing README and validation docs kept older direct-deploy wording.
+- **repo fix:** this run updates `README.md` and `docs/VALIDATION_CHECKLIST.md` so live exact-build deploy instructions now tell James to approve deploy/restart first, then present the dry-run and deploy commands as the post-approval path.
+- **validation status:** repo-side doc fix verified in this run by re-reading the updated sections and confirming all remaining direct `deploy_exact_repo_build.py` guidance in those docs is now approval-first.
+- **next action:** keep release-boundary wording aligned across public docs and native guidance, and do not let future watchdog runs treat another approval-wording refresh as the main task unless it changes a real operator decision
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
