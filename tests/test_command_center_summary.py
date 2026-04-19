@@ -248,6 +248,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged ready", summary["device_status"])
         self.assertIn(
+            "review AC Outlet 2 (fixed) | review first | warn generic outlet label",
+            summary["device_status"],
+        )
+        self.assertNotIn(
             "top AC Outlet 2 (fixed) | review first | warn generic outlet label",
             summary["device_status"],
         )
@@ -689,7 +693,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("ready Hot water relay", summary["fleet_activity_summary"])
         self.assertIn("top Virtual load", summary["fleet_activity_summary"])
         self.assertIn("review carefully", summary["fleet_activity_summary"])
+        self.assertIn("review Virtual load (fixed) | review carefully | warn helper-backed load needs review", summary["device_status"])
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["device_status"])
+        self.assertNotIn("top Virtual load (fixed) | review carefully | warn helper-backed load needs review", summary["device_status"])
 
     def test_command_center_summary_names_ready_top_candidate_when_no_review_first_candidate_exists(self) -> None:
         native_support = _load_native_support_module()
