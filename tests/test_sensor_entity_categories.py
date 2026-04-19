@@ -1297,7 +1297,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path and review managed-device attention starting with Pool pump before changing the fleet",
+            "Open devices path and review Managed Devices attention starting with Pool pump before changing the fleet",
         )
         self.assertEqual(next_step.extra_state_attributes["first_attention_device"], "Pool pump")
 

@@ -651,7 +651,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         else f"{counts['attention_count']} managed devices need attention"
                     )
                 else:
-                    attention_parts.append("No managed-device attention right now")
+                    attention_parts.append("No Managed Devices attention right now")
                 if first_attention_name:
                     attention_parts.append(f"attention {first_attention_name}")
                 if blocked_activity_count:
@@ -857,7 +857,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 )
             if first_attention_name:
                 return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and review managed-device attention starting with {first_attention_name} before changing the fleet"
+                    f"Open {DEVICES_CONFIGURE_PATH} and review Managed Devices attention starting with {first_attention_name} before changing the fleet"
                 )
             if candidates:
                 if review_candidate_name:
