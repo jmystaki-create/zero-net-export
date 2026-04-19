@@ -588,6 +588,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             top_candidate_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "").strip()
             review_candidate = first_review_candidate(candidates or [])
             review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+            ready_candidate = next(
+                (item for item in (candidates or []) if not candidate_needs_review(assess_candidate(item))),
+                None,
+            )
+            ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
             first_blocked_name = _first_matching_device_name(
                 state.device_details,
                 predicate=_device_has_blocked_activity,
@@ -606,9 +611,12 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 )
             if counts["managed_count"] == 0 and candidates:
                 if review_candidate_name:
-                    return _truncate_sensor_state(
+                    next_step = (
                         f"Open {DEVICES_CONFIGURE_PATH} and review {review_candidate_name} first from the unmanaged list"
                     )
+                    if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                        next_step += f", then promote {ready_candidate_name} next"
+                    return _truncate_sensor_state(next_step)
                 return _truncate_sensor_state(
                     f"Open {DEVICES_CONFIGURE_PATH} and promote {top_candidate_name or 'the top candidate'} into Managed Devices"
                 )
@@ -628,9 +636,12 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 )
             if candidates:
                 if review_candidate_name:
-                    return _truncate_sensor_state(
+                    next_step = (
                         f"Review unmanaged candidates, starting with {review_candidate_name}, from {DEVICES_CONFIGURE_PATH}"
                     )
+                    if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                        next_step += f", then promote {ready_candidate_name} next"
+                    return _truncate_sensor_state(next_step)
                 return _truncate_sensor_state(
                     f"Review unmanaged candidates, then promote {top_candidate_name or 'the next controllable device'} from {DEVICES_CONFIGURE_PATH}"
                 )
