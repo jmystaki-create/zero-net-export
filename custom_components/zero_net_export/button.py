@@ -288,6 +288,10 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
     variable_count = sum(1 for detail in device_details if detail.get("kind") == DEVICE_KIND_VARIABLE)
     nominal_power = int(sum(float(detail.get("nominal_power_w", 0) or 0) for detail in device_details))
     kind_known = any(detail.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for detail in device_details)
+    first_attention_name = _first_matching_device_name(
+        device_details,
+        predicate=_device_needs_review_attention,
+    )
     first_blocked_name = _first_matching_device_name(
         device_details,
         predicate=_device_has_blocked_activity,
@@ -306,6 +310,8 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
             if attention_count == 1
             else f"{attention_count} managed devices need attention"
         )
+        if first_attention_name:
+            parts.append(f"attention first {first_attention_name}")
     if kind_known:
         parts.append(f"{fixed_count} fixed managed")
         if variable_count:
