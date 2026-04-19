@@ -793,6 +793,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
+        ready_candidate = _first_ready_candidate(candidates)
+        ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         attention_devices, remaining_devices = _partition_review_devices(ordered)
         return {
@@ -831,6 +833,8 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'top_candidate_fit': top_candidate_fit,
             'first_review_candidate': review_candidate,
             'first_review_candidate_fit': review_candidate_fit,
+            'ready_next_candidate': ready_candidate,
+            'ready_next_candidate_fit': ready_candidate_fit,
             'next_step': command_center.get('device_next_step') or command_center.get('next_action_summary'),
             'attention_devices': attention_devices[:12],
             'steady_devices': remaining_devices[:12],
@@ -850,6 +854,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
+        ready_candidate = _first_ready_candidate(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         attention_devices, remaining_devices = _partition_review_devices(ordered)
         blocker_first_lines = _managed_devices_blocker_first_lines(
@@ -910,6 +915,14 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             ),
             *(
                 [
+                    f"- Ready-next candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
+                    f"- Ready-next candidate usefulness: {_candidate_usefulness_summary(ready_candidate)}",
+                ]
+                if review_candidate and ready_candidate and ready_candidate is not review_candidate
+                else []
+            ),
+            *(
+                [
                     f"- {build_candidate_preview(item, include_entity_id=False, include_state=True)}"
                     for item in candidates[:6]
                 ]
@@ -945,6 +958,8 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         ordered = sorted(device_details, key=_device_runtime_sort_key)
         candidates = self._unmanaged_candidates()
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
+        ready_candidate = _first_ready_candidate(candidates)
+        ready_candidate_fit = assess_candidate(ready_candidate) if ready_candidate else None
         command_center = build_native_command_center_summary(self.coordinator)
         attention_devices, remaining_devices = _partition_review_devices(ordered)
         return {
@@ -984,6 +999,8 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "top_candidate_fit": top_candidate_fit,
             "first_review_candidate": review_candidate,
             "first_review_candidate_fit": review_candidate_fit,
+            "ready_next_candidate": ready_candidate,
+            "ready_next_candidate_fit": ready_candidate_fit,
             "candidate_devices": candidates[:12],
             "next_step": command_center.get("device_next_step") or command_center.get("next_action_summary"),
             "attention_devices": attention_devices[:12],
@@ -1004,6 +1021,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         ordered = sorted(device_details, key=_device_runtime_sort_key)
         candidates = self._unmanaged_candidates()
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
+        ready_candidate = _first_ready_candidate(candidates)
         command_center = build_native_command_center_summary(self.coordinator)
         blocker_first_lines = _managed_devices_blocker_first_lines(
             command_center,
@@ -1047,6 +1065,14 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                     ),
                 ]
                 if review_candidate and review_candidate != top_candidate
+                else []
+            ),
+            *(
+                [
+                    f"Ready-next candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
+                    "Ready-next candidate usefulness: " + _candidate_usefulness_summary(ready_candidate),
+                ]
+                if review_candidate and ready_candidate and ready_candidate is not review_candidate
                 else []
             ),
             "",
