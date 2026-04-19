@@ -1017,11 +1017,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 parts.append(f"{fixed_review_count} fixed review")
             if variable_review_count:
                 parts.append(f"{variable_review_count} variable review")
-            if review_candidate is not top_candidate:
-                review_name = str(review_candidate.get("name") or review_candidate.get("entity_id") or "").strip()
-                if review_name:
-                    parts.append(f"review {review_name}")
-                parts.append(build_candidate_review_hint(review_candidate))
+            review_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+            if review_name:
+                parts.append(f"review {review_name}")
+            parts.append(
+                build_candidate_review_hint(
+                    review_candidate,
+                    include_warning=review_candidate is not top_candidate,
+                )
+            )
         if top_name:
             parts.append(f"top {top_name}")
         if review_candidate is top_candidate:

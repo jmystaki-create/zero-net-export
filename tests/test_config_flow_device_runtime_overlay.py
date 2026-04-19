@@ -750,7 +750,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
-            "3 candidates | 2 fixed candidates | 1 variable candidate | 3 need review | 2 fixed review | 1 variable review | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
+            "3 candidates | 2 fixed candidates | 1 variable candidate | 3 need review | 2 fixed review | 1 variable review | review AC Outlet 2 | likely useful | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
@@ -1022,7 +1022,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
+                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | review AC Outlet 2 | likely useful | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -1229,7 +1229,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
+                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | review AC Outlet 2 | likely useful | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -1481,7 +1481,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Promoted Pool pump into Managed Devices as a fixed load.", feedback["message"])
         self.assertNotIn("switch.pool_pump", feedback["message"])
         self.assertIn("1 managed | 1 enabled | 0 usable | 1 fixed managed | 0 W nominal", feedback["message"])
-        self.assertIn("2 candidates | 1 fixed candidate | 1 variable candidate | 2 need review | 1 fixed review | 1 variable review | top AC Outlet 2 | likely useful | key warning: No immediate warnings", feedback["message"])
+        self.assertIn("2 candidates | 1 fixed candidate | 1 variable candidate | 2 need review | 1 fixed review | 1 variable review | review AC Outlet 2 | likely useful | top AC Outlet 2 | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Primary Managed Devices workspace: devices path", feedback["message"])
         self.assertIn(
@@ -1524,7 +1524,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | top Virtual load | review carefully | key warning: This is an input_boolean helper. | ready Hot water relay | likely useful",
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | top Virtual load | review carefully | key warning: This is an input_boolean helper. | ready Hot water relay | likely useful",
         )
 
     def test_unmanaged_snapshot_counts_low_confidence_candidates_as_needing_review(self) -> None:
