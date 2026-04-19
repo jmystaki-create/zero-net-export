@@ -34,8 +34,16 @@ from .const import (
 )
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
-from .native_support import DIAGNOSTICS_DEVICE_ACTIONS_PATH, INTEGRATION_DEVICE_PATH, PRIMARY_CONFIGURE_PATH
-from .native_support import build_native_operator_readiness, build_source_attention_role_summary
+from .native_support import (
+    DEVICES_CONFIGURE_PATH,
+    DIAGNOSTICS_DEVICE_ACTIONS_PATH,
+    PRIMARY_CONFIGURE_PATH,
+    SOURCES_CONFIGURE_PATH,
+    SUPPORT_CONFIGURE_PATH,
+    build_native_operator_readiness,
+    build_source_attention_role_summary,
+    build_source_selector_fallback_hint,
+)
 from .release_info import async_prime_install_provenance
 from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
@@ -71,28 +79,36 @@ async def _async_update_native_setup_notice(
         persistent_notification.async_dismiss(hass, _setup_notification_id(entry))
         return
 
-    bullets: list[str] = []
-    if missing_sources:
-        readable_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in missing_sources]
-        bullets.append("Missing required source mappings: " + ", ".join(readable_roles))
+    readable_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in missing_sources]
+    fallback_hint = build_source_selector_fallback_hint(role_keys=missing_sources) or "Not needed right now."
+    status_lines = [
+        f"• Summary: {readiness.get('summary') or 'Zero Net Export still needs a few native setup steps.'}",
+        f"• Missing required sources: {', '.join(readable_roles) if readable_roles else 'None'}",
+        f"• Managed Devices: {len(devices)}",
+    ]
     if device_issues:
-        bullets.append(
-            "Managed-device configuration issues in Configure: "
-            + "; ".join(device_issues[:3])
-            + ". Use the advanced JSON recovery editor only if the native forms cannot repair it."
-        )
+        status_lines.append(f"• Managed-device issues: {'; '.join(device_issues[:3])}")
     elif not devices:
-        bullets.append("No controllable devices have been added yet.")
+        status_lines.append("• Managed-device issues: No controllable devices have been added yet.")
     if source_attention_roles != "None":
-        bullets.append("Mapped source blockers right now: " + source_attention_roles)
+        status_lines.append(f"• Active blockers: {source_attention_roles}")
 
     next_step = str(readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup.")
 
     message = (
-        f"Finish setup from Home Assistant's native integration surfaces. Open {PRIMARY_CONFIGURE_PATH} as the Zero Net Export command center for Sensors, Managed Devices, Controls, and Diagnostics.\n\n"
-        + "\n".join(f"- {item}" for item in bullets)
-        + f"\n\nNext step: {next_step}"
-        + f"\n\nUse {DIAGNOSTICS_DEVICE_ACTIONS_PATH} for deeper diagnostics and setup-checklist review."
+        "Zero Net Export still needs a few native setup steps.\n\n"
+        "Status\n"
+        + "\n".join(status_lines)
+        + "\n\nDo next\n"
+        + f"• {next_step}"
+        + "\n\nFallback, only if Home Assistant rejects a valid choice\n"
+        + f"• {fallback_hint}"
+        + "\n\nOpen\n"
+        + f"• Command center: {PRIMARY_CONFIGURE_PATH}\n"
+        + f"• Sensors: {SOURCES_CONFIGURE_PATH}\n"
+        + f"• Managed Devices: {DEVICES_CONFIGURE_PATH}\n"
+        + f"• Diagnostics: {SUPPORT_CONFIGURE_PATH}\n"
+        + f"• Device-page diagnostics actions: {DIAGNOSTICS_DEVICE_ACTIONS_PATH}"
     )
     persistent_notification.async_create(
         hass,
