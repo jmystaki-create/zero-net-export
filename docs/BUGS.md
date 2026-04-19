@@ -445,7 +445,7 @@ Suggested area labels:
 - **suspected cause:** earlier release-guidance hardening fixed fingerprint anchoring and candidate-hash churn, but the operator-facing install-provenance repair text itself never got realigned to the explicit approval boundary.
 - **repo fix:** this run updates `custom_components/zero_net_export/release_info.py` so install-provenance repair guidance now tells James to approve deploy/restart of the exact build before any release commands are run, while still preserving the dry-run, deploy, and validation command path for the post-approval step. `tests/test_release_info_install_guidance.py` now locks that approval-first wording in place.
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_release_info_install_guidance`.
-- **next action:** keep the next live-facing release boundary explicit, then use the documented HA SSH path and exact-build validation only after James approves deploy/restart of the current exact build `f8258a7` once that cut line is actually release-ready.
+- **next action:** keep the next live-facing release boundary explicit, then use the documented HA SSH path and exact-build validation only after James approves deploy/restart of the current exact build reported by `scripts/print_expected_install_fingerprint.py` once that cut line is actually release-ready.
 
 ## ZNE-056 - Public deploy docs still skipped the required release-approval ask
 - **status:** `validated`
