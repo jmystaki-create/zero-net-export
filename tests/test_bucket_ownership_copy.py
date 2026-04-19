@@ -90,6 +90,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Candidate snapshot", bulk_enable_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", bulk_enable_description)
         self.assertIn(
+            "promote a surfaced fixed-load or variable-load candidate when one fits",
+            steps["devices"]["data_description"]["device_action"],
+        )
+        self.assertIn(
+            "add a device manually when no surfaced candidate is right",
+            steps["devices"]["data_description"]["device_action"],
+        )
+        self.assertIn(
             "open the Managed Devices workspace to toggle which devices stay enabled",
             steps["devices"]["data_description"]["device_action"],
         )
