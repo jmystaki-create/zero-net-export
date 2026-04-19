@@ -1522,13 +1522,13 @@ def _build_command_center_fleet_activity_summary(
     optional_prefixes = [
         "usable ",
         "enabled ",
+        "attention ",
+        "plan ",
         "fixed review",
         "variable review",
         "fixed managed",
         "variable managed",
         "W nominal",
-        "attention ",
-        "plan ",
     ]
     for prefix in optional_prefixes:
         if len(" | ".join(compact_summary_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -1558,6 +1558,10 @@ def _build_command_center_fleet_activity_summary(
 
     if source_blocked:
         minimal_parts.append("repair sources first")
+
+    if managed_count > 0 and kind_known and variable_managed_count:
+        minimal_parts.append(f"{fixed_managed_count} fixed managed")
+        minimal_parts.append(f"{variable_managed_count} variable managed")
 
     if attention_device_count:
         minimal_parts.append(
@@ -1592,6 +1596,10 @@ def _build_command_center_fleet_activity_summary(
         )
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
+    if fixed_candidate_count and variable_candidate_count:
+        minimal_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
+        minimal_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+
     if review_needed_count:
         minimal_parts.append(
             "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
@@ -1632,6 +1640,10 @@ def _build_command_center_fleet_activity_summary(
         "surfaced ",
         "enabled ",
         "usable ",
+        "fixed candidate",
+        "variable candidate",
+        "fixed managed",
+        "variable managed",
         "W nominal",
         "attention ",
         "plan ",
@@ -1679,6 +1691,16 @@ def _build_command_center_fleet_activity_summary(
                 max_chars=32,
             )
         )
+    if active_managed_power_w > 0:
+        essential_parts.append(f"active load {active_managed_power_w:g} W")
+        essential_parts.append(
+            "1 active managed device"
+            if active_managed_count == 1
+            else f"{active_managed_count} active managed devices"
+        )
+    if fixed_candidate_count and variable_candidate_count:
+        essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
+        essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))
     if review_needed_count:
         essential_parts.append(
             "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
