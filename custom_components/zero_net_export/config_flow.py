@@ -258,6 +258,7 @@ def _device_options_json(devices: list[dict[str, Any]]) -> str:
 COMBINED_GRID_ENERGY_FALLBACK_KEY = "grid_energy_entity_manual"
 BATTERY_SOC_FALLBACK_KEY = "battery_soc_entity_manual"
 MANUAL_CANDIDATE_SELECTION = "__manual__"
+MANUAL_CANDIDATE_SHORTLIST_LABEL = "Open manual Managed Devices form (entity not surfaced here)"
 
 
 def _build_derived_binding(mode: str, entity_id: str | None) -> str | None:
@@ -2525,7 +2526,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 for item in quick_picks
             ),
             selector.SelectOptionDict(value="more", label="Show full candidate list"),
-            selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
+            selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label=MANUAL_CANDIDATE_SHORTLIST_LABEL),
         ]
         top_candidate_summary = "\n".join(
             "- "
@@ -2592,7 +2593,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_device_vetting()
 
         picker_options = [
-            selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label="Manual entity selection / entity not listed"),
+            selector.SelectOptionDict(value=MANUAL_CANDIDATE_SELECTION, label=MANUAL_CANDIDATE_SHORTLIST_LABEL),
             *options,
         ]
         default_candidate = self._pending_candidate_entity_id or MANUAL_CANDIDATE_SELECTION

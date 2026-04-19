@@ -144,9 +144,23 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Current managed fleet:", shortlist_description)
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
-        self.assertIn("continue with the native Managed Devices form", full_list_description)
+        self.assertIn("open the manual Managed Devices form from this dropdown and continue there", full_list_description)
+        self.assertNotIn("continue with the native Managed Devices form", full_list_description)
         self.assertNotIn("continue with the normal native form", full_list_description)
         self.assertIn("Managed devices review:", full_list_description)
+
+        self.assertEqual(
+            steps["device_pick_candidate_full"]["data"]["candidate_entity_id"],
+            "Surfaced unmanaged candidate",
+        )
+        self.assertEqual(
+            steps["device_add"]["data"]["entity_id"],
+            "Controllable Home Assistant entity",
+        )
+        self.assertIn(
+            "directly controls the real load",
+            steps["device_add"]["data_description"]["entity_id"],
+        )
         self.assertIn("Top surfaced unmanaged candidate: {top_candidate}", full_list_description)
         self.assertNotIn("Top unmanaged candidate right now", full_list_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", full_list_description)

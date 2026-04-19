@@ -1538,6 +1538,56 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             shortlist["description_placeholders"]["top_candidates"],
         )
 
+    def test_manual_promotion_labels_point_to_manual_managed_devices_form(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None), data={})
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._load_devices = lambda: ([], [])
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._device_blocker_summary = lambda: "No higher-priority Sensors, Controls, or Diagnostics blocker is currently ahead of fleet work."
+        flow._device_next_step = lambda devices, issues, candidates: "Review the shortlist and promote the next candidate."
+        flow._managed_snapshot_text = lambda devices: "Managed now: 0 | enabled: 0 | usable: 0"
+        flow._unmanaged_snapshot_text = lambda candidates: "Unmanaged now: 1 | fixed candidates: 1"
+        flow._candidate_snapshot_text = lambda candidates: "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"
+        flow._detailed_management_summary = lambda: "device path"
+        flow._top_candidate_focus_text = lambda candidate: "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"
+        flow._review_candidate_focus_text = lambda candidates: "none"
+        flow._ready_candidate_focus_text = lambda candidates: "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"
+        flow._candidate_quick_picks = lambda kind: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
+                "state": "off",
+            }
+        ]
+        flow._candidate_options = lambda kind=None: [
+            {"value": "switch.ac_outlet_2", "label": "Suggested now: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"},
+        ]
+        flow._device_candidates = lambda: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",
+                "state": "off",
+            }
+        ]
+
+        shortlist = asyncio.run(flow.async_step_device_pick_candidate())
+        full_list = asyncio.run(flow.async_step_device_pick_candidate_full())
+
+        self.assertEqual(
+            shortlist["data_schema"]["quick_pick"]["options"][-1]["label"],
+            "Open manual Managed Devices form (entity not surfaced here)",
+        )
+        self.assertEqual(
+            full_list["data_schema"]["candidate_entity_id"]["options"][0]["label"],
+            "Open manual Managed Devices form (entity not surfaced here)",
+        )
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         module.discover_candidate_devices = lambda states, managed_ids: [
