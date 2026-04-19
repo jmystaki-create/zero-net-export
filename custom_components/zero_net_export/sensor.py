@@ -606,42 +606,19 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         summary_parts.append(_count_label(fixed_review_count, "fixed review"))
                     if variable_review_count:
                         summary_parts.append(_count_label(variable_review_count, "variable review"))
-                    if review_candidate_name:
-                        summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
                 if ready_candidate_count:
                     summary_parts.append(
                         "1 ready to promote"
                         if ready_candidate_count == 1
                         else f"{ready_candidate_count} ready to promote"
                     )
+                if review_candidate_name:
+                    summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
                 if ready_candidate_name:
                     summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
                 if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
                     summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
                 return _fleet_overview_state(summary_parts)
-            if candidate_count:
-                if fixed_candidate_count:
-                    summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
-                if variable_candidate_count:
-                    summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
-                if review_needed_count:
-                    summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
-                    if fixed_review_count:
-                        summary_parts.append(_count_label(fixed_review_count, "fixed review"))
-                    if variable_review_count:
-                        summary_parts.append(_count_label(variable_review_count, "variable review"))
-                    if review_candidate_name:
-                        summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
-                if ready_candidate_count:
-                    summary_parts.append(
-                        "1 ready to promote"
-                        if ready_candidate_count == 1
-                        else f"{ready_candidate_count} ready to promote"
-                    )
-                if ready_candidate_name:
-                    summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
-                if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
-                    summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
             if source_blocked:
                 summary_parts.append("repair sources first")
             if counts["attention_count"]:
@@ -667,6 +644,29 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     if counts["active_count"] == 1
                     else f"{counts['active_count']} active managed devices"
                 )
+            if candidate_count:
+                if fixed_candidate_count:
+                    summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
+                if variable_candidate_count:
+                    summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+                if review_needed_count:
+                    summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
+                    if fixed_review_count:
+                        summary_parts.append(_count_label(fixed_review_count, "fixed review"))
+                    if variable_review_count:
+                        summary_parts.append(_count_label(variable_review_count, "variable review"))
+                if ready_candidate_count:
+                    summary_parts.append(
+                        "1 ready to promote"
+                        if ready_candidate_count == 1
+                        else f"{ready_candidate_count} ready to promote"
+                    )
+                if review_candidate_name:
+                    summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
+                if ready_candidate_name:
+                    summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+                if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
+                    summary_parts.append(f"top {top_candidate_preview or top_candidate_name}")
             summary_parts.extend(
                 [
                     f"{counts['enabled_count']} enabled",
