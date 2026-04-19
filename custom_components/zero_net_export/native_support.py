@@ -1475,7 +1475,88 @@ def _build_command_center_fleet_activity_summary(
                 break
 
     compact_summary = " | ".join(compact_summary_parts)
-    return compact_summary if compact_summary else summary
+    if compact_summary and len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compact_summary
+
+    def _clip_part(text: str, *, max_chars: int) -> str:
+        normalized = " ".join(str(text).split())
+        if len(normalized) <= max_chars:
+            return normalized
+        if max_chars <= 3:
+            return normalized[:max_chars]
+        return normalized[: max_chars - 3].rstrip() + "..."
+
+    minimal_parts: list[str] = [f"managed {managed_count}"]
+    if candidate_count:
+        minimal_parts.append(f"{candidate_count} unmanaged")
+    else:
+        minimal_parts.append("no unmanaged candidates")
+
+    if source_blocked:
+        minimal_parts.append("repair sources first")
+
+    if attention_device_count:
+        minimal_parts.append(
+            "1 managed device needs attention"
+            if attention_device_count == 1
+            else f"{attention_device_count} managed devices need attention"
+        )
+
+    if first_blocked_device:
+        minimal_parts.append(
+            _clip_part(
+                f"blocked {_command_center_runtime_device_preview(first_blocked_device)}",
+                max_chars=72,
+            )
+        )
+    elif blocked_activity_count:
+        minimal_parts.append(f"blocked {blocked_activity_count}")
+    elif first_attention_device:
+        minimal_parts.append(
+            _clip_part(
+                f"attention {_command_center_runtime_device_preview(first_attention_device)}",
+                max_chars=72,
+            )
+        )
+
+    if review_needed_count and review_candidate_preview:
+        minimal_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=72))
+    elif review_needed_count and review_candidate_name:
+        minimal_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=72))
+
+    if top_candidate_preview:
+        minimal_parts.append(_clip_part(f"top {top_candidate_preview}", max_chars=72))
+    elif top_candidate_name:
+        minimal_parts.append(_clip_part(f"top {top_candidate_name}", max_chars=72))
+
+    if managed_count > 0:
+        minimal_parts.append(f"enabled {enabled_count}")
+        minimal_parts.append(f"usable {usable_count}")
+
+    if kind_known and nominal_power_w > 0:
+        minimal_parts.append(f"{nominal_power_w} W nominal")
+
+    minimal_summary = " | ".join(minimal_parts)
+    if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return minimal_summary
+
+    for removable_prefix in (
+        "top ",
+        "enabled ",
+        "usable ",
+        "W nominal",
+    ):
+        if len(minimal_parts) <= 2:
+            break
+        if len(" | ".join(minimal_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            break
+        for index, part in enumerate(list(minimal_parts)):
+            if part.startswith(removable_prefix) or part.endswith(removable_prefix):
+                del minimal_parts[index]
+                break
+
+    minimized_summary = " | ".join(minimal_parts)
+    return minimized_summary if minimized_summary else summary
 
 
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
