@@ -499,6 +499,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** run the focused command-center regressions plus the relevant summary tests, then include this wording cleanup in the next exact-build deploy and confirm the live command center no longer reintroduces `top ...` ranking language.
 
+## ZNE-060 - Managed-device review notifications and helper sensors still exposed `Top candidate` ranking language
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while reviewing the remaining `top ...` operator-facing strings after the earlier Managed Devices wording cleanup
+- **current observed behavior:** the main Managed Devices config-flow screens had already moved onto neutral `Currently surfaced unmanaged candidate` wording, but the secondary native review surfaces still leaked the older ranking posture. The managed-device review notifications still said `Top candidate usefulness` and `Top candidate warnings`, and the device-page helper sensors still exposed `Top unmanaged candidate` / `Top candidate ...` names. That left one more visible Workstream C wording inconsistency between the primary promotion flow and the supporting native review surfaces.
+- **expected behavior:** all operator-facing Managed Devices surfaces should use the same neutral surfaced-candidate posture, preserving review-first and ready-next cues without claiming the product already knows the one best unmanaged device.
+- **evidence:** `rg -n 'Top candidate usefulness|Top candidate warnings|Top unmanaged candidate' custom_components tests` on this run still hit `custom_components/zero_net_export/button.py`, `custom_components/zero_net_export/sensor.py`, `tests/test_button_entity_categories.py`, and `tests/test_sensor_entity_categories.py` even though the config-flow descriptions and command-center copy were already aligned on `Currently surfaced ...` wording.
+- **suspected cause:** the earlier wording cleanup focused on config-flow copy, shortlist labels, and command-center summaries first, but the review-notification text and helper sensor display names were still carrying the older ranking-oriented labels.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` and `custom_components/zero_net_export/sensor.py` so the native review notifications and helper sensor labels now say `Currently surfaced candidate usefulness`, `Currently surfaced candidate warnings`, and `Currently surfaced unmanaged candidate`. `tests/test_button_entity_categories.py` and `tests/test_sensor_entity_categories.py` now lock that wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/sensor.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this final review-surface wording cleanup in the next exact-build deploy, then confirm the managed-device review notification and helper sensors no longer reintroduce `Top candidate ...` ranking language in Home Assistant.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence

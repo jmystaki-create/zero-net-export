@@ -1039,12 +1039,12 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'Unmanaged candidates (bottom section):',
             f"- Snapshot: {_unmanaged_snapshot_summary(candidates)}",
             (
-                f"- Top candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
+                f"- Currently surfaced candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
                 if top_candidate_fit
-                else '- Top candidate usefulness: No unmanaged candidate guidance available right now.'
+                else '- Currently surfaced candidate usefulness: No unmanaged candidate guidance available right now.'
             ),
             (
-                '- Top candidate warnings: '
+                '- Currently surfaced candidate warnings: '
                 + (
                     '; '.join(top_candidate_fit.get('warnings') or [])
                     if top_candidate_fit and top_candidate_fit.get('warnings')
@@ -1201,12 +1201,12 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             f"- Snapshot: {_managed_snapshot_summary(ordered, include_planned_count=True)}",
             f"Unmanaged candidates (bottom section): {_unmanaged_snapshot_summary(candidates)}",
             (
-                f"Top candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
+                f"Currently surfaced candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
                 if top_candidate_fit
-                else "Top candidate usefulness: No unmanaged candidate guidance available right now."
+                else "Currently surfaced candidate usefulness: No unmanaged candidate guidance available right now."
             ),
             (
-                "Top candidate warnings: "
+                "Currently surfaced candidate warnings: "
                 + (
                     "; ".join(top_candidate_fit.get("warnings") or [])
                     if top_candidate_fit and top_candidate_fit.get("warnings")

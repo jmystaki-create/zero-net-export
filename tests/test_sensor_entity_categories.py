@@ -398,7 +398,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
             data=SimpleNamespace(device_details={}),
         )
-        top = sensor_module.ZeroNetExportSensor(coordinator, "top_unmanaged_candidate", "Top unmanaged candidate")
+        top = sensor_module.ZeroNetExportSensor(coordinator, "top_unmanaged_candidate", "Currently surfaced unmanaged candidate")
         top.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertEqual(top.native_value, "AC Outlet 2 | include_entity_id=False")
@@ -424,7 +424,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
         overview = sensor_module.ZeroNetExportSensor(coordinator, "unmanaged_candidate_overview", "Unmanaged candidate overview")
         shortlist = sensor_module.ZeroNetExportSensor(coordinator, "candidate_shortlist", "Candidate shortlist")
-        top = sensor_module.ZeroNetExportSensor(coordinator, "top_unmanaged_candidate", "Top unmanaged candidate")
+        top = sensor_module.ZeroNetExportSensor(coordinator, "top_unmanaged_candidate", "Currently surfaced unmanaged candidate")
         overview.hass = hass
         shortlist.hass = hass
         top.hass = hass

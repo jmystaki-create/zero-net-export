@@ -378,7 +378,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Other managed devices:", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
         self.assertIn("- Snapshot: 2 candidates | 2 fixed candidates | top Hot water | likely useful | key warning: No immediate warnings", message)
-        self.assertIn("Top candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn("Currently surfaced candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn(
             "- First review-first candidate: Helper candidate (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.",
             message,
@@ -565,8 +565,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 2 managed devices need attention | attention first EV charger | blocked EV charger | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | top Hot water | likely useful | key warning: No immediate warnings", message)
-        self.assertIn("Top candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
-        self.assertIn("Top candidate warnings: No immediate warnings.", message)
+        self.assertIn("Currently surfaced candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn("Currently surfaced candidate warnings: No immediate warnings.", message)
         self.assertIn(
             "First review-first candidate: Helper candidate (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.",
             message,
