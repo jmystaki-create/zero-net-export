@@ -1140,16 +1140,20 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         *,
         top_candidate: dict[str, Any] | None,
         review_candidate: dict[str, Any] | None,
+        ready_candidate: dict[str, Any] | None,
     ) -> str:
         candidate_id = str(candidate.get("entity_id") or "")
         is_top = bool(candidate_id) and candidate_id == str((top_candidate or {}).get("entity_id") or "")
         is_review = bool(candidate_id) and candidate_id == str((review_candidate or {}).get("entity_id") or "")
+        is_ready = bool(candidate_id) and candidate_id == str((ready_candidate or {}).get("entity_id") or "")
         if is_top and is_review:
             return "Suggested now, review first"
         if is_top:
             return "Suggested now"
         if is_review:
             return "Review first"
+        if is_ready:
+            return "Ready next"
         return ""
 
     @classmethod
@@ -1159,12 +1163,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         *,
         top_candidate: dict[str, Any] | None,
         review_candidate: dict[str, Any] | None,
+        ready_candidate: dict[str, Any] | None,
     ) -> str:
         label = str(candidate.get("label") or candidate.get("fallback_label") or candidate.get("entity_id") or "candidate")
         prefix = cls._candidate_picker_role_prefix(
             candidate,
             top_candidate=top_candidate,
             review_candidate=review_candidate,
+            ready_candidate=ready_candidate,
         )
         return f"{prefix}: {label}" if prefix else label
 
@@ -1177,6 +1183,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (item for item in candidates if candidate_needs_review(assess_candidate(item))),
             None,
         )
+        ready_candidate = next(
+            (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+            None,
+        )
         return [
             selector.SelectOptionDict(
                 value=item["entity_id"],
@@ -1184,6 +1194,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     item,
                     top_candidate=top_candidate,
                     review_candidate=review_candidate,
+                    ready_candidate=ready_candidate,
                 ),
             )
             for item in candidates[:100]
@@ -2489,6 +2500,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (item for item in all_candidates if candidate_needs_review(assess_candidate(item))),
             None,
         )
+        ready_candidate = next(
+            (item for item in all_candidates if not candidate_needs_review(assess_candidate(item))),
+            None,
+        )
         quick_pick_options = [
             *(
                 selector.SelectOptionDict(
@@ -2497,6 +2512,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                         item,
                         top_candidate=top_candidate,
                         review_candidate=review_candidate,
+                        ready_candidate=ready_candidate,
                     ),
                 )
                 for item in quick_picks
@@ -2513,6 +2529,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 },
                 top_candidate=top_candidate,
                 review_candidate=review_candidate,
+                ready_candidate=ready_candidate,
             )
             for item in quick_picks
         ) if quick_picks else "- No suggested candidates right now"

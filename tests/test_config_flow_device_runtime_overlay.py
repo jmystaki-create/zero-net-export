@@ -1452,6 +1452,40 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
         )
 
+    def test_candidate_options_label_marks_ready_next_when_top_needs_review(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._device_candidates = lambda: [
+            {
+                "entity_id": "switch.ac_outlet_2",
+                "name": "AC Outlet 2",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+            },
+            {
+                "entity_id": "switch.air_purifier",
+                "name": "Air Purifier",
+                "kind": module.DEVICE_KIND_FIXED,
+                "label": "Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
+            },
+        ]
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "switch.ac_outlet_2" else "high",
+            "summary": "Needs review." if candidate.get("entity_id") == "switch.ac_outlet_2" else "Strong match.",
+            "warnings": ["Generic outlet label"] if candidate.get("entity_id") == "switch.ac_outlet_2" else [],
+        }
+
+        options = flow._candidate_options(kind=module.DEVICE_KIND_FIXED)
+
+        self.assertEqual(
+            options[0]["label"],
+            "Suggested now, review first: AC Outlet 2 (fixed) | review first | key warning: Generic outlet label",
+        )
+        self.assertEqual(
+            options[1]["label"],
+            "Ready next: Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
+        )
+
     def test_candidate_shortlist_summary_marks_review_first_top_candidate(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
