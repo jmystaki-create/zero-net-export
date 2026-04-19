@@ -858,6 +858,40 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "1 managed | 1 enabled | 1 usable | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 1200 W nominal | 0 planned action(s)",
         )
 
+    def test_managed_snapshot_prefers_attention_first_order_over_config_insertion_order(self) -> None:
+        button_module = _load_button_module()
+
+        summary = button_module._managed_snapshot_summary(
+            [
+                {
+                    "name": "EV charger",
+                    "entity_id": "number.ev_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "enabled": True,
+                    "effective_enabled": True,
+                    "priority": 50,
+                    "planned_action": "set_power",
+                },
+                {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "enabled": True,
+                    "effective_enabled": True,
+                    "priority": 10,
+                    "planned_action": "turn_on",
+                },
+            ],
+            include_planned_count=True,
+        )
+
+        self.assertEqual(
+            summary,
+            "2 managed | 2 enabled | 1 usable | 2 managed devices need attention | attention first Pool pump | 1 fixed managed | 1 variable managed | 0 W nominal | blocked Pool pump | 2 planned action(s) | plan Pool pump",
+        )
+
     def test_managed_device_review_line_carries_kind_priority_power_and_plan_reason_context(self) -> None:
         button_module = _load_button_module()
 

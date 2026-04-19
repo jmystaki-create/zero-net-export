@@ -230,9 +230,36 @@ def _device_needs_review_attention(detail: dict) -> bool:
     return bool(last_action_status and last_action_status not in {"ok", "applied", "success"})
 
 
+def _device_has_recent_attention(detail: dict) -> bool:
+    last_action_status = str(detail.get("last_action_status") or "").strip().lower()
+    return bool(last_action_status and last_action_status not in {"ok", "applied", "success"})
+
+
+def _device_review_sort_key(detail: dict) -> tuple[int, int, int, int, int, str]:
+    effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
+    usable = detail.get("usable")
+    blocked_rank = 0 if _device_has_blocked_activity(detail) else 1
+    planned_rank = 0 if _has_active_plan(detail) else 1
+    recent_attention_rank = 0 if _device_has_recent_attention(detail) else 1
+    enabled_usable_rank = 0 if effective_enabled and usable is True else 1
+    return (
+        blocked_rank,
+        planned_rank,
+        recent_attention_rank,
+        enabled_usable_rank,
+        int(detail.get("priority", 0) or 0),
+        str(detail.get("name") or detail.get("entity_id") or "").lower(),
+    )
+
+
+def _sorted_review_devices(device_details: list[dict]) -> list[dict]:
+    return sorted(device_details, key=_device_review_sort_key)
+
+
 def _partition_review_devices(device_details: list[dict]) -> tuple[list[dict], list[dict]]:
-    attention = [detail for detail in device_details if _device_needs_review_attention(detail)]
-    remaining = [detail for detail in device_details if not _device_needs_review_attention(detail)]
+    ordered = _sorted_review_devices(device_details)
+    attention = [detail for detail in ordered if _device_needs_review_attention(detail)]
+    remaining = [detail for detail in ordered if not _device_needs_review_attention(detail)]
     return attention, remaining
 
 
@@ -241,7 +268,7 @@ def _first_review_attention_device_name(device_details: list[dict]) -> str:
 
 
 def _first_matching_device_name(device_details: list[dict], *, predicate) -> str:
-    for detail in device_details:
+    for detail in _sorted_review_devices(device_details):
         if predicate(detail):
             return str(detail.get("name") or detail.get("entity_id") or "").strip()
     return ""
@@ -258,7 +285,7 @@ def _device_matches(detail: dict, target: dict) -> bool:
 
 
 def _device_bucket_position(device_details: list[dict], target: dict) -> int | None:
-    for index, detail in enumerate(device_details, start=1):
+    for index, detail in enumerate(_sorted_review_devices(device_details), start=1):
         if _device_matches(detail, target):
             return index
     return None
@@ -266,7 +293,7 @@ def _device_bucket_position(device_details: list[dict], target: dict) -> int | N
 
 def _next_bucket_device_name(device_details: list[dict], target: dict) -> str:
     found_target = False
-    for detail in device_details:
+    for detail in _sorted_review_devices(device_details):
         if found_target:
             return str(detail.get("name") or detail.get("entity_id") or "managed device").strip()
         if _device_matches(detail, target):

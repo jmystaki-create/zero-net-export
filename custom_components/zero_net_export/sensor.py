@@ -320,12 +320,30 @@ def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -
     }
 
 
+def _device_sort_key(detail: dict[str, object]) -> tuple[int, int, int, int, int, str]:
+    effective_enabled = bool(detail.get("effective_enabled", detail.get("enabled", True)))
+    usable = detail.get("usable")
+    blocked_rank = 0 if _device_has_blocked_activity(detail) else 1
+    planned_rank = 0 if _device_has_active_plan(detail) else 1
+    recent_attention_rank = 0 if _device_has_recent_attention(detail) else 1
+    enabled_usable_rank = 0 if effective_enabled and usable is True else 1
+    return (
+        blocked_rank,
+        planned_rank,
+        recent_attention_rank,
+        enabled_usable_rank,
+        int(detail.get("priority", 0) or 0),
+        str(detail.get("name") or detail.get("entity_id") or "").lower(),
+    )
+
+
 def _first_matching_device_name(
     device_details: dict[str, dict[str, object]] | None,
     *,
     predicate,
 ) -> str:
-    for detail in (device_details or {}).values():
+    ordered = sorted((device_details or {}).values(), key=_device_sort_key)
+    for detail in ordered:
         if predicate(detail):
             return str(detail.get("name") or detail.get("entity_id") or "").strip()
     return ""

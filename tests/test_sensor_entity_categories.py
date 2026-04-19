@@ -589,6 +589,42 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
         self.assertEqual(overview.extra_state_attributes["first_active_plan_device"], "Pool pump")
 
+    def test_managed_fleet_overview_prefers_attention_first_order_over_config_insertion_order(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "ev": {
+                        "name": "EV charger",
+                        "kind": "variable",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "priority": 50,
+                        "planned_action": "set_power",
+                    },
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": False,
+                        "effective_enabled": True,
+                        "priority": 10,
+                        "planned_action": "turn_on",
+                    },
+                }
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertIn("blocked Pool pump", overview.native_value)
+        self.assertIn("plan Pool pump", overview.native_value)
+        self.assertEqual(overview.extra_state_attributes["first_attention_device"], "Pool pump")
+        self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
+        self.assertEqual(overview.extra_state_attributes["first_active_plan_device"], "Pool pump")
+
     def test_managed_fleet_overview_keeps_blocked_activity_visible_without_unusable_runtime_row(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
