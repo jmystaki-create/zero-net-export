@@ -247,7 +247,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("active load 1200 W", summary["fleet_activity_summary"])
         self.assertIn("1 active managed device", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
-        self.assertIn("1 unmanaged ready", summary["device_status"])
+        self.assertIn("1 unmanaged", summary["device_status"])
+        self.assertIn("1 needs review", summary["device_status"])
         self.assertIn(
             "review AC Outlet 2 (fixed) | review first | warn generic outlet label",
             summary["device_status"],
@@ -612,6 +613,91 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("blocked Pool Pump", summary["fleet_activity_summary"])
         self.assertNotIn("plan Pool Pump", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_keeps_unmanaged_split_when_device_config_needs_repair(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Repair the managed-device configuration.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support.parse_device_configs = lambda entry: (
+            [
+                SimpleNamespace(
+                    key="pool_pump",
+                    name="Pool Pump",
+                    kind="load",
+                    entity_id="switch.pool_pump",
+                    adapter="switch",
+                    nominal_power_w=1200,
+                    min_power_w=0,
+                    max_power_w=1200,
+                    step_w=1200,
+                    priority=100,
+                    enabled=True,
+                    min_on_seconds=0,
+                    min_off_seconds=0,
+                    cooldown_seconds=0,
+                    max_active_seconds=0,
+                )
+            ],
+            ["missing adapter"],
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Monitoring export drift before acting.",
+            control_reason="Waiting for min-off timer to clear.",
+            status="Active",
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1200.0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={"pool_pump": {"entity_id": "switch.pool_pump"}},
+        )
+        hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.garage_power",
+                        state="off",
+                        attributes={"friendly_name": "Garage Power"},
+                    ),
+                    SimpleNamespace(
+                        entity_id="switch.dishwasher_power",
+                        state="off",
+                        attributes={"friendly_name": "Dishwasher Power"},
+                    ),
+                ]
+            )
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=hass)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("1 configured, with 1 issue(s) to repair", summary["device_status"])
+        self.assertIn("2 unmanaged", summary["device_status"])
+        self.assertIn("1 needs review", summary["device_status"])
+        self.assertIn("1 ready to promote", summary["device_status"])
+        self.assertIn("review Garage Power (fixed) | review first | warn generic circuit label", summary["device_status"])
+        self.assertIn("ready Dishwasher Power (fixed) | likely useful", summary["device_status"])
+        self.assertNotIn("2 unmanaged ready", summary["device_status"])
+
     def test_command_center_summary_keeps_review_first_hint_when_review_target_differs_from_top_candidate(self) -> None:
         native_support = _load_native_support_module()
 
@@ -692,7 +778,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("ready Dishwasher Power", summary["fleet_activity_summary"])
         self.assertNotIn("top Dishwasher Power", summary["fleet_activity_summary"])
         self.assertIn("likely useful", summary["fleet_activity_summary"])
-        self.assertIn("2 unmanaged ready", summary["device_status"])
+        self.assertIn("2 unmanaged", summary["device_status"])
+        self.assertIn("1 needs review", summary["device_status"])
+        self.assertIn("1 ready to promote", summary["device_status"])
         self.assertIn("review Garage Power (fixed) | review carefully | warn generic circuit label", summary["device_status"])
         self.assertIn("ready Dishwasher Power (fixed) | likely useful", summary["device_status"])
         self.assertNotIn("top Dishwasher Power (fixed) | likely useful", summary["device_status"])

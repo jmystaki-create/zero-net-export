@@ -1344,6 +1344,7 @@ def _command_center_device_status_with_unmanaged_context(
     base_status: str,
     *,
     candidate_count: int,
+    review_needed_count: int,
     top_candidate_name: str,
     top_candidate_preview: str,
     review_candidate_name: str,
@@ -1354,7 +1355,12 @@ def _command_center_device_status_with_unmanaged_context(
     summary = base_status
     if candidate_count <= 0:
         return summary
-    summary += f"; {candidate_count} unmanaged ready"
+    summary += f"; {candidate_count} unmanaged"
+    if review_needed_count:
+        summary += f"; {_count_label(review_needed_count, 'needs review', 'need review')}"
+    ready_candidate_count = max(candidate_count - review_needed_count, 0)
+    if ready_candidate_count:
+        summary += f"; {_count_label(ready_candidate_count, 'ready to promote')}"
     if review_candidate_preview and review_candidate_name:
         summary += f"; review {review_candidate_preview}"
     if ready_candidate_preview and ready_candidate_name:
@@ -1772,15 +1778,24 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
 
     if device_parse_issues:
-        device_status = f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair"
-        if candidate_count:
-            device_status += f"; {candidate_count} unmanaged ready"
+        device_status = _command_center_device_status_with_unmanaged_context(
+            f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair",
+            candidate_count=candidate_count,
+            review_needed_count=review_needed_count,
+            top_candidate_name=top_candidate_name,
+            top_candidate_preview=top_candidate_preview,
+            review_candidate_name=review_candidate_name,
+            review_candidate_preview=review_candidate_preview,
+            ready_candidate_name=ready_candidate_name,
+            ready_candidate_preview=ready_candidate_preview,
+        )
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
     elif has_managed_devices:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
         device_status = _command_center_device_status_with_unmanaged_context(
             runtime_device_status or f"{runtime_device_count} configured",
             candidate_count=candidate_count,
+            review_needed_count=review_needed_count,
             top_candidate_name=top_candidate_name,
             top_candidate_preview=top_candidate_preview,
             review_candidate_name=review_candidate_name,
@@ -1822,6 +1837,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_status = _command_center_device_status_with_unmanaged_context(
             "No managed devices configured yet",
             candidate_count=candidate_count,
+            review_needed_count=review_needed_count,
             top_candidate_name=top_candidate_name,
             top_candidate_preview=top_candidate_preview,
             review_candidate_name=review_candidate_name,
