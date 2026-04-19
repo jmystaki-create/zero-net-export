@@ -741,7 +741,12 @@ def build_candidate_overview_summary(
     ready_candidate_count = max(len(candidate_list) - review_needed_count, 0)
     fixed_review_count, variable_review_count = candidate_review_kind_counts(candidate_list)
     review_candidate = first_review_candidate(candidate_list)
+    ready_candidate = next(
+        (item for item in candidate_list if not candidate_needs_review(assess_candidate(item))),
+        None,
+    )
     review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+    ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
     top_name = str(candidate_list[0].get("name") or candidate_list[0].get("entity_id") or "").strip()
     summary_parts = [format_count_label(len(candidate_list), "candidate")]
     if fixed_count:
@@ -754,19 +759,45 @@ def build_candidate_overview_summary(
             summary_parts.append(format_count_label(fixed_review_count, "fixed review"))
         if variable_review_count:
             summary_parts.append(format_count_label(variable_review_count, "variable review"))
-        if review_candidate_name and review_candidate_name != top_name:
+        if review_candidate_name:
             summary_parts.append(f"review {review_candidate_name}")
-            summary_parts.append(build_candidate_review_hint(review_candidate))
+            summary_parts.append(
+                build_candidate_review_hint(
+                    review_candidate,
+                    include_warning=review_candidate_name != top_name,
+                    max_warning_chars=32,
+                )
+            )
+    if include_top_review_hint and candidate_list and review_candidate_name == top_name:
+        top_hint = build_candidate_review_hint(candidate_list[0], max_warning_chars=32)
+        if " | warn " in top_hint:
+            _, _, warning = top_hint.partition(" | warn ")
+            summary_parts.append(f"key warning: {warning}")
+        else:
+            summary_parts.append("key warning: No immediate warnings")
     if ready_candidate_count:
         summary_parts.append(
             "1 ready to promote"
             if ready_candidate_count == 1
             else f"{ready_candidate_count} ready to promote"
         )
-    if top_name:
+    if ready_candidate_name:
+        summary_parts.append(f"ready {ready_candidate_name}")
+        summary_parts.append(build_candidate_review_hint(ready_candidate, include_warning=False, max_warning_chars=32))
+    elif top_name and top_name != review_candidate_name:
         summary_parts.append(f"top {top_name}")
-    if include_top_review_hint and candidate_list:
-        summary_parts.append(build_candidate_review_hint(candidate_list[0]))
+    if include_top_review_hint and candidate_list and review_candidate_name != top_name:
+        top_hint = build_candidate_review_hint(candidate_list[0], max_warning_chars=32)
+        if ready_candidate_name == top_name:
+            if " | warn " in top_hint:
+                _, _, warning = top_hint.partition(" | warn ")
+                summary_parts.append(f"key warning: {warning}")
+            else:
+                summary_parts.append("key warning: No immediate warnings")
+        elif " | warn " in top_hint:
+            summary_parts.append(top_hint.replace(" | warn ", " | key warning: "))
+        else:
+            summary_parts.append(top_hint)
 
     summary = " | ".join(summary_parts)
     while len(summary_parts) > 2 and len(summary) > max_chars:

@@ -648,7 +648,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["managed_count"], 1)
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | attention first Pool pump | 1 planned action(s) | plan Pool pump")
-        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable candidate | review EV limit | top EV limit | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
+        self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 variable candidate | 1 needs review | 1 variable review | review EV limit | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.")
         self.assertEqual(attrs["attention_count"], 1)
         self.assertEqual(attrs["first_attention_device"], "Pool pump")
         self.assertEqual(attrs["first_blocked_device"], "")
@@ -754,7 +754,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertIn("review Virtual load", summary)
         self.assertIn("ready Hot water relay", summary)
-        self.assertIn("top Virtual load | review first | key warning:", summary)
+        self.assertIn("review Virtual load | review first | key warning:", summary)
 
     def test_blocker_handoff_after_repair_uses_real_fleet_step_not_blocker_step(self) -> None:
         button_module = _load_button_module()

@@ -1007,6 +1007,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
             None,
         )
+        ready_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
         parts = [f"{len(candidates)} candidates"]
         if fixed_count:
             parts.append(f"{fixed_count} fixed candidate" if fixed_count == 1 else f"{fixed_count} fixed candidates")
@@ -1021,27 +1022,38 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             review_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
             if review_name:
                 parts.append(f"review {review_name}")
-            parts.append(
-                build_candidate_review_hint(
-                    review_candidate,
-                    include_warning=review_candidate is not top_candidate,
+                parts.append(
+                    build_candidate_review_hint(
+                        review_candidate,
+                        include_warning=review_candidate is not top_candidate,
+                        max_warning_chars=32,
+                    )
                 )
-            )
+        top_hint = build_candidate_review_hint(top_candidate, max_warning_chars=32)
+        if top_candidate is review_candidate:
+            if " | warn " in top_hint:
+                _, _, warning = top_hint.partition(" | warn ")
+                parts.append(f"key warning: {warning}")
+            else:
+                parts.append("key warning: No immediate warnings")
         if ready_candidate_count:
             parts.append(
                 "1 ready to promote"
                 if ready_candidate_count == 1
                 else f"{ready_candidate_count} ready to promote"
             )
-        if top_name:
+        if ready_name:
+            parts.append(f"ready {ready_name}")
+            parts.append(build_candidate_review_hint(ready_candidate, include_warning=False, max_warning_chars=32))
+        elif top_name and top_candidate is not review_candidate:
             parts.append(f"top {top_name}")
-        if review_candidate is top_candidate:
-            top_hint = build_candidate_review_hint(top_candidate)
+        if top_candidate is ready_candidate:
             if " | warn " in top_hint:
-                parts.append(top_hint.replace(" | warn ", " | key warning: "))
+                _, _, warning = top_hint.partition(" | warn ")
+                parts.append(f"key warning: {warning}")
             else:
-                parts.append(f"{top_hint} | key warning: No immediate warnings")
-        else:
+                parts.append("key warning: No immediate warnings")
+        elif top_candidate is not review_candidate:
             top_preview = build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)
             _, separator, preview_tail = top_preview.partition(" | ")
             if separator and preview_tail:
@@ -1049,16 +1061,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             elif top_preview:
                 parts.append(top_preview)
             if "key warning:" not in (preview_tail if separator else top_preview):
-                top_hint = build_candidate_review_hint(top_candidate)
                 if " | warn " in top_hint:
                     _, _, warning = top_hint.partition(" | warn ")
                     parts.append(f"key warning: {warning}")
                 else:
                     parts.append("key warning: No immediate warnings")
-        ready_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
-        if review_candidate and ready_candidate and ready_candidate is not top_candidate and ready_name:
-            parts.append(f"ready {ready_name}")
-            parts.append(build_candidate_review_hint(ready_candidate, include_warning=False))
         return " | ".join(parts)
 
     @staticmethod

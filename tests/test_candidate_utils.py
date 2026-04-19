@@ -552,8 +552,8 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("4 candidates | 3 fixed candidates | 1 variable candidate | 2 need review", summary)
         self.assertIn("1 fixed review", summary)
         self.assertIn("1 variable review", summary)
-        self.assertIn("| top AC Outlet 2 | review first", summary)
-        self.assertIn("generic outlet hardware", summary)
+        self.assertIn("| review AC Outlet 2 | review first", summary)
+        self.assertIn("key warning:", summary)
         self.assertLessEqual(len(summary), 240)
 
     def test_build_candidate_overview_summary_names_first_review_candidate_when_top_is_usable(self) -> None:
@@ -574,8 +574,8 @@ class CandidateUtilsTests(unittest.TestCase):
             ]
         )
 
-        self.assertIn("2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | warn This is an input_boolean helper.", summary)
-        self.assertIn("| top Hot water relay | likely useful", summary)
+        self.assertIn("2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | warn This is an input_boolean helper", summary)
+        self.assertIn("| ready Hot water relay | likely useful", summary)
 
     def test_build_candidate_overview_summary_carries_top_warning_hint(self) -> None:
         module = _load_candidate_utils_module()
@@ -596,10 +596,11 @@ class CandidateUtilsTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | 1 ready to promote | top Virtual load | review carefully",
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | key warning:",
             summary,
         )
-        self.assertIn("warn This is an input_boolean helper.", summary)
+        self.assertIn("| 1 ready to promote | ready Hot water relay | likely useful", summary)
+        self.assertIn("key warning: This is an input_boolean helper", summary)
         self.assertLessEqual(len(summary), 240)
 
     def test_discover_candidate_devices_demotes_anonymous_numbered_outlets_below_named_appliances(self) -> None:

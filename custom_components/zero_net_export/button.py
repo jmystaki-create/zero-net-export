@@ -366,10 +366,28 @@ def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
 
     top_preview = build_candidate_preview(candidates[0], include_entity_id=False, include_state=False)
     _, separator, preview_tail = top_preview.partition(" | ")
-    if review_name and preview_tail.startswith(("review first", "review carefully")) and f"review {review_name}" not in parts:
-        top_index = next((index for index, part in enumerate(parts) if part.startswith("top ")), len(parts))
-        parts.insert(top_index, f"review {review_name}")
+    if review_name and preview_tail.startswith(("review first", "review carefully")):
+        if not any(part.endswith("needs review") or part.endswith("need review") for part in parts):
+            top_index = next((index for index, part in enumerate(parts) if part.startswith(("top ", "review "))), len(parts))
+            parts.insert(top_index, "1 needs review")
+            review_kind = str((review_candidate or {}).get("kind") or "").strip()
+            if review_kind in {"fixed", "variable"}:
+                parts.insert(top_index + 1, f"1 {review_kind} review")
+        top_label = f"top {review_name}"
+        if top_label in parts:
+            if f"review {review_name}" in parts:
+                parts.remove(top_label)
+            else:
+                parts[parts.index(top_label)] = f"review {review_name}"
+        elif f"review {review_name}" not in parts:
+            top_index = next((index for index, part in enumerate(parts) if part.startswith("top ")), len(parts))
+            parts.insert(top_index, f"review {review_name}")
     if separator and preview_tail and preview_tail not in " | ".join(parts):
+        preview_summary = " | ".join([*parts, preview_tail])
+        if len(preview_summary) > 220:
+            top_hint = build_candidate_review_hint(candidates[0], max_warning_chars=32)
+            if " | warn " in top_hint:
+                preview_tail = top_hint.replace(" | warn ", " | key warning: ")
         parts.append(preview_tail)
 
     ready_candidate = next(
@@ -377,7 +395,13 @@ def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
         None,
     )
     ready_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
-    if review_candidate and ready_candidate and ready_candidate is not candidates[0] and ready_name:
+    if (
+        review_candidate
+        and ready_candidate
+        and ready_candidate is not candidates[0]
+        and ready_name
+        and f"ready {ready_name}" not in parts
+    ):
         ready_parts = [f"ready {ready_name}"]
         ready_hint = build_candidate_review_hint(ready_candidate, include_warning=False)
         if ready_hint:
@@ -387,6 +411,26 @@ def _unmanaged_snapshot_summary(candidates: list[dict]) -> str:
             if len(candidate_summary) <= 240:
                 return candidate_summary
             ready_parts.pop()
+        trimmed_parts = list(parts)
+        removable_prefixes = (
+            "1 fixed review",
+            "1 variable review",
+            "2 fixed review",
+            "2 variable review",
+            "3 fixed review",
+            "3 variable review",
+        )
+        while trimmed_parts:
+            candidate_summary = " | ".join([*trimmed_parts, f"ready {ready_name}"])
+            if len(candidate_summary) <= 240:
+                return candidate_summary
+            removable_index = next(
+                (index for index, part in enumerate(trimmed_parts) if part.startswith(removable_prefixes)),
+                -1,
+            )
+            if removable_index == -1:
+                break
+            trimmed_parts.pop(removable_index)
 
     summary = " | ".join(parts)
     if len(summary) <= 240:
