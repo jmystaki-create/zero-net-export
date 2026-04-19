@@ -1545,15 +1545,26 @@ def _build_command_center_fleet_activity_summary(
             )
         )
 
-    if review_needed_count and review_candidate_preview:
-        minimal_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=72))
-    elif review_needed_count and review_candidate_name:
-        minimal_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=72))
+    ready_candidate_count = max(candidate_count - review_needed_count, 0)
+    if review_needed_count:
+        minimal_parts.append(
+            "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
+        )
+        if review_candidate_preview:
+            minimal_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=72))
+        elif review_candidate_name:
+            minimal_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=72))
 
-    if ready_candidate_preview and ready_candidate_name:
-        minimal_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=72))
-    elif ready_candidate_name:
-        minimal_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=72))
+    if ready_candidate_count:
+        minimal_parts.append(
+            "1 ready to promote"
+            if ready_candidate_count == 1
+            else f"{ready_candidate_count} ready to promote"
+        )
+        if ready_candidate_preview and ready_candidate_name:
+            minimal_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=72))
+        elif ready_candidate_name:
+            minimal_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=72))
 
     if top_candidate_preview and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
         minimal_parts.append(_clip_part(f"top {top_candidate_preview}", max_chars=72))
@@ -1587,7 +1598,63 @@ def _build_command_center_fleet_activity_summary(
                 break
 
     minimized_summary = " | ".join(minimal_parts)
-    return minimized_summary if minimized_summary else summary
+    if minimized_summary and len(minimized_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return minimized_summary
+
+    compact_minimal_parts = [
+        _clip_part(part, max_chars=48)
+        if part.startswith(("blocked ", "attention ", "review ", "ready ", "top "))
+        else part
+        for part in minimal_parts
+    ]
+    compact_minimal_summary = " | ".join(compact_minimal_parts)
+    if compact_minimal_summary and len(compact_minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compact_minimal_summary
+
+    essential_parts: list[str] = [f"managed {managed_count}"]
+    essential_parts.append(f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates")
+    if source_blocked:
+        essential_parts.append("repair sources first")
+    if blocked_activity_count:
+        essential_parts.append(
+            _clip_part(
+                f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
+                if first_blocked_device
+                else f"blocked {blocked_activity_count}",
+                max_chars=32,
+            )
+        )
+    elif first_attention_device:
+        essential_parts.append(
+            _clip_part(
+                f"attention {_command_center_runtime_device_preview(first_attention_device)}",
+                max_chars=32,
+            )
+        )
+    if review_needed_count:
+        essential_parts.append(
+            "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
+        )
+        if review_candidate_preview:
+            essential_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=32))
+        elif review_candidate_name:
+            essential_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=32))
+    if ready_candidate_count:
+        essential_parts.append(
+            "1 ready to promote"
+            if ready_candidate_count == 1
+            else f"{ready_candidate_count} ready to promote"
+        )
+        if ready_candidate_preview and ready_candidate_name:
+            essential_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=32))
+        elif ready_candidate_name:
+            essential_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=32))
+
+    essential_summary = " | ".join(essential_parts)
+    if essential_summary and len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return essential_summary
+
+    return essential_summary if essential_summary else compact_minimal_summary or summary
 
 
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
