@@ -7,10 +7,10 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: finish or explicitly retire the next unfinished `0.1.87` repo-side UI workstream step in `docs/UI_IMPLEMENTATION_MAP.md`, but do not reopen Workstream E device-page review by default now that it is primarily in live-proof posture; if the repo-side cut line later becomes release-ready, ask James directly for explicit deploy/restart approval instead of restating deploy intent generically
+next_action: either ship the next actual component-changing `0.1.87` repo-side UI step from `docs/UI_IMPLEMENTATION_MAP.md`, or if the candidate is already coherent enough for release execution, ask James directly for explicit deploy/restart approval to ship exact build `481c9a7`; do not spend another run on doc-only release-anchor refreshes for the unchanged candidate
 
 # Current blocker or none
-blocker: none on the repo side; documented HA SSH fingerprint recheck in this run succeeded and confirmed the live install is already on a divergent `0.1.87` build, so the unchanged deploy boundary stays secondary while mapped `0.1.87` UI runway remains
+blocker: unchanged live exact-build drift, confirmed again over the documented HA SSH path; the live install is still on a divergent `0.1.87` build, but repeating fingerprint or anchor bookkeeping without a new component build or approval is loop churn rather than progress
 
 # Exact user action needed or none
 user_action: none until the current repo-side `0.1.87` cut line is coherent enough to justify an explicit deploy/restart approval ask
