@@ -1012,7 +1012,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (item for item in candidates if candidate_needs_review(assess_candidate(item))),
             None,
         )
+        ready_candidate = next(
+            (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+            None,
+        )
         review_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+        ready_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
         summary = (
             f"Unmanaged now: {len(candidates)} | fixed candidates: {fixed_count} | variable candidates: {variable_count}"
             f" | top candidate: {top_name}"
@@ -1023,7 +1028,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 summary += f" | fixed review: {fixed_review_count}"
             if variable_review_count:
                 summary += f" | variable review: {variable_review_count}"
-            if review_name and review_candidate is not top_candidate:
+            if review_name:
                 summary += f" | review first: {review_name}"
                 review_usefulness = build_candidate_review_hint(review_candidate, include_warning=False)
                 summary += f" | review usefulness: {review_usefulness}"
@@ -1031,7 +1036,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if " | warn " in review_warning_hint:
                     _, _, warning = review_warning_hint.partition(" | warn ")
                     summary += f" | review warning: {warning}"
-        if top_candidate:
+            if ready_name and ready_candidate is not top_candidate:
+                summary += f" | ready next: {ready_name}"
+                ready_usefulness = build_candidate_review_hint(ready_candidate, include_warning=False)
+                summary += f" | ready usefulness: {ready_usefulness}"
+        if top_candidate and review_candidate is not top_candidate:
             top_usefulness = build_candidate_review_hint(top_candidate, include_warning=False)
             summary += f" | top usefulness: {top_usefulness}"
             top_warning_hint = build_candidate_review_hint(top_candidate, include_warning=True, max_warning_chars=40)
