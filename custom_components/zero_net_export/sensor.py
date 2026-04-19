@@ -639,7 +639,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if self._key == "managed_fleet_attention":
                 if counts["managed_count"] == 0:
                     if source_blocked:
-                        return "Repair sources first before managed-device review"
+                        return "Repair sources first before returning to Managed Devices"
                     if review_candidate_name:
                         return f"No managed devices yet | review {review_candidate_preview or review_candidate_name} first"
                     return "No managed devices yet"

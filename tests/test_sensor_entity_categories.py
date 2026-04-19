@@ -177,6 +177,26 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Managed devices next step",
         )
 
+    def test_managed_fleet_attention_names_managed_devices_when_sources_block_review(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module.build_source_attention_summary = lambda *args, **kwargs: "Missing solar source"
+        sensor_module.summarize_validation_issue_messages = lambda *args, **kwargs: "Missing solar source"
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "managed_fleet_attention",
+            "Managed devices attention",
+        )
+        sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            sensor.native_value,
+            "Repair sources first before returning to Managed Devices",
+        )
+
     def test_managed_overview_sensor_uses_managed_devices_label(self) -> None:
         sensor_module = _load_sensor_module()
 

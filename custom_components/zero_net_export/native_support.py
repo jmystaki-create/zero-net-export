@@ -2077,7 +2077,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             f"Open {SOURCES_CONFIGURE_PATH} and use the highlighted native guidance to continue."
             if missing_required_sources or runtime_source_attention
             else (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue the current managed-device review or promotion step."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue the current Managed Devices workspace review or promotion step."
                 if (
                     recommended_section == DEVICES_SECTION_LABEL
                     or device_parse_issues
