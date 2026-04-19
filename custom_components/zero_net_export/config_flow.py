@@ -1216,7 +1216,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 )
                 if fixed_review_candidate_count:
                     label += f" / {_review_count_label(fixed_review_candidate_count)}"
-                elif fixed_ready_candidate_count:
+                if fixed_ready_candidate_count:
                     label += f" / {_ready_count_label(fixed_ready_candidate_count)}"
                 return label
             return "Add fixed load device manually"
@@ -1228,7 +1228,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 )
                 if variable_review_candidate_count:
                     label += f" / {_review_count_label(variable_review_candidate_count)}"
-                elif variable_ready_candidate_count:
+                if variable_ready_candidate_count:
                     label += f" / {_ready_count_label(variable_ready_candidate_count)}"
                 return label
             return "Add variable load device manually"

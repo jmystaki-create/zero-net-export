@@ -863,7 +863,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             options[0]["label"],
-            "Promote fixed-load candidate / 2 fixed candidates surfaced / 1 candidate needs review",
+            "Promote fixed-load candidate / 2 fixed candidates surfaced / 1 candidate needs review / 1 candidate ready to promote",
         )
         self.assertEqual(
             options[1]["label"],
@@ -882,6 +882,41 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Remove managed device / 2 managed devices / 1 managed device needs attention",
         )
         self.assertEqual(options[5]["label"], "Advanced JSON editor / recovery")
+
+    def test_device_actions_surface_both_review_and_ready_counts_per_kind_when_backlog_is_mixed(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={module.DOMAIN: {"entry-1": None}})
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._load_devices = lambda: ([], [])
+        flow._device_candidates = lambda: [
+            {"entity_id": "switch.virtual_load", "name": "Virtual load", "kind": module.DEVICE_KIND_FIXED, "domain": "input_boolean"},
+            {"entity_id": "switch.hot_water", "name": "Hot water", "kind": module.DEVICE_KIND_FIXED, "domain": "switch"},
+            {"entity_id": "number.variable_helper", "name": "Variable helper", "kind": module.DEVICE_KIND_VARIABLE, "domain": "input_number"},
+            {"entity_id": "number.ev_limit", "name": "EV limit", "kind": module.DEVICE_KIND_VARIABLE, "domain": "number"},
+        ]
+        original_assess_candidate = module.assess_candidate
+        original_candidate_needs_review = module.candidate_needs_review
+        module.assess_candidate = lambda candidate: {"needs_review": candidate.get("entity_id") in {"switch.virtual_load", "number.variable_helper"}}
+        module.candidate_needs_review = lambda summary: bool(summary.get("needs_review"))
+
+        try:
+            devices = asyncio.run(flow.async_step_devices())
+        finally:
+            module.assess_candidate = original_assess_candidate
+            module.candidate_needs_review = original_candidate_needs_review
+        options = devices["data_schema"]["device_action"]["options"]
+
+        self.assertEqual(
+            options[0]["label"],
+            "Promote fixed-load candidate / 2 fixed candidates surfaced / 1 candidate needs review / 1 candidate ready to promote",
+        )
+        self.assertEqual(
+            options[1]["label"],
+            "Promote variable-load candidate / 2 variable candidates surfaced / 1 candidate needs review / 1 candidate ready to promote",
+        )
+        self.assertEqual(options[2]["label"], "Advanced JSON editor / recovery")
 
     def test_device_actions_surface_ready_to_promote_counts_when_review_backlog_is_clear(self) -> None:
         module = _load_config_flow_module()
