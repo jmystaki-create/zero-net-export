@@ -47,8 +47,8 @@ If a change does not materially improve one of those visible outcomes, it should
 ### Still blocked or incomplete
 - This run rechecked the documented HA SSH path and confirmed access still works, but the live install is still not the current repo candidate: `overall_match=false`, now with three tracked-file mismatches, `config_flow.py`, `native_support.py`, and `sensor.py`. Live and repo `manifest_version` both read `0.1.86`, and the earlier stale backup bytecode artifact is still absent, so access is not the blocker.
 - This run rechecked `scripts/print_expected_install_fingerprint.py`; the helper now resolves the exact component-changing deploy boundary at `281a11e`, so the remaining exact-build blocker is the current three-file drift on the latest repo-side Managed Devices handoff and selector-pressure follow-ons rather than the older twelve-file mixed-install state.
-- The strongest concrete drift in this run is source-of-truth lag again: these docs had already been corrected from the older twelve-file `0.1.87` mismatch story and then from the earlier two-file `native_support.py` plus `sensor.py` story, but they were still understating the current live drift after the latest component-changing repo fix also moved `config_flow.py`.
-- Keep the ranking lesson intact: live exact-build mismatch is still release drift, not the default build-stage next step while mapped `0.1.87` runway still remains. Do not spend watchdog/supervisor runs on repeated fingerprint bookkeeping, approval-target refreshes, or hash-only source-of-truth edits unless the release boundary, live evidence, or operator instruction actually changed.
+- The strongest concrete drift in this run is no longer stale mismatch wording. After the same three-file exact-build blocker was already documented, recent commits `ff90da4`, `1aa3a61`, and `bf5e7c6` still spent three more runs refreshing that unchanged fingerprint story instead of advancing the next unfinished `0.1.87` workstream or explicitly asking James for release approval if deploy/restart had actually become the boundary.
+- Keep the ranking lesson intact: live exact-build mismatch is still release drift, not the default build-stage next step while mapped `0.1.87` runway still remains. Do not spend watchdog/supervisor runs on repeated fingerprint bookkeeping, approval-target refreshes, or hash-only source-of-truth edits unless the release boundary, live evidence, or operator instruction actually changed. When formal release execution really is next, ask James directly instead of rotating more release bookkeeping.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path still does not visibly feel proven as the strong central workspace James asked for until the exact current build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
@@ -186,12 +186,13 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 ### Order of execution from here
 1. Finish repo-side UI work only where a remaining stage is still visibly incomplete.
-2. Freeze the `0.1.87` cut line.
-3. Bump version + release metadata.
-4. Run full validation.
-5. Tag/publish/deploy.
-6. Perform live screenshot-grade acceptance review.
-7. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.87` work instead of silently rolling the cut line forever.
+2. Do not let unchanged fingerprint bookkeeping displace the next unfinished mapped workstream.
+3. Freeze the `0.1.87` cut line.
+4. Bump version + release metadata.
+5. Run full validation.
+6. Tag/publish/deploy.
+7. Perform live screenshot-grade acceptance review.
+8. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.87` work instead of silently rolling the cut line forever.
 
 ### Stage 0. Baseline and source-of-truth consolidation
 **Purpose**
