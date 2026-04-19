@@ -517,6 +517,7 @@ def _build_managed_device_detail_lines(
     command_center: dict,
     managed_snapshot: str,
     unmanaged_snapshot: str,
+    ordered_devices: list[dict],
     candidates: list[dict] | None,
     top_candidate: dict | None,
     review_candidate: dict | None,
@@ -529,6 +530,21 @@ def _build_managed_device_detail_lines(
         candidates,
         has_managed_devices=bool(managed_snapshot and not managed_snapshot.startswith("0 managed")),
     )
+    attention_devices, remaining_devices = _partition_review_devices(ordered_devices)
+    device_is_attention = any(
+        candidate.get("entity_id") == entity_id or candidate.get("name") == device_label
+        for candidate in attention_devices
+    )
+    peer_attention_devices = [
+        str(candidate.get("name") or candidate.get("entity_id") or "managed device")
+        for candidate in attention_devices
+        if (candidate.get("entity_id") or candidate.get("name")) not in {entity_id, device_label}
+    ]
+    peer_steady_devices = [
+        str(candidate.get("name") or candidate.get("entity_id") or "managed device")
+        for candidate in remaining_devices
+        if (candidate.get("entity_id") or candidate.get("name")) not in {entity_id, device_label}
+    ]
     kind = str(detail.get("kind") or "unknown")
     requested_target_power = detail.get("planned_requested_power_w")
     if requested_target_power is None:
@@ -599,6 +615,28 @@ def _build_managed_device_detail_lines(
             ]
             if review_candidate and review_candidate != top_candidate
             else []
+        ),
+        "",
+        "Fleet attention context:",
+        (
+            "- This device is currently in the attention-first review bucket."
+            if device_is_attention
+            else "- This device is currently in the steady managed-device bucket."
+        ),
+        (
+            f"- First managed device needing attention: {_first_review_attention_device_name(ordered_devices)}"
+            if attention_devices
+            else "- First managed device needing attention: none"
+        ),
+        (
+            "- Other managed devices needing attention: " + ", ".join(peer_attention_devices[:5])
+            if peer_attention_devices
+            else "- Other managed devices needing attention: none"
+        ),
+        (
+            "- Other steady managed devices: " + ", ".join(peer_steady_devices[:5])
+            if peer_steady_devices
+            else "- Other steady managed devices: none"
         ),
         "",
         f"Device: {device_label}",
@@ -1053,6 +1091,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
                     command_center=command_center,
                     managed_snapshot=_managed_snapshot_summary(ordered, include_planned_count=True),
                     unmanaged_snapshot=_unmanaged_snapshot_summary(candidates),
+                    ordered_devices=ordered,
                     candidates=candidates,
                     top_candidate=top_candidate,
                     review_candidate=review_candidate,

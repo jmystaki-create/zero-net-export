@@ -967,6 +967,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | 1 fixed managed | 1200 W nominal | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed candidate | top Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("- Top unmanaged candidate right now: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("Fleet attention context:", message)
+        self.assertIn("- This device is currently in the attention-first review bucket.", message)
+        self.assertIn("- First managed device needing attention: Pool pump", message)
+        self.assertIn("- Other managed devices needing attention: none", message)
+        self.assertIn("- Other steady managed devices: none", message)
         self.assertIn("Device: Pool pump", message)
         self.assertNotIn("Entity: switch.pool_pump", message)
         self.assertNotIn("Use switch.pool_pump sensors", message)
@@ -1036,6 +1041,73 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- First review-first unmanaged candidate: EV limit (variable) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
         self.assertIn("- First review-first unmanaged usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.", message)
         self.assertIn("- First review-first unmanaged warnings: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
+
+    def test_managed_device_detail_button_surfaces_peer_attention_context(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    },
+                    "heater": {
+                        "name": "Water heater",
+                        "entity_id": "switch.water_heater",
+                        "kind": "fixed",
+                        "usable": False,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Blocked",
+                        "guard_status": "source blocked",
+                        "planned_action": "turn_on",
+                        "action_executable": False,
+                    },
+                    "fan": {
+                        "name": "Garage fan",
+                        "entity_id": "switch.garage_fan",
+                        "kind": "fixed",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Idle",
+                        "guard_status": "ready",
+                        "planned_action": "hold",
+                    },
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.hot_water",
+                        state="off",
+                        attributes={"friendly_name": "Hot water"},
+                    )
+                ]
+            )
+        )
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        message = notification_calls[0]["args"][1]
+        self.assertIn("Fleet attention context:", message)
+        self.assertIn("- This device is currently in the attention-first review bucket.", message)
+        self.assertIn("- First managed device needing attention: Water heater", message)
+        self.assertIn("- Other managed devices needing attention: Water heater", message)
+        self.assertIn("- Other steady managed devices: Garage fan", message)
 
     def test_managed_device_detail_button_exposes_workspace_context_attributes(self) -> None:
         button_module = _load_button_module()
