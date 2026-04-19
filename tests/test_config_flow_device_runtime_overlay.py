@@ -587,7 +587,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "Managed now: 2 | enabled: 2 | usable: 2 | 1 managed device needs attention | attention first: Pool pump | fixed managed: 2 | nominal: 2100 W | blocked first: none | next plan: none",
+            "2 managed | 2 enabled | 2 usable | 1 managed device needs attention | attention first Pool pump | 2 fixed managed | 2100 W nominal",
         )
 
     def test_device_next_step_prefers_global_blocker_guidance_before_local_promotion(self) -> None:
@@ -737,7 +737,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             shortlist["description_placeholders"]["managed_snapshot"],
-            "Managed now: 2 | enabled: 1 | usable: 1 | 2 managed devices need attention | attention first: EV charger | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
+            "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
         )
         self.assertEqual(
             shortlist["description_placeholders"]["device_summary"],
@@ -750,7 +750,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
-            "Unmanaged now: 3 | fixed candidates: 2 | variable candidates: 1 | top candidate: AC Outlet 2 | 3 need review | fixed review: 2 | variable review: 1 | review first: AC Outlet 2 | review usefulness: likely useful",
+            "3 candidates | 2 fixed candidates | 1 variable candidate | 3 need review | 2 fixed review | 1 variable review | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
@@ -811,7 +811,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "Managed now: 2 | enabled: 2 | usable: 2 | 2 managed devices need attention | attention first: Pool pump | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: Pool pump | next plan: Pool pump",
+            "2 managed | 2 enabled | 2 usable | 2 managed devices need attention | attention first Pool pump | 1 fixed managed | 1 variable managed | 0 W nominal | blocked Pool pump | 2 planned action(s) | plan Pool pump",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices),
@@ -860,7 +860,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "Managed now: 2 | enabled: 2 | usable: 2 | active load: 3385 W | active managed: 2 devices | 2 managed devices need attention | attention first: EV charger | fixed managed: 1 | variable managed: 1 | nominal: 8200 W | blocked first: none | next plan: EV charger",
+            "2 managed | 2 enabled | 2 usable | active load 3385 W | 2 active managed devices | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 8200 W nominal | 2 planned action(s) | plan EV charger",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices)[0],
@@ -1018,11 +1018,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 1 | usable: 1 | 2 managed devices need attention | attention first: EV charger | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
+                "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | 2 need review | fixed review: 2 | review first: AC Outlet 2 | review usefulness: likely useful",
+                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -1216,7 +1216,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "Managed now: 2 | enabled: 2 | usable: 1 | 2 managed devices need attention | attention first: EV charger | fixed managed: 1 | variable managed: 1 | nominal: 0 W | blocked first: EV charger | next plan: Pool pump",
+                "2 managed | 2 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
             )
             self.assertEqual(
                 result["description_placeholders"]["device_summary"],
@@ -1229,7 +1229,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: AC Outlet 2 | 2 need review | fixed review: 2 | review first: AC Outlet 2 | review usefulness: likely useful",
+                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | top AC Outlet 2 | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -1480,8 +1480,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(feedback["title"], "managed-device promotion saved")
         self.assertIn("Promoted Pool pump into Managed Devices as a fixed load.", feedback["message"])
         self.assertNotIn("switch.pool_pump", feedback["message"])
-        self.assertIn("Managed now: 1 | enabled: 1 | usable: 0 | fixed managed: 1 | nominal: 0 W | blocked first: none | next plan: none", feedback["message"])
-        self.assertIn("Unmanaged now: 2 | fixed candidates: 1 | variable candidates: 1 | top candidate: AC Outlet 2 | 2 need review | fixed review: 1 | variable review: 1 | review first: AC Outlet 2 | review usefulness: likely useful", feedback["message"])
+        self.assertIn("1 managed | 1 enabled | 0 usable | 1 fixed managed | 0 W nominal", feedback["message"])
+        self.assertIn("2 candidates | 1 fixed candidate | 1 variable candidate | 2 need review | 1 fixed review | 1 variable review | top AC Outlet 2 | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Primary Managed Devices workspace: devices path", feedback["message"])
         self.assertIn(
@@ -1524,7 +1524,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Virtual load | 1 needs review | fixed review: 1 | review first: Virtual load | review usefulness: review carefully | review warning: This is an input_boolean helper. | ready next: Hot water relay | ready usefulness: likely useful",
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | top Virtual load | review carefully | key warning: This is an input_boolean helper. | ready Hot water relay | likely useful",
         )
 
     def test_unmanaged_snapshot_counts_low_confidence_candidates_as_needing_review(self) -> None:
@@ -1560,7 +1560,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "Unmanaged now: 2 | fixed candidates: 2 | variable candidates: 0 | top candidate: Hot water relay | 1 needs review | fixed review: 1 | review first: Virtual load | review usefulness: review carefully | review warning: Helper-backed load needs review. | top usefulness: likely useful",
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | warn Helper-backed load needs review. | top Hot water relay | likely useful | key warning: No immediate warnings",
         )
 
     def test_candidate_snapshot_groups_review_first_before_ready_candidates(self) -> None:
@@ -1652,8 +1652,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         assert feedback is not None
         self.assertEqual(feedback["title"], "managed-device enablement saved")
         self.assertIn("Fleet now: 2 managed | 1 enabled | 1 disabled", feedback["message"])
-        self.assertIn("Managed now: 2 | enabled: 1 | usable: 0 | blocked first: none | next plan: none", feedback["message"])
-        self.assertIn("Unmanaged now: 0 | fixed candidates: 0 | variable candidates: 0 | top candidate: none", feedback["message"])
+        self.assertIn("2 managed | 1 enabled | 0 usable", feedback["message"])
+        self.assertIn("0 candidates", feedback["message"])
         self.assertIn(
             "Next step: reopen devices path to confirm the updated enablement snapshot, then use the deeper device review path only if you need more per-device runtime detail.",
             feedback["message"],

@@ -114,19 +114,6 @@ from .validation import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def _candidate_review_kind_counts(candidates: list[dict[str, Any]]) -> tuple[int, int]:
-    fixed_review_count = 0
-    variable_review_count = 0
-    for candidate in candidates:
-        if not candidate_needs_review(assess_candidate(candidate)):
-            continue
-        if candidate.get("kind") == DEVICE_KIND_VARIABLE:
-            variable_review_count += 1
-        else:
-            fixed_review_count += 1
-    return fixed_review_count, variable_review_count
-
-
 def _candidate_usefulness_label(fit: dict[str, Any]) -> str:
     confidence = str(fit.get("confidence") or "medium")
     warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
@@ -930,7 +917,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     def _managed_snapshot_text(self, devices: list[dict[str, Any]]) -> str:
         if not devices:
-            return "Managed now: 0 | enabled: 0 | usable: 0 | blocked first: none | next plan: none"
+            return "0 managed | 0 enabled | 0 usable"
 
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
@@ -940,6 +927,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         nominal_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
+        planned_count = sum(1 for device in devices if self._active_planned_action(device))
         kind_known = any(device.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for device in devices)
         attention_name = next(
             (
@@ -966,14 +954,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "",
         )
         summary_parts = [
-            f"Managed now: {len(devices)}",
-            f"enabled: {enabled_count}",
-            f"usable: {usable_count}",
+            f"{len(devices)} managed",
+            f"{enabled_count} enabled",
+            f"{usable_count} usable",
         ]
         if active_count:
-            summary_parts.append(f"active load: {active_power_w:g} W")
+            summary_parts.append(f"active load {active_power_w:g} W")
             summary_parts.append(
-                "active managed: 1 device" if active_count == 1 else f"active managed: {active_count} devices"
+                "1 active managed device" if active_count == 1 else f"{active_count} active managed devices"
             )
         if attention_count:
             summary_parts.append(
@@ -981,18 +969,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if attention_count == 1
                 else f"{attention_count} managed devices need attention"
             )
-            summary_parts.append(f"attention first: {attention_name or 'none'}")
+            if attention_name:
+                summary_parts.append(f"attention first {attention_name}")
         if kind_known:
-            summary_parts.append(f"fixed managed: {fixed_count}")
+            summary_parts.append(f"{fixed_count} fixed managed")
             if variable_count:
-                summary_parts.append(f"variable managed: {variable_count}")
-            summary_parts.append(f"nominal: {nominal_power} W")
-        summary_parts.extend(
-            [
-                f"blocked first: {blocked_name or 'none'}",
-                f"next plan: {planned_name or 'none'}",
-            ]
-        )
+                summary_parts.append(f"{variable_count} variable managed")
+            summary_parts.append(f"{nominal_power} W nominal")
+        if blocked_name:
+            summary_parts.append(f"blocked {blocked_name}")
+        if planned_count:
+            summary_parts.append(f"{planned_count} planned action(s)")
+        if planned_name:
+            summary_parts.append(f"plan {planned_name}")
         return " | ".join(summary_parts)
 
     @staticmethod
@@ -1003,51 +992,63 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     @classmethod
     def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
+        if not candidates:
+            return "0 candidates"
+
         fixed_count, variable_count = cls._candidate_mix_counts(candidates)
-        review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
-        fixed_review_count, variable_review_count = _candidate_review_kind_counts(candidates)
-        top_candidate = candidates[0] if candidates else None
-        top_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "none")
-        review_candidate = next(
-            (item for item in candidates if candidate_needs_review(assess_candidate(item))),
-            None,
-        )
+        review_candidates = [item for item in candidates if candidate_needs_review(assess_candidate(item))]
+        fixed_review_count = sum(1 for item in review_candidates if item.get("kind") == DEVICE_KIND_FIXED)
+        variable_review_count = sum(1 for item in review_candidates if item.get("kind") == DEVICE_KIND_VARIABLE)
+        top_candidate = candidates[0]
+        top_name = str(top_candidate.get("name") or top_candidate.get("entity_id") or "").strip()
+        review_candidate = review_candidates[0] if review_candidates else None
         ready_candidate = next(
             (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
             None,
         )
-        review_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
-        ready_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
-        summary = (
-            f"Unmanaged now: {len(candidates)} | fixed candidates: {fixed_count} | variable candidates: {variable_count}"
-            f" | top candidate: {top_name}"
-        )
-        if review_needed_count:
-            summary += f" | {'1 needs review' if review_needed_count == 1 else f'{review_needed_count} need review'}"
+        parts = [f"{len(candidates)} candidates"]
+        if fixed_count:
+            parts.append(f"{fixed_count} fixed candidate" if fixed_count == 1 else f"{fixed_count} fixed candidates")
+        if variable_count:
+            parts.append(f"{variable_count} variable candidate" if variable_count == 1 else f"{variable_count} variable candidates")
+        if review_candidates:
+            parts.append("1 needs review" if len(review_candidates) == 1 else f"{len(review_candidates)} need review")
             if fixed_review_count:
-                summary += f" | fixed review: {fixed_review_count}"
+                parts.append(f"{fixed_review_count} fixed review")
             if variable_review_count:
-                summary += f" | variable review: {variable_review_count}"
-            if review_name:
-                summary += f" | review first: {review_name}"
-                review_usefulness = build_candidate_review_hint(review_candidate, include_warning=False)
-                summary += f" | review usefulness: {review_usefulness}"
-                review_warning_hint = build_candidate_review_hint(review_candidate, include_warning=True, max_warning_chars=40)
-                if " | warn " in review_warning_hint:
-                    _, _, warning = review_warning_hint.partition(" | warn ")
-                    summary += f" | review warning: {warning}"
-            if ready_name and ready_candidate is not top_candidate:
-                summary += f" | ready next: {ready_name}"
-                ready_usefulness = build_candidate_review_hint(ready_candidate, include_warning=False)
-                summary += f" | ready usefulness: {ready_usefulness}"
-        if top_candidate and review_candidate is not top_candidate:
-            top_usefulness = build_candidate_review_hint(top_candidate, include_warning=False)
-            summary += f" | top usefulness: {top_usefulness}"
-            top_warning_hint = build_candidate_review_hint(top_candidate, include_warning=True, max_warning_chars=40)
-            if " | warn " in top_warning_hint:
-                _, _, warning = top_warning_hint.partition(" | warn ")
-                summary += f" | top warning: {warning}"
-        return summary
+                parts.append(f"{variable_review_count} variable review")
+            if review_candidate is not top_candidate:
+                review_name = str(review_candidate.get("name") or review_candidate.get("entity_id") or "").strip()
+                if review_name:
+                    parts.append(f"review {review_name}")
+                parts.append(build_candidate_review_hint(review_candidate))
+        if top_name:
+            parts.append(f"top {top_name}")
+        if review_candidate is top_candidate:
+            top_hint = build_candidate_review_hint(top_candidate)
+            if " | warn " in top_hint:
+                parts.append(top_hint.replace(" | warn ", " | key warning: "))
+            else:
+                parts.append(f"{top_hint} | key warning: No immediate warnings")
+        else:
+            top_preview = build_candidate_preview(top_candidate, include_entity_id=False, include_state=False)
+            _, separator, preview_tail = top_preview.partition(" | ")
+            if separator and preview_tail:
+                parts.append(preview_tail)
+            elif top_preview:
+                parts.append(top_preview)
+            if "key warning:" not in (preview_tail if separator else top_preview):
+                top_hint = build_candidate_review_hint(top_candidate)
+                if " | warn " in top_hint:
+                    _, _, warning = top_hint.partition(" | warn ")
+                    parts.append(f"key warning: {warning}")
+                else:
+                    parts.append("key warning: No immediate warnings")
+        ready_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
+        if review_candidate and ready_candidate and ready_candidate is not top_candidate and ready_name:
+            parts.append(f"ready {ready_name}")
+            parts.append(build_candidate_review_hint(ready_candidate, include_warning=False))
+        return " | ".join(parts)
 
     @staticmethod
     def _top_candidate_focus_text(candidate: dict[str, Any] | None) -> str:
