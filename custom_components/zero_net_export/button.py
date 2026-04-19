@@ -495,6 +495,17 @@ def _managed_devices_review_focus(candidates: list[dict] | None) -> tuple[dict |
     )
 
 
+def _first_ready_candidate(candidates: list[dict] | None) -> dict | None:
+    return next(
+        (
+            item
+            for item in (candidates or [])
+            if not candidate_needs_review(assess_candidate(item))
+        ),
+        None,
+    )
+
+
 def _managed_devices_workspace_handoff(
     command_center: dict,
     candidates: list[dict] | None,
@@ -570,6 +581,7 @@ def _build_managed_device_detail_lines(
         candidate.get("entity_id") == entity_id or candidate.get("name") == device_label
         for candidate in attention_devices
     )
+    ready_candidate = _first_ready_candidate(candidates)
     peer_attention_devices = [
         str(candidate.get("name") or candidate.get("entity_id") or "managed device")
         for candidate in attention_devices
@@ -649,6 +661,14 @@ def _build_managed_device_detail_lines(
                 ),
             ]
             if review_candidate and review_candidate != top_candidate
+            else []
+        ),
+        *(
+            [
+                f"- Ready-next unmanaged candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
+                "- Ready-next unmanaged usefulness: " + _candidate_usefulness_summary(ready_candidate),
+            ]
+            if review_candidate and ready_candidate and ready_candidate is not review_candidate
             else []
         ),
         "",

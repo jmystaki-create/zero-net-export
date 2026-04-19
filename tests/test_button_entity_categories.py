@@ -1099,6 +1099,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- First review-first unmanaged candidate: EV limit (variable) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
         self.assertIn("- First review-first unmanaged usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.", message)
         self.assertIn("- First review-first unmanaged warnings: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
+        self.assertIn("- Ready-next unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("- Ready-next unmanaged usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
 
     def test_managed_device_detail_button_surfaces_peer_attention_context(self) -> None:
         notification_calls: list[dict] = []
