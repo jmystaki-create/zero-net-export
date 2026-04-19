@@ -1188,6 +1188,16 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- First managed device needing attention: Water heater", message)
         self.assertIn("- Other managed devices needing attention: Water heater", message)
         self.assertIn("- Other steady managed devices: Garage fan", message)
+        self.assertIn("Other attention-device audit preview:", message)
+        self.assertIn(
+            "- Water heater: fixed | Blocked | not usable | enabled | power n/a | guard source blocked | action turn_on",
+            message,
+        )
+        self.assertIn("Other steady-device audit preview:", message)
+        self.assertIn(
+            "- Garage fan: fixed | Idle | usable | enabled | power n/a | guard ready | action hold",
+            message,
+        )
 
     def test_managed_device_detail_button_exposes_workspace_context_attributes(self) -> None:
         button_module = _load_button_module()

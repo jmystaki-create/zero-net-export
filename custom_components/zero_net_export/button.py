@@ -582,15 +582,23 @@ def _build_managed_device_detail_lines(
         for candidate in attention_devices
     )
     ready_candidate = _first_ready_candidate(candidates)
-    peer_attention_devices = [
-        str(candidate.get("name") or candidate.get("entity_id") or "managed device")
+    peer_attention_details = [
+        candidate
         for candidate in attention_devices
         if (candidate.get("entity_id") or candidate.get("name")) not in {entity_id, device_label}
     ]
-    peer_steady_devices = [
-        str(candidate.get("name") or candidate.get("entity_id") or "managed device")
+    peer_steady_details = [
+        candidate
         for candidate in remaining_devices
         if (candidate.get("entity_id") or candidate.get("name")) not in {entity_id, device_label}
+    ]
+    peer_attention_devices = [
+        str(candidate.get("name") or candidate.get("entity_id") or "managed device")
+        for candidate in peer_attention_details
+    ]
+    peer_steady_devices = [
+        str(candidate.get("name") or candidate.get("entity_id") or "managed device")
+        for candidate in peer_steady_details
     ]
     kind = str(detail.get("kind") or "unknown")
     requested_target_power = detail.get("planned_requested_power_w")
@@ -692,6 +700,24 @@ def _build_managed_device_detail_lines(
             "- Other steady managed devices: " + ", ".join(peer_steady_devices[:5])
             if peer_steady_devices
             else "- Other steady managed devices: none"
+        ),
+        *(
+            [
+                "",
+                "Other attention-device audit preview:",
+                *[_format_device_review_line(candidate, audit=True) for candidate in peer_attention_details[:3]],
+            ]
+            if peer_attention_details
+            else []
+        ),
+        *(
+            [
+                "",
+                "Other steady-device audit preview:",
+                *[_format_device_review_line(candidate, audit=True) for candidate in peer_steady_details[:3]],
+            ]
+            if peer_steady_details
+            else []
         ),
         "",
         f"Device: {device_label}",
