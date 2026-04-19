@@ -460,6 +460,19 @@ Suggested area labels:
 - **validation status:** repo-side doc fix verified in this run by re-reading the updated sections and confirming all remaining direct `deploy_exact_repo_build.py` guidance in those docs is now approval-first.
 - **next action:** keep release-boundary wording aligned across public docs and native guidance, and do not let future watchdog runs treat another approval-wording refresh as the main task unless it changes a real operator decision
 
+## ZNE-057 - README and project status still pointed release approval at stale build `e298061`
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** repo audit on 2026-04-19 after comparing `README.md` and `project_status.md` against `docs/UI_IMPLEMENTATION_MAP.md`, active bug state, and the current fingerprint helper output
+- **current observed behavior:** the main source-of-truth docs and bug tracker had already moved the release boundary to exact build `bade75f`, but secondary operator guidance still told James to approve deploy/restart of stale build `e298061`. That reopened release-steering drift in the thread-ready status files and risked another round of approval-target churn even though the documented HA SSH fingerprint mismatch was unchanged.
+- **expected behavior:** README and project status should name the same exact current component-changing candidate as `scripts/print_expected_install_fingerprint.py`, and docs-only follow-on commits should not retarget the release boundary by themselves.
+- **evidence:** this run re-read `README.md`, `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/BUGS.md`; `README.md` and `project_status.md` still named `e298061` while the implementation map, active bug state, and `python3 scripts/print_expected_install_fingerprint.py` all resolved the current component-changing candidate to `bade75f`. This same run also rechecked the documented HA SSH path with `python3 scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config`, which still showed the same unchanged eleven-file drift set, confirming the real change here was stale release steering, not new live evidence.
+- **suspected cause:** the source-of-truth docs were updated after the later component-changing copy fix landed, but the secondary thread/status docs were left on the older approval target.
+- **repo fix:** this run updates `README.md` and `project_status.md` so their approval/deploy wording now points at exact build `bade75f` and explicitly treats later `069dc68` and `c141ddf` commits as docs-only refreshes around the same unchanged live mismatch rather than new shipped UI movement.
+- **validation status:** repo-side source-of-truth audit plus direct doc correction in this run. `rg -n "e298061|bade75f|Current highest-value next step|next_action:|user_action:" README.md project_status.md docs/UI_IMPLEMENTATION_MAP.md docs/BUGS.md` now shows the stale `e298061` approval target removed from README and project status while the current `bade75f` boundary stays aligned with the implementation map and bug tracker.
+- **next action:** stop spending watchdog/supervisor runs on approval-target refreshes when the live mismatch is unchanged; if the candidate is being presented as release-ready, ask James directly to approve deploy/restart of exact build `bade75f`, otherwise keep advancing the next mapped non-live repo step.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
