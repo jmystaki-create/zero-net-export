@@ -1070,10 +1070,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return " | ".join(parts)
 
     @staticmethod
-    def _top_candidate_focus_text(candidate: dict[str, Any] | None) -> str:
+    def _trim_focus_sentence(text: str) -> str:
+        return text.rstrip().rstrip(".!? ")
+
+    @classmethod
+    def _top_candidate_focus_text(cls, candidate: dict[str, Any] | None) -> str:
         if not candidate:
             return "none discovered right now"
-        return build_candidate_preview(candidate, include_entity_id=False)
+        return cls._trim_focus_sentence(build_candidate_preview(candidate, include_entity_id=False))
 
     @staticmethod
     def _review_candidate_focus_text(candidates: list[dict[str, Any]]) -> str:
@@ -1104,12 +1108,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         if review_candidate is not None:
             return (
-                "review "
+                "review first in the unmanaged section: "
                 + cls._top_candidate_focus_text(review_candidate)
-                + " first in the unmanaged section"
             )
         if top_candidate is not None:
-            return "promote " + cls._top_candidate_focus_text(top_candidate) + " next"
+            return "promote next from the unmanaged section: " + cls._top_candidate_focus_text(top_candidate)
         return "use the deeper device review path only if you need more per-device runtime detail"
 
     @staticmethod

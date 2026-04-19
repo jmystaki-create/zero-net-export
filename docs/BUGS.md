@@ -512,6 +512,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/sensor.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this final review-surface wording cleanup in the next exact-build deploy, then confirm the managed-device review notification and helper sensors no longer reintroduce `Top candidate ...` ranking language in Home Assistant.
 
+## ZNE-061 - Managed Devices save feedback built awkward next-step sentences from punctuated candidate previews
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** repo audit on 2026-04-20 while reviewing the remaining `0.1.87` Managed Devices promotion-flow polish work
+- **current observed behavior:** the native save/removal feedback in `ZeroNetExportOptionsFlow._build_device_action_feedback()` could build awkward follow-through lines like `then review Virtual load (fixed) | review first | key warning: Helper-backed load needs review. first in the unmanaged section.` because `_post_save_candidate_follow_through()` appended sentence fragments after `build_candidate_preview(...)` output that already ended with punctuation.
+- **expected behavior:** the success landing should give a clean next action that still preserves the review-first or ready-next candidate preview without doubling punctuation or producing broken sentence order.
+- **evidence:** repo inspection of `custom_components/zero_net_export/config_flow.py` plus focused regression expectations in `tests/test_config_flow_device_runtime_overlay.py` showed the current text shape directly, including the removal feedback line ending in `... Helper-backed load needs review. first in the unmanaged section.`
+- **suspected cause:** `_post_save_candidate_follow_through()` was composing follow-through text as `review <preview> first in the unmanaged section` / `promote <preview> next`, but `build_candidate_preview(...)` already returns operator-facing preview text that can end in a sentence-final warning.
+- **repo fix:** this run adds punctuation-safe focus-text trimming in `custom_components/zero_net_export/config_flow.py` and rewrites the follow-through copy to `review first in the unmanaged section: ...` / `promote next from the unmanaged section: ...`, which preserves the candidate preview while keeping the final next-step sentence grammatical. `tests/test_config_flow_device_runtime_overlay.py` now locks the cleaned save/remove feedback wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`.
+- **next action:** include this promotion-feedback wording cleanup in the next exact-build deploy, then confirm the Managed Devices success landing reads cleanly in live Home Assistant after promote/remove flows.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
