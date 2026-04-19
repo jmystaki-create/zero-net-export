@@ -310,6 +310,20 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertEqual(recommendation["recommended_section"], "Managed Devices")
         self.assertEqual(recommendation["recommended_path"], native_support.DEVICES_CONFIGURE_PATH)
 
+    def test_setup_recommendation_prefers_managed_devices_when_fleet_follow_up_exists(self) -> None:
+        native_support = _load_native_support_module()
+        recommendation = native_support.build_native_setup_recommendation(
+            missing_source_keys=[],
+            source_attention_roles="None",
+            device_issues=[],
+            has_devices=True,
+            readiness_phase="operator_ready",
+            candidate_count=2,
+            review_needed_count=1,
+        )
+        self.assertEqual(recommendation["recommended_section"], "Managed Devices")
+        self.assertEqual(recommendation["recommended_path"], native_support.DEVICES_CONFIGURE_PATH)
+
     def test_command_center_guide_text_includes_source_blocker_details(self) -> None:
         native_support = _load_native_support_module()
         guide = native_support.build_native_command_center_guide_text(

@@ -1142,6 +1142,10 @@ def build_native_setup_recommendation(
     device_issues: list[str] | None = None,
     has_devices: bool = False,
     readiness_phase: str | None = None,
+    candidate_count: int = 0,
+    review_needed_count: int = 0,
+    managed_attention_count: int = 0,
+    blocked_activity_count: int = 0,
 ) -> dict[str, str]:
     """Return the best current native section for setup follow-through."""
     if missing_source_keys or (source_attention_roles and source_attention_roles != "None"):
@@ -1150,6 +1154,11 @@ def build_native_setup_recommendation(
             "recommended_path": SOURCES_CONFIGURE_PATH,
         }
     if device_issues or not has_devices:
+        return {
+            "recommended_section": DEVICES_SECTION_LABEL,
+            "recommended_path": DEVICES_CONFIGURE_PATH,
+        }
+    if candidate_count or review_needed_count or managed_attention_count or blocked_activity_count:
         return {
             "recommended_section": DEVICES_SECTION_LABEL,
             "recommended_path": DEVICES_CONFIGURE_PATH,
@@ -1624,6 +1633,16 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
     review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
+    managed_attention_count = (
+        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_needs_attention(detail))
+        if state is not None
+        else 0
+    )
+    blocked_activity_count = (
+        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
+        if state is not None
+        else 0
+    )
     fixed_review_count = sum(
         1
         for item in candidates
@@ -1641,6 +1660,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         else len(configured_devices)
     )
     has_managed_devices = runtime_device_count > 0
+    first_blocked_device = _first_runtime_device_detail(state, predicate=_runtime_device_has_blocked_activity)
+    first_planned_device = _first_runtime_device_detail(state, predicate=_runtime_device_has_active_plan)
+    first_attention_device = _first_runtime_device_detail(state, predicate=_runtime_device_needs_attention)
     install_consistency = build_install_consistency_summary(install_provenance)
     install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
     install_provenance_blocked = install_provenance_pending or install_provenance.get("manifest_matches_code_version") is False
@@ -1697,9 +1719,36 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_name=ready_candidate_name,
             ready_candidate_preview=ready_candidate_preview,
         )
-        device_next_step = (
-            f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
-        )
+        if blocked_activity_count:
+            blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked managed device"
+            device_next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and review blocked managed devices, starting with {blocked_target}."
+            )
+        elif first_planned_device:
+            planned_target = _command_center_runtime_device_preview(first_planned_device) or "the active managed-device plan"
+            device_next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan for {planned_target} before changing the fleet."
+            )
+        elif first_attention_device:
+            attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
+            device_next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and review managed-device attention, starting with {attention_target}, before changing the fleet."
+            )
+        elif candidate_count:
+            if review_candidate_name:
+                device_next_step = (
+                    f"Open {DEVICES_CONFIGURE_PATH} and review {review_candidate_preview or review_candidate_name} first from the unmanaged list."
+                )
+                if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                    device_next_step += f" Then promote {ready_candidate_preview or ready_candidate_name} next."
+            else:
+                device_next_step = (
+                    f"Open {DEVICES_CONFIGURE_PATH} and promote {ready_candidate_preview or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'} next."
+                )
+        else:
+            device_next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} to review the fleet, edit device settings, or stage enablement changes."
+            )
     else:
         device_status = _command_center_device_status_with_unmanaged_context(
             "No managed devices configured yet",
@@ -1721,6 +1770,10 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_issues=device_parse_issues,
         has_devices=has_managed_devices,
         readiness_phase=readiness_phase,
+        candidate_count=candidate_count,
+        review_needed_count=review_needed_count,
+        managed_attention_count=managed_attention_count,
+        blocked_activity_count=blocked_activity_count,
     )
     recommended_section = normalize_command_center_section(recommendation["recommended_section"])
 
@@ -1767,6 +1820,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             or f"Open {SUPPORT_CONFIGURE_PATH} and {DIAGNOSTICS_DEVICE_ACTIONS_PATH} to clear the current runtime blocker."
         )
         recommended_section = SUPPORT_SECTION_LABEL
+    elif recommended_section == DEVICES_SECTION_LABEL and (candidate_count or managed_attention_count or blocked_activity_count):
+        next_action_summary = device_next_step
     elif readiness_phase == "operator_ready":
         next_action_summary = str(
             readiness.get("next_step")
