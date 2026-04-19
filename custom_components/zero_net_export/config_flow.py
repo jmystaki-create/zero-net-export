@@ -1070,6 +1070,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "None flagged for review right now"
         return build_candidate_preview(review_candidate, include_entity_id=False)
 
+    @staticmethod
+    def _ready_candidate_focus_text(candidates: list[dict[str, Any]]) -> str:
+        ready_candidate = next(
+            (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+            None,
+        )
+        if not ready_candidate:
+            return "None ready to promote right now"
+        return build_candidate_preview(ready_candidate, include_entity_id=False)
+
     @classmethod
     def _post_save_candidate_follow_through(cls, candidates: list[dict[str, Any]]) -> str:
         top_candidate = candidates[0] if candidates else None
@@ -1458,6 +1468,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         managed_snapshot = self._managed_snapshot_text(devices)
         unmanaged_snapshot = self._unmanaged_snapshot_text(candidates)
         review_candidate = self._review_candidate_focus_text(candidates)
+        ready_candidate = self._ready_candidate_focus_text(candidates)
 
         candidate_follow_through = self._post_save_candidate_follow_through(candidates)
 
@@ -1500,6 +1511,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             managed_snapshot,
             unmanaged_snapshot,
             f"Review-first unmanaged candidate: {review_candidate}",
+            f"Ready-next unmanaged candidate: {ready_candidate}",
         ]
         if blocker_active:
             message_lines.extend([

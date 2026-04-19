@@ -1709,6 +1709,42 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             feedback["message"],
         )
 
+    def test_build_device_action_feedback_surfaces_ready_next_candidate_after_review_first(self) -> None:
+        module = _load_config_flow_module()
+        module.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "switch.virtual_load" else "high",
+            "summary": "Review before promotion." if candidate.get("entity_id") == "switch.virtual_load" else "Ready to promote.",
+            "warnings": ["Helper-backed load needs review."] if candidate.get("entity_id") == "switch.virtual_load" else [],
+        }
+        module.discover_candidate_devices = lambda states, managed_ids: [
+            {"entity_id": "switch.virtual_load", "name": "Virtual load", "kind": module.DEVICE_KIND_FIXED},
+            {"entity_id": "switch.hot_water", "name": "Hot water", "kind": module.DEVICE_KIND_FIXED},
+        ]
+        module.build_candidate_preview = lambda candidate, include_entity_id=True, include_kind=True, include_state=False, **kwargs: (
+            "Virtual load (fixed) | review first | key warning: Helper-backed load needs review."
+            if candidate.get("entity_id") == "switch.virtual_load"
+            else "Hot water (fixed) | likely useful | key warning: No immediate warnings"
+        )
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={})
+
+        feedback = flow._build_device_action_feedback(
+            action="promote",
+            devices=[{"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True}],
+            device={"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertIn(
+            "Review-first unmanaged candidate: Virtual load (fixed) | review first | key warning: Helper-backed load needs review.",
+            feedback["message"],
+        )
+        self.assertIn(
+            "Ready-next unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
+            feedback["message"],
+        )
+
     def test_device_next_step_uses_candidate_preview_without_raw_entity_id(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
