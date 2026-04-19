@@ -1495,7 +1495,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             options[0]["label"],
-            "Top surfaced: Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
+            "Currently surfaced: Air Purifier (fixed) | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(
             options[1]["label"],
@@ -1529,7 +1529,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             options[0]["label"],
-            "Top surfaced, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label",
+            "Currently surfaced, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label",
         )
         self.assertEqual(
             options[1]["label"],
@@ -1561,7 +1561,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             }
         ]
         flow._candidate_options = lambda kind=None: [
-            {"value": "switch.ac_outlet_2", "label": "Top surfaced, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label"},
+            {"value": "switch.ac_outlet_2", "label": "Currently surfaced, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label"},
         ]
         flow._device_candidates = lambda: [
             {
@@ -1584,7 +1584,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         shortlist = asyncio.run(flow.async_step_device_pick_candidate())
 
         self.assertIn(
-            "Top surfaced, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label",
+            "Currently surfaced, review first: AC Outlet 2 (fixed) | key warning: Generic outlet label",
             shortlist["description_placeholders"]["top_candidates"],
         )
 
@@ -1614,7 +1614,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             }
         ]
         flow._candidate_options = lambda kind=None: [
-            {"value": "switch.ac_outlet_2", "label": "Top surfaced: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"},
+            {"value": "switch.ac_outlet_2", "label": "Currently surfaced: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings"},
         ]
         flow._device_candidates = lambda: [
             {

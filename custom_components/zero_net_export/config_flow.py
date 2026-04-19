@@ -1155,9 +1155,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         is_review = bool(candidate_id) and candidate_id == str((review_candidate or {}).get("entity_id") or "")
         is_ready = bool(candidate_id) and candidate_id == str((ready_candidate or {}).get("entity_id") or "")
         if is_top and is_review:
-            return "Top surfaced, review first"
+            return "Currently surfaced, review first"
         if is_top:
-            return "Top surfaced"
+            return "Currently surfaced"
         if is_review:
             return "Review first"
         if is_ready:
@@ -1180,7 +1180,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             review_candidate=review_candidate,
             ready_candidate=ready_candidate,
         )
-        if prefix in {"Review first", "Top surfaced, review first"}:
+        if prefix in {"Review first", "Currently surfaced, review first"}:
             label = label.replace(" | review first |", " |", 1)
             if label.endswith(" | review first"):
                 label = label[: -len(" | review first")]
