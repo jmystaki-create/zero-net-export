@@ -1201,6 +1201,15 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "- Garage fan: fixed | Idle | usable | enabled | power n/a | guard ready | action hold",
             message,
         )
+        self.assertIn("Current device audit snapshot:", message)
+        self.assertIn(
+            "- Pool pump: fixed | Ready for control | usable | enabled | power n/a | guard ready | action turn_on",
+            message,
+        )
+        self.assertIn("Review-order context:", message)
+        self.assertIn("- This device is #2 in the attention-first review bucket.", message)
+        self.assertIn("- Attention-first bucket size: 2", message)
+        self.assertIn("- Next device in this review bucket: none", message)
 
     def test_managed_device_detail_button_exposes_workspace_context_attributes(self) -> None:
         button_module = _load_button_module()

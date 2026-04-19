@@ -247,6 +247,33 @@ def _first_matching_device_name(device_details: list[dict], *, predicate) -> str
     return ""
 
 
+def _device_matches(detail: dict, target: dict) -> bool:
+    detail_entity_id = str(detail.get("entity_id") or "").strip()
+    target_entity_id = str(target.get("entity_id") or "").strip()
+    if detail_entity_id and target_entity_id and detail_entity_id == target_entity_id:
+        return True
+    detail_name = str(detail.get("name") or "").strip()
+    target_name = str(target.get("name") or "").strip()
+    return bool(detail_name and target_name and detail_name == target_name)
+
+
+def _device_bucket_position(device_details: list[dict], target: dict) -> int | None:
+    for index, detail in enumerate(device_details, start=1):
+        if _device_matches(detail, target):
+            return index
+    return None
+
+
+def _next_bucket_device_name(device_details: list[dict], target: dict) -> str:
+    found_target = False
+    for detail in device_details:
+        if found_target:
+            return str(detail.get("name") or detail.get("entity_id") or "managed device").strip()
+        if _device_matches(detail, target):
+            found_target = True
+    return ""
+
+
 def _managed_entity_ids(state) -> set[str]:
     return {
         str(detail.get("entity_id"))
@@ -601,6 +628,10 @@ def _build_managed_device_detail_lines(
         str(candidate.get("name") or candidate.get("entity_id") or "managed device")
         for candidate in peer_steady_details
     ]
+    current_bucket = attention_devices if device_is_attention else remaining_devices
+    current_bucket_label = "attention-first" if device_is_attention else "steady"
+    current_bucket_position = _device_bucket_position(current_bucket, detail)
+    next_bucket_device = _next_bucket_device_name(current_bucket, detail)
     kind = str(detail.get("kind") or "unknown")
     requested_target_power = detail.get("planned_requested_power_w")
     if requested_target_power is None:
@@ -725,6 +756,22 @@ def _build_managed_device_detail_lines(
             ]
             if peer_steady_details
             else []
+        ),
+        "",
+        "Current device audit snapshot:",
+        _format_device_review_line(detail, audit=True),
+        "",
+        "Review-order context:",
+        (
+            f"- This device is #{current_bucket_position} in the {current_bucket_label} review bucket."
+            if current_bucket_position is not None
+            else f"- This device is currently grouped into the {current_bucket_label} review bucket."
+        ),
+        f"- {current_bucket_label.capitalize()} bucket size: {len(current_bucket)}",
+        (
+            f"- Next device in this review bucket: {next_bucket_device}"
+            if next_bucket_device
+            else "- Next device in this review bucket: none"
         ),
         "",
         f"Device: {device_label}",
