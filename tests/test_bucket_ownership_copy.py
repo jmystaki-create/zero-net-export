@@ -31,15 +31,20 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("- Managed Devices: {devices_path}", native_setup_description)
         self.assertIn("- Diagnostics: {support_path}", native_setup_description)
 
-        source_mapping_description = steps["native_setup_sources"]["description"]
+        source_mapping_step = steps["native_setup_sources"]
+        self.assertEqual(source_mapping_step["title"], "Sensors")
+        source_mapping_description = source_mapping_step["description"]
+        self.assertIn("Use this Sensors screen to map the required entities and set the refresh interval.", source_mapping_description)
         self.assertIn("Sensors owns source repair and source-health work", source_mapping_description)
         self.assertIn("keep fleet onboarding in Managed Devices and controller tuning in Controls", source_mapping_description)
+        self.assertIn("Use the native selectors first. Only drop to the fallback fields if Home Assistant rejects a valid choice.", source_mapping_description)
+        self.assertNotIn("If Combined / net grid energy or Battery state of charge still triggers", source_mapping_description)
         self.assertIn("Source map now", source_mapping_description)
         self.assertNotIn("Sensors now", source_mapping_description)
         self.assertIn("Blocking source repair", source_mapping_description)
         self.assertIn("Best live candidates for the current blocker:", source_mapping_description)
         self.assertIn("Other live candidates, only if the blocker persists:", source_mapping_description)
-        self.assertIn("Picker fallback, only if Home Assistant rejects a valid choice:", source_mapping_description)
+        self.assertIn("Picker fallback, only if Home Assistant rejects a valid choice:\n{fallback_guidance}", source_mapping_description)
         self.assertIn("Bucket ownership and paths", source_mapping_description)
         self.assertIn("- Sensors: {sources_path}", source_mapping_description)
         self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", source_mapping_description)
