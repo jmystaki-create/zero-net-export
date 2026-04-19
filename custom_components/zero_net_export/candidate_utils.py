@@ -738,6 +738,7 @@ def build_candidate_overview_summary(
     fixed_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "fixed")
     variable_count = sum(1 for item in candidate_list if str(item.get("kind") or "") == "variable")
     review_needed_count = sum(1 for item in candidate_list if candidate_needs_review(assess_candidate(item)))
+    ready_candidate_count = max(len(candidate_list) - review_needed_count, 0)
     fixed_review_count, variable_review_count = candidate_review_kind_counts(candidate_list)
     review_candidate = first_review_candidate(candidate_list)
     review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
@@ -756,6 +757,12 @@ def build_candidate_overview_summary(
         if review_candidate_name and review_candidate_name != top_name:
             summary_parts.append(f"review {review_candidate_name}")
             summary_parts.append(build_candidate_review_hint(review_candidate))
+    if ready_candidate_count:
+        summary_parts.append(
+            "1 ready to promote"
+            if ready_candidate_count == 1
+            else f"{ready_candidate_count} ready to promote"
+        )
     if top_name:
         summary_parts.append(f"top {top_name}")
     if include_top_review_hint and candidate_list:

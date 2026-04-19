@@ -1418,6 +1418,13 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(_count_label(variable_review_count, "variable review"))
             if review_candidate_name and review_candidate_name != top_candidate_name:
                 summary_parts.append(f"review {review_candidate_preview or review_candidate_name}")
+        ready_candidate_count = max(candidate_count - review_needed_count, 0)
+        if ready_candidate_count:
+            summary_parts.append(
+                "1 ready to promote"
+                if ready_candidate_count == 1
+                else f"{ready_candidate_count} ready to promote"
+            )
         if ready_candidate_name:
             summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
         if top_candidate_name and top_candidate_name != ready_candidate_name:

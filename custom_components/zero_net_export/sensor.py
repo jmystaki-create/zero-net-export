@@ -390,6 +390,7 @@ def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> 
     fixed_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "fixed")
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
     review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
+    ready_candidate_count = max(len(candidates) - review_needed_count, 0)
     fixed_review_count, variable_review_count = candidate_review_kind_counts(candidates)
     top_candidate = candidates[0]
     top_candidate_name = str(top_candidate.get("name") or top_candidate.get("entity_id") or "").strip()
@@ -419,6 +420,12 @@ def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> 
             parts.append(_count_label(variable_review_count, "variable review"))
         if review_candidate_name:
             parts.append(f"review {review_candidate_preview or review_candidate_name}")
+    if ready_candidate_count:
+        parts.append(
+            "1 ready to promote"
+            if ready_candidate_count == 1
+            else f"{ready_candidate_count} ready to promote"
+        )
     if ready_candidate_name:
         parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
     if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:

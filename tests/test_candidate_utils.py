@@ -595,7 +595,10 @@ class CandidateUtilsTests(unittest.TestCase):
             ]
         )
 
-        self.assertIn("2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | top Virtual load | review carefully", summary)
+        self.assertIn(
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | 1 ready to promote | top Virtual load | review carefully",
+            summary,
+        )
         self.assertIn("warn This is an input_boolean helper.", summary)
         self.assertLessEqual(len(summary), 240)
 

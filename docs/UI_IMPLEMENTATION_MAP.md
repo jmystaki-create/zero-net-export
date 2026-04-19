@@ -30,6 +30,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Unmanaged-candidate discovery exists.
 - Candidate shortlist and full-list pick flows exist, and they now share the same fit/warning signals and stronger runtime ranking helpers.
 - Candidate vetting/review now includes an explicit balanced review shape covering control suitability, safety/confidence, and operational value.
+- Unmanaged backlog summaries now carry explicit ready-to-promote counts across the opening operator console, Managed Devices snapshots, and fleet-workspace overview surfaces instead of only naming review debt plus one ready candidate.
 - Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
 - Fleet review / bulk enable-disable scaffolding exists.
 - The Zero Net Export device page now exposes a first-class managed-device review action, per-device managed review buttons for each configured load, and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
@@ -101,7 +102,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Still to do**
 1. Make the managed-on-top / unmanaged-below split visually obvious on the exact deployed build.
 2. Make managed summaries show enough operational detail that the top of the workspace feels active, not skeletal.
-3. Make unmanaged summaries show enough backlog mix, review burden, and top-candidate quality that the bottom of the workspace feels actionable.
+3. Validate on the exact deployed build that unmanaged summaries now read as actionable backlog mix, with review burden, ready-to-promote count, and top-candidate quality all visible at a glance.
 4. Remove any remaining wording, ordering, or summary behavior that makes Configure -> Managed Devices feel like a thin helper layer instead of the real fleet workspace.
 5. Confirm blocked or review-first items are easy to spot at a glance.
 

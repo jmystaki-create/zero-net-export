@@ -1568,7 +1568,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | top Virtual load | review carefully | key warning: This is an input_boolean helper. | ready Hot water relay | likely useful",
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | 1 ready to promote | top Virtual load | review carefully | key warning: This is an input_boolean helper. | ready Hot water relay | likely useful",
         )
 
     def test_unmanaged_snapshot_counts_low_confidence_candidates_as_needing_review(self) -> None:
@@ -1604,7 +1604,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | warn Helper-backed load needs review. | top Hot water relay | likely useful | key warning: No immediate warnings",
+            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | warn Helper-backed load needs review. | 1 ready to promote | top Hot water relay | likely useful | key warning: No immediate warnings",
         )
 
     def test_candidate_snapshot_groups_review_first_before_ready_candidates(self) -> None:

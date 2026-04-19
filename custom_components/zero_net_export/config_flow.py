@@ -997,6 +997,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         fixed_count, variable_count = cls._candidate_mix_counts(candidates)
         review_candidates = [item for item in candidates if candidate_needs_review(assess_candidate(item))]
+        ready_candidate_count = max(len(candidates) - len(review_candidates), 0)
         fixed_review_count = sum(1 for item in review_candidates if item.get("kind") == DEVICE_KIND_FIXED)
         variable_review_count = sum(1 for item in review_candidates if item.get("kind") == DEVICE_KIND_VARIABLE)
         top_candidate = candidates[0]
@@ -1025,6 +1026,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     review_candidate,
                     include_warning=review_candidate is not top_candidate,
                 )
+            )
+        if ready_candidate_count:
+            parts.append(
+                "1 ready to promote"
+                if ready_candidate_count == 1
+                else f"{ready_candidate_count} ready to promote"
             )
         if top_name:
             parts.append(f"top {top_name}")
