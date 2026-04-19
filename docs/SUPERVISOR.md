@@ -99,11 +99,12 @@ This phase is in good shape when:
 
 Do next:
 1. Treat `docs/UI_IMPLEMENTATION_MAP.md`, especially its `Detailed remaining work map`, as the strict staged checklist for finishing the full `0.1.87` UI design scope.
-2. Work the remaining steps in workstream order: opening operator console, Managed Devices workspace, promotion flow, four-bucket IA, deeper device-page review path, notification/support cleanup, then exact-build release execution.
-3. Prefer the next unfinished UI workstream step over release-state bookkeeping whenever safe repo-side implementation work still exists.
-4. Keep logging real remaining gaps against `docs/BUGS.md` so the release cut line is based on explicit evidence rather than vague feeling.
-5. Once the remaining repo-side UI work is coherent enough, freeze the `0.1.87` cut line, bump versioned metadata, run the full validation pass, and execute the release flow.
-6. Only ask James for formal release approval when the candidate has materially crossed a release boundary with new evidence, and otherwise continue building the next mapped `0.1.87` step instead of repeating the same release ask.
+2. Work the remaining steps in workstream order: opening operator console, Managed Devices workspace, promotion flow, four-bucket IA, notification/support cleanup, then exact-build release execution.
+3. Treat the device-page deeper review path as primarily in live-proof posture unless new repo-side drift appears there, rather than reopening Workstream E by default.
+4. Prefer the next unfinished UI workstream step over release-state bookkeeping whenever safe repo-side implementation work still exists.
+5. Keep logging real remaining gaps against `docs/BUGS.md` so the release cut line is based on explicit evidence rather than vague feeling.
+6. Once the remaining repo-side UI work is coherent enough, freeze the `0.1.87` cut line, bump versioned metadata, run the full validation pass, and execute the release flow.
+7. Only ask James for formal release approval when the candidate has materially crossed a release boundary with new evidence, and otherwise continue building the next mapped `0.1.87` step instead of repeating the same release ask.
 
 Do later:
 - Validate a mixed-device fleet scenario, not just a single-device happy path.

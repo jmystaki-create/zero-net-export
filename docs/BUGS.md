@@ -419,6 +419,19 @@ Suggested area labels:
 - **validation status:** repo-side source-of-truth audit plus direct status-doc correction in this run. That is enough evidence for a docs-ranking bug.
 - **next action:** keep the next watchdog/supervisor ranking on the highest remaining repo-side A-D/F gap, and only reopen Workstream E if new installed-UI evidence shows a real device-page regression.
 
+## ZNE-054 - SUPERVISOR.md still ranked Workstream E ahead of notification cleanup
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** repo audit on 2026-04-19 after comparing `docs/SUPERVISOR.md` against `docs/UI_IMPLEMENTATION_MAP.md` and the current active bug state
+- **current observed behavior:** `docs/SUPERVISOR.md` still told the supervisor to work `deeper device-page review path` before `notification/support cleanup`, even though `docs/UI_IMPLEMENTATION_MAP.md` already says unfinished repo-side runway remains across Workstreams A-D and F while Workstream E is primarily in live-proof posture. That stale ordering was still capable of pulling watchdog/supervisor runs back into the same device-page loop the bug tracker had already told it to stop reopening by default.
+- **expected behavior:** supervisor steering should match the implementation map by keeping repo-side default ranking on Workstreams A-D and F, and only reopening Workstream E when new repo-side drift appears there.
+- **evidence:** this run's repo grep found the stale ordering still in `docs/SUPERVISOR.md:102`, while `docs/UI_IMPLEMENTATION_MAP.md` says the remaining repo-side runway is across Workstreams A-D and F and ZNE-028/ZNE-053 already say not to reopen Workstream E by default.
+- **suspected cause:** secondary steering in `SUPERVISOR.md` lagged behind the later workstream-ranking corrections that had already landed in the implementation map, README, project status, and bug tracker.
+- **repo fix:** this run updates `docs/SUPERVISOR.md` so the default workstream order now goes from four-bucket IA to notification/support cleanup, and adds an explicit note that the device-page deeper review path is primarily in live-proof posture unless new repo-side drift appears there.
+- **validation status:** repo-side source-of-truth audit plus direct supervisor-doc correction in this run. That is enough evidence for this steering-order bug.
+- **next action:** keep the next watchdog/supervisor pass on the highest remaining repo-side A-D/F gap, not another speculative Workstream E reopen.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
