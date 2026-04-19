@@ -41,7 +41,7 @@
       },
       "native_setup": {
         "title": "Sensors",
-        "description": "This is the source-mapping section of the Zero Net Export command center. Sensors owns mapped roles and source health. Use this screen for solar, grid, battery, and source-freshness work, not managed-device promotion or controller-policy tuning. First choose whether your grid sensors are exposed as one combined signed/net source or as separate import/export entities.\n\nSource status now\n- Currently missing required sources: {missing_sources}\n- Current source health: {source_health}\n- Recommended next step: {source_next_step}\n\nBucket ownership and paths\n- Sensors: {sources_path}\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}\n- Managed Devices: {devices_path}\n- Diagnostics: {support_path}\n\nPrimary path: {configure_path}.",
+        "description": "Use this Sensors screen as the source-mapping and source-health home for the Zero Net Export command center. Keep managed-device promotion in Managed Devices and controller-policy tuning in Controls. First choose whether your grid sensors are exposed as one combined signed/net source or as separate import/export entities.\n\nSource status now\n- Currently missing required sources: {missing_sources}\n- Current source health: {source_health}\n- Recommended next step: {source_next_step}\n\nBucket ownership and paths\n- Sensors: {sources_path}\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}\n- Managed Devices: {devices_path}\n- Diagnostics: {support_path}\n\nPrimary path: {configure_path}.",
         "data": {
           "grid_sensor_mode": "Grid import/export sensor layout"
         },

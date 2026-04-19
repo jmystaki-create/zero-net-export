@@ -21,8 +21,12 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {devices_path}", init_description)
 
         native_setup_description = steps["native_setup"]["description"]
-        self.assertIn("Sensors owns mapped roles and source health.", native_setup_description)
-        self.assertIn("not managed-device promotion or controller-policy tuning", native_setup_description)
+        self.assertIn(
+            "Use this Sensors screen as the source-mapping and source-health home for the Zero Net Export command center.",
+            native_setup_description,
+        )
+        self.assertIn("Keep managed-device promotion in Managed Devices and controller-policy tuning in Controls.", native_setup_description)
+        self.assertNotIn("This is the source-mapping section of the Zero Net Export command center.", native_setup_description)
         self.assertIn("Source status now", native_setup_description)
         self.assertNotIn("Sensors now", native_setup_description)
         self.assertIn("Bucket ownership and paths", native_setup_description)
