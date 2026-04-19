@@ -1863,13 +1863,18 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         elif candidate_count:
             if review_candidate_name:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} and review {review_candidate_preview or review_candidate_name} first from the unmanaged list."
+                    f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: "
+                    f"{review_candidate_preview or review_candidate_name}"
                 )
                 if ready_candidate_name and ready_candidate_name != review_candidate_name:
-                    device_next_step += f" Then promote {ready_candidate_preview or ready_candidate_name} next."
+                    device_next_step += (
+                        f", then promote next from the unmanaged section: "
+                        f"{ready_candidate_preview or ready_candidate_name}"
+                    )
             else:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} and promote {ready_candidate_preview or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'} next."
+                    f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
+                    f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
                 )
         else:
             device_next_step = (
@@ -1887,9 +1892,21 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_name=ready_candidate_name,
             ready_candidate_preview=ready_candidate_preview,
         )
-        device_next_step = (
-            f"Open {DEVICES_CONFIGURE_PATH} and review {primary_candidate_focus} first from the managed-device flow."
-        )
+        if review_candidate_name:
+            device_next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: "
+                f"{review_candidate_preview or review_candidate_name}"
+            )
+            if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                device_next_step += (
+                    f", then promote next from the unmanaged section: "
+                    f"{ready_candidate_preview or ready_candidate_name}"
+                )
+        else:
+            device_next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
+                f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or primary_candidate_focus}"
+            )
 
     recommendation = build_native_setup_recommendation(
         missing_source_keys=missing_required_sources,
@@ -1935,9 +1952,20 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif device_parse_issues:
         next_action_summary = "Repair the managed-device configuration next so control actions can be trusted."
     elif not has_managed_devices:
-        if top_candidate_preview:
+        if review_candidate_name:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} and review {primary_candidate_focus} first so Zero Net Export has a credible managed load."
+                f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: "
+                f"{review_candidate_preview or review_candidate_name}"
+            )
+            if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                next_action_summary += (
+                    f", then promote next from the unmanaged section: "
+                    f"{ready_candidate_preview or ready_candidate_name}"
+                )
+        elif top_candidate_preview:
+            next_action_summary = (
+                f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
+                f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or primary_candidate_focus}"
             )
         else:
             next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
@@ -2049,8 +2077,15 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             f"Open {SOURCES_CONFIGURE_PATH} and use the highlighted native guidance to continue."
             if missing_required_sources or runtime_source_attention
             else (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue managed-device setup."
-                if device_parse_issues or not has_managed_devices
+                f"Open {DEVICES_CONFIGURE_PATH} to continue the current managed-device review or promotion step."
+                if (
+                    recommended_section == DEVICES_SECTION_LABEL
+                    or device_parse_issues
+                    or not has_managed_devices
+                    or candidate_count
+                    or managed_attention_count
+                    or blocked_activity_count
+                )
                 else f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
             )
         ),
