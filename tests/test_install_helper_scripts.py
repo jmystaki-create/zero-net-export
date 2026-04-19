@@ -219,6 +219,16 @@ class DeployExactRepoBuildTests(unittest.TestCase):
             self.assertEqual((backup_path / "manifest.json").read_text(encoding="utf-8"), '{"version": "test"}')
             self.assertFalse((config_dir / "custom_components" / backup_path.name).exists())
 
+    def test_copy_component_skips_pycache_and_bytecode_from_repo_source(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            destination = Path(tmp_dir) / "config" / "custom_components" / "zero_net_export"
+
+            deploy_script.copy_component(COMPONENT_ROOT, destination)
+
+            self.assertTrue((destination / "manifest.json").exists())
+            self.assertFalse((destination / "__pycache__").exists())
+            self.assertFalse((destination / "__pycache__" / "backup.cpython-311.pyc").exists())
+
     def test_ensure_safe_destination_rejects_repo_local_destinations(self) -> None:
         repo_root = REPO_ROOT.resolve()
         source_root = COMPONENT_ROOT.resolve()

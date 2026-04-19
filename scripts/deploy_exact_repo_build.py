@@ -151,11 +151,22 @@ def ensure_safe_destination(
 
 
 
+def _ignore_component_artifacts(_directory: str, names: list[str]) -> set[str]:
+    ignored: set[str] = set()
+    for name in names:
+        if name == "__pycache__":
+            ignored.add(name)
+            continue
+        if name.endswith((".pyc", ".pyo")):
+            ignored.add(name)
+    return ignored
+
+
 def copy_component(source_root: Path, destination_root: Path) -> None:
     destination_root.parent.mkdir(parents=True, exist_ok=True)
     if destination_root.exists():
         shutil.rmtree(destination_root)
-    shutil.copytree(source_root, destination_root)
+    shutil.copytree(source_root, destination_root, ignore=_ignore_component_artifacts)
 
 
 def config_root_for_destination(destination_root: Path) -> Path:
