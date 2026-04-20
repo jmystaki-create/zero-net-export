@@ -1331,6 +1331,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this helper-sensor wording cleanup in the next exact-build deploy, then confirm the live empty-fleet Managed Devices attention sensor keeps the workspace-first review cue instead of the older generic `review ... first` wording.
 
+## ZNE-108 - Managed Devices save landing still padded candidate follow-through with snapshot-helper wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-21 while reviewing the remaining Workstream C success-landing copy in `custom_components/zero_net_export/config_flow.py`
+- **current observed behavior:** after promote, edit, or enablement-save actions that correctly kept operators inside Configure -> Managed Devices, the success landing still prefixed the real next fleet action with helper phrases like `confirm the fleet snapshot` or `confirm the updated enablement snapshot`. That kept one smaller scaffold-like wording leak in the first-class promotion/save workflow even when the real follow-through was already a concrete unmanaged review or ready-next promotion step.
+- **expected behavior:** the save landing should say what changed, then send the operator straight back into the Managed Devices workspace with the next concrete fleet action, without extra snapshot-helper narration that weakens the native workflow feel.
+- **evidence:** this run's repo audit found `_build_device_action_feedback(...)` in `custom_components/zero_net_export/config_flow.py` still hard-coding `confirm the fleet snapshot`, `confirm the updated fleet snapshot`, and `confirm the updated enablement snapshot` in the default success-landing branches. Focused regressions in `tests/test_config_flow_device_runtime_overlay.py` were still locking those helper phrases into the promote and enablement feedback paths.
+- **suspected cause:** earlier success-landing cleanup prioritized restoring the correct Managed Devices workspace destination plus review-first / ready-next follow-through, but left the older snapshot-confirmation prose wrapped around those repaired next steps.
+- **repo fix:** this run removes the snapshot-helper phrases from the default Managed Devices save feedback in `custom_components/zero_net_export/config_flow.py`, so promote/edit/enablement success landings now point directly back to the Managed Devices workspace and the next concrete fleet action. `tests/test_config_flow_device_runtime_overlay.py` now locks the shorter workspace-first next-step wording into the affected save paths.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this save-landing copy cleanup in the next exact-build deploy, then confirm the live promote/edit/enablement feedback reads like one direct Managed Devices workflow instead of dropping back into snapshot-helper prose.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
