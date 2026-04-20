@@ -885,6 +885,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         fixed_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_FIXED)
         variable_count = sum(1 for device in devices if device.get("kind") == DEVICE_KIND_VARIABLE)
         total_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
+        attention_device = next((device for device in ordered if self._device_needs_attention(device)), None)
+        active_device = next((device for device in ordered if device.get("observed_active") is True), None)
+        blocked_device = next((device for device in ordered if self._device_has_blocked_activity(device)), None)
+        planned_device = next((device for device in ordered if self._active_planned_action(device)), None)
         fleet_summary = (
             f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {blocked_count} blocked, {planned_count} planned action(s)"
         )
@@ -894,11 +898,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if attention_count == 1
                 else f", {attention_count} managed devices need attention"
             )
+            if attention_device:
+                fleet_summary += f", attention first {self._managed_snapshot_focus_label(attention_device)}"
         if active_count:
             fleet_summary += (
                 f", active load {active_power_w:g} W, "
                 + ("1 active managed device" if active_count == 1 else f"{active_count} active managed devices")
             )
+            if active_device and not attention_device and not blocked_device and not planned_device:
+                fleet_summary += f", active device {self._managed_snapshot_focus_label(active_device)}"
+        if blocked_device:
+            fleet_summary += f", blocked {self._managed_snapshot_focus_label(blocked_device)}"
+        if planned_device:
+            fleet_summary += f", plan {self._managed_snapshot_focus_label(planned_device)}"
         fleet_summary += f", {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power"
         lines = [
             fleet_summary,
