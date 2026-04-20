@@ -506,6 +506,40 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("Current mapped roles for reference", support_center)
         self.assertNotIn("Diagnostics snapshot\nZero Net Export diagnostics snapshot", support_center)
 
+    def test_support_center_surfaces_blocking_validation_details(self) -> None:
+        native_support = _load_native_support_module()
+
+        class _FakeCoordinator:
+            entry = SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={native_support.CONF_BATTERY_SOC_ENTITY: "sensor.battery_soc"},
+                options={},
+            )
+            data = SimpleNamespace(
+                validation_details={
+                    "issues": [
+                        {
+                            "code": "battery_soc_entity_non_numeric",
+                            "severity": "error",
+                            "message": "Battery state of charge entity sensor.battery_soc is not numeric",
+                        }
+                    ]
+                },
+                source_diagnostics={},
+                stale_data=False,
+                usable_device_count=0,
+                safe_mode=False,
+            )
+
+        support_center = native_support.build_native_support_center(_FakeCoordinator())
+        self.assertIn(
+            "- Blocking validation details: Battery state of charge entity sensor.battery_soc is not numeric",
+            support_center,
+        )
+        self.assertNotIn("- Blocking validation details: None", support_center)
+
     def test_detailed_management_path_uses_review_action_wording(self) -> None:
         native_support = _load_native_support_module()
         self.assertNotIn("diagnostics actions", native_support.DETAILED_MANAGEMENT_PATH)
