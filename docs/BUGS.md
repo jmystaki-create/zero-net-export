@@ -1153,6 +1153,20 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this remaining device-page handoff wording cleanup in the next exact-build deploy, then confirm the live no-candidate promotion handoff keeps `Managed Devices workspace` explicit in both managed-fleet and empty-fleet branches.
 
+
+## ZNE-092 - Managed Devices candidate recap regressed back to ranking-style `Top surfaced` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-21 while comparing the current Managed Devices recap copy against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the older neutral surfaced-candidate guidance already recorded in `docs/BUGS.md`
+- **current observed behavior:** the repo had drifted back to `Top surfaced unmanaged candidate` / `Top surfaced unmanaged candidates` across the main Managed Devices Configure descriptions and the secondary device-page review recaps. That reintroduced ranking language the design explicitly says to avoid, because unmanaged surfacing should stay useful and review-friendly but neutral in posture rather than claiming the product already knows the one correct next device.
+- **expected behavior:** the native Managed Devices workspace and supporting device-page review surfaces should use neutral `Currently surfaced unmanaged candidate` wording while still preserving the separate `needs review` and `ready-next` cues.
+- **evidence:** this run's repo audit found `Top surfaced unmanaged candidate:` still repeated across `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, plus `Top surfaced unmanaged candidates:` and `- Top surfaced unmanaged candidate:` still hard-coded in `custom_components/zero_net_export/button.py` and the matching regressions in `tests/test_bucket_ownership_copy.py` and `tests/test_button_entity_categories.py`. `docs/UI_DESIGN.md` explicitly says unmanaged candidate previews should stay neutral in posture, and the earlier Workstream C bug history in `docs/BUGS.md` already established `Currently surfaced ...` as the aligned wording for surfaced-candidate recap text.
+- **suspected cause:** later copy cleanup over-corrected from neutral surfaced-candidate wording into shortlist-style ranking language, and the bug tracker itself drifted with it in a few newer entries.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `custom_components/zero_net_export/button.py` so the recap copy is back on `Currently surfaced unmanaged candidate(s)`, and refreshes `tests/test_bucket_ownership_copy.py` plus `tests/test_button_entity_categories.py` to lock the neutral wording in place.
+- **validation status:** repo-side fix verified in this run with focused bucket-ownership and button regression coverage plus translation-sync validation. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this wording correction in the next exact-build deploy, then confirm the live Managed Devices workspace and device-page review path keep surfaced-candidate guidance neutral instead of reintroducing `Top surfaced ...` ranking language.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

@@ -779,9 +779,9 @@ def _build_managed_device_detail_lines(
         f"- Managed snapshot: {managed_snapshot}",
         f"- Unmanaged snapshot: {unmanaged_snapshot}",
         (
-            f"- Top surfaced unmanaged candidate: {build_candidate_preview(top_candidate, include_entity_id=False)}"
+            f"- Currently surfaced unmanaged candidate: {build_candidate_preview(top_candidate, include_entity_id=False)}"
             if top_candidate
-            else "- Top surfaced unmanaged candidate: none"
+            else "- Currently surfaced unmanaged candidate: none"
         ),
         *(
             [
@@ -1102,7 +1102,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 if review_candidate and ready_candidate and ready_candidate is not review_candidate
                 else []
             ),
-            'Top surfaced unmanaged candidates:',
+            'Currently surfaced unmanaged candidates:',
             *(
                 [
                     f"- {build_candidate_preview(item, include_entity_id=False, include_state=False)}"
@@ -1277,7 +1277,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 or ["- No additional steady managed devices right now."]
             ),
             "",
-            "Top surfaced unmanaged candidates:",
+            "Currently surfaced unmanaged candidates:",
             *(
                 [
                     f"- {build_candidate_preview(item, include_entity_id=False, include_state=False)}"
