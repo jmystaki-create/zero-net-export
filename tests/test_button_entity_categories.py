@@ -277,6 +277,50 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
         self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Pick unmanaged candidate" in line))
 
+    def test_workspace_handoff_keeps_empty_fleet_on_managed_devices_when_no_candidate_is_surfaced(self) -> None:
+        button_module = _load_button_module()
+
+        handoff = button_module._managed_devices_workspace_handoff(
+            {
+                "recommended_section": button_module.DEVICES_SECTION_LABEL,
+                "recommended_path": "devices path",
+                "recommended_reason": "Managed fleet work is the current priority.",
+                "device_next_step": "Open devices path and check for the next unmanaged promotion candidate.",
+            },
+            [],
+            has_managed_devices=False,
+        )
+
+        self.assertEqual(handoff[0], "Promotion handoff:")
+        self.assertIn("- Open devices path in Configure as the primary Managed Devices workspace.", handoff)
+        self.assertIn(
+            "- Add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.",
+            handoff,
+        )
+        self.assertNotIn("tune controller behaviour", "\n".join(handoff))
+
+    def test_workspace_handoff_keeps_existing_fleet_review_in_managed_devices_when_no_candidate_is_surfaced(self) -> None:
+        button_module = _load_button_module()
+
+        handoff = button_module._managed_devices_workspace_handoff(
+            {
+                "recommended_section": button_module.DEVICES_SECTION_LABEL,
+                "recommended_path": "devices path",
+                "recommended_reason": "Managed fleet work is the current priority.",
+                "device_next_step": "Open devices path and review the current managed fleet.",
+            },
+            [],
+            has_managed_devices=True,
+        )
+
+        self.assertEqual(handoff[0], "Promotion handoff:")
+        self.assertIn("- Reopen devices path in Configure as the primary Managed Devices workspace.", handoff)
+        self.assertIn(
+            "- Review the current managed fleet before changing controls or deeper diagnostics.",
+            handoff,
+        )
+        self.assertNotIn("tune controller behaviour", "\n".join(handoff))
+
     def test_primary_operator_buttons_stay_out_of_diagnostics(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(

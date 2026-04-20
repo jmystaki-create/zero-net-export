@@ -652,11 +652,22 @@ def _managed_devices_workspace_handoff(
             ]
         )
     else:
-        lines.extend(
-            [
-                f"- Open {POLICY_CONFIGURE_PATH} to tune controller behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work.",
-            ]
-        )
+        if has_managed_devices:
+            lines.extend(
+                [
+                    f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure as the primary Managed Devices workspace.",
+                    "- Review the current managed fleet before changing controls or deeper diagnostics.",
+                    f"- Use {DETAILED_MANAGEMENT_PATH} only if you need deeper per-device review after the main fleet step is clear.",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    f"- Open {DEVICES_CONFIGURE_PATH} in Configure as the primary Managed Devices workspace.",
+                    "- Add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.",
+                    f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
+                ]
+            )
     return lines
 
 
