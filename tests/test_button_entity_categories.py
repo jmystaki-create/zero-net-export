@@ -250,7 +250,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
         self.assertIn("- Choose Promote fixed-load candidate.", handoff)
-        self.assertIn("- In Pick unmanaged candidate, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
+        self.assertIn("- In Promotion shortlist, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
 
     def test_workspace_handoff_prefers_first_review_candidate_over_top_rank(self) -> None:
@@ -272,14 +272,14 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertIn("- Choose Promote fixed-load candidate.", handoff)
         self.assertIn(
-            "- In Pick unmanaged candidate, select Virtual load (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power..",
+            "- In Promotion shortlist, select Virtual load (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power..",
             handoff,
         )
         self.assertIn(
             "- Then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
             handoff,
         )
-        self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Pick unmanaged candidate" in line))
+        self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Promotion shortlist" in line))
 
     def test_workspace_handoff_keeps_empty_fleet_on_managed_devices_when_no_candidate_is_surfaced(self) -> None:
         button_module = _load_button_module()

@@ -686,7 +686,7 @@ def _managed_devices_workspace_handoff(
             [
                 f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
                 f"- Choose {promote_label}.",
-                f"- In Pick unmanaged candidate, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
+                f"- In Promotion shortlist, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
             ]
         )
