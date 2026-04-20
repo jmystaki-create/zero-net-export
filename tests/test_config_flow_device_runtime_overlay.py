@@ -2015,6 +2015,36 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
         )
 
+    def test_healthy_source_next_step_keeps_ready_next_candidate_visible_after_review_first(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "state": SimpleNamespace(),
+            "readiness": {},
+            "effective_config": {},
+            "missing_source_keys": [],
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "blocking_validation_details": "None",
+            "validation_details": {"issues": []},
+        }
+        flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+        flow._load_devices = lambda: ([{"name": "Pool pump", "entity_id": "switch.pool_pump", "kind": "fixed", "enabled": True}], [])
+        flow._device_candidates = lambda: [
+            {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": module.DEVICE_KIND_FIXED},
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": module.DEVICE_KIND_FIXED},
+        ]
+        flow._top_candidate_focus_text = lambda candidate: f"{candidate['name']} (fixed) | likely useful"
+        module.assess_candidate = lambda candidate: {"needs_review": candidate["name"] == "Virtual load"}
+        module.candidate_needs_review = lambda fit: fit.get("needs_review", False)
+
+        placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_COMBINED)
+
+        self.assertEqual(
+            placeholders["source_next_step"],
+            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
+        )
+
     def test_source_placeholders_surface_mapping_progress_and_blocker_counts(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
@@ -2548,7 +2578,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Start by reviewing Virtual load (fixed) | review first | key warning: Helper entities may not reflect a controllable appliance load.",
             next_step,
         )
-        self.assertNotIn("Dishwasher Power", next_step)
+        self.assertIn(
+            "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
+            next_step,
+        )
 
     def test_device_next_step_uses_promotion_wording_when_no_candidates_exist_yet(self) -> None:
         module = _load_config_flow_module()
@@ -2595,6 +2628,28 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
         )
         self.assertNotIn("Review the current fleet", next_step)
+
+    def test_device_next_step_keeps_ready_next_candidate_visible_after_review_first(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": None}})
+        flow._top_candidate_focus_text = lambda candidate: f"{candidate['name']} (fixed) | likely useful"
+        module.assess_candidate = lambda candidate: {"needs_review": candidate["name"] == "Virtual load"}
+        module.candidate_needs_review = lambda fit: fit.get("needs_review", False)
+
+        next_step = flow._device_next_step(
+            devices=[{"name": "Pool pump", "kind": module.DEVICE_KIND_FIXED}],
+            issues=[],
+            candidates=[
+                {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": module.DEVICE_KIND_FIXED},
+                {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": module.DEVICE_KIND_FIXED},
+            ],
+        )
+
+        self.assertEqual(
+            next_step,
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
+        )
 
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
         module = _load_config_flow_module()

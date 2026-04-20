@@ -2103,6 +2103,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 (candidate for candidate in candidates if candidate_needs_review(assess_candidate(candidate))),
                 None,
             )
+            ready_candidate = next(
+                (candidate for candidate in candidates if not candidate_needs_review(assess_candidate(candidate))),
+                None,
+            )
             primary_candidate = review_candidate or (candidates[0] if candidates else None)
             source_next_step = str(readiness.get("next_step") or "").strip()
             if not source_next_step:
@@ -2112,16 +2116,26 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     )
                 elif not devices and primary_candidate:
                     source_next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}."
+                        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}"
                     )
+                    if ready_candidate and ready_candidate != primary_candidate:
+                        source_next_step += (
+                            f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                        )
+                    source_next_step += "."
                 elif not devices:
                     source_next_step = "Use the Managed Devices workspace to add the first fixed or variable load manually."
                 elif primary_candidate:
                     candidate_focus = self._top_candidate_focus_text(primary_candidate)
                     if review_candidate:
                         source_next_step = (
-                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {candidate_focus}."
+                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {candidate_focus}"
                         )
+                        if ready_candidate and ready_candidate != primary_candidate:
+                            source_next_step += (
+                                f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                            )
+                        source_next_step += "."
                     else:
                         source_next_step = (
                             f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
@@ -2678,21 +2692,35 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (candidate for candidate in (candidates or []) if candidate_needs_review(assess_candidate(candidate))),
             None,
         )
+        ready_candidate = next(
+            (candidate for candidate in (candidates or []) if not candidate_needs_review(assess_candidate(candidate))),
+            None,
+        )
         primary_candidate = review_candidate or top_candidate
         if issues:
             return "Repair the managed-device issues first, then return here to review enablement or add another load."
         if not devices and primary_candidate:
-            return (
-                f"Start by reviewing {self._top_candidate_focus_text(primary_candidate)} through the matching promotion action below, then save it into Managed Devices."
+            next_step = (
+                f"Start by reviewing {self._top_candidate_focus_text(primary_candidate)} through the matching promotion action below, then save it into Managed Devices"
             )
+            if ready_candidate and ready_candidate != primary_candidate:
+                next_step += (
+                    f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                )
+            return next_step + "."
         if not devices:
             return "Use the Managed Devices workspace to add the first fixed or variable load manually."
         if primary_candidate:
             candidate_focus = self._top_candidate_focus_text(primary_candidate)
             if review_candidate:
-                return (
-                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {candidate_focus}."
+                next_step = (
+                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {candidate_focus}"
                 )
+                if ready_candidate and ready_candidate != primary_candidate:
+                    next_step += (
+                        f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                    )
+                return next_step + "."
             return (
                 f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
             )
