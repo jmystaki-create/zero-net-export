@@ -248,7 +248,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path in Configure as the primary Managed Devices workspace.", handoff)
+        self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
         self.assertIn("- Choose Promote fixed-load candidate.", handoff)
         self.assertIn("- In Pick unmanaged candidate, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
@@ -296,7 +296,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path in Configure as the primary Managed Devices workspace.", handoff)
+        self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
         self.assertIn(
             "- Use the Managed Devices workspace to add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.",
             handoff,
@@ -318,7 +318,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Reopen devices path in Configure as the primary Managed Devices workspace.", handoff)
+        self.assertIn("- Reopen devices path in Configure for the primary Managed Devices workspace.", handoff)
         self.assertIn(
             "- Use the Managed Devices workspace to review the current managed fleet before changing controls or deeper diagnostics.",
             handoff,
@@ -1246,7 +1246,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last action age: 2m 5s", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
         self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
-        self.assertIn("Return to devices path in Configure as the primary Managed Devices workspace for edits, enablement, promotion, or removal.", message)
+        self.assertIn("Return to devices path in Configure for primary Managed Devices workspace edits, enablement, promotion, or removal.", message)
 
     def test_managed_device_detail_button_surfaces_review_first_candidate_context(self) -> None:
         notification_calls: list[dict] = []
