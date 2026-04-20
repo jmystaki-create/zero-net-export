@@ -1476,7 +1476,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["device_next_step"],
         )
         self.assertIn(
-            "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful",
+            "then promote next in the Managed Devices workspace unmanaged section: Dishwasher Power (fixed) | likely useful",
             summary["device_next_step"],
         )
         self.assertNotIn("Dishwasher Power", summary["next_action_summary"])
@@ -2074,7 +2074,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(
             (
                 "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
-                "to review the Managed Devices workspace and promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
+                "to review the Managed Devices workspace and promote next in the Managed Devices workspace unmanaged section: Hot water relay (fixed) | likely useful"
             ),
             summary["device_next_step"],
         )
