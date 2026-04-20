@@ -1188,11 +1188,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         if review_candidate is not None:
             return (
-                "review first in the unmanaged section: "
+                "review next in the Managed Devices workspace unmanaged section: "
                 + cls._top_candidate_focus_text(review_candidate)
             )
         if top_candidate is not None:
-            return "promote next from the unmanaged section: " + cls._top_candidate_focus_text(top_candidate)
+            return (
+                "promote next in the Managed Devices workspace unmanaged section: "
+                + cls._top_candidate_focus_text(top_candidate)
+            )
         return "use the deeper device review path only if you need more per-device runtime detail"
 
     @staticmethod
