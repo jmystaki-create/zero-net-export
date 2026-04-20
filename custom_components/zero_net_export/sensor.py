@@ -857,7 +857,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 )
             if first_attention_name:
                 return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and review Managed Devices attention starting with {first_attention_name} before changing the fleet"
+                    f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace starting with {first_attention_name} before changing the fleet"
                 )
             if candidates:
                 if review_candidate_name:

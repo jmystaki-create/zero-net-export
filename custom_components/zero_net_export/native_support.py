@@ -1993,7 +1993,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         elif first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} and review Managed Devices attention, starting with {attention_target}, before changing the fleet."
+                f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace, starting with {attention_target}, before changing the fleet."
             )
         elif candidate_count:
             if review_candidate_name:
