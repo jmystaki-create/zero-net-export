@@ -2279,7 +2279,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 if first_blocked_device
                 else f"{blocked_activity_count} blocked managed device(s)"
             )
-            top_alerts.append(f"Managed Devices attention: blocked {blocked_target}")
+            top_alerts.append(f"Managed Devices: blocked {blocked_target}")
         elif managed_attention_count:
             attention_target = (
                 _command_center_runtime_device_preview(first_attention_device)
@@ -2290,7 +2290,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                     else f"{managed_attention_count} managed devices need attention"
                 )
             )
-            top_alerts.append(f"Managed Devices attention: {attention_target}")
+            top_alerts.append(f"Managed Devices: {attention_target}")
         elif not has_managed_devices:
             top_alerts.append("No managed devices configured yet.")
 

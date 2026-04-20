@@ -1865,7 +1865,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn(
-            "Managed Devices attention: blocked Pool pump (fixed | not usable | last failed)",
+            "Managed Devices: blocked Pool pump (fixed | not usable | last failed)",
             summary["alert_summary"],
         )
         self.assertIn("blocked Pool pump (fixed | not usable | last failed)", summary["fleet_activity_summary"])

@@ -893,6 +893,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this IA cleanup in the next exact-build deploy, then confirm the healthy command center in Home Assistant sends operators to Controls, not Diagnostics, once sources and managed devices are already in place.
 
+## ZNE-074 - Command-center top alerts still framed managed-fleet pressure as generic `Managed Devices attention`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** repo audit on 2026-04-20 while checking the opening command-center alert summary against Workstream A and Workstream D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the top alert summary in `custom_components/zero_net_export/native_support.py` was still prefixing managed-fleet pressure with `Managed Devices attention: ...` even after the broader workspace cleanup had already made `Managed Devices` the explicit bucket/home elsewhere. That wording made the opening operator console sound like it was naming an abstract attention mode instead of cleanly tagging the bucket that owns the work.
+- **expected behavior:** the command-center top alerts should stay compact and bucket-first, using `Managed Devices: ...` so the opening console reinforces the four-bucket IA without extra helper phrasing.
+- **evidence:** this run's repo audit found both blocked and attention alert branches in `build_native_command_center_summary(...)` still emitting `Managed Devices attention: ...`, and `tests/test_command_center_summary.py` was locking the same wording in place. `docs/UI_DESIGN.md` says the opening experience should read like a dense operator console, and `docs/UI_IMPLEMENTATION_MAP.md` Workstream A/D says the top board and bucket language should carry the legibility burden without overlapping narrative labels.
+- **suspected cause:** earlier Managed Devices wording cleanup focused on next-step handoffs, workspace descriptions, and promotion copy first, but the command-center top-alert prefix kept the older intermediate phrase.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so managed-fleet alert lines now read `Managed Devices: blocked ...` or `Managed Devices: ...`, and refreshes `tests/test_command_center_summary.py` to lock the bucket-first alert wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this opening-console alert cleanup in the next exact-build deploy, then confirm the live Configure alert strip uses concise bucket-first Managed Devices wording instead of the older `Managed Devices attention` prefix.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
