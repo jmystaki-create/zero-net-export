@@ -1201,6 +1201,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this opening-console compaction fix in the next exact-build deploy, then confirm the live command center keeps the review-first plus promote-next Managed Devices handoff visible instead of collapsing back to the generic fleet-step fallback.
 
+## ZNE-098 - Command-center compact fallback still used older pre-workspace-first unmanaged wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing `_compact_next_action_fallback(...)` in `custom_components/zero_net_export/native_support.py` against the newer Managed Devices workspace wording already used by the main command-center, sensor, and config-flow handoffs
+- **current observed behavior:** the compact overflow fallback for `next_action_summary` had already stopped collapsing to a fully generic fleet step, but it was still saying `review first: {candidate} in the Managed Devices workspace, then promote next: {candidate}`. That left one remaining Workstreams A-C wording leak in the opening operator console because the overflow path no longer matched the clearer `review the Managed Devices workspace, start in the unmanaged section ...` guidance already used elsewhere.
+- **expected behavior:** even under state-limit compaction, the opening command center should keep the same workspace-first unmanaged wording shape as the rest of the native fleet flow, so operators still see `review the Managed Devices workspace, start in the unmanaged section ...` instead of an older helper-ish `review first ... in the workspace` sentence.
+- **evidence:** this run's repo audit found `_compact_next_action_fallback(...)` still hard-coding `review first: {compact_review} in the Managed Devices workspace` and `then promote next: {compact_ready}` while the main `device_next_step` and non-compacted `next_action_summary` branches in the same file had already moved to `review the Managed Devices workspace, start in the unmanaged section ...` and `then promote next from the unmanaged section ...`. `tests/test_command_center_summary.py` was also still locking that older compact sentence into the review-first plus ready-next overflow case.
+- **suspected cause:** earlier overflow cleanup focused on preserving review-first and ready-next context at all, but left the compact fallback string itself on the older pre-workspace-first wording after the main handoff branches had already been modernized.
+- **repo fix:** this run updates `_compact_next_action_fallback(...)` in `custom_components/zero_net_export/native_support.py` so the overflow path now says `review the Managed Devices workspace, start in the unmanaged section: ...`, and refreshes `tests/test_command_center_summary.py` to lock the same workspace-first compact wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this compact fallback wording cleanup in the next exact-build deploy, then confirm the live command center keeps the workspace-first unmanaged handoff even when the opening next-action line compacts under Home Assistant's state limit.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

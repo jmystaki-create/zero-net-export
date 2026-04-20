@@ -252,7 +252,7 @@ def _compact_next_action_fallback(
         if review_candidate_name:
             compact_review = review_candidate_name
             compact_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review first: {compact_review} in the Managed Devices workspace"
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {compact_review}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 compact_ready = ready_candidate_name
@@ -261,7 +261,7 @@ def _compact_next_action_fallback(
         if ready_candidate_name or top_candidate_name or top_candidate_preview:
             compact_ready = ready_candidate_name or top_candidate_name or top_candidate_preview or "the next unmanaged candidate"
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next: {compact_ready}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {compact_ready}."
             )
         if has_managed_devices:
             return (

@@ -1468,7 +1468,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review first: Virtual load in the Managed Devices workspace, then promote next: Dishwasher Power.",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next: Dishwasher Power.",
             summary["next_action_summary"],
         )
         self.assertIn(
@@ -1603,7 +1603,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(summary["recommended_section"], native_support.DEVICES_SECTION_LABEL)
         self.assertEqual(summary["recommended_path"], native_support.DEVICES_CONFIGURE_PATH)
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, summary["next_action_summary"])
-        self.assertIn("review first: Virtual load", summary["next_action_summary"])
+        self.assertIn("start in the unmanaged section: Virtual load", summary["next_action_summary"])
         self.assertIn("promote next: Dishwasher Power", summary["next_action_summary"])
         self.assertNotIn(native_support.SUPPORT_CONFIGURE_PATH, summary["next_action_summary"])
         self.assertIn("Virtual load", summary["device_next_step"])
