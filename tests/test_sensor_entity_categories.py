@@ -952,6 +952,23 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Open devices path and promote next from the unmanaged section: Dishwasher Power",
         )
 
+    def test_fleet_console_next_step_keeps_empty_fleet_manual_add_in_managed_devices(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+        sensor_module.first_review_candidate = lambda candidates: None
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open devices path to use the Managed Devices workspace and add the first fixed or variable load manually",
+        )
+
     def test_fleet_console_next_step_names_ready_next_candidate_after_review_when_backlog_is_mixed(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [

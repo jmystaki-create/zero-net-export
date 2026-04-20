@@ -870,6 +870,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return _truncate_sensor_state(
                     f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
                 )
+            if counts["managed_count"] == 0:
+                return _truncate_sensor_state(
+                    f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually"
+                )
             return _truncate_sensor_state(
                 f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
             )
