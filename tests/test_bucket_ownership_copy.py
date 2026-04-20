@@ -96,6 +96,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below", bulk_enable_description)
         self.assertIn("Primary path: {configure_path}.", bulk_enable_description)
         self.assertIn("Managed Devices owns fleet enablement", bulk_enable_description)
+        self.assertIn("while you work through this workspace", bulk_enable_description)
+        self.assertNotIn("while you use this screen", bulk_enable_description)
         self.assertNotIn("Use this native fleet review to temporarily stage larger installs without raw JSON.", bulk_enable_description)
         self.assertIn("Managed devices (top section)", bulk_enable_description)
         self.assertIn("Managed Devices: {device_count}", bulk_enable_description)
