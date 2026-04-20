@@ -2686,6 +2686,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 for path in (SOURCES_CONFIGURE_PATH, POLICY_CONFIGURE_PATH, SUPPORT_CONFIGURE_PATH)
             ):
                 return device_blocker_step
+            if any(
+                phrase in device_blocker_step
+                for phrase in (
+                    "review blocked managed devices in the Managed Devices workspace",
+                    "confirm the active managed-device plan in the Managed Devices workspace",
+                    "review attention in the Managed Devices workspace",
+                )
+            ):
+                return device_blocker_step
 
         top_candidate = candidates[0] if candidates else None
         review_candidate = next(

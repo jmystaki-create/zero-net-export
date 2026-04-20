@@ -628,6 +628,58 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Open sources path and finish source repair before promoting more devices.",
         )
 
+    def test_device_next_step_keeps_blocked_managed_handoff_from_command_center(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.DEVICES_SECTION_LABEL,
+            "device_next_step": "Open devices path to review blocked managed devices in the Managed Devices workspace, starting with Pool pump.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            }
+        )
+
+        next_step = flow._device_next_step(
+            devices=[{"name": "Pool pump", "kind": module.DEVICE_KIND_FIXED}],
+            issues=[],
+            candidates=[{"name": "Hot water", "entity_id": "switch.hot_water", "kind": module.DEVICE_KIND_FIXED}],
+        )
+
+        self.assertEqual(
+            next_step,
+            "Open devices path to review blocked managed devices in the Managed Devices workspace, starting with Pool pump.",
+        )
+
+    def test_device_next_step_keeps_attention_handoff_from_command_center(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.DEVICES_SECTION_LABEL,
+            "device_next_step": "Open devices path to review attention in the Managed Devices workspace, starting with EV charger, before changing the fleet.",
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            }
+        )
+
+        next_step = flow._device_next_step(
+            devices=[{"name": "EV charger", "kind": module.DEVICE_KIND_VARIABLE}],
+            issues=[],
+            candidates=[{"name": "Hot water", "entity_id": "switch.hot_water", "kind": module.DEVICE_KIND_FIXED}],
+        )
+
+        self.assertEqual(
+            next_step,
+            "Open devices path to review attention in the Managed Devices workspace, starting with EV charger, before changing the fleet.",
+        )
+
     def test_device_blocker_summary_surfaces_global_blocker_reason_and_path(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
