@@ -866,6 +866,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this small Sensors handoff wording fix in the next exact-build deploy, then confirm the healthy source-mapping screen no longer reintroduces the stale generic `policy` label in Home Assistant.
 
+## ZNE-072 - Healthy command-center fallback still suggested Diagnostics when Controls was the recommended home
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** repo audit on 2026-04-20 while comparing the command-center fallback next-step text against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when sources were mapped, managed devices existed, no fleet blockers remained, and the command center was recommending `Controls`, the final fallback in `custom_components/zero_net_export/native_support.py` still said `policy tuning or diagnostics review are the next useful steps.` That leaked Diagnostics into a healthy-path handoff even though the current four-bucket IA says Diagnostics is for troubleshooting, not the default next home once the setup path is clear.
+- **expected behavior:** the healthy command-center fallback should point operators directly to `Configure -> Controls` when policy is the recommended home, and it should not suggest Diagnostics unless runtime health or install validation is actually the problem.
+- **evidence:** this run's repo audit found the stale fallback string in `custom_components/zero_net_export/native_support.py` while `build_native_setup_recommendation(...)` was already returning `Controls` for the same no-blocker state. `docs/UI_DESIGN.md` says Controls owns the controller brain and Diagnostics owns troubleshooting/support, and `docs/UI_IMPLEMENTATION_MAP.md` Workstream D says to remove remaining content leakage between those homes.
+- **suspected cause:** earlier four-bucket cleanup fixed higher-visibility Sensors and Managed Devices wording first, but the final healthy-path fallback in the shared command-center summary helper kept the older generic wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the healthy fallback now says to open `Configure -> Controls` next to tune target export, deadband, reserve, or live mode. `tests/test_command_center_summary.py` now locks that Controls-first handoff in place and explicitly rejects the old Diagnostics wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this IA cleanup in the next exact-build deploy, then confirm the healthy command center in Home Assistant sends operators to Controls, not Diagnostics, once sources and managed devices are already in place.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

@@ -2006,7 +2006,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             or f"Validate the native Configure path plus {DIAGNOSTICS_DEVICE_ACTIONS_PATH} in a real Home Assistant install."
         )
     else:
-        next_action_summary = "Sources and devices are in place, so policy tuning or diagnostics review are the next useful steps."
+        next_action_summary = (
+            f"Sources and devices are in place, so open {POLICY_CONFIGURE_PATH} next to tune target export, deadband, reserve, or live mode."
+        )
 
     current_mode = _decision_mode_text(state)
     policy_status = (

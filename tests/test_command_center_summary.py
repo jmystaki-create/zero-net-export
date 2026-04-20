@@ -2223,6 +2223,66 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["fleet_activity_summary"].index("review Virtual load (fixed)"),
         )
 
+    def test_command_center_summary_prefers_controls_over_diagnostics_when_policy_is_the_recommended_home(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "steady_state",
+            "summary": "Runtime looks healthy.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.POLICY_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=2,
+            fixed_device_count=1,
+            variable_device_count=1,
+            controllable_nominal_power_w=3385.0,
+            active_controlled_power_w=0.0,
+            blocked_planned_action_count=0,
+            device_details={},
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertEqual(
+            (
+                "Sources and devices are in place, so open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Controls "
+                "next to tune target export, deadband, reserve, or live mode."
+            ),
+            summary["next_action_summary"],
+        )
+        self.assertEqual(native_support.POLICY_SECTION_LABEL, summary["recommended_section"])
+        self.assertNotIn("diagnostics review", summary["next_action_summary"])
+        self.assertNotIn(native_support.SUPPORT_CONFIGURE_PATH, summary["next_action_summary"])
+
     def test_command_center_summary_surfaces_active_managed_load_and_count_in_fleet_activity(self) -> None:
         native_support = _load_native_support_module()
 
