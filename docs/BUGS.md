@@ -1075,6 +1075,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_source_repair_guidance` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this remaining zero-fleet command-center wording cleanup in the next exact-build deploy, then confirm the live opening console keeps `Managed Devices` explicit in both the alert strip and the paired device-status summary before the first load is promoted.
 
+## ZNE-088 - Device-page managed-device review still labeled the candidate recap as `Currently surfaced` instead of `Top surfaced`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while checking the current device-page review copy against the already-updated `docs/BUGS.md` Workstream E notes and the managed/unmanaged wording in `docs/UI_DESIGN.md`
+- **current observed behavior:** both top-level device-page review notifications in `custom_components/zero_net_export/button.py` were still labeling the backlog recap as `Currently surfaced unmanaged candidates:` even though the surrounding review copy already treats that section as a shortlist-style recap of the leading surfaced candidates. That left the repo lagging the bug tracker's own latest Workstream E note, which already claimed those same notifications had moved to `Top surfaced unmanaged candidates` wording.
+- **expected behavior:** the secondary device-page review path should label that recap consistently as `Top surfaced unmanaged candidates:` so the workspace and deeper review read like a shortlist-style summary instead of a generic backlog dump.
+- **evidence:** this run's repo audit still found `Currently surfaced unmanaged candidates:` twice in `custom_components/zero_net_export/button.py`, and `tests/test_button_entity_categories.py` was still locking the same older wording in place, while the existing Workstream E narrative in `docs/BUGS.md` already said the repo had moved those notifications to `Top surfaced unmanaged candidates` wording.
+- **suspected cause:** the earlier device-page candidate-copy cleanup was recorded in the long-form ZNE-028 history note, but the final string replacement either never landed or was dropped in a later follow-on while the bug note stayed ahead of the actual repo state.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so both `Review managed devices workspace` and `Review managed devices` now label the recap as `Top surfaced unmanaged candidates:`, and refreshes `tests/test_button_entity_categories.py` to lock that label in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this copy correction in the next exact-build deploy, then confirm the device-page review notifications no longer lag the shortlist-style `Top surfaced unmanaged candidates` wording in live Home Assistant.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

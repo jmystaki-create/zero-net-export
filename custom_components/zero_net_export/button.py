@@ -1102,7 +1102,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                 if review_candidate and ready_candidate and ready_candidate is not review_candidate
                 else []
             ),
-            'Currently surfaced unmanaged candidates:',
+            'Top surfaced unmanaged candidates:',
             *(
                 [
                     f"- {build_candidate_preview(item, include_entity_id=False, include_state=False)}"
@@ -1277,7 +1277,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 or ["- No additional steady managed devices right now."]
             ),
             "",
-            "Currently surfaced unmanaged candidates:",
+            "Top surfaced unmanaged candidates:",
             *(
                 [
                     f"- {build_candidate_preview(item, include_entity_id=False, include_state=False)}"
