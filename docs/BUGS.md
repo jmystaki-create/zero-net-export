@@ -1227,6 +1227,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page follow-through cleanup in the next exact-build deploy, then confirm the live `After repair` handoff keeps both the review-first and ready-next unmanaged cues visible after Sensors/Controls/Diagnostics blockers clear.
 
+## ZNE-100 - Empty-fleet Controls step still treated Managed Devices like a generic follow-on instead of the primary workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking the remaining `async_step_policy()` empty-fleet branch against `docs/UI_DESIGN.md` and Workstreams B/D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when source mapping was healthy but no managed devices existed yet, the Controls step still said `After tuning defaults here, open ... and add the first controllable load.` That kept one smaller wording leak in the empty-fleet policy branch by naming Managed Devices as a generic destination instead of the explicit `Managed Devices workspace`, and by dropping the fixed/variable load language already used across the rest of the native fleet flow.
+- **expected behavior:** the empty-fleet Controls follow-through should keep `Managed Devices workspace` explicit and reuse the same `first fixed or variable load manually` wording already used by the command center, helper sensors, and Managed Devices follow-through copy, so the next native home stays unmistakable even from Controls.
+- **evidence:** this run's repo audit found the empty-fleet branch in `custom_components/zero_net_export/config_flow.py` still hard-coding `After tuning defaults here, open {DEVICES_CONFIGURE_PATH} and add the first controllable load.` while nearby fleet-first handoffs had already converged on workspace-first wording. `docs/UI_DESIGN.md` defines Managed Devices as the primary fleet workspace, and Workstream B in `docs/UI_IMPLEMENTATION_MAP.md` says remaining wording that makes Configure -> Managed Devices feel like a thin helper layer should be removed.
+- **suspected cause:** earlier Controls-path cleanup fixed the healthy managed-fleet verification sentence first, but the no-device branch kept an older pre-workspace-first fallback.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so the empty-fleet Controls step now says `After tuning defaults here, open ... to use the Managed Devices workspace and add the first fixed or variable load manually.` `tests/test_config_flow_device_runtime_overlay.py` now locks that empty-fleet Controls follow-through in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this smaller Controls-path wording cleanup in the next exact-build deploy, then confirm the live empty-fleet Controls step keeps the Managed Devices workspace explicit instead of sounding like a generic add-device follow-on.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

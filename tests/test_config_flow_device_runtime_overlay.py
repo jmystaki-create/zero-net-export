@@ -2132,6 +2132,46 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             f"Open {module.DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace, starting with Pool pump, before changing the fleet.",
         )
 
+    def test_policy_step_empty_fleet_keeps_managed_devices_workspace_explicit(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(
+            SimpleNamespace(
+                title="Zero Net Export",
+                options={},
+                data={
+                    module.CONF_TARGET_EXPORT_W: 50,
+                    module.CONF_DEADBAND_W: 25,
+                    module.CONF_BATTERY_RESERVE_SOC: 20,
+                    module.CONF_REFRESH_SECONDS: 30,
+                },
+            )
+        )
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {}}, states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None))
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._load_devices = lambda: ([], [])
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "missing_source_keys": [],
+            "has_runtime_source_attention": False,
+        }
+        flow._source_placeholders = lambda effective_config=None, grid_mode=None: {
+            "source_health": "Sources healthy",
+            "source_next_step": f"Open {module.POLICY_CONFIGURE_PATH} to tune target export, reserve, deadband, or live mode.",
+        }
+        module._grid_mode_default = lambda entry: module.GRID_SENSOR_MODE_COMBINED
+        module.build_native_command_center_summary = lambda coordinator: {
+            "control_decision_summary": "Holding steady.",
+            "control_outcome_summary": "No adjustment needed.",
+        }
+        module._live_mode_details = lambda coordinator: ("Monitor only", "Runtime is observing without active load control.")
+
+        result = asyncio.run(flow.async_step_policy())
+
+        self.assertEqual(
+            result["description_placeholders"]["policy_next_step"],
+            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually.",
+        )
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         module.discover_candidate_devices = lambda states, managed_ids: [

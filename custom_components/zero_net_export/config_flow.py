@@ -3492,7 +3492,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             policy_next_step = f"Open {DEVICES_CONFIGURE_PATH} and repair the fleet before trusting policy changes."
         elif not devices:
             policy_readiness = "No managed devices are configured yet. You can tune policy now, but control will not act until devices are added."
-            policy_next_step = f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} and add the first controllable load."
+            policy_next_step = (
+                f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace "
+                "and add the first fixed or variable load manually."
+            )
         else:
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
             policy_next_step = (
