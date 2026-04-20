@@ -2154,7 +2154,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Choose Add fixed load device manually or Add variable load device manually to start the first Managed Devices entry.",
+            "Use the Managed Devices workspace to add the first fixed or variable load manually.",
         )
 
     def test_device_next_step_uses_managed_devices_workspace_wording_for_enablement(self) -> None:

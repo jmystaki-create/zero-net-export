@@ -2513,7 +2513,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"Start by reviewing {self._top_candidate_focus_text(primary_candidate)} through the matching promotion action below, then save it into Managed Devices."
             )
         if not devices:
-            return "Choose Add fixed load device manually or Add variable load device manually to start the first Managed Devices entry."
+            return "Use the Managed Devices workspace to add the first fixed or variable load manually."
         if primary_candidate:
             return (
                 f"Review the current fleet, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."

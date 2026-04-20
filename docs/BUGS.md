@@ -611,6 +611,19 @@ Suggested area labels:
 - **repo fix:** this run updates `docs/UI_IMPLEMENTATION_MAP.md` so the completed-promotion bullets now describe the shipped posture accurately as shared fit/warning guidance plus `review-first / ready-next surfaced-candidate` cues.
 - **closure evidence:** source-of-truth doc audit plus direct wording correction in the same run. No repo/runtime behavior changed; the correction is to keep the implementation map aligned with the design doc and the current Managed Devices wording direction.
 
+## ZNE-069 - Empty-fleet next-step fallback in Managed Devices still read like helper action labels
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while checking the remaining Workstream B/C wording against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the latest promotion-first follow-ons
+- **current observed behavior:** when no managed devices and no surfaced candidates existed yet, `ZeroNetExportOptionsFlow._device_next_step()` still returned `Choose Add fixed load device manually or Add variable load device manually to start the first Managed Devices entry.` That fallback was technically accurate, but it still made the primary Managed Devices workspace read like a helper menu of button labels instead of the main fleet workspace the UI map says Configure should be.
+- **expected behavior:** the empty-fleet no-candidate fallback should stay manual, but it should still point operators at the Managed Devices workspace first instead of opening with raw `Choose Add ...` action labels.
+- **evidence:** this run's repo grep still found that exact fallback in `custom_components/zero_net_export/config_flow.py`, and the focused expectation in `tests/test_config_flow_device_runtime_overlay.py` was still locking the same helper-style wording in place. `docs/UI_IMPLEMENTATION_MAP.md` Workstream B says to remove wording that makes `Configure -> Managed Devices` feel like a thin helper layer, and Workstream C says the promotion path should avoid ambiguous helper-ish wording.
+- **suspected cause:** recent wording cleanup focused on surfaced-candidate promotion labels, device-page handoffs, and command-center wording first, but this empty-fleet dynamic next-step branch in `config_flow.py` was left on an older action-label-style sentence.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so the empty-fleet fallback now says `Use the Managed Devices workspace to add the first fixed or variable load manually.` and refreshes `tests/test_config_flow_device_runtime_overlay.py` to lock that workspace-first manual fallback in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this empty-fleet next-step wording cleanup in the next exact-build deploy, then confirm the Managed Devices landing keeps workspace-first wording even when no surfaced candidates exist yet.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
