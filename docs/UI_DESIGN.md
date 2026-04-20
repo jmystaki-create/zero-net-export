@@ -516,7 +516,7 @@ This section compares the new design against the current known implementation st
 These are already present in some meaningful form and should be refined rather than invented from zero:
 - native-only product direction
 - Configure as the primary operator path
-- integration device path for support/diagnostics
+- integration device path for diagnostics and deeper native review
 - managed-device add/edit/remove flows
 - unmanaged candidate discovery
 - shortlist and full-list pick flows
@@ -530,7 +530,7 @@ These appear to exist in code/copy/scaffolding, but not yet in the stronger prod
 
 #### 1. Top landing console
 Current state:
-- the product already has native Configure direction and runtime/Diagnostics surfaces
+- the product already has native Configure direction plus runtime and Diagnostics surfaces
 - but the implementation map says the UI is still described more than it is felt
 
 Gap:
@@ -607,7 +607,7 @@ Current state:
 
 Gap:
 - the new design requires diagnostics to remain visible but secondary
-- this means some existing support burden likely needs to be redistributed into the landing console and Managed Devices workspace
+- this means some existing Diagnostics/troubleshooting burden likely needs to be redistributed into the landing console and Managed Devices workspace
 
 ### Still clearly not proven
 These are the parts the implementation map already warns are not yet proven in the live product:
@@ -623,7 +623,7 @@ The likely work shape is:
 2. reshape the landing flow into the new dense control-board model
 3. strengthen Managed Devices into the new vertically split workspace
 4. strengthen review/promotion into the new coherent workflow
-5. reduce the amount of UX burden currently being carried by support/diagnostics wording
+5. reduce the amount of UX burden currently being carried by Diagnostics/troubleshooting wording
 6. validate in live HA with screenshot-grade evidence
 
 ## Prioritized execution order
