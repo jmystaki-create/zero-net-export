@@ -33,6 +33,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Unmanaged backlog summaries now carry explicit ready-to-promote counts across the opening operator console, Managed Devices snapshots, and fleet-workspace overview surfaces instead of only naming review debt plus one ready candidate.
 - Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
 - Managed Devices selector labels and device-page promotion handoffs now use promotion-first wording instead of generic add-device helper wording when surfaced candidates are available.
+- Managed Devices row labels now lead with `blocked`, `planned`, `attention`, or `active` when that higher-value state exists, so attention-first fleet rows scan more clearly than generic runtime text.
 - Fleet review / bulk enable-disable scaffolding exists.
 - The Zero Net Export device page now exposes a first-class managed-device review action, per-device managed review buttons for each configured load, and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
 - Native support/snapshot/checklist surfaces exist.
@@ -46,11 +47,11 @@ If a change does not materially improve one of those visible outcomes, it should
 
 ### Still blocked or incomplete
 - This run rechecked the documented HA SSH path and confirmed access still works, but the live install is still not the current repo candidate: `overall_match=false`, with the same six tracked-file mismatches, `button.py`, `config_flow.py`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json`. Live and repo `manifest_version` both still read `0.1.86`, and stale backup artifacts remain absent, so access is not the blocker.
-- This run rechecked `scripts/print_expected_install_fingerprint.py`; the helper now resolves the exact component-changing deploy boundary at `8139d6b`, not the older `14c06e6` checkpoint. The live mismatch is still the same six-file release drift, but the repo candidate kept moving because more Workstream D/F four-bucket cleanup landed after the last docs refresh.
-- The strongest concrete drift in this run is source-of-truth lag: the implementation map was still presenting unchanged fingerprint bookkeeping at `14c06e6` as the main finding even though later repo fixes kept `blocking_validation_details` visible in the Diagnostics guide and kept the healthy command-center handoff anchored to Controls. That means supervisor-style release bookkeeping was being overstated as the next gap while mapped `0.1.87` repo runway still existed.
+- This run rechecked `scripts/print_expected_install_fingerprint.py`; the helper now resolves the exact component-changing deploy boundary at `3cb7b36`, not the older `8139d6b` checkpoint. The live mismatch evidence itself is unchanged, but the repo candidate moved again because a new Workstream B Managed Devices row-label cleanup landed after the last docs refresh.
+- The strongest concrete drift in this run is source-of-truth lag again: the implementation map was still steering off the earlier `8139d6b` boundary even after `3cb7b36` made attention-first Managed Devices rows more legible. That is exactly the kind of stale release-boundary bookkeeping churn the supervisor warns against, because it keeps older candidate framing in front of still-moving `0.1.87` repo runway.
 - Keep the ranking lesson intact: live exact-build mismatch is still release drift, but it should not be promoted over unfinished mapped repo work. Do not spend watchdog/supervisor runs on repeated fingerprint bookkeeping, approval-target refreshes, or hash-only source-of-truth edits unless the release boundary, live evidence, or operator instruction actually changed. When formal release execution really is next, ask James directly instead of rotating more release bookkeeping.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
-- The native Managed Devices path and four-bucket IA still do not feel proven until the exact current `8139d6b` build is reviewed in live Home Assistant.
+- The native Managed Devices path and four-bucket IA still do not feel proven until the exact current `3cb7b36` build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
 
 ## What counts as success for 0.1.87
