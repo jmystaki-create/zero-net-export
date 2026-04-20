@@ -889,31 +889,48 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         active_device = next((device for device in ordered if device.get("observed_active") is True), None)
         blocked_device = next((device for device in ordered if self._device_has_blocked_activity(device)), None)
         planned_device = next((device for device in ordered if self._active_planned_action(device)), None)
-        fleet_summary = (
-            f"- Fleet summary: {len(devices)} device(s), {enabled_count} enabled, {usable_count} usable, {blocked_count} blocked, {planned_count} planned action(s)"
-        )
+        fleet_summary_parts = [f"{len(devices)} managed device(s)"]
         if attention_count:
-            fleet_summary += (
-                ", 1 managed device needs attention"
+            fleet_summary_parts.append(
+                "1 managed device needs attention"
                 if attention_count == 1
-                else f", {attention_count} managed devices need attention"
+                else f"{attention_count} managed devices need attention"
             )
             if attention_device:
-                fleet_summary += f", attention first {self._managed_snapshot_focus_label(attention_device)}"
+                fleet_summary_parts.append(
+                    f"attention first {self._managed_snapshot_focus_label(attention_device)}"
+                )
+        if blocked_device:
+            fleet_summary_parts.append(f"blocked {self._managed_snapshot_focus_label(blocked_device)}")
+        elif blocked_count:
+            fleet_summary_parts.append(f"{blocked_count} blocked")
+        if planned_count:
+            fleet_summary_parts.append(
+                "1 planned action(s)" if planned_count == 1 else f"{planned_count} planned action(s)"
+            )
+            if planned_device:
+                fleet_summary_parts.append(f"plan {self._managed_snapshot_focus_label(planned_device)}")
         if active_count:
-            fleet_summary += (
-                f", active load {active_power_w:g} W, "
-                + ("1 active managed device" if active_count == 1 else f"{active_count} active managed devices")
+            fleet_summary_parts.append(f"active load {active_power_w:g} W")
+            fleet_summary_parts.append(
+                "1 active managed device" if active_count == 1 else f"{active_count} active managed devices"
             )
             if active_device and not attention_device and not blocked_device and not planned_device:
-                fleet_summary += f", active device {self._managed_snapshot_focus_label(active_device)}"
-        if blocked_device:
-            fleet_summary += f", blocked {self._managed_snapshot_focus_label(blocked_device)}"
-        if planned_device:
-            fleet_summary += f", plan {self._managed_snapshot_focus_label(planned_device)}"
-        fleet_summary += f", {fixed_count} fixed, {variable_count} variable, {total_power} W nominal controllable power"
+                fleet_summary_parts.append(
+                    f"active device {self._managed_snapshot_focus_label(active_device)}"
+                )
+        fleet_summary_parts.extend(
+            [
+                f"{enabled_count} enabled",
+                f"{usable_count} usable",
+                f"{blocked_count} blocked",
+                f"{fixed_count} fixed",
+                f"{variable_count} variable",
+                f"{total_power} W nominal controllable power",
+            ]
+        )
         lines = [
-            fleet_summary,
+            "- Fleet summary: " + ", ".join(fleet_summary_parts),
             "- Managed devices needing attention first:",
         ]
         if attention_devices:
