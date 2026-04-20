@@ -116,6 +116,37 @@ def _count_label_value(text: str, singular: str, plural: str | None = None) -> i
         return None
 
 
+def _candidate_kind_backlog_mix_parts(
+    *,
+    fixed_candidate_count: int,
+    variable_candidate_count: int,
+    fixed_review_count: int,
+    variable_review_count: int,
+    fixed_ready_count: int,
+    variable_ready_count: int,
+) -> list[str]:
+    parts: list[str] = []
+    any_ready = fixed_ready_count > 0 or variable_ready_count > 0
+
+    def _append(kind_label: str, candidate_count: int, review_count: int, ready_count: int) -> None:
+        if candidate_count <= 0 or not any_ready or (review_count <= 0 and ready_count <= 0):
+            return
+        if review_count > 0 and ready_count > 0:
+            parts.append(f"{kind_label} backlog {review_count} review/{ready_count} ready")
+        elif review_count > 0:
+            parts.append(f"{kind_label} backlog {review_count} review")
+        elif ready_count > 0:
+            parts.append(f"{kind_label} backlog {ready_count} ready")
+
+    include_fixed = bool(fixed_candidate_count and (variable_candidate_count or (fixed_review_count and fixed_ready_count)))
+    include_variable = bool(variable_candidate_count and (fixed_candidate_count or (variable_review_count and variable_ready_count)))
+    if include_fixed:
+        _append("fixed", fixed_candidate_count, fixed_review_count, fixed_ready_count)
+    if include_variable:
+        _append("variable", variable_candidate_count, variable_review_count, variable_ready_count)
+    return parts
+
+
 def _prefer_review_ready_over_large_kind_mix(summary: str) -> str:
     normalized = " ".join(str(summary or "").split())
     if len(normalized) > MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -137,6 +168,8 @@ def _prefer_review_ready_over_large_kind_mix(summary: str) -> str:
         if not (
             _matches_count_label(part, "fixed candidate")
             or _matches_count_label(part, "variable candidate")
+            or part.startswith("fixed backlog ")
+            or part.startswith("variable backlog ")
             or _matches_count_label(part, "planned action(s)")
         )
     ]
@@ -1517,6 +1550,8 @@ def _build_command_center_fleet_activity_summary(
         summary_parts.append("no unmanaged candidates")
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
+    fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
+    variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
 
     if managed_count == 0 and source_blocked:
         summary_parts.append("repair sources first")
@@ -1565,6 +1600,16 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         if variable_candidate_count:
             summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+        summary_parts.extend(
+            _candidate_kind_backlog_mix_parts(
+                fixed_candidate_count=fixed_candidate_count,
+                variable_candidate_count=variable_candidate_count,
+                fixed_review_count=fixed_review_count,
+                variable_review_count=variable_review_count,
+                fixed_ready_count=fixed_ready_count,
+                variable_ready_count=variable_ready_count,
+            )
+        )
         if review_needed_count:
             summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
             if fixed_review_count:
@@ -1602,6 +1647,8 @@ def _build_command_center_fleet_activity_summary(
         lambda part: part.startswith("enabled "),
         lambda part: _matches_count_label(part, "fixed review"),
         lambda part: _matches_count_label(part, "variable review"),
+        lambda part: part.startswith("fixed backlog "),
+        lambda part: part.startswith("variable backlog "),
         lambda part: _matches_count_label(part, "fixed managed"),
         lambda part: _matches_count_label(part, "variable managed"),
         lambda part: part.endswith(" W nominal"),
@@ -1623,6 +1670,8 @@ def _build_command_center_fleet_activity_summary(
         if not (
             _matches_count_label(part, "fixed candidate")
             or _matches_count_label(part, "variable candidate")
+            or part.startswith("fixed backlog ")
+            or part.startswith("variable backlog ")
             or _matches_count_label(part, "planned action(s)")
         )
     ]
@@ -1756,6 +1805,8 @@ def _build_command_center_fleet_activity_summary(
         lambda part: part.startswith("usable "),
         lambda part: _matches_count_label(part, "fixed candidate"),
         lambda part: _matches_count_label(part, "variable candidate"),
+        lambda part: part.startswith("fixed backlog "),
+        lambda part: part.startswith("variable backlog "),
         lambda part: _matches_count_label(part, "fixed managed"),
         lambda part: _matches_count_label(part, "variable managed"),
         lambda part: part.endswith(" W nominal"),
@@ -1780,6 +1831,8 @@ def _build_command_center_fleet_activity_summary(
         if not (
             _matches_count_label(part, "fixed candidate")
             or _matches_count_label(part, "variable candidate")
+            or part.startswith("fixed backlog ")
+            or part.startswith("variable backlog ")
             or _matches_count_label(part, "planned action(s)")
         )
     ]
