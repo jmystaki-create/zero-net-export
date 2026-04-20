@@ -291,6 +291,25 @@ def _device_bucket_position(device_details: list[dict], target: dict) -> int | N
     return None
 
 
+def _managed_snapshot_focus_label(detail: dict | None) -> str:
+    if not detail:
+        return ""
+    name = str(detail.get("name") or detail.get("entity_id") or "Unnamed device").strip()
+    parts: list[str] = []
+    kind = str(detail.get("kind") or "").strip()
+    if kind:
+        parts.append(kind)
+    if _device_has_blocked_activity(detail):
+        parts.append("not usable" if detail.get("usable") is False else "blocked")
+    elif _has_active_plan(detail):
+        parts.append(f"action {detail.get('planned_action')}")
+    elif _device_needs_review_attention(detail) and detail.get("last_action_status"):
+        parts.append(f"last {detail.get('last_action_status')}")
+    elif detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
+        parts.append(f"active {_format_power(detail.get('current_power_w'))}")
+    return f"{name} ({' | '.join(parts)})" if parts else name
+
+
 def _next_bucket_device_name(device_details: list[dict], target: dict) -> str:
     found_target = False
     for detail in _sorted_review_devices(device_details):
@@ -356,10 +375,16 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
         device_details,
         predicate=_has_active_plan,
     )
+    first_active_detail = next(
+        (detail for detail in _sorted_review_devices(device_details) if detail.get("observed_active") is True),
+        None,
+    )
     parts = [f"{managed_count} managed", f"{enabled_count} enabled", f"{usable_count} usable"]
     if active_count:
         parts.append(f"active load {active_power:g} W")
         parts.append("1 active managed device" if active_count == 1 else f"{active_count} active managed devices")
+        if first_active_detail:
+            parts.append(f"active device {_managed_snapshot_focus_label(first_active_detail)}")
     if attention_count:
         parts.append(
             "1 managed device needs attention"
