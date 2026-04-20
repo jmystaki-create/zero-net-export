@@ -3426,6 +3426,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
 
         command_center = build_native_command_center_summary(self._coordinator())
+        recommended_section = str(command_center.get("recommended_section") or "").strip().lower()
+        if recommended_section == str(DEVICES_SECTION_LABEL).strip().lower():
+            managed_devices_follow_through = str(command_center.get("next_action_summary") or "").strip()
+            if managed_devices_follow_through:
+                policy_next_step = managed_devices_follow_through
         mode_label, mode_description = _live_mode_details(self._coordinator())
         policy_summary = (
             f"Live mode {mode_label}; target {int(_entry_default_number(self._config_entry, CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W))} W, "
