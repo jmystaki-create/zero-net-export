@@ -3422,7 +3422,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         else:
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
             policy_next_step = (
-                f"Adjust behaviour here, then use {INTEGRATION_DEVICE_PATH}, its entities, and {DIAGNOSTICS_DEVICE_ACTIONS_PATH} to verify runtime health."
+                f"Tune behaviour here, then use {MODE_CONTROL_PATH} or {INTEGRATION_DEVICE_PATH} to verify the current controller outcome."
             )
 
         command_center = build_native_command_center_summary(self._coordinator())

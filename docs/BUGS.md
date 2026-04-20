@@ -1036,6 +1036,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this completed Sensors helper handoff cleanup in the next exact-build deploy, then confirm the live healthy Sensors blocker-next-step sensor always shows one concrete next bucket instead of ever falling back to the old dual-path hedge.
 
+## ZNE-085 - Healthy Controls step still pushed operators into diagnostics-style verification instead of staying on Controls/device surfaces
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** repo audit on 2026-04-20 while reviewing the remaining Workstream D bucket-ownership handoffs against `docs/UI_DESIGN.md`
+- **current observed behavior:** when source mapping was healthy and managed devices were already configured, `ZeroNetExportOptionsFlow.async_step_policy()` still set `policy_next_step` to `Adjust behaviour here, then use {INTEGRATION_DEVICE_PATH}, its entities, and {DIAGNOSTICS_DEVICE_ACTIONS_PATH} to verify runtime health.` That made the healthy Controls screen itself send normal follow-through into Diagnostics-flavoured actions, even though `docs/UI_DESIGN.md` says Controls owns the controller brain and outcome while Diagnostics is secondary troubleshooting only.
+- **expected behavior:** the healthy Controls step should keep its follow-through on Controls and native device surfaces, using the Controls live-mode action and device page to verify controller outcome without reopening Diagnostics as the default next stop.
+- **evidence:** this run's repo audit found the healthy fallback still hard-coded in `custom_components/zero_net_export/config_flow.py` under `async_step_policy()`. The new focused regression in `tests/test_config_flow_device_runtime_overlay.py` reproduces the healthy managed-fleet policy screen and locks the next-step copy to Controls/device-surface verification while explicitly excluding `DIAGNOSTICS_DEVICE_ACTIONS_PATH` from that healthy path.
+- **suspected cause:** earlier four-bucket cleanup tightened the command center and Sensors handoffs first, but the healthy Controls form kept an older verification sentence that still mixed normal controller follow-through with diagnostics actions.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so the healthy Controls step now says `Tune behaviour here, then use {MODE_CONTROL_PATH} or {INTEGRATION_DEVICE_PATH} to verify the current controller outcome.` `tests/test_config_flow_device_runtime_overlay.py` now locks that Controls/device-surface follow-through in place.
+- **validation status:** repo-side fix verified in this run with focused config-flow regression coverage plus Python compile checks. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Controls handoff cleanup in the next exact-build deploy, then confirm the live healthy Controls screen no longer routes normal verification through Diagnostics actions.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
