@@ -770,11 +770,13 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(shortlist["description_placeholders"]["candidate_count"], "3")
         self.assertEqual(
             shortlist["description_placeholders"]["fixed_candidate_summary"],
+            "- Review-first fixed-load candidates:\n"
             "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
             "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(
             shortlist["description_placeholders"]["variable_candidate_summary"],
+            "- Review-first variable-load candidates:\n"
             "- Spare EV limit (variable) | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(
@@ -835,6 +837,61 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 result["description_placeholders"]["ready_candidate"],
                 "Hot water (fixed) | likely useful | key warning: No immediate warnings",
             )
+
+    def test_candidate_kind_summaries_split_review_first_from_ready_next(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+
+        original_assess_candidate = module.assess_candidate
+        original_candidate_needs_review = module.candidate_needs_review
+        original_build_candidate_preview = module.build_candidate_preview
+        module.assess_candidate = lambda candidate: {
+            "needs_review": candidate.get("entity_id") in {"switch.virtual_load", "number.variable_helper"}
+        }
+        module.candidate_needs_review = lambda summary: bool(summary.get("needs_review"))
+        module.build_candidate_preview = lambda candidate, include_entity_id=False, **kwargs: (
+            "Virtual load (fixed) | review first | key warning: Helper-backed load needs review."
+            if candidate.get("entity_id") == "switch.virtual_load"
+            else (
+                "Hot water (fixed) | likely useful | key warning: No immediate warnings"
+                if candidate.get("entity_id") == "switch.hot_water"
+                else (
+                    "Variable helper (variable) | review first | key warning: Helper-backed load needs review."
+                    if candidate.get("entity_id") == "number.variable_helper"
+                    else "EV limit (variable) | likely useful | key warning: No immediate warnings"
+                )
+            )
+        )
+
+        try:
+            placeholders = flow._managed_devices_workspace_placeholders(
+                [],
+                [
+                    {"entity_id": "switch.virtual_load", "name": "Virtual load", "kind": module.DEVICE_KIND_FIXED},
+                    {"entity_id": "switch.hot_water", "name": "Hot water", "kind": module.DEVICE_KIND_FIXED},
+                    {"entity_id": "number.variable_helper", "name": "Variable helper", "kind": module.DEVICE_KIND_VARIABLE},
+                    {"entity_id": "number.ev_limit", "name": "EV limit", "kind": module.DEVICE_KIND_VARIABLE},
+                ],
+            )
+        finally:
+            module.assess_candidate = original_assess_candidate
+            module.candidate_needs_review = original_candidate_needs_review
+            module.build_candidate_preview = original_build_candidate_preview
+
+        self.assertEqual(
+            placeholders["fixed_candidate_summary"],
+            "- Review-first fixed-load candidates:\n"
+            "- Virtual load (fixed) | review first | key warning: Helper-backed load needs review.\n"
+            "- Ready-next fixed-load candidates:\n"
+            "- Hot water (fixed) | likely useful | key warning: No immediate warnings",
+        )
+        self.assertEqual(
+            placeholders["variable_candidate_summary"],
+            "- Review-first variable-load candidates:\n"
+            "- Variable helper (variable) | review first | key warning: Helper-backed load needs review.\n"
+            "- Ready-next variable-load candidates:\n"
+            "- EV limit (variable) | likely useful | key warning: No immediate warnings",
+        )
 
     def test_device_actions_surface_managed_and_unmanaged_counts_in_selector_labels(self) -> None:
         module = _load_config_flow_module()
@@ -1245,6 +1302,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["candidate_count"], "2")
             self.assertEqual(
                 result["description_placeholders"]["fixed_candidate_summary"],
+                "- Review-first fixed-load candidates:\n"
                 "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
                 "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
             )
@@ -1468,6 +1526,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["candidate_count"], "2")
             self.assertEqual(
                 result["description_placeholders"]["fixed_candidate_summary"],
+                "- Review-first fixed-load candidates:\n"
                 "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
                 "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
             )

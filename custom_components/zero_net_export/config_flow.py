@@ -1182,14 +1182,36 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     @staticmethod
     def _candidate_kind_summary(candidates: list[dict[str, Any]], kind: str, *, limit: int = 6) -> str:
-        matching = [item for item in candidates if item.get("kind") == kind][:limit]
-        if matching:
-            return "\n".join(
-                f"- {build_candidate_preview(item, include_entity_id=False)}" for item in matching
+        matching = [item for item in candidates if item.get("kind") == kind]
+        surfaced = matching[:limit]
+        if not surfaced:
+            if kind == DEVICE_KIND_FIXED:
+                return "- No fixed-load candidates discovered right now"
+            return "- No variable-load candidates discovered right now"
+
+        kind_label = "fixed-load" if kind == DEVICE_KIND_FIXED else "variable-load"
+        review_first = [item for item in surfaced if candidate_needs_review(assess_candidate(item))]
+        ready_now = [item for item in surfaced if item not in review_first]
+
+        lines: list[str] = []
+        if review_first:
+            lines.append(f"- Review-first {kind_label} candidates:")
+            lines.extend(
+                f"- {build_candidate_preview(item, include_entity_id=False)}" for item in review_first
             )
-        if kind == DEVICE_KIND_FIXED:
-            return "- No fixed-load candidates discovered right now"
-        return "- No variable-load candidates discovered right now"
+        if ready_now:
+            lines.append(f"- Ready-next {kind_label} candidates:")
+            lines.extend(
+                f"- {build_candidate_preview(item, include_entity_id=False)}" for item in ready_now
+            )
+
+        remaining_count = max(len(matching) - len(surfaced), 0)
+        if remaining_count:
+            lines.append(
+                f"- Additional {kind_label} candidates remain below: "
+                + ("1 more" if remaining_count == 1 else f"{remaining_count} more")
+            )
+        return "\n".join(lines)
 
     def _managed_devices_workspace_placeholders(
         self,
