@@ -1533,10 +1533,44 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
         self.assertEqual(
             ready.native_value,
-            "1 ready to promote | ready Hot water relay (fixed) | likely useful | 1 still needs review | review Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
+            "2 fixed candidates | fixed backlog 1 review/1 ready | 1 ready to promote | ready Hot water relay (fixed) | likely useful | 1 still needs review | review Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
         )
         self.assertEqual(attention.extra_state_attributes["first_attention_device"], "Pool pump")
         self.assertEqual(ready.extra_state_attributes["ready_candidate"]["name"], "Hot water relay")
+
+    def test_managed_fleet_ready_sensor_keeps_fixed_variable_backlog_mix_visible(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+            {"name": "Hot water relay", "entity_id": "switch.hot_water", "kind": "fixed"},
+            {"name": "EV limit", "entity_id": "number.ev_limit", "kind": "variable"},
+        ]
+        sensor_module.assess_candidate = lambda candidate: {
+            "confidence": "low" if candidate.get("name") == "Virtual load" else "high",
+            "warnings": ["This is an input_boolean helper."] if candidate.get("name") == "Virtual load" else [],
+        }
+        sensor_module.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        sensor_module.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Virtual load (fixed) | review carefully | warn This is an input_boolean helper."
+            if candidate and candidate.get("name") == "Virtual load"
+            else (
+                "Hot water relay (fixed) | likely useful"
+                if candidate and candidate.get("name") == "Hot water relay"
+                else "EV limit (variable) | likely useful"
+            )
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        ready = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_ready", "Managed devices ready next")
+        ready.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            ready.native_value,
+            "2 fixed candidates | 1 variable candidate | fixed backlog 1 review/1 ready | variable backlog 1 ready | 2 ready to promote | ready Hot water relay (fixed) | likely useful | 1 still needs review | review Virtual load (fixed) | review carefully | warn",
+        )
 
     def test_fleet_console_next_step_prioritizes_failed_only_attention_before_new_promotions(self) -> None:
         sensor_module = _load_sensor_module()

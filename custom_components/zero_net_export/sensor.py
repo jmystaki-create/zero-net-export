@@ -802,6 +802,21 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
 
             if self._key == "managed_fleet_ready":
                 ready_parts = []
+                if candidate_count:
+                    if fixed_candidate_count:
+                        ready_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
+                    if variable_candidate_count:
+                        ready_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+                    ready_parts.extend(
+                        _candidate_kind_backlog_mix_parts(
+                            fixed_candidate_count=fixed_candidate_count,
+                            variable_candidate_count=variable_candidate_count,
+                            fixed_review_count=fixed_review_count,
+                            variable_review_count=variable_review_count,
+                            fixed_ready_count=fixed_ready_count,
+                            variable_ready_count=variable_ready_count,
+                        )
+                    )
                 if ready_candidate_count:
                     ready_parts.append(
                         "1 ready to promote" if ready_candidate_count == 1 else f"{ready_candidate_count} ready to promote"
