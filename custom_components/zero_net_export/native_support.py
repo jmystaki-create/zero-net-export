@@ -256,7 +256,7 @@ def _compact_next_action_fallback(
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 compact_ready = ready_candidate_name
-                compact_step += f", then promote next: {compact_ready}"
+                compact_step += f", then promote next from the unmanaged section: {compact_ready}"
             return compact_step + "."
         if ready_candidate_name or top_candidate_name or top_candidate_preview:
             compact_ready = ready_candidate_name or top_candidate_name or top_candidate_preview or "the next unmanaged candidate"
