@@ -1049,6 +1049,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with focused config-flow regression coverage plus Python compile checks. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Controls handoff cleanup in the next exact-build deploy, then confirm the live healthy Controls screen no longer routes normal verification through Diagnostics actions.
 
+## ZNE-086 - Command-center no-fleet top alert still skipped the `Managed Devices` bucket name
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** repo audit on 2026-04-20 while checking remaining Workstream A/D alert-strip language against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when no managed devices were configured yet, the opening command-center top alert still said `No managed devices configured yet.` even though the rest of the alert strip had already moved onto bucket-first `Managed Devices: ...`, `Sensors: ...`, and `Diagnostics: ...` language. That left the zero-fleet case as one remaining top-alert wording leak, making the opening console less consistent right when the operator most needs to understand which native bucket owns the next step.
+- **expected behavior:** the no-fleet top alert should stay bucket-first too, so the opening console says `Managed Devices: no managed devices configured yet.` and keeps the four-bucket information architecture explicit even before the first device is promoted.
+- **evidence:** this run's repo audit found `device_alert = "No managed devices configured yet."` still hard-coded in `custom_components/zero_net_export/native_support.py`, while the surrounding alert branches already used bucket-first labels. Focused expectations in `tests/test_command_center_summary.py` were also still locking the older zero-fleet alert wording in place.
+- **suspected cause:** earlier Workstream B/D cleanup hit the higher-pressure blocked, attention, review-first, and ready-next alert branches first, but the zero-fleet top-alert fallback was left on older pre-bucket wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the opening zero-fleet alert now reads `Managed Devices: no managed devices configured yet.`, and refreshes `tests/test_command_center_summary.py` to lock that bucket-first alert wording in place across review-first, ready-next, and overflow-compaction cases.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this zero-fleet top-alert cleanup in the next exact-build deploy, then confirm the live Configure alert strip keeps `Managed Devices` explicit even before the first load is promoted.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

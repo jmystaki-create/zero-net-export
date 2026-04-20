@@ -2001,7 +2001,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("No managed devices configured yet.", summary["alert_summary"])
+        self.assertIn("Managed Devices: no managed devices configured yet.", summary["alert_summary"])
         self.assertIn("Unmanaged review first: Virtual load (fixed) | review first", summary["alert_summary"])
         self.assertIn("ready next Hot water relay (fixed) | likely useful", summary["alert_summary"])
         self.assertIn("review Virtual load (fixed) | review first", summary["fleet_activity_summary"])
@@ -2067,7 +2067,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("No managed devices configured yet.", summary["alert_summary"])
+        self.assertIn("Managed Devices: no managed devices configured yet.", summary["alert_summary"])
         self.assertIn("Unmanaged ready next: Hot water relay (fixed) | likely useful", summary["alert_summary"])
         self.assertIn("2 ready to promote", summary["fleet_activity_summary"])
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["fleet_activity_summary"])
@@ -2162,7 +2162,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertNotEqual(summary["alert_summary"], "No top-level alerts right now.")
         self.assertIn("Mapped-source blockers:", summary["alert_summary"])
-        self.assertIn("No managed devices configured yet.", summary["alert_summary"])
+        self.assertIn("Managed Devices: no managed devices configured yet.", summary["alert_summary"])
         self.assertNotIn("Installed package needs exact-build revalidation", summary["alert_summary"])
         self.assertLessEqual(len(summary["alert_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
 
