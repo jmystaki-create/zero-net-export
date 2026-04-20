@@ -234,12 +234,12 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - non-blocking version/reporting path
 - clean enough load path for UI inspection
 
-### Stage 2. Command center reduction to true setup-only scope
+### Stage 2. Setup-first command-center cleanup
 **Purpose**
-- make the command center a short, high-legibility setup surface instead of a support dump
+- make the command center a short, high-legibility setup-first operator surface instead of a support dump
 
 **Completed**
-- the command-center guide has been trimmed repo-side toward setup-only posture
+- the command-center guide has been trimmed repo-side away from release/debug-heavy support posture and toward setup-first operator use
 - the opening summary/board structure now exists in repo state
 - the shared device-page command-center guide has also been realigned repo-side to the same setup-first `Now` / `Structured control board` / `Setup check` / `Basic setup paths` / `Bucket ownership` hierarchy, so this stage is no longer primarily blocked on more repo-side wording churn
 
@@ -250,8 +250,8 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Features in this stage**
 - headline decision summary
 - compact top alert / next step
-- setup-only board content
-- clear jump-off to Sensors / Controls / Diagnostics
+- setup-first board content plus the current operating picture
+- clear jump-off to Sensors / Controls / Managed Devices / Diagnostics
 
 ### Stage 3. Top control board completion
 **Purpose**
@@ -406,7 +406,7 @@ This is the explicit `0.1.87` rollout target James asked for. It converts the st
 
 ### 0.1.87 must include
 1. **Command center reduction**
-   - basic setup only
+   - setup-first operator surface with the current operating picture still visible
    - short top alert / next step
    - no release/install/debug clutter dominating the primary surface
 
