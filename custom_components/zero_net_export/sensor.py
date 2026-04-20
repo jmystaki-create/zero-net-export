@@ -890,6 +890,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return "None"
             if summary != "None" or summarize_validation_issue_messages(state, severities={"error"}, limit=3) != "None":
                 return f"Open {SOURCES_CONFIGURE_PATH}, repair mapped-source blockers, then save and reload the integration"
+            recommended_next_step = str(build_native_operator_readiness(self.coordinator).get("next_step") or "").strip()
+            if recommended_next_step:
+                return recommended_next_step
             return f"Mapped sources currently look healthy; continue in {DEVICES_CONFIGURE_PATH} or {POLICY_CONFIGURE_PATH}"
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)

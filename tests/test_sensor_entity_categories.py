@@ -1103,6 +1103,49 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("sources path", next_step.native_value)
 
+    def test_mapped_source_blocker_next_step_reuses_operator_readiness_when_sources_are_healthy(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module.build_native_operator_readiness = lambda coordinator: {
+            "next_step": "Open devices path and review first in the unmanaged section: AC Outlet 2"
+        }
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "mapped_source_blocker_next_step",
+            "Mapped-source blocker next step",
+        )
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open devices path and review first in the unmanaged section: AC Outlet 2",
+        )
+        self.assertNotIn("continue in devices path or policy path", next_step.native_value)
+
+    def test_mapped_source_blocker_next_step_keeps_legacy_fallback_when_no_operator_readiness_step_exists(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module.build_native_operator_readiness = lambda coordinator: {}
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "mapped_source_blocker_next_step",
+            "Mapped-source blocker next step",
+        )
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Mapped sources currently look healthy; continue in devices path or policy path",
+        )
+
     def test_fleet_workspace_attributes_reuse_cached_candidate_discovery(self) -> None:
         sensor_module = _load_sensor_module()
         calls: list[tuple[list[object], set[str]]] = []

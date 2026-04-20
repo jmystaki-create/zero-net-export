@@ -1023,6 +1023,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with focused config-flow regression coverage plus Python compile checks. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Sensors handoff cleanup in the next exact-build deploy, then confirm the live healthy Sensors screen no longer hedges between Controls and Managed Devices when one concrete next bucket is already clear.
 
+## ZNE-084 - Healthy Sensors blocker-next-step sensor still hedged across two buckets instead of one concrete next home
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensor`
+- **where seen:** repo audit on 2026-04-20 while checking the remaining Sensors-side IA handoffs against `docs/UI_DESIGN.md` and Workstream D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when mapped sources were healthy and no blocking validation issue remained, `sensor.zero_net_export_mapped_source_blocker_next_step` still fell back to `Mapped sources currently look healthy; continue in Configure -> Managed Devices or Configure -> Controls.` That kept the Sensors-side helper surface ambiguous even though the command center and operator-readiness helper already had a concrete next step for the same state.
+- **expected behavior:** once Sensors is healthy, the blocker-next-step sensor should reuse the same concrete native next step already chosen elsewhere, so operators see one clear next home instead of another cross-bucket hedge.
+- **evidence:** this run's repo audit found the hard-coded `continue in ... or ...` fallback still in `custom_components/zero_net_export/sensor.py`, while the same module was already exposing `build_native_operator_readiness(self.coordinator).get("next_step")` in the sensor attributes for the same entity. `docs/UI_DESIGN.md` says Sensors owns source mapping/source health only, and `docs/UI_IMPLEMENTATION_MAP.md` Workstream D says remaining handoffs should make where to go next obvious instead of overlapping.
+- **suspected cause:** earlier four-bucket cleanup fixed the higher-visibility command-center, fleet helper, and config-flow handoffs first, but this companion Sensors helper sensor kept its older generic healthy fallback instead of reusing the existing operator-readiness decision.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so `mapped_source_blocker_next_step` now reuses the concrete operator-readiness `next_step` whenever sources are healthy, only falling back to the older dual-path sentence if no readiness step exists. `tests/test_sensor_entity_categories.py` now locks both the concrete handoff path and the legacy fallback path in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Sensors helper handoff cleanup in the next exact-build deploy, then confirm the live healthy Sensors blocker-next-step sensor reuses one concrete next bucket instead of hedging across Managed Devices and Controls.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
