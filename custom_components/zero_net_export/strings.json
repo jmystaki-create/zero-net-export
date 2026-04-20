@@ -66,8 +66,7 @@
           "battery_soc_entity": "Battery state of charge entity",
           "battery_soc_entity_manual": "Battery state of charge entity ID fallback (optional)",
           "battery_charge_power_entity": "Battery charge power entity",
-          "battery_discharge_power_entity": "Battery discharge power entity",
-          "refresh_seconds": "Refresh interval (s)"
+          "battery_discharge_power_entity": "Battery discharge power entity"
         },
         "data_description": {
           "solar_power_entity": "Live solar generation power sensor.",
@@ -83,8 +82,7 @@
           "battery_soc_entity": "Optional battery SOC sensor for reserve-aware control. This uses a native dropdown instead of Home Assistant's entity picker so battery reserve setup stays usable even on installs that hit the entity/UUID validation bug.",
           "battery_soc_entity_manual": "Optional native fallback if Home Assistant still rejects a valid Battery state of charge choice. Capture the exact error or a screenshot first, then clear the selector, paste the same battery SOC entity ID here, and save again.",
           "battery_charge_power_entity": "Optional battery charging power sensor.",
-          "battery_discharge_power_entity": "Optional battery discharge power sensor.",
-          "refresh_seconds": "How often the backend re-reads source sensors and re-plans device actions."
+          "battery_discharge_power_entity": "Optional battery discharge power sensor."
         }
       },
       "devices": {

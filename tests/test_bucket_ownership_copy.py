@@ -61,6 +61,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", source_mapping_description)
         self.assertIn("- Managed Devices: {devices_path}", source_mapping_description)
         self.assertIn("- Diagnostics: {support_path}", source_mapping_description)
+        self.assertNotIn("refresh_seconds", source_mapping_step["data"])
+        self.assertNotIn("refresh_seconds", source_mapping_step["data_description"])
 
         devices_description = steps["devices"]["description"]
         self.assertIn("Managed devices (top section)", devices_description)
