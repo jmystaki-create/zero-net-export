@@ -1344,6 +1344,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this save-landing copy cleanup in the next exact-build deploy, then confirm the live promote/edit/enablement feedback reads like one direct Managed Devices workflow instead of dropping back into snapshot-helper prose.
 
+## ZNE-109 - Managed Devices bulk-enable screen still described enablement as a temporary helper flow
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-21 while reviewing remaining Workstream B wording in the Managed Devices enablement screen against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** `Configure -> Managed Devices -> bulk enable` still opened with `Use this native fleet review to temporarily stage larger installs without raw JSON.` That copy made the enablement screen sound like a temporary helper detour for large installs instead of the primary Managed Devices workspace for fleet enablement, even though Workstream B says remaining wording that makes Configure -> Managed Devices feel like a thin helper layer should be removed.
+- **expected behavior:** the bulk-enable screen should explicitly read as part of the Managed Devices workspace, keep Configure named as the primary fleet workspace for enablement, and keep the managed-on-top / unmanaged-below hierarchy visible while operators decide which loads stay enabled.
+- **evidence:** this run's repo audit found the older helper-style sentence still repeated in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` under `device_bulk_enable`. The matching regression in `tests/test_bucket_ownership_copy.py` also lacked coverage for the stronger workspace-first wording shape now used elsewhere in Managed Devices.
+- **suspected cause:** earlier Workstream B cleanup strengthened the surrounding Managed Devices screens first, but the bulk-enable description kept an older transitional sentence from when enablement review was framed more like a special helper flow than the main fleet workspace.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the bulk-enable screen now opens with `Use this Managed Devices workspace to stage enablement changes without raw JSON`, explicitly says `Configure stays the primary fleet workspace for enablement`, and keeps the managed-on-top / unmanaged-promotion-backlog split visible in the opening copy. `tests/test_bucket_ownership_copy.py` now locks that workspace-first wording and removes the older `temporarily stage larger installs` phrase.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus a direct translation-sync check between `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Managed Devices enablement-copy cleanup in the next exact-build deploy, then confirm the live bulk-enable screen reads as the primary fleet enablement workspace instead of a temporary helper review.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

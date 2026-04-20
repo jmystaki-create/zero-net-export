@@ -91,7 +91,12 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             steps["device_bulk_enable"]["title"],
             "Review managed devices workspace and enablement",
         )
+        self.assertIn("Use this Managed Devices workspace to stage enablement changes without raw JSON.", bulk_enable_description)
+        self.assertIn("Configure stays the primary fleet workspace for enablement", bulk_enable_description)
+        self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below", bulk_enable_description)
+        self.assertIn("Primary path: {configure_path}.", bulk_enable_description)
         self.assertIn("Managed Devices owns fleet enablement", bulk_enable_description)
+        self.assertNotIn("Use this native fleet review to temporarily stage larger installs without raw JSON.", bulk_enable_description)
         self.assertIn("Managed devices (top section)", bulk_enable_description)
         self.assertIn("Managed Devices: {device_count}", bulk_enable_description)
         self.assertIn("Managed devices review:", bulk_enable_description)
