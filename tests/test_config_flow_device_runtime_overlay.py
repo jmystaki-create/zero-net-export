@@ -2182,6 +2182,24 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning.",
         )
 
+    def test_device_next_step_keeps_managed_devices_workspace_wording_when_candidates_remain(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1"))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": None}})
+        flow._top_candidate_focus_text = lambda candidate: "Hot water (fixed) | likely useful | key warning: No immediate warnings"
+
+        next_step = flow._device_next_step(
+            devices=[{"name": "Pool pump", "kind": module.DEVICE_KIND_FIXED}],
+            issues=[],
+            candidates=[{"name": "Hot water", "entity_id": "switch.hot_water", "kind": module.DEVICE_KIND_FIXED}],
+        )
+
+        self.assertEqual(
+            next_step,
+            "Review the Managed Devices workspace, then consider promoting the next unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+        )
+        self.assertNotIn("Review the current fleet", next_step)
+
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())

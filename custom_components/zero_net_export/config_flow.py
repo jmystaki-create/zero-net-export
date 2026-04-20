@@ -2522,7 +2522,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "Use the Managed Devices workspace to add the first fixed or variable load manually."
         if primary_candidate:
             return (
-                f"Review the current fleet, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."
+                f"Review the Managed Devices workspace, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."
             )
         return "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning."
 
