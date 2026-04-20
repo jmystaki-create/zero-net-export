@@ -2281,6 +2281,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     device_alert = None
     review_alert = None
     review_alert_compact = None
+    ready_alert = None
+    ready_alert_compact = None
+    ready_candidate_count = max(candidate_count - review_needed_count, 0)
     if device_parse_issues:
         device_alert = f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s)."
     else:
@@ -2313,32 +2316,38 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 ready_target = ready_candidate_preview or ready_candidate_name
                 review_alert += f"; ready next {ready_target}"
                 review_alert_compact += f"; ready next {ready_candidate_name}"
+        elif ready_candidate_count:
+            ready_target = ready_candidate_preview or ready_candidate_name or "the next unmanaged candidate"
+            ready_alert = f"Unmanaged ready next: {ready_target}"
+            ready_alert_compact = f"Unmanaged ready next: {ready_candidate_name or 'the next unmanaged candidate'}"
 
     readiness_alert = str(readiness.get("summary") or support_status) if readiness_phase == "runtime_readiness" else None
 
     recommended_reason = status_summary_map.get(recommended_section, support_status)
-    top_alerts = [install_alert, source_alert, device_alert, review_alert, readiness_alert]
+    top_alerts = [install_alert, source_alert, device_alert, review_alert or ready_alert, readiness_alert]
     if not any(top_alerts) and recommended_reason:
         top_alerts = [str(recommended_reason)]
 
+    review_or_ready_compact = review_alert_compact or ready_alert_compact
+    review_or_ready = review_alert or ready_alert
     top_alert_fallback = next(
         (
             alert
-            for alert in [source_alert, device_alert, review_alert_compact, review_alert, readiness_alert, install_alert]
+            for alert in [source_alert, device_alert, review_or_ready_compact, review_or_ready, readiness_alert, install_alert]
             if alert
         ),
         "No top-level alerts right now.",
     )
     alert_summary = _compact_top_alert_summary(
         top_alerts,
-        [source_alert, device_alert, review_alert, readiness_alert, install_alert],
-        [source_alert, device_alert, review_alert_compact, readiness_alert],
-        [source_alert, device_alert, review_alert_compact],
-        [source_alert, device_alert, review_alert],
+        [source_alert, device_alert, review_or_ready, readiness_alert, install_alert],
+        [source_alert, device_alert, review_or_ready_compact, readiness_alert],
+        [source_alert, device_alert, review_or_ready_compact],
+        [source_alert, device_alert, review_or_ready],
         [source_alert, device_alert],
-        [device_alert, review_alert_compact],
+        [device_alert, review_or_ready_compact],
         [device_alert],
-        [review_alert_compact],
+        [review_or_ready_compact],
         [readiness_alert],
         [install_alert],
         fallback=top_alert_fallback,
