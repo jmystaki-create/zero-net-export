@@ -275,6 +275,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "- In Pick unmanaged candidate, select Virtual load (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power..",
             handoff,
         )
+        self.assertIn(
+            "- Then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
+            handoff,
+        )
         self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Pick unmanaged candidate" in line))
 
     def test_workspace_handoff_keeps_empty_fleet_on_managed_devices_when_no_candidate_is_surfaced(self) -> None:

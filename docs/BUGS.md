@@ -1240,6 +1240,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this smaller Controls-path wording cleanup in the next exact-build deploy, then confirm the live empty-fleet Controls step keeps the Managed Devices workspace explicit instead of sounding like a generic add-device follow-on.
 
+## ZNE-101 - Device-page promotion handoff still dropped the ready-next unmanaged candidate outside blocker recovery
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-21 while comparing the normal device-page `Promotion handoff` in `custom_components/zero_net_export/button.py` against the richer review-first plus ready-next unmanaged context already preserved in the command center, helper sensors, Configure flow, and blocker-recovery handoff
+- **current observed behavior:** the blocker-recovery path had already been fixed to preserve both the first review-first unmanaged candidate and the first ready-next unmanaged candidate, but the normal device-page `Promotion handoff` still stopped after `In Pick unmanaged candidate, select ...` and dropped the ready-next follow-through entirely whenever a review-first candidate and a separate ready candidate coexisted. That left the secondary promotion path with a thinner backlog story than the rest of the native fleet workflow.
+- **expected behavior:** the normal device-page `Promotion handoff` should preserve the same review-first plus ready-next unmanaged context as the rest of the native Managed Devices flow, so operators can see both the first candidate to vet and the next candidate already ready to promote.
+- **evidence:** this run's repo audit found `_managed_devices_workspace_handoff(...)` in `custom_components/zero_net_export/button.py` only emitting the selected review-first candidate plus generic `Review fit and warnings, then save it into Managed Devices.` even when `_first_ready_candidate(...)` returned a distinct ready-next candidate. `tests/test_button_entity_categories.py` reproduced that path with review-first `Virtual load` plus ready-next `Dishwasher Power`, and confirmed the handoff omitted the ready-next unmanaged context that nearby fleet surfaces already preserve.
+- **suspected cause:** earlier device-page cleanup fixed the blocker-recovery branch first, but the adjacent normal promotion-handoff branch kept the older single-candidate wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the normal `Promotion handoff` now appends `Then promote next from the unmanaged section: ...` whenever a distinct ready-next unmanaged candidate exists, and refreshes `tests/test_button_entity_categories.py` to lock that review-first plus ready-next handoff in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page promotion-handoff follow-through cleanup in the next exact-build deploy, then confirm the live `Promotion handoff` keeps both the review-first and ready-next unmanaged cues visible even when no blocker-recovery path is involved.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

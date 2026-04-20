@@ -647,6 +647,7 @@ def _managed_devices_workspace_handoff(
         return lines
 
     top_candidate, _, review_candidate, _ = _managed_devices_review_focus(candidates)
+    ready_candidate = _first_ready_candidate(candidates)
     primary_candidate = review_candidate or top_candidate
 
     lines = ["Promotion handoff:"]
@@ -662,9 +663,13 @@ def _managed_devices_workspace_handoff(
                 f"- Choose {promote_label}.",
                 f"- In Pick unmanaged candidate, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
-                f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
             ]
         )
+        if ready_candidate and ready_candidate != primary_candidate:
+            lines.append(
+                f"- Then promote next from the unmanaged section: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}."
+            )
+        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.")
     else:
         if has_managed_devices:
             lines.extend(
