@@ -162,6 +162,39 @@ FLEET_WORKSPACE_SENSOR_KEYS = {
 def _count_label(count: int, singular: str, plural: str | None = None) -> str:
     noun = singular if count == 1 else (plural or f"{singular}s")
     return f"{count} {noun}"
+
+
+def _candidate_kind_backlog_mix_parts(
+    *,
+    fixed_candidate_count: int,
+    variable_candidate_count: int,
+    fixed_review_count: int,
+    variable_review_count: int,
+    fixed_ready_count: int,
+    variable_ready_count: int,
+) -> list[str]:
+    parts: list[str] = []
+    any_ready = fixed_ready_count > 0 or variable_ready_count > 0
+
+    def _append(kind_label: str, candidate_count: int, review_count: int, ready_count: int) -> None:
+        if candidate_count <= 0 or not any_ready or (review_count <= 0 and ready_count <= 0):
+            return
+        if review_count > 0 and ready_count > 0:
+            parts.append(f"{kind_label} backlog {review_count} review/{ready_count} ready")
+        elif review_count > 0:
+            parts.append(f"{kind_label} backlog {review_count} review")
+        elif ready_count > 0:
+            parts.append(f"{kind_label} backlog {ready_count} ready")
+
+    include_fixed = bool(fixed_candidate_count and (variable_candidate_count or (fixed_review_count and fixed_ready_count)))
+    include_variable = bool(variable_candidate_count and (fixed_candidate_count or (variable_review_count and variable_ready_count)))
+    if include_fixed:
+        _append("fixed", fixed_candidate_count, fixed_review_count, fixed_ready_count)
+    if include_variable:
+        _append("variable", variable_candidate_count, variable_review_count, variable_ready_count)
+    return parts
+
+
 VALIDATION_ATTRIBUTE_SENSOR_KEYS = {
     "release_summary",
     "changes_preview",
@@ -415,7 +448,8 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
     compact_parts = [
         part
         for part in parts
-        if " fixed review" not in part and " variable review" not in part
+        if " fixed review" not in part
+        and " variable review" not in part
     ]
     compact_summary = " | ".join(compact_parts)
     if len(compact_summary) <= max_chars:
@@ -487,6 +521,9 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
         if preserve_candidate_kind_counts and (part.endswith("variable candidate") or part.endswith("variable candidates")):
             minimal_parts.append(part)
             continue
+        if preserve_candidate_kind_counts and part.startswith(("fixed backlog ", "variable backlog ")):
+            minimal_parts.append(part)
+            continue
         if part.endswith("needs review") or part.endswith("need review"):
             minimal_parts.append(part)
             continue
@@ -527,6 +564,8 @@ def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> 
     review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
     ready_candidate_count = max(len(candidates) - review_needed_count, 0)
     fixed_review_count, variable_review_count = candidate_review_kind_counts(candidates)
+    fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
+    variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
     top_candidate = candidates[0]
     top_candidate_name = str(top_candidate.get("name") or top_candidate.get("entity_id") or "").strip()
     top_candidate_preview = build_candidate_compact_preview(top_candidate)
@@ -547,6 +586,16 @@ def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> 
         parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
     if variable_candidate_count:
         parts.append(_count_label(variable_candidate_count, "variable candidate"))
+    parts.extend(
+        _candidate_kind_backlog_mix_parts(
+            fixed_candidate_count=fixed_candidate_count,
+            variable_candidate_count=variable_candidate_count,
+            fixed_review_count=fixed_review_count,
+            variable_review_count=variable_review_count,
+            fixed_ready_count=fixed_ready_count,
+            variable_ready_count=variable_ready_count,
+        )
+    )
     if review_needed_count:
         parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
         if fixed_review_count:
@@ -686,6 +735,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 None,
             )
             fixed_review_count, variable_review_count = candidate_review_kind_counts(candidates)
+            fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
+            variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
             review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
             review_candidate_preview = build_candidate_compact_preview(review_candidate) if review_candidate else ""
             ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
@@ -770,6 +821,16 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+                summary_parts.extend(
+                    _candidate_kind_backlog_mix_parts(
+                        fixed_candidate_count=fixed_candidate_count,
+                        variable_candidate_count=variable_candidate_count,
+                        fixed_review_count=fixed_review_count,
+                        variable_review_count=variable_review_count,
+                        fixed_ready_count=fixed_ready_count,
+                        variable_ready_count=variable_ready_count,
+                    )
+                )
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if fixed_review_count:
@@ -819,6 +880,16 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+                summary_parts.extend(
+                    _candidate_kind_backlog_mix_parts(
+                        fixed_candidate_count=fixed_candidate_count,
+                        variable_candidate_count=variable_candidate_count,
+                        fixed_review_count=fixed_review_count,
+                        variable_review_count=variable_review_count,
+                        fixed_ready_count=fixed_ready_count,
+                        variable_ready_count=variable_ready_count,
+                    )
+                )
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if fixed_review_count:
@@ -1012,6 +1083,26 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "candidate_count": len(candidates),
                 "review_needed_count": review_needed_count,
                 "ready_candidate_count": max(len(candidates) - review_needed_count, 0),
+                "fixed_review_count": sum(
+                    1
+                    for item in candidates
+                    if str(item.get('kind') or '') == 'fixed' and candidate_needs_review(assess_candidate(item))
+                ),
+                "variable_review_count": sum(
+                    1
+                    for item in candidates
+                    if str(item.get('kind') or '') == 'variable' and candidate_needs_review(assess_candidate(item))
+                ),
+                "fixed_ready_count": sum(
+                    1
+                    for item in candidates
+                    if str(item.get('kind') or '') == 'fixed' and not candidate_needs_review(assess_candidate(item))
+                ),
+                "variable_ready_count": sum(
+                    1
+                    for item in candidates
+                    if str(item.get('kind') or '') == 'variable' and not candidate_needs_review(assess_candidate(item))
+                ),
                 "blocked_activity_count": blocked_activity_count,
                 "blocked_planned_action_count": int(getattr(state, "blocked_planned_action_count", 0) or 0),
                 "fixed_candidate_count": sum(1 for item in candidates if str(item.get('kind') or '') == 'fixed'),
