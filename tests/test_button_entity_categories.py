@@ -830,11 +830,15 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         attrs = button.extra_state_attributes
 
         self.assertIn(
-            "- Next fleet step after repair: Open devices path and review Hot water (fixed) | likely useful | key warning: No immediate warnings first.",
+            "- Next fleet step after repair: Open devices path and use the Managed Devices workspace to review the unmanaged section, starting with Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             attrs["promotion_handoff"],
         )
         self.assertIn(
-            "- After repair: Open devices path and review Hot water (fixed) | likely useful | key warning: No immediate warnings first.",
+            "- After repair: Open devices path and use the Managed Devices workspace to review the unmanaged section, starting with Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            attrs["blocker_first"],
+        )
+        self.assertNotIn(
+            "Open devices path and review Hot water (fixed) | likely useful | key warning: No immediate warnings first.",
             attrs["blocker_first"],
         )
         self.assertNotIn(
