@@ -2133,6 +2133,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                     f", then promote next from the unmanaged section: "
                     f"{ready_candidate_preview or ready_candidate_name}"
                 )
+        elif ready_candidate_name or top_candidate_preview or top_candidate_name:
+            device_next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
+                f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
+            )
         else:
             device_next_step = (
                 f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually."

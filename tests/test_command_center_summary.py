@@ -2002,6 +2002,14 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Unmanaged ready next: Hot water relay (fixed) | likely useful", summary["alert_summary"])
         self.assertIn("2 ready to promote", summary["fleet_activity_summary"])
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["fleet_activity_summary"])
+        self.assertEqual(
+            (
+                "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
+                "and promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
+            ),
+            summary["device_next_step"],
+        )
+        self.assertEqual(summary["device_next_step"], summary["next_action_summary"])
 
     def test_command_center_summary_compacts_top_alerts_before_falling_back_to_none(self) -> None:
         native_support = _load_native_support_module()
