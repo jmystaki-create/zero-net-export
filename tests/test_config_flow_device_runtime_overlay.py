@@ -395,6 +395,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         variable_label = flow._device_status_label(devices[1])
         summary_lines = flow._fleet_summary_lines(devices)
 
+        self.assertIn("planned", label)
         self.assertIn("usable", label)
         self.assertIn("Ready for control", label)
         self.assertIn("power 1185 W", label)
@@ -405,6 +406,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("last queued", label)
         self.assertIn("priority 10", label)
         self.assertIn("nominal 1200 W", label)
+        self.assertIn("blocked", variable_label)
         self.assertIn("power 1800 W", variable_label)
         self.assertIn("target 2200 W", variable_label)
         self.assertIn("last throttled", variable_label)
@@ -753,8 +755,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             shortlist["description_placeholders"]["device_summary"],
             "- Fleet summary: 2 device(s), 1 enabled, 1 usable, 1 blocked, 1 planned action(s), 2 managed devices need attention, 1 fixed, 1 variable, 0 W nominal controllable power\n"
             "- Managed devices needing attention first:\n"
-            "- EV charger [not usable | power n/a] (variable, disabled, priority 0, nominal 0 W)\n"
-            "- Pool pump [usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)\n"
+            "- EV charger [blocked | not usable | power n/a] (variable, disabled, priority 0, nominal 0 W)\n"
+            "- Pool pump [planned | usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)\n"
             "- Other managed devices:\n"
             "- None",
         )
@@ -1026,8 +1028,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             [
                 "- Fleet summary: 2 device(s), 2 enabled, 2 usable, 1 blocked, 2 planned action(s), 2 managed devices need attention, 1 fixed, 1 variable, 0 W nominal controllable power",
                 "- Managed devices needing attention first:",
-                "- Pool pump [usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)",
-                "- EV charger [usable | power n/a | action set_power] (variable, enabled, priority 0, nominal 0 W)",
+                "- Pool pump [blocked | usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)",
+                "- EV charger [planned | usable | power n/a | action set_power] (variable, enabled, priority 0, nominal 0 W)",
                 "- Other managed devices:",
                 "- None",
             ],
@@ -1107,7 +1109,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             [
                 "- Fleet summary: 2 device(s), 2 enabled, 2 usable, 0 blocked, 1 planned action(s), 1 managed device needs attention, 2 fixed, 0 variable, 0 W nominal controllable power",
                 "- Managed devices needing attention first:",
-                "- Pool pump [usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)",
+                "- Pool pump [planned | usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)",
                 "- Other managed devices:",
                 "- Water heater [usable | power n/a] (fixed, enabled, priority 0, nominal 0 W)",
             ],
@@ -1451,8 +1453,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 result["description_placeholders"]["device_summary"],
                 "- Fleet summary: 2 device(s), 2 enabled, 1 usable, 1 blocked, 1 planned action(s), 2 managed devices need attention, 1 fixed, 1 variable, 0 W nominal controllable power\n"
                 "- Managed devices needing attention first:\n"
-                "- EV charger [not usable | power n/a] (variable, enabled, priority 0, nominal 0 W)\n"
-                "- Pool pump [usable | power n/a | action on] (fixed, enabled, priority 0, nominal 0 W)\n"
+                "- EV charger [blocked | not usable | power n/a] (variable, enabled, priority 0, nominal 0 W)\n"
+                "- Pool pump [planned | usable | power n/a | action on] (fixed, enabled, priority 0, nominal 0 W)\n"
                 "- Other managed devices:\n"
                 "- None",
             )

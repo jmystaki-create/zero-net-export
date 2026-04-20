@@ -803,6 +803,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         operator_priority_override = device.get("operator_priority_override")
         operator_enabled_override = device.get("operator_enabled_override")
         runtime_bits: list[str] = []
+        planned_action = ZeroNetExportOptionsFlow._active_planned_action(device)
+        if ZeroNetExportOptionsFlow._device_has_blocked_activity(device):
+            runtime_bits.append("blocked")
+        elif planned_action:
+            runtime_bits.append("planned")
+        elif ZeroNetExportOptionsFlow._device_has_recent_attention(device):
+            runtime_bits.append("attention")
+        elif device.get("observed_active") is True:
+            runtime_bits.append("active")
         if device.get("usable") is not None:
             runtime_bits.append("usable" if device.get("usable") else "not usable")
         if device.get("status"):
@@ -818,7 +827,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             runtime_bits.append(f"today {_format_runtime_duration_label(runtime_today)}")
         if device.get("guard_status"):
             runtime_bits.append(f"guard {device.get('guard_status')}")
-        planned_action = ZeroNetExportOptionsFlow._active_planned_action(device)
         if planned_action:
             runtime_bits.append(f"action {planned_action}")
         if device.get("last_action_status"):
