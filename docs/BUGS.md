@@ -1292,6 +1292,19 @@ Suggested area labels:
 - **validation status:** repo/commit audit only. The source-of-truth ordering in `docs/SUPERVISOR.md` and `docs/UI_IMPLEMENTATION_MAP.md` is clear, and this run's recent-commit inspection confirms the latest component-changing work diverged from that order.
 - **next action:** stop defaulting to more device-page review follow-ons, return the next repo-side audit/fix to the highest remaining mapped A-D/F gap, and only shift back to Workstream E if a new concrete repo-side regression appears there or the exact deployed build exposes a live-proof issue.
 
+## ZNE-105 - Opening command-center copy still stopped short of naming the Managed Devices workspace explicitly
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** supervisor repo audit on 2026-04-21 while checking the remaining Workstream A/B opening-console copy against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the opening command-center description had already been tightened into a setup-first operator console, but its fleet handoff sentence still said `When the next step moves into fleet work, continue in Managed Devices.` That was directionally right but still weaker than the current product language elsewhere, because it named the bucket without explicitly naming the `Managed Devices workspace` that Workstream B is trying to make unmistakable.
+- **expected behavior:** the opening command-center copy should keep the same workspace-first naming used by the rest of the fleet handoffs, so the first Configure surface explicitly tells operators to continue in the `Managed Devices workspace` when fleet work owns the next step.
+- **evidence:** this run's repo audit found the older sentence still repeated in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `custom_components/zero_net_export/native_support.py`, with matching regressions in `tests/test_bucket_ownership_copy.py`, `tests/test_command_center_modal_copy.py`, `tests/test_command_center_setup_focus.py`, and `tests/test_source_repair_guidance.py`. `docs/UI_IMPLEMENTATION_MAP.md` still says Workstream B should remove wording that makes Configure -> Managed Devices feel less like the real primary fleet workspace.
+- **suspected cause:** earlier command-center cleanup focused first on shortening the opening copy and aligning the setup-first hierarchy, but left this one fleet-handoff sentence on the older bucket-only wording.
+- **repo fix:** this run updates the opening command-center copy in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `custom_components/zero_net_export/native_support.py` so it now says `continue in the Managed Devices workspace`, and refreshes the focused copy regressions to lock that workspace-first wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_command_center_modal_copy tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this opening-console wording cleanup in the next exact-build deploy, then confirm the live command-center intro keeps the Managed Devices workspace explicit when fleet work is the next native step.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

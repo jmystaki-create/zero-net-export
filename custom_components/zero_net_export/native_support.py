@@ -1402,7 +1402,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "",
             "Use this command center for setup and the current operating picture.",
             "Finish source mapping here, confirm core control settings, and follow the recommended next native step.",
-            "When the next step moves into fleet work, continue in Managed Devices.",
+            "When the next step moves into fleet work, continue in the Managed Devices workspace.",
             "",
             "Now",
             f"- Headline decision: {command_center.get('headline_decision')}",
