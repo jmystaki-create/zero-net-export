@@ -1894,7 +1894,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Open manual Managed Devices form (entity not surfaced here)",
         )
 
-    def test_healthy_source_next_step_uses_controls_bucket_name(self) -> None:
+    def test_healthy_source_next_step_uses_managed_devices_when_fleet_setup_is_next(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
         flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
@@ -1908,12 +1908,40 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "validation_details": {"issues": []},
         }
         flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+        flow._load_devices = lambda: ([], [])
+        flow._device_candidates = lambda: []
 
         placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_COMBINED)
 
         self.assertEqual(
             placeholders["source_next_step"],
-            "Source mapping looks healthy; continue in Controls or Managed Devices.",
+            "Use the Managed Devices workspace to add the first fixed or variable load manually.",
+        )
+        self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
+        self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
+
+    def test_healthy_source_next_step_uses_controls_when_fleet_is_already_stable(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "state": SimpleNamespace(),
+            "readiness": {},
+            "effective_config": {},
+            "missing_source_keys": [],
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "blocking_validation_details": "None",
+            "validation_details": {"issues": []},
+        }
+        flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+        flow._load_devices = lambda: ([{"name": "Pool pump", "entity_id": "switch.pool_pump", "kind": "fixed", "enabled": True}], [])
+        flow._device_candidates = lambda: []
+
+        placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_COMBINED)
+
+        self.assertEqual(
+            placeholders["source_next_step"],
+            f"Open {module.POLICY_CONFIGURE_PATH} to tune target export, reserve, deadband, or live mode.",
         )
         self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
         self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")

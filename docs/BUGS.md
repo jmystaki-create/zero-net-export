@@ -1010,6 +1010,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with focused button regression coverage plus Python compile checks. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-review handoff cleanup in the next exact-build deploy, then confirm live button/device-review blocker follow-through no longer points operators at a nonexistent unmanaged promotion candidate when the fleet is empty.
 
+## ZNE-083 - Healthy Sensors fallback still made the next native bucket ambiguous
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** repo audit on 2026-04-20 while comparing the Sensors step against the four-bucket ownership rules in `docs/UI_DESIGN.md` and the remaining Workstream D map in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when source mapping was healthy and no blocking source issue remained, `ZeroNetExportOptionsFlow._source_placeholders()` still fell back to `Source mapping looks healthy; continue in Controls or Managed Devices.` That left the Sensors step itself hedging across two buckets instead of naming one concrete next native home, even though the implementation map says jump-off text should reinforce ownership rather than overlap.
+- **expected behavior:** once Sensors is healthy, the next-step handoff should name one concrete bucket. It should send empty-fleet or promotion-follow-up cases to `Configure -> Managed Devices`, and otherwise send stable fleet/controller-tuning cases to `Configure -> Controls`.
+- **evidence:** this run's repo audit found the healthy fallback string still hard-coded in `custom_components/zero_net_export/config_flow.py`, and the focused regression in `tests/test_config_flow_device_runtime_overlay.py` was still locking that ambiguous copy in place. `docs/UI_DESIGN.md` says Sensors owns telemetry/source health while Controls owns controller tuning and Managed Devices owns fleet operations. `docs/UI_IMPLEMENTATION_MAP.md` Workstream D likewise says jump-off text should make where to go next obvious instead of overlapping.
+- **suspected cause:** earlier four-bucket cleanup fixed the higher-visibility command-center and helper-sensor handoffs first, but the healthy Sensors fallback was left on an older generic transition line.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so the healthy Sensors step now derives a concrete next bucket from fleet state: empty-fleet or promotion-follow-up cases point to `Configure -> Managed Devices`, while stable fleet/controller-tuning cases point to `Configure -> Controls`. `tests/test_config_flow_device_runtime_overlay.py` now locks both branches in place.
+- **validation status:** repo-side fix verified in this run with focused config-flow regression coverage plus Python compile checks. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Sensors handoff cleanup in the next exact-build deploy, then confirm the live healthy Sensors screen no longer hedges between Controls and Managed Devices when one concrete next bucket is already clear.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

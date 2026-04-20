@@ -2034,10 +2034,33 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         else:
             source_health = build_live_source_health_summary(state)
-            source_next_step = str(
-                readiness.get("next_step")
-                or "Source mapping looks healthy; continue in Controls or Managed Devices."
+            devices, issues = self._load_devices()
+            candidates = self._device_candidates()
+            review_candidate = next(
+                (candidate for candidate in candidates if candidate_needs_review(assess_candidate(candidate))),
+                None,
             )
+            primary_candidate = review_candidate or (candidates[0] if candidates else None)
+            source_next_step = str(readiness.get("next_step") or "").strip()
+            if not source_next_step:
+                if issues:
+                    source_next_step = (
+                        f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device issues first, then return to Controls once the fleet is ready."
+                    )
+                elif not devices and primary_candidate:
+                    source_next_step = (
+                        f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}."
+                    )
+                elif not devices:
+                    source_next_step = "Use the Managed Devices workspace to add the first fixed or variable load manually."
+                elif primary_candidate:
+                    source_next_step = (
+                        f"Review the Managed Devices workspace, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."
+                    )
+                else:
+                    source_next_step = (
+                        f"Open {POLICY_CONFIGURE_PATH} to tune target export, reserve, deadband, or live mode."
+                    )
 
         contextual_fallback_hint = (
             blocking_fallback_hint or missing_fallback_hint or runtime_attention_fallback_hint
