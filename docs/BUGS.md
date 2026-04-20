@@ -958,6 +958,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`.
 - **next action:** include this IA cleanup in the next exact-build deploy, then confirm the live Sensors step no longer exposes refresh-interval tuning and the Controls step remains the only native home for that setting.
 
+## ZNE-079 - Blocked and planned fleet handoffs still skipped the `Managed Devices workspace` name
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while checking remaining Workstream B wording against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the attention-first and empty-fleet handoffs had already moved onto explicit `Managed Devices workspace` wording, but the blocked-fleet and active-plan branches in `custom_components/zero_net_export/native_support.py` and `custom_components/zero_net_export/sensor.py` still said `review blocked managed devices` or `confirm the active managed-device plan` without naming the primary workspace. That left two high-priority fleet paths sounding like generic actions instead of steering back into the primary `Configure -> Managed Devices` home.
+- **expected behavior:** blocked, planned, and attention-first fleet handoffs should all keep the `Managed Devices workspace` explicit so the opening command center and fleet helper sensor reinforce the same primary fleet workspace under pressure.
+- **evidence:** repo inspection on this run found the blocked/planned next-step strings in `custom_components/zero_net_export/native_support.py` and `custom_components/zero_net_export/sensor.py` still omitting `Managed Devices workspace`, while nearby attention-first and no-candidate branches already used the stronger workspace-first wording required by Workstream B.
+- **suspected cause:** earlier workspace-name cleanup landed first on attention, fallback, and promotion paths, but the blocked/planned branches kept older generic action text.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` and `custom_components/zero_net_export/sensor.py` so blocked and active-plan handoffs now explicitly send operators to review those states in the `Managed Devices workspace`. `tests/test_command_center_summary.py` and `tests/test_sensor_entity_categories.py` now lock both the blocked and planned workspace wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this workspace-name cleanup in the next exact-build deploy, then confirm the live command center and fleet next-step sensor keep `Configure -> Managed Devices` explicit for blocked and planned fleet work too.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

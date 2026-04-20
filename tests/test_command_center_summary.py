@@ -871,7 +871,74 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertIn("blocked Water heater (fixed | not usable", summary["fleet_activity_summary"])
         self.assertIn(
-            f"Open {native_support.DEVICES_CONFIGURE_PATH} and review blocked managed devices, starting with Water heater",
+            f"Open {native_support.DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace, starting with Water heater",
+            summary["next_action_summary"],
+        )
+
+    def test_command_center_summary_keeps_managed_devices_workspace_explicit_for_active_plan(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Continue in Managed Devices.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            status="Running",
+            current_mode="auto",
+            solar_power=3200.0,
+            grid_power=-600.0,
+            home_power=2600.0,
+            battery_soc=78.0,
+            battery_power=-900.0,
+            active_load_power=1400.0,
+            target_export_w=0.0,
+            export_error_w=-600.0,
+            blocked_planned_action_count=0,
+            candidate_summary="None",
+            candidate_review_needed_count=0,
+            device_details={
+                "pool": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "effective_enabled": True,
+                    "priority": 80,
+                    "planned_action": "turn_on",
+                    "action_executable": True,
+                    "nominal_power_w": 700.0,
+                }
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn(
+            f"Open {native_support.DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace for Pool pump (fixed | action turn_on) before changing the fleet.",
             summary["next_action_summary"],
         )
 

@@ -854,7 +854,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path, review blocked managed devices starting with Heated floor, then fix the next guard or readiness issue",
+            "Open devices path to review blocked managed devices in the Managed Devices workspace starting with Heated floor, then fix the next guard or readiness issue",
         )
 
     def test_fleet_console_next_step_keeps_blocked_activity_priority_without_unusable_runtime_row(self) -> None:
@@ -883,7 +883,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path, review blocked managed devices, then fix the next guard or readiness issue",
+            "Open devices path to review blocked managed devices in the Managed Devices workspace, then fix the next guard or readiness issue",
         )
         self.assertEqual(next_step.extra_state_attributes["blocked_count"], 0)
         self.assertEqual(next_step.extra_state_attributes["blocked_activity_count"], 1)
@@ -915,10 +915,37 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path, review blocked managed devices starting with Pool pump, then fix the next guard or readiness issue",
+            "Open devices path to review blocked managed devices in the Managed Devices workspace starting with Pool pump, then fix the next guard or readiness issue",
         )
         self.assertIn("blocked Pool pump", overview.native_value)
         self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
+
+    def test_fleet_console_next_step_keeps_managed_devices_workspace_explicit_for_active_plan(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "turn_on",
+                        "action_executable": True,
+                    }
+                },
+            ),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open devices path to confirm the active managed-device plan in the Managed Devices workspace for Pool pump before changing the fleet",
+        )
 
     def test_fleet_console_next_step_names_top_candidate_when_fleet_is_empty(self) -> None:
         sensor_module = _load_sensor_module()

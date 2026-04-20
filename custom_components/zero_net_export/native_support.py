@@ -2079,12 +2079,12 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if blocked_activity_count:
             blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked managed device"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} and review blocked managed devices, starting with {blocked_target}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace, starting with {blocked_target}."
             )
         elif first_planned_device:
             planned_target = _command_center_runtime_device_preview(first_planned_device) or "the active managed-device plan"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan for {planned_target} before changing the fleet."
+                f"Open {DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace for {planned_target} before changing the fleet."
             )
         elif first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"

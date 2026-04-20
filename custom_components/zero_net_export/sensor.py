@@ -848,12 +848,12 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if blocked_activity_count:
                 target = f" starting with {first_blocked_name}" if first_blocked_name else ""
                 return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH}, review blocked managed devices{target}, then fix the next guard or readiness issue"
+                    f"Open {DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace{target}, then fix the next guard or readiness issue"
                 )
             if counts["planned_count"]:
                 target = f" for {first_planned_name}" if first_planned_name else ""
                 return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and confirm the active managed-device plan{target} before changing the fleet"
+                    f"Open {DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace{target} before changing the fleet"
                 )
             if first_attention_name:
                 return _truncate_sensor_state(
