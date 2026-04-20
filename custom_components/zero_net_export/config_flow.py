@@ -2280,9 +2280,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 merged_data[CONF_GRID_EXPORT_ENERGY_ENTITY] = _normalize_entity_selector_input(user_input, CONF_GRID_EXPORT_ENERGY_ENTITY)
 
             merged_options[CONF_GRID_SENSOR_MODE] = grid_mode
-            merged_options[CONF_REFRESH_SECONDS] = int(
-                _coerce_number(user_input.get(CONF_REFRESH_SECONDS), DEFAULT_REFRESH_SECONDS)
-            )
 
             issues = validate_configured_entities(
                 self.hass,
@@ -2353,11 +2350,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             BATTERY_SOC_FALLBACK_KEY: "",
             CONF_BATTERY_CHARGE_POWER_ENTITY: _entry_default_text(self._config_entry, CONF_BATTERY_CHARGE_POWER_ENTITY, ""),
             CONF_BATTERY_DISCHARGE_POWER_ENTITY: _entry_default_text(self._config_entry, CONF_BATTERY_DISCHARGE_POWER_ENTITY, ""),
-            CONF_REFRESH_SECONDS: _entry_default_number(
-                self._config_entry,
-                CONF_REFRESH_SECONDS,
-                DEFAULT_REFRESH_SECONDS,
-            ),
         }
         if user_input is None and grid_mode != GRID_SENSOR_MODE_COMBINED:
             all_states = list(self.hass.states.async_all())
@@ -2391,10 +2383,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             ):
                 if key in user_input:
                     source_defaults[key] = _normalize_entity_selector_input(user_input, key) or ""
-            source_defaults[CONF_REFRESH_SECONDS] = _coerce_number(
-                user_input.get(CONF_REFRESH_SECONDS),
-                DEFAULT_REFRESH_SECONDS,
-            )
 
         power_selector = selector.EntitySelector(
             selector.EntitySelectorConfig(domain=["sensor"], device_class=["power"])
@@ -2515,15 +2503,6 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 default=source_defaults[CONF_BATTERY_DISCHARGE_POWER_ENTITY],
             )
         ] = power_selector
-        fields[
-            vol.Required(
-                CONF_REFRESH_SECONDS,
-                default=source_defaults[CONF_REFRESH_SECONDS],
-            )
-        ] = selector.NumberSelector(
-            selector.NumberSelectorConfig(min=5, max=300, step=5, mode=selector.NumberSelectorMode.BOX)
-        )
-
         schema = vol.Schema(fields)
 
         if source_placeholders is None:

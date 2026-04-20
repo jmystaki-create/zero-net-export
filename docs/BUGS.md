@@ -945,6 +945,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this command-center truncation-handoff fix in the next exact-build deploy, then confirm healthy Configure flows keep pointing operators to Controls under long next-step text instead of falling back to Diagnostics.
 
+## ZNE-078 - Sensors source-mapping step still owned the refresh interval that belongs in Controls
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `config_flow`
+- **where seen:** repo audit on 2026-04-20 while comparing the Sensors step against the four-bucket ownership rules in `docs/UI_DESIGN.md` and the remaining Workstream D map in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** `Configure -> Sensors` was still exposing `refresh interval` in both the opening copy and the form schema, even though the same setting was already present on the Controls screen and the shipped Controls copy says controller tuning, including refresh interval, belongs there. That duplicated one controller setting across two buckets and kept Sensors from being a telemetry/source-health-only home.
+- **expected behavior:** Sensors should only own source mapping and source repair, while Controls should remain the single native home for refresh-interval tuning alongside target export, reserve, deadband, and live mode.
+- **evidence:** this run's repo audit found `Use this Sensors screen to map the required entities and set the refresh interval.` in `custom_components/zero_net_export/strings.json` and `translations/en.json`, plus a second `CONF_REFRESH_SECONDS` field in `ZeroNetExportOptionsFlow.async_step_native_setup_sources()` even though `async_step_policy()` already exposes the same refresh selector and the Controls description explicitly claims that ownership.
+- **suspected cause:** refresh tuning was left behind in the earlier source-mapping step from before the stronger four-bucket IA cleanup, and later Controls-first wording did not remove the duplicate field.
+- **repo fix:** this run removes `CONF_REFRESH_SECONDS` from `custom_components/zero_net_export/config_flow.py`'s Sensors step, keeps refresh tuning only in the Controls step, and updates `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `tests/test_bucket_ownership_copy.py` so the Sensors copy now stays source-layout-focused instead of claiming refresh-interval ownership.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`.
+- **next action:** include this IA cleanup in the next exact-build deploy, then confirm the live Sensors step no longer exposes refresh-interval tuning and the Controls step remains the only native home for that setting.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

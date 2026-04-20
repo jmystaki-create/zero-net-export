@@ -41,7 +41,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         source_mapping_step = steps["native_setup_sources"]
         self.assertEqual(source_mapping_step["title"], "Sensors")
         source_mapping_description = source_mapping_step["description"]
-        self.assertIn("Use this Sensors screen to map the required entities and set the refresh interval.", source_mapping_description)
+        self.assertIn("Use this Sensors screen to map the required entities for the current source layout.", source_mapping_description)
+        self.assertNotIn("set the refresh interval", source_mapping_description)
         self.assertIn("Sensors owns source repair and source-health work", source_mapping_description)
         self.assertIn("keep fleet onboarding in Managed Devices and controller tuning in Controls", source_mapping_description)
         self.assertIn("Source mapping progress", source_mapping_description)
