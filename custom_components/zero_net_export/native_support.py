@@ -2069,8 +2069,34 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     if device_parse_issues:
         top_alerts.append(f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s).")
-    elif not has_managed_devices:
-        top_alerts.append("No managed devices configured yet.")
+    else:
+        if blocked_activity_count:
+            blocked_target = (
+                _command_center_runtime_device_preview(first_blocked_device)
+                if first_blocked_device
+                else f"{blocked_activity_count} blocked managed device(s)"
+            )
+            top_alerts.append(f"Managed Devices attention: blocked {blocked_target}")
+        elif managed_attention_count:
+            attention_target = (
+                _command_center_runtime_device_preview(first_attention_device)
+                if first_attention_device
+                else (
+                    "1 managed device needs attention"
+                    if managed_attention_count == 1
+                    else f"{managed_attention_count} managed devices need attention"
+                )
+            )
+            top_alerts.append(f"Managed Devices attention: {attention_target}")
+        elif not has_managed_devices:
+            top_alerts.append("No managed devices configured yet.")
+
+        if review_needed_count:
+            review_target = review_candidate_preview or review_candidate_name or "the first unmanaged candidate"
+            review_alert = f"Unmanaged review first: {review_target}"
+            if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                review_alert += f"; ready next {ready_candidate_preview or ready_candidate_name}"
+            top_alerts.append(review_alert)
 
     if readiness_phase == "runtime_readiness":
         top_alerts.append(str(readiness.get("summary") or support_status))

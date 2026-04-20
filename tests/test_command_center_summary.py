@@ -1726,6 +1726,127 @@ class CommandCenterSummaryTests(unittest.TestCase):
             "managed 0 | no unmanaged candidates | repair sources first",
         )
 
+    def test_command_center_summary_surfaces_managed_device_attention_in_top_alerts(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=0,
+            blocked_planned_action_count=1,
+            device_details={
+                "pool": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "hold",
+                    "last_action_status": "failed",
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn(
+            "Managed Devices attention: blocked Pool pump (fixed | not usable | last failed)",
+            summary["alert_summary"],
+        )
+        self.assertIn("blocked Pool pump (fixed | not usable | last failed)", summary["fleet_activity_summary"])
+
+    def test_command_center_summary_surfaces_unmanaged_review_backlog_in_top_alerts(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the next unmanaged candidate.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+                {"name": "Hot water relay", "entity_id": "switch.hot_water_relay", "kind": "fixed"},
+            ],
+            "Virtual load",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "low" if candidate.get("name") == "Virtual load" else "high",
+            "warnings": ["helper-backed load needs review"] if candidate.get("name") == "Virtual load" else [],
+        }
+        native_support.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Virtual load (fixed) | review first"
+            if candidate and candidate.get("name") == "Virtual load"
+            else "Hot water relay (fixed) | likely useful"
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="No managed devices configured yet",
+            device_count=0,
+            enabled_device_count=0,
+            usable_device_count=0,
+            blocked_planned_action_count=0,
+            device_details={},
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("No managed devices configured yet.", summary["alert_summary"])
+        self.assertIn("Unmanaged review first: Virtual load (fixed) | review first", summary["alert_summary"])
+        self.assertIn("ready next Hot water relay (fixed) | likely useful", summary["alert_summary"])
+        self.assertIn("review Virtual load (fixed) | review first", summary["fleet_activity_summary"])
+        self.assertIn("ready Hot water relay (fixed) | likely useful", summary["fleet_activity_summary"])
+
     def test_command_center_summary_promotes_install_provenance_blockers_to_top_alert_and_diagnostics(self) -> None:
         native_support = _load_native_support_module()
 
