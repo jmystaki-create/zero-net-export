@@ -1019,7 +1019,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, starting in the unmanaged section: AC Outlet 2",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: AC Outlet 2",
         )
 
     def test_fleet_console_next_step_uses_review_first_candidate_before_promotion(self) -> None:
@@ -1039,7 +1039,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, starting in the unmanaged section: Virtual load, then promote next in the Managed Devices workspace unmanaged section: Dishwasher Power",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next from the unmanaged section: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_uses_ready_next_wording_when_no_review_first_candidate_exists(self) -> None:
@@ -1058,7 +1058,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace and promote next in the Managed Devices workspace unmanaged section: Dishwasher Power",
+            "Open devices path to review the Managed Devices workspace and promote next from the unmanaged section: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_keeps_empty_fleet_manual_add_in_managed_devices(self) -> None:
@@ -1105,7 +1105,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, starting in the unmanaged section: Virtual load, then promote next in the Managed Devices workspace unmanaged section: Dishwasher Power",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next from the unmanaged section: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_prioritizes_source_repair_before_fleet_work(self) -> None:
@@ -1164,7 +1164,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
     def test_mapped_source_blocker_next_step_reuses_operator_readiness_when_sources_are_healthy(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module.build_native_operator_readiness = lambda coordinator: {
-            "next_step": "Open devices path to review the Managed Devices workspace, starting in the unmanaged section: AC Outlet 2"
+            "next_step": "Open devices path to review the Managed Devices workspace, start in the unmanaged section: AC Outlet 2"
         }
 
         coordinator = SimpleNamespace(
@@ -1180,7 +1180,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, starting in the unmanaged section: AC Outlet 2",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: AC Outlet 2",
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 

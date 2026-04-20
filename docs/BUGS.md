@@ -396,6 +396,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`.
 - **next action:** include this helper-sensor workspace-first cleanup in the next exact-build deploy, then confirm the live managed-fleet next-step sensor stays on Managed Devices instead of bouncing operators back to Controls when the fleet is otherwise steady.
 
+## ZNE-068 - Unmanaged fleet handoff copy still sounded helper-ish and duplicated the workspace name
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-21 while reviewing the remaining Workstream B copy seams in `custom_components/zero_net_export/native_support.py`, `config_flow.py`, `sensor.py`, and `button.py`
+- **current observed behavior:** the main unmanaged promotion handoffs were still using phrases like `starting in the unmanaged section` and `promote next in the Managed Devices workspace unmanaged section`. That kept the primary fleet next-step guidance grammatically awkward and slightly helper-ish in the command center, sensors, Configure follow-through text, and device-page notifications, even after the broader workspace-first wording cleanup.
+- **expected behavior:** unmanaged promotion handoffs should read like natural native fleet guidance while still keeping `Managed Devices workspace` explicit, for example by telling the operator to start in the unmanaged section or promote next from that section without repeating the workspace name in a clumsy noun stack.
+- **evidence:** `rg -n 'starting in the unmanaged section|Managed Devices workspace unmanaged section' custom_components/zero_net_export/{native_support.py,config_flow.py,sensor.py,button.py} tests/test_{button_entity_categories,command_center_summary,config_flow_device_runtime_overlay,sensor_entity_categories}.py` on this run found the same awkward wording mirrored across all major fleet handoff surfaces and their regressions. `docs/UI_IMPLEMENTATION_MAP.md` still lists Workstream B as removing wording that makes `Configure -> Managed Devices` feel like a thin helper layer instead of the real fleet workspace.
+- **suspected cause:** earlier cleanup passes made the workspace explicit but stopped before polishing the unmanaged-section follow-through wording, so the shared handoff text kept an intermediate phrase that read more like implementation scaffolding than product copy.
+- **repo fix:** this run updates the shared handoff strings in `custom_components/zero_net_export/native_support.py`, `config_flow.py`, `sensor.py`, and `button.py` so unmanaged promotion guidance now says `start in the unmanaged section` and `promote next from the unmanaged section`. The focused regressions in `tests/test_command_center_summary.py`, `tests/test_sensor_entity_categories.py`, `tests/test_config_flow_device_runtime_overlay.py`, and `tests/test_button_entity_categories.py` were refreshed to lock the cleaner wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_button_entity_categories`.
+- **next action:** include this wording cleanup in the next exact-build deploy, then confirm the live unmanaged promotion handoffs read naturally in the Managed Devices workspace, helper sensors, and device-page review notifications.
+
 ## ZNE-045 - Fingerprint payload still let `expected_commit` drift with repo-head bookkeeping
 - **status:** `fixed_pending_validation`
 - **severity:** `medium`

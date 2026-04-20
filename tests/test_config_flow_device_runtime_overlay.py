@@ -1970,7 +1970,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             placeholders["source_next_step"],
-            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
         )
 
     def test_source_placeholders_surface_mapping_progress_and_blocker_counts(self) -> None:
@@ -2119,7 +2119,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             feedback["message"],
         )
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, confirm the fleet snapshot, then review next in the Managed Devices workspace unmanaged section: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings.",
+            "Next step: reopen devices path to review the Managed Devices workspace, confirm the fleet snapshot, then review next in the unmanaged section: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings.",
             feedback["message"],
         )
 
@@ -2382,7 +2382,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace and remaining fleet, then review next in the Managed Devices workspace unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review.",
+            "Next step: reopen devices path to review the Managed Devices workspace and remaining fleet, then review next in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review.",
             feedback["message"],
         )
 
@@ -2510,7 +2510,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Open devices path to review the Managed Devices workspace, starting in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
         )
         self.assertNotIn("Review the current fleet", next_step)
 

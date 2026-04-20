@@ -546,7 +546,7 @@ def _managed_devices_post_blocker_step(
     if primary_candidate:
         return (
             f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, "
-            f"starting in the unmanaged section: "
+            f"start in the unmanaged section: "
             f"{build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}."
         )
     if has_managed_devices:
