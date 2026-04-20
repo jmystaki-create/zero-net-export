@@ -1935,6 +1935,42 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         missing_sources = self._format_source_role_names(missing_source_keys)
         unavailable_sources = self._format_source_role_names(unavailable_source_keys)
         stale_sources = self._format_source_role_names(stale_source_keys)
+        required_source_keys = _grid_mode_missing_sources({}, grid_mode or _grid_mode_default(self._config_entry))
+        required_source_count = len(required_source_keys)
+        mapped_required_source_count = max(required_source_count - len(missing_source_keys), 0)
+        source_mapping_progress = (
+            f"{mapped_required_source_count} of {required_source_count} required roles mapped"
+        )
+        if missing_source_keys:
+            source_mapping_progress += (
+                f"; {len(missing_source_keys)} missing required role"
+                if len(missing_source_keys) == 1
+                else f"; {len(missing_source_keys)} missing required roles"
+            )
+
+        source_blocker_parts: list[str] = []
+        if missing_source_keys:
+            source_blocker_parts.append(
+                "1 missing required role"
+                if len(missing_source_keys) == 1
+                else f"{len(missing_source_keys)} missing required roles"
+            )
+        if unavailable_source_keys:
+            source_blocker_parts.append(
+                "1 unavailable mapped role"
+                if len(unavailable_source_keys) == 1
+                else f"{len(unavailable_source_keys)} unavailable mapped roles"
+            )
+        if stale_source_keys:
+            source_blocker_parts.append(
+                "1 stale mapped role"
+                if len(stale_source_keys) == 1
+                else f"{len(stale_source_keys)} stale mapped roles"
+            )
+        if blocking_validation_details != "None":
+            source_blocker_parts.append("blocking validation errors present")
+        source_blocker_summary = "; ".join(source_blocker_parts) or "No blocking source issues right now."
+
         priority_role_keys = missing_source_keys or unavailable_source_keys or stale_source_keys or _issue_role_keys(
             blocking_validation_issues,
             severities={"error"},
@@ -1988,6 +2024,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return {
             "missing_sources": missing_sources,
             "source_health": source_health,
+            "source_mapping_progress": source_mapping_progress,
+            "source_blocker_summary": source_blocker_summary,
             "source_next_step": source_next_step,
             "source_repair_step": build_source_repair_step(
                 missing_source_keys=missing_source_keys,

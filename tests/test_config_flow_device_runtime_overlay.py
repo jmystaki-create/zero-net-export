@@ -1850,11 +1850,47 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         }
         flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
 
-        placeholders = flow._source_placeholders(grid_mode="net")
+        placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_COMBINED)
 
         self.assertEqual(
             placeholders["source_next_step"],
             "Source mapping looks healthy; continue in Controls or Managed Devices.",
+        )
+        self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
+        self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
+
+    def test_source_placeholders_surface_mapping_progress_and_blocker_counts(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "state": SimpleNamespace(),
+            "readiness": {},
+            "effective_config": {
+                module.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+                module.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            },
+            "missing_source_keys": [
+                module.CONF_SOLAR_ENERGY_ENTITY,
+                module.CONF_GRID_IMPORT_ENERGY_ENTITY,
+                module.CONF_GRID_EXPORT_POWER_ENTITY,
+                module.CONF_GRID_EXPORT_ENERGY_ENTITY,
+            ],
+            "unavailable_source_keys": [module.CONF_SOLAR_POWER_ENTITY],
+            "stale_source_keys": [module.CONF_GRID_IMPORT_POWER_ENTITY],
+            "blocking_validation_details": "Grid import power has validation errors",
+            "validation_details": {"issues": [{"severity": "error"}]},
+        }
+        flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+
+        placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_SEPARATE)
+
+        self.assertEqual(
+            placeholders["source_mapping_progress"],
+            "2 of 6 required roles mapped; 4 missing required roles",
+        )
+        self.assertEqual(
+            placeholders["source_blocker_summary"],
+            "4 missing required roles; 1 unavailable mapped role; 1 stale mapped role; blocking validation errors present",
         )
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
