@@ -1709,12 +1709,7 @@ def _build_command_center_fleet_activity_summary(
                 if active_managed_count == 1
                 else f"{active_managed_count} active managed devices"
             )
-            if (
-                first_active_device
-                and not attention_device_count
-                and not blocked_activity_count
-                and not planned_activity_count
-            ):
+            if first_active_device and (not attention_device_count or not _same_runtime_device(first_active_device, first_attention_device)) and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(first_active_device, first_blocked_device))) and (not planned_activity_count or (first_planned_device and not _same_runtime_device(first_active_device, first_planned_device))):
                 summary_parts.append(
                     f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}"
                 )
@@ -1881,12 +1876,7 @@ def _build_command_center_fleet_activity_summary(
             if active_managed_count == 1
             else f"{active_managed_count} active managed devices"
         )
-        if (
-            first_active_device
-            and not attention_device_count
-            and not blocked_activity_count
-            and not planned_activity_count
-        ):
+        if first_active_device and (not attention_device_count or not _same_runtime_device(first_active_device, first_attention_device)) and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(first_active_device, first_blocked_device))) and (not planned_activity_count or (first_planned_device and not _same_runtime_device(first_active_device, first_planned_device))):
             minimal_parts.append(
                 _clip_part(
                     f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}",
@@ -2069,12 +2059,7 @@ def _build_command_center_fleet_activity_summary(
             if active_managed_count == 1
             else f"{active_managed_count} active managed devices"
         )
-        if (
-            first_active_device
-            and not attention_device_count
-            and not blocked_activity_count
-            and not planned_activity_count
-        ):
+        if first_active_device and (not attention_device_count or not _same_runtime_device(first_active_device, first_attention_device)) and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(first_active_device, first_blocked_device))) and (not planned_activity_count or (first_planned_device and not _same_runtime_device(first_active_device, first_planned_device))):
             essential_parts.append(
                 _clip_part(
                     f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}",

@@ -624,6 +624,14 @@ def _merged_entry_config(entry) -> dict[str, object]:
     return merged
 
 
+def _same_managed_detail(left: dict[str, Any] | None, right: dict[str, Any] | None) -> bool:
+    if not left or not right:
+        return False
+    left_id = str(left.get("entity_id") or left.get("name") or "").strip()
+    right_id = str(right.get("entity_id") or right.get("name") or "").strip()
+    return bool(left_id and right_id and left_id == right_id)
+
+
 def _healthy_sources_next_step(coordinator, hass, state) -> str:
     candidates = _candidate_devices_for_state(coordinator, hass, state)
     counts = _managed_fleet_counts(state.device_details)
@@ -745,22 +753,26 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             review_candidate_preview = build_candidate_compact_preview(review_candidate) if review_candidate else ""
             ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
             ready_candidate_preview = build_candidate_compact_preview(ready_candidate) if ready_candidate else ""
-            first_blocked_name = _first_matching_device_name(
-                state.device_details,
-                predicate=_device_has_blocked_activity,
+            ordered_details = sorted((state.device_details or {}).values(), key=_device_sort_key)
+            first_blocked_detail = next(
+                (detail for detail in ordered_details if _device_has_blocked_activity(detail)),
+                None,
             )
-            first_planned_name = _first_matching_device_name(
-                state.device_details,
-                predicate=_device_has_active_plan,
+            first_planned_detail = next(
+                (detail for detail in ordered_details if _device_has_active_plan(detail)),
+                None,
             )
-            first_attention_name = _first_matching_device_name(
-                state.device_details,
-                predicate=_device_needs_attention,
+            first_attention_detail = next(
+                (detail for detail in ordered_details if _device_needs_attention(detail)),
+                None,
             )
+            first_blocked_name = str((first_blocked_detail or {}).get("name") or (first_blocked_detail or {}).get("entity_id") or "").strip()
+            first_planned_name = str((first_planned_detail or {}).get("name") or (first_planned_detail or {}).get("entity_id") or "").strip()
+            first_attention_name = str((first_attention_detail or {}).get("name") or (first_attention_detail or {}).get("entity_id") or "").strip()
             first_active_detail = next(
                 (
                     detail
-                    for detail in sorted((state.device_details or {}).values(), key=_device_sort_key)
+                    for detail in ordered_details
                     if detail.get("observed_active") is True
                 ),
                 None,
@@ -904,7 +916,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     if counts["active_count"] == 1
                     else f"{counts['active_count']} active managed devices"
                 )
-                if first_active_detail and not counts["attention_count"] and not blocked_activity_count and not counts["planned_count"]:
+                if first_active_detail and (not counts["attention_count"] or not _same_managed_detail(first_active_detail, first_attention_detail)) and (not blocked_activity_count or (first_blocked_detail and not _same_managed_detail(first_active_detail, first_blocked_detail))) and (not counts["planned_count"] or (first_planned_detail and not _same_managed_detail(first_active_detail, first_planned_detail))):
                     summary_parts.append(f"active device {_managed_snapshot_focus_label(first_active_detail)}")
             if candidate_count:
                 if fixed_candidate_count:

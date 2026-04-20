@@ -1429,6 +1429,49 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertIn("review ", value)
         self.assertIn("ready ", value)
 
+    def test_managed_fleet_overview_keeps_distinct_active_device_visible_with_attention(self) -> None:
+        sensor_module = _load_sensor_module()
+        state = SimpleNamespace(
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=2,
+            blocked_planned_action_count=0,
+            device_details={
+                "pool": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "planned_action": "turn_on",
+                    "nominal_power_w": 1185,
+                },
+                "heater": {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920,
+                    "planned_action": "hold",
+                    "nominal_power_w": 2200,
+                },
+            },
+            validation_details={},
+        )
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=state,
+        )
+
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            overview.native_value,
+            "2 managed | no unmanaged candidates | 1 managed device needs attention | plan Pool pump | active load 920 W | 1 active managed device | active device Heated floor (variable | active 920 W) | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
+        )
+
     def test_managed_fleet_overview_surfaces_active_managed_load_and_count(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
