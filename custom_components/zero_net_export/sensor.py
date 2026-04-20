@@ -875,7 +875,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually"
                 )
             return _truncate_sensor_state(
-                f"Open {POLICY_CONFIGURE_PATH} to tune behaviour, or {SOURCES_CONFIGURE_PATH} if runtime health still needs work"
+                f"Open {POLICY_CONFIGURE_PATH} next to tune target export, deadband, reserve, or live mode"
             )
         if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
             merged = _merged_entry_config(self.coordinator.entry)

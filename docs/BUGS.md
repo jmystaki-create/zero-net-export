@@ -984,6 +984,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with targeted unit coverage and JSON parsing; live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Sensors copy cleanup in the next exact-build deploy, then confirm the native mapping screen keeps blocker repair and fallback guidance in the new order.
 
+## ZNE-081 - Healthy fleet next-step sensor still hedged back toward Sensors instead of Controls
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensor`
+- **where seen:** repo audit on 2026-04-20 while checking remaining Workstream D bucket-ownership drift against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when managed devices existed, no source blockers remained, no promotions were pending, and no managed-device attention item was active, `sensor.zero_net_export_fleet_console_next_step` still fell back to `Open Configure -> Controls to tune behaviour, or Configure -> Sensors if runtime health still needs work`. That kept the healthy-path fleet helper sensor hedging back toward Sensors even though the same state already has a clear Controls-owned next step in the command center.
+- **expected behavior:** the healthy fallback should point directly to `Configure -> Controls` for target export, deadband, reserve, or live-mode tuning, and it should not mention Sensors unless source health is actually the blocker.
+- **evidence:** this run's repo audit found the stale fallback string still in `custom_components/zero_net_export/sensor.py`, while `docs/UI_DESIGN.md` says Sensors owns telemetry/source health and Controls owns controller tuning. `docs/UI_IMPLEMENTATION_MAP.md` Workstream D likewise says jump-off text should reinforce bucket ownership instead of overlapping.
+- **suspected cause:** earlier four-bucket cleanup fixed the higher-visibility command-center fallback first, but the companion fleet next-step sensor kept its older mixed-home fallback text.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so the healthy `fleet_console_next_step` fallback now sends operators straight to `Configure -> Controls` to tune target export, deadband, reserve, or live mode. `tests/test_sensor_entity_categories.py` now locks that Controls-only healthy fallback in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this helper-sensor IA cleanup in the next exact-build deploy, then confirm the live healthy fleet next-step sensor no longer reintroduces Sensors on a Controls-owned path.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

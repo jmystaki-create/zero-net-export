@@ -1072,6 +1072,37 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Open sources path, repair blocking source roles first, then return to devices path",
         )
 
+    def test_fleet_console_next_step_keeps_healthy_fallback_on_controls_only(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+        sensor_module.first_review_candidate = lambda candidates: None
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "switch.pool_pump": {
+                        "entity_id": "switch.pool_pump",
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                        "blocked_by": None,
+                    }
+                }
+            ),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(coordinator, "fleet_console_next_step", "Managed devices next step")
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open policy path next to tune target export, deadband, reserve, or live mode",
+        )
+        self.assertNotIn("sources path", next_step.native_value)
+
     def test_fleet_workspace_attributes_reuse_cached_candidate_discovery(self) -> None:
         sensor_module = _load_sensor_module()
         calls: list[tuple[list[object], set[str]]] = []
