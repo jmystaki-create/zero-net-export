@@ -1164,6 +1164,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         fixed_candidate_count, variable_candidate_count = self._candidate_mix_counts(candidates)
         top_candidate = candidates[0] if candidates else None
         return {
+            "configure_path": DEVICES_CONFIGURE_PATH,
+            "devices_path": DEVICES_CONFIGURE_PATH,
+            "sources_path": SOURCES_CONFIGURE_PATH,
+            "policy_path": POLICY_CONFIGURE_PATH,
+            "mode_path": MODE_CONTROL_PATH,
+            "support_path": SUPPORT_CONFIGURE_PATH,
             "device_count": str(len(display_devices)),
             "managed_snapshot": self._managed_snapshot_text(display_devices),
             "device_summary": "\n".join(self._fleet_summary_lines(display_devices)),
@@ -3234,6 +3240,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         description_placeholders = {
             "device_blueprint": default_device_blueprint(),
             "configure_path": ADVANCED_DEVICES_CONFIGURE_PATH,
+            "devices_path": DEVICES_CONFIGURE_PATH,
+            "sources_path": SOURCES_CONFIGURE_PATH,
+            "policy_path": POLICY_CONFIGURE_PATH,
+            "mode_path": MODE_CONTROL_PATH,
+            "support_path": SUPPORT_CONFIGURE_PATH,
             "detailed_management_summary": self._detailed_management_summary(),
             "device_issues": "",
         }

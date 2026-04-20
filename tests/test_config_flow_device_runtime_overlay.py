@@ -1214,6 +1214,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 result["description_placeholders"]["device_next_step"],
                 "Open sources path and finish source repair before fleet edits.",
             )
+            self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["devices_path"], module.DEVICES_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["sources_path"], module.SOURCES_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["policy_path"], module.POLICY_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["support_path"], module.SUPPORT_CONFIGURE_PATH)
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
                 "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
@@ -1423,6 +1428,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 result["description_placeholders"]["device_next_step"],
                 "Open sources path and finish source repair before promoting more devices.",
             )
+            self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["devices_path"], module.DEVICES_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["sources_path"], module.SOURCES_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["policy_path"], module.POLICY_CONFIGURE_PATH)
+            self.assertEqual(result["description_placeholders"]["support_path"], module.SUPPORT_CONFIGURE_PATH)
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
                 "2 managed | 2 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
@@ -1467,7 +1477,6 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "- AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings\n"
                 "- Towel Rail (fixed) | likely useful | key warning: No immediate warnings",
             )
-            self.assertEqual(result["description_placeholders"]["configure_path"], module.DEVICES_CONFIGURE_PATH)
         self.assertEqual(
             vetting["description_placeholders"]["candidate_preview"],
             "AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings",

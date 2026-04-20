@@ -64,9 +64,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", devices_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", devices_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", devices_description)
-        self.assertIn("Bucket ownership", devices_description)
-        self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal.", devices_description)
-        self.assertIn("Controls owns target export, reserve, deadband, and live mode.", devices_description)
+        self.assertIn("Bucket ownership and paths", devices_description)
+        self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {configure_path}", devices_description)
+        self.assertIn("- Sensors owns source mapping and source repair: {sources_path}", devices_description)
+        self.assertIn("- Controls owns target export, reserve, deadband, and live mode: {policy_path}", devices_description)
+        self.assertIn("- Diagnostics owns troubleshooting, repairs, and install validation: {support_path}", devices_description)
 
         bulk_enable_description = steps["device_bulk_enable"]["description"]
         self.assertEqual(
@@ -89,6 +91,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", bulk_enable_description)
         self.assertIn("Candidate snapshot", bulk_enable_description)
         self.assertIn("Detailed native review path, only after the main fleet step is clear", bulk_enable_description)
+        self.assertIn("Bucket ownership and paths", bulk_enable_description)
+        self.assertIn("- Managed Devices: {configure_path}", bulk_enable_description)
+        self.assertIn("- Sensors: {sources_path}", bulk_enable_description)
+        self.assertIn("- Controls: {policy_path}", bulk_enable_description)
+        self.assertIn("- Diagnostics: {support_path}", bulk_enable_description)
         self.assertIn(
             "promote a surfaced fixed-load or variable-load candidate when one fits",
             steps["devices"]["data_description"]["device_action"],
@@ -118,6 +125,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", edit_pick_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", edit_pick_description)
         self.assertIn("Candidate snapshot", edit_pick_description)
+        self.assertIn("Bucket ownership and paths", edit_pick_description)
 
         remove_description = steps["device_remove"]["description"]
         self.assertIn("Use this Managed Devices screen to choose which managed device should leave the native fleet.", remove_description)
@@ -134,6 +142,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", remove_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", remove_description)
         self.assertIn("Candidate snapshot", remove_description)
+        self.assertIn("Bucket ownership and paths", remove_description)
 
         vetting_description = steps["device_vetting"]["description"]
         self.assertIn("Use this Managed Devices review step to vet this unmanaged candidate before it enters the managed fleet.", vetting_description)
@@ -151,6 +160,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", vetting_description)
         self.assertIn("Candidate snapshot", vetting_description)
         self.assertIn("Detailed native review path after promotion, only if you need deeper per-device review", vetting_description)
+        self.assertIn("Bucket ownership and paths", vetting_description)
 
         template_description = steps["device_template"]["description"]
         self.assertIn("Promotion path:", template_description)
@@ -170,6 +180,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", template_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", template_description)
         self.assertIn("Candidate snapshot", template_description)
+        self.assertIn("Bucket ownership and paths", template_description)
 
         add_description = steps["device_add"]["description"]
         self.assertIn("Promotion path:", add_description)
@@ -190,6 +201,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", add_description)
         self.assertIn("Candidate snapshot", add_description)
         self.assertIn("Detailed native review path after save, only if you need deeper per-device review", add_description)
+        self.assertIn("Bucket ownership and paths", add_description)
 
         shortlist_step = steps["device_pick_candidate"]
         self.assertEqual(shortlist_step["data"]["quick_pick"], "Promotion shortlist")
@@ -208,6 +220,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", shortlist_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", shortlist_description)
         self.assertNotIn("Current managed fleet:", shortlist_description)
+        self.assertIn("Bucket ownership and paths", shortlist_description)
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
         self.assertIn("open the manual Managed Devices form from this dropdown and continue there", full_list_description)
@@ -221,6 +234,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("continue with the native Managed Devices form", full_list_description)
         self.assertNotIn("continue with the normal native form", full_list_description)
         self.assertIn("Managed devices review:", full_list_description)
+        self.assertIn("Bucket ownership and paths", full_list_description)
 
         self.assertEqual(
             steps["device_pick_candidate_full"]["data"]["candidate_entity_id"],
