@@ -2102,9 +2102,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 elif not devices:
                     source_next_step = "Use the Managed Devices workspace to add the first fixed or variable load manually."
                 elif primary_candidate:
-                    source_next_step = (
-                        f"Review the Managed Devices workspace, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."
-                    )
+                    candidate_focus = self._top_candidate_focus_text(primary_candidate)
+                    if review_candidate:
+                        source_next_step = (
+                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: {candidate_focus}."
+                        )
+                    else:
+                        source_next_step = (
+                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and promote next in the Managed Devices workspace unmanaged section: {candidate_focus}."
+                        )
                 else:
                     source_next_step = (
                         f"Open {POLICY_CONFIGURE_PATH} to tune target export, reserve, deadband, or live mode."
@@ -2667,8 +2673,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if not devices:
             return "Use the Managed Devices workspace to add the first fixed or variable load manually."
         if primary_candidate:
+            candidate_focus = self._top_candidate_focus_text(primary_candidate)
+            if review_candidate:
+                return (
+                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: {candidate_focus}."
+                )
             return (
-                f"Review the Managed Devices workspace, then consider promoting the next unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and promote next in the Managed Devices workspace unmanaged section: {candidate_focus}."
             )
         return "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning."
 

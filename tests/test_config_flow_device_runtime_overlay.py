@@ -1946,6 +1946,33 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
         self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
 
+    def test_healthy_source_next_step_uses_workspace_first_candidate_handoff_when_candidates_remain(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "state": SimpleNamespace(),
+            "readiness": {},
+            "effective_config": {},
+            "missing_source_keys": [],
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "blocking_validation_details": "None",
+            "validation_details": {"issues": []},
+        }
+        flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+        flow._load_devices = lambda: ([{"name": "Pool pump", "entity_id": "switch.pool_pump", "kind": "fixed", "enabled": True}], [])
+        flow._device_candidates = lambda: [
+            {"name": "Hot water", "entity_id": "switch.hot_water", "kind": module.DEVICE_KIND_FIXED}
+        ]
+        flow._top_candidate_focus_text = lambda candidate: "Hot water (fixed) | likely useful | key warning: No immediate warnings"
+
+        placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_COMBINED)
+
+        self.assertEqual(
+            placeholders["source_next_step"],
+            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+        )
+
     def test_source_placeholders_surface_mapping_progress_and_blocker_counts(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
@@ -2483,7 +2510,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Review the Managed Devices workspace, then consider promoting the next unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "Open devices path to review the Managed Devices workspace, starting in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
         )
         self.assertNotIn("Review the current fleet", next_step)
 
