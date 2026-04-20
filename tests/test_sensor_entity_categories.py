@@ -1439,7 +1439,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | no unmanaged candidates | active load 2105 W | 2 active managed devices | 2 enabled | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
+            "2 managed | no unmanaged candidates | active load 2105 W | 2 active managed devices | active device Heated floor (variable | active 920 W) | 2 enabled | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
         )
 
     def test_managed_fleet_overview_surfaces_failed_only_attention_before_steady_rows(self) -> None:

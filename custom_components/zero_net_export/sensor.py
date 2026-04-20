@@ -757,6 +757,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 state.device_details,
                 predicate=_device_needs_attention,
             )
+            first_active_detail = next(
+                (
+                    detail
+                    for detail in sorted((state.device_details or {}).values(), key=_device_sort_key)
+                    if detail.get("observed_active") is True
+                ),
+                None,
+            )
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=2, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=1)
@@ -879,6 +887,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     if counts["active_count"] == 1
                     else f"{counts['active_count']} active managed devices"
                 )
+                if first_active_detail and not counts["attention_count"] and not blocked_activity_count and not counts["planned_count"]:
+                    summary_parts.append(f"active device {_managed_snapshot_focus_label(first_active_detail)}")
             if candidate_count:
                 if fixed_candidate_count:
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
@@ -1289,6 +1299,27 @@ def _device_kind_summary(kind: object) -> str:
     if kind == "variable":
         return "variable load"
     return str(kind or "unknown kind")
+
+
+def _managed_snapshot_focus_label(detail: dict[str, Any] | None) -> str:
+    if not detail:
+        return ""
+    name = str(detail.get("name") or detail.get("entity_id") or "Unnamed device").strip()
+    parts: list[str] = []
+    kind = str(detail.get("kind") or "").strip()
+    if kind:
+        parts.append(kind)
+    if _device_has_blocked_activity(detail):
+        parts.append("not usable" if detail.get("usable") is False else "blocked")
+    elif _device_has_active_plan(detail):
+        planned_action = str(detail.get("planned_action") or "").strip()
+        if planned_action:
+            parts.append(f"action {planned_action}")
+    elif _device_has_recent_attention(detail) and detail.get("last_action_status"):
+        parts.append(f"last {detail.get('last_action_status')}")
+    elif detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
+        parts.append(f"active {_format_device_power_summary(detail.get('current_power_w'))}")
+    return f"{name} ({' | '.join(parts)})" if parts else name
 
 
 class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity):

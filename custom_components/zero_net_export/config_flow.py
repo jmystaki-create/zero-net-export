@@ -985,6 +985,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         planned_count = sum(1 for device in devices if self._active_planned_action(device))
         kind_known = any(device.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for device in devices)
         attention_device = next((device for device in ordered if self._device_needs_attention(device)), None)
+        active_device = next((device for device in ordered if device.get("observed_active") is True), None)
         blocked_device = next((device for device in ordered if self._device_has_blocked_activity(device)), None)
         planned_device = next((device for device in ordered if self._active_planned_action(device)), None)
         summary_parts = [
@@ -997,6 +998,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             summary_parts.append(
                 "1 active managed device" if active_count == 1 else f"{active_count} active managed devices"
             )
+            if active_device and not attention_device and not blocked_device and not planned_device:
+                summary_parts.append(f"active device {self._managed_snapshot_focus_label(active_device)}")
         if attention_count:
             summary_parts.append(
                 "1 managed device needs attention"

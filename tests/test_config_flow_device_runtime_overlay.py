@@ -1172,6 +1172,44 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             ],
         )
 
+    def test_managed_snapshot_names_active_device_when_fleet_is_healthy(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+
+        devices = [
+            {
+                "key": "pool",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "observed_active": True,
+                "current_power_w": 1185,
+                "planned_action": "hold",
+                "nominal_power_w": 1185,
+            },
+            {
+                "key": "heater",
+                "name": "Heated floor",
+                "kind": module.DEVICE_KIND_VARIABLE,
+                "entity_id": "number.heated_floor_limit",
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "observed_active": True,
+                "current_power_w": 920,
+                "planned_action": "hold",
+                "nominal_power_w": 2200,
+            },
+        ]
+
+        self.assertEqual(
+            flow._managed_snapshot_text(devices),
+            "2 managed | 2 enabled | 2 usable | active load 2105 W | 2 active managed devices | active device Heated floor (variable | active 920 W) | 1 fixed managed | 1 variable managed | 3385 W nominal",
+        )
+
     def test_support_form_exposes_exact_bucket_paths(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
