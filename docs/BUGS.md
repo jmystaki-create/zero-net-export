@@ -624,6 +624,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this empty-fleet next-step wording cleanup in the next exact-build deploy, then confirm the Managed Devices landing keeps workspace-first wording even when no surfaced candidates exist yet.
 
+## ZNE-070 - Command center empty-fleet fallback still promoted a nonexistent unmanaged candidate
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing the opening command-center handoff against `docs/UI_DESIGN.md` and Workstream B/C in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when no managed devices and no surfaced unmanaged candidates existed yet, `build_native_command_center_summary(...)` still told operators to `promote next from the unmanaged section: the surfaced candidate`. That was a broken operator path, because there was no actual surfaced candidate to promote, and it pulled the command center back toward fake promotion guidance instead of the real Managed Devices workspace.
+- **expected behavior:** the empty-fleet command-center handoff should stay workspace-first and manual when no surfaced candidates exist, explicitly sending operators to `Configure -> Managed Devices` to add the first fixed or variable load.
+- **evidence:** this run's repo inspection found the no-device/no-candidate branch in `custom_components/zero_net_export/native_support.py` still falling back to `ready_candidate_preview or top_candidate_preview or top_candidate_name or primary_candidate_focus`, which becomes `the surfaced candidate` when the candidate snapshot is empty. A new focused regression in `tests/test_command_center_summary.py` reproduces the empty-fleet/no-candidate path and locks both `device_next_step` and `next_action_summary` to the workspace-first manual guidance instead.
+- **suspected cause:** recent empty-fleet wording cleanup fixed the Managed Devices form and the command-center promotion-first path when candidates existed, but the command-center branch for zero candidates still reused the older promotion fallback.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the no-device/no-candidate command-center handoff now says `Open ... -> Configure -> Managed Devices to use the Managed Devices workspace and add the first fixed or variable load manually.`, and adds focused regression coverage in `tests/test_command_center_summary.py`.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`.
+- **next action:** include this command-center empty-fleet handoff fix in the next exact-build deploy, then confirm the live opening command center no longer tells operators to promote a nonexistent surfaced candidate when the fleet and surfaced backlog are both empty.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence

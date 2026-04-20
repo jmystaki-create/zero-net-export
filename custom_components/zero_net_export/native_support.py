@@ -1926,8 +1926,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
-                f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or primary_candidate_focus}"
+                f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually."
             )
 
     recommendation = build_native_setup_recommendation(
@@ -1990,7 +1989,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or primary_candidate_focus}"
             )
         else:
-            next_action_summary = "Add at least one managed device next so Zero Net Export has a controllable load."
+            next_action_summary = (
+                f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually."
+            )
     elif readiness_phase == "runtime_readiness":
         next_action_summary = str(
             readiness.get("next_step")
