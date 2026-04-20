@@ -1468,7 +1468,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to continue the current Managed Devices workspace review or promotion step.",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review first: Virtual load in the Managed Devices workspace, then promote next: Dishwasher Power.",
             summary["next_action_summary"],
         )
         self.assertIn(
@@ -1479,7 +1479,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful",
             summary["device_next_step"],
         )
-        self.assertNotIn("Dishwasher Power", summary["next_action_summary"])
+        self.assertNotIn("| likely useful", summary["next_action_summary"])
         self.assertIn("review Virtual load (fixed)", summary["device_status"])
         self.assertIn("ready Dishwasher Power (fixed) | likely useful", summary["device_status"])
         self.assertNotIn("top Dishwasher Power (fixed) | likely useful", summary["device_status"])
@@ -1603,7 +1603,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(summary["recommended_section"], native_support.DEVICES_SECTION_LABEL)
         self.assertEqual(summary["recommended_path"], native_support.DEVICES_CONFIGURE_PATH)
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, summary["next_action_summary"])
-        self.assertIn("Managed Devices workspace review or promotion step", summary["next_action_summary"])
+        self.assertIn("review first: Virtual load", summary["next_action_summary"])
+        self.assertIn("promote next: Dishwasher Power", summary["next_action_summary"])
         self.assertNotIn(native_support.SUPPORT_CONFIGURE_PATH, summary["next_action_summary"])
         self.assertIn("Virtual load", summary["device_next_step"])
 

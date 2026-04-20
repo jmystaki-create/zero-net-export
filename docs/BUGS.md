@@ -1188,6 +1188,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this opening-console next-action cleanup in the next exact-build deploy, then confirm the live healthy command center names the concrete next bucket instead of reopening generic validation wording.
 
+## ZNE-097 - Command-center next-action fallback still collapsed review-ready backlog into a generic fleet step
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the opening command-center fallback in `custom_components/zero_net_export/native_support.py` against Workstreams A-C in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when the opening command-center `next_action_summary` overflowed Home Assistant's 255-character state limit during a review-first plus ready-next unmanaged backlog, `_truncate_state_summary(..., fallback=...)` was still collapsing the whole handoff to `Open ... to continue the current Managed Devices workspace review or promotion step.` That kept one high-signal command-center path generic right where the UI docs expect the promotion flow to stay concrete and context-preserving.
+- **expected behavior:** even under state-limit compaction, the command-center next action should stay concrete enough to preserve the review-first and ready-next unmanaged flow instead of falling back to a vague fleet-work summary.
+- **evidence:** this run's repo audit found the generic fallback still hard-coded in `build_native_command_center_summary()` and `tests/test_command_center_summary.py` was explicitly locking that wording into the review-first/ready-next case. `docs/UI_DESIGN.md` says the product should clearly support choose, review, and promote as one coherent workflow, and `docs/UI_IMPLEMENTATION_MAP.md` Workstreams A-C say the opening console should keep the managed/unmanaged story concrete instead of helper-ish.
+- **suspected cause:** earlier compaction work preserved the richer `device_status` and `Fleet activity` summaries first, but the paired `next_action_summary` fallback was left on an older generic sentence once the full workspace-first handoff exceeded Home Assistant's state limit.
+- **repo fix:** this run adds `_compact_next_action_fallback(...)` in `custom_components/zero_net_export/native_support.py`, so the overflow path now keeps a shorter concrete review-first / promote-next handoff, and refreshes `tests/test_command_center_summary.py` to lock that compact fallback in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this opening-console compaction fix in the next exact-build deploy, then confirm the live command center keeps the review-first plus promote-next Managed Devices handoff visible instead of collapsing back to the generic fleet-step fallback.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

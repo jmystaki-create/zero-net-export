@@ -203,6 +203,81 @@ def _compact_top_alert_summary(*variants: list[str], fallback: str) -> str:
     return fallback
 
 
+def _compact_next_action_fallback(
+    *,
+    missing_required_sources: list[str],
+    runtime_source_attention: bool,
+    recommended_section: str,
+    device_parse_issues: list[str],
+    has_managed_devices: bool,
+    candidate_count: int,
+    managed_attention_count: int,
+    blocked_activity_count: int,
+    first_blocked_device: dict[str, Any] | None,
+    first_planned_device: dict[str, Any] | None,
+    first_attention_device: dict[str, Any] | None,
+    review_candidate_name: str,
+    review_candidate_preview: str,
+    ready_candidate_name: str,
+    ready_candidate_preview: str,
+    top_candidate_name: str,
+    top_candidate_preview: str,
+) -> str:
+    if missing_required_sources or runtime_source_attention:
+        return f"Open {SOURCES_CONFIGURE_PATH} and use the highlighted native guidance to continue."
+
+    if (
+        recommended_section == DEVICES_SECTION_LABEL
+        or device_parse_issues
+        or not has_managed_devices
+        or candidate_count
+        or managed_attention_count
+        or blocked_activity_count
+    ):
+        if blocked_activity_count:
+            blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked managed device"
+            return (
+                f"Open {DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace, starting with {blocked_target}."
+            )
+        if first_planned_device:
+            planned_target = _command_center_runtime_device_preview(first_planned_device) or "the active managed-device plan"
+            return (
+                f"Open {DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace for {planned_target}."
+            )
+        if first_attention_device:
+            attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
+            return (
+                f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace, starting with {attention_target}."
+            )
+        if review_candidate_name:
+            compact_review = review_candidate_name
+            compact_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} to review first: {compact_review} in the Managed Devices workspace"
+            )
+            if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                compact_ready = ready_candidate_name
+                compact_step += f", then promote next: {compact_ready}"
+            return compact_step + "."
+        if ready_candidate_name or top_candidate_name or top_candidate_preview:
+            compact_ready = ready_candidate_name or top_candidate_name or top_candidate_preview or "the next unmanaged candidate"
+            return (
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next: {compact_ready}."
+            )
+        if has_managed_devices:
+            return (
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes."
+            )
+        return f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually."
+
+    if recommended_section == POLICY_SECTION_LABEL:
+        return (
+            f"Open {POLICY_CONFIGURE_PATH} to continue in Controls and tune target export, deadband, reserve, or live mode."
+        )
+    if recommended_section == SOURCES_SECTION_LABEL:
+        return f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
+    return f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+
+
 def _validation_details(state: Any) -> dict[str, Any]:
     if state is None:
         return {}
@@ -2519,29 +2594,24 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
     next_action_summary = _truncate_state_summary(
         str(next_action_summary),
-        fallback=(
-            f"Open {SOURCES_CONFIGURE_PATH} and use the highlighted native guidance to continue."
-            if missing_required_sources or runtime_source_attention
-            else (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue the current Managed Devices workspace review or promotion step."
-                if (
-                    recommended_section == DEVICES_SECTION_LABEL
-                    or device_parse_issues
-                    or not has_managed_devices
-                    or candidate_count
-                    or managed_attention_count
-                    or blocked_activity_count
-                )
-                else (
-                    f"Open {POLICY_CONFIGURE_PATH} to continue in Controls and tune target export, deadband, reserve, or live mode."
-                    if recommended_section == POLICY_SECTION_LABEL
-                    else (
-                        f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
-                        if recommended_section == SOURCES_SECTION_LABEL
-                        else f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
-                    )
-                )
-            )
+        fallback=_compact_next_action_fallback(
+            missing_required_sources=missing_required_sources,
+            runtime_source_attention=runtime_source_attention,
+            recommended_section=recommended_section,
+            device_parse_issues=device_parse_issues,
+            has_managed_devices=has_managed_devices,
+            candidate_count=candidate_count,
+            managed_attention_count=managed_attention_count,
+            blocked_activity_count=blocked_activity_count,
+            first_blocked_device=first_blocked_device,
+            first_planned_device=first_planned_device,
+            first_attention_device=first_attention_device,
+            review_candidate_name=review_candidate_name,
+            review_candidate_preview=review_candidate_preview,
+            ready_candidate_name=ready_candidate_name,
+            ready_candidate_preview=ready_candidate_preview,
+            top_candidate_name=top_candidate_name,
+            top_candidate_preview=top_candidate_preview,
         ),
     )
 
