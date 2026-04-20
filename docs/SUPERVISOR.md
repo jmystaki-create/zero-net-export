@@ -26,7 +26,7 @@ What is not yet true:
 - The integration still behaves too much like a large entity pack instead of a polished operator product UI.
 - Larger or more heterogeneous fleets still need more proof.
 - Release confidence still depends on real installs, screenshots, and distribution verification rather than repo-local confidence alone.
-- Live source validation is still blocking control because required mapped sources are unavailable or unknown in the real install.
+- The exact live install still does not match the current repo candidate, so live screenshot-grade proof remains gated by release drift and deploy/restart approval, not by lack of documented HA access.
 - The user does not consider the requested visible native UI outcomes complete yet, even though some supporting scaffolding exists in code.
 
 ## Steering stance
