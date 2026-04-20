@@ -197,6 +197,31 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Repair sources first before returning to Managed Devices",
         )
 
+    def test_managed_fleet_attention_uses_bucket_first_clear_state_when_no_attention_remains(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                    },
+                }
+            ),
+        )
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "managed_fleet_attention",
+            "Managed devices attention",
+        )
+        sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(sensor.native_value, "Managed Devices: clear right now")
+
     def test_managed_overview_sensor_uses_managed_devices_label(self) -> None:
         sensor_module = _load_sensor_module()
 

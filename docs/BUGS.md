@@ -906,6 +906,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this opening-console alert cleanup in the next exact-build deploy, then confirm the live Configure alert strip uses concise bucket-first Managed Devices wording instead of the older `Managed Devices attention` prefix.
 
+## ZNE-075 - Managed fleet attention sensor still exposed the older `No Managed Devices attention` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensor`
+- **where seen:** repo audit on 2026-04-20 while checking remaining Workstream D bucket-language drift after the command-center alert cleanup
+- **current observed behavior:** `sensor.zero_net_export_managed_fleet_attention` still fell back to `No Managed Devices attention right now` whenever the managed fleet was healthy. That left the device-page fleet sensor on the older attention-mode phrasing even after the opening command-center summary had already moved to bucket-first `Managed Devices: ...` wording.
+- **expected behavior:** the managed-fleet attention sensor should keep the same concise bucket-first language as the rest of the native operator surfaces, so a healthy fleet reads as `Managed Devices: clear right now` instead of naming a vague attention mode.
+- **evidence:** this run's repo audit found the stale fallback in `custom_components/zero_net_export/sensor.py`, and no regression was locking a healthier steady-state value in `tests/test_sensor_entity_categories.py`. `docs/UI_IMPLEMENTATION_MAP.md` Workstream D says to remove remaining bucket-language leakage so operators can tell where they are without helper-style phrasing.
+- **suspected cause:** earlier Managed Devices wording cleanup landed first in the command center and Configure flows, but the device-page fleet-attention sensor kept its older steady-state fallback string.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so the healthy managed-fleet attention sensor now reports `Managed Devices: clear right now`, and adds a focused regression in `tests/test_sensor_entity_categories.py` to keep that bucket-first steady-state wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page sensor wording cleanup in the next exact-build deploy, then confirm the live managed-fleet attention sensor no longer reintroduces the older `No Managed Devices attention` phrasing.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

@@ -651,7 +651,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         else f"{counts['attention_count']} managed devices need attention"
                     )
                 else:
-                    attention_parts.append("No Managed Devices attention right now")
+                    attention_parts.append("Managed Devices: clear right now")
                 if first_attention_name:
                     attention_parts.append(f"attention {first_attention_name}")
                 if blocked_activity_count:
