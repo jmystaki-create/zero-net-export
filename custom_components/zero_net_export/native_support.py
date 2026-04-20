@@ -162,6 +162,14 @@ def _truncate_state_summary(text: str, *, fallback: str) -> str:
     return fallback
 
 
+def _compact_top_alert_summary(*variants: list[str], fallback: str) -> str:
+    for variant in variants:
+        summary = " | ".join(str(part).strip() for part in variant if str(part).strip())
+        if summary and len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return summary
+    return fallback
+
+
 def _validation_details(state: Any) -> dict[str, Any]:
     if state is None:
         return {}
@@ -2256,22 +2264,25 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if source_attention_summary != "None"
         else "No mapped-source blockers currently highlighted"
     )
-    top_alerts: list[str] = []
+    install_alert = None
     if install_provenance_pending:
-        top_alerts.append(f"Install provenance refresh still pending: {install_consistency}")
+        install_alert = f"Install provenance refresh still pending: {install_consistency}"
     elif install_provenance.get("manifest_matches_code_version") is False:
-        top_alerts.append(f"Installed package needs exact-build revalidation: {install_consistency}")
+        install_alert = f"Installed package needs exact-build revalidation: {install_consistency}"
 
+    source_alert = None
     if missing_required_sources:
-        top_alerts.append(
-            "Missing required source roles: "
-            + ", ".join(SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources)
+        source_alert = "Missing required source roles: " + ", ".join(
+            SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
     elif runtime_source_attention:
-        top_alerts.append(f"Mapped-source blockers: {source_attention_summary_display}")
+        source_alert = f"Mapped-source blockers: {source_attention_summary_display}"
 
+    device_alert = None
+    review_alert = None
+    review_alert_compact = None
     if device_parse_issues:
-        top_alerts.append(f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s).")
+        device_alert = f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s)."
     else:
         if blocked_activity_count:
             blocked_target = (
@@ -2279,7 +2290,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 if first_blocked_device
                 else f"{blocked_activity_count} blocked managed device(s)"
             )
-            top_alerts.append(f"Managed Devices: blocked {blocked_target}")
+            device_alert = f"Managed Devices: blocked {blocked_target}"
         elif managed_attention_count:
             attention_target = (
                 _command_center_runtime_device_preview(first_attention_device)
@@ -2290,27 +2301,47 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                     else f"{managed_attention_count} managed devices need attention"
                 )
             )
-            top_alerts.append(f"Managed Devices: {attention_target}")
+            device_alert = f"Managed Devices: {attention_target}"
         elif not has_managed_devices:
-            top_alerts.append("No managed devices configured yet.")
+            device_alert = "No managed devices configured yet."
 
         if review_needed_count:
             review_target = review_candidate_preview or review_candidate_name or "the first unmanaged candidate"
             review_alert = f"Unmanaged review first: {review_target}"
+            review_alert_compact = f"Unmanaged review first: {review_candidate_name or 'the first unmanaged candidate'}"
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
-                review_alert += f"; ready next {ready_candidate_preview or ready_candidate_name}"
-            top_alerts.append(review_alert)
+                ready_target = ready_candidate_preview or ready_candidate_name
+                review_alert += f"; ready next {ready_target}"
+                review_alert_compact += f"; ready next {ready_candidate_name}"
 
-    if readiness_phase == "runtime_readiness":
-        top_alerts.append(str(readiness.get("summary") or support_status))
+    readiness_alert = str(readiness.get("summary") or support_status) if readiness_phase == "runtime_readiness" else None
 
     recommended_reason = status_summary_map.get(recommended_section, support_status)
-    if not top_alerts and recommended_reason:
-        top_alerts.append(str(recommended_reason))
+    top_alerts = [install_alert, source_alert, device_alert, review_alert, readiness_alert]
+    if not any(top_alerts) and recommended_reason:
+        top_alerts = [str(recommended_reason)]
 
-    alert_summary = _truncate_state_summary(
-        " | ".join(part for part in top_alerts if part),
-        fallback="No top-level alerts right now.",
+    top_alert_fallback = next(
+        (
+            alert
+            for alert in [source_alert, device_alert, review_alert_compact, review_alert, readiness_alert, install_alert]
+            if alert
+        ),
+        "No top-level alerts right now.",
+    )
+    alert_summary = _compact_top_alert_summary(
+        top_alerts,
+        [source_alert, device_alert, review_alert, readiness_alert, install_alert],
+        [source_alert, device_alert, review_alert_compact, readiness_alert],
+        [source_alert, device_alert, review_alert_compact],
+        [source_alert, device_alert, review_alert],
+        [source_alert, device_alert],
+        [device_alert, review_alert_compact],
+        [device_alert],
+        [review_alert_compact],
+        [readiness_alert],
+        [install_alert],
+        fallback=top_alert_fallback,
     )
 
     recommended_path = path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH)

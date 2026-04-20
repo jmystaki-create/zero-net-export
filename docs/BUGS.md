@@ -919,6 +919,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page sensor wording cleanup in the next exact-build deploy, then confirm the live managed-fleet attention sensor no longer reintroduces the older `No Managed Devices attention` phrasing.
 
+## ZNE-076 - Long command-center top alerts could collapse to the useless `No top-level alerts right now.` fallback
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `native_support`
+- **where seen:** repo audit on 2026-04-20 while checking Workstream A alert-strip behavior against the current repo candidate and live exact-build drift
+- **current observed behavior:** `build_native_command_center_summary(...)` was still building the top alert strip as one raw joined string and then passing it through `_truncate_state_summary(..., fallback="No top-level alerts right now.")`. When install-fingerprint bookkeeping, source blockers, unmanaged-review backlog, and runtime-readiness text all appeared together, the alert strip could overflow Home Assistant's 255-character state limit and collapse to that empty fallback, hiding the real operator cues entirely.
+- **expected behavior:** the opening command-center alert strip should compact intelligently under overflow, keeping the highest-value current operator signals visible instead of dropping to `No top-level alerts right now.`, and unchanged install/release bookkeeping should be the first thing dropped when more urgent source or fleet alerts are already present.
+- **evidence:** this run's repo audit found the raw `" | ".join(...)` plus `_truncate_state_summary(..., fallback="No top-level alerts right now.")` path still in `custom_components/zero_net_export/native_support.py`. A focused regression in `tests/test_command_center_summary.py` now reproduces the overflow case with long exact-build, source-blocker, unmanaged-review, and runtime-readiness alerts, and proves the summary now keeps source and fleet guidance visible while dropping the lower-value install-provenance alert first.
+- **suspected cause:** earlier command-center compaction work tightened `Fleet activity`, but the separate top-alert strip still used a one-shot truncation path that treated overflow as if no alert existed.
+- **repo fix:** this run adds `_compact_top_alert_summary(...)` in `custom_components/zero_net_export/native_support.py` and routes the command-center alert strip through staged compaction variants so overflow keeps the current source and Managed Devices cues visible, shortens unmanaged-review text when needed, and only falls back to a single surviving real alert instead of the false empty-state string. `tests/test_command_center_summary.py` now locks that overflow behavior in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this alert-strip compaction fix in the next exact-build deploy, then confirm the live Configure alert summary keeps real source/fleet warnings visible under long combined alert conditions instead of collapsing to `No top-level alerts right now.`
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
