@@ -1969,7 +1969,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         else:
             source_health = build_live_source_health_summary(state)
             source_next_step = str(
-                readiness.get("next_step") or "Source mapping looks healthy; continue to managed devices or policy."
+                readiness.get("next_step")
+                or "Source mapping looks healthy; continue in Controls or Managed Devices."
             )
 
         contextual_fallback_hint = (

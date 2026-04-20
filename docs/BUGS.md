@@ -853,6 +853,19 @@ Suggested area labels:
 - **live validation correction:** this run used the documented HA API path and confirmed the Managed Devices workspace is already present in live Home Assistant. `sensor.zero_net_export_managed_fleet_overview`, `sensor.zero_net_export_unmanaged_candidate_overview`, `sensor.zero_net_export_candidate_shortlist`, `sensor.zero_net_export_fleet_console_next_step`, `button.zero_net_export_show_fleet_console`, and `button.zero_net_export_show_managed_device_review` all exist and expose the managed/unmanaged split, fixed-vs-variable candidate mix, review-first hints, and workspace/review entry points.
 - **remaining live drift:** the workspace-absence report remains stale, but this closed entry does not clear the separate active repo-versus-live fingerprint mismatch now tracked elsewhere. Presence of the Managed Devices workspace and exact-build parity must be treated as different questions.
 - **closure evidence:** live Home Assistant API inspection already proved the Managed Devices workspace exists. That keeps this bug closed as an absence-report correction only, without using it as evidence that the current live install exactly matches repo HEAD.
+## ZNE-050 - Healthy Sensors handoff still pointed operators to stale generic `policy` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** repo audit on 2026-04-20 while comparing the Sensors handoff text against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when source mapping was healthy and no source blockers remained, `ZeroNetExportOptionsFlow._source_placeholders()` still fell back to `Source mapping looks healthy; continue to managed devices or policy.` That left the healthy Sensors handoff lagging the four-bucket IA by naming a generic `policy` destination instead of the shipped `Controls` bucket.
+- **expected behavior:** the healthy source-mapping handoff should keep the same four-bucket IA language as the rest of Configure and point operators to `Controls` or `Managed Devices`, not a stale generic policy label.
+- **evidence:** repo inspection on this run found the fallback string in `custom_components/zero_net_export/config_flow.py` even though the current source-of-truth docs and translated Configure copy consistently use `Controls`, `Sensors`, `Managed Devices`, and `Diagnostics` as the native bucket names.
+- **suspected cause:** the broader four-bucket cleanup already updated translated copy and command-center ownership text, but this Python-side healthy-path fallback kept the older pre-bucket wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so the healthy Sensors handoff now says `Source mapping looks healthy; continue in Controls or Managed Devices.` `tests/test_config_flow_device_runtime_overlay.py` now locks that exact bucket-aligned fallback in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this small Sensors handoff wording fix in the next exact-build deploy, then confirm the healthy source-mapping screen no longer reintroduces the stale generic `policy` label in Home Assistant.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

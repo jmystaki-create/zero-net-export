@@ -1833,6 +1833,28 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Open manual Managed Devices form (entity not surfaced here)",
         )
 
+    def test_healthy_source_next_step_uses_controls_bucket_name(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "state": SimpleNamespace(),
+            "readiness": {},
+            "effective_config": {},
+            "missing_source_keys": [],
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "blocking_validation_details": "None",
+            "validation_details": {"issues": []},
+        }
+        flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+
+        placeholders = flow._source_placeholders(grid_mode="net")
+
+        self.assertEqual(
+            placeholders["source_next_step"],
+            "Source mapping looks healthy; continue in Controls or Managed Devices.",
+        )
+
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()
         module.discover_candidate_devices = lambda states, managed_ids: [
