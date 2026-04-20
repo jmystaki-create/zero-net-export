@@ -1175,6 +1175,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with focused bucket-ownership and button regression coverage plus translation-sync validation. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this wording correction in the next exact-build deploy, then confirm the live Managed Devices workspace and device-page review path keep surfaced-candidate guidance neutral instead of reintroducing `Top surfaced ...` ranking language.
 
+## ZNE-096 - Healthy command-center next action still escalated into live-validation wording instead of the concrete next bucket
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the opening command-center `next_action_summary` in `custom_components/zero_net_export/native_support.py` against `docs/SUPERVISOR.md`, `docs/UI_DESIGN.md`, and Workstreams A/D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when sources and devices were already healthy and the command center recommended `Controls`, the `operator_ready` branch could still surface a short generic validation-style next action from operator-readiness state instead of naming the concrete next bucket. That let the healthy opening console say things like `Validate the native Configure path ... in a real Home Assistant install.` or other vague review lines even though the current repo steering says unchanged live validation should stay secondary while remaining `0.1.87` UI work is still being finished.
+- **expected behavior:** the healthy command-center next action should keep the opening console on one concrete native bucket. When `Controls` is the recommended home, it should explicitly send the operator to `Configure -> Controls`; when `Sensors` is recommended, it should explicitly send the operator there; and when `Managed Devices` is recommended, it should keep the existing workspace-first handoff.
+- **evidence:** this run's repo audit found `build_native_command_center_summary()` still trusting `readiness.get("next_step")` wholesale inside the `operator_ready` branch, even though the same function already derives bucket-specific fallback handoffs later. A focused regression in `tests/test_command_center_summary.py` reproduced the healthy `operator_ready` + `Controls` recommendation case and showed the command center keeping validation wording instead of the concrete Controls handoff.
+- **suspected cause:** earlier four-bucket cleanup taught the command center how to fall back to bucket-specific handoffs only when the next-action text overflowed the native state limit, but the short `operator_ready` branch still allowed older validation-style readiness text to leak through unchanged.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so `operator_ready` now emits the concrete recommended bucket handoff directly, keeping `Managed Devices` on the existing workspace-first step and sending healthy `Controls`/`Sensors` cases to their native Configure homes instead of generic live-validation wording. `tests/test_command_center_summary.py` now locks the healthy `Controls` recommendation case in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this opening-console next-action cleanup in the next exact-build deploy, then confirm the live healthy command center names the concrete next bucket instead of reopening generic validation wording.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

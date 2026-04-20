@@ -2295,10 +2295,21 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif recommended_section == DEVICES_SECTION_LABEL and (candidate_count or managed_attention_count or blocked_activity_count):
         next_action_summary = device_next_step
     elif readiness_phase == "operator_ready":
-        next_action_summary = str(
-            readiness.get("next_step")
-            or f"Validate the native Configure path plus {DIAGNOSTICS_DEVICE_ACTIONS_PATH} in a real Home Assistant install."
-        )
+        if recommended_section == DEVICES_SECTION_LABEL:
+            next_action_summary = device_next_step
+        elif recommended_section == SOURCES_SECTION_LABEL:
+            next_action_summary = (
+                f"Open {SOURCES_CONFIGURE_PATH} next to confirm the live source mapping and source health."
+            )
+        elif recommended_section == POLICY_SECTION_LABEL:
+            next_action_summary = (
+                f"Sources and devices are in place, so open {POLICY_CONFIGURE_PATH} next to tune target export, deadband, reserve, or live mode."
+            )
+        else:
+            next_action_summary = str(
+                readiness.get("next_step")
+                or f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+            )
     else:
         next_action_summary = (
             f"Sources and devices are in place, so open {POLICY_CONFIGURE_PATH} next to tune target export, deadband, reserve, or live mode."
