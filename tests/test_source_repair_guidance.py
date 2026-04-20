@@ -357,7 +357,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "stale_sources": "Grid export power",
                 "source_attention_summary": "Solar power (Pv Power, unavailable)",
                 "source_attention_roles": "Solar power -> Pv Power (unavailable)",
-                "device_status": "No managed devices configured yet",
+                "device_status": "Managed Devices: no managed devices configured yet",
                 "device_next_step": "Add a controllable load.",
                 "policy_status": "Mode Automatic",
                 "policy_readiness": "Repair mapped-source blockers first.",

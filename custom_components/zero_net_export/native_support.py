@@ -2189,7 +2189,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
     else:
         device_status = _command_center_device_status_with_unmanaged_context(
-            "No managed devices configured yet",
+            "Managed Devices: no managed devices configured yet",
             candidate_count=candidate_count,
             fixed_candidate_count=fixed_candidate_count,
             variable_candidate_count=variable_candidate_count,

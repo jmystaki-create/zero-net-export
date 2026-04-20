@@ -1062,6 +1062,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this zero-fleet top-alert cleanup in the next exact-build deploy, then confirm the live Configure alert strip keeps `Managed Devices` explicit even before the first load is promoted.
 
+## ZNE-087 - Command-center device-status fallback still skipped the `Managed Devices` bucket name
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** repo audit on 2026-04-20 while checking the remaining zero-fleet command-center wording against `docs/UI_DESIGN.md` and Workstreams A/B/D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the opening command-center top alert had already been corrected to `Managed Devices: no managed devices configured yet.`, but the paired `device_status` fallback feeding the same zero-fleet summary path still said only `No managed devices configured yet`. That left one nearby command-center surface lagging the same bucket-first wording cleanup, weakening the four-bucket information architecture exactly where the empty-fleet state should make the next native home obvious.
+- **expected behavior:** the zero-fleet device-status summary should stay bucket-first too, so the opening operator console consistently says `Managed Devices: no managed devices configured yet` instead of mixing bucket-first alert text with a generic fallback summary.
+- **evidence:** this run's repo audit still found `_command_center_device_status_with_unmanaged_context("No managed devices configured yet", ...)` in `custom_components/zero_net_export/native_support.py`, while `tests/test_command_center_summary.py` and `tests/test_source_repair_guidance.py` were still locking that older string in place. `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` both keep the four-bucket structure explicit, and the adjacent ZNE-086 fix had already established the same bucket-first wording for the alert strip.
+- **suspected cause:** the earlier zero-fleet cleanup corrected the alert-summary branch first, but left the adjacent command-center device-status fallback and its regressions on the older pre-bucket wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the zero-fleet `device_status` fallback now says `Managed Devices: no managed devices configured yet`, and refreshes `tests/test_command_center_summary.py` plus `tests/test_source_repair_guidance.py` to lock that bucket-first wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_source_repair_guidance` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this remaining zero-fleet command-center wording cleanup in the next exact-build deploy, then confirm the live opening console keeps `Managed Devices` explicit in both the alert strip and the paired device-status summary before the first load is promoted.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
