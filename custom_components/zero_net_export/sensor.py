@@ -775,7 +775,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     if source_blocked:
                         return "Repair sources first before returning to Managed Devices"
                     if review_candidate_name:
-                        return f"No managed devices yet | review {review_candidate_preview or review_candidate_name} first"
+                        return _truncate_sensor_state(
+                            f"No managed devices yet | Managed Devices review first: {review_candidate_preview or review_candidate_name}"
+                        )
                     return "No managed devices yet"
                 attention_parts = []
                 if counts["attention_count"]:

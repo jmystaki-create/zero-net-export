@@ -222,6 +222,32 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(sensor.native_value, "Managed Devices: clear right now")
 
+    def test_managed_fleet_attention_keeps_empty_fleet_review_in_managed_devices(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+        ]
+        sensor_module.assess_candidate = lambda candidate: {
+            "confidence": "low",
+            "warnings": ["This is an input_boolean helper."],
+        }
+        sensor_module.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "managed_fleet_attention",
+            "Managed devices attention",
+        )
+        sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            sensor.native_value,
+            "No managed devices yet | Managed Devices review first: Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
+        )
+
     def test_managed_overview_sensor_uses_managed_devices_label(self) -> None:
         sensor_module = _load_sensor_module()
 

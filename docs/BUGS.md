@@ -1318,6 +1318,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Managed Devices success-landing follow-through cleanup in the next exact-build deploy, then confirm live promote/edit/enablement feedback keeps the concrete Managed Devices workspace next step instead of falling back to the older generic recap.
 
+## ZNE-107 - Empty-fleet Managed Devices attention sensor still used generic review wording instead of workspace-first handoff
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensor`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the empty-fleet `managed_fleet_attention` helper sensor in `custom_components/zero_net_export/sensor.py` against `docs/UI_DESIGN.md` and Workstream B in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when no managed devices existed yet but the first surfaced unmanaged candidate still needed review, the `managed_fleet_attention` sensor could still say `No managed devices yet | review {candidate} first`. That reopened one smaller wording leak on a primary Managed Devices helper surface because the empty-fleet review cue dropped the `Managed Devices` workspace naming already required across the command center, next-step sensor, and Configure follow-through copy.
+- **expected behavior:** the empty-fleet Managed Devices attention sensor should keep the same workspace-first framing as the rest of the native fleet flow, making it clear that the first review belongs in Managed Devices rather than presenting a generic candidate-review sentence.
+- **evidence:** this run's repo audit found the empty-fleet review branch in `custom_components/zero_net_export/sensor.py` still returning `No managed devices yet | review ... first` while nearby Managed Devices next-step branches in the same file already said `review the Managed Devices workspace`. `tests/test_sensor_entity_categories.py` had no focused regression for that attention-sensor branch.
+- **suspected cause:** earlier workspace-first cleanup focused on the higher-visibility command-center, next-step sensor, and Configure handoffs first, while the parallel empty-fleet attention summary kept the older compact review phrasing.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so the empty-fleet attention sensor now says `No managed devices yet | Managed Devices review first: ...`, and adds a focused regression in `tests/test_sensor_entity_categories.py` to lock that workspace-first wording into the helper sensor.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this helper-sensor wording cleanup in the next exact-build deploy, then confirm the live empty-fleet Managed Devices attention sensor keeps the workspace-first review cue instead of the older generic `review ... first` wording.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
