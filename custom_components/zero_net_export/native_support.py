@@ -1439,9 +1439,15 @@ def _build_command_center_fleet_activity_summary(
     blocked_activity_count = blocked_device_count or (
         int(getattr(state, "blocked_planned_action_count", 0) or 0) if state is not None else 0
     )
+    first_attention_name = str((first_attention_device or {}).get("name") or (first_attention_device or {}).get("entity_id") or "").strip()
     first_planned_device = _first_runtime_device_detail(
         state,
         predicate=_runtime_device_has_active_plan,
+    )
+    planned_activity_count = (
+        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_active_plan(detail))
+        if state is not None
+        else 0
     )
 
     summary_parts: list[str] = [f"managed {managed_count}"]
@@ -1464,13 +1470,25 @@ def _build_command_center_fleet_activity_summary(
                 if attention_device_count == 1
                 else f"{attention_device_count} managed devices need attention"
             )
-        if first_attention_device and not _same_runtime_device(first_attention_device, first_blocked_device) and not _same_runtime_device(first_attention_device, first_planned_device):
-            summary_parts.append(f"attention {_command_center_runtime_device_preview(first_attention_device)}")
+        if first_attention_device:
+            attention_preview = (
+                first_attention_name
+                if _same_runtime_device(first_attention_device, first_blocked_device)
+                or _same_runtime_device(first_attention_device, first_planned_device)
+                else _command_center_runtime_device_preview(first_attention_device)
+            )
+            summary_parts.append(f"attention first {attention_preview}")
         if blocked_activity_count:
             summary_parts.append(
                 f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
                 if first_blocked_device
                 else f"blocked {blocked_activity_count}"
+            )
+        if planned_activity_count:
+            summary_parts.append(
+                "1 planned action(s)"
+                if planned_activity_count == 1
+                else f"{planned_activity_count} planned action(s)"
             )
         if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
             summary_parts.append(f"plan {_command_center_runtime_device_preview(first_planned_device)}")
@@ -1522,13 +1540,13 @@ def _build_command_center_fleet_activity_summary(
     optional_prefixes = [
         "usable ",
         "enabled ",
-        "attention ",
-        "plan ",
         "fixed review",
         "variable review",
         "fixed managed",
         "variable managed",
         "W nominal",
+        "planned action(s)",
+        "plan ",
     ]
     for prefix in optional_prefixes:
         if len(" | ".join(compact_summary_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -1570,6 +1588,19 @@ def _build_command_center_fleet_activity_summary(
             else f"{attention_device_count} managed devices need attention"
         )
 
+    if first_attention_device:
+        attention_preview = (
+            first_attention_name
+            if _same_runtime_device(first_attention_device, first_blocked_device)
+            or _same_runtime_device(first_attention_device, first_planned_device)
+            else _command_center_runtime_device_preview(first_attention_device)
+        )
+        minimal_parts.append(
+            _clip_part(
+                f"attention first {attention_preview}",
+                max_chars=72,
+            )
+        )
     if first_blocked_device:
         minimal_parts.append(
             _clip_part(
@@ -1579,13 +1610,20 @@ def _build_command_center_fleet_activity_summary(
         )
     elif blocked_activity_count:
         minimal_parts.append(f"blocked {blocked_activity_count}")
-    elif first_attention_device:
+
+    if planned_activity_count:
         minimal_parts.append(
-            _clip_part(
-                f"attention {_command_center_runtime_device_preview(first_attention_device)}",
-                max_chars=72,
-            )
+            "1 planned action(s)"
+            if planned_activity_count == 1
+            else f"{planned_activity_count} planned action(s)"
         )
+        if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
+            minimal_parts.append(
+                _clip_part(
+                    f"plan {_command_center_runtime_device_preview(first_planned_device)}",
+                    max_chars=72,
+                )
+            )
 
     if active_managed_power_w > 0:
         minimal_parts.append(f"active load {active_managed_power_w:g} W")
@@ -1645,7 +1683,7 @@ def _build_command_center_fleet_activity_summary(
         "fixed managed",
         "variable managed",
         "W nominal",
-        "attention ",
+        "planned action(s)",
         "plan ",
     ):
         if len(minimal_parts) <= 2:
@@ -1661,9 +1699,45 @@ def _build_command_center_fleet_activity_summary(
     if minimized_summary and len(minimized_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimized_summary
 
+    review_priority_parts = [
+        _clip_part(part, max_chars=32) if part.startswith(("blocked ", "plan ")) else part
+        for part in minimal_parts
+        if not part.startswith(("attention first ",))
+    ]
+    review_priority_summary = " | ".join(review_priority_parts)
+    if review_priority_summary and len(review_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return review_priority_summary
+
+    review_priority_parts = [
+        part
+        for part in review_priority_parts
+        if not part.startswith((
+            "1 fixed candidate", "2 fixed candidate", "3 fixed candidate", "4 fixed candidate", "5 fixed candidate",
+            "1 variable candidate", "2 variable candidate", "3 variable candidate", "4 variable candidate", "5 variable candidate",
+            "planned action(s)",
+        ))
+    ]
+    review_priority_summary = " | ".join(review_priority_parts)
+    if review_priority_summary and len(review_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return review_priority_summary
+
+    review_backlog_label = (review_candidate_preview or review_candidate_name).split(" | ", 1)[0].strip()
+    ready_backlog_label = (ready_candidate_preview or ready_candidate_name).split(" | ", 1)[0].strip()
+    backlog_priority_parts: list[str] = []
+    for part in review_priority_parts:
+        if part.startswith("review ") and review_backlog_label:
+            backlog_priority_parts.append(f"review {review_backlog_label}")
+        elif part.startswith("ready ") and ready_backlog_label:
+            backlog_priority_parts.append(f"ready {ready_backlog_label}")
+        else:
+            backlog_priority_parts.append(part)
+    backlog_priority_summary = " | ".join(backlog_priority_parts)
+    if backlog_priority_summary and len(backlog_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return backlog_priority_summary
+
     compact_minimal_parts = [
         _clip_part(part, max_chars=48)
-        if part.startswith(("blocked ", "attention ", "review ", "ready ", "surfaced "))
+        if part.startswith(("blocked ", "attention first ", "review ", "ready ", "surfaced "))
         else part
         for part in minimal_parts
     ]
@@ -1675,6 +1749,19 @@ def _build_command_center_fleet_activity_summary(
     essential_parts.append(f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates")
     if source_blocked:
         essential_parts.append("repair sources first")
+    if first_attention_device:
+        attention_preview = (
+            first_attention_name
+            if _same_runtime_device(first_attention_device, first_blocked_device)
+            or _same_runtime_device(first_attention_device, first_planned_device)
+            else _command_center_runtime_device_preview(first_attention_device)
+        )
+        essential_parts.append(
+            _clip_part(
+                f"attention first {attention_preview}",
+                max_chars=32,
+            )
+        )
     if blocked_activity_count:
         essential_parts.append(
             _clip_part(
@@ -1684,12 +1771,11 @@ def _build_command_center_fleet_activity_summary(
                 max_chars=32,
             )
         )
-    elif first_attention_device:
+    if planned_activity_count:
         essential_parts.append(
-            _clip_part(
-                f"attention {_command_center_runtime_device_preview(first_attention_device)}",
-                max_chars=32,
-            )
+            "1 planned action(s)"
+            if planned_activity_count == 1
+            else f"{planned_activity_count} planned action(s)"
         )
     if active_managed_power_w > 0:
         essential_parts.append(f"active load {active_managed_power_w:g} W")
@@ -1724,7 +1810,34 @@ def _build_command_center_fleet_activity_summary(
     if essential_summary and len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return essential_summary
 
-    return essential_summary if essential_summary else compact_minimal_summary or summary
+    ultra_parts = list(essential_parts)
+    for removable_prefix in (
+        "attention first ",
+        "blocked ",
+        "planned action(s)",
+    ):
+        if len(" | ".join(ultra_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            break
+        for index, part in enumerate(list(ultra_parts)):
+            if part.startswith(removable_prefix) or part.endswith(removable_prefix):
+                del ultra_parts[index]
+                break
+
+    ultra_summary = " | ".join(ultra_parts)
+    if ultra_summary and len(ultra_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return ultra_summary
+
+    clipped_ultra_parts = [
+        _clip_part(part, max_chars=36)
+        if part.startswith(("review ", "ready ", "surfaced "))
+        else part
+        for part in ultra_parts
+    ]
+    clipped_ultra_summary = " | ".join(clipped_ultra_parts)
+    if clipped_ultra_summary and len(clipped_ultra_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return clipped_ultra_summary
+
+    return compact_minimal_summary if compact_minimal_summary else summary
 
 
 def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
