@@ -1761,6 +1761,30 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             for device in devices
         ], issues
 
+    def _managed_workspace_post_save_step(self) -> str:
+        if getattr(self, "hass", None) is None:
+            return ""
+        coordinator = self._coordinator()
+        if coordinator is None:
+            return ""
+        command_center = build_native_command_center_summary(coordinator)
+        device_next_step = str(command_center.get("device_next_step") or "").strip()
+        if not device_next_step or DEVICES_CONFIGURE_PATH not in device_next_step:
+            return ""
+        if any(path in device_next_step for path in (SOURCES_CONFIGURE_PATH, POLICY_CONFIGURE_PATH, SUPPORT_CONFIGURE_PATH)):
+            return ""
+        if any(
+            phrase in device_next_step
+            for phrase in (
+                "review blocked managed devices in the Managed Devices workspace",
+                "confirm the active managed-device plan in the Managed Devices workspace",
+                "review attention in the Managed Devices workspace",
+                "review the Managed Devices workspace, edit device settings, or stage enablement changes",
+            )
+        ):
+            return device_next_step
+        return ""
+
     def _build_device_action_feedback(
         self,
         *,
@@ -1789,6 +1813,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         review_candidate = self._review_candidate_focus_text(candidates)
         ready_candidate = self._ready_candidate_focus_text(candidates)
 
+        managed_workspace_follow_through = self._managed_workspace_post_save_step()
         candidate_follow_through = self._post_save_candidate_follow_through(candidates)
 
         if action == "promote" and device is not None:
@@ -1820,6 +1845,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         if blocker_active:
             next_step = f"Next step: {blocker_lines[0].removeprefix('Before fleet work: ').strip()}"
+        elif managed_workspace_follow_through:
+            next_step = f"Next step: {managed_workspace_follow_through}"
 
         fleet_snapshot = f"Fleet now: {managed_count} managed | {enabled_count} enabled | {disabled_count} disabled"
         message_lines = [

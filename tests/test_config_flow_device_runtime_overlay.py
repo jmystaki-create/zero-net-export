@@ -2518,6 +2518,52 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("- Why: Missing required source roles.", feedback["message"])
         self.assertIn("Next step: Open sources path and finish the required source mapping.", feedback["message"])
 
+    def test_build_device_action_feedback_prefers_managed_attention_follow_through_from_command_center(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "device_next_step": "Open devices path to review attention in the Managed Devices workspace, starting with Pool pump, before changing the fleet."
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": SimpleNamespace(data=SimpleNamespace())}})
+
+        feedback = flow._build_device_action_feedback(
+            action="bulk_enable",
+            devices=[
+                {"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
+            ],
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertIn(
+            "Next step: Open devices path to review attention in the Managed Devices workspace, starting with Pool pump, before changing the fleet.",
+            feedback["message"],
+        )
+        self.assertNotIn("use the deeper device review path only if you need more per-device runtime detail", feedback["message"])
+
+    def test_build_device_action_feedback_prefers_managed_workspace_follow_through_from_command_center(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "device_next_step": "Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes."
+        }
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": SimpleNamespace(data=SimpleNamespace())}})
+
+        feedback = flow._build_device_action_feedback(
+            action="bulk_enable",
+            devices=[
+                {"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
+            ],
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertIn(
+            "Next step: Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes.",
+            feedback["message"],
+        )
+        self.assertNotIn("confirm the updated enablement snapshot", feedback["message"])
+
     def test_build_device_action_feedback_remove_prefers_review_first_candidate(self) -> None:
         module = _load_config_flow_module()
         module.assess_candidate = lambda candidate: {
