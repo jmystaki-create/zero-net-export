@@ -1173,7 +1173,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed devices workspace context:", message)
         self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 1200 W nominal | 1 planned action(s) | plan Pool pump", message)
         self.assertIn("- Unmanaged snapshot: 1 candidate | 1 fixed candidate | surfaced Hot water | likely useful | key warning: No immediate warnings", message)
-        self.assertIn("- Currently surfaced unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("- Top surfaced unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Fleet attention context:", message)
         self.assertIn("- This device is currently in the attention-first review bucket.", message)
         self.assertIn("- First managed device needing attention: Pool pump", message)
@@ -1244,7 +1244,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         asyncio.run(button.async_press())
 
         message = notification_calls[0]["args"][1]
-        self.assertIn("- Currently surfaced unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
+        self.assertIn("- Top surfaced unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
         self.assertIn("- First review-first unmanaged candidate: EV limit (variable) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
         self.assertIn("- First review-first unmanaged usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.", message)
         self.assertIn("- First review-first unmanaged warnings: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)

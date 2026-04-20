@@ -1101,6 +1101,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Managed Devices recap-copy alignment in the next exact-build deploy, then confirm the live Configure workspace and promotion steps no longer lag the shortlist-style `Top surfaced unmanaged candidate` wording.
 
+## ZNE-090 - Per-device managed-device detail review still labeled the recap as `Currently surfaced` instead of `Top surfaced`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing the secondary device-page review path against the newly aligned `Top surfaced` wording already used in the top-level device-page review notifications and the Managed Devices Configure flow
+- **current observed behavior:** `Review {device}` in `custom_components/zero_net_export/button.py` was still labeling its candidate recap as `Currently surfaced unmanaged candidate:` even after the surrounding device-page review notifications and Configure-side Managed Devices screens had already moved to `Top surfaced` wording. That left the deeper per-device audit path telling a slightly different candidate story than the rest of the native promotion flow.
+- **expected behavior:** the per-device managed-device detail review should keep the same shortlist-style recap wording as the other native fleet surfaces, using `Top surfaced unmanaged candidate:`.
+- **evidence:** this run's repo audit found `- Currently surfaced unmanaged candidate:` still hard-coded in `custom_components/zero_net_export/button.py`, while `docs/BUGS.md` already tracked the matching `Top surfaced` cleanup on the wider device-page review path and `custom_components/zero_net_export/strings.json` had already moved the primary Managed Devices flow onto the same wording. Focused expectations in `tests/test_button_entity_categories.py` were also still locking the older per-device detail label in place.
+- **suspected cause:** the recent shortlist-style recap cleanup landed on the top-level workspace and review notifications first, but the deeper `Review {device}` detail payload kept its older label.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the per-device `Review {device}` detail now says `Top surfaced unmanaged candidate:`, and refreshes `tests/test_button_entity_categories.py` to lock that wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this per-device review-copy alignment in the next exact-build deploy, then confirm the deeper `Review {device}` notification no longer lags the same shortlist-style `Top surfaced unmanaged candidate` wording used by the other Managed Devices review surfaces.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
