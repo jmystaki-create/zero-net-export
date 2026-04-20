@@ -13,7 +13,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         init_description = steps["init"]["description"]
         self.assertIn("Use this command center for setup and the current operating picture.", init_description)
-        self.assertIn("Leave Managed Devices for fleet work after the current setup blockers are clear.", init_description)
+        self.assertIn("When the next step moves into fleet work, continue in Managed Devices.", init_description)
         self.assertNotIn("Use this command center for the basic setup and current operating picture only.", init_description)
         self.assertIn("\n\nBasic setup paths\n- Sensors: {sources_path}", init_description)
         self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", init_description)
