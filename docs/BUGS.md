@@ -1088,6 +1088,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this copy correction in the next exact-build deploy, then confirm the device-page review notifications no longer lag the shortlist-style `Top surfaced unmanaged candidates` wording in live Home Assistant.
 
+## ZNE-089 - Managed Devices Configure screens still labeled the recap as `Currently surfaced` instead of `Top surfaced`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** repo audit on 2026-04-20 while checking the remaining Managed Devices workspace and promotion-flow copy after the device-page recap alignment in `5c2b548`
+- **current observed behavior:** the main `Configure -> Managed Devices` workspace plus its follow-on native fleet screens, bulk enablement, edit, remove, shortlist, full-list, review, preset, and save steps were still labeling the recap line as `Currently surfaced unmanaged candidate:` even after the device-page review path had already been aligned to the stronger shortlist-style `Top surfaced` wording. That left the primary Managed Devices workflow lagging the same copy cleanup the secondary device-page review had just received.
+- **expected behavior:** the native Managed Devices workspace and promotion-flow screens should use `Top surfaced unmanaged candidate:` so the primary fleet workflow reads like a shortlist-style recap of the leading surfaced candidate instead of a generic current-state label.
+- **evidence:** this run's repo audit found `Currently surfaced unmanaged candidate:` repeated across the Managed Devices descriptions in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, while `tests/test_bucket_ownership_copy.py` was still locking the older wording in place. `docs/UI_DESIGN.md` says unmanaged rows should read like concise shortlist-style previews, and `docs/UI_IMPLEMENTATION_MAP.md` Workstreams B/C say remaining wording drift in the Managed Devices workspace and promotion flow should be removed before the exact-build proof pass.
+- **suspected cause:** the earlier recap-copy cleanup landed first on the device-page review notifications, but the matching config-flow strings and regressions still carried the older generic label.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the Managed Devices workspace and promotion follow-on screens now say `Top surfaced unmanaged candidate:`, and refreshes `tests/test_bucket_ownership_copy.py` to lock that wording in place across the native fleet and promotion screens.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Managed Devices recap-copy alignment in the next exact-build deploy, then confirm the live Configure workspace and promotion steps no longer lag the shortlist-style `Top surfaced unmanaged candidate` wording.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
