@@ -1463,7 +1463,11 @@ def _command_center_device_status_with_unmanaged_context(
     base_status: str,
     *,
     candidate_count: int,
+    fixed_candidate_count: int,
+    variable_candidate_count: int,
     review_needed_count: int,
+    fixed_review_count: int,
+    variable_review_count: int,
     top_candidate_name: str,
     top_candidate_preview: str,
     review_candidate_name: str,
@@ -1475,9 +1479,20 @@ def _command_center_device_status_with_unmanaged_context(
     if candidate_count <= 0:
         return summary
     summary += f"; {candidate_count} unmanaged"
+    ready_candidate_count = max(candidate_count - review_needed_count, 0)
+    fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
+    variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
+    for backlog_part in _candidate_kind_backlog_mix_parts(
+        fixed_candidate_count=fixed_candidate_count,
+        variable_candidate_count=variable_candidate_count,
+        fixed_review_count=fixed_review_count,
+        variable_review_count=variable_review_count,
+        fixed_ready_count=fixed_ready_count,
+        variable_ready_count=variable_ready_count,
+    ):
+        summary += f"; {backlog_part}"
     if review_needed_count:
         summary += f"; {_count_label(review_needed_count, 'needs review', 'need review')}"
-    ready_candidate_count = max(candidate_count - review_needed_count, 0)
     if ready_candidate_count:
         summary += f"; {_count_label(ready_candidate_count, 'ready to promote')}"
     if review_candidate_preview and review_candidate_name:
@@ -2107,7 +2122,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_status = _command_center_device_status_with_unmanaged_context(
             f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair",
             candidate_count=candidate_count,
+            fixed_candidate_count=fixed_candidate_count,
+            variable_candidate_count=variable_candidate_count,
             review_needed_count=review_needed_count,
+            fixed_review_count=fixed_review_count,
+            variable_review_count=variable_review_count,
             top_candidate_name=top_candidate_name,
             top_candidate_preview=top_candidate_preview,
             review_candidate_name=review_candidate_name,
@@ -2121,7 +2140,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_status = _command_center_device_status_with_unmanaged_context(
             runtime_device_status or f"{runtime_device_count} configured",
             candidate_count=candidate_count,
+            fixed_candidate_count=fixed_candidate_count,
+            variable_candidate_count=variable_candidate_count,
             review_needed_count=review_needed_count,
+            fixed_review_count=fixed_review_count,
+            variable_review_count=variable_review_count,
             top_candidate_name=top_candidate_name,
             top_candidate_preview=top_candidate_preview,
             review_candidate_name=review_candidate_name,
@@ -2168,7 +2191,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_status = _command_center_device_status_with_unmanaged_context(
             "No managed devices configured yet",
             candidate_count=candidate_count,
+            fixed_candidate_count=fixed_candidate_count,
+            variable_candidate_count=variable_candidate_count,
             review_needed_count=review_needed_count,
+            fixed_review_count=fixed_review_count,
+            variable_review_count=variable_review_count,
             top_candidate_name=top_candidate_name,
             top_candidate_preview=top_candidate_preview,
             review_candidate_name=review_candidate_name,

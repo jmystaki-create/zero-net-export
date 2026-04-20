@@ -2606,6 +2606,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("variable backlog 1 ready", summary["fleet_activity_summary"])
         self.assertIn("review Pool (fixed)", summary["fleet_activity_summary"])
         self.assertIn("ready EV (variable)", summary["fleet_activity_summary"])
+        self.assertIn("fixed backlog 1 review", summary["device_status"])
+        self.assertIn("variable backlog 1 ready", summary["device_status"])
+        self.assertIn("review Pool (fixed)", summary["device_status"])
+        self.assertIn("ready EV (variable)", summary["device_status"])
 
     def test_command_center_summary_prefers_controls_over_diagnostics_when_policy_is_the_recommended_home(self) -> None:
         native_support = _load_native_support_module()
