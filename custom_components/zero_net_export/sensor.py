@@ -1258,6 +1258,31 @@ def _format_device_power_summary(value) -> str:
         return str(value)
 
 
+def _format_device_duration_summary(value) -> str:
+    if value is None:
+        return "n/a"
+    try:
+        total_seconds = int(round(float(value)))
+    except (TypeError, ValueError):
+        return str(value)
+    if total_seconds < 60:
+        return f"{total_seconds}s"
+    minutes, remainder = divmod(total_seconds, 60)
+    if minutes < 60:
+        return f"{minutes}m {remainder}s" if remainder else f"{minutes}m"
+    hours, minutes = divmod(minutes, 60)
+    if hours < 24:
+        parts = [f"{hours}h"]
+        if minutes:
+            parts.append(f"{minutes}m")
+        return " ".join(parts)
+    days, hours = divmod(hours, 24)
+    parts = [f"{days}d"]
+    if hours:
+        parts.append(f"{hours}h")
+    return " ".join(parts)
+
+
 def _device_kind_summary(kind: object) -> str:
     if kind == "fixed":
         return "fixed load"
@@ -1282,12 +1307,24 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         if state is None:
             return None
         detail = state.device_details.get(self._device_key, {})
-        runtime_bits = [
-            _device_kind_summary(detail.get("kind")),
-            str(detail.get("status") or "status unknown"),
-            "usable" if detail.get("usable") else "not usable",
-            "enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "disabled",
-        ]
+        runtime_bits: list[str] = []
+        if _device_has_blocked_activity(detail):
+            runtime_bits.append("blocked")
+        elif self._active_planned_action(detail):
+            runtime_bits.append("planned")
+        elif _device_has_recent_attention(detail):
+            runtime_bits.append("attention")
+        elif detail.get("observed_active") is True:
+            runtime_bits.append("active")
+
+        runtime_bits.extend(
+            [
+                _device_kind_summary(detail.get("kind")),
+                str(detail.get("status") or "status unknown"),
+                "usable" if detail.get("usable") else "not usable",
+                "enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "disabled",
+            ]
+        )
         priority = detail.get("priority")
         if priority is not None:
             runtime_bits.append(f"priority {priority}")
@@ -1308,6 +1345,12 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
                 runtime_bits.append(f"nominal {nominal_value:g} W")
         if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
             runtime_bits.append(f"target {_format_device_power_summary(detail.get('current_target_power_w'))}")
+        current_runtime = detail.get("current_active_seconds")
+        if current_runtime not in (None, 0, 0.0):
+            runtime_bits.append(f"runtime {_format_device_duration_summary(current_runtime)}")
+        runtime_today = detail.get("active_runtime_today_seconds")
+        if runtime_today not in (None, 0, 0.0):
+            runtime_bits.append(f"today {_format_device_duration_summary(runtime_today)}")
         guard_status = str(detail.get("guard_status") or "").strip()
         if guard_status and guard_status not in {"ready", "idle"}:
             runtime_bits.append(f"guard {guard_status}")

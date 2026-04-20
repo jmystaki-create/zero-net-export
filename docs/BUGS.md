@@ -1134,6 +1134,20 @@ Suggested area labels:
 - **validation status:** bug-tracker correction verified in this run by repo audit; no additional live HA validation is needed because this entry correction is about source-of-truth bug history, not a remaining live product claim.
 - **next action:** keep future watchdog and supervisor audits anchored to ZNE-092 so copy churn does not oscillate between `Top surfaced ...` and the intended neutral `Currently surfaced ...` wording.
 
+## ZNE-095 - Primary device-page managed summary still hid runtime-first fleet posture
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-21 while comparing the primary per-device `managed summary` sensor in `custom_components/zero_net_export/sensor.py` against the stronger runtime-aware Managed Devices row design already shipped in Configure and the deeper device-page review path
+- **current observed behavior:** the primary device-page `managed summary` row was still opening with generic `fixed load | Ready for control | usable | enabled ...` style text even when a load was actively planned, blocked, recently failing, or actively running. It also still omitted the current-runtime and runtime-today fragments that the Configure workspace now shows for managed rows. That left the first-class per-device surface flatter than both the primary Managed Devices workspace and the deeper review actions.
+- **expected behavior:** the primary device-page `managed summary` sensor should lead with the same higher-value runtime posture the rest of the native fleet UI now uses, starting with `blocked`, `planned`, `attention`, or `active` when relevant, and it should carry compact `runtime ...` / `today ...` fragments when runtime telemetry is available.
+- **evidence:** this run's repo audit found `ZeroNetExportDeviceManagedSummarySensor.native_value` still building its state from kind/status/usable/enabled first and never reading `observed_active`, `current_active_seconds`, or `active_runtime_today_seconds`, even though `docs/UI_IMPLEMENTATION_MAP.md` says managed-device row labels should lead with high-value runtime posture and the Configure-side managed rows already surface runtime durations. Focused regressions in `tests/test_sensor_entity_categories.py` reproduced the flatter planned, blocked, and active cases.
+- **suspected cause:** earlier Workstream B/E runtime-detail cleanup landed first in Configure and the deeper device-review path, but the primary per-device summary sensor kept its older inventory-style row formatter.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so the primary per-device managed summary now prefixes blocked/planned/attention/active posture before the lower-value inventory bits and appends compact `runtime ...` / `today ...` fragments when available. `tests/test_sensor_entity_categories.py` now locks the planned-runtime, blocked, and active-runtime cases in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page managed-summary runtime polish in the next exact-build deploy, then confirm the live primary managed summary rows read more like active fleet surfaces instead of static inventory text.
+
+
 ## ZNE-094 - Device-page promotion handoff no-candidate branches still skipped the `Managed Devices workspace` in the core action line
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

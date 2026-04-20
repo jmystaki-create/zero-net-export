@@ -279,6 +279,8 @@ class SensorEntityCategoryTests(unittest.TestCase):
                         "current_power_w": 1185,
                         "nominal_power_w": 1200,
                         "planned_action": "turn_on",
+                        "current_active_seconds": 930,
+                        "active_runtime_today_seconds": 4530,
                     }
                 }
             ),
@@ -334,7 +336,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(managed_overview.extra_state_attributes["usable_count"], 1)
         self.assertEqual(
             summary.native_value,
-            "fixed load | Ready for control | usable | enabled | priority 90 | power 1185 W | nominal 1200 W | action turn_on",
+            "planned | fixed load | Ready for control | usable | enabled | priority 90 | power 1185 W | nominal 1200 W | runtime 15m 30s | today 1h 15m | action turn_on",
         )
         self.assertIsNone(getattr(summary, "_attr_entity_category", None))
         self.assertIsNone(getattr(current_power, "_attr_entity_category", None))
@@ -375,7 +377,38 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             summary.native_value,
-            "variable load | Guarded | not usable | enabled | priority 60 | priority override 45 | enabled override off | power 620 W | nominal 7400 W | target 1400 W | guard blocked | last guard_blocked",
+            "blocked | variable load | Guarded | not usable | enabled | priority 60 | priority override 45 | enabled override off | power 620 W | nominal 7400 W | target 1400 W | guard blocked | last guard_blocked",
+        )
+
+    def test_managed_summary_surfaces_active_runtime_when_no_attention_or_plan_exists(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="test-entry", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "heater": {
+                        "name": "Water heater",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "status": "Running",
+                        "priority": 40,
+                        "observed_active": True,
+                        "current_power_w": 730,
+                        "nominal_power_w": 1200,
+                        "current_active_seconds": 125,
+                        "active_runtime_today_seconds": 3720,
+                        "planned_action": "hold",
+                    }
+                }
+            ),
+        )
+
+        summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "heater", "Water heater")
+
+        self.assertEqual(
+            summary.native_value,
+            "active | fixed load | Running | usable | enabled | priority 40 | power 730 W | nominal 1200 W | runtime 2m 5s | today 1h 2m",
         )
 
     def test_managed_fleet_overview_surfaces_unmanaged_backlog_when_fleet_is_empty(self) -> None:
