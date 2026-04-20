@@ -867,7 +867,7 @@ Suggested area labels:
 - **live validation correction:** this run used the documented HA API path and confirmed the Managed Devices workspace is already present in live Home Assistant. `sensor.zero_net_export_managed_fleet_overview`, `sensor.zero_net_export_unmanaged_candidate_overview`, `sensor.zero_net_export_candidate_shortlist`, `sensor.zero_net_export_fleet_console_next_step`, `button.zero_net_export_show_fleet_console`, and `button.zero_net_export_show_managed_device_review` all exist and expose the managed/unmanaged split, fixed-vs-variable candidate mix, review-first hints, and workspace/review entry points.
 - **remaining live drift:** the workspace-absence report remains stale, but this closed entry does not clear the separate active repo-versus-live fingerprint mismatch now tracked elsewhere. Presence of the Managed Devices workspace and exact-build parity must be treated as different questions.
 - **closure evidence:** live Home Assistant API inspection already proved the Managed Devices workspace exists. That keeps this bug closed as an absence-report correction only, without using it as evidence that the current live install exactly matches repo HEAD.
-## ZNE-071 - Healthy Sensors handoff still pointed operators to stale generic `policy` wording
+## ZNE-073 - Healthy Sensors handoff still pointed operators to stale generic `policy` wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
 - **area:** `config_flow`
