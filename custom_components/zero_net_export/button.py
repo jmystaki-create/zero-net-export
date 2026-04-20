@@ -549,8 +549,14 @@ def _managed_devices_post_blocker_step(
             f"{build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)} first."
         )
     if has_managed_devices:
-        return f"Open {DEVICES_CONFIGURE_PATH} and review the current managed fleet."
-    return f"Open {DEVICES_CONFIGURE_PATH} and check for the next unmanaged promotion candidate."
+        return (
+            f"Open {DEVICES_CONFIGURE_PATH} and use the Managed Devices workspace "
+            f"to review the current managed fleet."
+        )
+    return (
+        f"Open {DEVICES_CONFIGURE_PATH} and use the Managed Devices workspace "
+        f"to add the first fixed or variable load manually."
+    )
 
 
 

@@ -997,6 +997,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this helper-sensor IA cleanup in the next exact-build deploy, then confirm the live healthy fleet next-step sensor no longer reintroduces Sensors on a Controls-owned path.
 
+## ZNE-082 - Device-page blocker follow-through still reopened generic no-candidate fleet wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while checking the remaining Managed Devices button/device-review handoffs against Workstream B and Workstream E in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the main command center, fleet helper sensor, and Managed Devices config-flow handoffs had already moved their empty-fleet no-candidate guidance onto explicit `Managed Devices workspace` plus manual-add wording, but the secondary button/device-review blocker follow-through in `custom_components/zero_net_export/button.py` still fell back to `review the current managed fleet` or `check for the next unmanaged promotion candidate` when no surfaced candidate existed. In the empty-fleet case that reopened the same false promotion path the main command center had already been fixed to avoid.
+- **expected behavior:** after source/policy/diagnostics blockers are repaired, the secondary button/device-review handoff should keep Configure -> Managed Devices explicit, review the current fleet there when managed devices exist, and send empty-fleet/no-candidate cases to manual add there instead of implying another surfaced promotion candidate exists.
+- **evidence:** this run's repo audit found `_managed_devices_post_blocker_step(...)` in `custom_components/zero_net_export/button.py` still returning `Open {DEVICES_CONFIGURE_PATH} and review the current managed fleet.` or `Open {DEVICES_CONFIGURE_PATH} and check for the next unmanaged promotion candidate.` when the blocker-owned next step had to be replaced. New focused regressions in `tests/test_button_entity_categories.py` now reproduce both the existing-fleet and empty-fleet/no-candidate blocker-follow-through paths and lock them to explicit `Managed Devices workspace` wording.
+- **suspected cause:** recent workspace-first cleanup landed first in the higher-visibility command center, sensors, and config flow, but the parallel blocker-after-repair fallback on the button/device-review path kept older generic fleet wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so blocker follow-through now says `use the Managed Devices workspace to review the current managed fleet` when loads already exist, and `use the Managed Devices workspace to add the first fixed or variable load manually` when the fleet is empty and no surfaced candidate exists. `tests/test_button_entity_categories.py` now locks both fallback branches in place.
+- **validation status:** repo-side fix verified in this run with focused button regression coverage plus Python compile checks. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-review handoff cleanup in the next exact-build deploy, then confirm live button/device-review blocker follow-through no longer points operators at a nonexistent unmanaged promotion candidate when the fleet is empty.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

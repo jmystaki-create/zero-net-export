@@ -842,6 +842,50 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             attrs["promotion_handoff"],
         )
 
+    def test_blocker_handoff_after_repair_keeps_existing_fleet_on_managed_devices_workspace_when_no_candidates_exist(self) -> None:
+        button_module = _load_button_module()
+
+        lines = button_module._managed_devices_blocker_first_lines(
+            {
+                "recommended_section": "Sensors",
+                "recommended_path": "sources path",
+                "recommended_reason": "Mapped source blockers remain.",
+                "next_action_summary": "Open sources path and finish source repair first.",
+                "device_next_step": "Open sources path and finish source repair first.",
+            },
+            [],
+            has_managed_devices=True,
+        )
+
+        self.assertIn(
+            "- After repair: Open devices path and use the Managed Devices workspace to review the current managed fleet.",
+            lines,
+        )
+
+    def test_blocker_handoff_after_repair_keeps_empty_fleet_manual_in_managed_devices_workspace_when_no_candidates_exist(self) -> None:
+        button_module = _load_button_module()
+
+        lines = button_module._managed_devices_blocker_first_lines(
+            {
+                "recommended_section": "Sensors",
+                "recommended_path": "sources path",
+                "recommended_reason": "Mapped source blockers remain.",
+                "next_action_summary": "Open sources path and finish source repair first.",
+                "device_next_step": "Open sources path and finish source repair first.",
+            },
+            [],
+            has_managed_devices=False,
+        )
+
+        self.assertIn(
+            "- After repair: Open devices path and use the Managed Devices workspace to add the first fixed or variable load manually.",
+            lines,
+        )
+        self.assertNotIn(
+            "check for the next unmanaged promotion candidate",
+            "\n".join(lines),
+        )
+
     def test_empty_planned_action_does_not_create_a_fake_active_plan_snapshot(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(
