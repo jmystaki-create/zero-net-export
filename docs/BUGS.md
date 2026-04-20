@@ -1214,6 +1214,19 @@ Suggested area labels:
 - **validation status:** repo-side fix re-verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this compact fallback wording cleanup in the next exact-build deploy, then confirm the live command center keeps the workspace-first unmanaged handoff even when the opening next-action line compacts under Home Assistant's state limit.
 
+## ZNE-099 - Device-page blocker follow-through still dropped the ready-next unmanaged handoff
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the device-page blocker follow-through in `custom_components/zero_net_export/button.py` against the coherent review-first plus ready-next fleet handoff already used in the command center, Managed Devices sensors, and Configure flow
+- **current observed behavior:** when a non-fleet blocker such as Sensors or Controls owned the first repair step, the secondary device-page `After repair` / `Next fleet step after repair` guidance only named the first review candidate and dropped the first ready-to-promote unmanaged candidate entirely. That left the device-page recovery path with a thinner backlog story than the main Managed Devices workspace and reopened a smaller Workstreams C/E consistency gap right after blocker repair.
+- **expected behavior:** once blocker-owned repair is complete, the device-page follow-through should preserve the same review-first plus ready-next unmanaged context already used by the opening command center, fleet helper sensor, and Managed Devices Configure flow, so operators do not lose the next promotion target when they return from blocker repair.
+- **evidence:** this run's repo audit found `_managed_devices_post_blocker_step(...)` in `custom_components/zero_net_export/button.py` only returning `start in the unmanaged section: {primary_candidate}` whenever a review candidate existed, even though the rest of the native fleet handoffs already append `then promote next from the unmanaged section: {ready_candidate}` when review debt and ready-next backlog coexist. `tests/test_button_entity_categories.py` now reproduces that blocker-follow-through case with both a review-first helper candidate and a ready-next relay candidate.
+- **suspected cause:** earlier device-page blocker-follow-through cleanup focused first on restoring the `Managed Devices workspace` name and the no-candidate branches, but stopped short of carrying the parallel ready-next candidate context that the higher-visibility fleet handoffs already preserve.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so blocker follow-through now appends `then promote next from the unmanaged section ...` whenever a distinct ready-next unmanaged candidate exists, and refreshes `tests/test_button_entity_categories.py` to lock that review-first plus ready-next handoff in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page follow-through cleanup in the next exact-build deploy, then confirm the live `After repair` handoff keeps both the review-first and ready-next unmanaged cues visible after Sensors/Controls/Diagnostics blockers clear.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

@@ -542,13 +542,20 @@ def _managed_devices_post_blocker_step(
         return next_step
 
     top_candidate, _, review_candidate, _ = _managed_devices_review_focus(candidates)
+    ready_candidate = _first_ready_candidate(candidates)
     primary_candidate = review_candidate or top_candidate
     if primary_candidate:
-        return (
+        next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, "
             f"start in the unmanaged section: "
-            f"{build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}."
+            f"{build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}"
         )
+        if ready_candidate and ready_candidate != primary_candidate:
+            next_step += (
+                f", then promote next from the unmanaged section: "
+                f"{build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}"
+            )
+        return f"{next_step}."
     if has_managed_devices:
         return (
             f"Open {DEVICES_CONFIGURE_PATH} and use the Managed Devices workspace "

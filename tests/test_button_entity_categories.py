@@ -846,6 +846,49 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             attrs["promotion_handoff"],
         )
 
+    def test_blocker_handoff_after_repair_keeps_ready_next_candidate_visible(self) -> None:
+        button_module = _load_button_module()
+
+        next_step = button_module._managed_devices_post_blocker_step(
+            {
+                "recommended_section": "Sensors",
+                "recommended_path": "sources path",
+                "recommended_reason": "Mapped source blockers remain.",
+                "next_action_summary": "Open sources path and finish source repair first.",
+                "device_next_step": "Open sources path and finish source repair first.",
+            },
+            [
+                {
+                    "name": "Virtual load",
+                    "entity_id": "input_boolean.virtual_load",
+                    "kind": "fixed",
+                    "domain": "input_boolean",
+                    "state": "on",
+                    "unit": "",
+                    "device_class": "",
+                },
+                {
+                    "name": "Hot water relay",
+                    "entity_id": "switch.hot_water",
+                    "kind": "fixed",
+                    "domain": "switch",
+                    "state": "off",
+                    "unit": "",
+                    "device_class": "",
+                },
+            ],
+            has_managed_devices=False,
+        )
+
+        self.assertIn(
+            "start in the unmanaged section: Virtual load (fixed) | review first",
+            next_step,
+        )
+        self.assertIn(
+            "then promote next from the unmanaged section: Hot water relay (fixed) | likely useful",
+            next_step,
+        )
+
     def test_blocker_handoff_after_repair_keeps_existing_fleet_on_managed_devices_workspace_when_no_candidates_exist(self) -> None:
         button_module = _load_button_module()
 
