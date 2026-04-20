@@ -1101,44 +1101,38 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_source_repair_guidance` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this remaining zero-fleet command-center wording cleanup in the next exact-build deploy, then confirm the live opening console keeps `Managed Devices` explicit in both the alert strip and the paired device-status summary before the first load is promoted.
 
-## ZNE-088 - Device-page managed-device review still labeled the candidate recap as `Currently surfaced` instead of `Top surfaced`
-- **status:** `fixed_pending_validation`
+## ZNE-088 - Historical bug note briefly steered device-page recap wording toward ranking-style `Top surfaced`
+- **status:** `validated`
 - **severity:** `low`
 - **area:** `managed_devices`
-- **where seen:** repo audit on 2026-04-20 while checking the current device-page review copy against the already-updated `docs/BUGS.md` Workstream E notes and the managed/unmanaged wording in `docs/UI_DESIGN.md`
-- **current observed behavior:** both top-level device-page review notifications in `custom_components/zero_net_export/button.py` were still labeling the backlog recap as `Currently surfaced unmanaged candidates:` even though the surrounding review copy already treats that section as a shortlist-style recap of the leading surfaced candidates. That left the repo lagging the bug tracker's own latest Workstream E note, which already claimed those same notifications had moved to `Top surfaced unmanaged candidates` wording.
-- **expected behavior:** the secondary device-page review path should label that recap consistently as `Top surfaced unmanaged candidates:` so the workspace and deeper review read like a shortlist-style summary instead of a generic backlog dump.
-- **evidence:** this run's repo audit still found `Currently surfaced unmanaged candidates:` twice in `custom_components/zero_net_export/button.py`, and `tests/test_button_entity_categories.py` was still locking the same older wording in place, while the existing Workstream E narrative in `docs/BUGS.md` already said the repo had moved those notifications to `Top surfaced unmanaged candidates` wording.
-- **suspected cause:** the earlier device-page candidate-copy cleanup was recorded in the long-form ZNE-028 history note, but the final string replacement either never landed or was dropped in a later follow-on while the bug note stayed ahead of the actual repo state.
-- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so both `Review managed devices workspace` and `Review managed devices` now label the recap as `Top surfaced unmanaged candidates:`, and refreshes `tests/test_button_entity_categories.py` to lock that label in place.
-- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
-- **next action:** include this copy correction in the next exact-build deploy, then confirm the device-page review notifications no longer lag the shortlist-style `Top surfaced unmanaged candidates` wording in live Home Assistant.
+- **where seen:** BUGS source-of-truth audit on 2026-04-21 while comparing current repo strings against the later neutral-wording correction in ZNE-092
+- **historical behavior:** this entry had been left behind from a short-lived bug-tracker interpretation that treated `Top surfaced unmanaged candidates:` as the desired device-page review wording.
+- **current correction:** the repo and tests now correctly use neutral `Currently surfaced unmanaged candidate(s)` wording, and this older entry was the stale part. Treat ZNE-092 as the active source of truth for surfaced-candidate recap wording.
+- **evidence:** current repo grep shows no remaining `Top surfaced unmanaged candidate` or `Top surfaced unmanaged candidates` strings under `custom_components`, `tests`, `docs/UI_DESIGN.md`, or `docs/UI_IMPLEMENTATION_MAP.md`, while ZNE-092 already records the later neutral-wording correction.
+- **validation status:** bug-tracker correction verified in this run by repo audit; no additional live HA validation is needed because this entry correction is about source-of-truth bug history, not a remaining live product claim.
+- **next action:** keep future watchdog and supervisor audits anchored to ZNE-092 so copy churn does not oscillate between `Top surfaced ...` and the intended neutral `Currently surfaced ...` wording.
 
-## ZNE-089 - Managed Devices Configure screens still labeled the recap as `Currently surfaced` instead of `Top surfaced`
-- **status:** `fixed_pending_validation`
+## ZNE-089 - Historical bug note briefly steered Managed Devices Configure recap wording toward ranking-style `Top surfaced`
+- **status:** `validated`
 - **severity:** `low`
 - **area:** `config_flow`
-- **where seen:** repo audit on 2026-04-20 while checking the remaining Managed Devices workspace and promotion-flow copy after the device-page recap alignment in `5c2b548`
-- **current observed behavior:** the main `Configure -> Managed Devices` workspace plus its follow-on native fleet screens, bulk enablement, edit, remove, shortlist, full-list, review, preset, and save steps were still labeling the recap line as `Currently surfaced unmanaged candidate:` even after the device-page review path had already been aligned to the stronger shortlist-style `Top surfaced` wording. That left the primary Managed Devices workflow lagging the same copy cleanup the secondary device-page review had just received.
-- **expected behavior:** the native Managed Devices workspace and promotion-flow screens should use `Top surfaced unmanaged candidate:` so the primary fleet workflow reads like a shortlist-style recap of the leading surfaced candidate instead of a generic current-state label.
-- **evidence:** this run's repo audit found `Currently surfaced unmanaged candidate:` repeated across the Managed Devices descriptions in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, while `tests/test_bucket_ownership_copy.py` was still locking the older wording in place. `docs/UI_DESIGN.md` says unmanaged rows should read like concise shortlist-style previews, and `docs/UI_IMPLEMENTATION_MAP.md` Workstreams B/C say remaining wording drift in the Managed Devices workspace and promotion flow should be removed before the exact-build proof pass.
-- **suspected cause:** the earlier recap-copy cleanup landed first on the device-page review notifications, but the matching config-flow strings and regressions still carried the older generic label.
-- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the Managed Devices workspace and promotion follow-on screens now say `Top surfaced unmanaged candidate:`, and refreshes `tests/test_bucket_ownership_copy.py` to lock that wording in place across the native fleet and promotion screens.
-- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
-- **next action:** include this Managed Devices recap-copy alignment in the next exact-build deploy, then confirm the live Configure workspace and promotion steps no longer lag the shortlist-style `Top surfaced unmanaged candidate` wording.
+- **where seen:** BUGS source-of-truth audit on 2026-04-21 while comparing current repo strings against the later neutral-wording correction in ZNE-092
+- **historical behavior:** this entry had been left behind from the same short-lived bug-tracker interpretation that treated `Top surfaced unmanaged candidate:` as the desired Managed Devices Configure wording.
+- **current correction:** the repo and tests now correctly use neutral `Currently surfaced unmanaged candidate` wording across the Managed Devices workspace and promotion flow, and this older entry was the stale part. Treat ZNE-092 as the active source of truth for surfaced-candidate recap wording.
+- **evidence:** current repo grep shows the Managed Devices strings and matching regressions are all back on `Currently surfaced unmanaged candidate`, while ZNE-092 already records the later neutral-wording correction.
+- **validation status:** bug-tracker correction verified in this run by repo audit; no additional live HA validation is needed because this entry correction is about source-of-truth bug history, not a remaining live product claim.
+- **next action:** keep future watchdog and supervisor audits anchored to ZNE-092 so copy churn does not oscillate between `Top surfaced ...` and the intended neutral `Currently surfaced ...` wording.
 
-## ZNE-090 - Per-device managed-device detail review still labeled the recap as `Currently surfaced` instead of `Top surfaced`
-- **status:** `fixed_pending_validation`
+## ZNE-090 - Historical bug note briefly steered per-device review recap wording toward ranking-style `Top surfaced`
+- **status:** `validated`
 - **severity:** `low`
 - **area:** `managed_devices`
-- **where seen:** repo audit on 2026-04-20 while comparing the secondary device-page review path against the newly aligned `Top surfaced` wording already used in the top-level device-page review notifications and the Managed Devices Configure flow
-- **current observed behavior:** `Review {device}` in `custom_components/zero_net_export/button.py` was still labeling its candidate recap as `Currently surfaced unmanaged candidate:` even after the surrounding device-page review notifications and Configure-side Managed Devices screens had already moved to `Top surfaced` wording. That left the deeper per-device audit path telling a slightly different candidate story than the rest of the native promotion flow.
-- **expected behavior:** the per-device managed-device detail review should keep the same shortlist-style recap wording as the other native fleet surfaces, using `Top surfaced unmanaged candidate:`.
-- **evidence:** this run's repo audit found `- Currently surfaced unmanaged candidate:` still hard-coded in `custom_components/zero_net_export/button.py`, while `docs/BUGS.md` already tracked the matching `Top surfaced` cleanup on the wider device-page review path and `custom_components/zero_net_export/strings.json` had already moved the primary Managed Devices flow onto the same wording. Focused expectations in `tests/test_button_entity_categories.py` were also still locking the older per-device detail label in place.
-- **suspected cause:** the recent shortlist-style recap cleanup landed on the top-level workspace and review notifications first, but the deeper `Review {device}` detail payload kept its older label.
-- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the per-device `Review {device}` detail now says `Top surfaced unmanaged candidate:`, and refreshes `tests/test_button_entity_categories.py` to lock that wording in place.
-- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
-- **next action:** include this per-device review-copy alignment in the next exact-build deploy, then confirm the deeper `Review {device}` notification no longer lags the same shortlist-style `Top surfaced unmanaged candidate` wording used by the other Managed Devices review surfaces.
+- **where seen:** BUGS source-of-truth audit on 2026-04-21 while comparing current repo strings against the later neutral-wording correction in ZNE-092
+- **historical behavior:** this entry had been left behind from the same short-lived bug-tracker interpretation that treated `Top surfaced unmanaged candidate:` as the desired per-device review wording.
+- **current correction:** the repo and tests now correctly use neutral `Currently surfaced unmanaged candidate` wording in `Review {device}`, and this older entry was the stale part. Treat ZNE-092 as the active source of truth for surfaced-candidate recap wording.
+- **evidence:** current repo grep shows the per-device review text and matching regressions are back on `Currently surfaced unmanaged candidate`, while ZNE-092 already records the later neutral-wording correction.
+- **validation status:** bug-tracker correction verified in this run by repo audit; no additional live HA validation is needed because this entry correction is about source-of-truth bug history, not a remaining live product claim.
+- **next action:** keep future watchdog and supervisor audits anchored to ZNE-092 so copy churn does not oscillate between `Top surfaced ...` and the intended neutral `Currently surfaced ...` wording.
 
 ## ZNE-094 - Device-page promotion handoff no-candidate branches still skipped the `Managed Devices workspace` in the core action line
 - **status:** `fixed_pending_validation`
