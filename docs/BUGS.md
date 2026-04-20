@@ -616,18 +616,15 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py`.
 - **next action:** include this handoff wording cleanup in the next exact-build deploy, then confirm the device-page Managed Devices promotion handoff no longer drifts back to generic `Add ... device` language in live Home Assistant.
 
-## ZNE-093 - Detailed managed-device handoff still opened with generic `Add the first managed device` wording
-- **status:** `fixed_pending_validation`
+## ZNE-093 - Historical intermediate bug note stopped one wording pass short of the final empty-fleet handoff copy
+- **closed on:** 2026-04-21
 - **severity:** `medium`
 - **area:** `managed_devices`
-- **where seen:** repo audit on 2026-04-20 while reviewing remaining Workstream B/C wording against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
-- **current observed behavior:** the empty-fleet `build_detailed_management_handoff(...)` fallback in `custom_components/zero_net_export/native_support.py` still told operators `Add the first managed device in Configure -> Managed Devices...`, even though recent Workstream C cleanup already moved the main selector, follow-on help text, and device-page handoffs onto promotion-first wording. That left one more helper-style leak in the shared native handoff that feeds the Managed Devices screen and supporting device-path guidance.
-- **expected behavior:** when the fleet is empty, the deeper managed-device handoff should still describe the next primary action as promotion-first, with manual add wording kept as the fallback when no surfaced candidate fits.
-- **evidence:** this run's repo grep still found `Add the first managed device in {DEVICES_CONFIGURE_PATH}` in `custom_components/zero_net_export/native_support.py`, while `docs/UI_DESIGN.md` says promotion must feel first-class and `docs/UI_IMPLEMENTATION_MAP.md` says selector labels and promotion handoffs should already use promotion-first wording.
-- **suspected cause:** earlier promotion-wording cleanup landed first in `config_flow.py`, `strings.json`, and `button.py`, but the shared `build_detailed_management_handoff(...)` empty-fleet fallback was left on the older add-device phrasing.
-- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the empty-fleet handoff now says to use `Configure -> Managed Devices` to promote a currently surfaced unmanaged candidate when one fits, or add the first managed device manually there, before using the secondary device-page review path. `tests/test_source_repair_guidance.py` now locks that promotion-first fallback in place.
-- **validation status:** repo-side fix verified in this run with focused native-support regression coverage; live Home Assistant validation is still pending on the next exact-build deploy.
-- **next action:** include this shared handoff wording cleanup in the next exact-build deploy, then confirm the empty-fleet managed-device guidance in Home Assistant keeps promotion-first wording instead of reopening on generic `Add the first managed device` copy.
+- **historical behavior:** this entry correctly captured the original `Add the first managed device ...` leak in the shared empty-fleet deeper-review handoff, but its recorded repo fix and `next action` were later left behind after the same handoff was tightened again in ZNE-103. Keeping ZNE-093 open would now re-queue already-superseded wording work and add bug-tracker churn.
+- **current correction:** treat ZNE-103 as the active source of truth for the final empty-fleet deeper-review wording. The current repo/test state is no longer on generic `Add the first managed device ...` copy or the intermediate `add the first managed device manually there` fallback described here.
+- **closure evidence:** current repo grep shows the shared `build_detailed_management_handoff(...)` path and `tests/test_source_repair_guidance.py` are aligned on the later `add the first fixed or variable load manually there` wording recorded in ZNE-103.
+- **validation status:** bug-tracker correction verified in this run by repo audit; no new live HA validation is needed because this fix is to the source-of-truth bug state, not to a remaining live product claim.
+- **next action:** keep future watchdog and supervisor audits anchored to ZNE-103 for this empty-fleet handoff so the tracker does not reopen the already-superseded intermediate wording.
 
 ## ZNE-091 - UI implementation map still described promotion completion with stale `ranking helpers` wording
 - **closed on:** 2026-04-20
