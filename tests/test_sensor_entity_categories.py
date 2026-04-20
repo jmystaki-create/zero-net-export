@@ -1126,7 +1126,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
-    def test_mapped_source_blocker_next_step_keeps_legacy_fallback_when_no_operator_readiness_step_exists(self) -> None:
+    def test_mapped_source_blocker_next_step_uses_managed_devices_manual_add_when_no_readiness_step_exists(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module.build_native_operator_readiness = lambda coordinator: {}
 
@@ -1143,8 +1143,40 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Mapped sources currently look healthy; continue in devices path or policy path",
+            "Open devices path to use the Managed Devices workspace and add the first fixed or variable load manually",
         )
+        self.assertNotIn("continue in devices path or policy path", next_step.native_value)
+
+    def test_mapped_source_blocker_next_step_uses_controls_when_fleet_is_ready_and_no_readiness_step_exists(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module.build_native_operator_readiness = lambda coordinator: {}
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "hold",
+                    },
+                }
+            ),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "mapped_source_blocker_next_step",
+            "Mapped-source blocker next step",
+        )
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open policy path next to tune target export, deadband, reserve, or live mode",
+        )
+        self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
     def test_fleet_workspace_attributes_reuse_cached_candidate_discovery(self) -> None:
         sensor_module = _load_sensor_module()

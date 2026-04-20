@@ -575,6 +575,77 @@ def _merged_entry_config(entry) -> dict[str, object]:
     return merged
 
 
+def _healthy_sources_next_step(coordinator, hass, state) -> str:
+    candidates = _candidate_devices_for_state(coordinator, hass, state)
+    counts = _managed_fleet_counts(state.device_details)
+    blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
+    top_candidate = candidates[0] if candidates else None
+    top_candidate_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "").strip()
+    review_candidate = first_review_candidate(candidates or [])
+    review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+    ready_candidate = next(
+        (item for item in (candidates or []) if not candidate_needs_review(assess_candidate(item))),
+        None,
+    )
+    ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
+    first_blocked_name = _first_matching_device_name(
+        state.device_details,
+        predicate=_device_has_blocked_activity,
+    )
+    first_planned_name = _first_matching_device_name(
+        state.device_details,
+        predicate=_device_has_active_plan,
+    )
+    first_attention_name = _first_matching_device_name(
+        state.device_details,
+        predicate=_device_needs_attention,
+    )
+
+    if counts["managed_count"] == 0 and candidates:
+        if review_candidate_name:
+            next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {review_candidate_name}"
+            )
+            if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                next_step += f", then promote next from the unmanaged section: {ready_candidate_name}"
+            return _truncate_sensor_state(next_step)
+        return _truncate_sensor_state(
+            f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
+        )
+    if blocked_activity_count:
+        target = f" starting with {first_blocked_name}" if first_blocked_name else ""
+        return _truncate_sensor_state(
+            f"Open {DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace{target}, then fix the next guard or readiness issue"
+        )
+    if counts["planned_count"]:
+        target = f" for {first_planned_name}" if first_planned_name else ""
+        return _truncate_sensor_state(
+            f"Open {DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace{target} before changing the fleet"
+        )
+    if first_attention_name:
+        return _truncate_sensor_state(
+            f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace starting with {first_attention_name} before changing the fleet"
+        )
+    if candidates:
+        if review_candidate_name:
+            next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {review_candidate_name}"
+            )
+            if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                next_step += f", then promote next from the unmanaged section: {ready_candidate_name}"
+            return _truncate_sensor_state(next_step)
+        return _truncate_sensor_state(
+            f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
+        )
+    if counts["managed_count"] == 0:
+        return _truncate_sensor_state(
+            f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually"
+        )
+    return _truncate_sensor_state(
+        f"Open {POLICY_CONFIGURE_PATH} next to tune target export, deadband, reserve, or live mode"
+    )
+
+
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     @property
     def native_value(self):
@@ -804,79 +875,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key == "candidate_shortlist_fit":
             return build_candidate_fit_summary(candidates or [])
         if self._key == "fleet_console_next_step":
-            counts = _managed_fleet_counts(state.device_details)
-            blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=3, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
-            top_candidate = candidates[0] if candidates else None
-            top_candidate_name = str((top_candidate or {}).get("name") or (top_candidate or {}).get("entity_id") or "").strip()
-            review_candidate = first_review_candidate(candidates or [])
-            review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
-            ready_candidate = next(
-                (item for item in (candidates or []) if not candidate_needs_review(assess_candidate(item))),
-                None,
-            )
-            ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
-            first_blocked_name = _first_matching_device_name(
-                state.device_details,
-                predicate=_device_has_blocked_activity,
-            )
-            first_planned_name = _first_matching_device_name(
-                state.device_details,
-                predicate=_device_has_active_plan,
-            )
-            first_attention_name = _first_matching_device_name(
-                state.device_details,
-                predicate=_device_needs_attention,
-            )
             if blocking_source_summary != "None" or blocking_validation_details != "None":
                 return _truncate_sensor_state(
                     f"Open {SOURCES_CONFIGURE_PATH}, repair blocking source roles first, then return to {DEVICES_CONFIGURE_PATH}"
                 )
-            if counts["managed_count"] == 0 and candidates:
-                if review_candidate_name:
-                    next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {review_candidate_name}"
-                    )
-                    if ready_candidate_name and ready_candidate_name != review_candidate_name:
-                        next_step += f", then promote next from the unmanaged section: {ready_candidate_name}"
-                    return _truncate_sensor_state(next_step)
-                return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
-                )
-            if blocked_activity_count:
-                target = f" starting with {first_blocked_name}" if first_blocked_name else ""
-                return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace{target}, then fix the next guard or readiness issue"
-                )
-            if counts["planned_count"]:
-                target = f" for {first_planned_name}" if first_planned_name else ""
-                return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace{target} before changing the fleet"
-                )
-            if first_attention_name:
-                return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace starting with {first_attention_name} before changing the fleet"
-                )
-            if candidates:
-                if review_candidate_name:
-                    next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {review_candidate_name}"
-                    )
-                    if ready_candidate_name and ready_candidate_name != review_candidate_name:
-                        next_step += f", then promote next from the unmanaged section: {ready_candidate_name}"
-                    return _truncate_sensor_state(next_step)
-                return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
-                )
-            if counts["managed_count"] == 0:
-                return _truncate_sensor_state(
-                    f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually"
-                )
-            return _truncate_sensor_state(
-                f"Open {POLICY_CONFIGURE_PATH} next to tune target export, deadband, reserve, or live mode"
-            )
+            return _healthy_sources_next_step(self.coordinator, self.hass, state)
         if self._key in {"mapped_source_blocker_summary", "mapped_source_blocker_next_step"}:
             merged = _merged_entry_config(self.coordinator.entry)
             summary = build_source_attention_summary(state, merged, limit=4)
@@ -893,7 +899,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             recommended_next_step = str(build_native_operator_readiness(self.coordinator).get("next_step") or "").strip()
             if recommended_next_step:
                 return recommended_next_step
-            return f"Mapped sources currently look healthy; continue in {DEVICES_CONFIGURE_PATH} or {POLICY_CONFIGURE_PATH}"
+            return _healthy_sources_next_step(self.coordinator, self.hass, state)
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
             mapping = {
