@@ -2869,6 +2869,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertIn("active load 2105 W", summary["fleet_activity_summary"])
         self.assertIn("2 active managed devices", summary["fleet_activity_summary"])
+        self.assertIn("active device Heated floor (variable | active 920 W)", summary["fleet_activity_summary"])
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
         self.assertIn("1 variable managed", summary["fleet_activity_summary"])
         self.assertIn("3385 W nominal", summary["fleet_activity_summary"])

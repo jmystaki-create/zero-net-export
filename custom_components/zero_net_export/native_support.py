@@ -827,6 +827,27 @@ def _command_center_runtime_device_preview(detail: dict[str, Any] | None) -> str
     return f"{name} ({' | '.join(bits[:4])})"
 
 
+def _command_center_managed_snapshot_focus_label(detail: dict[str, Any] | None) -> str:
+    if not detail:
+        return ""
+    name = str(detail.get("name") or detail.get("entity_id") or "Unnamed device").strip()
+    parts: list[str] = []
+    kind = str(detail.get("kind") or "").strip()
+    if kind:
+        parts.append(kind)
+    if _runtime_device_has_blocked_activity(detail):
+        parts.append("not usable" if detail.get("usable") is False else "blocked")
+    elif _runtime_device_has_active_plan(detail):
+        planned_action = str(detail.get("planned_action") or "").strip()
+        if planned_action:
+            parts.append(f"action {planned_action}")
+    elif _runtime_device_has_recent_attention(detail) and detail.get("last_action_status"):
+        parts.append(f"last {detail.get('last_action_status')}")
+    elif detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
+        parts.append(f"active {float(detail.get('current_power_w') or 0):g} W")
+    return f"{name} ({' | '.join(parts)})" if parts else name
+
+
 def _same_runtime_device(left: dict[str, Any] | None, right: dict[str, Any] | None) -> bool:
     if not left or not right:
         return False
@@ -1552,6 +1573,10 @@ def _build_command_center_fleet_activity_summary(
         state,
         predicate=_runtime_device_has_active_plan,
     )
+    first_active_device = _first_runtime_device_detail(
+        state,
+        predicate=lambda detail: detail.get("observed_active") is True,
+    )
     planned_activity_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_active_plan(detail))
         if state is not None
@@ -1609,6 +1634,15 @@ def _build_command_center_fleet_activity_summary(
                 if active_managed_count == 1
                 else f"{active_managed_count} active managed devices"
             )
+            if (
+                first_active_device
+                and not attention_device_count
+                and not blocked_activity_count
+                and not planned_activity_count
+            ):
+                summary_parts.append(
+                    f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}"
+                )
 
     if candidate_count:
         if fixed_candidate_count:
@@ -1772,6 +1806,18 @@ def _build_command_center_fleet_activity_summary(
             if active_managed_count == 1
             else f"{active_managed_count} active managed devices"
         )
+        if (
+            first_active_device
+            and not attention_device_count
+            and not blocked_activity_count
+            and not planned_activity_count
+        ):
+            minimal_parts.append(
+                _clip_part(
+                    f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}",
+                    max_chars=72,
+                )
+            )
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     if fixed_candidate_count and variable_candidate_count:
@@ -1948,6 +1994,18 @@ def _build_command_center_fleet_activity_summary(
             if active_managed_count == 1
             else f"{active_managed_count} active managed devices"
         )
+        if (
+            first_active_device
+            and not attention_device_count
+            and not blocked_activity_count
+            and not planned_activity_count
+        ):
+            essential_parts.append(
+                _clip_part(
+                    f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}",
+                    max_chars=32,
+                )
+            )
     if fixed_candidate_count and variable_candidate_count:
         essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))
