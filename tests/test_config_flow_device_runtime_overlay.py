@@ -599,7 +599,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "2 managed | 2 enabled | 2 usable | 1 managed device needs attention | attention first Pool pump | 2 fixed managed | 2100 W nominal",
+            "2 managed | 2 enabled | 2 usable | 1 managed device needs attention | attention first Pool pump (fixed | last failed) | 2 fixed managed | 2100 W nominal",
         )
 
     def test_device_next_step_prefers_global_blocker_guidance_before_local_promotion(self) -> None:
@@ -749,7 +749,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             shortlist["description_placeholders"]["managed_snapshot"],
-            "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
+            "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger (variable | not usable) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger (variable | not usable) | 1 planned action(s) | plan Pool pump (fixed | action turn_on)",
         )
         self.assertEqual(
             shortlist["description_placeholders"]["device_summary"],
@@ -1078,7 +1078,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "2 managed | 2 enabled | 2 usable | 2 managed devices need attention | attention first Pool pump | 1 fixed managed | 1 variable managed | 0 W nominal | blocked Pool pump | 2 planned action(s) | plan Pool pump",
+            "2 managed | 2 enabled | 2 usable | 2 managed devices need attention | attention first Pool pump (fixed | blocked) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked Pool pump (fixed | blocked) | 2 planned action(s) | plan Pool pump (fixed | blocked)",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices),
@@ -1127,7 +1127,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "2 managed | 2 enabled | 2 usable | active load 3385 W | 2 active managed devices | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 8200 W nominal | 2 planned action(s) | plan EV charger",
+            "2 managed | 2 enabled | 2 usable | active load 3385 W | 2 active managed devices | 2 managed devices need attention | attention first EV charger (variable | action set_power) | 1 fixed managed | 1 variable managed | 8200 W nominal | 2 planned action(s) | plan EV charger (variable | action set_power)",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices)[0],
@@ -1290,7 +1290,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["support_path"], module.SUPPORT_CONFIGURE_PATH)
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
+                "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger (variable | not usable) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger (variable | not usable) | 1 planned action(s) | plan Pool pump (fixed | action turn_on)",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
@@ -1505,7 +1505,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["support_path"], module.SUPPORT_CONFIGURE_PATH)
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "2 managed | 2 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger | 1 planned action(s) | plan Pool pump",
+                "2 managed | 2 enabled | 1 usable | 2 managed devices need attention | attention first EV charger (variable | not usable) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger (variable | not usable) | 1 planned action(s) | plan Pool pump (fixed | action on)",
             )
             self.assertEqual(
                 result["description_placeholders"]["device_summary"],

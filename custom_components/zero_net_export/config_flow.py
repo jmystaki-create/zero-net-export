@@ -847,6 +847,25 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         active_power_w = round(sum(float(device.get("current_power_w", 0) or 0) for device in active_devices), 1)
         return len(active_devices), active_power_w
 
+    @classmethod
+    def _managed_snapshot_focus_label(cls, device: dict[str, Any] | None) -> str:
+        if not device:
+            return ""
+        name = str(device.get("name") or device.get("entity_id") or "Unnamed device").strip()
+        parts: list[str] = []
+        kind = str(device.get("kind") or "").strip()
+        if kind:
+            parts.append(kind)
+        if cls._device_has_blocked_activity(device):
+            parts.append("not usable" if device.get("usable") is False else "blocked")
+        elif cls._active_planned_action(device):
+            parts.append(f"action {cls._active_planned_action(device)}")
+        elif cls._device_has_recent_attention(device) and device.get("last_action_status"):
+            parts.append(f"last {device.get('last_action_status')}")
+        elif device.get("observed_active") is True and device.get("current_power_w") not in (None, ""):
+            parts.append(f"active {_format_runtime_power_label(device.get('current_power_w'))}")
+        return f"{name} ({' | '.join(parts)})" if parts else name
+
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
         if not devices:
             return ["- None"]
@@ -965,30 +984,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         nominal_power = int(sum(float(device.get("nominal_power_w", 0) or 0) for device in devices))
         planned_count = sum(1 for device in devices if self._active_planned_action(device))
         kind_known = any(device.get("kind") in {DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE} for device in devices)
-        attention_name = next(
-            (
-                str(device.get("name") or device.get("entity_id") or "")
-                for device in ordered
-                if self._device_needs_attention(device)
-            ),
-            "",
-        )
-        blocked_name = next(
-            (
-                str(device.get("name") or device.get("entity_id") or "")
-                for device in ordered
-                if self._device_has_blocked_activity(device)
-            ),
-            "",
-        )
-        planned_name = next(
-            (
-                str(device.get("name") or device.get("entity_id") or "")
-                for device in ordered
-                if self._active_planned_action(device)
-            ),
-            "",
-        )
+        attention_device = next((device for device in ordered if self._device_needs_attention(device)), None)
+        blocked_device = next((device for device in ordered if self._device_has_blocked_activity(device)), None)
+        planned_device = next((device for device in ordered if self._active_planned_action(device)), None)
         summary_parts = [
             f"{len(devices)} managed",
             f"{enabled_count} enabled",
@@ -1005,19 +1003,19 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if attention_count == 1
                 else f"{attention_count} managed devices need attention"
             )
-            if attention_name:
-                summary_parts.append(f"attention first {attention_name}")
+            if attention_device:
+                summary_parts.append(f"attention first {self._managed_snapshot_focus_label(attention_device)}")
         if kind_known:
             summary_parts.append(f"{fixed_count} fixed managed")
             if variable_count:
                 summary_parts.append(f"{variable_count} variable managed")
             summary_parts.append(f"{nominal_power} W nominal")
-        if blocked_name:
-            summary_parts.append(f"blocked {blocked_name}")
+        if blocked_device:
+            summary_parts.append(f"blocked {self._managed_snapshot_focus_label(blocked_device)}")
         if planned_count:
             summary_parts.append(f"{planned_count} planned action(s)")
-        if planned_name:
-            summary_parts.append(f"plan {planned_name}")
+        if planned_device:
+            summary_parts.append(f"plan {self._managed_snapshot_focus_label(planned_device)}")
         return " | ".join(summary_parts)
 
     @staticmethod
