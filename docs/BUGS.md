@@ -1357,6 +1357,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus a direct translation-sync check between `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Managed Devices enablement-copy cleanup in the next exact-build deploy, then confirm the live bulk-enable screen reads as the primary fleet enablement workspace instead of a temporary helper review.
 
+## ZNE-110 - Managed Devices edit/remove pickers still framed the primary fleet flow as a generic screen
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking the remaining Workstream B copy seams in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and the `Managed Devices workspace redesign` section of `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the edit-picker and remove-picker descriptions still opened with `Use this Managed Devices screen ...` even after nearby Managed Devices flows had been tightened to say `workspace`. That left two first-class fleet actions sounding like generic screens instead of the primary Configure -> Managed Devices workspace the rollout map now requires.
+- **expected behavior:** edit and removal entry copy should keep the same workspace-first framing as the rest of Managed Devices so the native fleet flow reads like one coherent workspace, not a stack of isolated helper screens.
+- **evidence:** this run found `Use this Managed Devices screen to choose which managed device to edit...` and `Use this Managed Devices screen to choose which managed device should leave the native fleet...` still present in `custom_components/zero_net_export/strings.json`, mirrored in `custom_components/zero_net_export/translations/en.json`, and explicitly locked by `tests/test_bucket_ownership_copy.py`.
+- **suspected cause:** earlier Workstream B wording cleanup updated the higher-traffic bulk-enable, promotion, and review paths first, but the edit/remove pickers kept older transitional copy and matching test expectations.
+- **repo fix:** this run updates the edit and remove picker descriptions in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` from `screen` to `workspace`, and refreshes `tests/test_bucket_ownership_copy.py` so the regression suite now locks the workspace-first wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`.
+- **next action:** include this edit/remove workspace-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices edit and removal entry points match the rest of the workspace-first fleet flow.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

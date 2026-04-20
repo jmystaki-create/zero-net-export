@@ -131,7 +131,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         )
 
         edit_pick_description = steps["device_edit_pick"]["description"]
-        self.assertIn("Use this Managed Devices screen to choose which managed device to edit from the native fleet list.", edit_pick_description)
+        self.assertIn("Use this Managed Devices workspace to choose which managed device to edit from the native fleet list.", edit_pick_description)
         self.assertIn("Managed Devices owns this fleet-edit workflow", edit_pick_description)
         self.assertNotIn("This is the in-place native edit path", edit_pick_description)
         self.assertIn("Managed devices (top section)", edit_pick_description)
@@ -149,7 +149,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Bucket ownership and paths", edit_pick_description)
 
         remove_description = steps["device_remove"]["description"]
-        self.assertIn("Use this Managed Devices screen to choose which managed device should leave the native fleet.", remove_description)
+        self.assertIn("Use this Managed Devices workspace to choose which managed device should leave the native fleet.", remove_description)
         self.assertNotIn("Choose which managed device should be removed from the native fleet", remove_description)
         self.assertIn("Managed Devices owns this fleet-removal workflow", remove_description)
         self.assertIn("Managed devices (top section)", remove_description)
