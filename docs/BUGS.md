@@ -1266,6 +1266,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Configure save-landing fix in the next exact-build deploy, then confirm the live Managed Devices success/removal feedback keeps both the review-first and ready-next unmanaged cues visible after save.
 
+## ZNE-103 - Empty-fleet deeper-review handoff still used vague `first managed device` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the empty-fleet `build_detailed_management_handoff(...)` fallback in `custom_components/zero_net_export/native_support.py` against the clearer fixed/variable-load wording already used across the command center, Controls follow-through, and Managed Devices workspace
+- **current observed behavior:** when no managed fleet existed yet, the shared deeper-review handoff still told operators to `add the first managed device manually there`. That was directionally correct, but it lagged behind the clearer native fleet wording already used elsewhere in `0.1.87`, where the first action is described as adding the first fixed or variable load manually in the Managed Devices workspace.
+- **expected behavior:** the empty-fleet deeper-review handoff should keep the same fixed/variable-load wording as the rest of the native Managed Devices flow so the first fleet action stays concrete and consistent.
+- **evidence:** this run's repo audit found the older `add the first managed device manually there` phrase still hard-coded in `custom_components/zero_net_export/native_support.py`, while nearby command-center and Controls follow-through copy had already converged on `add the first fixed or variable load manually`. `tests/test_source_repair_guidance.py` was still locking the older phrase into the shared handoff regression.
+- **suspected cause:** earlier empty-fleet wording cleanup neutralized the surfaced-candidate ranking language first, but the adjacent manual-add clause in the shared deeper-review fallback kept the older generic device wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the empty-fleet deeper-review handoff now says `add the first fixed or variable load manually there`, and refreshes `tests/test_source_repair_guidance.py` to lock that wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this shared empty-fleet handoff cleanup in the next exact-build deploy, then confirm the live deeper-review path keeps the same fixed/variable-load wording as the rest of Managed Devices.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

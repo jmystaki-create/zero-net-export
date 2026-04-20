@@ -89,7 +89,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, guidance)
         self.assertIn("promote a currently surfaced unmanaged candidate when one fits", guidance)
-        self.assertIn("add the first managed device manually there", guidance)
+        self.assertIn("add the first fixed or variable load manually there", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
         self.assertNotIn("Add the first managed device in", guidance)
 
