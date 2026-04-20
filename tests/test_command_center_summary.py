@@ -2074,7 +2074,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(
             (
                 "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
-                "to review the Managed Devices workspace and promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
+                "to review the Managed Devices workspace, then promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
             ),
             summary["device_next_step"],
         )

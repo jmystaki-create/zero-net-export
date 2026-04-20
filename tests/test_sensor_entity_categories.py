@@ -1058,7 +1058,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace and promote next from the unmanaged section: Dishwasher Power",
+            "Open devices path to review the Managed Devices workspace, then promote next from the unmanaged section: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_keeps_empty_fleet_manual_add_in_managed_devices(self) -> None:

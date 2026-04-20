@@ -2109,7 +2109,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                         )
                     else:
                         source_next_step = (
-                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and promote next from the unmanaged section: {candidate_focus}."
+                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
                         )
                 else:
                     source_next_step = (
@@ -2679,7 +2679,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {candidate_focus}."
                 )
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and promote next from the unmanaged section: {candidate_focus}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
             )
         return "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning."
 
