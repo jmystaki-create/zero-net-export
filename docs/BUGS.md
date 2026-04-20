@@ -636,6 +636,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`.
 - **next action:** include this command-center empty-fleet handoff fix in the next exact-build deploy, then confirm the live opening command center no longer tells operators to promote a nonexistent surfaced candidate when the fleet and surfaced backlog are both empty.
 
+## ZNE-071 - Managed Devices row labels hid attention state behind generic runtime text
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while checking Workstream B against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** `ZeroNetExportOptionsFlow._device_status_label(...)` was already surfacing runtime detail like usability, power, runtime, and last action, but it still opened many managed-device rows with generic fragments like `usable` or `not usable` even when the same device was currently blocked, planned, or otherwise in the attention-first bucket. That made `Configure -> Managed Devices` read flatter than the device-page review path and weakened the `Managed devices needing attention first` split.
+- **expected behavior:** the primary Managed Devices workspace should label blocked, planned, attention, and active rows explicitly before lower-value runtime detail so operators can scan why a device is surfaced first.
+- **evidence:** repo inspection in this run showed `_device_status_label(...)` in `custom_components/zero_net_export/config_flow.py` appended `usable` and status detail first, while the workstream map still says managed summaries need enough operational detail that the workspace feels active and attention-first items are easy to spot. Focused regressions in `tests/test_config_flow_device_runtime_overlay.py` reproduced the weaker labels and now lock `blocked` / `planned` into the top-level row text.
+- **suspected cause:** earlier runtime-detail follow-ons added power, duration, and guard fragments to the managed rows, but the primary state bucket itself was never promoted to the front of the label.
+- **repo fix:** `3cb7b36` - update `custom_components/zero_net_export/config_flow.py` so managed-device rows now lead with `blocked`, `planned`, `attention`, or `active` before secondary runtime detail, and refresh `tests/test_config_flow_device_runtime_overlay.py` to lock the new status ordering in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this managed-row status-label cleanup in the next exact-build deploy, then confirm `Configure -> Managed Devices` makes blocked/planned attention states obvious at a glance in live Home Assistant.
+
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
