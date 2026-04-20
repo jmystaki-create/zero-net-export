@@ -1156,8 +1156,9 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open policy path next to tune target export, deadband, reserve, or live mode",
+            "Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes",
         )
+        self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("sources path", next_step.native_value)
 
     def test_mapped_source_blocker_next_step_reuses_operator_readiness_when_sources_are_healthy(self) -> None:
@@ -1204,7 +1205,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
-    def test_mapped_source_blocker_next_step_uses_controls_when_fleet_is_ready_and_no_readiness_step_exists(self) -> None:
+    def test_mapped_source_blocker_next_step_keeps_managed_devices_workspace_when_fleet_is_ready_and_no_readiness_step_exists(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module.build_native_operator_readiness = lambda coordinator: {}
 
@@ -1231,8 +1232,9 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open policy path next to tune target export, deadband, reserve, or live mode",
+            "Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes",
         )
+        self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
     def test_fleet_workspace_attributes_reuse_cached_candidate_discovery(self) -> None:

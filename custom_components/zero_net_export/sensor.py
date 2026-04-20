@@ -691,7 +691,7 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
             f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually"
         )
     return _truncate_sensor_state(
-        f"Open {POLICY_CONFIGURE_PATH} next to tune target export, deadband, reserve, or live mode"
+        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes"
     )
 
 

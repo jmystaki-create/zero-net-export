@@ -383,6 +383,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`.
 - **next action:** include this command-center fallback wording cleanup in the next exact-build deploy, then confirm the live opening console keeps the primary Managed Devices workspace name explicit even when no unmanaged candidates remain.
 
+## ZNE-067 - Fleet next-step sensor still redirected steady managed fleets to Controls instead of the Managed Devices workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-20 while comparing `custom_components/zero_net_export/sensor.py` against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the already-aligned command-center/config-flow Managed Devices handoffs
+- **current observed behavior:** after the earlier command-center and config-flow wording cleanup, the `sensor.zero_net_export_fleet_console_next_step` fallback for a healthy managed fleet with no unmanaged candidates was still returning `Open ... Controls next to tune target export, deadband, reserve, or live mode`. That left one remaining Workstream B/D leak in the fleet helper sensor by steering operators back to Controls even when the real next fleet action was still to review the Managed Devices workspace for edits or enablement.
+- **expected behavior:** when managed devices already exist and no blocker, plan, attention, or unmanaged-promotion step is present, the fleet next-step sensor should stay anchored on `Configure -> Managed Devices` so the primary fleet workspace remains consistent across the opening command center, Configure follow-through, and helper sensors.
+- **evidence:** repo inspection in this run showed `_healthy_sources_next_step(...)` in `custom_components/zero_net_export/sensor.py` still falling back to `POLICY_CONFIGURE_PATH` in the `managed_count > 0` / no-candidate branch, while `build_native_command_center_summary()` in `custom_components/zero_net_export/native_support.py` already returned `Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes.` for the same steady-fleet case. `docs/UI_IMPLEMENTATION_MAP.md` still lists Workstream B as removing wording that makes `Configure -> Managed Devices` feel like a thin helper layer instead of the real fleet workspace.
+- **suspected cause:** the command-center fallback got updated during the earlier Managed Devices wording pass, but the parallel fleet-helper sensor path kept its older Controls-oriented steady-fleet fallback.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so the steady managed-fleet fallback now reuses the same `review the Managed Devices workspace, edit device settings, or stage enablement changes` handoff already used by the command center. `tests/test_sensor_entity_categories.py` now locks that wording for both `fleet_console_next_step` and the matching `mapped_source_blocker_next_step` healthy-fleet fallback.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`.
+- **next action:** include this helper-sensor workspace-first cleanup in the next exact-build deploy, then confirm the live managed-fleet next-step sensor stays on Managed Devices instead of bouncing operators back to Controls when the fleet is otherwise steady.
+
 ## ZNE-045 - Fingerprint payload still let `expected_commit` drift with repo-head bookkeeping
 - **status:** `fixed_pending_validation`
 - **severity:** `medium`
