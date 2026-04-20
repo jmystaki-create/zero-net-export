@@ -932,6 +932,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this alert-strip compaction fix in the next exact-build deploy, then confirm the live Configure alert summary keeps real source/fleet warnings visible under long combined alert conditions instead of collapsing to `No top-level alerts right now.`
 
+## ZNE-077 - Truncated healthy command-center next-step fallback could still send operators to Diagnostics instead of Controls
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `native_support`
+- **where seen:** repo audit on 2026-04-20 while checking Workstream D command-center handoffs against the current `0.1.87` four-bucket IA
+- **current observed behavior:** even after the healthy command-center wording was moved to Controls-first language, the later `_truncate_state_summary(..., fallback=...)` path in `build_native_command_center_summary(...)` still defaulted to `Configure -> Diagnostics` whenever a long healthy `next_action_summary` overflowed Home Assistant's state limit. That meant the opening console could still leak operators back into Diagnostics under truncation even when `recommended_section` was already `Controls`.
+- **expected behavior:** if the healthy command-center next-step text overflows, the fallback should still preserve the current bucket recommendation, sending operators to `Controls` when Controls owns the next action and only using Diagnostics when troubleshooting is actually the recommended home.
+- **evidence:** this run's repo audit found the truncation fallback in `custom_components/zero_net_export/native_support.py` still ending on `Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step.` for every non-Managed-Devices healthy case. `tests/test_command_center_summary.py` now reproduces the overflow case with an intentionally long healthy Controls recommendation and proves the truncated fallback stays on `Configure -> Controls` instead of leaking back to Diagnostics.
+- **suspected cause:** the earlier four-bucket cleanup fixed the main healthy next-step copy path first, but the later HA-state-length fallback still kept the older generic Diagnostics-oriented default.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so truncated command-center next-step fallbacks now preserve the recommended bucket, using Controls-specific fallback text for `recommended_section == Controls`, Sensors-specific fallback text for `recommended_section == Sensors`, and Diagnostics only when Diagnostics still owns the next step. `tests/test_command_center_summary.py` now locks the healthy Controls overflow case in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this command-center truncation-handoff fix in the next exact-build deploy, then confirm healthy Configure flows keep pointing operators to Controls under long next-step text instead of falling back to Diagnostics.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

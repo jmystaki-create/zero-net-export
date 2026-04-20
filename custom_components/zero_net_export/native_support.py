@@ -2378,7 +2378,15 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                     or managed_attention_count
                     or blocked_activity_count
                 )
-                else f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+                else (
+                    f"Open {POLICY_CONFIGURE_PATH} to continue in Controls and tune target export, deadband, reserve, or live mode."
+                    if recommended_section == POLICY_SECTION_LABEL
+                    else (
+                        f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
+                        if recommended_section == SOURCES_SECTION_LABEL
+                        else f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+                    )
+                )
             )
         ),
     )
