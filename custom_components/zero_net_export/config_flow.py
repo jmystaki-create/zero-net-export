@@ -199,6 +199,8 @@ def _overlay_runtime_device_details(
                     "last_action_status": runtime.get("last_action_status"),
                     "current_power_w": runtime.get("current_power_w"),
                     "current_target_power_w": runtime.get("current_target_power_w"),
+                    "current_active_seconds": runtime.get("current_active_seconds"),
+                    "active_runtime_today_seconds": runtime.get("active_runtime_today_seconds"),
                     "observed_active": runtime.get("observed_active"),
                 }
             )
@@ -216,6 +218,25 @@ def _format_runtime_power_label(value: Any) -> str:
     if watts.is_integer():
         return f"{int(watts)} W"
     return f"{watts:.1f} W"
+
+
+def _format_runtime_duration_label(value: Any) -> str:
+    if value in (None, "", "unknown", "unavailable"):
+        return "n/a"
+    try:
+        total_seconds = max(int(round(float(value))), 0)
+    except (TypeError, ValueError):
+        return str(value)
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    parts: list[str] = []
+    if hours:
+        parts.append(f"{hours}h")
+    if minutes:
+        parts.append(f"{minutes}m")
+    if seconds or not parts:
+        parts.append(f"{seconds}s")
+    return " ".join(parts)
 
 
 def _build_bootstrap_schema(defaults: dict | None = None) -> vol.Schema:
@@ -789,6 +810,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         runtime_bits.append(f"power {_format_runtime_power_label(device.get('current_power_w'))}")
         if device.get("kind") == DEVICE_KIND_VARIABLE and device.get("current_target_power_w") is not None:
             runtime_bits.append(f"target {_format_runtime_power_label(device.get('current_target_power_w'))}")
+        current_runtime = device.get("current_active_seconds")
+        if current_runtime not in (None, 0, 0.0):
+            runtime_bits.append(f"runtime {_format_runtime_duration_label(current_runtime)}")
+        runtime_today = device.get("active_runtime_today_seconds")
+        if runtime_today not in (None, 0, 0.0):
+            runtime_bits.append(f"today {_format_runtime_duration_label(runtime_today)}")
         if device.get("guard_status"):
             runtime_bits.append(f"guard {device.get('guard_status')}")
         planned_action = ZeroNetExportOptionsFlow._active_planned_action(device)

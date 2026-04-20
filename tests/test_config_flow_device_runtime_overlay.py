@@ -367,6 +367,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                 "priority": 10,
                 "nominal_power_w": 1200,
                 "current_power_w": 1185,
+                "current_active_seconds": 930,
+                "active_runtime_today_seconds": 4530,
             },
             {
                 "key": "ev",
@@ -396,6 +398,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("usable", label)
         self.assertIn("Ready for control", label)
         self.assertIn("power 1185 W", label)
+        self.assertIn("runtime 15m 30s", label)
+        self.assertIn("today 1h 15m 30s", label)
         self.assertIn("guard ready", label)
         self.assertIn("action turn_on", label)
         self.assertIn("last queued", label)
@@ -421,6 +425,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertNotIn("action hold", summary_lines[2])
         self.assertIn("Pool pump", summary_lines[3])
         self.assertIn("power 1185 W", summary_lines[3])
+        self.assertIn("runtime 15m 30s", summary_lines[3])
+        self.assertIn("today 1h 15m 30s", summary_lines[3])
         self.assertIn("action turn_on", summary_lines[3])
 
     def test_overlay_runtime_device_details_carries_power_target_last_action_and_active_runtime(self) -> None:
@@ -449,6 +455,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
                         "last_action_status": "throttled",
                         "current_power_w": 1800,
                         "current_target_power_w": 2200,
+                        "current_active_seconds": 930,
+                        "active_runtime_today_seconds": 4530,
                         "observed_active": True,
                     }
                 }
@@ -459,6 +467,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(enriched[0]["current_power_w"], 1800)
         self.assertEqual(enriched[0]["current_target_power_w"], 2200)
+        self.assertEqual(enriched[0]["current_active_seconds"], 930)
+        self.assertEqual(enriched[0]["active_runtime_today_seconds"], 4530)
         self.assertEqual(enriched[0]["last_action_status"], "throttled")
         self.assertTrue(enriched[0]["observed_active"])
 
