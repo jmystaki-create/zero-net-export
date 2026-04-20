@@ -1253,6 +1253,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page promotion-handoff follow-through cleanup in the next exact-build deploy, then confirm the live `Promotion handoff` keeps both the review-first and ready-next unmanaged cues visible even when no blocker-recovery path is involved.
 
+## ZNE-102 - Managed Devices save landing still dropped the ready-next unmanaged candidate
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing Managed Devices save/remove feedback in `custom_components/zero_net_export/config_flow.py` against the review-first plus ready-next handoff already preserved in the command center, helper sensors, and device-page promotion flow
+- **current observed behavior:** after a promote, edit, remove, or bulk-enable save, the `Next step` recap in Managed Devices feedback still routed through `_post_save_candidate_follow_through(...)`, which stopped at `review next in the unmanaged section: ...` whenever any surfaced candidate still needed review. That meant the save landing could hide the first ready-to-promote unmanaged candidate even when the same feedback block was already showing a separate `Ready-next unmanaged candidate: ...` line.
+- **expected behavior:** the Managed Devices save landing should keep the same concrete review-first plus ready-next unmanaged handoff as the rest of the native fleet flow, so operators do not lose the next promotion target immediately after saving.
+- **evidence:** this run's repo audit found `_post_save_candidate_follow_through(...)` in `custom_components/zero_net_export/config_flow.py` only returning `review next in the unmanaged section: ...` or `promote next from the unmanaged section: ...`, with no branch that preserved both cues together. `tests/test_config_flow_device_runtime_overlay.py` reproduced the gap in both the normal promotion save path and the remove path with review-first `Virtual load` plus ready-next `Hot water` candidates.
+- **suspected cause:** earlier ready-next cleanup covered the main command center, helper sensors, and device-page handoffs first, but the shared post-save follow-through helper in Configure kept its older single-candidate wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so Managed Devices save feedback now says `start in the unmanaged section: ...` and appends `then promote next from the unmanaged section: ...` whenever a distinct ready-next candidate exists. `tests/test_config_flow_device_runtime_overlay.py` now locks that review-first plus ready-next save landing into both the promotion and removal feedback paths.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Configure save-landing fix in the next exact-build deploy, then confirm the live Managed Devices success/removal feedback keeps both the review-first and ready-next unmanaged cues visible after save.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

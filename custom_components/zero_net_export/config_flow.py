@@ -1201,11 +1201,21 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             (item for item in candidates if candidate_needs_review(assess_candidate(item))),
             None,
         )
+        ready_candidate = next(
+            (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+            None,
+        )
         if review_candidate is not None:
-            return (
-                "review next in the unmanaged section: "
+            follow_through = (
+                "start in the unmanaged section: "
                 + cls._top_candidate_focus_text(review_candidate)
             )
+            if ready_candidate is not None and ready_candidate is not review_candidate:
+                follow_through += (
+                    ", then promote next from the unmanaged section: "
+                    + cls._top_candidate_focus_text(ready_candidate)
+                )
+            return follow_through
         if top_candidate is not None:
             return (
                 "promote next from the unmanaged section: "
