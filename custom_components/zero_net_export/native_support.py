@@ -1400,9 +1400,9 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
         [
             "Zero Net Export command center",
             "",
-            "This surface is for the basic setup only.",
-            "Use it to finish source mapping, confirm core control settings, and understand the next setup step.",
-            "Open Managed Devices only after the current setup blockers are clear.",
+            "Use this command center for setup and the current operating picture.",
+            "Finish source mapping here, confirm core control settings, and follow the recommended next native step.",
+            "When the next step moves into fleet work, continue in Managed Devices.",
             "",
             "Now",
             f"- Headline decision: {command_center.get('headline_decision')}",

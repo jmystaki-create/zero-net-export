@@ -370,8 +370,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "mode_path": native_support.MODE_CONTROL_PATH,
             }
         )
-        self.assertIn("This surface is for the basic setup only.", guide)
-        self.assertIn("Open Managed Devices only after the current setup blockers are clear.", guide)
+        self.assertIn("Use this command center for setup and the current operating picture.", guide)
+        self.assertIn("When the next step moves into fleet work, continue in Managed Devices.", guide)
+        self.assertNotIn("This surface is for the basic setup only.", guide)
+        self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", guide)
         self.assertIn("Now", guide)
         self.assertIn("- Recommended section: Sensors", guide)
         self.assertNotIn("- Recommended section: Sensors and source mapping", guide)
