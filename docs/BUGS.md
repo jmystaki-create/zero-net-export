@@ -1140,6 +1140,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this per-device review-copy alignment in the next exact-build deploy, then confirm the deeper `Review {device}` notification no longer lags the same shortlist-style `Top surfaced unmanaged candidate` wording used by the other Managed Devices review surfaces.
 
+## ZNE-091 - Device-page promotion handoff no-candidate branches still skipped the `Managed Devices workspace` in the core action line
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** repo audit on 2026-04-21 while comparing the current device-page `Promotion handoff` copy in `custom_components/zero_net_export/button.py` against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the recent workspace-first handoff fixes already recorded in `docs/BUGS.md`
+- **current observed behavior:** the blocker-after-repair fallback had already been corrected to keep `Managed Devices workspace` explicit, but the normal no-candidate `Promotion handoff:` branches in `button.py` still said only `Review the current managed fleet before changing controls or deeper diagnostics.` or `Add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.` That left the secondary device-page handoff partially regressed: the branch titles named the primary workspace, but the actual action line dropped the workspace-first framing that Workstreams B and E now require.
+- **expected behavior:** the device-page promotion handoff should keep the core action line workspace-first too, telling operators to use the `Managed Devices workspace` to review the current fleet or add the first device manually when no surfaced candidate is ready.
+- **evidence:** this run's repo audit found the stale no-candidate action lines still hard-coded in `_managed_devices_workspace_handoff(...)` inside `custom_components/zero_net_export/button.py`, while `tests/test_button_entity_categories.py` was still locking the same shortened wording in place. `docs/UI_DESIGN.md` keeps `Configure -> Managed Devices` as the unquestionable primary fleet workspace, and `docs/UI_IMPLEMENTATION_MAP.md` Workstreams B/E say remaining wording that makes the secondary path feel less workspace-first should be removed before exact-build proof.
+- **suspected cause:** earlier workspace-first cleanup fixed the blocker-driven device-page follow-through first, but the adjacent normal `Promotion handoff` no-candidate branches kept the older shortened action lines.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the no-candidate `Promotion handoff` branches now say `Use the Managed Devices workspace to review the current managed fleet...` and `Use the Managed Devices workspace to add the first fixed or variable load manually...`, and refreshes `tests/test_button_entity_categories.py` to lock that wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this remaining device-page handoff wording cleanup in the next exact-build deploy, then confirm the live no-candidate promotion handoff keeps `Managed Devices workspace` explicit in both managed-fleet and empty-fleet branches.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

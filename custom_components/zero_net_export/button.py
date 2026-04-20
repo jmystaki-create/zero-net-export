@@ -663,7 +663,7 @@ def _managed_devices_workspace_handoff(
             lines.extend(
                 [
                     f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure as the primary Managed Devices workspace.",
-                    "- Review the current managed fleet before changing controls or deeper diagnostics.",
+                    "- Use the Managed Devices workspace to review the current managed fleet before changing controls or deeper diagnostics.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} only if you need deeper per-device review after the main fleet step is clear.",
                 ]
             )
@@ -671,7 +671,7 @@ def _managed_devices_workspace_handoff(
             lines.extend(
                 [
                     f"- Open {DEVICES_CONFIGURE_PATH} in Configure as the primary Managed Devices workspace.",
-                    "- Add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.",
+                    "- Use the Managed Devices workspace to add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
                 ]
             )
