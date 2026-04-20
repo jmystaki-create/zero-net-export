@@ -11,8 +11,9 @@ class TestCommandCenterModalCopy(unittest.TestCase):
 
         description = strings["options"]["step"]["init"]["description"]
 
-        self.assertIn("basic setup and current operating picture only", description)
-        self.assertIn("Open Managed Devices only after the current setup blockers are clear", description)
+        self.assertIn("Use this command center for setup and the current operating picture.", description)
+        self.assertIn("Leave Managed Devices for fleet work after the current setup blockers are clear.", description)
+        self.assertNotIn("basic setup and current operating picture only", description)
         self.assertIn("\n\nNow\n- Headline decision:", description)
         self.assertIn("\n- Top alerts: {alert_summary}", description)
         self.assertIn("\n- Recommended next step: {next_action_summary}", description)

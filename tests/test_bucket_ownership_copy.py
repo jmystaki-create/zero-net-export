@@ -12,6 +12,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         steps = strings["options"]["step"]
 
         init_description = steps["init"]["description"]
+        self.assertIn("Use this command center for setup and the current operating picture.", init_description)
+        self.assertIn("Leave Managed Devices for fleet work after the current setup blockers are clear.", init_description)
+        self.assertNotIn("Use this command center for the basic setup and current operating picture only.", init_description)
         self.assertIn("\n\nBasic setup paths\n- Sensors: {sources_path}", init_description)
         self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", init_description)
         self.assertIn("- Managed Devices: {devices_path}", init_description)
@@ -66,6 +69,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("refresh_seconds", source_mapping_step["data_description"])
 
         devices_description = steps["devices"]["description"]
+        self.assertIn("This is the main Managed Devices workspace for review, promotion, edits, enablement, disablement, and removal.", devices_description)
+        self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below.", devices_description)
+        self.assertNotIn("Use this native Configure screen as the main managed-device workspace.", devices_description)
         self.assertIn("Managed devices (top section)", devices_description)
         self.assertIn("Managed devices review:", devices_description)
         self.assertNotIn("Current managed fleet:", devices_description)
@@ -277,6 +283,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Primary path: {policy_path}.", policy_description)
 
         support_description = steps["support"]["description"]
+        self.assertIn("Use Diagnostics when setup is blocked, runtime health needs explanation, or you need install-validation evidence.", support_description)
+        self.assertNotIn("Use this native section only when setup is blocked, runtime health needs explanation, or you need install-validation evidence.", support_description)
         self.assertIn("Diagnostics owns troubleshooting, repairs, and install validation", support_description)
         self.assertIn("It does not own normal source mapping, policy tuning, or managed-device promotion.", support_description)
         self.assertIn("Diagnostics now", support_description)
