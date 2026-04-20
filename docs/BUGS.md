@@ -971,6 +971,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this workspace-name cleanup in the next exact-build deploy, then confirm the live command center and fleet next-step sensor keep `Configure -> Managed Devices` explicit for blocked and planned fleet work too.
 
+## ZNE-080 - Sensors mapping screen buried blocking repair under a second candidate list and duplicated fallback urgency
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** repo audit on 2026-04-20 while reviewing the remaining Workstream D copy cleanup against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the `Sensors` mapping form still inserted a full `Current mapped roles` dump between the blocker-focused repair checklist and the fallback guidance, then followed the primary blocker shortlist with a second `Other live candidates` section. That made the operator-facing repair path feel split between blocker repair and exploratory browsing, even though the screen is supposed to stay focused on the current blocking source roles first.
+- **expected behavior:** the blocking repair checklist should stay contiguous, keep the best blocker-focused candidate cues visible, move the mapped-role dump into a clearly secondary cross-check section, and keep fallback wording concise instead of repeating urgency.
+- **evidence:** `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` still described `Source map now`, `Other live candidates, only if the blocker persists`, and `Picker fallback, only if Home Assistant rejects a valid choice` on the native source-mapping step before this run.
+- **suspected cause:** earlier source-form copy retained a broader discovery layout from before the newer bucket-first operator flow, so the mapping screen still mixed repair, browsing, and fallback language in one long sequence.
+- **repo fix:** this run rewrites the native `Sensors` mapping step copy so the blocking repair section now includes missing sources and current health inline, keeps only the blocker-priority candidate shortlist, moves the mapped-role summary into `Current source map, for cross-check only`, and shortens the fallback heading to `Fallback, only if Home Assistant rejects a valid choice`. `tests/test_bucket_ownership_copy.py` now locks the new wording in place.
+- **validation status:** repo-side fix verified in this run with targeted unit coverage and JSON parsing; live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Sensors copy cleanup in the next exact-build deploy, then confirm the native mapping screen keeps blocker repair and fallback guidance in the new order.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
