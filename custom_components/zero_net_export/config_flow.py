@@ -1024,6 +1024,41 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         variable_count = sum(1 for item in candidates if item.get("kind") == DEVICE_KIND_VARIABLE)
         return fixed_count, variable_count
 
+    @staticmethod
+    def _candidate_kind_backlog_mix_parts(
+        *,
+        fixed_candidate_count: int,
+        variable_candidate_count: int,
+        fixed_review_count: int,
+        variable_review_count: int,
+        fixed_ready_count: int,
+        variable_ready_count: int,
+    ) -> list[str]:
+        parts: list[str] = []
+        any_ready = fixed_ready_count > 0 or variable_ready_count > 0
+
+        def _append(kind_label: str, candidate_count: int, review_count: int, ready_count: int) -> None:
+            if candidate_count <= 0 or not any_ready or (review_count <= 0 and ready_count <= 0):
+                return
+            if review_count > 0 and ready_count > 0:
+                parts.append(f"{kind_label} backlog {review_count} review/{ready_count} ready")
+            elif review_count > 0:
+                parts.append(f"{kind_label} backlog {review_count} review")
+            elif ready_count > 0:
+                parts.append(f"{kind_label} backlog {ready_count} ready")
+
+        include_fixed = bool(
+            fixed_candidate_count and (variable_candidate_count or (fixed_review_count and fixed_ready_count))
+        )
+        include_variable = bool(
+            variable_candidate_count and (fixed_candidate_count or (variable_review_count and variable_ready_count))
+        )
+        if include_fixed:
+            _append("fixed", fixed_candidate_count, fixed_review_count, fixed_ready_count)
+        if include_variable:
+            _append("variable", variable_candidate_count, variable_review_count, variable_ready_count)
+        return parts
+
     @classmethod
     def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
         if not candidates:
@@ -1034,6 +1069,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ready_candidate_count = max(len(candidates) - len(review_candidates), 0)
         fixed_review_count = sum(1 for item in review_candidates if item.get("kind") == DEVICE_KIND_FIXED)
         variable_review_count = sum(1 for item in review_candidates if item.get("kind") == DEVICE_KIND_VARIABLE)
+        fixed_ready_count = max(fixed_count - fixed_review_count, 0)
+        variable_ready_count = max(variable_count - variable_review_count, 0)
         top_candidate = candidates[0]
         top_name = str(top_candidate.get("name") or top_candidate.get("entity_id") or "").strip()
         review_candidate = review_candidates[0] if review_candidates else None
@@ -1047,6 +1084,16 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             parts.append(f"{fixed_count} fixed candidate" if fixed_count == 1 else f"{fixed_count} fixed candidates")
         if variable_count:
             parts.append(f"{variable_count} variable candidate" if variable_count == 1 else f"{variable_count} variable candidates")
+        parts.extend(
+            cls._candidate_kind_backlog_mix_parts(
+                fixed_candidate_count=fixed_count,
+                variable_candidate_count=variable_count,
+                fixed_review_count=fixed_review_count,
+                variable_review_count=variable_review_count,
+                fixed_ready_count=fixed_ready_count,
+                variable_ready_count=variable_ready_count,
+            )
+        )
         if review_candidates:
             parts.append("1 needs review" if len(review_candidates) == 1 else f"{len(review_candidates)} need review")
             if fixed_review_count:

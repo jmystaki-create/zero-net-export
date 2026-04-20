@@ -2127,7 +2127,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | key warning: This is an input_boolean helper. | 1 ready to promote | ready Hot water relay | likely useful",
+            "2 candidates | 2 fixed candidates | fixed backlog 1 review/1 ready | 1 needs review | 1 fixed review | review Virtual load | review carefully | key warning: This is an input_boolean helper. | 1 ready to promote | ready Hot water relay | likely useful",
         )
 
     def test_unmanaged_snapshot_counts_low_confidence_candidates_as_needing_review(self) -> None:
@@ -2163,7 +2163,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             summary,
-            "2 candidates | 2 fixed candidates | 1 needs review | 1 fixed review | review Virtual load | review carefully | warn Helper-backed load needs review. | 1 ready to promote | ready Hot water relay | likely useful | key warning: No immediate warnings",
+            "2 candidates | 2 fixed candidates | fixed backlog 1 review/1 ready | 1 needs review | 1 fixed review | review Virtual load | review carefully | warn Helper-backed load needs review. | 1 ready to promote | ready Hot water relay | likely useful | key warning: No immediate warnings",
         )
 
     def test_candidate_snapshot_groups_review_first_before_ready_candidates(self) -> None:
@@ -2202,6 +2202,53 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Hot water relay (fixed)", summary)
         self.assertLess(summary.index("Virtual load (fixed)"), summary.index("- Ready to promote next:"))
         self.assertLess(summary.index("- Ready to promote next:"), summary.index("Hot water relay (fixed)"))
+
+    def test_unmanaged_snapshot_surfaces_per_kind_backlog_mix_when_review_and_ready_split_by_kind(self) -> None:
+        module = _load_config_flow_module()
+        module.assess_candidate = lambda candidate: {
+            "confidence": "low"
+            if candidate.get("entity_id") in {"switch.virtual_load", "number.ev_limit"}
+            else "high",
+            "summary": "Review before promotion.",
+            "warnings": ["Needs review first."] if candidate.get("entity_id") in {"switch.virtual_load", "number.ev_limit"} else [],
+        }
+        module.build_candidate_review_hint = lambda candidate, include_warning=True, max_warning_chars=56, **kwargs: (
+            "review first | warn Needs review first."
+            if candidate.get("entity_id") in {"switch.virtual_load", "number.ev_limit"} and include_warning
+            else "review first"
+            if candidate.get("entity_id") in {"switch.virtual_load", "number.ev_limit"}
+            else "likely useful"
+        )
+
+        summary = module.ZeroNetExportOptionsFlow._unmanaged_snapshot_text(
+            [
+                {
+                    "entity_id": "switch.virtual_load",
+                    "name": "Virtual load",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+                {
+                    "entity_id": "switch.hot_water",
+                    "name": "Hot water relay",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+                {
+                    "entity_id": "number.ev_limit",
+                    "name": "EV limit",
+                    "kind": module.DEVICE_KIND_VARIABLE,
+                },
+                {
+                    "entity_id": "number.pool_pump",
+                    "name": "Pool pump",
+                    "kind": module.DEVICE_KIND_VARIABLE,
+                },
+            ]
+        )
+
+        self.assertIn("fixed backlog 1 review/1 ready", summary)
+        self.assertIn("variable backlog 1 review/1 ready", summary)
+        self.assertIn("review Virtual load", summary)
+        self.assertIn("ready Hot water relay", summary)
 
     def test_candidate_summary_passes_name_and_entity_id_into_fit_assessment(self) -> None:
         module = _load_config_flow_module()
