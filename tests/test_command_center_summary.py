@@ -478,6 +478,94 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage subboard auxili", summary["fleet_activity_summary"])
         self.assertIn("ready EV charger export absor", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_drops_large_kind_mix_counts_before_review_ready_signals(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        candidates = [
+            {
+                "name": f"Garage auxiliary outlet candidate {index:02d}",
+                "entity_id": f"switch.garage_aux_candidate_{index:02d}",
+                "kind": "fixed",
+            }
+            for index in range(1, 7)
+        ] + [
+            {
+                "name": f"EV charger export absorption limit candidate {index:02d}",
+                "entity_id": f"number.ev_export_limit_candidate_{index:02d}",
+                "kind": "variable",
+            }
+            for index in range(1, 7)
+        ]
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (candidates, candidates[0]["name"])
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("kind") == "fixed" else "high",
+            "warnings": ["Generic outlet hardware label needs manual verification."]
+            if candidate.get("kind") == "fixed"
+            else [],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Garage auxiliary outlet candidate 01 (fixed) | review first | warn generic outlet hardware label needs manual verification before promotion"
+            if candidate and candidate.get("kind") == "fixed"
+            else "EV charger export absorption limit candidate 01 (variable) | likely useful | key warning: No immediate warnings"
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=0,
+            fixed_device_count=1,
+            controllable_nominal_power_w=4200.0,
+            blocked_planned_action_count=1,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "hot_water": {
+                    "name": "Hot water relay with extended descriptive label for operator review",
+                    "entity_id": "switch.hot_water_relay_with_extended_descriptive_label_for_operator_review",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
+        self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("12 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("blocked Hot water relay", summary["fleet_activity_summary"])
+        self.assertIn("6 need review", summary["fleet_activity_summary"])
+        self.assertIn("6 ready to promote", summary["fleet_activity_summary"])
+        self.assertIn("review Garage auxiliary outle", summary["fleet_activity_summary"])
+        self.assertIn("ready EV charger export absor", summary["fleet_activity_summary"])
+        self.assertNotIn("6 fixed candidates", summary["fleet_activity_summary"])
+        self.assertNotIn("6 variable candidates", summary["fleet_activity_summary"])
+        self.assertNotIn("1 planned action(s)", summary["fleet_activity_summary"])
+
     def test_command_center_summary_surfaces_fixed_and_variable_review_mix(self) -> None:
         native_support = _load_native_support_module()
 

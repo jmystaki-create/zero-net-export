@@ -94,6 +94,58 @@ def _normalize_native_path_text(text: Any) -> str:
 def _count_label(count: int, singular: str, plural: str | None = None) -> str:
     noun = singular if count == 1 else (plural or f"{singular}s")
     return f"{count} {noun}"
+
+
+def _matches_count_label(text: str, singular: str, plural: str | None = None) -> bool:
+    normalized = " ".join(str(text or "").split())
+    if not normalized:
+        return False
+    singular_label = singular
+    plural_label = plural or f"{singular}s"
+    return normalized.endswith(f" {singular_label}") or normalized.endswith(f" {plural_label}")
+
+
+def _count_label_value(text: str, singular: str, plural: str | None = None) -> int | None:
+    normalized = " ".join(str(text or "").split())
+    if not _matches_count_label(normalized, singular, plural):
+        return None
+    count_text, _, _ = normalized.partition(" ")
+    try:
+        return int(count_text)
+    except ValueError:
+        return None
+
+
+def _prefer_review_ready_over_large_kind_mix(summary: str) -> str:
+    normalized = " ".join(str(summary or "").split())
+    if len(normalized) > MAX_NATIVE_SENSOR_STATE_CHARS:
+        return normalized
+    parts = [part.strip() for part in normalized.split(" | ") if part.strip()]
+    if not any(part.startswith("review ") for part in parts):
+        return normalized
+    if not any(part.startswith("ready ") for part in parts):
+        return normalized
+    if not any(
+        (_count_label_value(part, "fixed candidate") or 0) > 5
+        or (_count_label_value(part, "variable candidate") or 0) > 5
+        for part in parts
+    ):
+        return normalized
+    trimmed_parts = [
+        part
+        for part in parts
+        if not (
+            _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+            or _matches_count_label(part, "planned action(s)")
+        )
+    ]
+    trimmed_summary = " | ".join(trimmed_parts)
+    if trimmed_summary and len(trimmed_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return trimmed_summary
+    return normalized
+
+
 POLICY_CONFIGURE_PATH = f"{PRIMARY_CONFIGURE_PATH} -> {POLICY_SECTION_LABEL}"
 MODE_CONTROL_PATH = f"{INTEGRATION_DEVICE_PATH} -> Mode"
 SUPPORT_CONFIGURE_PATH = (
@@ -1537,26 +1589,42 @@ def _build_command_center_fleet_activity_summary(
         return summary
 
     compact_summary_parts = list(summary_parts)
-    optional_prefixes = [
-        "usable ",
-        "enabled ",
-        "fixed review",
-        "variable review",
-        "fixed managed",
-        "variable managed",
-        "W nominal",
-        "planned action(s)",
-        "plan ",
+    optional_part_matchers = [
+        lambda part: part.startswith("usable "),
+        lambda part: part.startswith("enabled "),
+        lambda part: _matches_count_label(part, "fixed review"),
+        lambda part: _matches_count_label(part, "variable review"),
+        lambda part: _matches_count_label(part, "fixed managed"),
+        lambda part: _matches_count_label(part, "variable managed"),
+        lambda part: part.endswith(" W nominal"),
+        lambda part: _matches_count_label(part, "planned action(s)"),
+        lambda part: part.startswith("plan "),
     ]
-    for prefix in optional_prefixes:
+    for matcher in optional_part_matchers:
         if len(" | ".join(compact_summary_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             break
         for index, part in enumerate(list(compact_summary_parts)):
-            if part.startswith(prefix) or part.endswith(prefix):
+            if matcher(part):
                 del compact_summary_parts[index]
                 break
 
     compact_summary = " | ".join(compact_summary_parts)
+    compact_review_focus_parts = [
+        part
+        for part in compact_summary_parts
+        if not (
+            _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+            or _matches_count_label(part, "planned action(s)")
+        )
+    ]
+    compact_review_focus_summary = " | ".join(compact_review_focus_parts)
+    if (
+        compact_review_focus_summary
+        and len(compact_review_focus_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+        and (fixed_candidate_count > 5 or variable_candidate_count > 5)
+    ):
+        return compact_review_focus_summary
     if compact_summary and len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return compact_summary
 
@@ -1674,34 +1742,54 @@ def _build_command_center_fleet_activity_summary(
     if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimal_summary
 
-    for removable_prefix in (
-        "surfaced ",
-        "enabled ",
-        "usable ",
-        "fixed candidate",
-        "variable candidate",
-        "fixed managed",
-        "variable managed",
-        "W nominal",
-        "planned action(s)",
-        "plan ",
-    ):
+    removable_part_matchers = (
+        lambda part: part.startswith("surfaced "),
+        lambda part: part.startswith("enabled "),
+        lambda part: part.startswith("usable "),
+        lambda part: _matches_count_label(part, "fixed candidate"),
+        lambda part: _matches_count_label(part, "variable candidate"),
+        lambda part: _matches_count_label(part, "fixed managed"),
+        lambda part: _matches_count_label(part, "variable managed"),
+        lambda part: part.endswith(" W nominal"),
+        lambda part: _matches_count_label(part, "planned action(s)"),
+        lambda part: part.startswith("plan "),
+    )
+    for matcher in removable_part_matchers:
         if len(minimal_parts) <= 2:
             break
         if len(" | ".join(minimal_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             break
         for index, part in enumerate(list(minimal_parts)):
-            if part.startswith(removable_prefix) or part.endswith(removable_prefix):
+            if matcher(part):
                 del minimal_parts[index]
                 break
 
     minimized_summary = " | ".join(minimal_parts)
+
+    review_focus_parts = [
+        part
+        for part in minimal_parts
+        if not (
+            _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+            or _matches_count_label(part, "planned action(s)")
+        )
+    ]
+    review_focus_summary = " | ".join(review_focus_parts)
+    if (
+        review_focus_summary
+        and len(review_focus_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+        and (fixed_candidate_count > 5 or variable_candidate_count > 5)
+    ):
+        return review_focus_summary
     if minimized_summary and len(minimized_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimized_summary
+    if review_focus_summary and len(review_focus_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return review_focus_summary
 
     review_priority_parts = [
         _clip_part(part, max_chars=32) if part.startswith(("blocked ", "plan ")) else part
-        for part in minimal_parts
+        for part in review_focus_parts
         if not part.startswith(("attention first ",))
     ]
     review_priority_summary = " | ".join(review_priority_parts)
@@ -1711,11 +1799,11 @@ def _build_command_center_fleet_activity_summary(
     review_priority_parts = [
         part
         for part in review_priority_parts
-        if not part.startswith((
-            "1 fixed candidate", "2 fixed candidate", "3 fixed candidate", "4 fixed candidate", "5 fixed candidate",
-            "1 variable candidate", "2 variable candidate", "3 variable candidate", "4 variable candidate", "5 variable candidate",
-            "planned action(s)",
-        ))
+        if not (
+            _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+            or _matches_count_label(part, "planned action(s)")
+        )
     ]
     review_priority_summary = " | ".join(review_priority_parts)
     if review_priority_summary and len(review_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -2298,21 +2386,23 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         fallback="Control outcome will appear here after runtime loads.",
     )
     fleet_activity_summary = _truncate_state_summary(
-        _build_command_center_fleet_activity_summary(
-            state,
-            candidate_count=candidate_count,
-            fixed_candidate_count=fixed_candidate_count,
-            variable_candidate_count=variable_candidate_count,
-            review_needed_count=review_needed_count,
-            fixed_review_count=fixed_review_count,
-            variable_review_count=variable_review_count,
-            review_candidate_name=review_candidate_name,
-            review_candidate_preview=review_candidate_preview,
-            ready_candidate_name=ready_candidate_name,
-            ready_candidate_preview=ready_candidate_preview,
-            top_candidate_name=top_candidate_name,
-            top_candidate_preview=top_candidate_preview,
-            source_blocked=bool(missing_required_sources or runtime_source_attention),
+        _prefer_review_ready_over_large_kind_mix(
+            _build_command_center_fleet_activity_summary(
+                state,
+                candidate_count=candidate_count,
+                fixed_candidate_count=fixed_candidate_count,
+                variable_candidate_count=variable_candidate_count,
+                review_needed_count=review_needed_count,
+                fixed_review_count=fixed_review_count,
+                variable_review_count=variable_review_count,
+                review_candidate_name=review_candidate_name,
+                review_candidate_preview=review_candidate_preview,
+                ready_candidate_name=ready_candidate_name,
+                ready_candidate_preview=ready_candidate_preview,
+                top_candidate_name=top_candidate_name,
+                top_candidate_preview=top_candidate_preview,
+                source_blocked=bool(missing_required_sources or runtime_source_attention),
+            )
         ),
         fallback=device_status,
     )
