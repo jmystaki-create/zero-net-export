@@ -88,7 +88,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         guidance = native_support.build_detailed_management_handoff([])
 
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, guidance)
-        self.assertIn("promote the first surfaced unmanaged candidate when one fits", guidance)
+        self.assertIn("promote a currently surfaced unmanaged candidate when one fits", guidance)
         self.assertIn("add the first managed device manually there", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
         self.assertNotIn("Add the first managed device in", guidance)
