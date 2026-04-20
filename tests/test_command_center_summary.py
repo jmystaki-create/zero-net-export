@@ -1353,11 +1353,11 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn(
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices and review first in the unmanaged section: AC Outlet 2 (fixed) | review first",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, starting in the unmanaged section: AC Outlet 2 (fixed) | review first",
             summary["next_action_summary"],
         )
         self.assertIn(
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices and review first in the unmanaged section: AC Outlet 2 (fixed) | review first",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, starting in the unmanaged section: AC Outlet 2 (fixed) | review first",
             summary["device_next_step"],
         )
         self.assertNotIn("generic outlet hardware", summary["next_action_summary"])
@@ -1472,7 +1472,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["next_action_summary"],
         )
         self.assertIn(
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices and review first in the unmanaged section: Virtual load (fixed)",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, starting in the unmanaged section: Virtual load (fixed)",
             summary["device_next_step"],
         )
         self.assertIn(
@@ -2074,7 +2074,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(
             (
                 "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
-                "and promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
+                "to review the Managed Devices workspace and promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
             ),
             summary["device_next_step"],
         )

@@ -2049,7 +2049,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     )
                 elif not devices and primary_candidate:
                     source_next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}."
+                        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}."
                     )
                 elif not devices:
                     source_next_step = "Use the Managed Devices workspace to add the first fixed or variable load manually."

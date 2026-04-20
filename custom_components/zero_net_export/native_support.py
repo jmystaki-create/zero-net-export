@@ -2170,7 +2170,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         elif candidate_count:
             if review_candidate_name:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: "
+                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: "
                     f"{review_candidate_preview or review_candidate_name}"
                 )
                 if ready_candidate_name and ready_candidate_name != review_candidate_name:
@@ -2180,7 +2180,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                     )
             else:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
+                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and promote next from the unmanaged section: "
                     f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
                 )
         else:
@@ -2205,7 +2205,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
         if review_candidate_name:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
@@ -2215,7 +2215,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         elif ready_candidate_name or top_candidate_preview or top_candidate_name:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and promote next from the unmanaged section: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
             )
         else:
@@ -2269,7 +2269,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif not has_managed_devices:
         if review_candidate_name:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} and review first in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting in the unmanaged section: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
@@ -2279,7 +2279,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         elif top_candidate_preview:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} and promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and promote next from the unmanaged section: "
                 f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or primary_candidate_focus}"
             )
         else:
