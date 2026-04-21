@@ -1243,13 +1243,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
             if ready_candidate is not None and ready_candidate is not review_candidate:
                 follow_through += (
-                    ", then promote next from the unmanaged section: "
+                    ", then consider another ready unmanaged candidate from the unmanaged section: "
                     + cls._top_candidate_focus_text(ready_candidate)
                 )
             return follow_through
         if top_candidate is not None:
             return (
-                "promote next from the unmanaged section: "
+                "consider this ready unmanaged candidate from the unmanaged section: "
                 + cls._top_candidate_focus_text(top_candidate)
             )
         if managed_count > 0:
@@ -1272,7 +1272,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"- {build_candidate_preview(item, include_entity_id=False)}" for item in review_first
             )
         if ready_now:
-            lines.append("- Ready to promote next:")
+            lines.append("- Other ready unmanaged candidates:")
             lines.extend(
                 f"- {build_candidate_preview(item, include_entity_id=False)}" for item in ready_now
             )
@@ -1306,7 +1306,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"- {build_candidate_preview(item, include_entity_id=False)}" for item in review_first
             )
         if ready_now:
-            lines.append(f"- Ready-next {kind_label} candidates:")
+            lines.append(f"- Ready {kind_label} candidates:")
             lines.extend(
                 f"- {build_candidate_preview(item, include_entity_id=False)}" for item in ready_now
             )
@@ -1882,7 +1882,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             managed_snapshot,
             unmanaged_snapshot,
             f"Review-first unmanaged candidate: {review_candidate}",
-            f"Ready-next unmanaged candidate: {ready_candidate}",
+            f"Another ready unmanaged candidate: {ready_candidate}",
         ]
         if blocker_active:
             message_lines.extend([
@@ -2199,7 +2199,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     )
                     if ready_candidate and ready_candidate != primary_candidate:
                         source_next_step += (
-                            f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                            f", then consider another ready unmanaged candidate from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
                         )
                     source_next_step += "."
                 elif not devices:
@@ -2214,12 +2214,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                         )
                         if ready_candidate and ready_candidate != primary_candidate:
                             source_next_step += (
-                                f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                                f", then consider another ready unmanaged candidate from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
                             )
                         source_next_step += "."
                     else:
                         source_next_step = (
-                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
+                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then consider another ready unmanaged candidate from the unmanaged section: {candidate_focus}."
                         )
                 else:
                     source_next_step = (
@@ -2795,7 +2795,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
             if ready_candidate and ready_candidate != primary_candidate:
                 next_step += (
-                    f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                    f", then consider another ready unmanaged candidate from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
                 )
             return next_step + "."
         if not devices:
@@ -2810,11 +2810,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 )
                 if ready_candidate and ready_candidate != primary_candidate:
                     next_step += (
-                        f", then promote next from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
+                        f", then consider another ready unmanaged candidate from the unmanaged section: {self._top_candidate_focus_text(ready_candidate)}"
                     )
                 return next_step + "."
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then consider another ready unmanaged candidate from the unmanaged section: {candidate_focus}."
             )
         return "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning."
 

@@ -934,14 +934,14 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             placeholders["fixed_candidate_summary"],
             "- Review-first fixed-load candidates:\n"
             "- Virtual load (fixed) | review first | key warning: Helper-backed load needs review.\n"
-            "- Ready-next fixed-load candidates:\n"
+            "- Ready fixed-load candidates:\n"
             "- Hot water (fixed) | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(
             placeholders["variable_candidate_summary"],
             "- Review-first variable-load candidates:\n"
             "- Variable helper (variable) | review first | key warning: Helper-backed load needs review.\n"
-            "- Ready-next variable-load candidates:\n"
+            "- Ready variable-load candidates:\n"
             "- EV limit (variable) | likely useful | key warning: No immediate warnings",
         )
 
@@ -2134,7 +2134,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             placeholders["source_next_step"],
-            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
+            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
         )
 
     def test_source_placeholders_surface_mapping_progress_and_blocker_counts(self) -> None:
@@ -2428,11 +2428,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
 
         self.assertIn("- Review-first unmanaged candidates:", summary)
-        self.assertIn("- Ready to promote next:", summary)
+        self.assertIn("- Other ready unmanaged candidates:", summary)
         self.assertIn("Virtual load (fixed)", summary)
         self.assertIn("Hot water relay (fixed)", summary)
-        self.assertLess(summary.index("Virtual load (fixed)"), summary.index("- Ready to promote next:"))
-        self.assertLess(summary.index("- Ready to promote next:"), summary.index("Hot water relay (fixed)"))
+        self.assertLess(summary.index("Virtual load (fixed)"), summary.index("- Other ready unmanaged candidates:"))
+        self.assertLess(summary.index("- Other ready unmanaged candidates:"), summary.index("Hot water relay (fixed)"))
 
     def test_unmanaged_snapshot_surfaces_per_kind_backlog_mix_when_review_and_ready_split_by_kind(self) -> None:
         module = _load_config_flow_module()
@@ -2652,7 +2652,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then promote next from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then consider another ready unmanaged candidate from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             feedback["message"],
         )
         self.assertNotIn("remaining fleet", feedback["message"])
@@ -2689,11 +2689,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             feedback["message"],
         )
         self.assertIn(
-            "Ready-next unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
+            "Another ready unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
             feedback["message"],
         )
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then promote next from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then consider another ready unmanaged candidate from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             feedback["message"],
         )
 
@@ -2742,7 +2742,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             next_step,
         )
         self.assertIn(
-            "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
+            "then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
             next_step,
         )
 
@@ -2811,7 +2811,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
         )
 
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:

@@ -665,11 +665,11 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 next_step += (
-                    f", then promote next from the unmanaged section: {ready_candidate_name}"
+                    f", then consider another ready unmanaged candidate from the unmanaged section: {ready_candidate_name}"
                 )
             return _truncate_sensor_state(next_step)
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
+            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then consider this ready unmanaged candidate from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
         )
     if blocked_activity_count:
         target = f" starting with {first_blocked_name}" if first_blocked_name else ""
@@ -692,11 +692,11 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 next_step += (
-                    f", then promote next from the unmanaged section: {ready_candidate_name}"
+                    f", then consider another ready unmanaged candidate from the unmanaged section: {ready_candidate_name}"
                 )
             return _truncate_sensor_state(next_step)
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
+            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then consider this ready unmanaged candidate from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
         )
     if counts["managed_count"] == 0:
         return _truncate_sensor_state(
