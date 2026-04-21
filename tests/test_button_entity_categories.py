@@ -249,9 +249,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
-        self.assertIn("- Choose Promote fixed-load candidate.", handoff)
+        self.assertIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn("- In Promotion shortlist, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
+        self.assertNotIn("Choose Promote fixed-load candidate", "\n".join(handoff))
 
     def test_workspace_handoff_prefers_first_review_candidate_over_top_rank(self) -> None:
         button_module = _load_button_module()
@@ -270,16 +271,34 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             has_managed_devices=False,
         )
 
-        self.assertIn("- Choose Promote fixed-load candidate.", handoff)
+        self.assertIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn(
             "- In Promotion shortlist, select Virtual load (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power..",
             handoff,
         )
+        self.assertNotIn("Choose Promote fixed-load candidate", "\n".join(handoff))
         self.assertIn(
             "- Then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
             handoff,
         )
         self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Promotion shortlist" in line))
+
+    def test_workspace_handoff_uses_variable_shortlist_wording_for_variable_candidates(self) -> None:
+        button_module = _load_button_module()
+
+        handoff = button_module._managed_devices_workspace_handoff(
+            {
+                "recommended_section": button_module.DEVICES_SECTION_LABEL,
+                "recommended_path": "devices path",
+                "recommended_reason": "Managed fleet work is the current priority.",
+                "device_next_step": "Promote the next candidate.",
+            },
+            [{"name": "EV Charger", "entity_id": "number.ev_charger", "kind": "variable", "domain": "number"}],
+            has_managed_devices=False,
+        )
+
+        self.assertIn("- Open Promotion shortlist for variable-load candidates.", handoff)
+        self.assertNotIn("Choose Promote variable-load candidate", "\n".join(handoff))
 
     def test_workspace_handoff_keeps_empty_fleet_on_managed_devices_when_no_candidate_is_surfaced(self) -> None:
         button_module = _load_button_module()

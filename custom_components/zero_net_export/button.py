@@ -677,15 +677,15 @@ def _managed_devices_workspace_handoff(
 
     lines = ["Promotion handoff:"]
     if primary_candidate:
-        promote_label = (
-            "Promote fixed-load candidate"
+        shortlist_step = (
+            "- Open Promotion shortlist for fixed-load candidates."
             if primary_candidate["kind"] == "fixed"
-            else "Promote variable-load candidate"
+            else "- Open Promotion shortlist for variable-load candidates."
         )
         lines.extend(
             [
                 f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
-                f"- Choose {promote_label}.",
+                shortlist_step,
                 f"- In Promotion shortlist, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
             ]

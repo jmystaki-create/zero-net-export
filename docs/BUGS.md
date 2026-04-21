@@ -1471,6 +1471,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this manual-form copy cleanup in the next exact-build deploy, then confirm the fallback add flow reads like the same native promotion model as the shortlist and review path.
 
+## ZNE-119 - Device-page promotion handoff still echoed the selector label instead of the shortlist workflow
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-21 while comparing the current device-page `Promotion handoff` in `custom_components/zero_net_export/button.py` against the promoted shortlist-first flow described in `docs/UI_DESIGN.md` and Workstream C in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the secondary device-page `Promotion handoff:` had already moved off the older `Add ... device` wording, but it was still telling operators to `Choose Promote fixed-load candidate.` or `Choose Promote variable-load candidate.` That mirrored the selector label rather than the actual next workflow step, so the handoff still felt a little like internal button narration instead of the clearer shortlist-first promotion path used elsewhere in Managed Devices.
+- **expected behavior:** the device-page handoff should tell operators to open the fixed-load or variable-load `Promotion shortlist`, then select the surfaced candidate there, so the secondary review path matches the real shortlist -> review -> save workflow.
+- **evidence:** this run's repo audit found the `Choose Promote ... candidate.` lines still hard-coded in `_managed_devices_workspace_handoff(...)` inside `custom_components/zero_net_export/button.py`, and `tests/test_button_entity_categories.py` was still locking that wording in place. `docs/UI_DESIGN.md` says promotion should feel like a first-class shortlist/review workflow, and `docs/UI_IMPLEMENTATION_MAP.md` Workstream C says remaining helper-ish or ambiguous promotion wording should be removed.
+- **suspected cause:** the earlier promotion-first wording cleanup corrected the action name drift away from `Add ... device`, but it stopped one step short of naming the actual shortlist workflow operators enter next.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the normal device-page `Promotion handoff` now says `Open Promotion shortlist for fixed-load candidates.` or `Open Promotion shortlist for variable-load candidates.` before the shortlist selection line. `tests/test_button_entity_categories.py` now locks the fixed-load and variable-load wording in place and rejects the older `Choose Promote ... candidate` phrasing.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page promotion-handoff shortlist wording cleanup in the next exact-build deploy, then confirm the live secondary promotion handoff names the shortlist workflow directly instead of echoing the selector label.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
