@@ -1573,6 +1573,14 @@ def _command_center_device_status_with_unmanaged_context(
     ready_candidate_name: str,
     ready_candidate_preview: str,
 ) -> str:
+    def _clip_part(text: str, *, max_chars: int) -> str:
+        normalized = " ".join(str(text).split())
+        if len(normalized) <= max_chars:
+            return normalized
+        if max_chars <= 3:
+            return normalized[:max_chars]
+        return normalized[: max_chars - 3].rstrip() + "..."
+
     summary = base_status
     if candidate_count <= 0:
         return summary
@@ -1580,14 +1588,15 @@ def _command_center_device_status_with_unmanaged_context(
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
-    for backlog_part in _candidate_kind_backlog_mix_parts(
+    backlog_parts = _candidate_kind_backlog_mix_parts(
         fixed_candidate_count=fixed_candidate_count,
         variable_candidate_count=variable_candidate_count,
         fixed_review_count=fixed_review_count,
         variable_review_count=variable_review_count,
         fixed_ready_count=fixed_ready_count,
         variable_ready_count=variable_ready_count,
-    ):
+    )
+    for backlog_part in backlog_parts:
         summary += f"; {backlog_part}"
     if review_needed_count:
         summary += f"; {_count_label(review_needed_count, 'needs review', 'need review')}"
@@ -1599,7 +1608,81 @@ def _command_center_device_status_with_unmanaged_context(
         summary += f"; ready {ready_candidate_preview}"
     if top_candidate_preview and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
         summary += f"; surfaced {top_candidate_preview}"
-    return summary
+    if len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return summary
+
+    compact_parts: list[str] = [
+        _clip_part(base_status, max_chars=72),
+        f"{candidate_count} unmanaged",
+    ]
+    if fixed_candidate_count and variable_candidate_count:
+        compact_parts.extend(backlog_parts)
+    if review_needed_count:
+        compact_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+        if review_candidate_preview:
+            compact_parts.append(f"review {review_candidate_preview}")
+        elif review_candidate_name:
+            compact_parts.append(f"review {review_candidate_name}")
+    if ready_candidate_count:
+        compact_parts.append(_count_label(ready_candidate_count, "ready to promote"))
+        if ready_candidate_preview:
+            compact_parts.append(f"ready {ready_candidate_preview}")
+        elif ready_candidate_name:
+            compact_parts.append(f"ready {ready_candidate_name}")
+    compact_summary = "; ".join(compact_parts)
+    if len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compact_summary
+
+    clipped_compact_parts = [
+        _clip_part(part, max_chars=72) if part.startswith(("review ", "ready ", "surfaced ")) else part
+        for part in compact_parts
+    ]
+    clipped_compact_summary = "; ".join(clipped_compact_parts)
+    if len(clipped_compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return clipped_compact_summary
+
+    essential_parts: list[str] = [
+        _clip_part(base_status, max_chars=48),
+        f"{candidate_count} unmanaged",
+    ]
+    if fixed_candidate_count and variable_candidate_count:
+        essential_parts.extend(backlog_parts)
+    if review_needed_count:
+        essential_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+    if ready_candidate_count:
+        essential_parts.append(_count_label(ready_candidate_count, "ready to promote"))
+    if review_candidate_preview:
+        essential_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=48))
+    elif review_candidate_name:
+        essential_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=48))
+    if ready_candidate_preview:
+        essential_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=48))
+    elif ready_candidate_name:
+        essential_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=48))
+
+    essential_summary = "; ".join(essential_parts)
+    if len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return essential_summary
+
+    minimal_parts: list[str] = [
+        _clip_part(base_status, max_chars=40),
+        f"{candidate_count} unmanaged",
+    ]
+    if review_needed_count:
+        minimal_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+        minimal_parts.append(
+            _clip_part(f"review {(review_candidate_preview or review_candidate_name)}", max_chars=36)
+        )
+    if ready_candidate_count:
+        minimal_parts.append(_count_label(ready_candidate_count, "ready to promote"))
+        minimal_parts.append(
+            _clip_part(f"ready {(ready_candidate_preview or ready_candidate_name)}", max_chars=36)
+        )
+    minimal_summary = "; ".join(part for part in minimal_parts if part)
+    if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return minimal_summary
+
+    return _clip_part(minimal_summary or compact_summary or summary, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
 
 
 def _build_command_center_fleet_activity_summary(

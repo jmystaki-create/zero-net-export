@@ -580,6 +580,78 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("variable backlog", summary["fleet_activity_summary"])
         self.assertNotIn("1 planned action(s)", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_compacts_device_status_before_it_can_overflow_fallback_surfaces(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Virtual load helper with a spectacularly verbose review-first label in the garage south-west board",
+                    "entity_id": "input_boolean.virtual_load_helper_with_a_spectacularly_verbose_review_first_label_in_the_garage_south_west_board",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "EV charger export absorber with a spectacularly verbose ready-next label near the workshop entry",
+                    "entity_id": "number.ev_charger_export_absorber_with_a_spectacularly_verbose_ready_next_label_near_the_workshop_entry",
+                    "kind": "variable",
+                },
+            ],
+            "Virtual load helper with a spectacularly verbose review-first label in the garage south-west board",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "low" if candidate.get("kind") == "fixed" else "high",
+            "warnings": ["helper-backed load needs review and validation"] if candidate.get("kind") == "fixed" else ["generic outlet label with long wording for readiness"],
+        }
+        native_support.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Virtual load helper with a spectacularly verbose review-first label in the garage south-west board (fixed) | review first | warn helper-backed load needs review and validation"
+            if candidate and candidate.get("kind") == "fixed"
+            else "EV charger export absorber with a spectacularly verbose ready-next label near the workshop entry (variable) | likely useful | warn generic outlet label with long wording for readiness"
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            device_status_summary="Managed Devices: Pool pump blocked on a very long operator-facing explanation while heated floor continues running under a separate active-runtime explanation that should not erase the unmanaged backlog story",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            fixed_device_count=1,
+            variable_device_count=1,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            blocked_planned_action_count=0,
+            device_details={},
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["device_status"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("2 unmanaged", summary["device_status"])
+        self.assertIn("1 needs review", summary["device_status"])
+        self.assertIn("1 ready to promote", summary["device_status"])
+        self.assertIn("review Virtual load helper", summary["device_status"])
+        self.assertIn("ready EV charger export absorber", summary["device_status"])
+
     def test_command_center_summary_surfaces_fixed_and_variable_review_mix(self) -> None:
         native_support = _load_native_support_module()
 
