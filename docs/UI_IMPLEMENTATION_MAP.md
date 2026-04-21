@@ -32,7 +32,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Candidate vetting/review now includes an explicit balanced review shape covering control suitability, safety/confidence, and operational value.
 - Unmanaged backlog summaries now carry explicit ready-to-promote counts across the opening operator console, Managed Devices snapshots, and fleet-workspace overview surfaces instead of only naming review debt plus one ready candidate.
 - Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
-- Managed Devices selector labels and device-page promotion handoffs now use promotion-first wording instead of generic add-device helper wording when surfaced candidates are available.
+- Managed Devices selector labels and device-page promotion handoffs now use explicit promotion-workflow wording plus neutral ready-candidate handoffs instead of generic add-device helper wording or over-ranked next-pick phrasing when surfaced candidates are available.
 - Managed Devices row labels now lead with `blocked`, `planned`, `attention`, or `active` when that higher-value state exists, so attention-first fleet rows scan more clearly than generic runtime text.
 - Fleet review / bulk enable-disable scaffolding exists.
 - The Zero Net Export device page now exposes a first-class managed-device review action, per-device managed review buttons for each configured load, and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
