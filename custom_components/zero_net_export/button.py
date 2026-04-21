@@ -717,7 +717,7 @@ def _managed_devices_workspace_handoff(
             lines.extend(
                 [
                     f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
-                    "- Use the Managed Devices workspace to add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet.",
+                    "- Use the Managed Devices workspace to add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
                 ]
             )

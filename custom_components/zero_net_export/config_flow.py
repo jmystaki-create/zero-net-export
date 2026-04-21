@@ -1254,7 +1254,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         if managed_count > 0:
             return "edit device settings or stage enablement changes before changing controls or deeper diagnostics"
-        return "add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet"
+        return "add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now"
 
     @staticmethod
     def _candidate_snapshot_text(candidates: list[dict[str, Any]], *, limit: int = 12) -> str:

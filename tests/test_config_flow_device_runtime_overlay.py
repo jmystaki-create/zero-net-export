@@ -2618,7 +2618,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now.",
             feedback["message"],
         )
         self.assertNotIn("remaining fleet", feedback["message"])
