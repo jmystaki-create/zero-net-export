@@ -1062,7 +1062,14 @@ def _managed_runtime_activity(state: Any) -> tuple[int, float]:
     return active_count, round(active_power_w, 1)
 
 
-def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[dict[str, Any]], device_parse_issues: list[str]) -> dict[str, Any]:
+def _build_operator_checklist(
+    state: Any,
+    entry: Any,
+    configured_devices: list[dict[str, Any]],
+    device_parse_issues: list[str],
+    *,
+    coordinator: Any | None = None,
+) -> dict[str, Any]:
     state_stale_data = bool(getattr(state, "stale_data", False)) if state is not None else False
     state_usable_device_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
     state_safe_mode = bool(getattr(state, "safe_mode", False)) if state is not None else False
@@ -1159,6 +1166,32 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         for key in source_attention["stale_source_keys"]
     ]
     source_attention_roles = build_source_attention_role_summary(state, source_mapping, limit=4)
+    candidates, top_candidate_name = _command_center_candidate_snapshot(coordinator, state)
+    top_candidate_preview = (
+        build_candidate_compact_preview(candidates[0], include_warning=True)
+        if candidates
+        else ""
+    )
+    review_candidate = next(
+        (item for item in candidates if candidate_needs_review(assess_candidate(item))),
+        None,
+    )
+    review_candidate_name = str((review_candidate or {}).get("name") or (review_candidate or {}).get("entity_id") or "").strip()
+    review_candidate_preview = (
+        build_candidate_compact_preview(review_candidate, include_warning=True)
+        if review_candidate
+        else ""
+    )
+    ready_candidate = next(
+        (item for item in candidates if not candidate_needs_review(assess_candidate(item))),
+        None,
+    )
+    ready_candidate_name = str((ready_candidate or {}).get("name") or (ready_candidate or {}).get("entity_id") or "").strip()
+    ready_candidate_preview = (
+        build_candidate_compact_preview(ready_candidate, include_warning=True)
+        if ready_candidate
+        else ""
+    )
 
     if missing_required_sources:
         phase = "source_setup"
@@ -1202,8 +1235,29 @@ def _build_operator_checklist(state: Any, entry: Any, configured_devices: list[d
         summary = "Native setup is blocked on managed-device configuration issues."
     elif not configured_devices:
         phase = "device_onboarding"
-        next_step = f"Open {DEVICES_CONFIGURE_PATH} and add the first controllable device."
-        summary = "Sources are ready; the next milestone is adding controllable devices."
+        if review_candidate_name:
+            next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: "
+                f"{review_candidate_preview or review_candidate_name}"
+            )
+            if ready_candidate_name and ready_candidate_name != review_candidate_name:
+                next_step += (
+                    f", then promote next from the unmanaged section: "
+                    f"{ready_candidate_preview or ready_candidate_name}"
+                )
+            next_step += "."
+            summary = "Sources are ready; the next milestone is reviewing the current unmanaged backlog in Managed Devices."
+        elif ready_candidate_name or top_candidate_preview or top_candidate_name:
+            next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: "
+                f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}."
+            )
+            summary = "Sources are ready; the next milestone is promoting the current unmanaged backlog in Managed Devices."
+        else:
+            next_step = (
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+            )
+            summary = "Sources are ready; the next milestone is adding controllable devices."
     elif not state_usable_device_count:
         phase = "runtime_readiness"
         next_step = (
@@ -1242,6 +1296,7 @@ def _build_support_sections(coordinator: Any) -> tuple[Any, list[dict[str, Any]]
         coordinator.entry,
         configured_devices,
         device_parse_issues,
+        coordinator=coordinator,
     )
     return state, configured_devices, device_parse_issues, operator_readiness
 

@@ -1861,6 +1861,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with targeted unit tests plus `py_compile`; live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this empty-fleet handoff cleanup in the next exact-build deploy, then confirm the live Managed Devices path reads as the primary fleet workspace even when operators must add the first load manually.
 
+## ZNE-149 - Empty-fleet setup checklist still sent operators straight to manual add and hid surfaced unmanaged backlog
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the empty-fleet operator-readiness path in `custom_components/zero_net_export/native_support.py` against Workstreams B and C in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when sources were healthy but no managed devices existed yet, `build_native_operator_readiness()` still said `Open ... Managed Devices and add the first controllable device.` That setup-checklist path ignored surfaced unmanaged candidates entirely, so the device-page setup guidance could skip the actual review-first plus ready-next promotion flow and send operators straight to manual add even when the unmanaged backlog was already present.
+- **expected behavior:** the empty-fleet setup checklist should reuse the same Managed Devices handoff as the command center, starting in the unmanaged section when surfaced candidates exist and only falling back to manual add when no surfaced candidate is available.
+- **evidence:** this run's repo audit found the unconditional manual-add branch still hard-coded in `_build_operator_checklist(...)` inside `custom_components/zero_net_export/native_support.py`. There was no focused regression in `tests/test_source_repair_guidance.py` covering the empty-fleet operator-readiness path with surfaced review-first plus ready-next candidates.
+- **suspected cause:** earlier empty-fleet cleanup fixed the command-center, sensor, button, and config-flow handoffs first, but the secondary setup-checklist/operator-readiness branch kept its older pre-promotion wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so empty-fleet operator readiness now reuses the surfaced unmanaged review-first plus ready-next Managed Devices handoff before falling back to manual add, and adds focused regression coverage in `tests/test_source_repair_guidance.py`.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this setup-checklist handoff cleanup in the next exact-build deploy, then confirm the live device-page readiness guidance keeps the unmanaged review-first plus ready-next path visible when the fleet is still empty.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

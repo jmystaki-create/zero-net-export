@@ -89,7 +89,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, guidance)
         self.assertIn("review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits", guidance)
-        self.assertIn("add the first fixed or variable load manually there", guidance)
+        self.assertIn("add the first fixed or variable load there when no surfaced unmanaged candidate is available", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
         self.assertNotIn("promote a currently surfaced unmanaged candidate when one fits", guidance)
         self.assertNotIn("Add the first managed device in", guidance)
@@ -657,6 +657,59 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             "- pool_pump: enabled=True, usable=False, status=Blocked, planned=hold, guard=source blocked, kind=fixed, adapter=switch, priority=100, entity=switch.pool_pump",
             snapshot,
         )
+
+    def test_empty_fleet_operator_readiness_prefers_unmanaged_review_over_manual_add(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.discover_candidate_devices = lambda states, managed_ids: [
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+            {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": "fixed"},
+        ]
+        native_support.assess_candidate = lambda candidate: {"needs_review": candidate["name"] == "Virtual load"}
+        native_support.candidate_needs_review = lambda fit: bool(fit.get("needs_review"))
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Virtual load (fixed) | review first"
+            if candidate["name"] == "Virtual load"
+            else "Dishwasher Power (fixed) | likely useful"
+        )
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(
+                data={
+                    native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+                    native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+                    native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+                    native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+                    native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+                    native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+                },
+                options={},
+            ),
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+            data=SimpleNamespace(
+                safe_mode=False,
+                validation_details={},
+                source_diagnostics={},
+                diagnostic_summary="Healthy",
+                health_summary="Healthy",
+                device_count=0,
+                enabled_device_count=0,
+                usable_device_count=0,
+                device_status_summary="No managed devices configured yet",
+                mode="monitoring",
+            ),
+        )
+
+        readiness = native_support.build_native_operator_readiness(coordinator)
+
+        self.assertEqual(readiness["phase"], "device_onboarding")
+        self.assertIn(
+            "review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | review first",
+            readiness["next_step"],
+        )
+        self.assertIn(
+            "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful",
+            readiness["next_step"],
+        )
+        self.assertNotIn("add the first controllable device", readiness["next_step"])
 
     def test_operator_ready_next_step_uses_diagnostics_actions_wording(self) -> None:
         native_support = _load_native_support_module(
