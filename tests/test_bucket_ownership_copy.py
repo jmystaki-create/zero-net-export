@@ -83,7 +83,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Currently surfaced unmanaged candidate: {top_candidate}", devices_description)
         self.assertNotIn("Top unmanaged candidate right now", devices_description)
         self.assertIn("Another ready unmanaged candidate: {ready_candidate}", devices_description)
-        self.assertIn("Detailed native review path, only after the main fleet step is clear", devices_description)
+        self.assertIn("Secondary native review path for deeper per-device review", devices_description)
         self.assertIn("Bucket ownership and paths", devices_description)
         self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {configure_path}", devices_description)
         self.assertIn("- Sensors owns source mapping and source repair: {sources_path}", devices_description)
@@ -117,7 +117,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", bulk_enable_description)
         self.assertIn("Another ready unmanaged candidate: {ready_candidate}", bulk_enable_description)
         self.assertIn("Candidate snapshot", bulk_enable_description)
-        self.assertIn("Detailed native review path, only after the main fleet step is clear", bulk_enable_description)
+        self.assertIn("Secondary native review path for deeper per-device review", bulk_enable_description)
         self.assertIn("Bucket ownership and paths", bulk_enable_description)
         self.assertIn("- Managed Devices: {configure_path}", bulk_enable_description)
         self.assertIn("- Sensors: {sources_path}", bulk_enable_description)
@@ -228,7 +228,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", vetting_description)
         self.assertIn("Another ready unmanaged candidate: {ready_candidate}", vetting_description)
         self.assertIn("Candidate snapshot", vetting_description)
-        self.assertIn("Detailed native review path after promotion, only if you need deeper per-device review", vetting_description)
+        self.assertIn("Secondary native review path after promotion, when you need deeper per-device review", vetting_description)
         self.assertIn("Bucket ownership and paths", vetting_description)
 
         template_description = steps["device_template"]["description"]
@@ -279,7 +279,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", add_description)
         self.assertIn("Another ready unmanaged candidate: {ready_candidate}", add_description)
         self.assertIn("Candidate snapshot", add_description)
-        self.assertIn("Detailed native review path after save, only if you need deeper per-device review", add_description)
+        self.assertIn("Secondary native review path after save, when you need deeper per-device review", add_description)
         self.assertIn("Bucket ownership and paths", add_description)
 
         shortlist_step = steps["device_pick_candidate"]
