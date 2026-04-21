@@ -828,10 +828,13 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("2 unmanaged", summary["fleet_activity_summary"])
-        self.assertIn("1 fixed review", summary["fleet_activity_summary"])
-        self.assertIn("1 variable review", summary["fleet_activity_summary"])
+        self.assertIn("fixed backlog 1 review", summary["fleet_activity_summary"])
+        self.assertIn("variable backlog 1 review", summary["fleet_activity_summary"])
+        self.assertIn("2 need review", summary["fleet_activity_summary"])
         self.assertIn("review AC Outlet 2", summary["fleet_activity_summary"])
         self.assertNotIn("top AC Outlet 2", summary["fleet_activity_summary"])
+        self.assertIn("fixed backlog 1 review", summary["device_status"])
+        self.assertIn("variable backlog 1 review", summary["device_status"])
 
     def test_command_center_summary_names_blocked_device_when_plan_is_non_executable_before_usable_flips_false(self) -> None:
         native_support = _load_native_support_module()

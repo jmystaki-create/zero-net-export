@@ -130,10 +130,9 @@ def _candidate_kind_backlog_mix_parts(
     variable_ready_count: int,
 ) -> list[str]:
     parts: list[str] = []
-    any_ready = fixed_ready_count > 0 or variable_ready_count > 0
 
     def _append(kind_label: str, candidate_count: int, review_count: int, ready_count: int) -> None:
-        if candidate_count <= 0 or not any_ready or (review_count <= 0 and ready_count <= 0):
+        if candidate_count <= 0 or (review_count <= 0 and ready_count <= 0):
             return
         if review_count > 0 and ready_count > 0:
             parts.append(f"{kind_label} backlog {review_count} review/{ready_count} ready")
