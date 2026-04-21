@@ -597,6 +597,14 @@ def _managed_devices_post_blocker_step(
 
 
 
+def _managed_devices_recommended_next_step(command_center: dict) -> str:
+    return str(
+        command_center.get("device_next_step")
+        or command_center.get("next_action_summary")
+        or f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace."
+    )
+
+
 def _managed_devices_blocker_first_lines(
     command_center: dict,
     candidates: list[dict] | None,
@@ -825,7 +833,7 @@ def _build_managed_device_detail_lines(
         "",
         f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
         f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
-        f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the Managed Devices workspace state.'}",
+        f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
         "",
         "Managed devices workspace context:",
@@ -1097,7 +1105,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             f'Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
             f'Secondary device-page review path: {DETAILED_MANAGEMENT_PATH}',
             f'Device-page boundary: {_managed_devices_workspace_boundary()}',
-            f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the Managed Devices workspace state.'}",
+            f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),
             '',
             'Managed devices (top section):',
@@ -1274,7 +1282,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
             f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
             f"Device-page boundary: {_managed_devices_workspace_boundary()}",
-            f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the Managed Devices workspace state.'}",
+            f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
             *(["", *blocker_first_lines] if blocker_first_lines else []),
             "",
             "Managed devices (top section):",

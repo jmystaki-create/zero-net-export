@@ -1386,6 +1386,39 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
         self.assertIn("Return to devices path in Configure for primary Managed Devices workspace edits, enablement, promotion, or removal.", message)
 
+    def test_managed_device_detail_button_uses_workspace_fallback_when_no_next_step_exists(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        button_module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": "Managed Devices",
+            "recommended_path": "devices path",
+            "recommended_reason": "",
+            "next_action_summary": "",
+            "device_next_step": "",
+            "detailed_management_summary": "Use the device page for deeper per-device review.",
+            "sources_path": "sources path",
+            "devices_path": "devices path",
+            "policy_path": "policy path",
+            "support_path": "support path",
+            "mode_path": "mode path",
+        }
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
+        button.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        message = notification_calls[0]["args"][1]
+        self.assertIn(
+            "Recommended next step: Open devices path to continue in the Managed Devices workspace.",
+            message,
+        )
+        self.assertNotIn("Review the Managed Devices workspace state.", message)
+
     def test_managed_device_detail_button_surfaces_review_first_candidate_context(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)
@@ -1574,6 +1607,39 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["first_review_candidate_fit"]["confidence"], "medium")
         self.assertEqual(attrs["ready_next_candidate"]["entity_id"], "switch.hot_water")
         self.assertEqual(attrs["ready_next_candidate_fit"]["confidence"], "high")
+
+    def test_managed_devices_workspace_button_uses_workspace_fallback_when_no_next_step_exists(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        button_module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": "Managed Devices",
+            "recommended_path": "devices path",
+            "recommended_reason": "",
+            "next_action_summary": "",
+            "device_next_step": "",
+            "detailed_management_summary": "Use the device page for deeper per-device review.",
+            "sources_path": "sources path",
+            "devices_path": "devices path",
+            "policy_path": "policy path",
+            "support_path": "support path",
+            "mode_path": "mode path",
+        }
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        button.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        message = notification_calls[0]["args"][1]
+        self.assertIn(
+            "Recommended next step: Open devices path to continue in the Managed Devices workspace.",
+            message,
+        )
+        self.assertNotIn("Review the Managed Devices workspace state.", message)
 
     def test_managed_device_review_attributes_treat_blocked_plans_as_blocked_activity(self) -> None:
         button_module = _load_button_module()

@@ -1835,6 +1835,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this last bucket-owned status-summary fallback cleanup in the next exact-build deploy, then confirm the live command-center still names Controls or Sensors directly when Home Assistant forces the compact overflow path.
 
+## ZNE-147 - Device-page Managed Devices review fallback still collapsed to generic `workspace state` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the device-page Managed Devices review notifications in `custom_components/zero_net_export/button.py` against Workstreams B and D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when the command-center summary did not provide `device_next_step` or `next_action_summary`, the device-page managed-device detail review, fleet workspace review, and managed-devices review notifications all fell back to the generic sentence `Review the Managed Devices workspace state.` That weakened the native handoff at the exact point where the docs say `Configure -> Managed Devices` should read as the unquestionable primary fleet workspace with explicit bucket ownership.
+- **expected behavior:** the fallback next step should still name the primary native path directly, telling operators to open `Configure -> Managed Devices` and continue there instead of collapsing to generic `workspace state` wording.
+- **evidence:** this run's repo audit found the same generic fallback hard-coded three times in `custom_components/zero_net_export/button.py`. There was no regression coverage in `tests/test_button_entity_categories.py` for the no-next-step branch, so the weaker wording could persist unnoticed in the device-page review surfaces.
+- **suspected cause:** earlier Managed Devices cleanup concentrated on the primary handoff branches that already had concrete next-step text, but the final no-next-step fallback was left on older generic wording.
+- **repo fix:** this run adds `_managed_devices_recommended_next_step(...)` in `custom_components/zero_net_export/button.py` so the device-page review surfaces now fall back to `Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to continue in the Managed Devices workspace.` instead of `Review the Managed Devices workspace state.` `tests/test_button_entity_categories.py` now locks that fallback in both the managed-device detail review and the fleet workspace review notifications.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page Managed Devices fallback cleanup in the next exact-build deploy, then confirm the live review notifications keep the workspace-first handoff even when no stronger device-specific next step is available.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
