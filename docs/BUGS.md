@@ -1562,6 +1562,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this chooser-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices entry prompt keeps fleet actions framed as workspace work instead of detached pickers.
 
+## ZNE-126 - Managed Devices save form still carried repeated anti-custom-panel narration instead of a compact workspace-first save handoff
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking the remaining Workstream C save-form copy in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the manual save form for `device_add` still opened with `Keep day-to-day promotion and save work here without dropping into raw JSON or any custom panel. Stay in the Managed Devices workspace while you confirm the final settings. Managed devices stay on top, and unmanaged promotion backlog stays below while you confirm the final settings.` That copy was directionally correct, but it kept the save screen more explanatory and release-history-heavy than the surrounding shortlist, review, and preset steps, even though Workstream C says the promotion flow should feel like one native workflow instead of leaning on helper narration.
+- **expected behavior:** the save form should open with one compact workspace-first handoff that keeps the managed-on-top / unmanaged-below story visible without spending extra lines on anti-custom-panel narration or repeated `while you confirm` phrasing.
+- **evidence:** this run's repo audit found that older three-sentence lead still present in `custom_components/zero_net_export/strings.json` and mirrored in `custom_components/zero_net_export/translations/en.json`, while `docs/UI_DESIGN.md` still says the Managed Devices workspace should be visually obvious without relying on long explanatory text and that the promote / vet / review path should feel first-class.
+- **suspected cause:** earlier Workstream B/C cleanup removed workflow-ownership wording first, but the save-form intro kept an older transitional copy pass that was still explaining what the product is not instead of just handing off the next native save step.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so `device_add` now opens with `Finish the save here with managed devices on top and the unmanaged promotion backlog below.` `tests/test_bucket_ownership_copy.py` now locks that compact save-form wording in place and rejects the older anti-custom-panel / repeated-confirmation phrasing.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this save-form copy compaction in the next exact-build deploy, then confirm the live Managed Devices save screen stays compact and workspace-first in Home Assistant.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
