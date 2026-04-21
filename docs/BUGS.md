@@ -1393,6 +1393,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay`, `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py custom_components/zero_net_export/config_flow.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this ready-next promotion-handoff cleanup in the next exact-build deploy, then confirm the live command center, Sensors handoff, and Managed Devices follow-through now read as one direct review-then-promote workflow.
 
+## ZNE-138 - Device-page Managed Devices handoff still kept the older `consider` wording for ready-next promotion
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `button`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the device-page Managed Devices handoff in `custom_components/zero_net_export/button.py` against the already-updated command-center, Sensors, and Configure promotion wording
+- **current observed behavior:** the broader native flow had already switched to `promote next from the unmanaged section ...`, but the secondary device-page path in `_managed_devices_post_blocker_step(...)` and `_managed_devices_workspace_handoff(...)` still said `then consider another ready unmanaged candidate ...` and `Then consider this ready unmanaged candidate ...`. That left the device-page path one wording pass behind the rest of Workstream C.
+- **expected behavior:** the device-page Managed Devices handoff should use the same direct `promote next from the unmanaged section ...` wording as the rest of the native promotion flow whenever a distinct ready-next candidate exists.
+- **evidence:** this run's repo audit found the stale `consider another ready unmanaged candidate` and `consider this ready unmanaged candidate` strings still hard-coded in `custom_components/zero_net_export/button.py`, with matching expectations still locked in `tests/test_button_entity_categories.py`. `docs/UI_IMPLEMENTATION_MAP.md` still says remaining Workstream C handoffs should read as one coherent shortlist, review, and promote flow.
+- **suspected cause:** the earlier ready-next cleanup landed first in the shared command-center, sensor, and config-flow helpers, but the adjacent device-page handoff strings were missed.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so both device-page ready-next handoffs now say `promote next from the unmanaged section ...`, and refreshes `tests/test_button_entity_categories.py` to lock that wording into both the blocker-follow-through and promotion-handoff paths.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this remaining device-page promotion-handoff cleanup in the next exact-build deploy, then confirm the live secondary Managed Devices path uses the same review-then-promote wording as the rest of the native flow.
+
 ## ZNE-112 - Controls step still framed the policy bucket with generic `screen` wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

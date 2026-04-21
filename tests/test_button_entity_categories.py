@@ -278,7 +278,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("Choose Promote fixed-load candidate", "\n".join(handoff))
         self.assertIn(
-            "- Then consider this ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
+            "- Then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
             handoff,
         )
         self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Promotion shortlist" in line))
@@ -933,7 +933,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             next_step,
         )
         self.assertIn(
-            "then consider another ready unmanaged candidate from the unmanaged section: Hot water relay (fixed) | likely useful",
+            "then promote next from the unmanaged section: Hot water relay (fixed) | likely useful",
             next_step,
         )
 

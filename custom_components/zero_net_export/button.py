@@ -577,7 +577,7 @@ def _managed_devices_post_blocker_step(
         )
         if ready_candidate and ready_candidate != primary_candidate:
             next_step += (
-                f", then consider another ready unmanaged candidate from the unmanaged section: "
+                f", then promote next from the unmanaged section: "
                 f"{build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}"
             )
         return f"{next_step}."
@@ -700,7 +700,7 @@ def _managed_devices_workspace_handoff(
         )
         if ready_candidate and ready_candidate != primary_candidate:
             lines.append(
-                f"- Then consider this ready unmanaged candidate from the unmanaged section: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}."
+                f"- Then promote next from the unmanaged section: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}."
             )
         lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.")
     else:
