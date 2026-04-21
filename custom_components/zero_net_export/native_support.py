@@ -3276,8 +3276,6 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Readiness phase: {operator_readiness.get('phase')}",
             f"- Health summary: {operator_readiness.get('summary')}",
             f"- Top alerts: {command_center.get('alert_summary')}",
-            f"- Recommended section: {command_center.get('recommended_section')}",
-            f"- Recommended next step: {command_center.get('next_action_summary') or operator_readiness.get('next_step')}",
             "",
             "Blocker triage",
             f"- Blocking mapped roles: {_format_source_role_list(blocking_keys) if blocking_keys else 'None'}",
