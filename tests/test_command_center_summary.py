@@ -2459,7 +2459,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("Managed Devices: no managed devices configured yet.", summary["alert_summary"])
-        self.assertIn("Unmanaged review first: Virtual load (fixed) | review first", summary["alert_summary"])
+        self.assertIn("Managed Devices: review first Virtual load (fixed) | review first", summary["alert_summary"])
         self.assertIn("ready next Hot water relay (fixed) | likely useful", summary["alert_summary"])
         self.assertIn("review Virtual load (fixed) | review first", summary["fleet_activity_summary"])
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["fleet_activity_summary"])
@@ -2525,7 +2525,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("Managed Devices: no managed devices configured yet.", summary["alert_summary"])
-        self.assertIn("Unmanaged ready next: Hot water relay (fixed) | likely useful", summary["alert_summary"])
+        self.assertIn("Managed Devices: ready next Hot water relay (fixed) | likely useful", summary["alert_summary"])
         self.assertIn("2 ready to promote", summary["fleet_activity_summary"])
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["fleet_activity_summary"])
         self.assertEqual(

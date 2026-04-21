@@ -3146,16 +3146,16 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
         if review_needed_count:
             review_target = review_candidate_preview or review_candidate_name or "the first unmanaged candidate"
-            review_alert = f"Unmanaged review first: {review_target}"
-            review_alert_compact = f"Unmanaged review first: {review_candidate_name or 'the first unmanaged candidate'}"
+            review_alert = f"Managed Devices: review first {review_target}"
+            review_alert_compact = f"Managed Devices: review first {review_candidate_name or 'the first unmanaged candidate'}"
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 ready_target = ready_candidate_preview or ready_candidate_name
                 review_alert += f"; ready next {ready_target}"
                 review_alert_compact += f"; ready next {ready_candidate_name}"
         elif ready_candidate_count:
             ready_target = ready_candidate_preview or ready_candidate_name or "the next unmanaged candidate"
-            ready_alert = f"Unmanaged ready next: {ready_target}"
-            ready_alert_compact = f"Unmanaged ready next: {ready_candidate_name or 'the next unmanaged candidate'}"
+            ready_alert = f"Managed Devices: ready next {ready_target}"
+            ready_alert_compact = f"Managed Devices: ready next {ready_candidate_name or 'the next unmanaged candidate'}"
 
     readiness_alert = str(readiness.get("summary") or support_status) if readiness_phase == "runtime_readiness" else None
 
