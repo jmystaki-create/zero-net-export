@@ -1731,6 +1731,19 @@ Suggested area labels:
 - **validation status:** repo-side process fix verified in this run by re-reading `docs/SUPERVISOR.md` against the new `936a93d` docs-only mismatch refresh and confirming the loophole is now closed in the supervisor instructions as well as the watchdog guide. No live HA validation is required for this process-only bug.
 - **next action:** stop refreshing unchanged live-mismatch bug state. The next run should either name one concrete remaining A-D/F repo defect that materially changes the native UI, or send the required no-change update until a real deploy/restart/approval boundary changes.
 
+## ZNE-139 - Managed Devices candidate recap still buried the next promotion target under generic `Another ready` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the remaining Managed Devices candidate recap copy in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and Workstream C in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the direct handoff text had already moved onto promotion-first `promote next from the unmanaged section ...` wording, but the parallel candidate recap labels across the main Managed Devices workspace, enablement, edit/remove, shortlist, review, preset, full-list, and save screens still said `Another ready unmanaged candidate:`. That kept one core promotion cue sounding like generic extra context instead of the next native promotion target.
+- **expected behavior:** when a distinct promotion-ready surfaced candidate exists beside the current review-first or top surfaced item, the recap label should make that ready-next role explicit instead of calling it merely `Another ready`.
+- **evidence:** this run's repo audit found `Another ready unmanaged candidate: {ready_candidate}` still repeated across the Managed Devices descriptions in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, with matching expectations locked in `tests/test_bucket_ownership_copy.py`. `docs/UI_DESIGN.md` says promotion should feel first-class, and Workstream C in `docs/UI_IMPLEMENTATION_MAP.md` still calls for removing ambiguous wording that weakens the promote / vet / review flow.
+- **suspected cause:** earlier Workstream C cleanup fixed the higher-signal action handoffs first, but the adjacent recap-label pass in the config-flow descriptions was left on older softer wording.
+- **repo fix:** this run updates the Managed Devices config-flow descriptions in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so they now say `Ready-next unmanaged candidate: {ready_candidate}`, and refreshes `tests/test_bucket_ownership_copy.py` to lock that label into the workspace, promotion, edit/remove, and save surfaces.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus JSON parse checks on `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this recap-label cleanup in the next exact-build deploy, then confirm the live Managed Devices flow names the ready-next promotion target explicitly instead of burying it under generic `Another ready ...` wording.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
