@@ -159,6 +159,7 @@ Re-run them only when:
 
 If the same blocker is unchanged and there is still safe repo-side work left, continue building.
 If a recheck still lands on the same preferred validation commit and the same mismatch set, do not spend the run on another `docs/BUGS.md` refresh or release-boundary restatement. Either advance the next ordered repo item, or say plainly that no project state changed in this run.
+Even if newer component commits exist in repo state, do not keep refreshing ZNE-022 or other release-anchor wording on the same unchanged live mismatch while earlier mapped A-D/F work still remains. That is release-bookkeeping churn, not project progress.
 
 ### Rule 7: Release approval is edge-triggered
 
