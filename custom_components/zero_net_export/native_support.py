@@ -3086,16 +3086,25 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     recommended_path = path_summary_map.get(recommended_section, PRIMARY_CONFIGURE_PATH)
 
+    status_summary_fallback = {
+        SOURCES_SECTION_LABEL: (
+            f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
+        ),
+        DEVICES_SECTION_LABEL: (
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace."
+        ),
+        POLICY_SECTION_LABEL: (
+            f"Open {POLICY_CONFIGURE_PATH} to continue in Controls and tune target export, deadband, reserve, or live mode."
+        ),
+        SUPPORT_SECTION_LABEL: (
+            f"Open {SUPPORT_CONFIGURE_PATH} to continue in Diagnostics with blocker triage, repairs, or install validation."
+        ),
+    }
     status_summary = _truncate_state_summary(
         str(recommended_reason),
-        fallback=(
-            (
-                f"Open {SUPPORT_CONFIGURE_PATH} to continue in Diagnostics with blocker triage, repairs, or install validation."
-                if recommended_section == SUPPORT_SECTION_LABEL
-                else f"Open {recommended_path} to continue in the recommended command-center section."
-            )
-            if recommended_section != DEVICES_SECTION_LABEL
-            else f"Open {DEVICES_CONFIGURE_PATH} to continue fleet work."
+        fallback=status_summary_fallback.get(
+            recommended_section,
+            f"Open {recommended_path} to continue in Configure.",
         ),
     )
     next_action_summary = _truncate_state_summary(

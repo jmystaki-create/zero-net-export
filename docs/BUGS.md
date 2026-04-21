@@ -1822,6 +1822,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Diagnostics fallback cleanup in the next exact-build deploy, then confirm the live command-center Diagnostics fallback names the bucket directly instead of reopening generic validation wording.
 
+## ZNE-146 - Command-center status-summary overflow still fell back to generic bucketless guidance for Controls and Sensors
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing command-center overflow paths in `custom_components/zero_net_export/native_support.py` against Workstream D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** after the Diagnostics overflow cleanup, the same `status_summary` truncation path still fell back to `Open ... to continue in the recommended command-center section.` whenever the recommended bucket was Controls or Sensors. That kept one last bucketless fallback in the opening command center, so long status summaries could still hide the explicit Controls or Sensors home even though the rest of the four-bucket IA already names each bucket directly.
+- **expected behavior:** command-center overflow fallbacks should keep explicit native bucket ownership for Controls, Sensors, Managed Devices, and Diagnostics rather than collapsing to generic recommended-section wording.
+- **evidence:** this run's repo audit found `native_support.py` still building `status_summary` with `else f"Open {recommended_path} to continue in the recommended command-center section."` for every non-Diagnostics, non-Managed-Devices fallback. There was already focused regression coverage for the Diagnostics branch in `tests/test_command_center_summary.py`, but no matching overflow regression for Controls or Sensors.
+- **suspected cause:** the previous Diagnostics cleanup tightened the support-specific branch first, but the shared non-Diagnostics fallback path kept the older generic placeholder wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so `status_summary` overflow now uses explicit bucket-owned fallbacks for Sensors, Controls, Managed Devices, and Diagnostics. `tests/test_command_center_summary.py` now locks the Controls and Sensors overflow cases and rejects the old `recommended command-center section` wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this last bucket-owned status-summary fallback cleanup in the next exact-build deploy, then confirm the live command-center still names Controls or Sensors directly when Home Assistant forces the compact overflow path.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

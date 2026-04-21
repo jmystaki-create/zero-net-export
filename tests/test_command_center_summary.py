@@ -2724,6 +2724,112 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertNotIn("recommended command-center section", summary["status_summary"])
 
+    def test_command_center_summary_fallback_status_summary_uses_controls_bucket_path(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "",
+            "next_step": "Tune the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: ""
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.POLICY_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        original_truncate = native_support._truncate_state_summary
+
+        def _controls_only_fallback(value, *args, **kwargs):
+            fallback = kwargs.get("fallback")
+            if isinstance(value, str) and value.startswith("Mode monitoring;"):
+                return fallback
+            return original_truncate(value, *args, **kwargs)
+
+        native_support._truncate_state_summary = _controls_only_fallback
+
+        entry = SimpleNamespace(data={}, options={})
+        long_summary = "Controls summary " * 30
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary=long_summary,
+            diagnostic_summary=long_summary,
+            device_status_summary="",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertEqual(
+            summary["status_summary"],
+            f"Open {native_support.POLICY_CONFIGURE_PATH} to continue in Controls and tune target export, deadband, reserve, or live mode.",
+        )
+        self.assertNotIn("recommended command-center section", summary["status_summary"])
+
+    def test_command_center_summary_fallback_status_summary_uses_sensors_bucket_path(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "",
+            "next_step": "Check the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: ""
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        original_truncate = native_support._truncate_state_summary
+
+        def _sensors_only_fallback(value, *args, **kwargs):
+            fallback = kwargs.get("fallback")
+            if isinstance(value, str) and value.startswith("Missing required source roles:"):
+                return fallback
+            return original_truncate(value, *args, **kwargs)
+
+        native_support._truncate_state_summary = _sensors_only_fallback
+
+        entry = SimpleNamespace(data={}, options={})
+        long_summary = "Sensors summary " * 30
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary=long_summary,
+            diagnostic_summary=long_summary,
+            device_status_summary="",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertEqual(
+            summary["status_summary"],
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health.",
+        )
+        self.assertNotIn("recommended command-center section", summary["status_summary"])
+
     def test_command_center_summary_uses_decision_first_headline_when_export_is_high(self) -> None:
         native_support = _load_native_support_module()
 
