@@ -1419,6 +1419,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Managed Devices copy compaction cleanup in the next exact-build deploy, then confirm the live preset/save/remove flows read with the same compact workspace-first split as the rest of Configure -> Managed Devices.
 
+## ZNE-115 - Device-page empty-fleet handoff still implied a surfaced candidate existed
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking the remaining Workstream B/E device-page handoff copy in `custom_components/zero_net_export/button.py` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the device-page `Promotion handoff` had already been made workspace-first, but the empty-fleet no-candidate branch still said `add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.` In code, that branch only runs when there are no surfaced unmanaged candidates at all, so the wording still implied a candidate backlog existed and slightly weakened trust in the native promotion path.
+- **expected behavior:** when the secondary device-page handoff falls back to manual add because no surfaced unmanaged candidates exist yet, it should say that plainly instead of implying an unseen candidate is merely not ready.
+- **evidence:** this run's repo audit found the stale `ready yet` wording still hard-coded in `_managed_devices_workspace_handoff(...)` inside `custom_components/zero_net_export/button.py`, while `tests/test_button_entity_categories.py` was still locking the same inaccurate phrase in place. `docs/UI_IMPLEMENTATION_MAP.md` still says Workstreams B and E should remove wording that makes the Managed Devices path feel helper-ish or misleading.
+- **suspected cause:** earlier copy cleanup fixed the larger workspace-first framing first, but the adjacent empty-fleet clause kept an older phrase from when the branch was described more loosely.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the empty-fleet device-page handoff now says `when no surfaced unmanaged candidate is available yet`, and refreshes `tests/test_button_entity_categories.py` to reject the older `ready yet` wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page handoff copy correction in the next exact-build deploy, then confirm the live empty-fleet promotion handoff no longer implies a hidden surfaced candidate exists.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

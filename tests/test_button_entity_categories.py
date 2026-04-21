@@ -298,9 +298,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
         self.assertIn(
-            "- Use the Managed Devices workspace to add the first fixed or variable load manually when no surfaced unmanaged candidate is ready yet.",
+            "- Use the Managed Devices workspace to add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet.",
             handoff,
         )
+        self.assertNotIn("ready yet", "\n".join(handoff))
         self.assertNotIn("tune controller behaviour", "\n".join(handoff))
 
     def test_workspace_handoff_keeps_existing_fleet_review_in_managed_devices_when_no_candidate_is_surfaced(self) -> None:
