@@ -370,8 +370,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "mode_path": native_support.MODE_CONTROL_PATH,
             }
         )
-        self.assertIn("Use this command center for setup and the current operating picture.", guide)
-        self.assertIn("When the next step moves into fleet work, continue in the Managed Devices workspace.", guide)
+        self.assertIn("Use this command center for live setup, the current operating picture, and the next native action.", guide)
+        self.assertIn("When fleet work is next, continue in the Managed Devices workspace.", guide)
         self.assertNotIn("This surface is for the basic setup only.", guide)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", guide)
         self.assertIn("Now", guide)
@@ -386,7 +386,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Diagnostics: Runtime attention remains.", guide)
         self.assertNotIn("- Runtime health:", guide)
         self.assertIn("- Source blockers: Solar power (Pv Power, unavailable)", guide)
-        self.assertIn("Basic setup paths", guide)
+        self.assertIn("Native paths", guide)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(
             f"- Controls: {native_support.POLICY_CONFIGURE_PATH}",

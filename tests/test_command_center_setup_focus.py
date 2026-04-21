@@ -105,12 +105,12 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             }
         )
 
-        self.assertIn("Use this command center for setup and the current operating picture.", text)
-        self.assertIn("When the next step moves into fleet work, continue in the Managed Devices workspace.", text)
+        self.assertIn("Use this command center for live setup, the current operating picture, and the next native action.", text)
+        self.assertIn("When fleet work is next, continue in the Managed Devices workspace.", text)
         self.assertNotIn("This surface is for the basic setup only.", text)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", text)
         self.assertIn("Now", text)
-        self.assertIn("- Top alerts: Missing required source roles: Solar power", text)
+        self.assertIn("- Alerts: Missing required source roles: Solar power", text)
         self.assertIn(
             f"- Recommended next step: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,
@@ -123,7 +123,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("- Source map: Solar power -> sensor.pv_power", text)
         self.assertIn("- Diagnostics: Runtime attention remains.", text)
         self.assertNotIn("- Runtime health:", text)
-        self.assertIn("Basic setup paths", text)
+        self.assertIn("Native paths", text)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", text)
         self.assertIn(
             f"- Controls: {native_support.POLICY_CONFIGURE_PATH}",

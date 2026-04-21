@@ -11,15 +11,15 @@ class TestCommandCenterModalCopy(unittest.TestCase):
 
         description = strings["options"]["step"]["init"]["description"]
 
-        self.assertIn("Use this command center for setup and the current operating picture.", description)
-        self.assertIn("When the next step moves into fleet work, continue in the Managed Devices workspace.", description)
+        self.assertIn("Use this command center for live setup, the current operating picture, and the next native action.", description)
+        self.assertIn("When fleet work is next, continue in the Managed Devices workspace.", description)
         self.assertNotIn("basic setup and current operating picture only", description)
         self.assertIn("\n\nNow\n- Headline decision:", description)
-        self.assertIn("\n- Top alerts: {alert_summary}", description)
+        self.assertIn("\n- Alerts: {alert_summary}", description)
         self.assertIn("\n- Recommended next step: {next_action_summary}", description)
         self.assertIn("\n\nStructured control board\n- Energy state:", description)
         self.assertIn("\n\nSetup check\n- Sensors:", description)
-        self.assertIn("\n\nBasic setup paths\n- Sensors:", description)
+        self.assertIn("\n\nNative paths\n- Sensors:", description)
         self.assertIn("\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", description)
         self.assertIn("\n- Managed Devices: {devices_path}", description)
         self.assertIn("\n- Diagnostics: {support_path}", description)
