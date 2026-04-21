@@ -1809,6 +1809,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this compact-backlog wording fix in the next exact-build deploy, then confirm the live command-center compact summaries keep `unmanaged backlog` wording when Home Assistant forces the shorter fallback path.
 
+## ZNE-145 - Healthy command-center Diagnostics fallback still defaulted to generic validation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the remaining Workstream D four-bucket fallbacks in `custom_components/zero_net_export/native_support.py` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when the command center still recommended Diagnostics, its compact fallback paths were still saying `continue the next native validation step` or `continue in the recommended command-center section.` That left the Diagnostics bucket with one last generic validation-style fallback even after the rest of the command center had moved onto explicit Sensors, Controls, and Managed Devices homes.
+- **expected behavior:** Diagnostics fallbacks should stay bucket-owned and concrete, telling operators to continue in Diagnostics with blocker triage, repairs, or install validation instead of generic validation wording.
+- **evidence:** this run's repo audit found the generic support fallback still hard-coded in `custom_components/zero_net_export/native_support.py` at the command-center compact next-step helper, the `operator_ready` support fallback, and the truncated `status_summary` fallback. `docs/UI_DESIGN.md` says Diagnostics should remain visible but secondary as its own native home, and `docs/UI_IMPLEMENTATION_MAP.md` Workstream D says operators should be able to tell where to go next without guessing.
+- **suspected cause:** earlier four-bucket cleanup tightened the main branch-specific handoffs first, but the shared compact support fallbacks kept older validation-centric placeholder wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so all remaining support fallbacks now say `continue in Diagnostics with blocker triage, repairs, or install validation`, and refreshes `tests/test_command_center_summary.py` with both the truncated-status regression and a missing-`next_step` support fallback regression.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Diagnostics fallback cleanup in the next exact-build deploy, then confirm the live command-center Diagnostics fallback names the bucket directly instead of reopening generic validation wording.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

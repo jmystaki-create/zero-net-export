@@ -2720,9 +2720,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertEqual(
             summary["status_summary"],
-            f"Open {native_support.SUPPORT_CONFIGURE_PATH} to continue in the recommended command-center section.",
+            f"Open {native_support.SUPPORT_CONFIGURE_PATH} to continue in Diagnostics with blocker triage, repairs, or install validation.",
         )
-        self.assertNotIn("Open Configure", summary["status_summary"])
+        self.assertNotIn("recommended command-center section", summary["status_summary"])
 
     def test_command_center_summary_uses_decision_first_headline_when_export_is_high(self) -> None:
         native_support = _load_native_support_module()

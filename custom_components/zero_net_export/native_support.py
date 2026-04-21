@@ -323,7 +323,9 @@ def _compact_next_action_fallback(
         )
     if recommended_section == SOURCES_SECTION_LABEL:
         return f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
-    return f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+    return (
+        f"Open {SUPPORT_CONFIGURE_PATH} to continue in Diagnostics with blocker triage, repairs, or install validation."
+    )
 
 
 def _validation_details(state: Any) -> dict[str, Any]:
@@ -2941,7 +2943,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         else:
             next_action_summary = str(
                 readiness.get("next_step")
-                or f"Open {SUPPORT_CONFIGURE_PATH} to continue the next native validation step."
+                or f"Open {SUPPORT_CONFIGURE_PATH} to continue in Diagnostics with blocker triage, repairs, or install validation."
             )
     else:
         next_action_summary = (
@@ -3087,7 +3089,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     status_summary = _truncate_state_summary(
         str(recommended_reason),
         fallback=(
-            f"Open {recommended_path} to continue in the recommended command-center section."
+            (
+                f"Open {SUPPORT_CONFIGURE_PATH} to continue in Diagnostics with blocker triage, repairs, or install validation."
+                if recommended_section == SUPPORT_SECTION_LABEL
+                else f"Open {recommended_path} to continue in the recommended command-center section."
+            )
             if recommended_section != DEVICES_SECTION_LABEL
             else f"Open {DEVICES_CONFIGURE_PATH} to continue fleet work."
         ),
