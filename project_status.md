@@ -7,16 +7,16 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: audit the highest remaining mapped `0.1.87` repo-side A-D/F gap and ship the next concrete native-HA fix; do not let another unchanged fingerprint or deploy-approval cycle displace unfinished implementation-map runway
+next_action: ask James directly whether he approves freeze/deploy/restart of the exact `e221549` candidate, because the latest audit did not find a fresh repo-side A-D/F defect stronger than the existing empty-fleet churn and unchanged six-file live mismatch
 
 # Current blocker or none
-blocker: none; the unchanged live exact-build mismatch remains a release-gate problem, but it is not the default blocker while mapped repo-side `0.1.87` work still remains
+blocker: formal release/deploy approval is now the real boundary for the exact `e221549` candidate; live exact-build mismatch remains unchanged on `button.py`, `config_flow.py`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json`
 
 # Exact user action needed or none
-user_action: none
+user_action: James needs to explicitly approve freeze/deploy/restart of the exact `e221549` build before formal release execution, redeploy, or live validation continues
 
 # One short durable constraint
 notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, keep `0.1.86` as the current live correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated, and treat the unchanged divergent live `0.1.87` install as release drift rather than as the default next-step ranking while implementation-map runway still exists.
 
 # Last time this file materially changed
-last_modified: 2026-04-19 23:01
+last_modified: 2026-04-22 07:17
