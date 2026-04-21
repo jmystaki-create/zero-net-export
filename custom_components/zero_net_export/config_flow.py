@@ -1882,7 +1882,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             managed_snapshot,
             unmanaged_snapshot,
             f"Review-first unmanaged candidate: {review_candidate}",
-            f"Another ready unmanaged candidate: {ready_candidate}",
+            f"Ready-next unmanaged candidate: {ready_candidate}",
         ]
         if blocker_active:
             message_lines.extend([

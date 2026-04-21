@@ -2698,7 +2698,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             feedback["message"],
         )
         self.assertIn(
-            "Another ready unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
+            "Ready-next unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
             feedback["message"],
         )
         self.assertIn(
