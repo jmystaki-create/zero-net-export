@@ -708,6 +708,36 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("top AC Outlet 2", overview.native_value)
         self.assertLessEqual(len(overview.native_value), 255)
 
+    def test_unmanaged_candidate_overview_keeps_single_kind_review_backlog_visible(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": "fixed"},
+            {"name": "Pool pump helper", "entity_id": "input_boolean.pool_pump_helper", "kind": "fixed"},
+        ]
+        sensor_module.assess_candidate = lambda candidate: {
+            "confidence": "low",
+            "summary": "Review before promotion.",
+            "warnings": ["helper-backed load needs review"],
+        }
+        sensor_module.candidate_review_kind_counts = lambda candidates: (2, 0)
+        sensor_module.build_candidate_review_hint = lambda candidate, include_warning=True, **kwargs: (
+            "review carefully | warn helper-backed load needs review"
+            if include_warning
+            else "review carefully"
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "unmanaged_candidate_overview", "Unmanaged candidate overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertIn("2 fixed candidates", overview.native_value)
+        self.assertIn("fixed backlog 2 review", overview.native_value)
+        self.assertIn("2 need review", overview.native_value)
+        self.assertNotIn("ready to promote", overview.native_value)
+
     def test_managed_fleet_overview_names_first_blocked_and_planned_devices(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
@@ -897,7 +927,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "no managed yet | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
+            "no managed yet | 1 unmanaged | repair sources first | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -1328,7 +1358,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
+            "1 managed | 1 unmanaged | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)

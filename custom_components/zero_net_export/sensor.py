@@ -174,10 +174,9 @@ def _candidate_kind_backlog_mix_parts(
     variable_ready_count: int,
 ) -> list[str]:
     parts: list[str] = []
-    any_ready = fixed_ready_count > 0 or variable_ready_count > 0
 
     def _append(kind_label: str, candidate_count: int, review_count: int, ready_count: int) -> None:
-        if candidate_count <= 0 or not any_ready or (review_count <= 0 and ready_count <= 0):
+        if candidate_count <= 0 or (review_count <= 0 and ready_count <= 0):
             return
         if review_count > 0 and ready_count > 0:
             parts.append(f"{kind_label} backlog {review_count} review/{ready_count} ready")
@@ -193,6 +192,32 @@ def _candidate_kind_backlog_mix_parts(
     if include_variable:
         _append("variable", variable_candidate_count, variable_review_count, variable_ready_count)
     return parts
+
+
+def _single_kind_candidate_backlog_parts(
+    *,
+    fixed_candidate_count: int,
+    variable_candidate_count: int,
+    fixed_review_count: int,
+    variable_review_count: int,
+    fixed_ready_count: int,
+    variable_ready_count: int,
+) -> list[str]:
+    if fixed_candidate_count > 0 and variable_candidate_count <= 0:
+        if fixed_review_count > 0 and fixed_ready_count > 0:
+            return [f"fixed backlog {fixed_review_count} review/{fixed_ready_count} ready"]
+        if fixed_review_count > 0:
+            return [f"fixed backlog {fixed_review_count} review"]
+        if fixed_ready_count > 0:
+            return [f"fixed backlog {fixed_ready_count} ready"]
+    if variable_candidate_count > 0 and fixed_candidate_count <= 0:
+        if variable_review_count > 0 and variable_ready_count > 0:
+            return [f"variable backlog {variable_review_count} review/{variable_ready_count} ready"]
+        if variable_review_count > 0:
+            return [f"variable backlog {variable_review_count} review"]
+        if variable_ready_count > 0:
+            return [f"variable backlog {variable_ready_count} ready"]
+    return []
 
 
 VALIDATION_ATTRIBUTE_SENSOR_KEYS = {
@@ -586,16 +611,27 @@ def _unmanaged_candidate_overview_state(candidates: list[dict[str, object]]) -> 
         parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
     if variable_candidate_count:
         parts.append(_count_label(variable_candidate_count, "variable candidate"))
-    parts.extend(
-        _candidate_kind_backlog_mix_parts(
-            fixed_candidate_count=fixed_candidate_count,
-            variable_candidate_count=variable_candidate_count,
-            fixed_review_count=fixed_review_count,
-            variable_review_count=variable_review_count,
-            fixed_ready_count=fixed_ready_count,
-            variable_ready_count=variable_ready_count,
-        )
+    backlog_parts = _candidate_kind_backlog_mix_parts(
+        fixed_candidate_count=fixed_candidate_count,
+        variable_candidate_count=variable_candidate_count,
+        fixed_review_count=fixed_review_count,
+        variable_review_count=variable_review_count,
+        fixed_ready_count=fixed_ready_count,
+        variable_ready_count=variable_ready_count,
     )
+    if backlog_parts:
+        parts.extend(backlog_parts)
+    else:
+        parts.extend(
+            _single_kind_candidate_backlog_parts(
+                fixed_candidate_count=fixed_candidate_count,
+                variable_candidate_count=variable_candidate_count,
+                fixed_review_count=fixed_review_count,
+                variable_review_count=variable_review_count,
+                fixed_ready_count=fixed_ready_count,
+                variable_ready_count=variable_ready_count,
+            )
+        )
     if review_needed_count:
         parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
         if fixed_review_count:
@@ -821,16 +857,27 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         ready_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                     if variable_candidate_count:
                         ready_parts.append(_count_label(variable_candidate_count, "variable candidate"))
-                    ready_parts.extend(
-                        _candidate_kind_backlog_mix_parts(
-                            fixed_candidate_count=fixed_candidate_count,
-                            variable_candidate_count=variable_candidate_count,
-                            fixed_review_count=fixed_review_count,
-                            variable_review_count=variable_review_count,
-                            fixed_ready_count=fixed_ready_count,
-                            variable_ready_count=variable_ready_count,
-                        )
+                    backlog_parts = _candidate_kind_backlog_mix_parts(
+                        fixed_candidate_count=fixed_candidate_count,
+                        variable_candidate_count=variable_candidate_count,
+                        fixed_review_count=fixed_review_count,
+                        variable_review_count=variable_review_count,
+                        fixed_ready_count=fixed_ready_count,
+                        variable_ready_count=variable_ready_count,
                     )
+                    if backlog_parts:
+                        ready_parts.extend(backlog_parts)
+                    else:
+                        ready_parts.extend(
+                            _single_kind_candidate_backlog_parts(
+                                fixed_candidate_count=fixed_candidate_count,
+                                variable_candidate_count=variable_candidate_count,
+                                fixed_review_count=fixed_review_count,
+                                variable_review_count=variable_review_count,
+                                fixed_ready_count=fixed_ready_count,
+                                variable_ready_count=variable_ready_count,
+                            )
+                        )
                 if ready_candidate_count:
                     ready_parts.append(
                         "1 ready to promote" if ready_candidate_count == 1 else f"{ready_candidate_count} ready to promote"
@@ -862,16 +909,27 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
-                summary_parts.extend(
-                    _candidate_kind_backlog_mix_parts(
-                        fixed_candidate_count=fixed_candidate_count,
-                        variable_candidate_count=variable_candidate_count,
-                        fixed_review_count=fixed_review_count,
-                        variable_review_count=variable_review_count,
-                        fixed_ready_count=fixed_ready_count,
-                        variable_ready_count=variable_ready_count,
-                    )
+                backlog_parts = _candidate_kind_backlog_mix_parts(
+                    fixed_candidate_count=fixed_candidate_count,
+                    variable_candidate_count=variable_candidate_count,
+                    fixed_review_count=fixed_review_count,
+                    variable_review_count=variable_review_count,
+                    fixed_ready_count=fixed_ready_count,
+                    variable_ready_count=variable_ready_count,
                 )
+                if backlog_parts:
+                    summary_parts.extend(backlog_parts)
+                else:
+                    summary_parts.extend(
+                        _single_kind_candidate_backlog_parts(
+                            fixed_candidate_count=fixed_candidate_count,
+                            variable_candidate_count=variable_candidate_count,
+                            fixed_review_count=fixed_review_count,
+                            variable_review_count=variable_review_count,
+                            fixed_ready_count=fixed_ready_count,
+                            variable_ready_count=variable_ready_count,
+                        )
+                    )
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if fixed_review_count:
@@ -923,16 +981,27 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
                     summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
-                summary_parts.extend(
-                    _candidate_kind_backlog_mix_parts(
-                        fixed_candidate_count=fixed_candidate_count,
-                        variable_candidate_count=variable_candidate_count,
-                        fixed_review_count=fixed_review_count,
-                        variable_review_count=variable_review_count,
-                        fixed_ready_count=fixed_ready_count,
-                        variable_ready_count=variable_ready_count,
-                    )
+                backlog_parts = _candidate_kind_backlog_mix_parts(
+                    fixed_candidate_count=fixed_candidate_count,
+                    variable_candidate_count=variable_candidate_count,
+                    fixed_review_count=fixed_review_count,
+                    variable_review_count=variable_review_count,
+                    fixed_ready_count=fixed_ready_count,
+                    variable_ready_count=variable_ready_count,
                 )
+                if backlog_parts:
+                    summary_parts.extend(backlog_parts)
+                else:
+                    summary_parts.extend(
+                        _single_kind_candidate_backlog_parts(
+                            fixed_candidate_count=fixed_candidate_count,
+                            variable_candidate_count=variable_candidate_count,
+                            fixed_review_count=fixed_review_count,
+                            variable_review_count=variable_review_count,
+                            fixed_ready_count=fixed_ready_count,
+                            variable_ready_count=variable_ready_count,
+                        )
+                    )
                 if review_needed_count:
                     summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
                     if fixed_review_count:

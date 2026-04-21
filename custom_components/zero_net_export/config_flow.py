@@ -1076,10 +1076,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         variable_ready_count: int,
     ) -> list[str]:
         parts: list[str] = []
-        any_ready = fixed_ready_count > 0 or variable_ready_count > 0
 
         def _append(kind_label: str, candidate_count: int, review_count: int, ready_count: int) -> None:
-            if candidate_count <= 0 or not any_ready or (review_count <= 0 and ready_count <= 0):
+            if candidate_count <= 0 or (review_count <= 0 and ready_count <= 0):
                 return
             if review_count > 0 and ready_count > 0:
                 parts.append(f"{kind_label} backlog {review_count} review/{ready_count} ready")
@@ -1099,6 +1098,32 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if include_variable:
             _append("variable", variable_candidate_count, variable_review_count, variable_ready_count)
         return parts
+
+    @staticmethod
+    def _single_kind_candidate_backlog_parts(
+        *,
+        fixed_candidate_count: int,
+        variable_candidate_count: int,
+        fixed_review_count: int,
+        variable_review_count: int,
+        fixed_ready_count: int,
+        variable_ready_count: int,
+    ) -> list[str]:
+        if fixed_candidate_count > 0 and variable_candidate_count <= 0:
+            if fixed_review_count > 0 and fixed_ready_count > 0:
+                return [f"fixed backlog {fixed_review_count} review/{fixed_ready_count} ready"]
+            if fixed_review_count > 0:
+                return [f"fixed backlog {fixed_review_count} review"]
+            if fixed_ready_count > 0:
+                return [f"fixed backlog {fixed_ready_count} ready"]
+        if variable_candidate_count > 0 and fixed_candidate_count <= 0:
+            if variable_review_count > 0 and variable_ready_count > 0:
+                return [f"variable backlog {variable_review_count} review/{variable_ready_count} ready"]
+            if variable_review_count > 0:
+                return [f"variable backlog {variable_review_count} review"]
+            if variable_ready_count > 0:
+                return [f"variable backlog {variable_ready_count} ready"]
+        return []
 
     @classmethod
     def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
@@ -1125,16 +1150,27 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             parts.append(f"{fixed_count} fixed candidate" if fixed_count == 1 else f"{fixed_count} fixed candidates")
         if variable_count:
             parts.append(f"{variable_count} variable candidate" if variable_count == 1 else f"{variable_count} variable candidates")
-        parts.extend(
-            cls._candidate_kind_backlog_mix_parts(
-                fixed_candidate_count=fixed_count,
-                variable_candidate_count=variable_count,
-                fixed_review_count=fixed_review_count,
-                variable_review_count=variable_review_count,
-                fixed_ready_count=fixed_ready_count,
-                variable_ready_count=variable_ready_count,
-            )
+        backlog_parts = cls._candidate_kind_backlog_mix_parts(
+            fixed_candidate_count=fixed_count,
+            variable_candidate_count=variable_count,
+            fixed_review_count=fixed_review_count,
+            variable_review_count=variable_review_count,
+            fixed_ready_count=fixed_ready_count,
+            variable_ready_count=variable_ready_count,
         )
+        if backlog_parts:
+            parts.extend(backlog_parts)
+        else:
+            parts.extend(
+                cls._single_kind_candidate_backlog_parts(
+                    fixed_candidate_count=fixed_count,
+                    variable_candidate_count=variable_count,
+                    fixed_review_count=fixed_review_count,
+                    variable_review_count=variable_review_count,
+                    fixed_ready_count=fixed_ready_count,
+                    variable_ready_count=variable_ready_count,
+                )
+            )
         if review_candidates:
             parts.append("1 needs review" if len(review_candidates) == 1 else f"{len(review_candidates)} need review")
             if fixed_review_count:

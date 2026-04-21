@@ -823,7 +823,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             full_list["description_placeholders"]["unmanaged_snapshot"],
-            "3 candidates | 2 fixed candidates | 1 variable candidate | 3 need review | 2 fixed review | 1 variable review | review AC Outlet 2 | likely useful | key warning: No immediate warnings",
+            "3 candidates | 2 fixed candidates | 1 variable candidate | fixed backlog 2 review | variable backlog 1 review | 3 need review | 2 fixed review | 1 variable review | review AC Outlet 2 | likely useful | key warning: No immediate warnings",
         )
         self.assertEqual(shortlist["description_placeholders"]["fixed_candidate_count"], "2")
         self.assertEqual(shortlist["description_placeholders"]["variable_candidate_count"], "1")
@@ -1437,7 +1437,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | review AC Outlet 2 | likely useful | key warning: No immediate warnings",
+                "2 candidates | 2 fixed candidates | fixed backlog 2 review | 2 need review | 2 fixed review | review AC Outlet 2 | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -1661,7 +1661,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
-                "2 candidates | 2 fixed candidates | 2 need review | 2 fixed review | review AC Outlet 2 | likely useful | key warning: No immediate warnings",
+                "2 candidates | 2 fixed candidates | fixed backlog 2 review | 2 need review | 2 fixed review | review AC Outlet 2 | likely useful | key warning: No immediate warnings",
             )
             self.assertEqual(result["description_placeholders"]["fixed_candidate_count"], "2")
             self.assertEqual(result["description_placeholders"]["variable_candidate_count"], "0")
@@ -2324,7 +2324,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Promoted Pool pump into Managed Devices as a fixed load.", feedback["message"])
         self.assertNotIn("switch.pool_pump", feedback["message"])
         self.assertIn("1 managed | 1 enabled | 0 usable | 1 fixed managed | 0 W nominal", feedback["message"])
-        self.assertIn("2 candidates | 1 fixed candidate | 1 variable candidate | 2 need review | 1 fixed review | 1 variable review | review AC Outlet 2 | likely useful | key warning: No immediate warnings", feedback["message"])
+        self.assertIn("2 candidates | 1 fixed candidate | 1 variable candidate | fixed backlog 1 review | variable backlog 1 review | 2 need review | 1 fixed review | 1 variable review | review AC Outlet 2 | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Primary Managed Devices workspace in Configure: devices path", feedback["message"])
         self.assertIn(
@@ -2489,6 +2489,36 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("variable backlog 1 review/1 ready", summary)
         self.assertIn("review Virtual load", summary)
         self.assertIn("ready Hot water relay", summary)
+
+    def test_unmanaged_snapshot_keeps_single_kind_review_backlog_visible(self) -> None:
+        module = _load_config_flow_module()
+        module.assess_candidate = lambda candidate: {
+            "confidence": "low",
+            "summary": "Review before promotion.",
+            "warnings": ["Needs review first."],
+        }
+        module.build_candidate_review_hint = lambda candidate, include_warning=True, max_warning_chars=56, **kwargs: (
+            "review first | warn Needs review first." if include_warning else "review first"
+        )
+
+        summary = module.ZeroNetExportOptionsFlow._unmanaged_snapshot_text(
+            [
+                {
+                    "entity_id": "switch.virtual_load",
+                    "name": "Virtual load",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+                {
+                    "entity_id": "switch.pool_pump",
+                    "name": "Pool pump",
+                    "kind": module.DEVICE_KIND_FIXED,
+                },
+            ]
+        )
+
+        self.assertIn("2 fixed candidates", summary)
+        self.assertIn("fixed backlog 2 review", summary)
+        self.assertNotIn("ready to promote", summary)
 
     def test_candidate_summary_passes_name_and_entity_id_into_fit_assessment(self) -> None:
         module = _load_config_flow_module()
