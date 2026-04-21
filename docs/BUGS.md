@@ -1627,6 +1627,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this shared empty-fleet handoff cleanup in the next exact-build deploy, then confirm the live deeper-review path keeps the Managed Devices workspace review-first when the fleet is still empty.
 
+## ZNE-131 - Opening Managed Devices workspace still leaned on anti-JSON helper narration instead of a compact split-first handoff
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while rechecking the opening `Configure -> Managed Devices` description against Workstream B in `docs/UI_IMPLEMENTATION_MAP.md` and the `managed vs unmanaged` legibility rules in `docs/UI_DESIGN.md`
+- **current observed behavior:** the main Managed Devices workspace had already picked up the right managed-on-top / unmanaged-below structure, but the opening sentence still said `This is the main Managed Devices workspace for review, promotion, edits, enablement, disablement, and removal. Use JSON only for recovery or bulk changes.` That kept the first fleet surface sounding more like a product-explanation helper than a compact native workspace handoff, even though the ownership list and the split layout directly below already carry that information.
+- **expected behavior:** the opening Managed Devices description should lead with a short workspace-first handoff and the vertical split, letting the bucket ownership section handle the detailed responsibility list instead of repeating anti-JSON/process narration in the first sentence.
+- **evidence:** this run's repo audit found the longer explanatory lead still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, and `tests/test_bucket_ownership_copy.py` was still locking that longer sentence into the copy regression coverage.
+- **suspected cause:** earlier Workstream B cleanup tightened the follow-on fleet screens first, but left the main Managed Devices intro on an older explanatory wording pass that was still restating workflow scope and JSON boundaries before the real workspace split.
+- **repo fix:** this run compacts the opening Managed Devices description in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` to `This is the main Managed Devices workspace. Managed devices stay on top, and unmanaged promotion backlog stays below.` `tests/test_bucket_ownership_copy.py` now locks that shorter split-first wording in place and rejects the older anti-JSON helper narration.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this opening Managed Devices copy compaction in the next exact-build deploy, then confirm the live workspace lands as a compact split-first fleet console instead of a narrated helper surface.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
