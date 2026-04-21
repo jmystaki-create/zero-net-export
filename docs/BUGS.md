@@ -1380,6 +1380,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Sensors workspace-copy cleanup in the next exact-build deploy, then confirm the live Sensors bucket reads like a first-class native workspace instead of a generic form screen.
 
+## ZNE-112 - Controls step still framed the policy bucket with generic `screen` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-21 while checking remaining Workstream D bucket-ownership copy against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the Controls step copy had already been tightened around bucket ownership, but one lingering line still said `Recommended next step after this screen: ...`. That left the policy bucket sounding like a generic form screen instead of the dedicated Controls home the four-bucket IA is supposed to make obvious.
+- **expected behavior:** the Controls step should name itself explicitly so the next-action handoff reads like part of the Controls home, not a generic screen-level prompt.
+- **evidence:** this run's repo audit found `Recommended next step after this screen: {policy_next_step}` still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, while the surrounding copy already uses bucket-first `Controls`, `Sensors`, `Managed Devices`, and `Diagnostics` language.
+- **suspected cause:** earlier Workstream B/D copy cleanup focused on the more obvious Managed Devices and Sensors wording drift first, leaving one smaller generic line behind in the Controls step.
+- **repo fix:** this run updates the Controls description in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` to say `Recommended next step from Controls: {policy_next_step}`, and refreshes `tests/test_bucket_ownership_copy.py` so the regression suite now rejects the older `after this screen` wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Controls copy cleanup in the next exact-build deploy, then confirm the live Controls step reads like a first-class native bucket instead of a generic screen.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
