@@ -953,7 +953,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "- After repair: Open devices path and use the Managed Devices workspace to review the current managed fleet.",
+            "- After repair: Open devices path and use the Managed Devices workspace to edit device settings or stage enablement changes before changing controls or deeper diagnostics.",
             lines,
         )
 

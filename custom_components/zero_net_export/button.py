@@ -583,8 +583,9 @@ def _managed_devices_post_blocker_step(
         return f"{next_step}."
     if has_managed_devices:
         return (
-            f"Open {DEVICES_CONFIGURE_PATH} and use the Managed Devices workspace "
-            f"to review the current managed fleet."
+            f"Open {DEVICES_CONFIGURE_PATH} and use the Managed Devices workspace to "
+            "edit device settings or stage enablement changes before changing controls "
+            "or deeper diagnostics."
         )
     return (
         f"Open {DEVICES_CONFIGURE_PATH} and use the Managed Devices workspace "
