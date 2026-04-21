@@ -154,6 +154,32 @@ def _candidate_kind_backlog_mix_parts(
     return parts
 
 
+def _single_kind_candidate_backlog_parts(
+    *,
+    fixed_candidate_count: int,
+    variable_candidate_count: int,
+    fixed_review_count: int,
+    variable_review_count: int,
+    fixed_ready_count: int,
+    variable_ready_count: int,
+) -> list[str]:
+    if fixed_candidate_count > 0 and variable_candidate_count <= 0:
+        if fixed_review_count > 0 and fixed_ready_count > 0:
+            return [f"fixed backlog {fixed_review_count} review/{fixed_ready_count} ready"]
+        if fixed_review_count > 0:
+            return [f"fixed backlog {fixed_review_count} review"]
+        if fixed_ready_count > 0:
+            return [f"fixed backlog {fixed_ready_count} ready"]
+    if variable_candidate_count > 0 and fixed_candidate_count <= 0:
+        if variable_review_count > 0 and variable_ready_count > 0:
+            return [f"variable backlog {variable_review_count} review/{variable_ready_count} ready"]
+        if variable_review_count > 0:
+            return [f"variable backlog {variable_review_count} review"]
+        if variable_ready_count > 0:
+            return [f"variable backlog {variable_ready_count} ready"]
+    return []
+
+
 def _prefer_review_ready_over_large_kind_mix(summary: str) -> str:
     normalized = " ".join(str(summary or "").split())
     if len(normalized) > MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -1648,6 +1674,19 @@ def _command_center_device_status_with_unmanaged_context(
         fixed_ready_count=fixed_ready_count,
         variable_ready_count=variable_ready_count,
     )
+    single_kind_backlog_parts = _single_kind_candidate_backlog_parts(
+        fixed_candidate_count=fixed_candidate_count,
+        variable_candidate_count=variable_candidate_count,
+        fixed_review_count=fixed_review_count,
+        variable_review_count=variable_review_count,
+        fixed_ready_count=fixed_ready_count,
+        variable_ready_count=variable_ready_count,
+    )
+    single_kind_overflow_backlog_parts = (
+        backlog_parts
+        if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count)
+        else single_kind_backlog_parts if single_kind_backlog_parts and not backlog_parts else []
+    )
     for backlog_part in backlog_parts:
         summary += f"; {backlog_part}"
     if review_needed_count:
@@ -1682,14 +1721,31 @@ def _command_center_device_status_with_unmanaged_context(
         elif ready_candidate_name:
             compact_parts.append(f"ready {ready_candidate_name}")
     compact_summary = "; ".join(compact_parts)
-    if len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
-        return compact_summary
-
-    if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count):
+    if single_kind_overflow_backlog_parts:
         single_kind_compact_parts: list[str] = [
             _clip_part(base_status, max_chars=72),
             f"{candidate_count} unmanaged",
-            *backlog_parts,
+            *single_kind_overflow_backlog_parts,
+        ]
+        if review_candidate_preview:
+            single_kind_compact_parts.append(f"review {review_candidate_preview}")
+        elif review_candidate_name:
+            single_kind_compact_parts.append(f"review {review_candidate_name}")
+        if ready_candidate_preview:
+            single_kind_compact_parts.append(f"ready {ready_candidate_preview}")
+        elif ready_candidate_name:
+            single_kind_compact_parts.append(f"ready {ready_candidate_name}")
+        single_kind_compact_summary = "; ".join(single_kind_compact_parts)
+        if len(single_kind_compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return single_kind_compact_summary
+    if len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS and not single_kind_overflow_backlog_parts:
+        return compact_summary
+
+    if single_kind_overflow_backlog_parts:
+        single_kind_compact_parts: list[str] = [
+            _clip_part(base_status, max_chars=72),
+            f"{candidate_count} unmanaged",
+            *single_kind_overflow_backlog_parts,
         ]
         if review_candidate_preview:
             single_kind_compact_parts.append(f"review {review_candidate_preview}")
@@ -1706,7 +1762,7 @@ def _command_center_device_status_with_unmanaged_context(
         single_kind_named_parts: list[str] = [
             _clip_part(base_status, max_chars=56),
             f"{candidate_count} unmanaged",
-            *backlog_parts,
+            *single_kind_overflow_backlog_parts,
         ]
         if review_candidate_name:
             single_kind_named_parts.append(f"review {review_candidate_name}")
@@ -1751,11 +1807,11 @@ def _command_center_device_status_with_unmanaged_context(
     if len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return essential_summary
 
-    if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count):
+    if single_kind_overflow_backlog_parts:
         single_kind_parts: list[str] = [
             _clip_part(base_status, max_chars=40),
             f"{candidate_count} unmanaged",
-            *backlog_parts,
+            *single_kind_overflow_backlog_parts,
         ]
         if review_needed_count:
             single_kind_parts.append(_count_label(review_needed_count, "needs review", "need review"))
@@ -1776,7 +1832,7 @@ def _command_center_device_status_with_unmanaged_context(
         concise_single_kind_parts: list[str] = [
             _clip_part(base_status, max_chars=40),
             f"{candidate_count} unmanaged",
-            *backlog_parts,
+            *single_kind_overflow_backlog_parts,
         ]
         if review_candidate_name:
             concise_single_kind_parts.append(f"review {review_candidate_name}")
@@ -2123,6 +2179,19 @@ def _build_command_center_fleet_activity_summary(
         fixed_ready_count=fixed_ready_count,
         variable_ready_count=variable_ready_count,
     )
+    single_kind_backlog_parts = _single_kind_candidate_backlog_parts(
+        fixed_candidate_count=fixed_candidate_count,
+        variable_candidate_count=variable_candidate_count,
+        fixed_review_count=fixed_review_count,
+        variable_review_count=variable_review_count,
+        fixed_ready_count=fixed_ready_count,
+        variable_ready_count=variable_ready_count,
+    )
+    single_kind_overflow_backlog_parts = (
+        backlog_parts
+        if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count)
+        else single_kind_backlog_parts if single_kind_backlog_parts and not backlog_parts else []
+    )
 
     if review_needed_count:
         minimal_parts.append(
@@ -2245,6 +2314,45 @@ def _build_command_center_fleet_activity_summary(
         and (fixed_candidate_count > 5 or variable_candidate_count > 5)
     ):
         return review_focus_summary
+    if single_kind_backlog_parts and not backlog_parts and candidate_count > 1:
+        single_kind_review_focus_parts = list(review_focus_parts)
+        insertion_index = next(
+            (
+                index + 1
+                for index, part in enumerate(single_kind_review_focus_parts)
+                if part.endswith(" unmanaged") or part == "no unmanaged candidates"
+            ),
+            len(single_kind_review_focus_parts),
+        )
+        for backlog_part in reversed(single_kind_backlog_parts):
+            if backlog_part not in single_kind_review_focus_parts:
+                single_kind_review_focus_parts.insert(insertion_index, backlog_part)
+        single_kind_review_focus_summary = " | ".join(single_kind_review_focus_parts)
+        if (
+            single_kind_review_focus_summary
+            and len(single_kind_review_focus_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+        ):
+            return single_kind_review_focus_summary
+        compact_single_kind_review_focus_parts = [
+            part
+            for part in single_kind_review_focus_parts
+            if not (
+                _matches_count_label(part, "needs review", "need review")
+                or _matches_count_label(part, "ready to promote")
+            )
+        ]
+        compact_single_kind_review_focus_parts = [
+            _clip_part(part, max_chars=28)
+            if part.startswith(("attention first ", "blocked ", "review ", "ready ", "active device "))
+            else part
+            for part in compact_single_kind_review_focus_parts
+        ]
+        compact_single_kind_review_focus_summary = " | ".join(compact_single_kind_review_focus_parts)
+        if (
+            compact_single_kind_review_focus_summary
+            and len(compact_single_kind_review_focus_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+        ):
+            return compact_single_kind_review_focus_summary
     if minimized_summary and len(minimized_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimized_summary
     if review_focus_summary and len(review_focus_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -2405,7 +2513,7 @@ def _build_command_center_fleet_activity_summary(
             )
         else:
             managed_backlog_essential_parts.append(part)
-    if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count):
+    if single_kind_overflow_backlog_parts and candidate_count > 1:
         insertion_index = next(
             (
                 index + 1
@@ -2414,15 +2522,15 @@ def _build_command_center_fleet_activity_summary(
             ),
             len(managed_backlog_essential_parts),
         )
-        for backlog_part in reversed(backlog_parts):
+        for backlog_part in reversed(single_kind_overflow_backlog_parts):
             if backlog_part not in managed_backlog_essential_parts:
                 managed_backlog_essential_parts.insert(insertion_index, backlog_part)
     managed_backlog_essential_summary = " | ".join(managed_backlog_essential_parts)
     if managed_backlog_essential_summary and len(managed_backlog_essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return managed_backlog_essential_summary
 
-    if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count):
-        single_kind_backlog_parts = [
+    if single_kind_overflow_backlog_parts and candidate_count > 1:
+        compact_single_kind_backlog_parts = [
             part
             for part in managed_backlog_essential_parts
             if not (
@@ -2431,13 +2539,13 @@ def _build_command_center_fleet_activity_summary(
                 or part.startswith("active device ")
             )
         ]
-        single_kind_backlog_parts = [
+        compact_single_kind_backlog_parts = [
             _clip_part(part, max_chars=28)
             if part.startswith(("attention first ", "blocked ", "review ", "ready "))
             else part
-            for part in single_kind_backlog_parts
+            for part in compact_single_kind_backlog_parts
         ]
-        single_kind_backlog_summary = " | ".join(single_kind_backlog_parts)
+        single_kind_backlog_summary = " | ".join(compact_single_kind_backlog_parts)
         if single_kind_backlog_summary and len(single_kind_backlog_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return single_kind_backlog_summary
 

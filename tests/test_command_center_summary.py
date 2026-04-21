@@ -3048,6 +3048,102 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage subboard auxiliary outlet bank candidate 02", summary["device_status"])
         self.assertIn("ready Pool shed circulation relay candidate 03", summary["device_status"])
 
+    def test_command_center_summary_preserves_single_kind_review_only_backlog_under_overflow(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Garage subboard auxiliary outlet bank candidate 02",
+                    "entity_id": "switch.garage_subboard_auxiliary_outlet_bank_candidate_02",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "Workshop north wall outlet verification candidate 04",
+                    "entity_id": "switch.workshop_north_wall_outlet_verification_candidate_04",
+                    "kind": "fixed",
+                },
+            ],
+            "Garage subboard auxiliary outlet bank candidate 02",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "low",
+            "warnings": ["generic outlet label needs manual verification before promotion"],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Garage subboard auxiliary outlet bank candidate 02 (fixed) | review first | warn generic outlet label needs manual verification before promotion"
+            if candidate and candidate.get("name") == "Garage subboard auxiliary outlet bank candidate 02"
+            else "Workshop north wall outlet verification candidate 04 (fixed) | review first | warn confirm downstream circuit before promotion"
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action(s), plan Pool pump (fixed | action turn_on)",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            blocked_planned_action_count=1,
+            active_controlled_power_w=920.0,
+            device_details={
+                "pool_pump": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "last_action_status": "failed",
+                },
+                "heated_floor": {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("fixed backlog 2 review", summary["fleet_activity_summary"])
+        self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
+        self.assertNotIn("ready ", summary["fleet_activity_summary"])
+        self.assertLessEqual(len(summary["device_status"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("fixed backlog 2 review", summary["device_status"])
+        self.assertIn("review Garage subboard auxiliary outlet bank candidate 02", summary["device_status"])
+        self.assertNotIn("ready ", summary["device_status"])
+
     def test_command_center_summary_prefers_controls_over_diagnostics_when_policy_is_the_recommended_home(self) -> None:
         native_support = _load_native_support_module()
 
