@@ -1899,12 +1899,6 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(
                     f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}"
                 )
-        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
-        if kind_known:
-            summary_parts.append(f"{fixed_managed_count} fixed managed")
-            if variable_managed_count:
-                summary_parts.append(f"{variable_managed_count} variable managed")
-            summary_parts.append(f"{nominal_power_w} W nominal")
 
     if candidate_count:
         summary_parts.append(f"{candidate_count} unmanaged")
@@ -1944,6 +1938,14 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
         if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
             summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
+
+    if managed_count > 0:
+        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+        if kind_known:
+            summary_parts.append(f"{fixed_managed_count} fixed managed")
+            if variable_managed_count:
+                summary_parts.append(f"{variable_managed_count} variable managed")
+            summary_parts.append(f"{nominal_power_w} W nominal")
 
     summary = " | ".join(summary_parts)
     if len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:

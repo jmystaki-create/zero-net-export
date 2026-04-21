@@ -237,8 +237,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertLess(
-            summary["fleet_activity_summary"].index("1200 W nominal"),
             summary["fleet_activity_summary"].index("1 unmanaged"),
+            summary["fleet_activity_summary"].index("enabled 1"),
+        )
+        self.assertLess(
+            summary["fleet_activity_summary"].index("review AC Outlet 2 (fixed) | review first | warn generic outlet label"),
+            summary["fleet_activity_summary"].index("1200 W nominal"),
         )
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
         self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
