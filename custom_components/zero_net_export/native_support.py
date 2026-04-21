@@ -100,6 +100,10 @@ def _planned_action_count_label(count: int) -> str:
     return _count_label(count, "planned action")
 
 
+def _managed_count_label(count: int) -> str:
+    return "no managed yet" if count <= 0 else f"{count} managed"
+
+
 def _matches_count_label(text: str, singular: str, plural: str | None = None) -> bool:
     normalized = " ".join(str(text or "").split())
     if not normalized:
@@ -1850,7 +1854,7 @@ def _build_command_center_fleet_activity_summary(
         else 0
     )
 
-    summary_parts: list[str] = [f"{managed_count} managed"]
+    summary_parts: list[str] = [_managed_count_label(managed_count)]
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
@@ -1997,7 +2001,7 @@ def _build_command_center_fleet_activity_summary(
             return normalized[:max_chars]
         return normalized[: max_chars - 3].rstrip() + "..."
 
-    minimal_parts: list[str] = [f"{managed_count} managed"]
+    minimal_parts: list[str] = [_managed_count_label(managed_count)]
 
     if source_blocked:
         minimal_parts.append("repair sources first")
@@ -2108,6 +2112,47 @@ def _build_command_center_fleet_activity_summary(
     minimal_summary = " | ".join(minimal_parts)
     if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimal_summary
+
+    if managed_count <= 0 and fixed_candidate_count and variable_candidate_count:
+        empty_fleet_kind_parts: list[str] = [_managed_count_label(managed_count)]
+        if source_blocked:
+            empty_fleet_kind_parts.append("repair sources first")
+        empty_fleet_kind_parts.extend(
+            [
+                f"{candidate_count} unmanaged",
+                _count_label(fixed_candidate_count, "fixed candidate"),
+                _count_label(variable_candidate_count, "variable candidate"),
+            ]
+        )
+        if review_needed_count:
+            empty_fleet_kind_parts.append(
+                "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
+            )
+            if review_candidate_preview:
+                empty_fleet_kind_parts.append(
+                    _clip_part(f"review {review_candidate_preview}", max_chars=40)
+                )
+            elif review_candidate_name:
+                empty_fleet_kind_parts.append(
+                    _clip_part(f"review {review_candidate_name}", max_chars=40)
+                )
+        if ready_candidate_count:
+            empty_fleet_kind_parts.append(
+                "1 ready to promote"
+                if ready_candidate_count == 1
+                else f"{ready_candidate_count} ready to promote"
+            )
+            if ready_candidate_preview and ready_candidate_name:
+                empty_fleet_kind_parts.append(
+                    _clip_part(f"ready {ready_candidate_preview}", max_chars=40)
+                )
+            elif ready_candidate_name:
+                empty_fleet_kind_parts.append(
+                    _clip_part(f"ready {ready_candidate_name}", max_chars=40)
+                )
+        empty_fleet_kind_summary = " | ".join(empty_fleet_kind_parts)
+        if len(empty_fleet_kind_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return empty_fleet_kind_summary
 
     removable_part_matchers = (
         lambda part: part.startswith("surfaced "),
@@ -2232,7 +2277,7 @@ def _build_command_center_fleet_activity_summary(
     if compact_minimal_summary and len(compact_minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return compact_minimal_summary
 
-    essential_parts: list[str] = [f"{managed_count} managed"]
+    essential_parts: list[str] = [_managed_count_label(managed_count)]
     if source_blocked:
         essential_parts.append("repair sources first")
     if first_attention_device:

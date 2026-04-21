@@ -1500,7 +1500,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertTrue(
             summary["fleet_activity_summary"].startswith(
-                "0 managed | repair sources first | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2"
+                "no managed yet | repair sources first | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2"
             )
         )
 
@@ -2208,7 +2208,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
         self.assertEqual(
             summary["fleet_activity_summary"],
-            "0 managed | repair sources first | no unmanaged candidates",
+            "no managed yet | repair sources first | no unmanaged candidates",
         )
 
     def test_command_center_summary_surfaces_managed_device_attention_in_top_alerts(self) -> None:
