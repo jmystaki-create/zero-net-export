@@ -759,6 +759,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("attention first Pool pump", summary["fleet_activity_summary"])
         self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
         self.assertIn("2 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("fixed backlog 1 review", summary["fleet_activity_summary"])
+        self.assertIn("variable backlog 1 ready", summary["fleet_activity_summary"])
         self.assertIn("review Virtual load", summary["fleet_activity_summary"])
         self.assertIn("ready EV charger", summary["fleet_activity_summary"])
         self.assertNotIn("1 fixed candidate", summary["fleet_activity_summary"])

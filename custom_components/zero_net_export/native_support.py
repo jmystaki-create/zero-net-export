@@ -2386,6 +2386,41 @@ def _build_command_center_fleet_activity_summary(
             or _matches_count_label(part, "planned action")
         )
     ]
+    if (
+        backlog_parts
+        and fixed_candidate_count
+        and variable_candidate_count
+        and candidate_count <= 2
+        and managed_count > 1
+        and active_managed_count > 0
+        and first_active_device
+        and (not first_attention_device or not _same_runtime_device(first_active_device, first_attention_device))
+        and (not first_blocked_device or not _same_runtime_device(first_active_device, first_blocked_device))
+    ):
+        managed_unmanaged_split_parts: list[str] = []
+        backlog_inserted = False
+        for part in attention_priority_parts:
+            if (
+                part.startswith("active load ")
+                or part.startswith("active device ")
+                or _matches_count_label(part, "active managed device", "active managed devices")
+                or _matches_count_label(part, "needs review", "need review")
+                or _matches_count_label(part, "ready to promote")
+            ):
+                continue
+            if part.startswith(("review ", "ready ")):
+                managed_unmanaged_split_parts.append(_clip_part(part, max_chars=28))
+            else:
+                managed_unmanaged_split_parts.append(part)
+            if not backlog_inserted and (part.endswith(" unmanaged") or part == "no unmanaged candidates"):
+                managed_unmanaged_split_parts.extend(backlog_parts)
+                backlog_inserted = True
+        if not backlog_inserted:
+            managed_unmanaged_split_parts.extend(backlog_parts)
+        managed_unmanaged_split_summary = " | ".join(managed_unmanaged_split_parts)
+        if managed_unmanaged_split_summary and len(managed_unmanaged_split_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return managed_unmanaged_split_summary
+
     attention_priority_summary = " | ".join(attention_priority_parts)
     if attention_priority_summary and len(attention_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return attention_priority_summary
