@@ -491,6 +491,92 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             message,
         )
 
+    def test_fleet_console_button_no_candidate_usefulness_fallback_stays_explicit(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool pump"},
+                    )
+                ]
+            )
+        )
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        message = notification_calls[0]["args"][1]
+        self.assertIn(
+            "- Currently surfaced candidate usefulness: No surfaced unmanaged candidate is available.",
+            message,
+        )
+        self.assertNotIn("No unmanaged candidate guidance available right now.", message)
+
+    def test_managed_device_review_button_no_candidate_usefulness_fallback_stays_explicit(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "status": "Ready for control",
+                        "guard_status": "ready",
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+        button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        button.hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id="switch.pool_pump",
+                        state="off",
+                        attributes={"friendly_name": "Pool pump"},
+                    )
+                ]
+            )
+        )
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        message = notification_calls[0]["args"][1]
+        self.assertIn(
+            "Currently surfaced candidate usefulness: No surfaced unmanaged candidate is available.",
+            message,
+        )
+        self.assertNotIn("No unmanaged candidate guidance available right now.", message)
+
     def test_candidate_discovery_cache_is_shared_across_button_surfaces_for_same_state(self) -> None:
         button_module = _load_button_module()
         discover_calls: list[tuple[str, ...]] = []

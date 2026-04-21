@@ -1119,7 +1119,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             (
                 f"- Currently surfaced candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
                 if top_candidate_fit
-                else '- Currently surfaced candidate usefulness: No unmanaged candidate guidance available right now.'
+                else '- Currently surfaced candidate usefulness: No surfaced unmanaged candidate is available.'
             ),
             (
                 '- Currently surfaced candidate warnings: '
@@ -1283,7 +1283,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             (
                 f"Currently surfaced candidate usefulness: {_candidate_usefulness_summary(top_candidate)}"
                 if top_candidate_fit
-                else "Currently surfaced candidate usefulness: No unmanaged candidate guidance available right now."
+                else "Currently surfaced candidate usefulness: No surfaced unmanaged candidate is available."
             ),
             (
                 "Currently surfaced candidate warnings: "
