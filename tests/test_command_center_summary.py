@@ -237,7 +237,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertLess(
-            summary["fleet_activity_summary"].index("1 unmanaged"),
+            summary["fleet_activity_summary"].index("1 unmanaged backlog"),
             summary["fleet_activity_summary"].index("1 fixed managed"),
         )
         self.assertLess(
@@ -246,7 +246,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
         self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
-        self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("1 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertNotIn("| 1 unmanaged |", f"| {summary['fleet_activity_summary']} |")
         self.assertIn("1 fixed candidate", summary["fleet_activity_summary"])
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("review AC Outlet 2 (fixed) | review first | warn generic outlet label", summary["fleet_activity_summary"])
@@ -257,7 +258,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("active load 1200 W", summary["fleet_activity_summary"])
         self.assertIn("1 active managed device", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
-        self.assertIn("1 unmanaged", summary["device_status"])
+        self.assertIn("1 unmanaged backlog", summary["device_status"])
+        self.assertNotIn("| 1 unmanaged |", f"| {summary['device_status']} |")
         self.assertIn("1 needs review", summary["device_status"])
         self.assertIn(
             "review AC Outlet 2 (fixed) | review first | warn generic outlet label",
@@ -399,7 +401,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotEqual(summary["fleet_activity_summary"], summary["device_status"])
         self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
         self.assertIn("1 managed", summary["fleet_activity_summary"])
-        self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("1 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertNotIn("| 1 unmanaged |", f"| {summary['fleet_activity_summary']} |")
         self.assertIn("blocked Hot water relay", summary["fleet_activity_summary"])
         self.assertIn("review Garage subboard auxiliary outlet bank candidate 02", summary["fleet_activity_summary"])
 
@@ -818,7 +821,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
         self.assertIn("attention first Pool pump", summary["fleet_activity_summary"])
         self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
-        self.assertIn("2 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertNotIn("| 2 unmanaged |", f"| {summary['fleet_activity_summary']} |")
         self.assertIn("fixed backlog 1 review", summary["fleet_activity_summary"])
         self.assertIn("variable backlog 1 ready", summary["fleet_activity_summary"])
         self.assertIn("review Virtual load", summary["fleet_activity_summary"])
@@ -893,7 +897,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("2 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertNotIn("| 2 unmanaged |", f"| {summary['fleet_activity_summary']} |")
         self.assertIn("fixed backlog 1 review", summary["fleet_activity_summary"])
         self.assertIn("variable backlog 1 review", summary["fleet_activity_summary"])
         self.assertIn("2 need review", summary["fleet_activity_summary"])
@@ -1288,7 +1293,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("1 configured, with 1 issue(s) to repair", summary["device_status"])
-        self.assertIn("2 unmanaged", summary["device_status"])
+        self.assertIn("2 unmanaged backlog", summary["device_status"])
+        self.assertNotIn("| 2 unmanaged |", f"| {summary['device_status']} |")
         self.assertIn("1 needs review", summary["device_status"])
         self.assertIn("1 ready to promote", summary["device_status"])
         self.assertIn("review Garage Power (fixed) | review first | warn generic circuit label", summary["device_status"])
@@ -1375,7 +1381,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("ready Dishwasher Power", summary["fleet_activity_summary"])
         self.assertNotIn("top Dishwasher Power", summary["fleet_activity_summary"])
         self.assertIn("likely useful", summary["fleet_activity_summary"])
-        self.assertIn("2 unmanaged", summary["device_status"])
+        self.assertIn("2 unmanaged backlog", summary["device_status"])
+        self.assertNotIn("| 2 unmanaged |", f"| {summary['device_status']} |")
         self.assertIn("1 needs review", summary["device_status"])
         self.assertIn("1 ready to promote", summary["device_status"])
         self.assertIn("review Garage Power (fixed) | review carefully | warn generic circuit label", summary["device_status"])
@@ -2944,7 +2951,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertLess(
             summary["fleet_activity_summary"].index("1 active managed device"),
-            summary["fleet_activity_summary"].index("2 unmanaged"),
+            summary["fleet_activity_summary"].index("2 unmanaged backlog"),
         )
 
     def test_command_center_summary_surfaces_per_kind_backlog_mix_when_fixed_and_variable_candidates_split(self) -> None:
