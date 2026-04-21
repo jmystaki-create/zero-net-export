@@ -1743,9 +1743,13 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 managed device needs attention", summary["fleet_activity_summary"])
         self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
         self.assertIn("action turn_on", summary["fleet_activity_summary"])
-        self.assertNotIn("plan Pool pump", summary["fleet_activity_summary"])
+        self.assertIn("plan Pool pump", summary["fleet_activity_summary"])
         self.assertLess(
             summary["fleet_activity_summary"].index("blocked Pool pump"),
+            summary["fleet_activity_summary"].index("plan Pool pump"),
+        )
+        self.assertLess(
+            summary["fleet_activity_summary"].index("plan Pool pump"),
             summary["fleet_activity_summary"].index("enabled 2"),
         )
 

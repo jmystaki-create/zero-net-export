@@ -1988,7 +1988,7 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(
                 _planned_action_count_label(planned_activity_count)
             )
-        if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
+        if first_planned_device:
             summary_parts.append(
                 f"plan {_command_center_fleet_focus_label(first_planned_device, include_plan_context=True)}"
             )
@@ -2153,7 +2153,7 @@ def _build_command_center_fleet_activity_summary(
 
     if planned_activity_count:
         minimal_parts.append(_planned_action_count_label(planned_activity_count))
-        if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
+        if first_planned_device:
             minimal_parts.append(
                 _clip_part(
                     f"plan {_command_center_fleet_focus_label(first_planned_device, include_plan_context=True)}",
