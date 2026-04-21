@@ -442,7 +442,7 @@ This is the explicit `0.1.87` rollout target James asked for. It converts the st
 
 ### 0.1.87 acceptance test
 `0.1.87` is only successful if James can open the live HA surfaces and see:
-- command center behaving like setup only
+- the command center behaving like a setup-first operator console with the current operating picture obvious at the top, not like a setup-only helper screen
 - Configure -> Managed Devices clearly functioning as the managed-devices workspace, with the device page acting as the deeper review path
 - managed vs unmanaged visually obvious
 - promotion/review workflow clearly visible
