@@ -2280,6 +2280,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         flow.hass = SimpleNamespace(data={module.DOMAIN: {}}, states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None))
         flow.async_show_form = lambda **kwargs: kwargs
         flow._load_devices = lambda: ([], [])
+        flow._device_candidates = lambda: []
         flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
         flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
             "missing_source_keys": [],
@@ -2301,6 +2302,59 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
             f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
+        )
+
+    def test_policy_step_empty_fleet_surfaces_review_first_and_ready_next_candidates(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(
+            SimpleNamespace(
+                title="Zero Net Export",
+                options={},
+                data={
+                    module.CONF_TARGET_EXPORT_W: 50,
+                    module.CONF_DEADBAND_W: 25,
+                    module.CONF_BATTERY_RESERVE_SOC: 20,
+                    module.CONF_REFRESH_SECONDS: 30,
+                },
+            )
+        )
+        flow.hass = SimpleNamespace(data={module.DOMAIN: {}}, states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None))
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._load_devices = lambda: ([], [])
+        flow._device_candidates = lambda: [
+            {"name": "Dishwasher Power", "entity_id": "switch.dishwasher_power", "kind": module.DEVICE_KIND_FIXED},
+            {"name": "Virtual load", "entity_id": "input_boolean.virtual_load", "kind": module.DEVICE_KIND_FIXED},
+        ]
+        flow._top_candidate_focus_text = lambda candidate: f"{candidate['name']} (fixed) | likely useful"
+        flow._coordinator = lambda: SimpleNamespace(data=SimpleNamespace())
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "missing_source_keys": [],
+            "has_runtime_source_attention": False,
+        }
+        flow._source_placeholders = lambda effective_config=None, grid_mode=None: {
+            "source_health": "Sources healthy",
+            "source_next_step": f"Open {module.POLICY_CONFIGURE_PATH} to tune target export, reserve, deadband, or live mode.",
+        }
+        module._grid_mode_default = lambda entry: module.GRID_SENSOR_MODE_COMBINED
+        module.build_native_command_center_summary = lambda coordinator: {
+            "control_decision_summary": "Holding steady.",
+            "control_outcome_summary": "No adjustment needed.",
+        }
+        module._live_mode_details = lambda coordinator: ("Monitor only", "Runtime is observing without active load control.")
+        original_assess_candidate = module.assess_candidate
+        original_candidate_needs_review = module.candidate_needs_review
+        module.assess_candidate = lambda candidate: {"needs_review": candidate["name"] == "Virtual load"}
+        module.candidate_needs_review = lambda fit: fit.get("needs_review", False)
+
+        try:
+            result = asyncio.run(flow.async_step_policy())
+        finally:
+            module.assess_candidate = original_assess_candidate
+            module.candidate_needs_review = original_candidate_needs_review
+
+        self.assertEqual(
+            result["description_placeholders"]["policy_next_step"],
+            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
         )
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
