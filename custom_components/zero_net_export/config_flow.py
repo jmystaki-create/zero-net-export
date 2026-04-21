@@ -1403,12 +1403,18 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 label += f" / {_attention_count_label(attention_count)}"
             return label
         if action == "edit":
-            label = f"Edit managed device / {cls._count_label(managed_count, 'managed device')}"
+            label = (
+                "Review managed devices workspace / edit managed device"
+                f" / {cls._count_label(managed_count, 'managed device')}"
+            )
             if attention_count:
                 label += f" / {_attention_count_label(attention_count)}"
             return label
         if action == "remove":
-            label = f"Remove managed device / {cls._count_label(managed_count, 'managed device')}"
+            label = (
+                "Review managed devices workspace / remove managed device"
+                f" / {cls._count_label(managed_count, 'managed device')}"
+            )
             if attention_count:
                 label += f" / {_attention_count_label(attention_count)}"
             return label

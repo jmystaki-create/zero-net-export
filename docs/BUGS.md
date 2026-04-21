@@ -1497,6 +1497,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`.
 - **next action:** include this edit/remove workspace-copy cleanup in the next exact-build deploy, then confirm the live entry points stay aligned with the rest of the Managed Devices workspace-first fleet flow.
 
+## ZNE-121 - Managed Devices action labels still framed edit/remove as isolated pickers instead of the workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking the remaining Workstream B entry-point wording in `custom_components/zero_net_export/config_flow.py` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the recent Managed Devices copy cleanup had already made the bulk-enable action label workspace-first, but the adjacent edit/remove action labels in Configure still read `Edit managed device / ...` and `Remove managed device / ...`. That left two first-class fleet actions sounding like isolated picker actions instead of the same primary Managed Devices workspace the surrounding flow now names explicitly.
+- **expected behavior:** the edit/remove action labels should keep the same workspace-first framing as the rest of Configure -> Managed Devices so operators see those actions as part of the main fleet workspace, not detached picker branches.
+- **evidence:** this run's repo audit found `_device_action_label(...)` in `custom_components/zero_net_export/config_flow.py` still returning bare `Edit managed device / ...` and `Remove managed device / ...` labels while the neighboring bulk-enable branch already said `Review managed devices workspace / ...`. `tests/test_config_flow_device_runtime_overlay.py` was still locking the older non-workspace labels into the managed-device action menu.
+- **suspected cause:** earlier Workstream B cleanup fixed the more verbose edit/remove descriptions first, but stopped short of carrying the same workspace-first framing into the top-level action labels that launch those flows.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so the edit/remove action labels now read `Review managed devices workspace / edit managed device / ...` and `Review managed devices workspace / remove managed device / ...`, and refreshes `tests/test_config_flow_device_runtime_overlay.py` to lock that workspace-first wording into the Configure action menu.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`.
+- **next action:** include this action-label cleanup in the next exact-build deploy, then confirm the live Managed Devices action menu keeps edit/remove framed as workspace actions instead of isolated pickers.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

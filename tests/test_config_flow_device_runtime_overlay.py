@@ -996,11 +996,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             options[3]["label"],
-            "Edit managed device / 2 managed devices / 1 managed device needs attention",
+            "Review managed devices workspace / edit managed device / 2 managed devices / 1 managed device needs attention",
         )
         self.assertEqual(
             options[4]["label"],
-            "Remove managed device / 2 managed devices / 1 managed device needs attention",
+            "Review managed devices workspace / remove managed device / 2 managed devices / 1 managed device needs attention",
         )
         self.assertEqual(options[5]["label"], "Advanced JSON editor / recovery")
 
