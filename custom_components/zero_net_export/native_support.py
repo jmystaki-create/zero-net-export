@@ -272,7 +272,7 @@ def _compact_next_action_fallback(
                 f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes."
             )
         return (
-            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now."
+            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
         )
 
     if recommended_section == POLICY_SECTION_LABEL:
@@ -2423,7 +2423,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
             )
 
     recommendation = build_native_setup_recommendation(
@@ -2487,7 +2487,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
         else:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
             )
     elif readiness_phase == "runtime_readiness":
         next_action_summary = str(

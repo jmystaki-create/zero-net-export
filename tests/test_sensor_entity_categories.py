@@ -1134,7 +1134,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available",
         )
 
     def test_fleet_console_next_step_names_ready_next_candidate_after_review_when_backlog_is_mixed(self) -> None:
@@ -1260,7 +1260,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available",
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
