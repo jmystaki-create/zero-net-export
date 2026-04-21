@@ -1128,7 +1128,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
     @classmethod
     def _unmanaged_snapshot_text(cls, candidates: list[dict[str, Any]]) -> str:
         if not candidates:
-            return "0 candidates"
+            return "no unmanaged candidates"
 
         fixed_count, variable_count = cls._candidate_mix_counts(candidates)
         review_candidates = [item for item in candidates if candidate_needs_review(assess_candidate(item))]
