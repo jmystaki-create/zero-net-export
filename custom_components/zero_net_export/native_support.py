@@ -1682,8 +1682,12 @@ def _command_center_device_status_with_unmanaged_context(
         if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count)
         else single_kind_backlog_parts if single_kind_backlog_parts and not backlog_parts else []
     )
-    for backlog_part in backlog_parts:
-        summary += f"; {backlog_part}"
+    if backlog_parts:
+        for backlog_part in backlog_parts:
+            summary += f"; {backlog_part}"
+    else:
+        for backlog_part in single_kind_backlog_parts:
+            summary += f"; {backlog_part}"
     if review_needed_count:
         summary += f"; {_count_label(review_needed_count, 'needs review', 'need review')}"
     if ready_candidate_count:
@@ -1703,6 +1707,8 @@ def _command_center_device_status_with_unmanaged_context(
     ]
     if backlog_parts:
         compact_parts.extend(backlog_parts)
+    elif single_kind_backlog_parts:
+        compact_parts.extend(single_kind_backlog_parts)
     if review_needed_count:
         compact_parts.append(_count_label(review_needed_count, "needs review", "need review"))
         if review_candidate_preview:
@@ -1785,6 +1791,8 @@ def _command_center_device_status_with_unmanaged_context(
     ]
     if backlog_parts:
         essential_parts.extend(backlog_parts)
+    elif single_kind_backlog_parts:
+        essential_parts.extend(single_kind_backlog_parts)
     if review_needed_count:
         essential_parts.append(_count_label(review_needed_count, "needs review", "need review"))
     if ready_candidate_count:
@@ -2006,16 +2014,27 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         if variable_candidate_count:
             summary_parts.append(_count_label(variable_candidate_count, "variable candidate"))
-        summary_parts.extend(
-            _candidate_kind_backlog_mix_parts(
-                fixed_candidate_count=fixed_candidate_count,
-                variable_candidate_count=variable_candidate_count,
-                fixed_review_count=fixed_review_count,
-                variable_review_count=variable_review_count,
-                fixed_ready_count=fixed_ready_count,
-                variable_ready_count=variable_ready_count,
-            )
+        backlog_parts = _candidate_kind_backlog_mix_parts(
+            fixed_candidate_count=fixed_candidate_count,
+            variable_candidate_count=variable_candidate_count,
+            fixed_review_count=fixed_review_count,
+            variable_review_count=variable_review_count,
+            fixed_ready_count=fixed_ready_count,
+            variable_ready_count=variable_ready_count,
         )
+        if backlog_parts:
+            summary_parts.extend(backlog_parts)
+        else:
+            summary_parts.extend(
+                _single_kind_candidate_backlog_parts(
+                    fixed_candidate_count=fixed_candidate_count,
+                    variable_candidate_count=variable_candidate_count,
+                    fixed_review_count=fixed_review_count,
+                    variable_review_count=variable_review_count,
+                    fixed_ready_count=fixed_ready_count,
+                    variable_ready_count=variable_ready_count,
+                )
+            )
         if review_needed_count:
             summary_parts.append("1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review")
             if fixed_review_count:
