@@ -2049,7 +2049,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             placeholders["source_next_step"],
-            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now.",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now.",
         )
         self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
         self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
@@ -2291,7 +2291,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now.",
+            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now.",
         )
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
@@ -2755,7 +2755,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now.",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now.",
         )
 
     def test_device_next_step_uses_managed_devices_workspace_wording_for_enablement(self) -> None:

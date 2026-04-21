@@ -2204,7 +2204,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     source_next_step += "."
                 elif not devices:
                     source_next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now."
+                        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now."
                     )
                 elif primary_candidate:
                     candidate_focus = self._top_candidate_focus_text(primary_candidate)
@@ -2800,7 +2800,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return next_step + "."
         if not devices:
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now."
             )
         if primary_candidate:
             candidate_focus = self._top_candidate_focus_text(primary_candidate)
@@ -3614,7 +3614,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             policy_readiness = "No managed devices are configured yet. You can tune policy now, but control will not act until devices are added."
             policy_next_step = (
                 f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, "
-                "then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now."
+                "then add the first fixed or variable load manually when no surfaced unmanaged candidate is available right now."
             )
         else:
             policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
