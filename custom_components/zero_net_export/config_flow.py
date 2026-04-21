@@ -1009,7 +1009,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
     def _managed_snapshot_text(self, devices: list[dict[str, Any]]) -> str:
         if not devices:
-            return "no managed yet | 0 enabled | 0 usable"
+            return "no managed yet"
 
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))

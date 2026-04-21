@@ -354,6 +354,9 @@ def _managed_count_label(count: int) -> str:
 
 def _managed_snapshot_summary(device_details: list[dict], *, include_planned_count: bool = False) -> str:
     managed_count = len(device_details)
+    if managed_count <= 0:
+        return _managed_count_label(managed_count)
+
     enabled_count = sum(
         1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))
     )

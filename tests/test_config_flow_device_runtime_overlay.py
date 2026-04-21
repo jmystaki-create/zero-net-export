@@ -566,7 +566,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text([]),
-            "no managed yet | 0 enabled | 0 usable",
+            "no managed yet",
         )
 
     def test_managed_snapshot_surfaces_failed_only_attention(self) -> None:
