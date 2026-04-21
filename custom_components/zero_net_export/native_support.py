@@ -920,8 +920,10 @@ def _command_center_managed_snapshot_focus_label(detail: dict[str, Any] | None) 
             parts.append(f"action {planned_action}")
     elif _runtime_device_has_recent_attention(detail) and detail.get("last_action_status"):
         parts.append(f"last {detail.get('last_action_status')}")
-    elif detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
-        parts.append(f"active {float(detail.get('current_power_w') or 0):g} W")
+    if detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
+        active_power = f"active {float(detail.get('current_power_w') or 0):g} W"
+        if active_power not in parts:
+            parts.append(active_power)
     return f"{name} ({' | '.join(parts)})" if parts else name
 
 
@@ -1742,8 +1744,14 @@ def _build_command_center_fleet_activity_summary(
             or (first_attention_device or {}).get("entity_id")
             or "managed device"
         ).strip()
+        attention_parts = [attention_kind] if attention_kind else []
+        if (
+            first_attention_device.get("observed_active") is True
+            and first_attention_device.get("current_power_w") not in (None, "")
+        ):
+            attention_parts.append(f"active {float(first_attention_device.get('current_power_w') or 0):g} W")
         attention_focus_label = (
-            f"{attention_name} ({attention_kind})" if attention_kind else attention_name
+            f"{attention_name} ({' | '.join(attention_parts)})" if attention_parts else attention_name
         )
     else:
         attention_focus_label = _command_center_managed_snapshot_focus_label(first_attention_device)
