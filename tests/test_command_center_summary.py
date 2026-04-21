@@ -152,7 +152,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Waiting for min-off timer to clear.", summary["control_decision_summary"])
         self.assertIn("planned actions 1", summary["control_outcome_summary"])
         self.assertIn("active load 1200.0 W", summary["control_outcome_summary"])
-        self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertIn("enabled 1", summary["fleet_activity_summary"])
         self.assertIn("usable 1", summary["fleet_activity_summary"])
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
@@ -234,8 +234,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("managed 1", summary["fleet_activity_summary"])
-        self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("1 managed", summary["fleet_activity_summary"])
+        self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertLess(
             summary["fleet_activity_summary"].index("1200 W nominal"),
             summary["fleet_activity_summary"].index("1 unmanaged"),
@@ -336,7 +336,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertNotEqual(summary["fleet_activity_summary"], summary["device_status"])
         self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
-        self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("blocked Hot water relay", summary["fleet_activity_summary"])
         self.assertIn("review Garage subboard auxiliary outlet bank candidate 02", summary["fleet_activity_summary"])
@@ -571,7 +571,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
-        self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertIn("1 managed", summary["fleet_activity_summary"])
         self.assertIn("12 unmanaged", summary["fleet_activity_summary"])
         self.assertIn("blocked Hot water relay", summary["fleet_activity_summary"])
         self.assertIn("6 need review", summary["fleet_activity_summary"])
@@ -1388,7 +1388,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertTrue(
             summary["fleet_activity_summary"].startswith(
-                "managed 0 | repair sources first | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2"
+                "0 managed | repair sources first | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2"
             )
         )
 
@@ -2035,7 +2035,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
         self.assertEqual(
             summary["fleet_activity_summary"],
-            "managed 0 | repair sources first | no unmanaged candidates",
+            "0 managed | repair sources first | no unmanaged candidates",
         )
 
     def test_command_center_summary_surfaces_managed_device_attention_in_top_alerts(self) -> None:

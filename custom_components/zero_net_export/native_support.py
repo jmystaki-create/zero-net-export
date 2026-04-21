@@ -1743,7 +1743,7 @@ def _build_command_center_fleet_activity_summary(
         else 0
     )
 
-    summary_parts: list[str] = [f"managed {managed_count}"]
+    summary_parts: list[str] = [f"{managed_count} managed"]
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
@@ -1896,7 +1896,7 @@ def _build_command_center_fleet_activity_summary(
             return normalized[:max_chars]
         return normalized[: max_chars - 3].rstrip() + "..."
 
-    minimal_parts: list[str] = [f"managed {managed_count}"]
+    minimal_parts: list[str] = [f"{managed_count} managed"]
 
     if source_blocked:
         minimal_parts.append("repair sources first")
@@ -2105,7 +2105,7 @@ def _build_command_center_fleet_activity_summary(
     if compact_minimal_summary and len(compact_minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return compact_minimal_summary
 
-    essential_parts: list[str] = [f"managed {managed_count}"]
+    essential_parts: list[str] = [f"{managed_count} managed"]
     if source_blocked:
         essential_parts.append("repair sources first")
     if first_attention_device:
