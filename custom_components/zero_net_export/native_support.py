@@ -2652,6 +2652,39 @@ def _build_command_center_fleet_activity_summary(
     if managed_backlog_essential_summary and len(managed_backlog_essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return managed_backlog_essential_summary
 
+    operator_story_parts: list[str] = []
+    for part in managed_backlog_essential_parts:
+        if (
+            _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+            or _matches_count_label(part, "needs review", "need review")
+            or _matches_count_label(part, "ready to promote")
+            or _matches_count_label(part, "active managed device", "active managed devices")
+            or part.startswith(("surfaced ", "enabled ", "usable "))
+            or part.endswith(" W nominal")
+        ):
+            continue
+        if part.startswith(("attention first ", "blocked ", "plan ", "active device ", "review ", "ready ")):
+            operator_story_parts.append(_clip_part(part, max_chars=28))
+        else:
+            operator_story_parts.append(part)
+    story_backlog_parts = backlog_parts or single_kind_overflow_backlog_parts or single_kind_backlog_parts
+    if story_backlog_parts:
+        insertion_index = next(
+            (
+                index + 1
+                for index, part in enumerate(operator_story_parts)
+                if _is_unmanaged_count_part(part)
+            ),
+            len(operator_story_parts),
+        )
+        for backlog_part in reversed(story_backlog_parts):
+            if backlog_part not in operator_story_parts:
+                operator_story_parts.insert(insertion_index, backlog_part)
+    operator_story_summary = " | ".join(operator_story_parts)
+    if operator_story_summary and len(operator_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return operator_story_summary
+
     if single_kind_overflow_backlog_parts and candidate_count > 1:
         compact_single_kind_backlog_parts = [
             part
