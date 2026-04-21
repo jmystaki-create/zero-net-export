@@ -136,7 +136,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         edit_pick_description = steps["device_edit_pick"]["description"]
         self.assertIn("Use this Managed Devices workspace to choose which managed device to edit from the native fleet list.", edit_pick_description)
-        self.assertIn("Managed Devices owns this fleet-edit workflow", edit_pick_description)
+        self.assertIn("Managed Devices owns this fleet-edit workflow.", edit_pick_description)
+        self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below.", edit_pick_description)
+        self.assertNotIn("with the managed fleet on top and unmanaged promotion backlog below", edit_pick_description)
         self.assertNotIn("This is the in-place native edit path", edit_pick_description)
         self.assertIn("Managed devices (top section)", edit_pick_description)
         self.assertIn("Managed Devices: {device_count}", edit_pick_description)
@@ -176,9 +178,21 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertEqual(steps["device_vetting"]["title"], "Promotion review")
         self.assertEqual(steps["device_template"]["title"], "Promotion preset")
 
+        shortlist_description = steps["device_pick_candidate"]["description"]
+        self.assertIn("Managed Devices owns this promotion entry step.", shortlist_description)
+        self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you choose the next candidate.", shortlist_description)
+        self.assertNotIn("keep the managed fleet visible on top and the unmanaged backlog visible below", shortlist_description)
+
+        full_list_description = steps["device_pick_candidate_full"]["description"]
+        self.assertIn("Managed Devices still owns this full-list step.", full_list_description)
+        self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you choose the next candidate.", full_list_description)
+        self.assertNotIn("keep the managed fleet visible on top and the unmanaged backlog visible below", full_list_description)
+
         vetting_description = steps["device_vetting"]["description"]
         self.assertIn("Review this unmanaged candidate before it enters the managed fleet.", vetting_description)
-        self.assertIn("Managed Devices owns this promotion workflow", vetting_description)
+        self.assertIn("Managed Devices owns this promotion workflow.", vetting_description)
+        self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you vet the candidate.", vetting_description)
+        self.assertNotIn("keep the managed fleet visible on top and the unmanaged backlog visible below", vetting_description)
         self.assertIn("Managed devices (top section)", vetting_description)
         self.assertIn("Managed Devices: {device_count}", vetting_description)
         self.assertIn("Managed devices review:", vetting_description)

@@ -1432,6 +1432,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page handoff copy correction in the next exact-build deploy, then confirm the live empty-fleet promotion handoff no longer implies a hidden surfaced candidate exists.
 
+## ZNE-116 - Promotion shortlist, full-list, review, and edit entry copy still used older managed-fleet narration
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-21 while checking remaining Workstreams B/C copy seams in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the main Managed Devices landing, bulk-enable flow, and preset/save/remove follow-ons had already been tightened to the shorter `Managed devices stay on top, and unmanaged promotion backlog stays below ...` structure, but the edit picker plus promotion shortlist, full-list, and review steps still used older narrated phrasing like `keep the managed fleet visible on top and the unmanaged backlog visible below ...`. That left four core Managed Devices entry steps slightly more helper-ish and less consistent than the surrounding workspace-first fleet flow.
+- **expected behavior:** those edit and promotion entry screens should use the same shorter managed-on-top / unmanaged-below wording as the rest of Configure -> Managed Devices so the full review -> promote -> save flow reads like one native workspace instead of mixing compact workspace copy with older narrated scaffolding.
+- **evidence:** this run's repo audit found the older narration still present in `custom_components/zero_net_export/strings.json` and mirrored in `custom_components/zero_net_export/translations/en.json` under `device_edit_pick`, `device_pick_candidate`, `device_pick_candidate_full`, and `device_vetting`. `tests/test_bucket_ownership_copy.py` was still locking the older wording shape by checking only the generic workflow sentence and not rejecting the narrated `keep the managed fleet visible on top ...` phrasing.
+- **suspected cause:** earlier Workstream B cleanup tightened the highest-traffic Managed Devices landing, bulk-enable, preset, save, and removal copy first, but stopped short of normalizing the remaining edit and promotion entry descriptions to the same compact workspace-first structure.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the edit picker plus promotion shortlist, full-list, and review descriptions now say `Managed devices stay on top, and unmanaged promotion backlog stays below ...` instead of the older narrated managed-fleet wording. `tests/test_bucket_ownership_copy.py` now locks that compact copy into all four steps and rejects the lingering `keep the managed fleet visible on top ...` phrasing.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this remaining Managed Devices promotion-entry copy cleanup in the next exact-build deploy, then confirm the live shortlist, full-list, review, and edit entry steps read with the same compact workspace-first split as the rest of Configure -> Managed Devices.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
