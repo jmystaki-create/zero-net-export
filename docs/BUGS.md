@@ -1796,6 +1796,19 @@ Suggested area labels:
 - **validation status:** repo/process fix verified in this run by re-reading the updated `docs/SUPERVISOR.md` and ZNE-022 guidance against the current `git log` and the unchanged HA fingerprint output. This is a process/source-of-truth correction, so repo plus live-evidence audit is sufficient.
 - **next action:** keep the next watchdog or supervisor run on one concrete remaining A-D/F defect, or report no project change if no safe repo-side defect is found. Do not spend another run refreshing the same unchanged release anchor.
 
+## ZNE-144 - Command-center compact backlog fallback still dropped `backlog` from unmanaged counts
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing `custom_components/zero_net_export/native_support.py` compact overflow paths against `docs/UI_DESIGN.md`, the `Fleet activity` Workstream A notes in `docs/UI_IMPLEMENTATION_MAP.md`, and the recent backlog-first wording already locked into the broader Managed Devices surfaces
+- **current observed behavior:** the main command-center and Managed Devices summaries had already moved to explicit `unmanaged backlog` wording, but the compact fallback helper `_compact_unmanaged_count_label(...)` still returned the older flat `N unmanaged` label. That meant long `Fleet activity`, `device_status`, and other overflowed command-center summaries could silently regress to pre-backlog wording right when Home Assistant's 255-character state limit forced compaction.
+- **expected behavior:** even under compaction, the command-center should keep the same `unmanaged backlog` wording as the rest of the native Managed Devices story so the opening console still reads like backlog-first fleet guidance instead of a flatter pre-Workstream-B count.
+- **evidence:** this run's repo audit found `_compact_unmanaged_count_label(...)` still returning `f"{count} unmanaged"` in `custom_components/zero_net_export/native_support.py` while the normal path already used `f"{count} unmanaged backlog"`. Focused overflow regressions in `tests/test_command_center_summary.py` were still only asserting `12 unmanaged` and `2 unmanaged` in the compact `fleet_activity_summary` and `device_status` paths, so the older compact wording had stayed locked in even after the surrounding backlog-first cleanup.
+- **suspected cause:** earlier backlog-label cleanup fixed the main summary builders first, but the shared compact helper used only when summaries overflowed was left on the older shorter label.
+- **repo fix:** this run updates `_compact_unmanaged_count_label(...)` in `custom_components/zero_net_export/native_support.py` to keep `unmanaged backlog` wording under compaction too, and refreshes `tests/test_command_center_summary.py` so the overflow regressions now lock `12 unmanaged backlog` and `2 unmanaged backlog` into the compact command-center paths while rejecting the older flat form.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this compact-backlog wording fix in the next exact-build deploy, then confirm the live command-center compact summaries keep `unmanaged backlog` wording when Home Assistant forces the shorter fallback path.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

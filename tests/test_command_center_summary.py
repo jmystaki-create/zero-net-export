@@ -634,7 +634,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
         self.assertIn("1 managed", summary["fleet_activity_summary"])
-        self.assertIn("12 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("12 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertNotIn("12 unmanaged |", summary["fleet_activity_summary"])
         self.assertIn("blocked Hot water relay", summary["fleet_activity_summary"])
         self.assertIn("6 need review", summary["fleet_activity_summary"])
         self.assertIn("6 ready to promote", summary["fleet_activity_summary"])
@@ -712,7 +713,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertLessEqual(len(summary["device_status"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
-        self.assertIn("2 unmanaged", summary["device_status"])
+        self.assertIn("2 unmanaged backlog", summary["device_status"])
+        self.assertNotIn("2 unmanaged;", summary["device_status"])
         self.assertIn("1 needs review", summary["device_status"])
         self.assertIn("1 ready to promote", summary["device_status"])
         self.assertIn("review Virtual load helper", summary["device_status"])

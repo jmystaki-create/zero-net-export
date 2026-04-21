@@ -109,7 +109,7 @@ def _unmanaged_count_label(count: int) -> str:
 
 
 def _compact_unmanaged_count_label(count: int) -> str:
-    return "no unmanaged candidates" if count <= 0 else f"{count} unmanaged"
+    return "no unmanaged candidates" if count <= 0 else f"{count} unmanaged backlog"
 
 
 def _is_unmanaged_count_part(text: str) -> bool:
@@ -2360,6 +2360,7 @@ def _build_command_center_fleet_activity_summary(
             if not (
                 _matches_count_label(part, "needs review", "need review")
                 or _matches_count_label(part, "ready to promote")
+                or _matches_count_label(part, "active managed device", "active managed devices")
             )
         ]
         compact_single_kind_review_focus_parts = [
@@ -2592,6 +2593,7 @@ def _build_command_center_fleet_activity_summary(
             if not (
                 _matches_count_label(part, "needs review", "need review")
                 or _matches_count_label(part, "ready to promote")
+                or _matches_count_label(part, "active managed device", "active managed devices")
                 or part.startswith("active device ")
             )
         ]
