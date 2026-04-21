@@ -1549,6 +1549,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this removal-success wording cleanup in the next exact-build deploy, then confirm the live Managed Devices removal feedback matches the other workspace-first save paths.
 
+## ZNE-125 - Managed Devices action chooser still narrated edit/remove as detached actions instead of the workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while rechecking the top `Managed-device action` help text in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and Workstream B in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the action labels and follow-on screens had already moved to workspace-first wording, but the top `Managed-device action` helper text still said `toggle which devices stay enabled, edit an existing device, remove a device`. That left the first entry point into Configure -> Managed Devices sounding like a list of detached picker actions instead of the same primary fleet workspace described everywhere else.
+- **expected behavior:** the action chooser help text should keep edit, remove, and enablement framed as work done in the Managed Devices workspace, so the first fleet prompt stays aligned with the surrounding workspace-first copy.
+- **evidence:** this run's repo audit found the older detached-action wording still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, and `tests/test_bucket_ownership_copy.py` was only locking the enablement fragment. `docs/UI_IMPLEMENTATION_MAP.md` Workstream B says remaining wording that makes Configure -> Managed Devices feel like a helper layer should be removed.
+- **suspected cause:** earlier Workstream B cleanup fixed the action labels and downstream edit/remove screens first, but stopped short of refreshing the top chooser help text that introduces those actions.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the chooser now says `open the Managed Devices workspace to review enablement, edit device settings, remove a device from the fleet`, and `tests/test_bucket_ownership_copy.py` now locks that workspace-first wording while rejecting the older detached-action phrasing.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this chooser-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices entry prompt keeps fleet actions framed as workspace work instead of detached pickers.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

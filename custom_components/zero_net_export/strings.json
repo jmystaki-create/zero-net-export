@@ -92,7 +92,7 @@
           "device_action": "Managed-device action"
         },
         "data_description": {
-          "device_action": "Choose whether to promote a surfaced fixed-load or variable-load candidate when one fits, add a device manually when no surfaced candidate is right, open the Managed Devices workspace to toggle which devices stay enabled, edit an existing device, remove a device, or open the advanced JSON editor."
+          "device_action": "Choose whether to promote a surfaced fixed-load or variable-load candidate when one fits, add a device manually when no surfaced candidate is right, or open the Managed Devices workspace to review enablement, edit device settings, remove a device from the fleet, or open the advanced JSON editor."
         }
       },
       "device_bulk_enable": {

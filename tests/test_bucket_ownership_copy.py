@@ -130,7 +130,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             steps["devices"]["data_description"]["device_action"],
         )
         self.assertIn(
-            "open the Managed Devices workspace to toggle which devices stay enabled",
+            "open the Managed Devices workspace to review enablement, edit device settings, remove a device from the fleet",
+            steps["devices"]["data_description"]["device_action"],
+        )
+        self.assertNotIn(
+            "toggle which devices stay enabled, edit an existing device, remove a device",
             steps["devices"]["data_description"]["device_action"],
         )
 
