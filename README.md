@@ -132,7 +132,7 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | :--- | :--- |
 | [project_status.md](project_status.md) | Current execution state for the project: status, next action, blocker, user action, notes, and last modified timestamp |
 | [docs/SUPERVISOR.md](docs/SUPERVISOR.md) | Active project steering guide and source of truth for current direction, goals, risks, and next actions |
-| `WATCHDOG.md` (workspace root) | Central audit guide used by watchdog-style runs to detect drift, stale state, and small safe corrective fixes |
+| [docs/WATCHDOG.md](docs/WATCHDOG.md) | Central audit guide used by watchdog-style runs to detect drift, stale state, and small safe corrective fixes |
 | [RELEASE_MANAGEMENT.md](RELEASE_MANAGEMENT.md) | Operational release workflow, including GitHub visibility, HACS refresh, Home Assistant restart, and post-release log review |
 
 ### Reference and design documents
