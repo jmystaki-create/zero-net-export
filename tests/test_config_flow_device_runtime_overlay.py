@@ -2536,7 +2536,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("2 managed | 1 enabled | 0 usable", feedback["message"])
         self.assertIn("0 candidates", feedback["message"])
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, then use the deeper device review path only if you need more per-device runtime detail.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then review the current managed fleet before changing controls or deeper diagnostics.",
             feedback["message"],
         )
 
@@ -2604,6 +2604,26 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertNotIn("confirm the updated enablement snapshot", feedback["message"])
 
+    def test_build_device_action_feedback_remove_without_candidates_reopens_managed_devices_workspace(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
+        flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []), data={})
+
+        feedback = flow._build_device_action_feedback(
+            action="remove",
+            devices=[],
+            previous_device={"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
+        )
+
+        self.assertIsNotNone(feedback)
+        assert feedback is not None
+        self.assertIn(
+            "Next step: reopen devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet.",
+            feedback["message"],
+        )
+        self.assertNotIn("remaining fleet", feedback["message"])
+        self.assertNotIn("use the deeper device review path only if you need more per-device runtime detail", feedback["message"])
+
     def test_build_device_action_feedback_remove_prefers_review_first_candidate(self) -> None:
         module = _load_config_flow_module()
         module.assess_candidate = lambda candidate: {
@@ -2632,7 +2652,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace and remaining fleet, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then promote next from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then promote next from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             feedback["message"],
         )
 

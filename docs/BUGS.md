@@ -1510,6 +1510,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`.
 - **next action:** include this action-label cleanup in the next exact-build deploy, then confirm the live Managed Devices action menu keeps edit/remove framed as workspace actions instead of isolated pickers.
 
+## ZNE-122 - Managed-device save feedback still pointed no-candidate success paths at deeper device review instead of the next fleet step
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking Workstream C success-landing follow-through in `custom_components/zero_net_export/config_flow.py` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the Managed Devices save-feedback notification already carried the right managed/unmanaged snapshots, but its no-candidate fallback still ended with `use the deeper device review path only if you need more per-device runtime detail`. That was not the next sensible fleet step after a normal save: bulk-enable and edit success should send operators back to the current managed fleet, and removing the last device should send them toward the manual-add path instead of a non-existent deeper review target.
+- **expected behavior:** the success landing should keep the next step inside the primary Managed Devices workspace. When managed devices remain and no surfaced candidate exists, it should say to review the current managed fleet. When the fleet is empty and no surfaced candidate exists, it should say to add the first fixed or variable load manually.
+- **evidence:** this run's repo audit found `_post_save_candidate_follow_through(...)` in `custom_components/zero_net_export/config_flow.py` still returning the deeper-review fallback whenever no surfaced unmanaged candidate existed, and `tests/test_config_flow_device_runtime_overlay.py` was locking the same wording into the bulk-enable success path. The remove-success branch also always said `review the Managed Devices workspace and remaining fleet` even when `managed_count == 0`, so the empty-fleet success landing could point at a remaining fleet that no longer existed. `docs/UI_IMPLEMENTATION_MAP.md` Workstream C says the success landing should clearly say what changed and what the next sensible action is.
+- **suspected cause:** earlier Workstream B/C cleanup concentrated on promotion, shortlist, and workspace-entry wording, but the save-feedback helper kept a generic deeper-review fallback from the older device-page inspection path.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so post-save no-candidate follow-through now says `review the current managed fleet before changing controls or deeper diagnostics` when managed devices remain, and `add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet` when the fleet is empty. The remove-success notification now also drops `remaining fleet` when the last device was removed. `tests/test_config_flow_device_runtime_overlay.py` now locks both the managed-fleet and empty-fleet success paths in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay`.
+- **next action:** include this save-feedback handoff cleanup in the next exact-build deploy, then confirm the live Managed Devices success notification keeps operators on the primary fleet workspace instead of pointing no-candidate cases at the deeper device-review path.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

@@ -1221,7 +1221,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         return build_candidate_preview(ready_candidate, include_entity_id=False)
 
     @classmethod
-    def _post_save_candidate_follow_through(cls, candidates: list[dict[str, Any]]) -> str:
+    def _post_save_candidate_follow_through(
+        cls,
+        candidates: list[dict[str, Any]],
+        *,
+        managed_count: int,
+    ) -> str:
         top_candidate = candidates[0] if candidates else None
         review_candidate = next(
             (item for item in candidates if candidate_needs_review(assess_candidate(item))),
@@ -1247,7 +1252,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "promote next from the unmanaged section: "
                 + cls._top_candidate_focus_text(top_candidate)
             )
-        return "use the deeper device review path only if you need more per-device runtime detail"
+        if managed_count > 0:
+            return "review the current managed fleet before changing controls or deeper diagnostics"
+        return "add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet"
 
     @staticmethod
     def _candidate_snapshot_text(candidates: list[dict[str, Any]], *, limit: int = 12) -> str:
@@ -1829,7 +1836,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         ready_candidate = self._ready_candidate_focus_text(candidates)
 
         managed_workspace_follow_through = self._managed_workspace_post_save_step()
-        candidate_follow_through = self._post_save_candidate_follow_through(candidates)
+        candidate_follow_through = self._post_save_candidate_follow_through(
+            candidates,
+            managed_count=managed_count,
+        )
 
         if action == "promote" and device is not None:
             title = "managed-device promotion saved"
@@ -1846,9 +1856,14 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
             changed = f"Removed {current_name} from Managed Devices."
-            next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and remaining fleet, then {candidate_follow_through}."
-            )
+            if managed_count > 0:
+                next_step = (
+                    f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and remaining fleet, then {candidate_follow_through}."
+                )
+            else:
+                next_step = (
+                    f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then {candidate_follow_through}."
+                )
         elif action == "bulk_enable":
             title = "managed-device enablement saved"
             changed = "Saved the Managed Devices enablement review."
