@@ -1757,6 +1757,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/config_flow.py tests/test_button_entity_categories.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this four-bucket wording cleanup in the next exact-build deploy, then confirm the live no-candidate Managed Devices follow-through keeps `Controls` and `Diagnostics` explicit instead of dropping back to generic `controls/diagnostics` narration.
 
+## ZNE-141 - Device-page diagnostics snapshot still repeated command-center steering instead of staying evidence-first
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the deeper diagnostics snapshot against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the already-tightened Diagnostics bucket copy
+- **current observed behavior:** the main Diagnostics bucket had already been compacted, but the deeper device-page diagnostics snapshot still repeated ordinary command-center steering with lines like `Recommended command-center section`, `Recommended command-center path`, `Why this section is recommended`, `Command-center next action`, and `Managed-device deep review`. That made the snapshot read like a second operator guide instead of the deeper evidence and provenance path the UI docs describe.
+- **expected behavior:** the diagnostics snapshot should stay evidence-first and troubleshooting-oriented, keeping native path anchors available without re-importing the command-center recommendation stack.
+- **evidence:** this run's repo audit found those repeated steering lines still present in `custom_components/zero_net_export/native_support.py`, while `docs/UI_DESIGN.md` says Diagnostics should remain visible but secondary and should not become the place where ordinary control or fleet work is primarily performed. `docs/UI_IMPLEMENTATION_MAP.md` also says `0.1.87` should avoid wording tweaks that do not produce a visible HA change and keep Diagnostics distinct from the main landing flow.
+- **suspected cause:** earlier Diagnostics cleanup tightened the Configure bucket text first, but the deeper device-page snapshot kept an older shared command-center recap block.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so `build_native_support_snapshot(...)` now keeps a compact `Native paths` section and drops the repeated command-center steering lines. `tests/test_source_repair_guidance.py` now locks the snapshot against those repeated recommendation fields.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this diagnostics-snapshot compaction in the next exact-build deploy, then confirm the live device-page snapshot stays evidence-first while the main command center continues to own setup and next-step steering.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

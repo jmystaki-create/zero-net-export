@@ -568,6 +568,12 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         snapshot = native_support.build_native_support_snapshot(_FakeCoordinator())
         self.assertIn("Zero Net Export diagnostics snapshot", snapshot)
         self.assertNotIn("Zero Net Export support snapshot", snapshot)
+        self.assertIn("Native paths", snapshot)
+        self.assertNotIn("Recommended command-center section:", snapshot)
+        self.assertNotIn("Recommended command-center path:", snapshot)
+        self.assertNotIn("Why this section is recommended:", snapshot)
+        self.assertNotIn("Command-center next action:", snapshot)
+        self.assertNotIn("Managed-device deep review:", snapshot)
 
     def test_support_snapshot_uses_friendly_source_and_device_labels(self) -> None:
         native_support = _load_native_support_module(
