@@ -644,6 +644,13 @@ def _first_ready_candidate(candidates: list[dict] | None) -> dict | None:
     )
 
 
+def _managed_devices_workspace_boundary() -> str:
+    return (
+        f"Make promotion, enablement, removal, and other fleet edits in {DEVICES_CONFIGURE_PATH}; "
+        "use the device page only for secondary review and handoff."
+    )
+
+
 def _managed_devices_workspace_handoff(
     command_center: dict,
     candidates: list[dict] | None,
@@ -669,6 +676,7 @@ def _managed_devices_workspace_handoff(
             lines.append(f"- Next fleet step after repair: {next_step}")
         lines.append(f"- Then reopen {DEVICES_CONFIGURE_PATH} for Managed Devices.")
         lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for deeper per-device review after the main fleet step is clear.")
+        lines.append(f"- {_managed_devices_workspace_boundary()}")
         return lines
 
     top_candidate, _, review_candidate, _ = _managed_devices_review_focus(candidates)
@@ -712,6 +720,7 @@ def _managed_devices_workspace_handoff(
                     f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
                 ]
             )
+    lines.append(f"- {_managed_devices_workspace_boundary()}")
     return lines
 
 
@@ -1057,6 +1066,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
                     has_managed_devices=bool(managed),
                 )
             ),
+            'workspace_boundary': _managed_devices_workspace_boundary(),
         }
 
     async def async_press(self) -> None:
@@ -1079,6 +1089,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             '',
             f'Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
             f'Secondary device-page review path: {DETAILED_MANAGEMENT_PATH}',
+            f'Device-page boundary: {_managed_devices_workspace_boundary()}',
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the Managed Devices workspace state.'}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),
             '',
@@ -1232,6 +1243,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                     has_managed_devices=bool(device_details),
                 )
             ),
+            "workspace_boundary": _managed_devices_workspace_boundary(),
         }
 
     async def async_press(self) -> None:
@@ -1254,6 +1266,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "",
             f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
             f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
+            f"Device-page boundary: {_managed_devices_workspace_boundary()}",
             f"Recommended next step: {command_center.get('device_next_step') or command_center.get('next_action_summary') or 'Review the Managed Devices workspace state.'}",
             *(["", *blocker_first_lines] if blocker_first_lines else []),
             "",
