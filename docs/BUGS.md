@@ -1679,6 +1679,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Managed Devices action-help cleanup in the next exact-build deploy, then confirm the live primary fleet selector keeps the advanced JSON editor clearly secondary to the native workspace.
 
+## ZNE-135 - Diagnostics step still repeated command-center and blocker recap instead of staying compact and secondary
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking remaining Workstream F wording in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the Diagnostics step was still carrying extra UX burden even after the rest of Configure had been tightened. Its opening copy repeated the same command-center recap twice with both `Recommended command-center path` and `Diagnostics follow-through`, then repeated the blocker story again as `Current blocker summary` immediately after `Top alerts`. That left the Diagnostics bucket feeling more like a narrated wall of text than the compact secondary health/troubleshooting surface described in the UI docs.
+- **expected behavior:** Diagnostics should stay visible but secondary, with one compact status recap, blocker triage details, and install-validation evidence, without repeating the same next-step or blocker summary lines.
+- **evidence:** this run's repo audit found the duplicated recap lines still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, with matching expectations still locked into `tests/test_bucket_ownership_copy.py` and `tests/test_source_repair_guidance.py`. `docs/UI_DESIGN.md` says Diagnostics should be always visible but secondary and should not become the primary place where the product explains what it is or how to do normal work. `docs/UI_IMPLEMENTATION_MAP.md` Workstream F still calls for removing overly wordy support or diagnostics surfaces that feel like walls of text.
+- **suspected cause:** earlier Workstreams A-D cleanup focused on the opening console and Managed Devices flow first, but the Diagnostics step kept an older support-heavy wording pass that repeated the same summary cues instead of trusting the tighter bucket structure.
+- **repo fix:** this run compacts the Diagnostics description in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` by removing the duplicated `Recommended command-center path`, `Diagnostics follow-through`, and `Current blocker summary` lines while keeping the readiness, health, alerts, blocker triage, and install-validation cues intact. `tests/test_bucket_ownership_copy.py` and `tests/test_source_repair_guidance.py` now lock the shorter secondary-bucket wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_source_repair_guidance tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Diagnostics copy compaction in the next exact-build deploy, then confirm the live Diagnostics step stays compact and secondary instead of repeating command-center recap lines.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

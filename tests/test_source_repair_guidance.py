@@ -464,9 +464,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Bucket ownership and paths", support_center)
         self.assertNotIn("- Live control mode:", support_center)
         self.assertNotIn("- Mode summary:", support_center)
-        self.assertIn("- Recommended command-center section:", support_center)
-        self.assertIn("- Recommended command-center path:", support_center)
-        self.assertIn("- Diagnostics follow-through:", support_center)
+        self.assertIn("- Recommended section:", support_center)
+        self.assertIn("- Recommended next step:", support_center)
+        self.assertNotIn("- Recommended command-center path:", support_center)
+        self.assertNotIn("- Diagnostics follow-through:", support_center)
         self.assertNotIn("- Recommended path now:", support_center)
         self.assertNotIn("- Why this section is recommended:", support_center)
         self.assertIn(
@@ -963,17 +964,18 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             )
 
         support_center = native_support.build_native_support_center(_FakeCoordinator())
-        self.assertIn(
+        self.assertNotIn(
             "Current blocker summary: Solar power (Pv Power, unavailable)",
             support_center,
         )
+        self.assertIn("Top alerts:", support_center)
         self.assertIn("Blocking mapped roles: Solar power", support_center)
         self.assertIn("Blocking validation details:", support_center)
         self.assertIn(
             f"If Sensors owns the repair, use: Open {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
-        self.assertIn("Diagnostics follow-through:", support_center)
+        self.assertNotIn("Diagnostics follow-through:", support_center)
         self.assertIn(
             "Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.",
             support_center,
