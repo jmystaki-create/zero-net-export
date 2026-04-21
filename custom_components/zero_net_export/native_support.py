@@ -1728,11 +1728,25 @@ def _build_command_center_fleet_activity_summary(
     blocked_activity_count = blocked_device_count or (
         int(getattr(state, "blocked_planned_action_count", 0) or 0) if state is not None else 0
     )
-    first_attention_name = str((first_attention_device or {}).get("name") or (first_attention_device or {}).get("entity_id") or "").strip()
     first_planned_device = _first_runtime_device_detail(
         state,
         predicate=_runtime_device_has_active_plan,
     )
+    attention_kind = str((first_attention_device or {}).get("kind") or "").strip()
+    if first_attention_device and (
+        _same_runtime_device(first_attention_device, first_blocked_device)
+        or _same_runtime_device(first_attention_device, first_planned_device)
+    ):
+        attention_name = str(
+            (first_attention_device or {}).get("name")
+            or (first_attention_device or {}).get("entity_id")
+            or "managed device"
+        ).strip()
+        attention_focus_label = (
+            f"{attention_name} ({attention_kind})" if attention_kind else attention_name
+        )
+    else:
+        attention_focus_label = _command_center_managed_snapshot_focus_label(first_attention_device)
     first_active_device = _first_runtime_device_detail(
         state,
         predicate=lambda detail: detail.get("observed_active") is True,
@@ -1762,13 +1776,9 @@ def _build_command_center_fleet_activity_summary(
                 else f"{attention_device_count} managed devices need attention"
             )
         if first_attention_device:
-            attention_preview = (
-                first_attention_name
-                if _same_runtime_device(first_attention_device, first_blocked_device)
-                or _same_runtime_device(first_attention_device, first_planned_device)
-                else _command_center_runtime_device_preview(first_attention_device)
+            summary_parts.append(
+                f"attention first {attention_focus_label or _command_center_runtime_device_preview(first_attention_device)}"
             )
-            summary_parts.append(f"attention first {attention_preview}")
         if blocked_activity_count:
             summary_parts.append(
                 f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
@@ -1913,15 +1923,9 @@ def _build_command_center_fleet_activity_summary(
         )
 
     if first_attention_device:
-        attention_preview = (
-            first_attention_name
-            if _same_runtime_device(first_attention_device, first_blocked_device)
-            or _same_runtime_device(first_attention_device, first_planned_device)
-            else _command_center_runtime_device_preview(first_attention_device)
-        )
         minimal_parts.append(
             _clip_part(
-                f"attention first {attention_preview}",
+                f"attention first {attention_focus_label or _command_center_runtime_device_preview(first_attention_device)}",
                 max_chars=72,
             )
         )
@@ -2109,15 +2113,9 @@ def _build_command_center_fleet_activity_summary(
     if source_blocked:
         essential_parts.append("repair sources first")
     if first_attention_device:
-        attention_preview = (
-            first_attention_name
-            if _same_runtime_device(first_attention_device, first_blocked_device)
-            or _same_runtime_device(first_attention_device, first_planned_device)
-            else _command_center_runtime_device_preview(first_attention_device)
-        )
         essential_parts.append(
             _clip_part(
-                f"attention first {attention_preview}",
+                f"attention first {attention_focus_label or _command_center_runtime_device_preview(first_attention_device)}",
                 max_chars=32,
             )
         )

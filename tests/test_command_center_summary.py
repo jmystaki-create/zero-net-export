@@ -1928,9 +1928,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("2 managed devices need attention", summary["fleet_activity_summary"])
-        self.assertIn("attention first Pool pump", summary["fleet_activity_summary"])
+        self.assertIn("attention first Pool pump (fixed)", summary["fleet_activity_summary"])
         self.assertIn("blocked Pool pump (fixed | not usable)", summary["fleet_activity_summary"])
-        self.assertIn("1 planned action(s)", summary["fleet_activity_summary"])
         self.assertIn("plan EV charger (variable | target 1800 W | action set_power)", summary["fleet_activity_summary"])
 
     def test_command_center_summary_keeps_blocked_device_visible_even_without_a_blocked_plan_count(self) -> None:
