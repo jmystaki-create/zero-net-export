@@ -1484,6 +1484,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page promotion-handoff shortlist wording cleanup in the next exact-build deploy, then confirm the live secondary promotion handoff names the shortlist workflow directly instead of echoing the selector label.
 
+## ZNE-120 - Managed Devices edit/remove entry copy still narrated generic workflows instead of keeping operators in the workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking the remaining Workstream B copy seams in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the recent Managed Devices copy cleanup had already moved shortlist, preset, save, and bulk-enable flows onto direct workspace-first wording, but the edit and removal entry descriptions still said `Managed Devices owns this fleet-edit workflow` and `Managed Devices owns this fleet-removal workflow`. That left two first-class fleet actions sounding like narrated helper workflows instead of the same primary Managed Devices workspace the rest of Configure now names explicitly.
+- **expected behavior:** the edit and removal entry points should keep operators in the Managed Devices workspace directly, without dropping back into ownership narration that makes the fleet flow feel more scaffolded than the surrounding promotion and enablement paths.
+- **evidence:** this run's repo audit found both ownership-narration lines still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, with matching expectations still locked into `tests/test_bucket_ownership_copy.py`. `docs/UI_IMPLEMENTATION_MAP.md` Workstream B says remaining wording that makes `Configure -> Managed Devices` feel like a thin helper layer should be removed.
+- **suspected cause:** earlier Workstream B cleanup tightened the highest-traffic Managed Devices promotion and enablement paths first, but the adjacent edit/remove descriptions were left on an intermediate wording pass that still narrated workflow ownership.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so edit and removal entry copy now says `Stay in the Managed Devices workspace ...` instead of `Managed Devices owns this ... workflow`, and refreshes `tests/test_bucket_ownership_copy.py` to lock the workspace-first wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`.
+- **next action:** include this edit/remove workspace-copy cleanup in the next exact-build deploy, then confirm the live entry points stay aligned with the rest of the Managed Devices workspace-first fleet flow.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
