@@ -1848,6 +1848,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page Managed Devices fallback cleanup in the next exact-build deploy, then confirm the live review notifications keep the workspace-first handoff even when no stronger device-specific next step is available.
 
+## ZNE-148 - Empty-fleet Managed Devices handoff still framed the primary fleet workspace as something to `review`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the remaining empty-fleet handoff copy in `custom_components/zero_net_export/{native_support.py,button.py,config_flow.py,sensor.py}` against Workstream B in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when no managed devices existed and no surfaced unmanaged candidate was available, several native next-step surfaces still said `review the Managed Devices workspace, then add the first fixed or variable load manually ...`. That kept the main fleet path sounding like a helper page to inspect before the real work, even though the current design says `Configure -> Managed Devices` should read as the unquestionable primary fleet workspace.
+- **expected behavior:** the empty-fleet handoff should send operators directly into the primary Managed Devices workspace and tell them to add the first fixed or variable load there, without the weaker `review ... manually` framing.
+- **evidence:** this run's repo audit found the old wording still repeated in `custom_components/zero_net_export/native_support.py`, `button.py`, `config_flow.py`, and `sensor.py`, with matching expectations in `tests/test_command_center_summary.py`, `tests/test_button_entity_categories.py`, `tests/test_sensor_entity_categories.py`, and `tests/test_config_flow_device_runtime_overlay.py`. `docs/UI_IMPLEMENTATION_MAP.md` Workstream B says the workspace should feel like the unquestionable primary fleet workspace, not a thin helper layer.
+- **suspected cause:** earlier Managed Devices cleanup tightened review-first, ready-next, and bucket-owned fallback wording first, but the empty-fleet no-candidate branch kept an older support-style sentence.
+- **repo fix:** this run updates the empty-fleet no-candidate handoff across `custom_components/zero_net_export/native_support.py`, `button.py`, `config_flow.py`, and `sensor.py` so it now says `continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available.` The related regression expectations in `tests/test_command_center_summary.py`, `tests/test_button_entity_categories.py`, `tests/test_sensor_entity_categories.py`, and `tests/test_config_flow_device_runtime_overlay.py` now lock that stronger workspace-owned wording in place.
+- **validation status:** repo-side fix verified in this run with targeted unit tests plus `py_compile`; live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this empty-fleet handoff cleanup in the next exact-build deploy, then confirm the live Managed Devices path reads as the primary fleet workspace even when operators must add the first load manually.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

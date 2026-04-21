@@ -595,7 +595,7 @@ def _managed_devices_post_blocker_step(
             "or opening Diagnostics."
         )
     return (
-        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
+        f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
     )
 
 
@@ -731,7 +731,7 @@ def _managed_devices_workspace_handoff(
             lines.extend(
                 [
                     f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
-                    "- Review the Managed Devices workspace first, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
+                    "- Add the first fixed or variable load in the primary Managed Devices workspace because no surfaced unmanaged candidate is available.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
                 ]
             )

@@ -317,7 +317,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
         self.assertIn(
-            "- Review the Managed Devices workspace first, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
+            "- Add the first fixed or variable load in the primary Managed Devices workspace because no surfaced unmanaged candidate is available.",
             handoff,
         )
         self.assertNotIn("ready yet", "\n".join(handoff))
@@ -1059,7 +1059,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "- After repair: Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
+            "- After repair: Open devices path to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available.",
             lines,
         )
         self.assertNotIn(
