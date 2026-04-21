@@ -1162,7 +1162,7 @@ def build_detailed_management_handoff(
     devices = configured_devices or []
     if not devices:
         return (
-            f"Use {DEVICES_CONFIGURE_PATH} to promote a currently surfaced unmanaged candidate when one fits, or add the first fixed or variable load manually there, then use {DETAILED_MANAGEMENT_PATH} "
+            f"Use {DEVICES_CONFIGURE_PATH} to review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits, or add the first fixed or variable load manually there, then use {DETAILED_MANAGEMENT_PATH} "
             "as the secondary device-page review path once the fleet exists."
         )
 

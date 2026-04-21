@@ -82,15 +82,16 @@ def _load_native_support_module(*, parse_device_result=([], [])):
 
 
 class SourceRepairGuidanceTests(unittest.TestCase):
-    def test_detailed_management_handoff_keeps_promotion_first_when_fleet_is_empty(self) -> None:
+    def test_detailed_management_handoff_keeps_review_first_guidance_when_fleet_is_empty(self) -> None:
         native_support = _load_native_support_module()
 
         guidance = native_support.build_detailed_management_handoff([])
 
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, guidance)
-        self.assertIn("promote a currently surfaced unmanaged candidate when one fits", guidance)
+        self.assertIn("review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits", guidance)
         self.assertIn("add the first fixed or variable load manually there", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
+        self.assertNotIn("promote a currently surfaced unmanaged candidate when one fits", guidance)
         self.assertNotIn("Add the first managed device in", guidance)
 
     def test_repair_step_prefers_exact_affected_role_summary_when_available(self) -> None:

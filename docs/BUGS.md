@@ -1614,6 +1614,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this secondary review wording cleanup in the next exact-build deploy, then confirm the live device-page Managed Devices review no longer leaks `Ready-next` phrasing.
 
+## ZNE-130 - Empty-fleet deeper-review handoff still skipped the review-first Managed Devices workspace step
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the shared deeper-review handoff against the current Workstream B/C design language in `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when no managed devices existed yet, `build_detailed_management_handoff(...)` still told operators to `promote a currently surfaced unmanaged candidate when one fits`, which skipped the review-first posture the promotion flow now uses elsewhere and did not explicitly name the Managed Devices workspace in that first fleet step.
+- **expected behavior:** the empty-fleet deeper-review handoff should stay review-first and workspace-first, telling operators to review a currently surfaced unmanaged candidate in the Managed Devices workspace before promotion, while still preserving the manual fixed/variable-load fallback and the secondary device-page review boundary.
+- **evidence:** this run's repo audit found the old promotion-first wording still hard-coded in `custom_components/zero_net_export/native_support.py`, and `tests/test_source_repair_guidance.py` was still locking that same phrase into the shared regression coverage.
+- **suspected cause:** earlier wording cleanup neutralized the no-candidate and ready-candidate handoffs first, but this older empty-fleet deeper-review fallback kept its pre-review promotion phrasing.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the shared empty-fleet deeper-review handoff now says `review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits`, and refreshes `tests/test_source_repair_guidance.py` to lock that review-first wording in place while rejecting the older promotion-first phrase.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this shared empty-fleet handoff cleanup in the next exact-build deploy, then confirm the live deeper-review path keeps the Managed Devices workspace review-first when the fleet is still empty.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
