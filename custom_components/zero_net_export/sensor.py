@@ -743,7 +743,7 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
             f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available"
         )
     return _truncate_sensor_state(
-        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes"
+        f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there"
     )
 
 

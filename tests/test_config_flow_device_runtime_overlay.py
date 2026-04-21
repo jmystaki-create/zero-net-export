@@ -2677,7 +2677,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
     def test_build_device_action_feedback_prefers_managed_workspace_follow_through_from_command_center(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
-            "device_next_step": "Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes."
+            "device_next_step": "Open devices path to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there."
         }
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
         flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": SimpleNamespace(data=SimpleNamespace())}})
@@ -2692,7 +2692,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes.",
+            "Next step: Open devices path to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there.",
             feedback["message"],
         )
         self.assertNotIn("confirm the updated enablement snapshot", feedback["message"])

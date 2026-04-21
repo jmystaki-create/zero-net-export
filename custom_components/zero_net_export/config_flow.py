@@ -1837,7 +1837,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "review blocked devices in the Managed Devices workspace",
                 "confirm the active fleet plan in the Managed Devices workspace",
                 "review the Managed Devices workspace, starting with attention on",
-                "review the Managed Devices workspace, edit device settings, or stage enablement changes",
+                "continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there",
             )
         ):
             return device_next_step

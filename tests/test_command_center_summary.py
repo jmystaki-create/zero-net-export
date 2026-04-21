@@ -2119,7 +2119,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertEqual(
             summary["device_next_step"],
-            f"Open {native_support.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes.",
+            f"Open {native_support.DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there.",
         )
         self.assertNotIn("review the fleet", summary["device_next_step"])
 

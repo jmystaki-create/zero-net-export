@@ -1245,7 +1245,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes",
+            "Open devices path to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there",
         )
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("sources path", next_step.native_value)
@@ -1321,7 +1321,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, edit device settings, or stage enablement changes",
+            "Open devices path to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there",
         )
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)

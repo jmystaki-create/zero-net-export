@@ -311,7 +311,7 @@ def _compact_next_action_fallback(
             )
         if has_managed_devices:
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there."
             )
         return (
             f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
@@ -2925,7 +2925,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there."
             )
     else:
         device_status = _command_center_device_status_with_unmanaged_context(
