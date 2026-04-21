@@ -934,6 +934,49 @@ def _command_center_managed_snapshot_focus_label(detail: dict[str, Any] | None) 
     return f"{name} ({' | '.join(parts)})" if parts else name
 
 
+def _command_center_fleet_focus_label(
+    detail: dict[str, Any] | None,
+    *,
+    include_plan_context: bool = False,
+) -> str:
+    if not detail:
+        return ""
+    name = str(detail.get("name") or detail.get("entity_id") or "Unnamed device").strip()
+    parts: list[str] = []
+    kind = str(detail.get("kind") or "").strip()
+    if kind:
+        parts.append(kind)
+
+    blocked = _runtime_device_has_blocked_activity(detail)
+    planned_action = str(detail.get("planned_action") or "").strip()
+    last_action_status = str(detail.get("last_action_status") or "").strip()
+    if blocked:
+        parts.append("not usable" if detail.get("usable") is False else "blocked")
+        if planned_action and planned_action.lower() != "hold":
+            parts.append(f"action {planned_action}")
+        if last_action_status and last_action_status.lower() not in {"ok", "applied", "success"}:
+            parts.append(f"last {last_action_status}")
+    elif include_plan_context:
+        current_target_power_w = detail.get("current_target_power_w")
+        current_power_w = detail.get("current_power_w")
+        if kind == "variable" and current_target_power_w not in (None, ""):
+            parts.append(f"target {float(current_target_power_w or 0):g} W")
+        elif detail.get("observed_active") is True and current_power_w not in (None, ""):
+            parts.append(f"active {float(current_power_w or 0):g} W")
+        if planned_action and planned_action.lower() != "hold":
+            parts.append(f"action {planned_action}")
+    else:
+        if _runtime_device_has_recent_attention(detail) and last_action_status:
+            parts.append(f"last {last_action_status}")
+
+    if detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
+        active_power = f"active {float(detail.get('current_power_w') or 0):g} W"
+        if active_power not in parts:
+            parts.append(active_power)
+
+    return f"{name} ({' | '.join(parts)})" if parts else name
+
+
 def _same_runtime_device(left: dict[str, Any] | None, right: dict[str, Any] | None) -> bool:
     if not left or not right:
         return False
@@ -1874,11 +1917,11 @@ def _build_command_center_fleet_activity_summary(
             )
         if first_attention_device:
             summary_parts.append(
-                f"attention first {attention_focus_label or _command_center_runtime_device_preview(first_attention_device)}"
+                f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
             )
         if blocked_activity_count:
             summary_parts.append(
-                f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
+                f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
                 if first_blocked_device
                 else f"blocked {blocked_activity_count}"
             )
@@ -1887,7 +1930,9 @@ def _build_command_center_fleet_activity_summary(
                 _planned_action_count_label(planned_activity_count)
             )
         if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
-            summary_parts.append(f"plan {_command_center_runtime_device_preview(first_planned_device)}")
+            summary_parts.append(
+                f"plan {_command_center_fleet_focus_label(first_planned_device, include_plan_context=True)}"
+            )
         if active_managed_power_w > 0:
             summary_parts.append(f"active load {active_managed_power_w:g} W")
             summary_parts.append(
@@ -2022,14 +2067,14 @@ def _build_command_center_fleet_activity_summary(
     if first_attention_device:
         minimal_parts.append(
             _clip_part(
-                f"attention first {attention_focus_label or _command_center_runtime_device_preview(first_attention_device)}",
+                f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}",
                 max_chars=72,
             )
         )
     if first_blocked_device:
         minimal_parts.append(
             _clip_part(
-                f"blocked {_command_center_runtime_device_preview(first_blocked_device)}",
+                f"blocked {_command_center_fleet_focus_label(first_blocked_device)}",
                 max_chars=72,
             )
         )
@@ -2041,7 +2086,7 @@ def _build_command_center_fleet_activity_summary(
         if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
             minimal_parts.append(
                 _clip_part(
-                    f"plan {_command_center_runtime_device_preview(first_planned_device)}",
+                    f"plan {_command_center_fleet_focus_label(first_planned_device, include_plan_context=True)}",
                     max_chars=72,
                 )
             )
@@ -2285,14 +2330,14 @@ def _build_command_center_fleet_activity_summary(
     if first_attention_device:
         essential_parts.append(
             _clip_part(
-                f"attention first {attention_focus_label or _command_center_runtime_device_preview(first_attention_device)}",
+                f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}",
                 max_chars=32,
             )
         )
     if blocked_activity_count:
         essential_parts.append(
             _clip_part(
-                f"blocked {_command_center_runtime_device_preview(first_blocked_device)}"
+                f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
                 if first_blocked_device
                 else f"blocked {blocked_activity_count}",
                 max_chars=32,

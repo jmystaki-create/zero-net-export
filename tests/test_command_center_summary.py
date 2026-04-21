@@ -1869,7 +1869,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["fleet_activity_summary"],
         )
         self.assertIn(
-            "plan Pool pump (fixed | power 1185 W | action turn_on)",
+            "plan Pool pump (fixed | active 1185 W | action turn_on)",
             summary["fleet_activity_summary"],
         )
         self.assertNotIn("active device Pool pump", summary["fleet_activity_summary"])
