@@ -231,17 +231,17 @@ Suggested area labels:
 - **next action:** redeploy the current repo candidate, restart Home Assistant, then confirm the statistics/state-class cleanup notifications for the `*_issue_count` sensors stop reappearing
 
 ## ZNE-042 - Source-freshness fallback regressed and now crashes repo-side probe coverage
-- **status:** `fixed_pending_validation`
+- **status:** `validated`
 - **severity:** `medium`
 - **area:** `runtime`
 - **where seen:** repo HEAD test suite on 2026-04-17 after the latest source-label cleanup landed
-- **current observed behavior:** `python3 -m unittest discover -s tests -q` was failing in `tests/test_source_freshness_probes.py` because `_source_freshness(...)` now assumes every state-like probe object has `.attributes`, but the probe coverage still uses lightweight `SimpleNamespace(last_updated=...)` fixtures. That regressed repo confidence for the freshness path and would also break any runtime fallback path that passes a state-like object without Home Assistant's full attribute bag.
+- **current observed behavior:** historical repo-side regression. The crash no longer reproduces in the current repo test suite.
 - **expected behavior:** source-freshness diagnostics should preserve the new friendly-name fallback without crashing when the state-like object only provides `name` and `last_updated`.
-- **evidence:** this watchdog run reran `python3 -m unittest discover -s tests -q` and got `AttributeError: 'types.SimpleNamespace' object has no attribute 'attributes'` from `custom_components/zero_net_export/coordinator.py` line 831 while exercising `test_stale_energy_sensor_is_visible_but_does_not_block_runtime` and `test_power_sensor_without_companion_probe_stays_stale`.
+- **evidence:** the original failing coverage came from `python3 -m unittest discover -s tests -q`, which raised `AttributeError: 'types.SimpleNamespace' object has no attribute 'attributes'` from `custom_components/zero_net_export/coordinator.py` line 831 while exercising `test_stale_energy_sensor_is_visible_but_does_not_block_runtime` and `test_power_sensor_without_companion_probe_stays_stale`. In this run, the full repo suite still passes, so the repo-side crash remains resolved.
 - **suspected cause:** the latest raw-source-id cleanup added `state.attributes.get("friendly_name")` directly inside `_source_freshness(...)` without guarding for the repo's state-like probe fixtures or other minimal state objects.
 - **repo fix:** this run hardens `custom_components/zero_net_export/coordinator.py` to read `attributes = getattr(state, "attributes", None) or {}` before looking for `friendly_name`, so the new label fallback stays compatible with lightweight probe objects as well as real Home Assistant states.
-- **validation status:** repo-side fix verified in this run with `python3 -m unittest tests.test_source_freshness_probes -q` and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending under the next exact-build deploy/restart cycle.
-- **next action:** keep this covered by the freshness-probe regression tests, then fold it into the next exact-build reconciliation instead of treating unchanged live fingerprint drift as a reason to skip repo-side validation coverage
+- **validation status:** validated repo-side. This was a repo-only probe-coverage regression, and the existing regression coverage plus the current green `python3 -m unittest discover -s tests -q` run are the right closure evidence for this bug.
+- **next action:** no further action for this specific bug beyond keeping the freshness-probe regression coverage in place
 
 ## ZNE-037 - HACS still shows v0.1.84 even after v0.1.86 release/deploy
 - **status:** `open`
