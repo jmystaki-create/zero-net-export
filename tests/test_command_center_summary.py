@@ -270,6 +270,61 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["device_status"],
         )
 
+    def test_command_center_summary_uses_runtime_device_details_when_fleet_counts_lag(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            device_status_summary="0 configured devices available",
+            device_count=0,
+            enabled_device_count=0,
+            usable_device_count=0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "enabled": True,
+                    "effective_enabled": True,
+                    "usable": True,
+                    "nominal_power_w": 1200,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("1 managed", summary["fleet_activity_summary"])
+        self.assertIn("enabled 1", summary["fleet_activity_summary"])
+        self.assertIn("usable 1", summary["fleet_activity_summary"])
+        self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
+        self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
+        self.assertNotIn("no managed yet", summary["fleet_activity_summary"])
+
     def test_command_center_summary_labels_candidate_count_as_unmanaged_backlog(self) -> None:
         native_support = _load_native_support_module()
 

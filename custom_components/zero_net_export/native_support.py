@@ -1965,9 +1965,17 @@ def _build_command_center_fleet_activity_summary(
     top_candidate_preview: str,
     source_blocked: bool,
 ) -> str:
+    device_details = list((getattr(state, "device_details", {}) or {}).values()) if state is not None else []
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
     enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
+    if device_details:
+        managed_count = max(managed_count, len(device_details))
+        enabled_count = max(
+            enabled_count,
+            sum(1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))),
+        )
+        usable_count = max(usable_count, sum(1 for detail in device_details if detail.get("usable") is True))
     kind_known, fixed_managed_count, variable_managed_count, nominal_power_w = _managed_runtime_mix(state)
     active_managed_count, active_managed_power_w = _managed_runtime_activity(state)
     first_attention_device = _first_runtime_device_detail(
