@@ -340,7 +340,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Reopen devices path in Configure for the primary Managed Devices workspace.", handoff)
         self.assertIn(
-            "- Use the Managed Devices workspace to review the current managed fleet before changing controls or deeper diagnostics.",
+            "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing controls or deeper diagnostics.",
             handoff,
         )
         self.assertNotIn("tune controller behaviour", "\n".join(handoff))

@@ -2536,7 +2536,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("2 managed | 1 enabled | 0 usable", feedback["message"])
         self.assertIn("0 candidates", feedback["message"])
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, then review the current managed fleet before changing controls or deeper diagnostics.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then edit device settings or stage enablement changes before changing controls or deeper diagnostics.",
             feedback["message"],
         )
 

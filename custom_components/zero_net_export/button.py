@@ -708,7 +708,7 @@ def _managed_devices_workspace_handoff(
             lines.extend(
                 [
                     f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
-                    "- Use the Managed Devices workspace to review the current managed fleet before changing controls or deeper diagnostics.",
+                    "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing controls or deeper diagnostics.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} only if you need deeper per-device review after the main fleet step is clear.",
                 ]
             )

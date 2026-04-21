@@ -1253,7 +1253,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 + cls._top_candidate_focus_text(top_candidate)
             )
         if managed_count > 0:
-            return "review the current managed fleet before changing controls or deeper diagnostics"
+            return "edit device settings or stage enablement changes before changing controls or deeper diagnostics"
         return "add the first fixed or variable load manually when no surfaced unmanaged candidate is available yet"
 
     @staticmethod
