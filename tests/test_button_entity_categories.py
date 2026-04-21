@@ -1519,6 +1519,60 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["first_blocked_device"], "Pool pump")
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 0 W nominal | blocked Pool pump | 1 planned action(s) | plan Pool pump")
 
+    def test_setup_checklist_button_keeps_primary_setup_path_in_attributes(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportShowSetupChecklistButton(coordinator)
+
+        attrs = button.extra_state_attributes
+
+        self.assertEqual(attrs["configure_path"], "primary path")
+        self.assertEqual(attrs["recommended_section"], "Sensors")
+        self.assertEqual(attrs["recommended_path"], "sources path")
+
+    def test_setup_checklist_button_keeps_notification_checklist_focused(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        button_module.build_native_operator_readiness = lambda coordinator: {
+            "phase": "setup",
+            "summary": "Finish source mapping first.",
+            "checklist": [
+                {"complete": True, "label": "Source map", "detail": "Solar power and grid export mapped."},
+                {"complete": False, "label": "Managed Devices", "detail": "Review the unmanaged section next."},
+            ],
+            "next_step": "Open the source mapping step.",
+        }
+        button_module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": "Sensors",
+            "recommended_path": "sources path",
+            "next_action_summary": "Review the Managed Devices workspace next.",
+        }
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportShowSetupChecklistButton(coordinator)
+        button.hass = SimpleNamespace()
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        self.assertEqual(len(notification_calls), 1)
+        message = notification_calls[0]["args"][1]
+        self.assertIn("Zero Net Export native setup checklist", message)
+        self.assertIn("Primary setup path: primary path", message)
+        self.assertIn("Diagnostics path: support path", message)
+        self.assertIn("Readiness phase: setup", message)
+        self.assertIn("Summary: Finish source mapping first.", message)
+        self.assertIn("Next step: Review the Managed Devices workspace next.", message)
+        self.assertIn("- [x] Source map: Solar power and grid export mapped.", message)
+        self.assertIn("- [ ] Managed Devices: Review the unmanaged section next.", message)
+        self.assertNotIn("Recommended command-center section:", message)
+        self.assertNotIn("Recommended command-center path:", message)
+
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)

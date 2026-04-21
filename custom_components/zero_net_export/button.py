@@ -1513,7 +1513,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
         readiness = build_native_operator_readiness(self.coordinator)
         command_center = build_native_command_center_summary(self.coordinator)
         return {
-            "configure_path": SUPPORT_CONFIGURE_PATH,
+            "configure_path": PRIMARY_CONFIGURE_PATH,
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
             "next_step": command_center.get("next_action_summary") or readiness.get("next_step"),
@@ -1538,8 +1538,6 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 f"Entry: {self.coordinator.entry.title}",
                 f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
                 f"Diagnostics path: {SUPPORT_CONFIGURE_PATH}",
-                f"Recommended command-center section: {command_center.get('recommended_section')}",
-                f"Recommended command-center path: {command_center.get('recommended_path')}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
                 f"Summary: {readiness.get('summary') or (self._state.health_summary if self._state else None)}",
                 f"Next step: {command_center.get('next_action_summary') or readiness.get('next_step') or (self._state.recommendation if self._state else None)}",

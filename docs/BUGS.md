@@ -1770,6 +1770,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this diagnostics-snapshot compaction in the next exact-build deploy, then confirm the live device-page snapshot stays evidence-first while the main command center continues to own setup and next-step steering.
 
+## ZNE-142 - Device-page setup checklist still repeated command-center steering and exposed the wrong primary path
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the device-page setup checklist action against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the already-tightened Diagnostics/device-page guidance
+- **current observed behavior:** the `Show setup checklist` device-page action was still re-importing command-center steering with `Recommended command-center section` and `Recommended command-center path`, even though the checklist is supposed to be a compact secondary checklist surface rather than another operator guide. The same button attributes also exposed `configure_path` as the Diagnostics step instead of the main Configure path, which could mislead automations or later native consumers about where normal setup work belongs.
+- **expected behavior:** the setup checklist should stay compact and checklist-first, keep the main Configure path explicit, and avoid repeating the command-center recommendation stack.
+- **evidence:** this run's repo audit found the repeated command-center lines plus `"configure_path": SUPPORT_CONFIGURE_PATH` in `custom_components/zero_net_export/button.py`. `docs/UI_DESIGN.md` says the device-page path is the deeper support/detail path, not a competing primary guide, and `docs/UI_IMPLEMENTATION_MAP.md` Workstream F still calls for compact support surfaces that do not turn back into helper walls.
+- **suspected cause:** earlier Diagnostics tightening focused on the main Diagnostics guide and snapshot surfaces first, but the parallel setup-checklist button kept an older command-center recap block and inherited the wrong path field.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so the device-page setup checklist now keeps `configure_path` on the primary Configure path and drops the repeated `Recommended command-center section/path` lines from the persistent notification. `tests/test_button_entity_categories.py` now locks both the corrected primary path attribute and the tighter checklist notification in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this setup-checklist cleanup in the next exact-build deploy, then confirm the live device-page checklist stays compact and still points normal setup work back to Configure.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
