@@ -1406,6 +1406,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this remaining Controls intro copy cleanup in the next exact-build deploy, then confirm the live Controls step keeps bucket-first ownership wording all the way through the opening sentence instead of slipping back into generic screen phrasing.
 
+## ZNE-114 - Promotion preset/save/remove copy still narrated the workspace split with older `current managed fleet on top` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-21 while checking the remaining Workstream B copy seams in the Managed Devices promotion/save/removal steps against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the main Managed Devices workspace and bulk-enable copy had already been tightened to the shorter `Managed devices stay on top, and unmanaged promotion backlog stays below` structure, but the adjacent promotion preset, save, and removal descriptions were still using older narration like `with the current managed fleet on top and the unmanaged promotion backlog visible below ...`. That left three first-class Managed Devices steps slightly more helper-ish and less compact than the rest of the workspace-first fleet flow.
+- **expected behavior:** the promotion preset, save, and removal descriptions should use the same shorter managed-on-top / unmanaged-below wording as the rest of the Managed Devices workspace so the fleet flow reads like one coherent native workspace instead of mixing compact workspace copy with older narrated scaffolding.
+- **evidence:** this run's repo audit found the older `current managed fleet on top` wording still repeated in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` under `device_template`, `device_add`, and `device_remove`, while `tests/test_bucket_ownership_copy.py` had no focused regression locking those three steps to the shorter workspace-first wording already used by the main Managed Devices landing and bulk-enable screens.
+- **suspected cause:** earlier Workstream B cleanup tightened the highest-traffic Managed Devices entry and enablement copy first, but the adjacent preset/save/removal descriptions kept their older narrated split wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so `device_template`, `device_add`, and `device_remove` now use the same shorter `Managed devices stay on top, and unmanaged promotion backlog stays below ...` structure, and refreshes `tests/test_bucket_ownership_copy.py` to reject the older `current managed fleet on top` phrasing in those three flows.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Managed Devices copy compaction cleanup in the next exact-build deploy, then confirm the live preset/save/remove flows read with the same compact workspace-first split as the rest of Configure -> Managed Devices.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
