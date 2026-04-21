@@ -1668,7 +1668,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power.",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next from the unmanaged section: Dishwasher Power.",
             summary["next_action_summary"],
         )
         self.assertIn(
@@ -1676,7 +1676,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["device_next_step"],
         )
         self.assertIn(
-            "then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful",
+            "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful",
             summary["device_next_step"],
         )
         self.assertNotIn("| likely useful", summary["next_action_summary"])
@@ -1929,7 +1929,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(summary["recommended_path"], native_support.DEVICES_CONFIGURE_PATH)
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, summary["next_action_summary"])
         self.assertIn("start in the unmanaged section: Virtual load", summary["next_action_summary"])
-        self.assertIn("consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power", summary["next_action_summary"])
+        self.assertIn("promote next from the unmanaged section: Dishwasher Power", summary["next_action_summary"])
         self.assertNotIn(native_support.SUPPORT_CONFIGURE_PATH, summary["next_action_summary"])
         self.assertIn("Virtual load", summary["device_next_step"])
 
@@ -2399,14 +2399,14 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(
             (
                 "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
-                "to review the Managed Devices workspace, then consider this ready unmanaged candidate from the unmanaged section: Hot water relay (fixed) | likely useful"
+                "to review the Managed Devices workspace, then promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
             ),
             summary["device_next_step"],
         )
         self.assertEqual(
             (
                 "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
-                "to review the Managed Devices workspace, then consider this ready unmanaged candidate from the unmanaged section: Hot water relay (fixed) | likely useful."
+                "to review the Managed Devices workspace, then promote next from the unmanaged section: Hot water relay (fixed) | likely useful"
             ),
             summary["next_action_summary"],
         )

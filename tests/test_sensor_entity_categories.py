@@ -1098,7 +1098,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next from the unmanaged section: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_uses_ready_next_wording_when_no_review_first_candidate_exists(self) -> None:
@@ -1117,7 +1117,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, then consider this ready unmanaged candidate from the unmanaged section: Dishwasher Power",
+            "Open devices path to review the Managed Devices workspace, then promote next from the unmanaged section: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_keeps_empty_fleet_manual_add_in_managed_devices(self) -> None:
@@ -1164,7 +1164,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next from the unmanaged section: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_prioritizes_source_repair_before_fleet_work(self) -> None:

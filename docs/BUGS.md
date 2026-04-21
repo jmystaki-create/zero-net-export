@@ -1380,6 +1380,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Sensors workspace-copy cleanup in the next exact-build deploy, then confirm the live Sensors bucket reads like a first-class native workspace instead of a generic form screen.
 
+## ZNE-137 - Ready-next unmanaged handoffs still told operators to only consider promotion-ready candidates
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while rechecking the remaining Workstream C promotion-flow wording across `custom_components/zero_net_export/native_support.py`, `config_flow.py`, and `sensor.py`
+- **current observed behavior:** review-first unmanaged handoffs were already telling operators to start in the unmanaged section, but the follow-on ready candidate still used softer wording like `then consider another ready unmanaged candidate ...` or `consider this ready unmanaged candidate ...`. That made the command center, Sensors helper, and Managed Devices follow-through sound indecisive right where the docs say promotion should feel like one clear native workflow.
+- **expected behavior:** once a candidate is already promotion-ready, the native handoff should say to promote next from the unmanaged section instead of dropping back to vague `consider` wording.
+- **evidence:** this run's repo audit found the old `consider another ready unmanaged candidate` and `consider this ready unmanaged candidate` strings still repeated in `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/sensor.py`, and `custom_components/zero_net_export/config_flow.py`, with matching regressions still locked in `tests/test_command_center_summary.py`, `tests/test_sensor_entity_categories.py`, and `tests/test_config_flow_device_runtime_overlay.py`. `docs/UI_DESIGN.md` says promotion should feel first-class, and Workstream C in `docs/UI_IMPLEMENTATION_MAP.md` still calls for removing helper-ish or ambiguous wording from the promotion flow.
+- **suspected cause:** earlier ready-next cleanup fixed workspace ownership and review-first ordering first, but left the final ready-only verb on an older softer phrasing path.
+- **repo fix:** this run updates the shared ready-next handoffs in `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/sensor.py`, and `custom_components/zero_net_export/config_flow.py` so they now say `promote next from the unmanaged section ...`, and refreshes `tests/test_command_center_summary.py`, `tests/test_sensor_entity_categories.py`, and `tests/test_config_flow_device_runtime_overlay.py` to lock that promotion-first wording into the command center, Sensors, and Managed Devices follow-through surfaces.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay`, `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py custom_components/zero_net_export/config_flow.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this ready-next promotion-handoff cleanup in the next exact-build deploy, then confirm the live command center, Sensors handoff, and Managed Devices follow-through now read as one direct review-then-promote workflow.
+
 ## ZNE-112 - Controls step still framed the policy bucket with generic `screen` wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

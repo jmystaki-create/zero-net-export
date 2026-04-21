@@ -2134,7 +2134,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             placeholders["source_next_step"],
-            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
+            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
         )
 
     def test_source_placeholders_surface_mapping_progress_and_blocker_counts(self) -> None:
@@ -2652,7 +2652,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then consider another ready unmanaged candidate from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then promote next from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             feedback["message"],
         )
         self.assertNotIn("remaining fleet", feedback["message"])
@@ -2693,7 +2693,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             feedback["message"],
         )
         self.assertIn(
-            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then consider another ready unmanaged candidate from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then promote next from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             feedback["message"],
         )
 
@@ -2742,7 +2742,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             next_step,
         )
         self.assertIn(
-            "then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
+            "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
             next_step,
         )
 
@@ -2811,7 +2811,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then consider another ready unmanaged candidate from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
+            "Open devices path to review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | likely useful, then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful.",
         )
 
     def test_device_sort_key_prefers_actionable_devices_first(self) -> None:
