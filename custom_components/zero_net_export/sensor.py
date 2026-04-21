@@ -851,7 +851,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     ready_parts.append("repair sources first")
                 return _fleet_overview_state(ready_parts)
 
-            summary_parts = [f"{counts['managed_count']} managed"]
+            summary_parts = ["no managed yet" if counts["managed_count"] == 0 else f"{counts['managed_count']} managed"]
             summary_parts.append(
                 f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates"
             )

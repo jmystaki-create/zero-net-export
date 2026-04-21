@@ -451,7 +451,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertIn("0 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate", overview.native_value)
+        self.assertIn("no managed yet | 2 unmanaged | 1 fixed candidate | 1 variable candidate", overview.native_value)
         self.assertIn("fixed backlog 1 review", overview.native_value)
         self.assertIn("variable backlog 1 ready", overview.native_value)
         self.assertIn("1 needs review", overview.native_value)
@@ -897,7 +897,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "0 managed | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
+            "no managed yet | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(

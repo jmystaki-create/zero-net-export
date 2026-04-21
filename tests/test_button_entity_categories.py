@@ -1015,6 +1015,14 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(review_attrs["planned_action_count"], 0)
         self.assertEqual(review_attrs["first_planned_device"], "")
 
+    def test_empty_managed_snapshot_uses_operator_wording(self) -> None:
+        button_module = _load_button_module()
+
+        self.assertEqual(
+            button_module._managed_snapshot_summary([], include_planned_count=True),
+            "no managed yet | 0 enabled | 0 usable | 0 planned action(s)",
+        )
+
     def test_managed_snapshot_names_first_attention_device_without_blocked_or_planned_rows(self) -> None:
         button_module = _load_button_module()
 

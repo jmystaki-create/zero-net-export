@@ -348,6 +348,10 @@ def _candidate_devices_for_state(coordinator, hass, state) -> list[dict[str, str
     return candidates
 
 
+def _managed_count_label(count: int) -> str:
+    return "no managed yet" if count <= 0 else f"{count} managed"
+
+
 def _managed_snapshot_summary(device_details: list[dict], *, include_planned_count: bool = False) -> str:
     managed_count = len(device_details)
     enabled_count = sum(
@@ -379,7 +383,7 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
         (detail for detail in _sorted_review_devices(device_details) if detail.get("observed_active") is True),
         None,
     )
-    parts = [f"{managed_count} managed", f"{enabled_count} enabled", f"{usable_count} usable"]
+    parts = [_managed_count_label(managed_count), f"{enabled_count} enabled", f"{usable_count} usable"]
     if active_count:
         parts.append(f"active load {active_power:g} W")
         parts.append("1 active managed device" if active_count == 1 else f"{active_count} active managed devices")
@@ -742,7 +746,10 @@ def _build_managed_device_detail_lines(
     blocker_first_lines = _managed_devices_blocker_first_lines(
         command_center,
         candidates,
-        has_managed_devices=bool(managed_snapshot and not managed_snapshot.startswith("0 managed")),
+        has_managed_devices=bool(
+            managed_snapshot
+            and not managed_snapshot.startswith(("0 managed", "no managed yet"))
+        ),
     )
     attention_devices, remaining_devices = _partition_review_devices(ordered_devices)
     device_is_attention = any(

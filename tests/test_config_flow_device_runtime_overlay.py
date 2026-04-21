@@ -560,6 +560,15 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(summary_lines[3], "- Other managed devices:")
         self.assertIn("Water heater", summary_lines[4])
 
+    def test_empty_managed_snapshot_uses_operator_wording(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
+
+        self.assertEqual(
+            flow._managed_snapshot_text([]),
+            "no managed yet | 0 enabled | 0 usable",
+        )
+
     def test_managed_snapshot_surfaces_failed_only_attention(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
