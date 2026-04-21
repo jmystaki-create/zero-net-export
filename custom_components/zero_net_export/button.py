@@ -588,8 +588,8 @@ def _managed_devices_post_blocker_step(
     if has_managed_devices:
         return (
             f"Open {DEVICES_CONFIGURE_PATH} and use the Managed Devices workspace to "
-            "edit device settings or stage enablement changes before changing controls "
-            "or deeper diagnostics."
+            "edit device settings or stage enablement changes before changing Controls settings "
+            "or opening Diagnostics."
         )
     return (
         f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
@@ -712,7 +712,7 @@ def _managed_devices_workspace_handoff(
             lines.extend(
                 [
                     f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
-                    "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing controls or deeper diagnostics.",
+                    "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} only if you need deeper per-device review after the main fleet step is clear.",
                 ]
             )

@@ -1744,6 +1744,19 @@ Suggested area labels:
 - **validation status:** repo-side follow-on now also verifies with `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/config_flow.py tests/test_button_entity_categories.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this recap-label cleanup in the next exact-build deploy, then confirm the live Managed Devices flow names the ready-next promotion target explicitly instead of burying it under generic `Another ready ...` wording.
 
+## ZNE-140 - Managed Devices no-candidate follow-through still used generic `controls/diagnostics` wording instead of the native bucket names
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the remaining no-candidate handoff copy in `custom_components/zero_net_export/button.py` and `custom_components/zero_net_export/config_flow.py` against Workstream D in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when no unmanaged candidate was ready and operators were staying inside the managed fleet, the device-page handoff and Managed Devices save feedback still said `before changing controls or deeper diagnostics`. That kept one last generic bucket leak in the fleet follow-through even after the rest of the four-bucket cleanup had converged on the explicit native homes `Controls` and `Diagnostics`.
+- **expected behavior:** the no-candidate managed-fleet follow-through should keep the exact native bucket names, telling operators to finish Managed Devices changes before changing `Controls` settings or opening `Diagnostics`.
+- **evidence:** this run's repo audit found the old sentence still hard-coded in `_managed_devices_post_blocker_step(...)` inside `custom_components/zero_net_export/button.py` and `_post_save_candidate_follow_through(...)` inside `custom_components/zero_net_export/config_flow.py`, with matching regressions still locked in `tests/test_button_entity_categories.py` and `tests/test_config_flow_device_runtime_overlay.py`. `docs/UI_IMPLEMENTATION_MAP.md` Workstream D says jump-off text should reinforce `Controls`, `Sensors`, `Managed Devices`, and `Diagnostics` as distinct homes rather than overlapping generic sections.
+- **suspected cause:** earlier workspace-first cleanup fixed higher-value managed/unmanaged handoffs first, but this lower-visibility no-candidate branch kept its older pre-bucket wording.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` and `custom_components/zero_net_export/config_flow.py` so the no-candidate managed-fleet follow-through now says `before changing Controls settings or opening Diagnostics`, and refreshes `tests/test_button_entity_categories.py` plus `tests/test_config_flow_device_runtime_overlay.py` to lock the bucket-explicit wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/config_flow.py tests/test_button_entity_categories.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this four-bucket wording cleanup in the next exact-build deploy, then confirm the live no-candidate Managed Devices follow-through keeps `Controls` and `Diagnostics` explicit instead of dropping back to generic `controls/diagnostics` narration.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
