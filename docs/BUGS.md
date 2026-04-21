@@ -1666,6 +1666,19 @@ Suggested area labels:
 - **closure evidence:** repo audit in this run confirms the control-file map is now aligned, the anti-churn guidance is tracked in-repo, and the current helper-resolved live drift remains the same unchanged six-file deploy boundary rather than a reason to reopen generic wording churn. This was a repo/process bug, so repo evidence is sufficient for closure.
 - **next action:** no further action unless watchdog or supervisor guidance falls back into unspecific A/B wording churn again.
 
+## ZNE-134 - Primary Managed Devices action help still over-elevated the advanced JSON editor
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the main `Configure -> Managed Devices` action help text against `docs/UI_DESIGN.md` and Workstreams B/C in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the primary Managed Devices action help still said operators could `...open the Managed Devices workspace to review enablement, edit device settings, remove a device from the fleet, or open the advanced JSON editor.` That put the advanced JSON editor on the same footing as the normal native fleet path right at the top of the primary Managed Devices workspace, even though the design docs keep the supported operator path native-first and reserve JSON for recovery or bulk repair.
+- **expected behavior:** the main Managed Devices action help should keep the native workspace as the normal path and explicitly frame the advanced JSON editor as recovery-only or bulk-repair-only secondary tooling.
+- **evidence:** this run's repo audit found the older equal-footing wording still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`. The existing `tests/test_bucket_ownership_copy.py` assertions also were not yet rejecting that older `or open the advanced JSON editor` phrasing.
+- **suspected cause:** earlier Workstream B/C copy cleanup focused on promotion, review, and workspace handoffs first, but left the top-level Managed Devices action help on an older wording pass that still listed the JSON editor like a peer action.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the action help now says operators can `use the advanced JSON editor only for recovery or bulk managed-device repair` instead of presenting it as a normal parallel action. `tests/test_bucket_ownership_copy.py` now locks that recovery-only framing in place and rejects the older `or open the advanced JSON editor.` phrasing.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Managed Devices action-help cleanup in the next exact-build deploy, then confirm the live primary fleet selector keeps the advanced JSON editor clearly secondary to the native workspace.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
