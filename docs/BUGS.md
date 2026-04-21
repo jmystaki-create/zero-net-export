@@ -1575,6 +1575,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this save-form copy compaction in the next exact-build deploy, then confirm the live Managed Devices save screen stays compact and workspace-first in Home Assistant.
 
+## ZNE-127 - Managed Devices follow-on screens still leaned on repeated workspace narration instead of compact native handoffs
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while rechecking Workstream B/C copy in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** after the recent save-form compaction, the next Managed Devices follow-on screens still opened with repeated `Use this Managed Devices workspace ...` and `Stay in the Managed Devices workspace while ...` narration across bulk enable, edit, remove, shortlist, full-list, review, and preset steps. That kept the fleet workflow sounding like a stack of helper screens even though the design doc says managed vs unmanaged should read clearly without long explanatory text and the implementation map says remaining wording that makes Configure -> Managed Devices feel like a thin helper layer should be removed.
+- **expected behavior:** those follow-on screens should open with compact native handoffs that keep the managed-on-top / unmanaged-below workspace split visible without repeating screen-by-screen ownership narration.
+- **evidence:** this run's repo audit found the repeated workspace/screen narration still present in `custom_components/zero_net_export/strings.json` and mirrored in `custom_components/zero_net_export/translations/en.json`, with `tests/test_bucket_ownership_copy.py` explicitly locking the same wording in place.
+- **suspected cause:** earlier Workstream B/C cleanup fixed the larger ownership and save-handoff leaks first, but left the remaining follow-on intros on an intermediate copy pass that kept re-explaining the workspace instead of just handing off the next native action.
+- **repo fix:** this run compacts the opening copy for the bulk-enable, edit, remove, shortlist, full-list, review, and preset steps in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so each screen now opens with a shorter action-first handoff while still keeping the managed-on-top / unmanaged promotion backlog split visible. `tests/test_bucket_ownership_copy.py` now locks the compact wording in place and rejects the older repeated workspace narration.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Managed Devices follow-on copy compaction in the next exact-build deploy, then confirm the native promotion and fleet-maintenance screens read as one compact workspace flow in live Home Assistant.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
