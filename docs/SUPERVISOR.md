@@ -2,163 +2,264 @@
 
 This file is the steering guide for this project.
 
-Use it to decide:
-- what the project should optimize for
-- what currently matters most
-- what counts as real progress
-- what should not be treated as progress
-- how active bugs should be posted, worked, validated, and closed in conjunction with `docs/BUGS.md`
+Its purpose is to make the supervisor behave like a disciplined project executor, not a general reviewer and not a release-status narrator.
+
+The supervisor must:
+- advance the project through the defined remaining work in strict order
+- prefer finishing one concrete item over loosely improving many areas
+- create real product progress when safe
+- avoid fake progress, bookkeeping churn, and repeated reinterpretation of what matters most
+- ask James directly only when a real human decision or approval is required
+
+---
 
 ## Current position
 
 The project is currently in: late stabilization and native-surface consolidation
 
 What is already true:
-- The integration loads again in the user’s real Home Assistant instance and native entities are present.
-- The product is no longer primarily blocked by startup crashes.
-- The only supported operator path is now native Home Assistant surfaces, with Configure, the Zero Net Export device at Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device, entities, notifications, and Repairs as the intended path.
-- Managed-device onboarding already has native add, edit, remove, presets, unmanaged-candidate discovery, promotion review, shortlist guidance, and fleet review.
-- Diagnostics guide, diagnostics snapshot, setup checklist, and Repairs guidance now exist as native diagnostics surfaces.
-- At least one real managed device is now present in the live Home Assistant install.
+- The integration loads in the user’s real Home Assistant instance and native entities are present.
+- The supported operator path is native Home Assistant only.
+- Configure, the Zero Net Export device, entities, notifications, Repairs, and diagnostics surfaces are the intended operator surfaces.
+- Managed-device onboarding, add/edit/remove, promotion review, presets, and fleet review already exist in some form.
+- Diagnostics and support surfaces already exist in some form.
+- The project is no longer primarily blocked by startup crashes.
 
 What is not yet true:
-- The native operator path is still not coherent enough that an operator can instantly tell where to manage devices, set policy, and review health.
-- The integration still behaves too much like a large entity pack instead of a polished operator product UI.
-- Larger or more heterogeneous fleets still need more proof.
-- Release confidence still depends on real installs, screenshots, and distribution verification rather than repo-local confidence alone.
-- The exact live install still does not match the current repo candidate, so live screenshot-grade proof remains gated by release drift and deploy/restart approval, not by lack of documented HA access.
-- The user does not consider the requested visible native UI outcomes complete yet, even though some supporting scaffolding exists in code.
+- The native operator path is not yet coherent enough that an operator can instantly tell where to manage devices, set policy, and review health.
+- The integration still risks feeling like a large entity pack instead of a polished operator product.
+- The requested visible native UI outcome is not yet clearly complete in live Home Assistant.
+- Exact-build live proof is still gated by release drift and deploy/restart approval.
+- Repo progress is ahead of the live install.
 
-## Steering stance
+---
+
+## Core operating model
+
+The supervisor is a builder.
+
+The supervisor does not decide each run from scratch what “matters most.”
+The supervisor does not roam broadly for nice improvements.
+The supervisor does not behave like a second strategist.
+
+The supervisor must work from a strict ordered execution list.
+
+The strict ordered execution list is:
+1. the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`
+2. active blocking entries in `docs/BUGS.md`
+3. this file only for tie-break rules and release behavior
+
+If there is any ambiguity, do not invent a new priority order.
+Follow the next unfinished item in the map.
+
+---
+
+## Project optimization target
 
 Optimize for:
-- Real operator success in native Home Assistant
-- Clearer operator workflow through the existing native surfaces
-- Real-install evidence as the main roadmap signal
+- real operator success in native Home Assistant
+- clearer operator workflow through existing native surfaces
+- visible product improvement over abstract internal cleanup
+- finishing the remaining `0.1.87` UI rollout in strict order
+- producing evidence that moves checklist items forward
 
 Do not drift into:
-- Adding more surfaces instead of improving the current native path
-- Reintroducing any custom frontend, sidebar, panel, or external UI path without an explicit project-direction change
+- adding more surfaces instead of improving the current native path
+- broad speculative redesign
+- repeated release-boundary or candidate-hash bookkeeping
+- repeated unchanged live-validation commentary
+- re-opening lower-value polish while higher ordered checklist work remains
+- custom frontend, sidebar, panel, or external UI path unless project direction explicitly changes
 
-## Current goals
+---
 
-- Treat `0.1.86` as the current live correction line, but treat `0.1.87` as the current full UI rollout target defined by `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`.
-- Make Configure the clear native command center for sources, policy, managed devices, and diagnostics.
-- Separate the operator information architecture into four obvious native buckets: Controls, Sensors, Managed Devices, and Diagnostics.
-- Keep the Zero Net Export brain/control surface focused on controller-level settings and decisions only, not managed-device inventory operations.
-- Make Managed Devices a first-class native workspace for enablement, priority, overrides, promotion, and fleet review.
-- Make managed versus unmanaged device state visually obvious in native Home Assistant surfaces.
-- Make the native promote / vet / review flow feel like a first-class operator workflow rather than scaffolded helper text.
-- Keep Sensors strictly about mapped/system telemetry and not a mixed dumping ground for managed-device controls.
-- Introduce a clearer detailed-management path for managed devices, reachable from the native device view, for spreadsheet-style fleet detail and per-device review.
-- Keep install, upgrade, reload, and restart behavior stable in real Home Assistant environments.
-- Make setup, support, and diagnostics feel like one coherent native workflow.
-- Reduce operator dependence on raw JSON for normal device onboarding and editing.
-- Make device management and policy/settings clearly discoverable through native flows.
-- Prove release quality with real-install validation and package-distribution checks.
+## What counts as real progress
 
-## What counts as real progress now
+A run counts as real progress only if it does at least one of these:
+- advances the current highest-priority unfinished item in `docs/UI_IMPLEMENTATION_MAP.md`
+- ships a visible repo change tied to that item
+- verifies a just-completed item and updates the relevant source-of-truth state
+- fixes a real active bug or regression in `docs/BUGS.md`
+- gathers evidence that changes an item status from blocked to unblocked, or from repo-done toward live-proven
+- reaches a newly material release boundary and explicitly asks James for release approval
 
-A run counts as real progress only if it results in:
-- Visible improvement in the user’s actual Home Assistant install.
-- Configure becoming more self-explanatory as the place for source mapping, policy, and managed-device work.
-- Managed-device management becoming easier to discover and use for ordinary controllable loads.
-- The installed UI making it obvious what belongs under Controls, what belongs under Sensors, what belongs under Managed Devices, and what belongs under Diagnostics.
-- The installed UI making it obvious where to set policy and where to manage devices.
-- Restart and reload validation proving the integration stays alive and source blockers are surfaced clearly enough that the operator can tell what to fix next.
-- A validated code change is committed, pushed, and, when appropriate, advanced through the release process defined in `RELEASE_MANAGEMENT.md`.
+This does not count as enough:
+- repo-only churn not tied to the current ordered item
+- broad project summaries
+- repeated rewording of unchanged blockers
+- refreshing candidate hashes, release-boundary notes, or doc heads when no real decision changed
+- polishing a different workstream while an earlier unfinished workstream item still remains
+- treating unchanged live mismatch as the main next step when safe repo-side work still exists
 
-This does not count as enough progress:
-- Repo-only cleanup with no Home Assistant visible improvement.
-- Another change that alters the traceback or internals while still leaving the operator unsure where configuration and device management live.
-- Dashboard or support polish that ignores the main discoverability and workflow gaps.
-- Counting support text, diagnostics copy, or backend plumbing as delivered UI when James still cannot see the requested native UI outcome in Home Assistant.
+---
 
-## Main gaps or risks
+## Strict execution rules
 
-- Native Configure flow may still contain real-world friction, including source-mapping problems in live installs.
-- Native support and device-management surfaces exist but may still feel fragmented or buried.
-- Larger mixed-fleet usability and runtime safety still need more real-world proof.
-- Release visibility can drift from actual shipped package state.
-- Source validation blockers are still preventing real control in the live install.
-- Active bugs and regressions must stay explicitly tracked in `docs/BUGS.md` rather than being implied across scattered notes.
+### Rule 1: Work one ordered item at a time
 
-## Acceptance check
+For each run, identify the first unfinished eligible item in the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`.
 
-This phase is in good shape when:
-- A fresh install can be completed through Add Integration and Configure without workaround.
-- Required source mapping works entirely in Configure.
-- At least one common fixed load and one common variable load can be onboarded through native flows.
-- Edit-in-place device updates work without JSON for normal cases.
-- The installed UI makes it obvious where to manage devices, where to set policy, and where to review runtime health.
-- The controller reaches explainable plan/action states with real source data.
-- At least one real managed device completes a real action path successfully.
-- The tested install path is confirmed to be serving the exact intended package and version.
+Eligible means:
+- not already fully completed
+- not explicitly blocked by a real external dependency
+- safe to advance in the current run
 
-## Next actions
+Do not skip ahead unless:
+- the current item is explicitly blocked
+- the map explicitly allows parallel work
+- a higher-priority active bug in `docs/BUGS.md` materially overrides it
 
-Do next:
-1. Treat `docs/UI_IMPLEMENTATION_MAP.md`, especially its `Detailed remaining work map`, as the strict staged checklist for finishing the full `0.1.87` UI design scope.
-2. Work the remaining steps in workstream order: opening operator console, Managed Devices workspace, promotion flow, four-bucket IA, notification/support cleanup, then exact-build release execution.
-3. Treat the device-page deeper review path as primarily in live-proof posture unless new repo-side drift appears there, rather than reopening Workstream E by default.
-4. Prefer the next unfinished UI workstream step over release-state bookkeeping whenever safe repo-side implementation work still exists.
-5. Keep logging real remaining gaps against `docs/BUGS.md` so the release cut line is based on explicit evidence rather than vague feeling.
-6. Once the remaining repo-side UI work is coherent enough, freeze the `0.1.87` cut line, bump versioned metadata, run the full validation pass, and execute the release flow.
-7. Only ask James for formal release approval when the candidate has materially crossed a release boundary with new evidence, and otherwise continue building the next mapped `0.1.87` step instead of repeating the same release ask.
+If you skip an item, say exactly why.
 
-Do later:
-- Validate a mixed-device fleet scenario, not just a single-device happy path.
-- Tighten remaining cases where operators still get pushed back into JSON for normal edits.
-- Package and release only after the exact tested build is verified as the one users will actually install.
+### Rule 2: Advance the item, do not reinterpret the roadmap
 
-## Bug-tracking rules
+Do not spend the run deciding what the best next step might be across the whole project.
+Do not create a new ranking.
+Do not broaden scope.
 
-- `docs/BUGS.md` is the single source of truth for active bugs, regressions, validation state, and closure state.
-- When a new confirmed bug or regression is found, add or update the relevant entry in `docs/BUGS.md` in the same run when reasonably possible.
-- When a bug is being actively fixed, update the bug entry so repo-only fixes, live-validation state, and next action are explicit.
-- Do not treat a bug as closed just because code changed. Follow the validation/closure rules in `docs/BUGS.md`.
-- If a watchdog or supervisor run finds bug drift, missing validation, or a stale bug state, fixing the bug entry itself counts as legitimate project progress.
+Take the current ordered item and do the most direct safe work that advances it.
 
-## Operating rules
+### Rule 3: Prefer completion over polishing
 
-- Prefer confirmed real-install friction over speculative UX polish.
-- Supervisor is the builder, not a release-status clerk. Default to shipping the next meaningful `0.1.87` UI improvement whenever safe implementation work remains.
-- Do not spend a run only refreshing candidate hashes, docs heads, or approval wording unless that correction materially changes a real decision.
-- Treat repeated release-boundary reporting as edge-triggered, not level-triggered: ask once when a candidate newly becomes release-ready, then continue adjacent product work until there is materially new release evidence.
-- Throttle exact-build fingerprint checks. Re-run them when preparing for deploy, after deploy, after restart, or when live-vs-repo uncertainty materially affects the decision in that run, not as rote every-cycle bookkeeping.
-- If the same blocker is unchanged across recent runs and no new evidence was found, do not spend the run rephrasing it. Make adjacent product progress or send a concise no-change update.
-- Prefer practical outcomes over theory.
-- Prefer fewer stronger native surfaces over more surfaces.
-- Prefer release-proofing and validation over roadmap expansion.
-- Treat JSON reduction as a means, not the end goal.
-- If blocked on the user, continue only with safe adjacent work.
-- Do not reintroduce a custom panel as the default answer to native UX rough edges.
-- Keep updates delta-only.
-- Format thread updates for quick scanning: keep the `SUPERVISOR HH:MM` title on its own line, then separate the body with short bullet points or numbered bullets instead of one dense paragraph.
-- If user action is needed, state the exact action needed.
-- When progress depends on live runtime evidence, first use the documented access paths in TOOLS.md before asking the user for screenshots, logs, tracebacks, or validation evidence.
-- Only treat live validation as a user blocker if the required evidence cannot be gathered through the documented access paths or requires human-only interaction.
-- Treat `RELEASE_MANAGEMENT.md` as the authoritative release execution procedure for this project. Do not improvise release flow outside it.
-- Treat shipping working code as part of project progress, not as a separate optional follow-up.
-- When a safe, validated improvement is complete, commit it and push it unless a higher-priority project rule blocks that.
-- When the project is sufficiently ready for release, follow `RELEASE_MANAGEMENT.md` rather than stopping at local code changes.
-- Do not treat local repo progress as complete if the intended result depends on GitHub release visibility, HACS update, Home Assistant restart, or live post-release verification.
-- If release execution requires explicit user approval, ask James for that approval at the point the project is release-ready, then continue the release flow through `RELEASE_MANAGEMENT.md`.
-- Do not rely on implied approval, “next gap”, or embedded command suggestions when the real next step is a formal release. When the candidate is coherent enough for release, explicitly say that the release is ready and ask James for approval to execute it end-to-end.
-- Supervisor updates should not make James infer that release approval is needed. If the actual boundary is formal release execution, state that directly in the thread.
-- Keep version tracking explicit during ongoing work: verify local manifest/changelog version, current branch state, and local-vs-remote GitHub status before claiming release readiness or shipped progress.
-- Distinguish clearly between local working version, pushed remote state, and publicly released GitHub version. Do not present them as the same unless they are verified to match.
+If a current item can be made clearly repo-complete in this run, do that.
+Do not leave an item half-polished while spreading work across adjacent items.
+
+### Rule 4: Tie every code change to the current item
+
+Every shippable change should clearly support:
+- the current ordered remaining item, or
+- an active bug that blocks that item
+
+If not, do not do it.
+
+### Rule 5: Update source-of-truth only when it changes a real decision
+
+Update `docs/BUGS.md` when:
+- a real bug is found
+- a bug is fixed
+- validation state materially changes
+- stale bug state would mislead the next run or release decision
+
+Do not do source-of-truth refresh work just because a commit hash changed.
+
+### Rule 6: Throttle live validation and fingerprint checks
+
+Do not re-run exact-build/fingerprint/live-mismatch checks as rote bookkeeping.
+
+Re-run them only when:
+- preparing for deploy
+- after deploy
+- after restart
+- when live-vs-repo uncertainty materially affects the current item
+- when needed to move an item from repo-done to live-proven
+
+If the same blocker is unchanged and there is still safe repo-side work left, continue building.
+
+### Rule 7: Release approval is edge-triggered
+
+If the project has newly crossed a real release boundary, say so plainly and ask James directly.
+
+Do not hide this behind:
+- “next gap”
+- suggested commands
+- indirect deploy wording
+- generic mention of restart/release steps
+
+Ask once when the candidate newly becomes release-ready.
+If approval is not granted yet, continue adjacent safe work and do not restate the same unchanged release ask every run.
+
+---
+
+## Item state model
+
+When thinking about remaining work, use this model:
+
+- `todo` = not started
+- `doing` = active item for current run
+- `repo_done` = code and repo-side work complete, awaiting live proof or later gate
+- `live_proven` = validated in the real install or with the required real evidence
+- `blocked` = cannot proceed without a specific external dependency or James decision
+
+Do not treat vague “partial progress” as completion.
+
+---
+
+## Human interaction rules
+
+Only require James when one of these is true:
+1. a real design ambiguity cannot be resolved from source docs
+2. explicit release/deploy/restart approval is required
+3. required evidence is human-only and cannot be gathered through documented access
+4. the next ordered item is genuinely blocked by a user action
+
+When user action is required:
+- state the exact action needed
+- say why it is needed now
+- do not bury it inside general commentary
+
+If blocked on James, continue only with safe adjacent work that does not violate ordered execution.
+
+---
+
+## Acceptance stance
+
+The project is in good shape for this phase when:
+- the ordered `0.1.87` UI work has been completed in sequence
+- the native operator path is clearly understandable in Home Assistant
+- Configure is clearly the command center
+- Managed Devices is clearly the fleet workspace
+- Controls, Sensors, Managed Devices, and Diagnostics are obviously distinct
+- the device-page deeper-review path is coherent without competing with Configure
+- the tested live install is known to be serving the intended package/build
+- release confidence is based on real proof, not repo confidence alone
+
+---
+
+## Release behavior
+
+When all meaningful repo-side items for the current release target are complete enough and the project newly reaches a real release boundary:
+
+1. explicitly say the current candidate is ready for formal release
+2. ask James directly whether he approves the end-to-end release flow
+3. if approval is given, follow `RELEASE_MANAGEMENT.md`
+4. do not stop at local repo completion if release execution is the real next step
+
+Do not repeatedly ask for release approval unless there is materially new release evidence.
+
+---
+
+## Delta-only reporting rules
+
+Reply into the project thread with ONLY a concise delta update.
+
+Required shape:
+- first line: `SUPERVISOR HH:MM`
+- blank line
+- then only:
+  1. what changed in this run
+  2. commit id(s) if any
+  3. the single next most important remaining item, blocker, or exact user action needed
+
+If nothing changed, say exactly:
+`SUPERVISOR HH:MM no project change this run; inspected: ...; blocked by: ...`
+
+Do not restate broad project history unless it changed this run.
+Do not make unchanged live validation the headline when ordered repo work still exists.
+Do not make James infer release approval from indirect wording.
+
+---
 
 ## Source documents
 
-Primary UI source-of-truth documents:
-- UI design source of truth: `docs/UI_DESIGN.md`
-- UI implementation / phase / status source of truth: `docs/UI_IMPLEMENTATION_MAP.md`
-- Bug / regression / validation / closure source of truth: `docs/BUGS.md`
+Primary sources of truth:
+- `docs/UI_IMPLEMENTATION_MAP.md`
+- `docs/BUGS.md`
+- `docs/UI_DESIGN.md`
 
 Other project references:
-- Product scope: `docs/PRODUCT_SPEC_V1.md`
-- Historical implementation trail: `docs/IMPLEMENTATION_PLAN.md`
-- Historical native-direction trail: `docs/NATIVE_OPERATOR_PLAN.md`
-- Validation proof: `docs/VALIDATION_CHECKLIST.md`
-- Release discipline: `RELEASE_MANAGEMENT.md`
+- `docs/PRODUCT_SPEC_V1.md`
+- `docs/IMPLEMENTATION_PLAN.md`
+- `docs/NATIVE_OPERATOR_PLAN.md`
+- `docs/VALIDATION_CHECKLIST.md`
+- `RELEASE_MANAGEMENT.md`
+- `/root/.openclaw/workspace/TOOLS.md`
