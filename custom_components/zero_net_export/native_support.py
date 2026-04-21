@@ -1977,9 +1977,9 @@ def _build_command_center_fleet_activity_summary(
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
 
-    if managed_count == 0 and source_blocked:
-        summary_parts.append("repair sources first")
-    elif source_blocked and managed_count > 0:
+    if managed_count <= 0:
+        summary_parts.append(_unmanaged_count_label(candidate_count))
+    if source_blocked:
         summary_parts.append("repair sources first")
 
     if managed_count > 0:
@@ -2019,7 +2019,8 @@ def _build_command_center_fleet_activity_summary(
                     f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}"
                 )
 
-    summary_parts.append(_unmanaged_count_label(candidate_count))
+    if managed_count > 0:
+        summary_parts.append(_unmanaged_count_label(candidate_count))
 
     if candidate_count:
         if fixed_candidate_count:
@@ -2132,6 +2133,8 @@ def _build_command_center_fleet_activity_summary(
 
     minimal_parts: list[str] = [_managed_count_label(managed_count)]
 
+    if managed_count <= 0:
+        minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
     if source_blocked:
         minimal_parts.append("repair sources first")
 
@@ -2189,7 +2192,8 @@ def _build_command_center_fleet_activity_summary(
             )
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
-    minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
+    if managed_count > 0:
+        minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
 
     if fixed_candidate_count and variable_candidate_count:
         minimal_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
@@ -2253,12 +2257,14 @@ def _build_command_center_fleet_activity_summary(
         return minimal_summary
 
     if managed_count <= 0 and fixed_candidate_count and variable_candidate_count:
-        empty_fleet_kind_parts: list[str] = [_managed_count_label(managed_count)]
+        empty_fleet_kind_parts: list[str] = [
+            _managed_count_label(managed_count),
+            _compact_unmanaged_count_label(candidate_count),
+        ]
         if source_blocked:
             empty_fleet_kind_parts.append("repair sources first")
         empty_fleet_kind_parts.extend(
             [
-                _compact_unmanaged_count_label(candidate_count),
                 _count_label(fixed_candidate_count, "fixed candidate"),
                 _count_label(variable_candidate_count, "variable candidate"),
             ]
@@ -2492,6 +2498,8 @@ def _build_command_center_fleet_activity_summary(
         return compact_minimal_summary
 
     essential_parts: list[str] = [_managed_count_label(managed_count)]
+    if managed_count <= 0:
+        essential_parts.append(_compact_unmanaged_count_label(candidate_count))
     if source_blocked:
         essential_parts.append("repair sources first")
     if first_attention_device:
@@ -2526,7 +2534,8 @@ def _build_command_center_fleet_activity_summary(
                     max_chars=32,
                 )
             )
-    essential_parts.append(_compact_unmanaged_count_label(candidate_count))
+    if managed_count > 0:
+        essential_parts.append(_compact_unmanaged_count_label(candidate_count))
     if fixed_candidate_count and variable_candidate_count:
         essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))
