@@ -104,6 +104,19 @@ def _managed_count_label(count: int) -> str:
     return "no managed yet" if count <= 0 else f"{count} managed"
 
 
+def _unmanaged_count_label(count: int) -> str:
+    return "no unmanaged candidates" if count <= 0 else f"{count} unmanaged backlog"
+
+
+def _compact_unmanaged_count_label(count: int) -> str:
+    return "no unmanaged candidates" if count <= 0 else f"{count} unmanaged"
+
+
+def _is_unmanaged_count_part(text: str) -> bool:
+    normalized = " ".join(str(text or "").split())
+    return normalized == "no unmanaged candidates" or normalized.endswith(" unmanaged") or normalized.endswith(" unmanaged backlog")
+
+
 def _matches_count_label(text: str, singular: str, plural: str | None = None) -> bool:
     normalized = " ".join(str(text or "").split())
     if not normalized:
@@ -1657,7 +1670,7 @@ def _command_center_device_status_with_unmanaged_context(
     summary = base_status
     if candidate_count <= 0:
         return summary
-    summary += f"; {candidate_count} unmanaged"
+    summary += f"; {_unmanaged_count_label(candidate_count)}"
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
@@ -1703,7 +1716,7 @@ def _command_center_device_status_with_unmanaged_context(
 
     compact_parts: list[str] = [
         _clip_part(base_status, max_chars=72),
-        f"{candidate_count} unmanaged",
+        _compact_unmanaged_count_label(candidate_count),
     ]
     if backlog_parts:
         compact_parts.extend(backlog_parts)
@@ -1725,7 +1738,7 @@ def _command_center_device_status_with_unmanaged_context(
     if single_kind_overflow_backlog_parts:
         single_kind_compact_parts: list[str] = [
             _clip_part(base_status, max_chars=72),
-            f"{candidate_count} unmanaged",
+            _compact_unmanaged_count_label(candidate_count),
             *single_kind_overflow_backlog_parts,
         ]
         if review_candidate_preview:
@@ -1745,7 +1758,7 @@ def _command_center_device_status_with_unmanaged_context(
     if single_kind_overflow_backlog_parts:
         single_kind_compact_parts: list[str] = [
             _clip_part(base_status, max_chars=72),
-            f"{candidate_count} unmanaged",
+            _compact_unmanaged_count_label(candidate_count),
             *single_kind_overflow_backlog_parts,
         ]
         if review_candidate_preview:
@@ -1762,7 +1775,7 @@ def _command_center_device_status_with_unmanaged_context(
 
         single_kind_named_parts: list[str] = [
             _clip_part(base_status, max_chars=56),
-            f"{candidate_count} unmanaged",
+            _compact_unmanaged_count_label(candidate_count),
             *single_kind_overflow_backlog_parts,
         ]
         if review_candidate_name:
@@ -1787,7 +1800,7 @@ def _command_center_device_status_with_unmanaged_context(
 
     essential_parts: list[str] = [
         _clip_part(base_status, max_chars=48),
-        f"{candidate_count} unmanaged",
+        _compact_unmanaged_count_label(candidate_count),
     ]
     if backlog_parts:
         essential_parts.extend(backlog_parts)
@@ -1813,7 +1826,7 @@ def _command_center_device_status_with_unmanaged_context(
     if single_kind_overflow_backlog_parts:
         single_kind_parts: list[str] = [
             _clip_part(base_status, max_chars=40),
-            f"{candidate_count} unmanaged",
+            _compact_unmanaged_count_label(candidate_count),
             *single_kind_overflow_backlog_parts,
         ]
         if review_needed_count:
@@ -1834,7 +1847,7 @@ def _command_center_device_status_with_unmanaged_context(
 
         concise_single_kind_parts: list[str] = [
             _clip_part(base_status, max_chars=40),
-            f"{candidate_count} unmanaged",
+            _compact_unmanaged_count_label(candidate_count),
             *single_kind_overflow_backlog_parts,
         ]
         if review_candidate_name:
@@ -1859,7 +1872,7 @@ def _command_center_device_status_with_unmanaged_context(
 
     minimal_parts: list[str] = [
         _clip_part(base_status, max_chars=40),
-        f"{candidate_count} unmanaged",
+        _compact_unmanaged_count_label(candidate_count),
     ]
     if review_needed_count:
         minimal_parts.append(_count_label(review_needed_count, "needs review", "need review"))
@@ -2004,10 +2017,7 @@ def _build_command_center_fleet_activity_summary(
                     f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}"
                 )
 
-    if candidate_count:
-        summary_parts.append(f"{candidate_count} unmanaged")
-    else:
-        summary_parts.append("no unmanaged candidates")
+    summary_parts.append(_unmanaged_count_label(candidate_count))
 
     if candidate_count:
         if fixed_candidate_count:
@@ -2177,10 +2187,7 @@ def _build_command_center_fleet_activity_summary(
             )
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
-    if candidate_count:
-        minimal_parts.append(f"{candidate_count} unmanaged")
-    else:
-        minimal_parts.append("no unmanaged candidates")
+    minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
 
     if fixed_candidate_count and variable_candidate_count:
         minimal_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
@@ -2249,7 +2256,7 @@ def _build_command_center_fleet_activity_summary(
             empty_fleet_kind_parts.append("repair sources first")
         empty_fleet_kind_parts.extend(
             [
-                f"{candidate_count} unmanaged",
+                _compact_unmanaged_count_label(candidate_count),
                 _count_label(fixed_candidate_count, "fixed candidate"),
                 _count_label(variable_candidate_count, "variable candidate"),
             ]
@@ -2334,7 +2341,7 @@ def _build_command_center_fleet_activity_summary(
             (
                 index + 1
                 for index, part in enumerate(single_kind_review_focus_parts)
-                if part.endswith(" unmanaged") or part == "no unmanaged candidates"
+                if _is_unmanaged_count_part(part)
             ),
             len(single_kind_review_focus_parts),
         )
@@ -2412,7 +2419,7 @@ def _build_command_center_fleet_activity_summary(
                 managed_unmanaged_split_parts.append(_clip_part(part, max_chars=28))
             else:
                 managed_unmanaged_split_parts.append(part)
-            if not backlog_inserted and (part.endswith(" unmanaged") or part == "no unmanaged candidates"):
+            if not backlog_inserted and _is_unmanaged_count_part(part):
                 managed_unmanaged_split_parts.extend(backlog_parts)
                 backlog_inserted = True
         if not backlog_inserted:
@@ -2516,7 +2523,7 @@ def _build_command_center_fleet_activity_summary(
                     max_chars=32,
                 )
             )
-    essential_parts.append(f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates")
+    essential_parts.append(_compact_unmanaged_count_label(candidate_count))
     if fixed_candidate_count and variable_candidate_count:
         essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))
@@ -2567,7 +2574,7 @@ def _build_command_center_fleet_activity_summary(
             (
                 index + 1
                 for index, part in enumerate(managed_backlog_essential_parts)
-                if part.endswith(" unmanaged") or part == "no unmanaged candidates"
+                if _is_unmanaged_count_part(part)
             ),
             len(managed_backlog_essential_parts),
         )
