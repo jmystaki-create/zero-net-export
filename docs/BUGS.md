@@ -1367,6 +1367,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`.
 - **next action:** include this edit/remove workspace-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices edit and removal entry points match the rest of the workspace-first fleet flow.
 
+## ZNE-111 - Sensors steps still framed the primary telemetry bucket as a generic screen
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking remaining Workstream D bucket-ownership wording against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the two Sensors entry steps in Configure still opened with `Use this Sensors screen ...` even after nearby Managed Devices flows had been tightened to say `workspace`. That left the telemetry/source-health bucket sounding more like an isolated form screen than one of the four native homes the `0.1.87` rollout map is trying to make obvious.
+- **expected behavior:** the Sensors entry and mapping steps should use the same workspace-first framing as the rest of the four-bucket IA so Configure reads like one coherent set of native homes rather than a mix of workspaces and generic screens.
+- **evidence:** this run found `Use this Sensors screen as the source-mapping and source-health home...` and `Use this Sensors screen to map the required entities...` still present in `custom_components/zero_net_export/strings.json`, mirrored in `custom_components/zero_net_export/translations/en.json`, and explicitly locked by `tests/test_bucket_ownership_copy.py`.
+- **suspected cause:** earlier Workstream B cleanup concentrated on the higher-friction Managed Devices path first, but the parallel Sensors wording was left on the older screen-style phrasing.
+- **repo fix:** this run updates both Sensors step descriptions in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` from `screen` to `workspace`, and refreshes `tests/test_bucket_ownership_copy.py` so the regression suite now rejects the older Sensors-screen wording.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this Sensors workspace-copy cleanup in the next exact-build deploy, then confirm the live Sensors bucket reads like a first-class native workspace instead of a generic form screen.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
