@@ -179,17 +179,21 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertEqual(steps["device_template"]["title"], "Promotion preset")
 
         shortlist_description = steps["device_pick_candidate"]["description"]
-        self.assertIn("Managed Devices owns this promotion entry step.", shortlist_description)
+        self.assertIn("Use this Managed Devices workspace shortlist to start promotion from the surfaced unmanaged {device_kind} candidates below.", shortlist_description)
+        self.assertIn("Managed Devices owns this promotion entry workflow.", shortlist_description)
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you choose the next candidate.", shortlist_description)
         self.assertNotIn("keep the managed fleet visible on top and the unmanaged backlog visible below", shortlist_description)
+        self.assertNotIn("Managed Devices owns this promotion entry step.", shortlist_description)
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
-        self.assertIn("Managed Devices still owns this full-list step.", full_list_description)
+        self.assertIn("Use this Managed Devices workspace full list when the shortlist still does not show the right surfaced entity.", full_list_description)
+        self.assertIn("Managed Devices owns this full-list workflow.", full_list_description)
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you choose the next candidate.", full_list_description)
         self.assertNotIn("keep the managed fleet visible on top and the unmanaged backlog visible below", full_list_description)
+        self.assertNotIn("Managed Devices still owns this full-list step.", full_list_description)
 
         vetting_description = steps["device_vetting"]["description"]
-        self.assertIn("Review this unmanaged candidate before it enters the managed fleet.", vetting_description)
+        self.assertIn("Use this Managed Devices workspace review to vet this unmanaged candidate before it enters the managed fleet.", vetting_description)
         self.assertIn("Managed Devices owns this promotion workflow.", vetting_description)
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you vet the candidate.", vetting_description)
         self.assertNotIn("keep the managed fleet visible on top and the unmanaged backlog visible below", vetting_description)
@@ -211,10 +215,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         template_description = steps["device_template"]["description"]
         self.assertIn("Promotion path:", template_description)
         self.assertIn("{promotion_path_summary}", template_description)
-        self.assertIn("Choose safer starting defaults for this {device_kind} before save.", template_description)
+        self.assertIn("Use this Managed Devices workspace to choose safer starting defaults for this {device_kind} before save.", template_description)
         self.assertNotIn("Start this {device_kind} from a preset", template_description)
-        self.assertIn("Managed Devices still owns this promotion step", template_description)
+        self.assertIn("Managed Devices owns this promotion preset workflow.", template_description)
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you choose the preset.", template_description)
+        self.assertNotIn("Managed Devices still owns this promotion step", template_description)
         self.assertNotIn("with the current managed fleet on top and the unmanaged promotion backlog visible below while you choose the preset", template_description)
         self.assertIn("Managed devices (top section)", template_description)
         self.assertIn("Managed Devices: {device_count}", template_description)
@@ -233,9 +238,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         add_description = steps["device_add"]["description"]
         self.assertIn("Promotion path:", add_description)
         self.assertIn("{promotion_path_summary}", add_description)
-        self.assertIn("Confirm this {device_kind} in Managed Devices through native Home Assistant selectors.", add_description)
-        self.assertIn("Managed Devices still owns this save step", add_description)
+        self.assertIn("Confirm this {device_kind} in the Managed Devices workspace through native Home Assistant selectors.", add_description)
+        self.assertIn("Managed Devices owns this save workflow.", add_description)
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you confirm the final settings.", add_description)
+        self.assertNotIn("Managed Devices still owns this save step", add_description)
         self.assertNotIn("with the current managed fleet on top and the unmanaged promotion backlog visible below while you confirm the final settings", add_description)
         self.assertNotIn("This is the main native promotion flow", add_description)
         self.assertIn("Managed devices (top section)", add_description)
@@ -258,8 +264,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         shortlist_description = shortlist_step["description"]
         self.assertIn("Managed devices review:", shortlist_description)
         self.assertIn("Managed Devices: {device_count}", shortlist_description)
-        self.assertIn("Start promotion from the surfaced unmanaged {device_kind} shortlist below.", shortlist_description)
+        self.assertIn("Use this Managed Devices workspace shortlist to start promotion from the surfaced unmanaged {device_kind} candidates below.", shortlist_description)
         self.assertNotIn("Use this Managed Devices shortlist to review the currently surfaced unmanaged {device_kind} candidates below.", shortlist_description)
+        self.assertNotIn("Start promotion from the surfaced unmanaged {device_kind} shortlist below.", shortlist_description)
         self.assertIn("open the full unmanaged list or the manual Managed Devices form only if the right entity is still missing", shortlist_description)
         self.assertNotIn("best surfaced unmanaged", shortlist_description)
         self.assertNotIn("short, opinionated promotion shortlist", shortlist_description)
@@ -274,7 +281,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
         self.assertIn("open the manual Managed Devices form from this dropdown and continue there", full_list_description)
-        self.assertIn("Use this full unmanaged {device_kind} list when the shortlist still does not show the right surfaced entity.", full_list_description)
+        self.assertIn("Use this Managed Devices workspace full list when the shortlist still does not show the right surfaced entity.", full_list_description)
         self.assertIn("Managed Devices: {device_count}", full_list_description)
         self.assertIn("Unmanaged candidate devices: {candidate_count}", full_list_description)
         self.assertIn("{fixed_candidate_summary}", full_list_description)

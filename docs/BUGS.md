@@ -1445,6 +1445,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this remaining Managed Devices promotion-entry copy cleanup in the next exact-build deploy, then confirm the live shortlist, full-list, review, and edit entry steps read with the same compact workspace-first split as the rest of Configure -> Managed Devices.
 
+## ZNE-117 - Promotion shortlist, review, preset, full-list, and save copy still treated Managed Devices as a step instead of the workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while comparing the remaining Workstreams B/C promotion-flow copy in `custom_components/zero_net_export/strings.json` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the opening Managed Devices landing and several adjacent fleet screens already read as a workspace, but the promotion shortlist, full-list, review, preset, and save descriptions were still phrasing Managed Devices as an owned `step` or generic place to confirm fields. That left the core shortlist -> review -> preset -> save path sounding slightly scaffolded instead of like one native Managed Devices workspace, which is exactly the trust gap Workstreams B and C are still trying to remove.
+- **expected behavior:** those promotion-flow entry descriptions should keep the same workspace-first framing as the rest of Configure -> Managed Devices, so operators stay inside one coherent Managed Devices workspace from shortlist through save.
+- **evidence:** this run found `Managed Devices owns this promotion entry step`, `Managed Devices still owns this full-list step`, `Managed Devices still owns this promotion step`, and `Managed Devices still owns this save step` still present in `custom_components/zero_net_export/strings.json` and mirrored in `custom_components/zero_net_export/translations/en.json`. The matching assertions in `tests/test_bucket_ownership_copy.py` were also still locking that step-style wording into the promotion shortlist, full-list, review, preset, and save flow.
+- **suspected cause:** earlier Workstream B copy cleanup tightened the main Managed Devices landing plus nearby entry points first, but the core promotion-flow descriptions were left on an intermediate wording pass that still described Managed Devices as a sequence of steps instead of the primary workspace.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the shortlist, full-list, review, preset, and save descriptions now say `Managed Devices workspace` directly and replace the older step-style ownership lines with workflow wording. `tests/test_bucket_ownership_copy.py` now locks the workspace-first promotion copy and rejects the older `promotion entry step` / `full-list step` / `save step` phrasing.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this promotion-flow workspace-copy cleanup in the next exact-build deploy, then confirm the live shortlist -> review -> preset -> save path reads like one Managed Devices workspace instead of a chain of helper steps.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
