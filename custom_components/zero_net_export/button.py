@@ -846,8 +846,8 @@ def _build_managed_device_detail_lines(
         *(
             [
                 f"- Another ready unmanaged candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
-                "- Ready-next unmanaged usefulness: " + _candidate_usefulness_summary(ready_candidate),
-                "- Ready-next unmanaged warnings: "
+                "- Another ready unmanaged usefulness: " + _candidate_usefulness_summary(ready_candidate),
+                "- Another ready unmanaged warnings: "
                 + (
                     "; ".join(ready_candidate_fit.get("warnings") or [])
                     if ready_candidate_fit and ready_candidate_fit.get("warnings")
@@ -1138,9 +1138,9 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             ),
             *(
                 [
-                    f"- Ready-next candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
-                    f"- Ready-next candidate usefulness: {_candidate_usefulness_summary(ready_candidate)}",
-                    '- Ready-next candidate warnings: '
+                    f"- Another ready unmanaged candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
+                    f"- Another ready unmanaged usefulness: {_candidate_usefulness_summary(ready_candidate)}",
+                    '- Another ready unmanaged warnings: '
                     + (
                         '; '.join(ready_candidate_fit.get('warnings') or [])
                         if ready_candidate_fit and ready_candidate_fit.get('warnings')
@@ -1302,9 +1302,9 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             ),
             *(
                 [
-                    f"Ready-next candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
-                    "Ready-next candidate usefulness: " + _candidate_usefulness_summary(ready_candidate),
-                    "Ready-next candidate warnings: "
+                    f"Another ready unmanaged candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}",
+                    "Another ready unmanaged usefulness: " + _candidate_usefulness_summary(ready_candidate),
+                    "Another ready unmanaged warnings: "
                     + (
                         "; ".join(ready_candidate_fit.get("warnings") or [])
                         if ready_candidate_fit and ready_candidate_fit.get("warnings")

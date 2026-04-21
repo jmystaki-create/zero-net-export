@@ -460,14 +460,14 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             message,
         )
         self.assertIn(
-            "- Ready-next candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
+            "- Another ready unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
             message,
         )
         self.assertIn(
-            "- Ready-next candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.",
+            "- Another ready unmanaged usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.",
             message,
         )
-        self.assertIn("- Ready-next candidate warnings: No immediate warnings.", message)
+        self.assertIn("- Another ready unmanaged warnings: No immediate warnings.", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold"
         planned_line = "- Pool pump: unknown | Ready for control | usable | enabled | power n/a | guard ready | action turn_on"
         self.assertIn(blocked_line, message)
@@ -652,14 +652,14 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             message,
         )
         self.assertIn(
-            "Ready-next candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
+            "Another ready unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings",
             message,
         )
         self.assertIn(
-            "Ready-next candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.",
+            "Another ready unmanaged usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.",
             message,
         )
-        self.assertIn("Ready-next candidate warnings: No immediate warnings.", message)
+        self.assertIn("Another ready unmanaged warnings: No immediate warnings.", message)
         self.assertIn("Managed devices needing attention first:", message)
         self.assertIn("Other managed devices:", message)
         blocked_line = "- EV charger: unknown | Held by guard | not usable | disabled | power n/a | guard blocked | action hold | last guard_blocked | result Battery reserve blocked the last run | last act 3m ago | last applied at 2026-04-18T08:29:00Z"
@@ -1340,8 +1340,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- First review-first unmanaged usefulness: review first: Looks like a plausible controllable candidate, but review before promotion.", message)
         self.assertIn("- First review-first unmanaged warnings: Variable power controls need a meaningful unit, sane range, and clear relation to real device power.", message)
         self.assertIn("- Another ready unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
-        self.assertIn("- Ready-next unmanaged usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
-        self.assertIn("- Ready-next unmanaged warnings: No immediate warnings.", message)
+        self.assertIn("- Another ready unmanaged usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
+        self.assertIn("- Another ready unmanaged warnings: No immediate warnings.", message)
 
     def test_managed_device_detail_button_surfaces_peer_attention_context(self) -> None:
         notification_calls: list[dict] = []

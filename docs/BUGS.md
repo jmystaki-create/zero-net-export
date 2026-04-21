@@ -1601,6 +1601,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_command_center_summary tests.test_button_entity_categories tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this unmanaged-handoff wording cleanup in the next exact-build deploy, then confirm live Managed Devices, command-center, and device-page follow-through copy keeps the unmanaged backlog neutral instead of over-ranking one ready candidate.
 
+## ZNE-129 - Device-page Managed Devices review still leaked `Ready-next` wording after the neutral unmanaged-handoff cleanup
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `button`
+- **where seen:** watchdog repo audit on 2026-04-21 while rechecking `custom_components/zero_net_export/button.py` against Workstream B/C wording in `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the broader Managed Devices flow had already moved to neutral `another ready unmanaged candidate` wording, but the secondary device-page review surfaces still printed `Ready-next candidate`, `Ready-next candidate usefulness`, `Ready-next candidate warnings`, and the per-device review still mixed that with `Ready-next unmanaged usefulness/warnings`. That left the deeper native review path lagging the neutral unmanaged-backlog posture already used across Configure, strings, and other follow-through helpers.
+- **expected behavior:** the device-page Managed Devices review surfaces should use the same neutral unmanaged backlog wording as the rest of the product, keeping the story framed as `another ready unmanaged candidate` instead of a single product-ranked next pick.
+- **evidence:** this run's repo audit found the remaining `Ready-next` labels in `custom_components/zero_net_export/button.py` and matching regression expectations in `tests/test_button_entity_categories.py`, while `ZNE-128` and the current strings/config-flow coverage already used neutral `another ready unmanaged candidate` wording elsewhere.
+- **suspected cause:** the earlier unmanaged-handoff cleanup repaired Configure, strings, and most shared follow-through helpers first, but the secondary device-page review copy kept an older `Ready-next` pass in the notification-body detail labels.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so `Review managed devices workspace`, `Review managed devices`, and `Review {device}` now use `Another ready unmanaged candidate`, `Another ready unmanaged usefulness`, and `Another ready unmanaged warnings`. `tests/test_button_entity_categories.py` now locks that neutral wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this secondary review wording cleanup in the next exact-build deploy, then confirm the live device-page Managed Devices review no longer leaks `Ready-next` phrasing.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
