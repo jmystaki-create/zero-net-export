@@ -970,7 +970,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review blocked managed devices in the Managed Devices workspace starting with Heated floor, then fix the next guard or readiness issue",
+            "Open devices path to review blocked devices in the Managed Devices workspace starting with Heated floor, then fix the next guard or readiness issue",
         )
 
     def test_fleet_console_next_step_keeps_blocked_activity_priority_without_unusable_runtime_row(self) -> None:
@@ -999,7 +999,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review blocked managed devices in the Managed Devices workspace, then fix the next guard or readiness issue",
+            "Open devices path to review blocked devices in the Managed Devices workspace, then fix the next guard or readiness issue",
         )
         self.assertEqual(next_step.extra_state_attributes["blocked_count"], 0)
         self.assertEqual(next_step.extra_state_attributes["blocked_activity_count"], 1)
@@ -1031,7 +1031,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review blocked managed devices in the Managed Devices workspace starting with Pool pump, then fix the next guard or readiness issue",
+            "Open devices path to review blocked devices in the Managed Devices workspace starting with Pool pump, then fix the next guard or readiness issue",
         )
         self.assertIn("blocked Pool pump", overview.native_value)
         self.assertEqual(overview.extra_state_attributes["first_blocked_device"], "Pool pump")
@@ -1060,7 +1060,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to confirm the active managed-device plan in the Managed Devices workspace for Pool pump before changing the fleet",
+            "Open devices path to confirm the active fleet plan in the Managed Devices workspace for Pool pump",
         )
 
     def test_fleet_console_next_step_names_top_candidate_when_fleet_is_empty(self) -> None:
@@ -1667,7 +1667,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review the Managed Devices workspace, starting with attention on Pool pump, before changing the fleet",
+            "Open devices path to review the Managed Devices workspace, starting with attention on Pool pump",
         )
         self.assertEqual(next_step.extra_state_attributes["first_attention_device"], "Pool pump")
 

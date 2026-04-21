@@ -235,14 +235,14 @@ def _compact_next_action_fallback(
         or blocked_activity_count
     ):
         if blocked_activity_count:
-            blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked managed device"
+            blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked device"
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace, starting with {blocked_target}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review blocked devices in the Managed Devices workspace, starting with {blocked_target}."
             )
         if first_planned_device:
-            planned_target = _command_center_runtime_device_preview(first_planned_device) or "the active managed-device plan"
+            planned_target = _command_center_runtime_device_preview(first_planned_device) or "the active fleet plan"
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace for {planned_target}."
+                f"Open {DEVICES_CONFIGURE_PATH} to confirm the active fleet plan in the Managed Devices workspace for {planned_target}."
             )
         if first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
@@ -2354,19 +2354,19 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_preview=ready_candidate_preview,
         )
         if blocked_activity_count:
-            blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked managed device"
+            blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked device"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace, starting with {blocked_target}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review blocked devices in the Managed Devices workspace, starting with {blocked_target}."
             )
         elif first_planned_device:
-            planned_target = _command_center_runtime_device_preview(first_planned_device) or "the active managed-device plan"
+            planned_target = _command_center_runtime_device_preview(first_planned_device) or "the active fleet plan"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace for {planned_target} before changing the fleet."
+                f"Open {DEVICES_CONFIGURE_PATH} to confirm the active fleet plan in the Managed Devices workspace for {planned_target}."
             )
         elif first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on {attention_target}, before changing the fleet."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on {attention_target}."
             )
         elif candidate_count:
             if review_candidate_name:

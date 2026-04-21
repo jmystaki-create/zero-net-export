@@ -961,7 +961,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertIn("blocked Water heater (fixed | not usable", summary["fleet_activity_summary"])
         self.assertIn(
-            f"Open {native_support.DEVICES_CONFIGURE_PATH} to review blocked managed devices in the Managed Devices workspace, starting with Water heater",
+            f"Open {native_support.DEVICES_CONFIGURE_PATH} to review blocked devices in the Managed Devices workspace, starting with Water heater",
             summary["next_action_summary"],
         )
 
@@ -1028,7 +1028,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn(
-            f"Open {native_support.DEVICES_CONFIGURE_PATH} to confirm the active managed-device plan in the Managed Devices workspace for Pool pump (fixed | action turn_on) before changing the fleet.",
+            f"Open {native_support.DEVICES_CONFIGURE_PATH} to confirm the active fleet plan in the Managed Devices workspace for Pool pump (fixed | action turn_on).",
             summary["next_action_summary"],
         )
 
@@ -1870,7 +1870,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertEqual(
             summary["device_next_step"],
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, starting with attention on Pool pump (fixed | last failed), before changing the fleet.",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, starting with attention on Pool pump (fixed | last failed).",
         )
 
     def test_command_center_summary_keeps_separate_planned_device_when_it_differs_from_blocked_device(self) -> None:

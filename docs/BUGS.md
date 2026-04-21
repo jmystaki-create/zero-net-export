@@ -1640,6 +1640,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this opening Managed Devices copy compaction in the next exact-build deploy, then confirm the live workspace lands as a compact split-first fleet console instead of a narrated helper surface.
 
+## ZNE-132 - Managed Devices next-step copy still padded blocked/planned/attention handoffs with repeated fleet narration
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-21 while rechecking the remaining Workstream A/B fleet handoff copy in `custom_components/zero_net_export/native_support.py`, `sensor.py`, and `config_flow.py`
+- **current observed behavior:** the main Managed Devices handoff was already workspace-first, but the blocked, planned, and attention branches still used heavier phrasing like `review blocked managed devices in the Managed Devices workspace` and `confirm the active managed-device plan ... before changing the fleet.` That kept the opening console, helper sensor, and Managed Devices save follow-through a little more narrated than the surrounding compact operator copy.
+- **expected behavior:** those fleet-owned handoffs should stay workspace-first while using shorter operator wording, for example `review blocked devices ...`, `confirm the active fleet plan ...`, and the same attention-first handoff without the extra `before changing the fleet` tail.
+- **evidence:** this run's repo audit found the repeated wording still present in `custom_components/zero_net_export/native_support.py` and `sensor.py`, with the same phrases explicitly recognized in `custom_components/zero_net_export/config_flow.py` and locked into `tests/test_command_center_summary.py`, `tests/test_sensor_entity_categories.py`, and `tests/test_config_flow_device_runtime_overlay.py`. `docs/UI_DESIGN.md` still says the native operator path should feel crisp and operational rather than text-heavy, and Workstreams A/B in `docs/UI_IMPLEMENTATION_MAP.md` still prioritize stronger opening-console and Managed Devices legibility over helper narration.
+- **suspected cause:** earlier workspace-first cleanup fixed larger ownership and routing leaks first, but these blocked/planned/attention branches kept an older wording pass that repeated `managed devices` and added extra explanatory tails.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` and `sensor.py` so the blocked/planned/attention handoffs now say `review blocked devices ...`, `confirm the active fleet plan ...`, and the shorter attention-first workspace handoff. `custom_components/zero_net_export/config_flow.py` now recognizes the same compact phrases, and the focused regressions in `tests/test_command_center_summary.py`, `tests/test_sensor_entity_categories.py`, and `tests/test_config_flow_device_runtime_overlay.py` now lock the shorter wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this fleet-handoff copy compaction in the next exact-build deploy, then confirm the live opening console and Managed Devices follow-through keep the same shorter blocked/planned/attention wording.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

@@ -1798,8 +1798,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if any(
             phrase in device_next_step
             for phrase in (
-                "review blocked managed devices in the Managed Devices workspace",
-                "confirm the active managed-device plan in the Managed Devices workspace",
+                "review blocked devices in the Managed Devices workspace",
+                "confirm the active fleet plan in the Managed Devices workspace",
                 "review the Managed Devices workspace, starting with attention on",
                 "review the Managed Devices workspace, edit device settings, or stage enablement changes",
             )
@@ -2770,8 +2770,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if any(
                 phrase in device_blocker_step
                 for phrase in (
-                    "review blocked managed devices in the Managed Devices workspace",
-                    "confirm the active managed-device plan in the Managed Devices workspace",
+                    "review blocked devices in the Managed Devices workspace",
+                    "confirm the active fleet plan in the Managed Devices workspace",
                     "review the Managed Devices workspace, starting with attention on",
                 )
             ):
