@@ -153,7 +153,7 @@
           "step_w": "Adjustment step (W)"
         },
         "data_description": {
-          "entity_id": "Choose the Home Assistant entity that directly controls the real load. Use the manual Managed Devices form only when the shortlist or full surfaced list did not already surface the right entity, and review helpers carefully before saving."
+          "entity_id": "Choose the Home Assistant entity that directly controls the real load. Use the manual Managed Devices form only when the shortlist or full surfaced list did not already surface the right entity, and review the fit and warnings carefully before saving."
         }
       },
       "device_remove": {

@@ -305,6 +305,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "directly controls the real load",
             steps["device_add"]["data_description"]["entity_id"],
         )
+        self.assertIn(
+            "review the fit and warnings carefully before saving",
+            steps["device_add"]["data_description"]["entity_id"],
+        )
+        self.assertNotIn(
+            "review helpers carefully before saving",
+            steps["device_add"]["data_description"]["entity_id"],
+        )
         self.assertIn("Currently surfaced unmanaged candidate: {top_candidate}", full_list_description)
         self.assertNotIn("Top unmanaged candidate right now", full_list_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", full_list_description)

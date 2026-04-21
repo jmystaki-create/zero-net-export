@@ -1458,6 +1458,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this promotion-flow workspace-copy cleanup in the next exact-build deploy, then confirm the live shortlist -> review -> preset -> save path reads like one Managed Devices workspace instead of a chain of helper steps.
 
+## ZNE-118 - Manual Managed Devices form still told operators to `review helpers` before saving
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while checking remaining Workstream C helper-style copy against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the manual `device_add` entity selector still told operators to `review helpers carefully before saving` even after the surrounding shortlist, review, preset, and save flow had been tightened toward workspace-first promotion wording. That left the fallback manual form sounding like a generic helper escape hatch instead of a native Managed Devices path with the same fit/warning review model.
+- **expected behavior:** the manual Managed Devices form should tell operators to review fit and warnings before saving, not point them at vague `helpers`, so the fallback path stays aligned with the native shortlist -> review -> save promotion workflow.
+- **evidence:** this run found the exact `review helpers carefully before saving` string still present in `custom_components/zero_net_export/strings.json` and mirrored in `custom_components/zero_net_export/translations/en.json` under `device_add.data_description.entity_id`. `tests/test_bucket_ownership_copy.py` was only checking that the text mentioned the real load and was not yet rejecting the older helper wording.
+- **suspected cause:** earlier Workstream B/C copy cleanup concentrated on the visible Managed Devices descriptions first and missed the smaller manual-form field help text in the fallback add flow.
+- **repo fix:** this run updates `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` so the manual entity selector now says `review the fit and warnings carefully before saving`. `tests/test_bucket_ownership_copy.py` now locks that wording and rejects the older `review helpers carefully before saving` phrase.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this manual-form copy cleanup in the next exact-build deploy, then confirm the fallback add flow reads like the same native promotion model as the shortlist and review path.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
