@@ -2069,6 +2069,36 @@ def _build_command_center_fleet_activity_summary(
     if review_focus_summary and len(review_focus_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return review_focus_summary
 
+    review_backlog_label = (review_candidate_preview or review_candidate_name).split(" | ", 1)[0].strip()
+    ready_backlog_label = (ready_candidate_preview or ready_candidate_name).split(" | ", 1)[0].strip()
+
+    attention_priority_parts = [
+        _clip_part(part, max_chars=32)
+        if part.startswith(("attention first ", "blocked ", "plan ", "active device "))
+        else part
+        for part in review_focus_parts
+        if not (
+            _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+            or _matches_count_label(part, "planned action")
+        )
+    ]
+    attention_priority_summary = " | ".join(attention_priority_parts)
+    if attention_priority_summary and len(attention_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return attention_priority_summary
+
+    attention_backlog_parts: list[str] = []
+    for part in attention_priority_parts:
+        if part.startswith("review ") and review_backlog_label:
+            attention_backlog_parts.append(f"review {review_backlog_label}")
+        elif part.startswith("ready ") and ready_backlog_label:
+            attention_backlog_parts.append(f"ready {ready_backlog_label}")
+        else:
+            attention_backlog_parts.append(part)
+    attention_backlog_summary = " | ".join(attention_backlog_parts)
+    if attention_backlog_summary and len(attention_backlog_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return attention_backlog_summary
+
     review_priority_parts = [
         _clip_part(part, max_chars=32) if part.startswith(("blocked ", "plan ")) else part
         for part in review_focus_parts
@@ -2091,8 +2121,6 @@ def _build_command_center_fleet_activity_summary(
     if review_priority_summary and len(review_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return review_priority_summary
 
-    review_backlog_label = (review_candidate_preview or review_candidate_name).split(" | ", 1)[0].strip()
-    ready_backlog_label = (ready_candidate_preview or ready_candidate_name).split(" | ", 1)[0].strip()
     backlog_priority_parts: list[str] = []
     for part in review_priority_parts:
         if part.startswith("review ") and review_backlog_label:
@@ -2176,6 +2204,29 @@ def _build_command_center_fleet_activity_summary(
     essential_summary = " | ".join(essential_parts)
     if essential_summary and len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return essential_summary
+
+    managed_backlog_essential_parts: list[str] = []
+    for part in essential_parts:
+        if (
+            _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+            or _matches_count_label(part, "planned action")
+            or part.startswith("active device ")
+        ):
+            continue
+        if part.startswith("review ") and review_backlog_label:
+            managed_backlog_essential_parts.append(
+                _clip_part(f"review {review_backlog_label}", max_chars=32)
+            )
+        elif part.startswith("ready ") and ready_backlog_label:
+            managed_backlog_essential_parts.append(
+                _clip_part(f"ready {ready_backlog_label}", max_chars=32)
+            )
+        else:
+            managed_backlog_essential_parts.append(part)
+    managed_backlog_essential_summary = " | ".join(managed_backlog_essential_parts)
+    if managed_backlog_essential_summary and len(managed_backlog_essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return managed_backlog_essential_summary
 
     ultra_parts = list(essential_parts)
     for removable_prefix in (
