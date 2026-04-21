@@ -372,7 +372,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             }
         )
         self.assertIn("Use this command center for live setup, the current operating picture, and the next native action.", guide)
-        self.assertIn("When the next step moves into fleet work, continue in Managed Devices.", guide)
+        self.assertIn("When the next step moves into fleet work, continue in the Managed Devices workspace.", guide)
         self.assertNotIn("This surface is for the basic setup only.", guide)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", guide)
         self.assertIn("Now", guide)

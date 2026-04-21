@@ -106,7 +106,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         )
 
         self.assertIn("Use this command center for live setup, the current operating picture, and the next native action.", text)
-        self.assertIn("When the next step moves into fleet work, continue in Managed Devices.", text)
+        self.assertIn("When the next step moves into fleet work, continue in the Managed Devices workspace.", text)
         self.assertNotIn("This surface is for the basic setup only.", text)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", text)
         self.assertIn("Now", text)
