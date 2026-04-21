@@ -363,7 +363,7 @@ The product should avoid both extremes:
 
 ## The three required visible outcomes for the current UI correction line
 
-The current release line, now beyond `0.1.83`, is where the UI correction work must visibly land. Do not treat stale `0.1.83` wording as the active release target.
+The current UI correction target is `0.1.87`. Do not treat stale `0.1.83`, `0.1.85`, or `0.1.86` wording as the active release target.
 
 It must focus on these three visible outcomes:
 
