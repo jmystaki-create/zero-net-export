@@ -141,6 +141,7 @@ Update `docs/BUGS.md` when:
 - stale bug state would mislead the next run or release decision
 
 Do not do source-of-truth refresh work just because a commit hash changed.
+Do not refresh `docs/BUGS.md` just because the same helper-resolved exact-build mismatch is still present on the same files with the same approval boundary. If the preferred validation commit is unchanged, the live mismatch set is unchanged, and higher ordered A-D/F repo work still remains, another bug-state refresh is churn, not progress.
 
 ### Rule 6: Throttle live validation and fingerprint checks
 
@@ -154,6 +155,7 @@ Re-run them only when:
 - when needed to move an item from repo-done to live-proven
 
 If the same blocker is unchanged and there is still safe repo-side work left, continue building.
+If a recheck still lands on the same preferred validation commit and the same mismatch set, do not spend the run on another `docs/BUGS.md` refresh or release-boundary restatement. Either advance the next ordered repo item, or say plainly that no project state changed in this run.
 
 ### Rule 7: Release approval is edge-triggered
 
