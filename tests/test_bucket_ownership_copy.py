@@ -286,11 +286,12 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         policy_description = steps["policy"]["description"]
         self.assertIn("Controls owns controller behaviour and outcome.", policy_description)
         self.assertNotIn("Controls owns controller behaviour once source mapping is healthy and managed devices are ready", policy_description)
-        self.assertIn("Keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics instead of shifting those jobs into this screen.", policy_description)
+        self.assertIn("Keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics instead of shifting those jobs into Controls.", policy_description)
         self.assertIn("Controls now", policy_description)
         self.assertIn("Current controller decision: {control_decision_summary}", policy_description)
         self.assertIn("Current control outcome: {control_outcome_summary}", policy_description)
         self.assertIn("Recommended next step from Controls: {policy_next_step}", policy_description)
+        self.assertNotIn("shifting those jobs into this screen", policy_description)
         self.assertNotIn("Recommended next step after this screen", policy_description)
         self.assertIn("Bucket ownership and paths", policy_description)
         self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", policy_description)

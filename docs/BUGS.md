@@ -1393,6 +1393,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this Controls copy cleanup in the next exact-build deploy, then confirm the live Controls step reads like a first-class native bucket instead of a generic screen.
 
+## ZNE-113 - Controls intro still described the policy bucket as a generic `screen`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-21 while checking the remaining Workstream D bucket-ownership copy in the Controls step against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** even after the Controls next-step line was made bucket-first, the opening Controls description still said `Keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics instead of shifting those jobs into this screen.` That left one remaining generic screen-style cue in the primary policy bucket and slightly weakened the four-bucket IA the repo has been tightening elsewhere.
+- **expected behavior:** the Controls intro should name `Controls` directly so the bucket-ownership sentence reinforces Controls as the native home for controller policy and outcome instead of sounding like a generic form screen.
+- **evidence:** this run's repo audit found the lingering `into this screen` sentence still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, and `tests/test_bucket_ownership_copy.py` was still locking that older wording into the regression suite.
+- **suspected cause:** the earlier Controls copy cleanup fixed the more obvious `Recommended next step after this screen` line first, but the neighboring intro sentence kept the older screen-style wording.
+- **repo fix:** this run updates the Controls description in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` to say `instead of shifting those jobs into Controls`, and refreshes `tests/test_bucket_ownership_copy.py` so the regression suite now rejects the lingering `into this screen` phrasing.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this remaining Controls intro copy cleanup in the next exact-build deploy, then confirm the live Controls step keeps bucket-first ownership wording all the way through the opening sentence instead of slipping back into generic screen phrasing.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
