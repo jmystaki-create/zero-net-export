@@ -106,6 +106,7 @@ A release-boundary or candidate-target doc update is allowed only if one of thes
 - the project newly crossed a real freeze/release boundary
 
 If none of those happened, do not spend the run on boundary-refresh edits.
+Do not make a second doc-only `docs/BUGS.md` or watchdog-guidance refresh just to restate the same already-open churn bug either. Once unchanged churn is already recorded, report it in-thread only if the state materially changed, otherwise send the required no-change update.
 
 ### Rule 6: Treat repeated unchanged live validation as secondary while ordered repo work remains
 
@@ -172,6 +173,7 @@ A no-change run is correct when:
 - supervisor did not create new harmful drift
 - no safe small fix is clearly justified
 - no real regression was found
+- the strongest process issue is the same already-open churn bug and this run produced no new evidence or decision change
 
 ---
 
