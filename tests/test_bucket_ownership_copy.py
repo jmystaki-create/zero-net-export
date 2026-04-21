@@ -284,8 +284,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Current managed fleet:", full_list_description)
 
         policy_description = steps["policy"]["description"]
-        self.assertIn("Controls owns controller behaviour", policy_description)
-        self.assertIn("keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics", policy_description)
+        self.assertIn("Controls owns controller behaviour and outcome.", policy_description)
+        self.assertNotIn("Controls owns controller behaviour once source mapping is healthy and managed devices are ready", policy_description)
+        self.assertIn("Keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics instead of shifting those jobs into this screen.", policy_description)
         self.assertIn("Controls now", policy_description)
         self.assertIn("Current controller decision: {control_decision_summary}", policy_description)
         self.assertIn("Current control outcome: {control_outcome_summary}", policy_description)
