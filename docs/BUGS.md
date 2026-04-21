@@ -1874,6 +1874,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this setup-checklist handoff cleanup in the next exact-build deploy, then confirm the live device-page readiness guidance keeps the unmanaged review-first plus ready-next path visible when the fleet is still empty.
 
+## ZNE-150 - Empty-fleet wording churn is displacing the real `0.1.87` decision point
+- **status:** `open`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo/commit audit on 2026-04-22 while comparing recent component-changing work, `docs/SUPERVISOR.md`, the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`, and the current HA fingerprint state
+- **current observed behavior:** the latest component-changing sequence is still spending run after run on empty-fleet wording follow-ons on the same undeployed `0.1.86` candidate instead of either naming one fresh higher-value A-D/F defect or moving to the real release/deploy decision. Recent component commits `55e31b1`, `26d12c1`, `fce766b`, `62dc6f0`, and `e221549` are all empty-fleet/backlog wording follow-ons on the same helper-resolved validation target, and the latest documented HA fingerprint check in this run still reports `overall_match=false` against that unchanged preferred validation commit `e221549` with the same six tracked-file mismatches (`button.py`, `config_flow.py`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json`).
+- **expected behavior:** once the repo falls into another thin wording loop on the same undeployed candidate, the next run should call that out as drift instead of generating another low-yield wording follow-on. The next meaningful step must be either (a) one fresh concrete repo-side A-D/F defect that materially changes the native HA screenshots, or (b) an explicit James release/deploy approval ask when formal release execution truly becomes the next step.
+- **evidence:** `git log --oneline -6` in this run shows `958485e docs: record empty-fleet wording churn drift`, then the five component-changing empty-fleet follow-ons listed above. This run also used the documented HA SSH path from `/root/.openclaw/workspace/TOOLS.md` via `python3 scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config`, which still resolves the preferred validation commit to `e221549`, keeps `manifest_version` at `0.1.86` on both sides, and confirms the same six-file live mismatch set rather than any new release-boundary evidence.
+- **suspected cause:** once several small Managed Devices wording seams were easy to patch in repo state, the watchdog/supervisor loop kept preferring another safe wording tweak over acknowledging that the remaining decision had shifted from copy polish to either a fresh UI defect or a release/deploy choice.
+- **repo fix:** this run updates `docs/BUGS.md` to log the loop itself as the active drift, so the next run is steered away from more empty-fleet wording churn by default.
+- **validation status:** repo/process state validated in this run by commit audit plus the documented HA fingerprint check. No live product evidence changed in this run.
+- **next action:** stop defaulting to another empty-fleet wording follow-on. Either identify one fresh repo-side A-D/F defect that materially changes the native HA operator flow, or ask James directly for release/deploy approval before formal deploy/restart work on the current `e221549` candidate.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
