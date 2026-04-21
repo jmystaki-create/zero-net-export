@@ -2645,7 +2645,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         feedback = flow._build_device_action_feedback(
             action="remove",
-            devices=[],
+            devices=[{"key": "dryer", "name": "Dryer", "entity_id": "switch.dryer", "kind": module.DEVICE_KIND_FIXED, "enabled": True}],
             previous_device={"key": "pool", "name": "Pool pump", "entity_id": "switch.pool_pump", "kind": module.DEVICE_KIND_FIXED, "enabled": True},
         )
 
@@ -2655,6 +2655,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "Next step: reopen devices path to review the Managed Devices workspace, then start in the unmanaged section: Virtual load (fixed) | review first | key warning: Helper-backed load needs review, then promote next from the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             feedback["message"],
         )
+        self.assertNotIn("remaining fleet", feedback["message"])
 
     def test_build_device_action_feedback_surfaces_ready_next_candidate_after_review_first(self) -> None:
         module = _load_config_flow_module()

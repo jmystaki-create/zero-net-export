@@ -1536,6 +1536,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/button.py tests/test_config_flow_device_runtime_overlay.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this no-candidate fleet-handoff wording cleanup in the next exact-build deploy, then confirm the live save feedback and device-page fallback both keep the stronger Managed Devices workspace guidance.
 
+## ZNE-124 - Managed-device removal success still leaked `remaining fleet` in the populated-fleet branch
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-21 while rechecking `docs/BUGS.md` save-feedback claims against `custom_components/zero_net_export/config_flow.py`
+- **current observed behavior:** `docs/BUGS.md` already said the remove-success notification had dropped `remaining fleet`, but the populated-fleet branch in `_build_device_action_feedback(...)` still returned `Next step: reopen ... to review the Managed Devices workspace and remaining fleet, then ...`. That left the code and bug tracker out of sync, and kept removal success copy slightly more narrated than the other save paths even after the Managed Devices workspace wording cleanup.
+- **expected behavior:** remove success should use the same workspace-first reopening sentence as the other save paths, without a special `remaining fleet` detour.
+- **evidence:** this run's repo audit found `config_flow.py` still hard-coding `review the Managed Devices workspace and remaining fleet` for `action == "remove"` when `managed_count > 0`, while `ZNE-122` already described that wording as fixed. `tests/test_config_flow_device_runtime_overlay.py` only covered the empty-fleet remove case, so the populated-fleet branch was not locked by regression coverage.
+- **suspected cause:** the earlier save-feedback cleanup fixed the empty-fleet remove branch and updated the bug note, but left the parallel populated-fleet branch on the older wording and never added a focused regression for it.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so all remove-success notifications now say `reopen ... to review the Managed Devices workspace, then ...`, and expands `tests/test_config_flow_device_runtime_overlay.py` so the populated-fleet remove path now rejects `remaining fleet` too.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this removal-success wording cleanup in the next exact-build deploy, then confirm the live Managed Devices removal feedback matches the other workspace-first save paths.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

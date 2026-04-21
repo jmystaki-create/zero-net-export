@@ -1856,14 +1856,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
             changed = f"Removed {current_name} from Managed Devices."
-            if managed_count > 0:
-                next_step = (
-                    f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace and remaining fleet, then {candidate_follow_through}."
-                )
-            else:
-                next_step = (
-                    f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then {candidate_follow_through}."
-                )
+            next_step = (
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then {candidate_follow_through}."
+            )
         elif action == "bulk_enable":
             title = "managed-device enablement saved"
             changed = "Saved the Managed Devices enablement review."
