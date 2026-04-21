@@ -89,6 +89,7 @@ This does not count as enough:
 - repeated rewording of unchanged blockers
 - refreshing candidate hashes, release-boundary notes, or doc heads when no real decision changed
 - polishing a different workstream while an earlier unfinished workstream item still remains
+- reopening Workstream E device-page polish or Workstream F support-surface polish while any earlier eligible A-D item still remains
 - treating unchanged live mismatch as the main next step when safe repo-side work still exists
 
 ---
@@ -108,6 +109,8 @@ Do not skip ahead unless:
 - the current item is explicitly blocked
 - the map explicitly allows parallel work
 - a higher-priority active bug in `docs/BUGS.md` materially overrides it
+
+Do not treat device-page or diagnostics/support copy cleanup as implicitly safe side work. Workstream E or F follow-ons are still skips if any earlier eligible A-D item remains.
 
 If you skip an item, say exactly why.
 
