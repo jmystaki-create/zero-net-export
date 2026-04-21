@@ -96,6 +96,10 @@ def _count_label(count: int, singular: str, plural: str | None = None) -> str:
     return f"{count} {noun}"
 
 
+def _planned_action_count_label(count: int) -> str:
+    return _count_label(count, "planned action")
+
+
 def _matches_count_label(text: str, singular: str, plural: str | None = None) -> bool:
     normalized = " ".join(str(text or "").split())
     if not normalized:
@@ -170,7 +174,7 @@ def _prefer_review_ready_over_large_kind_mix(summary: str) -> str:
             or _matches_count_label(part, "variable candidate")
             or part.startswith("fixed backlog ")
             or part.startswith("variable backlog ")
-            or _matches_count_label(part, "planned action(s)")
+            or _matches_count_label(part, "planned action")
         )
     ]
     trimmed_summary = " | ".join(trimmed_parts)
@@ -1795,9 +1799,7 @@ def _build_command_center_fleet_activity_summary(
             )
         if planned_activity_count:
             summary_parts.append(
-                "1 planned action(s)"
-                if planned_activity_count == 1
-                else f"{planned_activity_count} planned action(s)"
+                _planned_action_count_label(planned_activity_count)
             )
         if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
             summary_parts.append(f"plan {_command_center_runtime_device_preview(first_planned_device)}")
@@ -1873,7 +1875,7 @@ def _build_command_center_fleet_activity_summary(
         lambda part: _matches_count_label(part, "fixed managed"),
         lambda part: _matches_count_label(part, "variable managed"),
         lambda part: part.endswith(" W nominal"),
-        lambda part: _matches_count_label(part, "planned action(s)"),
+        lambda part: _matches_count_label(part, "planned action"),
         lambda part: part.startswith("plan "),
     ]
     for matcher in optional_part_matchers:
@@ -1893,7 +1895,7 @@ def _build_command_center_fleet_activity_summary(
             or _matches_count_label(part, "variable candidate")
             or part.startswith("fixed backlog ")
             or part.startswith("variable backlog ")
-            or _matches_count_label(part, "planned action(s)")
+            or _matches_count_label(part, "planned action")
         )
     ]
     compact_review_focus_summary = " | ".join(compact_review_focus_parts)
@@ -1948,11 +1950,7 @@ def _build_command_center_fleet_activity_summary(
         minimal_parts.append(f"blocked {blocked_activity_count}")
 
     if planned_activity_count:
-        minimal_parts.append(
-            "1 planned action(s)"
-            if planned_activity_count == 1
-            else f"{planned_activity_count} planned action(s)"
-        )
+        minimal_parts.append(_planned_action_count_label(planned_activity_count))
         if first_planned_device and not _same_runtime_device(first_blocked_device, first_planned_device):
             minimal_parts.append(
                 _clip_part(
@@ -2033,7 +2031,7 @@ def _build_command_center_fleet_activity_summary(
         lambda part: _matches_count_label(part, "fixed managed"),
         lambda part: _matches_count_label(part, "variable managed"),
         lambda part: part.endswith(" W nominal"),
-        lambda part: _matches_count_label(part, "planned action(s)"),
+        lambda part: _matches_count_label(part, "planned action"),
         lambda part: part.startswith("plan "),
     )
     for matcher in removable_part_matchers:
@@ -2056,7 +2054,7 @@ def _build_command_center_fleet_activity_summary(
             or _matches_count_label(part, "variable candidate")
             or part.startswith("fixed backlog ")
             or part.startswith("variable backlog ")
-            or _matches_count_label(part, "planned action(s)")
+            or _matches_count_label(part, "planned action")
         )
     ]
     review_focus_summary = " | ".join(review_focus_parts)
@@ -2086,7 +2084,7 @@ def _build_command_center_fleet_activity_summary(
         if not (
             _matches_count_label(part, "fixed candidate")
             or _matches_count_label(part, "variable candidate")
-            or _matches_count_label(part, "planned action(s)")
+            or _matches_count_label(part, "planned action")
         )
     ]
     review_priority_summary = " | ".join(review_priority_parts)
@@ -2137,11 +2135,7 @@ def _build_command_center_fleet_activity_summary(
             )
         )
     if planned_activity_count:
-        essential_parts.append(
-            "1 planned action(s)"
-            if planned_activity_count == 1
-            else f"{planned_activity_count} planned action(s)"
-        )
+        essential_parts.append(_planned_action_count_label(planned_activity_count))
     if active_managed_power_w > 0:
         essential_parts.append(f"active load {active_managed_power_w:g} W")
         essential_parts.append(
@@ -2187,7 +2181,7 @@ def _build_command_center_fleet_activity_summary(
     for removable_prefix in (
         "attention first ",
         "blocked ",
-        "planned action(s)",
+        "planned action",
     ):
         if len(" | ".join(ultra_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             break

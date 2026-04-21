@@ -1009,6 +1009,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
             blocked_planned_action_count=0,
             candidate_summary="None",
             candidate_review_needed_count=0,
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
             device_details={
                 "pool": {
                     "name": "Pool pump",
@@ -1027,6 +1030,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
+        self.assertIn("1 planned action", summary["fleet_activity_summary"])
+        self.assertNotIn("planned action(s)", summary["fleet_activity_summary"])
         self.assertIn(
             f"Open {native_support.DEVICES_CONFIGURE_PATH} to confirm the active fleet plan in the Managed Devices workspace for Pool pump (fixed | action turn_on).",
             summary["next_action_summary"],
