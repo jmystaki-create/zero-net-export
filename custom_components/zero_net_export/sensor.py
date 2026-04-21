@@ -164,6 +164,10 @@ def _count_label(count: int, singular: str, plural: str | None = None) -> str:
     return f"{count} {noun}"
 
 
+def _unmanaged_count_label(count: int) -> str:
+    return "no unmanaged candidates" if count <= 0 else f"{count} unmanaged backlog"
+
+
 def _candidate_kind_backlog_mix_parts(
     *,
     fixed_candidate_count: int,
@@ -899,9 +903,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return _fleet_overview_state(ready_parts)
 
             summary_parts = ["no managed yet" if counts["managed_count"] == 0 else f"{counts['managed_count']} managed"]
-            summary_parts.append(
-                f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates"
-            )
+            summary_parts.append(_unmanaged_count_label(candidate_count))
             if counts["managed_count"] == 0:
                 if source_blocked:
                     summary_parts.append("repair sources first")

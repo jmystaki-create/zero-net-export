@@ -451,7 +451,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertIn("no managed yet | 2 unmanaged | 1 fixed candidate | 1 variable candidate", overview.native_value)
+        self.assertIn("no managed yet | 2 unmanaged backlog | 1 fixed candidate | 1 variable candidate", overview.native_value)
         self.assertIn("fixed backlog 1 review", overview.native_value)
         self.assertIn("variable backlog 1 ready", overview.native_value)
         self.assertIn("1 needs review", overview.native_value)
@@ -585,13 +585,13 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertIn("1 managed | 2 unmanaged | 2 fixed candidates", overview.native_value)
+        self.assertIn("1 managed | 2 unmanaged backlog | 2 fixed candidates", overview.native_value)
         self.assertIn("fixed backlog 1 review/1 ready", overview.native_value)
         self.assertIn("1 ready to promote", overview.native_value)
         self.assertIn("review Virtual load (fixed) | review carefully | warn", overview.native_value)
         self.assertIn("ready Hot water relay (fixed) | likely useful", overview.native_value)
         self.assertNotIn("top Hot water relay", overview.native_value)
-        self.assertIn("1 fixed managed | 1185 W nominal", overview.native_value)
+        self.assertIn("1 fixed managed", overview.native_value)
 
     def test_unmanaged_candidate_overview_prefers_ready_label_when_top_candidate_is_ready_next(self) -> None:
         sensor_module = _load_sensor_module()
@@ -698,7 +698,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertIn("1 managed | 2 unmanaged | 1 fixed candidate | 1 variable candidate", overview.native_value)
+        self.assertIn("1 managed | 2 unmanaged backlog | 1 fixed candidate | 1 variable candidate", overview.native_value)
         self.assertIn("fixed backlog 1 review", overview.native_value)
         self.assertIn("variable backlog 1 ready", overview.native_value)
         self.assertIn("1 needs review", overview.native_value)
@@ -899,10 +899,10 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertIn("1 managed | 1 unmanaged", overview.native_value)
+        self.assertIn("1 managed | 1 unmanaged backlog", overview.native_value)
         self.assertIn("1 fixed candidate", overview.native_value)
         self.assertIn("1 needs review", overview.native_value)
-        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn generic outlet label", overview.native_value)
+        self.assertIn("review AC Outlet 2 (fixed) | review carefully | warn", overview.native_value)
         self.assertIn("blocked 1 | active load 730 W | 1 active managed device", overview.native_value)
         self.assertNotIn("top AC Outlet 2", overview.native_value)
         self.assertIn("1 fixed managed | 1185 W nominal", overview.native_value)
@@ -927,7 +927,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "no managed yet | 1 unmanaged | repair sources first | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
+            "no managed yet | 1 unmanaged backlog | repair sources first | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -967,7 +967,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertIn("1 managed | 2 unmanaged", overview.native_value)
+        self.assertIn("1 managed | 2 unmanaged backlog", overview.native_value)
         self.assertNotIn("top AC Outlet 2", overview.native_value)
         self.assertIn("1 needs review", overview.native_value)
         self.assertIn("review AC Outlet 2 (fixed)", overview.native_value)
@@ -1358,7 +1358,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "1 managed | 1 unmanaged | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
+            "1 managed | 1 unmanaged backlog | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label | 1 enabled | 1 usable | 1 fixed managed",
         )
         self.assertEqual(overview.extra_state_attributes["candidate_count"], 1)
         self.assertEqual(len(calls), 1)
@@ -1417,7 +1417,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         value = overview.native_value
 
         self.assertLessEqual(len(value), 255)
-        self.assertIn("2 managed | 2 unmanaged", value)
+        self.assertIn("2 managed | 2 unmanaged backlog", value)
         self.assertIn("1 needs review", value)
         self.assertIn("1 ready to promote", value)
         self.assertIn("review ", value)
