@@ -1744,10 +1744,6 @@ def _build_command_center_fleet_activity_summary(
     )
 
     summary_parts: list[str] = [f"managed {managed_count}"]
-    if candidate_count:
-        summary_parts.append(f"{candidate_count} unmanaged")
-    else:
-        summary_parts.append("no unmanaged candidates")
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
@@ -1798,6 +1794,17 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(
                     f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}"
                 )
+        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+        if kind_known:
+            summary_parts.append(f"{fixed_managed_count} fixed managed")
+            if variable_managed_count:
+                summary_parts.append(f"{variable_managed_count} variable managed")
+            summary_parts.append(f"{nominal_power_w} W nominal")
+
+    if candidate_count:
+        summary_parts.append(f"{candidate_count} unmanaged")
+    else:
+        summary_parts.append("no unmanaged candidates")
 
     if candidate_count:
         if fixed_candidate_count:
@@ -1832,14 +1839,6 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
         if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
             summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
-
-    if managed_count > 0:
-        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
-        if kind_known:
-            summary_parts.append(f"{fixed_managed_count} fixed managed")
-            if variable_managed_count:
-                summary_parts.append(f"{variable_managed_count} variable managed")
-            summary_parts.append(f"{nominal_power_w} W nominal")
 
     summary = " | ".join(summary_parts)
     if len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -1898,10 +1897,6 @@ def _build_command_center_fleet_activity_summary(
         return normalized[: max_chars - 3].rstrip() + "..."
 
     minimal_parts: list[str] = [f"managed {managed_count}"]
-    if candidate_count:
-        minimal_parts.append(f"{candidate_count} unmanaged")
-    else:
-        minimal_parts.append("no unmanaged candidates")
 
     if source_blocked:
         minimal_parts.append("repair sources first")
@@ -1970,6 +1965,11 @@ def _build_command_center_fleet_activity_summary(
             )
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
+    if candidate_count:
+        minimal_parts.append(f"{candidate_count} unmanaged")
+    else:
+        minimal_parts.append("no unmanaged candidates")
+
     if fixed_candidate_count and variable_candidate_count:
         minimal_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         minimal_parts.append(_count_label(variable_candidate_count, "variable candidate"))
@@ -2106,7 +2106,6 @@ def _build_command_center_fleet_activity_summary(
         return compact_minimal_summary
 
     essential_parts: list[str] = [f"managed {managed_count}"]
-    essential_parts.append(f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates")
     if source_blocked:
         essential_parts.append("repair sources first")
     if first_attention_device:
@@ -2151,6 +2150,7 @@ def _build_command_center_fleet_activity_summary(
                     max_chars=32,
                 )
             )
+    essential_parts.append(f"{candidate_count} unmanaged" if candidate_count else "no unmanaged candidates")
     if fixed_candidate_count and variable_candidate_count:
         essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))

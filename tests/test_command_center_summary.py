@@ -235,7 +235,11 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("managed 1", summary["fleet_activity_summary"])
-        self.assertIn("managed 1 | 1 unmanaged", summary["fleet_activity_summary"])
+        self.assertIn("managed 1", summary["fleet_activity_summary"])
+        self.assertLess(
+            summary["fleet_activity_summary"].index("1200 W nominal"),
+            summary["fleet_activity_summary"].index("1 unmanaged"),
+        )
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
         self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
         self.assertIn("1 unmanaged", summary["fleet_activity_summary"])
@@ -1384,7 +1388,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertTrue(
             summary["fleet_activity_summary"].startswith(
-                "managed 0 | 1 unmanaged | repair sources first | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2"
+                "managed 0 | repair sources first | 1 unmanaged | 1 fixed candidate | 1 needs review | 1 fixed review | review AC Outlet 2"
             )
         )
 
@@ -2031,7 +2035,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
         self.assertEqual(
             summary["fleet_activity_summary"],
-            "managed 0 | no unmanaged candidates | repair sources first",
+            "managed 0 | repair sources first | no unmanaged candidates",
         )
 
     def test_command_center_summary_surfaces_managed_device_attention_in_top_alerts(self) -> None:
@@ -2688,6 +2692,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertLess(
             summary["fleet_activity_summary"].index("1 active managed device"),
             summary["fleet_activity_summary"].index("review Virtual load (fixed)"),
+        )
+        self.assertLess(
+            summary["fleet_activity_summary"].index("1 active managed device"),
+            summary["fleet_activity_summary"].index("2 unmanaged"),
         )
 
     def test_command_center_summary_surfaces_per_kind_backlog_mix_when_fixed_and_variable_candidates_split(self) -> None:
