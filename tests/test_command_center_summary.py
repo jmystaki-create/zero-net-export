@@ -1421,7 +1421,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         expected = (
             "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
-            "to use the Managed Devices workspace and add the first fixed or variable load manually."
+            "to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now."
         )
         self.assertEqual(expected, summary["device_next_step"])
         self.assertEqual(expected, summary["next_action_summary"])
@@ -1794,7 +1794,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertEqual(
             summary["device_next_step"],
-            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review attention in the Managed Devices workspace, starting with Pool pump (fixed | last failed), before changing the fleet.",
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices to review the Managed Devices workspace, starting with attention on Pool pump (fixed | last failed), before changing the fleet.",
         )
 
     def test_command_center_summary_keeps_separate_planned_device_when_it_differs_from_blocked_device(self) -> None:

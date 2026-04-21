@@ -683,7 +683,7 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
         )
     if first_attention_name:
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace starting with {first_attention_name} before changing the fleet"
+            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on {first_attention_name}, before changing the fleet"
         )
     if candidates:
         if review_candidate_name:
@@ -700,7 +700,7 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
         )
     if counts["managed_count"] == 0:
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually"
+            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now"
         )
     return _truncate_sensor_state(
         f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes"

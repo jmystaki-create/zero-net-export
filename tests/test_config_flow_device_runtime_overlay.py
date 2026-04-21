@@ -658,7 +658,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.DEVICES_SECTION_LABEL,
-            "device_next_step": "Open devices path to review attention in the Managed Devices workspace, starting with EV charger, before changing the fleet.",
+            "device_next_step": "Open devices path to review the Managed Devices workspace, starting with attention on EV charger, before changing the fleet.",
         }
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
         flow.hass = SimpleNamespace(
@@ -677,7 +677,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Open devices path to review attention in the Managed Devices workspace, starting with EV charger, before changing the fleet.",
+            "Open devices path to review the Managed Devices workspace, starting with attention on EV charger, before changing the fleet.",
         )
 
     def test_device_blocker_summary_surfaces_global_blocker_reason_and_path(self) -> None:
@@ -2049,7 +2049,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             placeholders["source_next_step"],
-            "Use the Managed Devices workspace to add the first fixed or variable load manually.",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now.",
         )
         self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
         self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
@@ -2241,7 +2241,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module._grid_mode_default = lambda entry: module.GRID_SENSOR_MODE_COMBINED
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.DEVICES_SECTION_LABEL,
-            "next_action_summary": f"Open {module.DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace, starting with Pool pump, before changing the fleet.",
+            "next_action_summary": f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on Pool pump, before changing the fleet.",
             "control_decision_summary": "Holding steady.",
             "control_outcome_summary": "No adjustment needed.",
         }
@@ -2251,7 +2251,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"Open {module.DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace, starting with Pool pump, before changing the fleet.",
+            f"Open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on Pool pump, before changing the fleet.",
         )
 
     def test_policy_step_empty_fleet_keeps_managed_devices_workspace_explicit(self) -> None:
@@ -2291,7 +2291,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually.",
+            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now.",
         )
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
@@ -2561,7 +2561,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
     def test_build_device_action_feedback_prefers_managed_attention_follow_through_from_command_center(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
-            "device_next_step": "Open devices path to review attention in the Managed Devices workspace, starting with Pool pump, before changing the fleet."
+            "device_next_step": "Open devices path to review the Managed Devices workspace, starting with attention on Pool pump, before changing the fleet."
         }
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
         flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": SimpleNamespace(data=SimpleNamespace())}})
@@ -2576,7 +2576,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: Open devices path to review attention in the Managed Devices workspace, starting with Pool pump, before changing the fleet.",
+            "Next step: Open devices path to review the Managed Devices workspace, starting with attention on Pool pump, before changing the fleet.",
             feedback["message"],
         )
         self.assertNotIn("use the deeper device review path only if you need more per-device runtime detail", feedback["message"])
@@ -2754,7 +2754,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Use the Managed Devices workspace to add the first fixed or variable load manually.",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now.",
         )
 
     def test_device_next_step_uses_managed_devices_workspace_wording_for_enablement(self) -> None:

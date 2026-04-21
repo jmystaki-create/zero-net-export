@@ -1134,7 +1134,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to use the Managed Devices workspace and add the first fixed or variable load manually",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now",
         )
 
     def test_fleet_console_next_step_names_ready_next_candidate_after_review_when_backlog_is_mixed(self) -> None:
@@ -1260,7 +1260,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to use the Managed Devices workspace and add the first fixed or variable load manually",
+            "Open devices path to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now",
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
@@ -1667,7 +1667,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to review attention in the Managed Devices workspace starting with Pool pump before changing the fleet",
+            "Open devices path to review the Managed Devices workspace, starting with attention on Pool pump, before changing the fleet",
         )
         self.assertEqual(next_step.extra_state_attributes["first_attention_device"], "Pool pump")
 

@@ -247,7 +247,7 @@ def _compact_next_action_fallback(
         if first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace, starting with {attention_target}."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on {attention_target}."
             )
         if review_candidate_name:
             compact_review = review_candidate_name
@@ -267,7 +267,9 @@ def _compact_next_action_fallback(
             return (
                 f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, edit device settings, or stage enablement changes."
             )
-        return f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually."
+        return (
+            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now."
+        )
 
     if recommended_section == POLICY_SECTION_LABEL:
         return (
@@ -2283,7 +2285,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         elif first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review attention in the Managed Devices workspace, starting with {attention_target}, before changing the fleet."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on {attention_target}, before changing the fleet."
             )
         elif candidate_count:
             if review_candidate_name:
@@ -2338,7 +2340,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now."
             )
 
     recommendation = build_native_setup_recommendation(
@@ -2402,7 +2404,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
         else:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to use the Managed Devices workspace and add the first fixed or variable load manually."
+                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then add the first fixed or variable load manually when no surfaced unmanaged candidate fits right now."
             )
     elif readiness_phase == "runtime_readiness":
         next_action_summary = str(
