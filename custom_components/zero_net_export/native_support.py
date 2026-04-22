@@ -3029,6 +3029,23 @@ def _build_command_center_fleet_activity_summary(
         if active_story_summary and len(active_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return active_story_summary
         if SOURCE_BLOCKER_ACTIVE_LABEL in active_story_parts:
+            source_blocker_priority_active_parts = [
+                part
+                for part in active_story_parts
+                if not (
+                    _matches_count_label(part, "needs review", "need review")
+                    or _matches_count_label(part, "ready to promote")
+                    or _matches_count_label(part, "active managed device", "active managed devices")
+                    or part.endswith(" managed device needs attention")
+                    or part.endswith(" managed devices need attention")
+                )
+            ]
+            source_blocker_priority_active_summary = " | ".join(source_blocker_priority_active_parts)
+            if (
+                source_blocker_priority_active_summary
+                and len(source_blocker_priority_active_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+            ):
+                return source_blocker_priority_active_summary
             active_story_without_source_blockers = [
                 part for part in active_story_parts if part != SOURCE_BLOCKER_ACTIVE_LABEL
             ]
@@ -3057,10 +3074,6 @@ def _build_command_center_fleet_activity_summary(
             for backlog_part in reversed(story_backlog_parts):
                 if backlog_part not in focused_active_story_parts:
                     focused_active_story_parts.insert(insertion_index, backlog_part)
-        if SOURCE_BLOCKER_ACTIVE_LABEL in focused_active_story_parts:
-            focused_active_story_parts = [
-                part for part in focused_active_story_parts if part != SOURCE_BLOCKER_ACTIVE_LABEL
-            ]
         focused_active_story_parts = [
             _clip_part(part, max_chars=28)
             if part.startswith(("attention first ", "blocked ", "plan ", "active device "))
@@ -3074,6 +3087,22 @@ def _build_command_center_fleet_activity_summary(
         focused_active_story_summary = " | ".join(focused_active_story_parts)
         if focused_active_story_summary and len(focused_active_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return focused_active_story_summary
+        if SOURCE_BLOCKER_ACTIVE_LABEL in focused_active_story_parts:
+            source_blocker_priority_parts = [
+                part
+                for part in focused_active_story_parts
+                if not (
+                    _matches_count_label(part, "needs review", "need review")
+                    or _matches_count_label(part, "ready to promote")
+                    or _matches_count_label(part, "active managed device", "active managed devices")
+                )
+            ]
+            source_blocker_priority_summary = " | ".join(source_blocker_priority_parts)
+            if (
+                source_blocker_priority_summary
+                and len(source_blocker_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+            ):
+                return source_blocker_priority_summary
 
     operator_story_parts: list[str] = []
     for part in managed_backlog_essential_parts:
@@ -3129,7 +3158,26 @@ def _build_command_center_fleet_activity_summary(
         for part in compact_operator_story_source_parts
     ]
     compact_operator_story_summary = " | ".join(compact_operator_story_parts)
+    if compact_operator_story_summary and len(compact_operator_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compact_operator_story_summary
     if SOURCE_BLOCKER_ACTIVE_LABEL in compact_operator_story_parts:
+        source_blocker_priority_operator_parts = [
+            part
+            for part in compact_operator_story_parts
+            if not (
+                _matches_count_label(part, "needs review", "need review")
+                or _matches_count_label(part, "ready to promote")
+                or _matches_count_label(part, "active managed device", "active managed devices")
+            )
+        ]
+        source_blocker_priority_operator_summary = " | ".join(
+            source_blocker_priority_operator_parts
+        )
+        if (
+            source_blocker_priority_operator_summary
+            and len(source_blocker_priority_operator_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+        ):
+            return source_blocker_priority_operator_summary
         compact_operator_story_without_source_blockers = [
             part for part in compact_operator_story_parts if part != SOURCE_BLOCKER_ACTIVE_LABEL
         ]
@@ -3141,8 +3189,6 @@ def _build_command_center_fleet_activity_summary(
             and len(compact_operator_story_without_source_blockers_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
         ):
             return compact_operator_story_without_source_blockers_summary
-    if compact_operator_story_summary and len(compact_operator_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
-        return compact_operator_story_summary
 
     if single_kind_overflow_backlog_parts and candidate_count > 1:
         compact_single_kind_backlog_parts = [
