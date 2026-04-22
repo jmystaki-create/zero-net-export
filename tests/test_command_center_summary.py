@@ -2568,6 +2568,77 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["fleet_activity_summary"],
         )
 
+    def test_command_center_summary_keeps_distinct_planned_device_when_attention_already_names_first_planned_device(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and confirm the next planned action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+        native_support.REQUIRED_SOURCE_KEYS = []
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="3 configured devices available",
+            device_count=3,
+            enabled_device_count=3,
+            usable_device_count=3,
+            active_controlled_power_w=920,
+            device_details={
+                "pool": {
+                    "name": "Pool",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "priority": 10,
+                    "observed_active": False,
+                    "planned_action": "turn_on",
+                },
+                "heater": {
+                    "name": "Heater",
+                    "entity_id": "switch.water_heater",
+                    "kind": "fixed",
+                    "usable": True,
+                    "priority": 20,
+                    "observed_active": False,
+                    "planned_action": "turn_off",
+                },
+                "floor": {
+                    "name": "EV",
+                    "entity_id": "number.heated_floor_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920,
+                    "current_target_power_w": 920,
+                    "planned_action": "hold",
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("attention first Pool (fixed | action turn_on)", summary["fleet_activity_summary"])
+        self.assertIn("plan Heater (fixed | action turn_off)", summary["fleet_activity_summary"])
+        self.assertNotIn("plan Pool (fixed | action turn_on)", summary["fleet_activity_summary"])
+        self.assertIn("active device EV (variable | active 920 W)", summary["fleet_activity_summary"])
+
     def test_command_center_summary_keeps_active_marker_when_attention_device_has_no_runtime_watts(self) -> None:
         native_support = _load_native_support_module()
 

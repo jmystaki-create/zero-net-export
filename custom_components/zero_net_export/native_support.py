@@ -2247,6 +2247,11 @@ def _build_command_center_fleet_activity_summary(
         state,
         predicate=_runtime_device_has_active_plan,
     )
+    planned_focus_device = _first_distinct_runtime_device_detail(
+        state,
+        predicate=_runtime_device_has_active_plan,
+        excluded=(first_attention_device,),
+    ) or first_planned_device
     attention_focus_label = _command_center_managed_snapshot_focus_label(first_attention_device)
     first_active_device = _first_runtime_device_detail(
         state,
@@ -2255,14 +2260,14 @@ def _build_command_center_fleet_activity_summary(
     active_focus_device = _first_distinct_runtime_device_detail(
         state,
         predicate=lambda detail: detail.get("observed_active") is True,
-        excluded=(first_attention_device, blocked_focus_device, first_planned_device),
+        excluded=(first_attention_device, blocked_focus_device, planned_focus_device),
     ) or first_active_device
     suppress_planned_focus = bool(
-        first_planned_device
+        planned_focus_device
         and first_attention_device
         and first_active_device
-        and _same_runtime_device(first_planned_device, first_attention_device)
-        and not _same_runtime_device(first_planned_device, first_active_device)
+        and _same_runtime_device(planned_focus_device, first_attention_device)
+        and not _same_runtime_device(planned_focus_device, first_active_device)
     )
     planned_activity_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_active_plan(detail))
@@ -2304,9 +2309,9 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(
                 _planned_action_count_label(planned_activity_count)
             )
-        if first_planned_device and not suppress_planned_focus:
+        if planned_focus_device and not suppress_planned_focus:
             summary_parts.append(
-                f"plan {_command_center_fleet_focus_label(first_planned_device, include_plan_context=True)}"
+                f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}"
             )
         if active_managed_count > 0:
             if active_managed_power_w > 0:
@@ -2321,7 +2326,7 @@ def _build_command_center_fleet_activity_summary(
                 or (
                     (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
                     and (not blocked_activity_count or (blocked_focus_device and not _same_runtime_device(active_focus_device, blocked_focus_device)))
-                    and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
+                    and (not planned_activity_count or (planned_focus_device and not _same_runtime_device(active_focus_device, planned_focus_device)))
                 )
             ):
                 summary_parts.append(
@@ -2482,10 +2487,10 @@ def _build_command_center_fleet_activity_summary(
 
     if planned_activity_count:
         minimal_parts.append(_planned_action_count_label(planned_activity_count))
-        if first_planned_device and not suppress_planned_focus:
+        if planned_focus_device and not suppress_planned_focus:
             minimal_parts.append(
                 _clip_part(
-                    f"plan {_command_center_fleet_focus_label(first_planned_device, include_plan_context=True)}",
+                    f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}",
                     max_chars=72,
                 )
             )
@@ -2503,7 +2508,7 @@ def _build_command_center_fleet_activity_summary(
             or (
                 (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
                 and (not blocked_activity_count or (blocked_focus_device and not _same_runtime_device(active_focus_device, blocked_focus_device)))
-                and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
+                and (not planned_activity_count or (planned_focus_device and not _same_runtime_device(active_focus_device, planned_focus_device)))
             )
         ):
             minimal_parts.append(
