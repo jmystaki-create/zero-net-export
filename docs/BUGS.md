@@ -1913,6 +1913,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/button.py`.
 - **next action:** include this final `primary`-narration cleanup in the next exact-build deploy, then confirm the live save feedback and device-page notifications name the Managed Devices workspace directly too.
 
+## ZNE-154 - Managed Devices strings still framed the device page as a `secondary native review path`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing `custom_components/zero_net_export/strings.json` and `translations/en.json` against Workstreams B/E in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the repo had already tightened most runtime handoffs so Configure -> Managed Devices reads like the real fleet workspace and the device page reads like deeper inspection, but the native form descriptions still repeated `This is the main Managed Devices workspace` and `Secondary native review path ...` across the Managed Devices screens. That wording kept the device page sounding like a competing named lane instead of simply the deeper review path documented in Workstream E.
+- **expected behavior:** Managed Devices form copy should name the workspace directly and describe the device page as the deeper per-device review path without foregrounding a `main/secondary` workspace split.
+- **evidence:** this run's repo grep found the stale phrases in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, with matching regression expectations in `tests/test_bucket_ownership_copy.py`.
+- **suspected cause:** earlier Workstream B cleanup focused on runtime summaries, notifications, and action handoffs first, leaving the native form-description copy on the older `main/secondary` wording.
+- **repo fix:** this run updates the Managed Devices native strings so they now say `This is the Managed Devices workspace` and `Deeper per-device review path ...` across the workspace, promotion, save, remove, and JSON-editor descriptions, with matching regressions refreshed in `tests/test_bucket_ownership_copy.py`.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`.
+- **next action:** include this native-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices forms keep Configure primary while the device page reads as deeper review only.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
