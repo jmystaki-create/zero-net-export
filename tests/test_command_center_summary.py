@@ -1630,7 +1630,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertTrue(
             summary["fleet_activity_summary"].startswith(
-                "no managed yet | 1 unmanaged backlog | repair sources first | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2"
+                "no managed yet | 1 unmanaged backlog | source blockers active | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2"
             )
         )
 
@@ -1702,7 +1702,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertLess(
             summary["fleet_activity_summary"].index("1 unmanaged backlog"),
-            summary["fleet_activity_summary"].index("repair sources first"),
+            summary["fleet_activity_summary"].index("source blockers active"),
         )
         self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
         self.assertIn("review AC Outlet 2", summary["fleet_activity_summary"])
@@ -2473,7 +2473,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
         self.assertEqual(
             summary["fleet_activity_summary"],
-            "no managed yet | no unmanaged candidates | repair sources first",
+            "no managed yet | no unmanaged candidates | source blockers active",
         )
 
     def test_command_center_summary_surfaces_managed_device_attention_in_top_alerts(self) -> None:

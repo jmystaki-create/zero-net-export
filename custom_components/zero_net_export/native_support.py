@@ -104,6 +104,9 @@ def _managed_count_label(count: int) -> str:
     return "no managed yet" if count <= 0 else f"{count} managed"
 
 
+SOURCE_BLOCKER_ACTIVE_LABEL = "source blockers active"
+
+
 def _unmanaged_count_label(count: int) -> str:
     return "no unmanaged candidates" if count <= 0 else f"{count} unmanaged backlog"
 
@@ -2038,7 +2041,7 @@ def _build_command_center_fleet_activity_summary(
     if managed_count <= 0:
         summary_parts.append(_unmanaged_count_label(candidate_count))
         if source_blocked:
-            summary_parts.append("repair sources first")
+            summary_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
 
     if managed_count > 0:
         if attention_device_count:
@@ -2081,7 +2084,7 @@ def _build_command_center_fleet_activity_summary(
     if managed_count > 0:
         summary_parts.append(_unmanaged_count_label(candidate_count))
         if source_blocked:
-            summary_parts.append("repair sources first")
+            summary_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
 
     if candidate_count:
         if fixed_candidate_count:
@@ -2197,7 +2200,7 @@ def _build_command_center_fleet_activity_summary(
     if managed_count <= 0:
         minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
         if source_blocked:
-            minimal_parts.append("repair sources first")
+            minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
 
     if managed_count > 0 and kind_known:
         if fixed_managed_count:
@@ -2259,7 +2262,7 @@ def _build_command_center_fleet_activity_summary(
     if managed_count > 0:
         minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
         if source_blocked:
-            minimal_parts.append("repair sources first")
+            minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
 
     if fixed_candidate_count and variable_candidate_count:
         minimal_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
@@ -2328,7 +2331,7 @@ def _build_command_center_fleet_activity_summary(
             _compact_unmanaged_count_label(candidate_count),
         ]
         if source_blocked:
-            empty_fleet_kind_parts.append("repair sources first")
+            empty_fleet_kind_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
         empty_fleet_kind_parts.extend(
             [
                 _count_label(fixed_candidate_count, "fixed candidate"),
@@ -2589,7 +2592,7 @@ def _build_command_center_fleet_activity_summary(
     if managed_count <= 0:
         essential_parts.append(_compact_unmanaged_count_label(candidate_count))
         if source_blocked:
-            essential_parts.append("repair sources first")
+            essential_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if first_attention_device:
         essential_parts.append(
             _clip_part(
@@ -2626,7 +2629,7 @@ def _build_command_center_fleet_activity_summary(
     if managed_count > 0:
         essential_parts.append(_compact_unmanaged_count_label(candidate_count))
         if source_blocked:
-            essential_parts.append("repair sources first")
+            essential_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if fixed_candidate_count and variable_candidate_count:
         essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))
