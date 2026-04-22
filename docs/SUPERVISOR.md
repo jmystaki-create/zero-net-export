@@ -22,7 +22,7 @@ What is already true:
 - The supported operator path is native Home Assistant only.
 - Configure, the Zero Net Export device, entities, notifications, Repairs, and diagnostics surfaces are the intended operator surfaces.
 - Managed-device onboarding, add/edit/remove, promotion review, presets, and fleet review already exist in some form.
-- Diagnostics and support surfaces already exist in some form.
+- Diagnostics surfaces, snapshots, and checklists already exist in some form.
 - The project is no longer primarily blocked by startup crashes.
 
 What is not yet true:

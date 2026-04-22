@@ -36,7 +36,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Managed Devices row labels now lead with `blocked`, `planned`, `attention`, or `active` when that higher-value state exists, so attention-first fleet rows scan more clearly than generic runtime text.
 - Fleet review / bulk enable-disable scaffolding exists.
 - The Zero Net Export device page now exposes a first-class managed-device review action, per-device managed review buttons for each configured load, and keeps the command-center guide in the main device surface rather than burying it under diagnostics-only categorization.
-- Native support/snapshot/checklist surfaces exist.
+- Native Diagnostics/snapshot/checklist surfaces exist.
 - The four-bucket IA language already exists in project wording: Controls, Sensors, Managed Devices, Diagnostics.
 
 ### Implemented but not yet delivered as a finished UI outcome
