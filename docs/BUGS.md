@@ -1978,6 +1978,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this last steady-fleet Configure handoff cleanup in the next exact-build deploy, then confirm the live Managed Devices flow, command center, and helper sensors all keep the same workspace-first wording.
 
+## ZNE-159 - Device-page managed snapshot still hid active runtime when watts were missing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the latest active-runtime summary handling in `custom_components/zero_net_export/button.py` against the already-aligned Configure and command-center fleet summaries
+- **current observed behavior:** the latest repo pass preserved active-runtime context without watts in the command center, Configure summary, and managed-fleet sensors, but the device-page managed snapshot in `button.py` still only labeled an active device when `current_power_w` was present and still emitted `active load 0 W` when runtime watts were missing. That left the deeper review path lagging behind the stronger active-runtime wording now used in the main Managed Devices surfaces.
+- **expected behavior:** if a managed device is `observed_active` but runtime watts are unavailable, the device-page managed snapshot should still say the device is active and should omit the fake `active load 0 W` line.
+- **evidence:** this run's repo audit found `_managed_snapshot_focus_label(...)` in `custom_components/zero_net_export/button.py` still gated the `active ...` label on `current_power_w`, while `_managed_snapshot_summary(...)` always appended `active load {active_power:g} W` whenever any device was active. `custom_components/zero_net_export/config_flow.py` and `native_support.py` had already moved to the stronger behavior: keep `active` when watts are missing and only show `active load ...` when the measured load is positive. The new focused regression in `tests/test_button_entity_categories.py` now proves the repaired device-page summary path.
+- **suspected cause:** the active-without-watts cleanup landed first in the opening command-center and Configure-side fleet summaries, but the parallel device-page snapshot helper in `button.py` kept the older stricter power-only check.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` so device-page managed snapshots now keep `active` when `observed_active` is true without runtime watts and suppress `active load 0 W` in that case. `tests/test_button_entity_categories.py` now locks the repaired summary in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page active-runtime follow-on in the next exact-build deploy, then confirm the live deeper-review snapshot still surfaces active managed devices even when Home Assistant is not reporting runtime watts.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

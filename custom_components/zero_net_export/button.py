@@ -305,8 +305,11 @@ def _managed_snapshot_focus_label(detail: dict | None) -> str:
         parts.append(f"action {detail.get('planned_action')}")
     elif _device_needs_review_attention(detail) and detail.get("last_action_status"):
         parts.append(f"last {detail.get('last_action_status')}")
-    elif detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
-        parts.append(f"active {_format_power(detail.get('current_power_w'))}")
+    elif detail.get("observed_active") is True:
+        if detail.get("current_power_w") not in (None, ""):
+            parts.append(f"active {_format_power(detail.get('current_power_w'))}")
+        else:
+            parts.append("active")
     return f"{name} ({' | '.join(parts)})" if parts else name
 
 
@@ -388,7 +391,8 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
     )
     parts = [_managed_count_label(managed_count), f"{enabled_count} enabled", f"{usable_count} usable"]
     if active_count:
-        parts.append(f"active load {active_power:g} W")
+        if active_power > 0:
+            parts.append(f"active load {active_power:g} W")
         parts.append("1 active managed device" if active_count == 1 else f"{active_count} active managed devices")
         if first_active_detail:
             parts.append(f"active device {_managed_snapshot_focus_label(first_active_detail)}")

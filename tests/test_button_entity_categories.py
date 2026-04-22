@@ -1170,6 +1170,41 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "2 managed | 2 enabled | 1 usable | 2 managed devices need attention | attention first Pool pump | 1 fixed managed | 1 variable managed | 0 W nominal | blocked Pool pump | 2 planned action(s) | plan Pool pump",
         )
 
+    def test_managed_snapshot_keeps_active_device_when_runtime_watts_are_missing(self) -> None:
+        button_module = _load_button_module()
+
+        summary = button_module._managed_snapshot_summary(
+            [
+                {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor_power",
+                    "kind": "variable",
+                    "usable": True,
+                    "enabled": True,
+                    "effective_enabled": True,
+                    "observed_active": True,
+                    "current_power_w": None,
+                    "nominal_power_w": 2185,
+                },
+                {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "enabled": True,
+                    "effective_enabled": True,
+                    "planned_action": "turn_on",
+                    "nominal_power_w": 1200,
+                },
+            ],
+            include_planned_count=True,
+        )
+
+        self.assertEqual(
+            summary,
+            "2 managed | 2 enabled | 2 usable | 1 active managed device | active device Heated floor (variable | active) | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 1 variable managed | 3385 W nominal | 1 planned action(s) | plan Pool pump",
+        )
+
     def test_managed_device_review_line_carries_kind_priority_power_and_plan_reason_context(self) -> None:
         button_module = _load_button_module()
 
