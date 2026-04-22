@@ -115,6 +115,8 @@ SENSOR_DEFS = {
     "command_center_next_step": "Command center next step",
 }
 
+SOURCE_BLOCKER_ACTIVE_LABEL = "source blockers active"
+
 SOURCE_LABELS = {
     "solar_power": "Solar power",
     "solar_energy": "Solar energy",
@@ -527,7 +529,7 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
         minimal_parts.append(parts[1])
 
     preserve_candidate_kind_counts = not any(
-        part == "repair sources first"
+        part == SOURCE_BLOCKER_ACTIVE_LABEL
         or part.endswith("needs attention")
         or part.endswith("need attention")
         or part.startswith("active load ")
@@ -535,7 +537,7 @@ def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
     )
 
     for part in optional_parts[2:]:
-        if part == "repair sources first" or part.endswith("needs attention") or part.endswith("need attention"):
+        if part == SOURCE_BLOCKER_ACTIVE_LABEL or part.endswith("needs attention") or part.endswith("need attention"):
             minimal_parts.append(part)
             continue
         if part.startswith(("blocked ", "attention ", "plan ", "active load ")):
@@ -912,14 +914,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     if review_candidate_name:
                         ready_parts.append(f"review {review_candidate_preview or review_candidate_name}")
                 if source_blocked:
-                    ready_parts.append("repair sources first")
+                    ready_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
                 return _fleet_overview_state(ready_parts)
 
             summary_parts = ["no managed yet" if counts["managed_count"] == 0 else f"{counts['managed_count']} managed"]
             summary_parts.append(_unmanaged_count_label(candidate_count))
             if counts["managed_count"] == 0:
                 if source_blocked:
-                    summary_parts.append("repair sources first")
+                    summary_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
                 if fixed_candidate_count:
                     summary_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
                 if variable_candidate_count:
@@ -965,7 +967,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
                 return _fleet_overview_state(summary_parts)
             if source_blocked:
-                summary_parts.append("repair sources first")
+                summary_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
             if counts["attention_count"]:
                 summary_parts.append(
                     "1 managed device needs attention"

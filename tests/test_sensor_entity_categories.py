@@ -958,7 +958,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "no managed yet | 1 unmanaged backlog | repair sources first | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
+            "no managed yet | 1 unmanaged backlog | source blockers active | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
@@ -1003,7 +1003,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertIn("1 needs review", overview.native_value)
         self.assertIn("review AC Outlet 2 (fixed)", overview.native_value)
         self.assertIn("1 ready to promote", overview.native_value)
-        self.assertIn("repair sources first", overview.native_value)
+        self.assertIn("source blockers active", overview.native_value)
         self.assertLessEqual(len(overview.native_value), 255)
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:
