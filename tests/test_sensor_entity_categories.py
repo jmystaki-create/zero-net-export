@@ -245,7 +245,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             sensor.native_value,
-            "No managed devices yet | Managed Devices review first: Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
+            "No managed devices yet | Review Managed Devices workspace first: Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
         )
 
     def test_managed_overview_sensor_uses_managed_devices_label(self) -> None:

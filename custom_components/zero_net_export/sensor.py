@@ -828,7 +828,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                         return "Repair sources first before returning to Managed Devices"
                     if review_candidate_name:
                         return _truncate_sensor_state(
-                            f"No managed devices yet | Managed Devices review first: {review_candidate_preview or review_candidate_name}"
+                            f"No managed devices yet | Review Managed Devices workspace first: {review_candidate_preview or review_candidate_name}"
                         )
                     return "No managed devices yet"
                 attention_parts = []

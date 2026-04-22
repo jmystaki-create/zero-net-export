@@ -1900,7 +1900,7 @@ Suggested area labels:
 - **validation status:** repo/process state revalidated in this run by commit audit plus `python3 scripts/print_expected_install_fingerprint.py` and `python3 scripts/validate_install_fingerprint.py /config --ssh-host root@192.168.86.200 --ssh-port 2222`. The status file no longer bakes in a stale exact hash or the superseded `live 0.1.87` note, and the live exact-build mismatch remains unchanged.
 - **next action:** either identify one specific remaining A-D/F repo-side defect that materially changes the native HA screenshots, or, if no such defect remains after that audit, ask James directly once for deploy/restart approval against the helper-resolved exact build current at that time.
 
-## ZNE-151 - Managed Devices handoffs still narrated a `primary` workspace instead of naming the workspace directly
+## ZNE-153 - Managed Devices handoffs still narrated a `primary` workspace instead of naming the workspace directly
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
 - **area:** `managed_devices`
