@@ -3584,7 +3584,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
 
     return {
-        "headline_decision": _truncate_state_summary(headline_decision, fallback="Runtime summary unavailable."),
+        "headline_decision": _clip_state_part(headline_decision, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
+        or "Runtime summary unavailable.",
         "alert_summary": alert_summary,
         "energy_state_summary": energy_state_summary,
         "control_decision_summary": control_decision_summary,
