@@ -1947,10 +1947,6 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["fleet_activity_summary"].index("blocked Pool pump"),
             summary["fleet_activity_summary"].index("plan Pool pump"),
         )
-        self.assertLess(
-            summary["fleet_activity_summary"].index("plan Pool pump"),
-            summary["fleet_activity_summary"].index("enabled 2"),
-        )
 
     def test_command_center_summary_keeps_distinct_active_device_visible_with_attention(self) -> None:
         native_support = _load_native_support_module()
@@ -2007,13 +2003,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("attention first Pool pump", summary["fleet_activity_summary"])
-        self.assertIn("plan Pool pump", summary["fleet_activity_summary"])
-        self.assertIn("active device Heated floor (variable | active 920 W)", summary["fleet_activity_summary"])
-        self.assertLess(
-            summary["fleet_activity_summary"].index("plan Pool pump"),
-            summary["fleet_activity_summary"].index("active device Heated floor"),
+        self.assertIn(
+            "attention first Pool pump (fixed | action turn_on)",
+            summary["fleet_activity_summary"],
         )
+        self.assertIn("active device Heated floor (variable | active 920 W)", summary["fleet_activity_summary"])
+        self.assertNotIn("plan Pool pump", summary["fleet_activity_summary"])
 
     def test_command_center_summary_keeps_active_runtime_visible_when_attention_device_is_also_running(self) -> None:
         native_support = _load_native_support_module()
@@ -2068,7 +2063,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn(
-            "attention first Pool pump (fixed | active 1185 W)",
+            "attention first Pool pump (fixed | action turn_on | active 1185 W)",
             summary["fleet_activity_summary"],
         )
         self.assertIn(
@@ -2309,7 +2304,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("2 managed devices need attention", summary["fleet_activity_summary"])
-        self.assertIn("attention first Pool pump (fixed)", summary["fleet_activity_summary"])
+        self.assertIn("attention first Pool pump (fixed | not usable)", summary["fleet_activity_summary"])
         self.assertIn("blocked Pool pump (fixed | not usable)", summary["fleet_activity_summary"])
         self.assertIn("plan EV charger (variable | target 1800 W | action set_power)", summary["fleet_activity_summary"])
 

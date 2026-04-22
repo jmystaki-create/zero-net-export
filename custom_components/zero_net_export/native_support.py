@@ -2015,27 +2015,7 @@ def _build_command_center_fleet_activity_summary(
         state,
         predicate=_runtime_device_has_active_plan,
     )
-    attention_kind = str((first_attention_device or {}).get("kind") or "").strip()
-    if first_attention_device and (
-        _same_runtime_device(first_attention_device, first_blocked_device)
-        or _same_runtime_device(first_attention_device, first_planned_device)
-    ):
-        attention_name = str(
-            (first_attention_device or {}).get("name")
-            or (first_attention_device or {}).get("entity_id")
-            or "managed device"
-        ).strip()
-        attention_parts = [attention_kind] if attention_kind else []
-        if (
-            first_attention_device.get("observed_active") is True
-            and first_attention_device.get("current_power_w") not in (None, "")
-        ):
-            attention_parts.append(f"active {float(first_attention_device.get('current_power_w') or 0):g} W")
-        attention_focus_label = (
-            f"{attention_name} ({' | '.join(attention_parts)})" if attention_parts else attention_name
-        )
-    else:
-        attention_focus_label = _command_center_managed_snapshot_focus_label(first_attention_device)
+    attention_focus_label = _command_center_managed_snapshot_focus_label(first_attention_device)
     first_active_device = _first_runtime_device_detail(
         state,
         predicate=lambda detail: detail.get("observed_active") is True,
