@@ -1433,10 +1433,12 @@ def _managed_snapshot_focus_label(detail: dict[str, Any] | None) -> str:
             parts.append(f"action {planned_action}")
     elif _device_has_recent_attention(detail) and detail.get("last_action_status"):
         parts.append(f"last {detail.get('last_action_status')}")
-    elif detail.get("observed_active") is True:
+    if detail.get("observed_active") is True:
         if detail.get("current_power_w") not in (None, ""):
-            parts.append(f"active {_format_device_power_summary(detail.get('current_power_w'))}")
-        else:
+            active_power = f"active {_format_device_power_summary(detail.get('current_power_w'))}"
+            if active_power not in parts:
+                parts.append(active_power)
+        elif "active" not in parts:
             parts.append("active")
     return f"{name} ({' | '.join(parts)})" if parts else name
 
@@ -1464,7 +1466,7 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
             runtime_bits.append("planned")
         elif _device_has_recent_attention(detail):
             runtime_bits.append("attention")
-        elif detail.get("observed_active") is True:
+        if detail.get("observed_active") is True and "active" not in runtime_bits:
             runtime_bits.append("active")
 
         runtime_bits.extend(

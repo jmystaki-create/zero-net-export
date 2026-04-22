@@ -305,10 +305,12 @@ def _managed_snapshot_focus_label(detail: dict | None) -> str:
         parts.append(f"action {detail.get('planned_action')}")
     elif _device_needs_review_attention(detail) and detail.get("last_action_status"):
         parts.append(f"last {detail.get('last_action_status')}")
-    elif detail.get("observed_active") is True:
+    if detail.get("observed_active") is True:
         if detail.get("current_power_w") not in (None, ""):
-            parts.append(f"active {_format_power(detail.get('current_power_w'))}")
-        else:
+            active_power = f"active {_format_power(detail.get('current_power_w'))}"
+            if active_power not in parts:
+                parts.append(active_power)
+        elif "active" not in parts:
             parts.append("active")
     return f"{name} ({' | '.join(parts)})" if parts else name
 

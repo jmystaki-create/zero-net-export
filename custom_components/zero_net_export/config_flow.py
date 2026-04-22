@@ -862,10 +862,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             parts.append(f"action {cls._active_planned_action(device)}")
         elif cls._device_has_recent_attention(device) and device.get("last_action_status"):
             parts.append(f"last {device.get('last_action_status')}")
-        elif device.get("observed_active") is True:
+        if device.get("observed_active") is True:
             if device.get("current_power_w") not in (None, ""):
-                parts.append(f"active {_format_runtime_power_label(device.get('current_power_w'))}")
-            else:
+                active_power = f"active {_format_runtime_power_label(device.get('current_power_w'))}"
+                if active_power not in parts:
+                    parts.append(active_power)
+            elif "active" not in parts:
                 parts.append("active")
         return f"{name} ({' | '.join(parts)})" if parts else name
 

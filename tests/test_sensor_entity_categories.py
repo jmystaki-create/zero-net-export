@@ -373,6 +373,37 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(runtime._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(last_requested._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
 
+    def test_managed_summary_keeps_active_cue_when_same_device_is_planned(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="test-entry", title="Test Entry"),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "status": "Running",
+                        "priority": 90,
+                        "observed_active": True,
+                        "current_power_w": 1185,
+                        "nominal_power_w": 1200,
+                        "current_active_seconds": 930,
+                        "active_runtime_today_seconds": 4530,
+                        "planned_action": "turn_on",
+                    }
+                }
+            ),
+        )
+
+        summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool pump")
+
+        self.assertEqual(
+            summary.native_value,
+            "planned | active | fixed load | Running | usable | enabled | priority 90 | power 1185 W | nominal 1200 W | runtime 15m 30s | today 1h 15m | action turn_on",
+        )
+
     def test_variable_managed_summary_surfaces_target_and_relevant_guard(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = SimpleNamespace(

@@ -1188,11 +1188,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "2 managed | 2 enabled | 2 usable | active load 3385 W | 2 active managed devices | 2 managed devices need attention | attention first EV charger (variable | action set_power) | 1 fixed managed | 1 variable managed | 8200 W nominal | 2 planned action(s) | plan EV charger (variable | action set_power)",
+            "2 managed | 2 enabled | 2 usable | active load 3385 W | 2 active managed devices | 2 managed devices need attention | attention first EV charger (variable | action set_power | active 2200 W) | 1 fixed managed | 1 variable managed | 8200 W nominal | 2 planned action(s) | plan EV charger (variable | action set_power | active 2200 W)",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices)[0],
-            "- Fleet summary: 2 managed device(s), 2 managed devices need attention, attention first EV charger (variable | action set_power), 2 planned action(s), plan EV charger (variable | action set_power), active load 3385 W, 2 active managed devices, 2 enabled, 2 usable, 0 blocked, 1 fixed, 1 variable, 8200 W nominal controllable power",
+            "- Fleet summary: 2 managed device(s), 2 managed devices need attention, attention first EV charger (variable | action set_power | active 2200 W), 2 planned action(s), plan EV charger (variable | action set_power | active 2200 W), active load 3385 W, 2 active managed devices, 2 enabled, 2 usable, 0 blocked, 1 fixed, 1 variable, 8200 W nominal controllable power",
         )
 
     def test_fleet_summary_lines_split_attention_first_from_other_managed_devices(self) -> None:
