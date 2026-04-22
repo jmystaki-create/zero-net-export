@@ -1013,10 +1013,13 @@ def _command_center_fleet_focus_label(
         if _runtime_device_has_recent_attention(detail) and last_action_status:
             parts.append(f"last {last_action_status}")
 
-    if detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
-        active_power = f"active {float(detail.get('current_power_w') or 0):g} W"
-        if active_power not in parts:
-            parts.append(active_power)
+    if detail.get("observed_active") is True:
+        if detail.get("current_power_w") not in (None, ""):
+            active_power = f"active {float(detail.get('current_power_w') or 0):g} W"
+            if active_power not in parts:
+                parts.append(active_power)
+        elif "active" not in parts:
+            parts.append("active")
 
     return f"{name} ({' | '.join(parts)})" if parts else name
 
