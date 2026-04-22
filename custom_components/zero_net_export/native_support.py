@@ -1706,6 +1706,7 @@ def _primary_candidate_focus(candidates: list[dict[str, Any]]) -> tuple[dict[str
 def _command_center_device_status_with_unmanaged_context(
     base_status: str,
     *,
+    managed_count: int,
     candidate_count: int,
     fixed_candidate_count: int,
     variable_candidate_count: int,
@@ -1727,9 +1728,17 @@ def _command_center_device_status_with_unmanaged_context(
             return normalized[:max_chars]
         return normalized[: max_chars - 3].rstrip() + "..."
 
-    summary = base_status
+    normalized_base_status = " ".join(str(base_status or "").split())
+    generic_managed_status = normalized_base_status.rstrip(".") in {
+        "1 configured device available",
+        f"{managed_count} configured device available",
+        f"{managed_count} configured devices available",
+    } or (
+        managed_count > 1 and normalized_base_status.rstrip(".") == f"{managed_count} configured devices available"
+    )
+    summary = _managed_count_label(managed_count) if generic_managed_status and managed_count > 0 else base_status
     if candidate_count <= 0:
-        return summary
+        return f"{summary}; no unmanaged candidates" if generic_managed_status and managed_count > 0 else summary
     summary += f"; {_unmanaged_count_label(candidate_count)}"
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
@@ -2873,6 +2882,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     if device_parse_issues:
         device_status = _command_center_device_status_with_unmanaged_context(
             f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair",
+            managed_count=len(configured_devices),
             candidate_count=candidate_count,
             fixed_candidate_count=fixed_candidate_count,
             variable_candidate_count=variable_candidate_count,
@@ -2891,6 +2901,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         runtime_device_status = str(getattr(state, "device_status_summary", "") or "").strip() if state is not None else ""
         device_status = _command_center_device_status_with_unmanaged_context(
             runtime_device_status or f"{runtime_device_count} configured",
+            managed_count=runtime_device_count,
             candidate_count=candidate_count,
             fixed_candidate_count=fixed_candidate_count,
             variable_candidate_count=variable_candidate_count,
@@ -2942,6 +2953,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     else:
         device_status = _command_center_device_status_with_unmanaged_context(
             "Managed Devices: no managed devices configured yet",
+            managed_count=0,
             candidate_count=candidate_count,
             fixed_candidate_count=fixed_candidate_count,
             variable_candidate_count=variable_candidate_count,

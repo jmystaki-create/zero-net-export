@@ -143,7 +143,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(summary["headline_decision"], "Action queued, waiting for device guard.")
-        self.assertEqual(summary["alert_summary"], "1 configured device available")
+        self.assertEqual(summary["alert_summary"], "1 managed; no unmanaged candidates")
         self.assertIn("solar 4200.0 W", summary["energy_state_summary"])
         self.assertIn("grid import 350.0 W", summary["energy_state_summary"])
         self.assertIn("battery charge 900.0 W", summary["energy_state_summary"])
@@ -157,7 +157,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("usable 1", summary["fleet_activity_summary"])
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
         self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
+        self.assertEqual(summary["device_status"], "1 managed; no unmanaged candidates")
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
+        self.assertNotIn("configured device available", summary["device_status"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
 
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
