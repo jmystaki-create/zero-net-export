@@ -17,6 +17,8 @@ class TestCommandCenterModalCopy(unittest.TestCase):
         self.assertIn("\n\nNow\n- Headline decision:", description)
         self.assertIn("\n- Alerts: {alert_summary}", description)
         self.assertIn("\n- Recommended next step: {next_action_summary}", description)
+        self.assertNotIn("\n- Recommended section: {recommended_section}", description)
+        self.assertNotIn("\n- Recommended path: {recommended_path}", description)
         self.assertIn("\n\nStructured control board\n- Energy state:", description)
         self.assertIn("\n\nSetup check\n- Sensors:", description)
         self.assertIn("\n\nNative paths\n- Sensors:", description)

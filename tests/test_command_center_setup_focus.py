@@ -115,6 +115,8 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             f"- Recommended next step: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,
         )
+        self.assertNotIn("- Recommended section:", text)
+        self.assertNotIn("- Recommended path:", text)
         self.assertIn("Structured control board", text)
         self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
         self.assertIn("- Control outcome: planned actions 1 | active load 1200 W", text)
