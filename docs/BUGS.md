@@ -1951,6 +1951,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with the focused test and compile gates listed below; live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page handoff wording cleanup in the next exact-build deploy, then confirm the live Configure and device-page paths keep the intended workspace-versus-deeper-review split without `secondary` wording drift.
 
+## ZNE-157 - Empty-fleet deeper-review summary still mixed primary Managed Devices action copy into the device-page handoff
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing the empty-fleet `build_detailed_management_handoff(...)` copy in `custom_components/zero_net_export/native_support.py` against Workstreams B and E in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when no managed fleet existed yet, the `Deeper per-device review path` summary still opened with `review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits...` before it ever named the actual device-page role. That made the deeper-review label carry primary Managed Devices action copy, which kept one empty-fleet handoff more like overlapping narration than the compact workspace-versus-deeper-review split required by the map.
+- **expected behavior:** the empty-fleet deeper-review summary should keep Configure -> Managed Devices as the clear primary fleet workspace, tell the operator to start in the unmanaged section when a surfaced candidate exists or add the first load there when none exists, and only then frame the device page as the deeper review path once the fleet exists.
+- **evidence:** this run's repo audit found the older sentence still hard-coded in `custom_components/zero_net_export/native_support.py`, and `tests/test_source_repair_guidance.py` was still locking that longer mixed handoff into place. `docs/UI_IMPLEMENTATION_MAP.md` still says Workstream B must make Managed Devices feel like the unquestionable primary fleet workspace while Workstream E keeps the device page as the deeper review path without competing.
+- **suspected cause:** the earlier deeper-review wording cleanup removed the more obvious `secondary` narration first, but the empty-fleet branch kept an older combined handoff that still embedded primary Managed Devices action guidance inside the device-page summary.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the empty-fleet summary now says `Keep ... as the Managed Devices workspace: start in the unmanaged section when a surfaced candidate exists...; use ... as the deeper device-page review path once the fleet exists.` `tests/test_source_repair_guidance.py` now locks that tighter workspace-first split into place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this empty-fleet deeper-review summary cleanup in the next exact-build deploy, then confirm the live Managed Devices descriptions keep the workspace-first split without re-expanding the device-page handoff into overlapping narration.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

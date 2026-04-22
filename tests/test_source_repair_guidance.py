@@ -88,10 +88,13 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         guidance = native_support.build_detailed_management_handoff([])
 
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, guidance)
-        self.assertIn("review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits", guidance)
+        self.assertIn("Keep", guidance)
+        self.assertIn("as the Managed Devices workspace", guidance)
+        self.assertIn("start in the unmanaged section when a surfaced candidate exists", guidance)
         self.assertIn("add the first fixed or variable load there when no surfaced unmanaged candidate is available", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
         self.assertNotIn("promote a currently surfaced unmanaged candidate when one fits", guidance)
+        self.assertNotIn("review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits", guidance)
         self.assertNotIn("Add the first managed device in", guidance)
 
     def test_repair_step_prefers_exact_affected_role_summary_when_available(self) -> None:
