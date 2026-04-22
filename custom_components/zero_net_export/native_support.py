@@ -2227,6 +2227,11 @@ def _build_command_center_fleet_activity_summary(
         state,
         predicate=_runtime_device_has_blocked_activity,
     )
+    blocked_focus_device = _first_distinct_runtime_device_detail(
+        state,
+        predicate=_runtime_device_has_blocked_activity,
+        excluded=(first_attention_device,),
+    ) or first_blocked_device
     blocked_activity_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
         if state is not None
@@ -2250,7 +2255,7 @@ def _build_command_center_fleet_activity_summary(
     active_focus_device = _first_distinct_runtime_device_detail(
         state,
         predicate=lambda detail: detail.get("observed_active") is True,
-        excluded=(first_attention_device, first_blocked_device, first_planned_device),
+        excluded=(first_attention_device, blocked_focus_device, first_planned_device),
     ) or first_active_device
     suppress_planned_focus = bool(
         first_planned_device
@@ -2289,11 +2294,11 @@ def _build_command_center_fleet_activity_summary(
                 f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
             )
         if blocked_activity_count:
-            if blocked_activity_count > 1 or not first_blocked_device:
+            if blocked_activity_count > 1 or not blocked_focus_device:
                 summary_parts.append(_blocked_activity_count_label(blocked_activity_count))
-            if first_blocked_device:
+            if blocked_focus_device:
                 summary_parts.append(
-                    f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
+                    f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}"
                 )
         if planned_activity_count:
             summary_parts.append(
@@ -2315,7 +2320,7 @@ def _build_command_center_fleet_activity_summary(
                 active_focus_device is not first_active_device
                 or (
                     (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
-                    and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                    and (not blocked_activity_count or (blocked_focus_device and not _same_runtime_device(active_focus_device, blocked_focus_device)))
                     and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
                 )
             ):
@@ -2465,12 +2470,12 @@ def _build_command_center_fleet_activity_summary(
             )
         )
     if blocked_activity_count:
-        if blocked_activity_count > 1 or not first_blocked_device:
+        if blocked_activity_count > 1 or not blocked_focus_device:
             minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
-        if first_blocked_device:
+        if blocked_focus_device:
             minimal_parts.append(
                 _clip_part(
-                    f"blocked {_command_center_fleet_focus_label(first_blocked_device)}",
+                    f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}",
                     max_chars=72,
                 )
             )
@@ -2497,7 +2502,7 @@ def _build_command_center_fleet_activity_summary(
             active_focus_device is not first_active_device
             or (
                 (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
-                and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                and (not blocked_activity_count or (blocked_focus_device and not _same_runtime_device(active_focus_device, blocked_focus_device)))
                 and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
             )
         ):
@@ -2736,7 +2741,7 @@ def _build_command_center_fleet_activity_summary(
         and active_focus_device
         and (active_focus_device is not first_active_device or (
             (not first_attention_device or not _same_runtime_device(active_focus_device, first_attention_device))
-            and (not first_blocked_device or not _same_runtime_device(active_focus_device, first_blocked_device))
+            and (not blocked_focus_device or not _same_runtime_device(active_focus_device, blocked_focus_device))
         ))
     ):
         managed_unmanaged_split_parts: list[str] = []
@@ -2858,12 +2863,12 @@ def _build_command_center_fleet_activity_summary(
             )
         )
     if blocked_activity_count:
-        if blocked_activity_count > 1 or not first_blocked_device:
+        if blocked_activity_count > 1 or not blocked_focus_device:
             essential_parts.append(_blocked_activity_count_label(blocked_activity_count))
-        if first_blocked_device:
+        if blocked_focus_device:
             essential_parts.append(
                 _clip_part(
-                    f"blocked {_command_center_fleet_focus_label(first_blocked_device)}",
+                    f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}",
                     max_chars=32,
                 )
             )
@@ -2881,7 +2886,7 @@ def _build_command_center_fleet_activity_summary(
             active_focus_device is not first_active_device
             or (
                 (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
-                and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                and (not blocked_activity_count or (blocked_focus_device and not _same_runtime_device(active_focus_device, blocked_focus_device)))
                 and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
             )
         ):
@@ -2929,8 +2934,8 @@ def _build_command_center_fleet_activity_summary(
     managed_backlog_essential_parts: list[str] = []
     duplicate_attention_blocked = bool(
         first_attention_device
-        and first_blocked_device
-        and _same_runtime_device(first_attention_device, first_blocked_device)
+        and blocked_focus_device
+        and _same_runtime_device(first_attention_device, blocked_focus_device)
     )
     duplicate_attention_planned = bool(
         first_attention_device
@@ -2947,7 +2952,7 @@ def _build_command_center_fleet_activity_summary(
             active_focus_device is not first_active_device
             or (
                 (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
-                and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                and (not blocked_activity_count or (blocked_focus_device and not _same_runtime_device(active_focus_device, blocked_focus_device)))
                 and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
             )
         )

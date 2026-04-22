@@ -2219,7 +2219,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["fleet_activity_summary"],
         )
 
-    def test_command_center_summary_keeps_blocked_count_visible_alongside_blocked_device_focus(self) -> None:
+    def test_command_center_summary_prefers_distinct_blocked_device_focus_when_attention_already_names_first_device(self) -> None:
         native_support = _load_native_support_module()
 
         native_support.build_native_operator_readiness = lambda coordinator: {
@@ -2271,8 +2271,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
+        self.assertIn("attention first Pool pump (fixed | blocked)", summary["fleet_activity_summary"])
         self.assertIn("2 blocked managed actions", summary["fleet_activity_summary"])
-        self.assertIn("blocked Pool pump (fixed | blocked | action turn_on)", summary["fleet_activity_summary"])
+        self.assertIn("blocked Water heater (fixed | blocked | action turn_off)", summary["fleet_activity_summary"])
+        self.assertNotIn("blocked Pool pump (fixed | blocked | action turn_on)", summary["fleet_activity_summary"])
         self.assertIn("2 blocked managed actions", summary["device_status"])
 
     def test_command_center_summary_top_alert_names_blocked_count_and_first_device(self) -> None:
