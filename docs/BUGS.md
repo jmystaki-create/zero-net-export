@@ -1277,17 +1277,16 @@ Suggested area labels:
 - **next action:** include this shared empty-fleet handoff cleanup in the next exact-build deploy, then confirm the live deeper-review path keeps the same fixed/variable-load wording as the rest of Managed Devices.
 
 ## ZNE-104 - Recent repo work reopened Workstream E despite the mapped A-D/F priority order
-- **status:** `closed`
+- **status:** `open`
 - **severity:** `medium`
 - **area:** `process`
-- **where seen:** watchdog repo/commit audit on 2026-04-21 while comparing recent commits against `docs/SUPERVISOR.md` and the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`
-- **current observed behavior:** historical process drift. The earlier `3b92f03` device-page follow-on had reopened Workstream E, but that is no longer the current recent-work sequence after two Managed Devices workspace commits landed on top.
+- **where seen:** watchdog repo/commit audit on 2026-04-22 while comparing recent commits against `docs/SUPERVISOR.md` and the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** this process drift is current again. After the Workstream A/B-aligned fixes `7420396` and `01d62aa`, the latest component-changing commit is back on the device-page deeper-review path: `c61ea28 fix: keep device-page handoffs on deeper-review wording`. That reopens Workstream E even though `docs/UI_IMPLEMENTATION_MAP.md` still leaves unfinished A-D/F runway ahead of E unless a fresh device-page regression is identified first.
 - **expected behavior:** until a real new Workstream E regression is found, recent repo work should stay anchored to the highest unfinished mapped A-D/F step, and watchdog/supervisor guidance should treat new device-page polish commits as drift from the agreed workstream order rather than as the default forward path.
-- **evidence:** `docs/SUPERVISOR.md` and `docs/UI_IMPLEMENTATION_MAP.md` still require the remaining repo-side work to stay in A-D/F order, with Workstream E primarily in live-proof posture unless new repo-side drift appears there. In this run, `git log --oneline -n 4` shows `02da7e0 fix: keep blocker-first managed handoffs workspace-first`, `ba8b711 fix: keep no-candidate managed handoffs workspace-first`, `03d67a1 docs: correct current drift priority`, and `4576de0 docs: reopen workstream-order drift bug`, so the latest component-changing work is back on the Managed Devices workspace path rather than the device-page review path.
-- **suspected cause:** recent audits found another quick follow-on polish opportunity in already-touched device-page review code, and that lower-risk fix temporarily displaced the stated workstream order before the next A/B-aligned fixes landed.
-- **repo fix:** `ba8b711` and `02da7e0` return the latest component-changing work to the mapped Managed Devices workspace stream, so the process drift itself is no longer current.
-- **validation status:** closed by repo/commit audit in this run. The latest component-changing sequence is back on Workstream B, so this entry should no longer stay open as the main current drift.
-- **next action:** keep the next repo-side audit/fix on the highest remaining mapped A-D/F gap, and reopen this only if a real new Workstream E detour becomes the latest component-changing work again.
+- **evidence:** `docs/SUPERVISOR.md` still says Workstream E follow-ons are skips while earlier eligible A-D items remain, and `docs/UI_IMPLEMENTATION_MAP.md` still ranks A-D/F ahead of E for remaining repo-side work. In this run, `git log --oneline -n 6` shows `c61ea28 fix: keep device-page handoffs on deeper-review wording`, `12f0e85 docs: refresh current HA drift bug state`, `01d62aa fix: keep active fleet focus ahead of duplicate plans`, `2a76436 docs: track command center attention-context bug`, `7420396 fix: keep command center attention context aligned`, and `1506d28 docs: refresh live drift evidence for current candidate`. The latest product change is therefore another Workstream E wording pass, not the next mapped A-D/F gap.
+- **suspected cause:** recent audits found another quick follow-on wording opportunity in already-touched device-page review code, and that lower-risk fix displaced the stricter workstream order again.
+- **validation status:** re-opened by repo/commit audit in this run. The latest component-changing sequence is no longer cleanly anchored to the mapped A-D/F order.
+- **next action:** stop defaulting to device-page/deeper-review polish. Keep the next repo-side audit/fix on the highest remaining mapped A-D/F gap, and only reopen Workstream E when a newly confirmed device-page regression materially outranks that remaining runway.
 
 ## ZNE-105 - Opening command-center copy still stopped short of naming the Managed Devices workspace explicitly
 - **status:** `fixed_pending_validation`
