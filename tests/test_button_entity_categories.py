@@ -436,7 +436,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices workspace")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
-        self.assertIn("Primary Managed Devices workspace in Configure: devices path", message)
+        self.assertIn("Managed Devices workspace in Configure: devices path", message)
         self.assertIn("Secondary device-page review path: detailed device path", message)
         self.assertIn(
             "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
@@ -1352,7 +1352,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
-        self.assertIn("Primary Managed Devices workspace in Configure: devices path", message)
+        self.assertIn("Managed Devices workspace in Configure: devices path", message)
         self.assertIn("Recommended next step: Review the next managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)

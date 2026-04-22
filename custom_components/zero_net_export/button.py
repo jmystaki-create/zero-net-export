@@ -834,7 +834,7 @@ def _build_managed_device_detail_lines(
     lines = [
         "Zero Net Export managed-device detail review",
         "",
-        f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
+        f"Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
         f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
         f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
@@ -1105,7 +1105,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         lines = [
             'Zero Net Export managed devices workspace',
             '',
-            f'Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
+            f'Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
             f'Secondary device-page review path: {DETAILED_MANAGEMENT_PATH}',
             f'Device-page boundary: {_managed_devices_workspace_boundary()}',
             f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
@@ -1282,7 +1282,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         lines = [
             "Zero Net Export managed devices review",
             "",
-            f"Primary Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
+            f"Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
             f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
             f"Device-page boundary: {_managed_devices_workspace_boundary()}",
             f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
