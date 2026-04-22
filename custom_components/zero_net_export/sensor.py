@@ -969,8 +969,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 summary_parts.append(
                     f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
                 )
-            if counts["active_power_w"] > 0:
-                summary_parts.append(f"active load {counts['active_power_w']:g} W")
+            if counts["active_count"]:
+                if counts["active_power_w"] > 0:
+                    summary_parts.append(f"active load {counts['active_power_w']:g} W")
                 summary_parts.append(
                     "1 active managed device"
                     if counts["active_count"] == 1
@@ -1417,8 +1418,11 @@ def _managed_snapshot_focus_label(detail: dict[str, Any] | None) -> str:
             parts.append(f"action {planned_action}")
     elif _device_has_recent_attention(detail) and detail.get("last_action_status"):
         parts.append(f"last {detail.get('last_action_status')}")
-    elif detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
-        parts.append(f"active {_format_device_power_summary(detail.get('current_power_w'))}")
+    elif detail.get("observed_active") is True:
+        if detail.get("current_power_w") not in (None, ""):
+            parts.append(f"active {_format_device_power_summary(detail.get('current_power_w'))}")
+        else:
+            parts.append("active")
     return f"{name} ({' | '.join(parts)})" if parts else name
 
 

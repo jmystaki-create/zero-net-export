@@ -862,8 +862,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             parts.append(f"action {cls._active_planned_action(device)}")
         elif cls._device_has_recent_attention(device) and device.get("last_action_status"):
             parts.append(f"last {device.get('last_action_status')}")
-        elif device.get("observed_active") is True and device.get("current_power_w") not in (None, ""):
-            parts.append(f"active {_format_runtime_power_label(device.get('current_power_w'))}")
+        elif device.get("observed_active") is True:
+            if device.get("current_power_w") not in (None, ""):
+                parts.append(f"active {_format_runtime_power_label(device.get('current_power_w'))}")
+            else:
+                parts.append("active")
         return f"{name} ({' | '.join(parts)})" if parts else name
 
     def _fleet_summary_lines(self, devices: list[dict[str, Any]]) -> list[str]:
@@ -911,7 +914,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if planned_device:
                 fleet_summary_parts.append(f"plan {self._managed_snapshot_focus_label(planned_device)}")
         if active_count:
-            fleet_summary_parts.append(f"active load {active_power_w:g} W")
+            if active_power_w > 0:
+                fleet_summary_parts.append(f"active load {active_power_w:g} W")
             fleet_summary_parts.append(
                 "1 active managed device" if active_count == 1 else f"{active_count} active managed devices"
             )
@@ -1032,7 +1036,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             f"{usable_count} usable",
         ]
         if active_count:
-            summary_parts.append(f"active load {active_power_w:g} W")
+            if active_power_w > 0:
+                summary_parts.append(f"active load {active_power_w:g} W")
             summary_parts.append(
                 "1 active managed device" if active_count == 1 else f"{active_count} active managed devices"
             )
