@@ -1991,6 +1991,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_button_entity_categories` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this device-page active-runtime follow-on in the next exact-build deploy, then confirm the live deeper-review snapshot still surfaces active managed devices even when Home Assistant is not reporting runtime watts.
 
+## ZNE-160 - Command-center Fleet activity still hid active runtime when watts were missing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing `custom_components/zero_net_export/native_support.py` against Workstream A in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** when a managed device was still `observed_active` but Home Assistant was not reporting runtime watts, the opening `Fleet activity` strip could flatten that row back to kind plus action wording and lose the explicit active-runtime cue. That made the top operator console tell a weaker fleet story than the aligned Managed Devices workspace and risked hiding live activity in the exact state where Workstream A says the opening console should stay screenshot-grade and operationally legible.
+- **expected behavior:** `Fleet activity` should keep an explicit `active` marker for an `observed_active` managed device even when runtime watts are unavailable, and it should not fall back to `active load 0 W` noise in that case.
+- **evidence:** repo inspection on this run found `_command_center_fleet_focus_label(...)` in `custom_components/zero_net_export/native_support.py` only appended the active-runtime fragment when `current_power_w` was present, so the attention-first and planned-action rows could lose the active cue under missing-watts conditions. Commit `326baec` repairs that path by preserving `active` whenever `observed_active` stays true, and `tests/test_command_center_summary.py` now locks both the attention-first and planned-action summaries to that fallback wording.
+- **suspected cause:** the earlier active-runtime cleanup preserved richer active-device summaries in adjacent fleet surfaces first, but the command-center focus-label helper still treated runtime watts as mandatory for surfacing the active state.
+- **repo fix:** `326baec` - `fix: keep fleet activity active without runtime watts`
+- **validation status:** repo-side fix re-verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include `326baec` in the next exact-build deploy, then confirm the live Configure top board still marks the managed device active when Home Assistant temporarily withholds runtime watts.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
