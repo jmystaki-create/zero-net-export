@@ -2024,14 +2024,16 @@ def _build_command_center_fleet_activity_summary(
         state,
         predicate=_runtime_device_has_blocked_activity,
     )
-    blocked_device_count = (
-        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if detail.get("usable") is False)
+    blocked_activity_count = (
+        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
         if state is not None
         else 0
     )
-    blocked_activity_count = blocked_device_count or (
-        int(getattr(state, "blocked_planned_action_count", 0) or 0) if state is not None else 0
-    )
+    if state is not None:
+        blocked_activity_count = max(
+            blocked_activity_count,
+            int(getattr(state, "blocked_planned_action_count", 0) or 0),
+        )
     first_planned_device = _first_runtime_device_detail(
         state,
         predicate=_runtime_device_has_active_plan,
