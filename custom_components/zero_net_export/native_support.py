@@ -2917,6 +2917,32 @@ def _build_command_center_fleet_activity_summary(
         return essential_summary
 
     managed_backlog_essential_parts: list[str] = []
+    duplicate_attention_blocked = bool(
+        first_attention_device
+        and first_blocked_device
+        and _same_runtime_device(first_attention_device, first_blocked_device)
+    )
+    duplicate_attention_planned = bool(
+        first_attention_device
+        and first_planned_device
+        and _same_runtime_device(first_attention_device, first_planned_device)
+    )
+    active_device_part = (
+        _clip_part(
+            f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}",
+            max_chars=24,
+        )
+        if active_focus_device
+        and (
+            active_focus_device is not first_active_device
+            or (
+                (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
+                and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
+            )
+        )
+        else ""
+    )
     for part in essential_parts:
         if (
             _matches_count_label(part, "fixed candidate")
@@ -2950,6 +2976,74 @@ def _build_command_center_fleet_activity_summary(
     managed_backlog_essential_summary = " | ".join(managed_backlog_essential_parts)
     if managed_backlog_essential_summary and len(managed_backlog_essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return managed_backlog_essential_summary
+
+    if active_device_part:
+        active_story_parts = list(managed_backlog_essential_parts)
+        for duplicate_prefix, duplicate_active in (
+            ("blocked ", duplicate_attention_blocked),
+            ("plan ", duplicate_attention_planned),
+        ):
+            if duplicate_active:
+                for index, part in enumerate(list(active_story_parts)):
+                    if part.startswith(duplicate_prefix):
+                        del active_story_parts[index]
+                        break
+        insertion_index = next(
+            (
+                index + 1
+                for index, part in enumerate(active_story_parts)
+                if part.startswith("active load ")
+            ),
+            next(
+                (
+                    index + 1
+                    for index, part in enumerate(active_story_parts)
+                    if part.startswith(("attention first ", "blocked ", "plan "))
+                ),
+                len(active_story_parts),
+            ),
+        )
+        if active_device_part not in active_story_parts:
+            active_story_parts.insert(insertion_index, active_device_part)
+        active_story_summary = " | ".join(active_story_parts)
+        if active_story_summary and len(active_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return active_story_summary
+        if SOURCE_BLOCKER_ACTIVE_LABEL in active_story_parts:
+            active_story_without_source_blockers = [
+                part for part in active_story_parts if part != SOURCE_BLOCKER_ACTIVE_LABEL
+            ]
+            active_story_summary = " | ".join(active_story_without_source_blockers)
+            if active_story_summary and len(active_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return active_story_summary
+        focused_active_story_parts = [
+            part
+            for part in active_story_parts
+            if not (
+                _matches_count_label(part, "needs review", "need review")
+                or _matches_count_label(part, "ready to promote")
+                or _matches_count_label(part, "active managed device", "active managed devices")
+            )
+        ]
+        story_backlog_parts = backlog_parts or single_kind_overflow_backlog_parts or single_kind_backlog_parts
+        if story_backlog_parts:
+            insertion_index = next(
+                (
+                    index + 1
+                    for index, part in enumerate(focused_active_story_parts)
+                    if _is_unmanaged_count_part(part)
+                ),
+                len(focused_active_story_parts),
+            )
+            for backlog_part in reversed(story_backlog_parts):
+                if backlog_part not in focused_active_story_parts:
+                    focused_active_story_parts.insert(insertion_index, backlog_part)
+        if SOURCE_BLOCKER_ACTIVE_LABEL in focused_active_story_parts:
+            focused_active_story_parts = [
+                part for part in focused_active_story_parts if part != SOURCE_BLOCKER_ACTIVE_LABEL
+            ]
+        focused_active_story_summary = " | ".join(focused_active_story_parts)
+        if focused_active_story_summary and len(focused_active_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return focused_active_story_summary
 
     operator_story_parts: list[str] = []
     for part in managed_backlog_essential_parts:
