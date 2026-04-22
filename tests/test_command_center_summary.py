@@ -2260,6 +2260,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("attention first Pool pump", summary["fleet_activity_summary"])
+        self.assertNotIn(
+            "plan Pool pump (fixed | active 1185 W | action turn_on)",
+            summary["fleet_activity_summary"],
+        )
         self.assertIn(
             "active device Heated floor (variable | active 920 W)",
             summary["fleet_activity_summary"],
