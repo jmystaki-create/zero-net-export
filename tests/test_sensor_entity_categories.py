@@ -1578,6 +1578,44 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "2 managed | no unmanaged candidates | 1 managed device needs attention | 1 active plan | 1 active managed device | active device Heated floor (variable | active) | 2 enabled | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
         )
 
+    def test_managed_fleet_attention_keeps_active_count_when_runtime_watts_are_missing(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "planned_action": "turn_on",
+                        "nominal_power_w": 1185,
+                    },
+                    "heater": {
+                        "name": "Heated floor",
+                        "kind": "variable",
+                        "usable": True,
+                        "effective_enabled": True,
+                        "observed_active": True,
+                        "current_power_w": None,
+                        "planned_action": "hold",
+                        "nominal_power_w": 2200,
+                    },
+                }
+            ),
+        )
+        attention = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_attention", "Managed devices attention")
+        attention.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            attention.native_value,
+            "1 managed device needs attention | attention Pool pump | plan Pool pump | 1 active managed device",
+        )
+        self.assertNotIn("active load 0", attention.native_value)
+
     def test_managed_fleet_overview_surfaces_failed_only_attention_before_steady_rows(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: []

@@ -2004,6 +2004,19 @@ Suggested area labels:
 - **validation status:** repo-side fix re-verified in this run with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include `326baec` in the next exact-build deploy, then confirm the live Configure top board still marks the managed device active when Home Assistant temporarily withholds runtime watts.
 
+## ZNE-161 - Managed Devices attention sensor still hid active runtime when watts were missing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing `sensor.zero_net_export_managed_fleet_attention` in `custom_components/zero_net_export/sensor.py` against the already-aligned command-center, Configure, and device-page active-runtime summaries
+- **current observed behavior:** `ZeroNetExportSensor.native_value` still built `managed_fleet_attention` with `active load ... W` only when `_managed_fleet_counts(...)["active_power_w"] > 0`, so the helper sensor dropped the active-fleet cue entirely when `observed_active` stayed true but Home Assistant temporarily withheld runtime watts.
+- **expected behavior:** the Managed Devices attention helper should keep the active managed-device count visible whenever runtime activity is known, while suppressing fake `active load 0 W` noise when watts are missing.
+- **evidence:** this run's repo inspection found the `managed_fleet_attention` branch in `custom_components/zero_net_export/sensor.py` appended `active load {counts['active_power_w']:g} W` but had no matching `active_count` fallback, even though the overview, command-center, and device-page summaries already preserved that state. The new regression in `tests/test_sensor_entity_categories.py` locks `1 managed device needs attention | attention Pool pump | plan Pool pump | 1 active managed device` and explicitly rejects `active load 0`.
+- **suspected cause:** the earlier active-without-watts cleanup covered the command center, Configure summary, managed-fleet overview, and device-page snapshot first, but the parallel attention-only helper sensor kept the older watts-required branch.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so `managed_fleet_attention` now keeps `1 active managed device` / `N active managed devices` whenever `observed_active` is true, and only shows `active load ... W` when measured watts are positive.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this final Managed Devices helper-sensor follow-on in the next exact-build deploy, then confirm the live device-page attention helper still surfaces active managed runtime when watts are temporarily unavailable.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

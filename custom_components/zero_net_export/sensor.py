@@ -857,8 +857,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     attention_parts.append(
                         f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
                     )
-                if counts["active_power_w"] > 0:
-                    attention_parts.append(f"active load {counts['active_power_w']:g} W")
+                if counts["active_count"]:
+                    if counts["active_power_w"] > 0:
+                        attention_parts.append(f"active load {counts['active_power_w']:g} W")
+                    attention_parts.append(
+                        "1 active managed device"
+                        if counts["active_count"] == 1
+                        else f"{counts['active_count']} active managed devices"
+                    )
                 return _fleet_overview_state(attention_parts)
 
             if self._key == "managed_fleet_ready":
