@@ -257,6 +257,108 @@ def _clip_state_part(text: str, *, max_chars: int) -> str:
     return normalized[: max_chars - 3].rstrip() + "..."
 
 
+def _compact_metric_value(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return str(value)
+    try:
+        return f"{float(value):g}"
+    except (TypeError, ValueError, OverflowError):
+        return str(value)
+
+
+def _value_is_zeroish(value: Any) -> bool:
+    try:
+        return float(value) == 0.0
+    except (TypeError, ValueError, OverflowError):
+        return False
+
+
+def _compact_energy_state_summary(state: Any) -> str:
+    def _part(label: str, value: Any, suffix: str, *, compact: bool = False) -> str | None:
+        if value is None:
+            return None
+        display = _compact_metric_value(value) if compact else str(value)
+        return f"{label} {display}{suffix}"
+
+    solar_power_w = getattr(state, "solar_power_w", None) if state is not None else None
+    grid_import_power_w = getattr(state, "grid_import_power_w", None) if state is not None else None
+    grid_export_power_w = getattr(state, "grid_export_power_w", None) if state is not None else None
+    home_load_power_w = getattr(state, "home_load_power_w", None) if state is not None else None
+    battery_soc = getattr(state, "battery_soc", None) if state is not None else None
+    battery_charge_power_w = getattr(state, "battery_charge_power_w", None) if state is not None else None
+    battery_discharge_power_w = getattr(state, "battery_discharge_power_w", None) if state is not None else None
+
+    raw_parts = [
+        _part("solar", solar_power_w, " W"),
+        _part("grid import", grid_import_power_w, " W"),
+        _part("grid export", grid_export_power_w, " W"),
+        _part("home load", home_load_power_w, " W"),
+        _part("battery", battery_soc, "%"),
+        _part("battery charge", battery_charge_power_w, " W"),
+        _part("battery discharge", battery_discharge_power_w, " W"),
+    ]
+    raw_summary = " | ".join(part for part in raw_parts if part is not None)
+    if raw_summary and len(raw_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return raw_summary
+
+    compact_parts = [
+        _part("solar", solar_power_w, " W", compact=True),
+        _part("grid import", grid_import_power_w, " W", compact=True),
+        _part("grid export", grid_export_power_w, " W", compact=True),
+        _part("home load", home_load_power_w, " W", compact=True),
+        _part("battery", battery_soc, "%", compact=True),
+        _part("battery charge", battery_charge_power_w, " W", compact=True),
+        _part("battery discharge", battery_discharge_power_w, " W", compact=True),
+    ]
+    compact_summary = " | ".join(part for part in compact_parts if part is not None)
+    if compact_summary and len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compact_summary
+
+    non_zero_flow_parts = [
+        _part("solar", solar_power_w, " W", compact=True),
+        _part("grid import", grid_import_power_w, " W", compact=True),
+        _part("grid export", grid_export_power_w, " W", compact=True),
+        _part("home load", home_load_power_w, " W", compact=True),
+        _part("battery", battery_soc, "%", compact=True),
+        None
+        if _value_is_zeroish(battery_charge_power_w)
+        else _part("battery charge", battery_charge_power_w, " W", compact=True),
+        None
+        if _value_is_zeroish(battery_discharge_power_w)
+        else _part("battery discharge", battery_discharge_power_w, " W", compact=True),
+    ]
+    non_zero_flow_summary = " | ".join(part for part in non_zero_flow_parts if part is not None)
+    if non_zero_flow_summary and len(non_zero_flow_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return non_zero_flow_summary
+
+    core_parts = [
+        _part("solar", solar_power_w, " W", compact=True),
+        _part("grid import", grid_import_power_w, " W", compact=True),
+        _part("grid export", grid_export_power_w, " W", compact=True),
+        _part("home load", home_load_power_w, " W", compact=True),
+        _part("battery", battery_soc, "%", compact=True),
+    ]
+    if not _value_is_zeroish(battery_charge_power_w):
+        core_parts.append(_part("battery charge", battery_charge_power_w, " W", compact=True))
+    if not _value_is_zeroish(battery_discharge_power_w):
+        core_parts.append(_part("battery discharge", battery_discharge_power_w, " W", compact=True))
+    core_summary = " | ".join(part for part in core_parts if part is not None)
+    if core_summary and len(core_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return core_summary
+
+    clipped_core_summary = " | ".join(
+        _clip_state_part(part, max_chars=36)
+        for part in core_parts
+        if part is not None
+    )
+    if clipped_core_summary and len(clipped_core_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return clipped_core_summary
+
+    return raw_summary
+
+
 def _compact_control_decision_summary(
     *,
     current_mode: str,
@@ -3444,19 +3546,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
 
     energy_state_summary = _truncate_state_summary(
-        " | ".join(
-            part
-            for part in [
-                f"solar {getattr(state, 'solar_power_w', None)} W" if state is not None and getattr(state, 'solar_power_w', None) is not None else None,
-                f"grid import {getattr(state, 'grid_import_power_w', None)} W" if state is not None and getattr(state, 'grid_import_power_w', None) is not None else None,
-                f"grid export {getattr(state, 'grid_export_power_w', None)} W" if state is not None and getattr(state, 'grid_export_power_w', None) is not None else None,
-                f"home load {getattr(state, 'home_load_power_w', None)} W" if state is not None and getattr(state, 'home_load_power_w', None) is not None else None,
-                f"battery {getattr(state, 'battery_soc', None)}%" if state is not None and getattr(state, 'battery_soc', None) is not None else None,
-                f"battery charge {getattr(state, 'battery_charge_power_w', None)} W" if state is not None and getattr(state, 'battery_charge_power_w', None) is not None else None,
-                f"battery discharge {getattr(state, 'battery_discharge_power_w', None)} W" if state is not None and getattr(state, 'battery_discharge_power_w', None) is not None else None,
-            ]
-            if part is not None
-        ) or "Energy state will appear here after runtime loads.",
+        _compact_energy_state_summary(state) or "Energy state will appear here after runtime loads.",
         fallback="Energy state will appear here after runtime loads.",
     )
     control_decision_summary = _compact_control_decision_summary(

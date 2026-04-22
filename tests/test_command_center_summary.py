@@ -4,6 +4,7 @@ import importlib.util
 import sys
 import types
 import unittest
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -225,6 +226,68 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertLessEqual(len(summary["control_decision_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
         self.assertLessEqual(len(summary["control_outcome_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+
+    def test_command_center_summary_compacts_energy_board_instead_of_falling_back_when_values_are_long(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        huge = Decimal("1234567890.123456789012345678901234567890123456789")
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Monitoring export drift before acting.",
+            control_reason="Holding current load.",
+            control_summary="No fleet change needed.",
+            solar_power_w=huge,
+            grid_import_power_w=huge,
+            grid_export_power_w=huge,
+            home_load_power_w=huge,
+            battery_soc=Decimal("82.1234567890123456789"),
+            battery_charge_power_w=huge,
+            battery_discharge_power_w=huge,
+            export_error_w=350.0,
+            planned_action_count=0,
+            executable_action_count=0,
+            active_controlled_power_w=0.0,
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1200.0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertNotEqual(summary["energy_state_summary"], "Energy state will appear here after runtime loads.")
+        self.assertIn("solar ", summary["energy_state_summary"])
+        self.assertIn("grid import ", summary["energy_state_summary"])
+        self.assertIn("grid export ", summary["energy_state_summary"])
+        self.assertIn("home load ", summary["energy_state_summary"])
+        self.assertIn("battery ", summary["energy_state_summary"])
+        self.assertLessEqual(len(summary["energy_state_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
 
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
         native_support = _load_native_support_module()
