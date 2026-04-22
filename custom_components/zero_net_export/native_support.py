@@ -3241,23 +3241,33 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         device_alert = f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s)."
     else:
         if blocked_activity_count:
-            blocked_target = (
-                _command_center_runtime_device_preview(first_blocked_device)
-                if first_blocked_device
-                else f"{blocked_activity_count} blocked managed device(s)"
-            )
-            device_alert = f"Managed Devices: blocked {blocked_target}"
+            if first_blocked_device:
+                blocked_target = _command_center_runtime_device_preview(first_blocked_device)
+                if blocked_activity_count > 1:
+                    device_alert = (
+                        f"Managed Devices: {_blocked_activity_count_label(blocked_activity_count)}, "
+                        f"starting with {blocked_target}"
+                    )
+                else:
+                    device_alert = f"Managed Devices: blocked {blocked_target}"
+            else:
+                device_alert = f"Managed Devices: {_blocked_activity_count_label(blocked_activity_count)}"
         elif managed_attention_count:
-            attention_target = (
-                _command_center_runtime_device_preview(first_attention_device)
-                if first_attention_device
-                else (
-                    "1 managed device needs attention"
+            if first_attention_device:
+                attention_target = _command_center_runtime_device_preview(first_attention_device)
+                if managed_attention_count > 1:
+                    device_alert = (
+                        f"Managed Devices: {managed_attention_count} managed devices need attention, "
+                        f"starting with {attention_target}"
+                    )
+                else:
+                    device_alert = f"Managed Devices: {attention_target}"
+            else:
+                device_alert = (
+                    "Managed Devices: 1 managed device needs attention"
                     if managed_attention_count == 1
-                    else f"{managed_attention_count} managed devices need attention"
+                    else f"Managed Devices: {managed_attention_count} managed devices need attention"
                 )
-            )
-            device_alert = f"Managed Devices: {attention_target}"
         elif not has_managed_devices:
             device_alert = "Managed Devices: no managed yet."
 
