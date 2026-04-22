@@ -1842,7 +1842,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "review blocked devices in the Managed Devices workspace",
                 "confirm the active fleet plan in the Managed Devices workspace",
                 "review the Managed Devices workspace, starting with attention on",
-                "continue in the primary Managed Devices workspace, then edit device settings or stage enablement changes there",
+                "continue in the Managed Devices workspace, then edit device settings or stage enablement changes there",
             )
         ):
             return device_next_step
@@ -1886,25 +1886,25 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             title = "managed-device promotion saved"
             changed = f"Promoted {current_name} into Managed Devices as a {kind_label}."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then {candidate_follow_through}."
             )
         elif action == "edit" and device is not None:
             title = "managed-device update saved"
             changed = f"Updated {current_name} in Managed Devices."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then {candidate_follow_through}."
             )
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
             changed = f"Removed {current_name} from Managed Devices."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then {candidate_follow_through}."
             )
         elif action == "bulk_enable":
             title = "managed-device enablement saved"
             changed = "Saved the Managed Devices enablement review."
             next_step = (
-                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then {candidate_follow_through}."
+                f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then {candidate_follow_through}."
             )
         else:
             return None
@@ -2245,7 +2245,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     source_next_step += "."
                 elif not devices:
                     source_next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+                        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
                     )
                 elif primary_candidate:
                     candidate_focus = self._top_candidate_focus_text(primary_candidate)
@@ -2841,7 +2841,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return next_step + "."
         if not devices:
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
             )
         if primary_candidate:
             candidate_focus = self._top_candidate_focus_text(primary_candidate)
@@ -3676,7 +3676,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 policy_next_step += "."
             else:
                 policy_next_step = (
-                    f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, "
+                    f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
                     "then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
                 )
         else:

@@ -1900,6 +1900,19 @@ Suggested area labels:
 - **validation status:** repo/process state revalidated in this run by commit audit plus `python3 scripts/print_expected_install_fingerprint.py` and `python3 scripts/validate_install_fingerprint.py /config --ssh-host root@192.168.86.200 --ssh-port 2222`. The status file no longer bakes in a stale exact hash or the superseded `live 0.1.87` note, and the live exact-build mismatch remains unchanged.
 - **next action:** either identify one specific remaining A-D/F repo-side defect that materially changes the native HA screenshots, or, if no such defect remains after that audit, ask James directly once for deploy/restart approval against the helper-resolved exact build current at that time.
 
+## ZNE-151 - Managed Devices handoffs still narrated a `primary` workspace instead of naming the workspace directly
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing current Configure, command-center, helper-sensor, and device-page fleet handoffs against `docs/UI_DESIGN.md` and Workstream B in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** multiple native fleet handoffs were still saying `continue in the primary Managed Devices workspace` or `for the primary Managed Devices workspace`. That was directionally correct, but it kept the main fleet path sounding like narrated scaffolding instead of simply naming the `Managed Devices workspace` as the native product surface operators should enter next.
+- **expected behavior:** Workstream B handoffs should name the `Managed Devices workspace` directly and consistently across Configure, the opening command center, helper sensors, and device-page follow-through so the primary fleet surface reads like one coherent native workspace instead of a narrated helper layer.
+- **evidence:** this run's repo audit found the lingering `primary Managed Devices workspace` phrasing still hard-coded in `custom_components/zero_net_export/native_support.py`, `config_flow.py`, `sensor.py`, and `button.py`, with matching expectations still locked into `tests/test_command_center_summary.py`, `tests/test_config_flow_device_runtime_overlay.py`, `tests/test_sensor_entity_categories.py`, and `tests/test_button_entity_categories.py`.
+- **suspected cause:** earlier Workstream B cleanup strengthened workspace ownership by adding `Managed Devices workspace`, but the shared fallback/save/device-page handoffs kept an intermediate wording pass that still narrated the workspace as `primary` instead of just sending operators there.
+- **repo fix:** this run removes the lingering `primary` narration from those shared handoffs so they now say `continue in the Managed Devices workspace` / `for the Managed Devices workspace`, and refreshes the focused regressions in the four affected test modules to lock the direct workspace wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_sensor_entity_categories tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/sensor.py custom_components/zero_net_export/button.py`.
+- **next action:** include this handoff-copy cleanup in the next exact-build deploy, then confirm the live command center, Configure follow-through, helper sensors, and device-page review path all name the Managed Devices workspace directly.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

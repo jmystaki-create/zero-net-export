@@ -595,7 +595,7 @@ def _managed_devices_post_blocker_step(
             "or opening Diagnostics."
         )
     return (
-        f"Open {DEVICES_CONFIGURE_PATH} to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
     )
 
 
@@ -707,7 +707,7 @@ def _managed_devices_workspace_handoff(
         )
         lines.extend(
             [
-                f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
+                f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
                 shortlist_step,
                 f"- In Promotion shortlist, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into Managed Devices.",
@@ -722,7 +722,7 @@ def _managed_devices_workspace_handoff(
         if has_managed_devices:
             lines.extend(
                 [
-                    f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
+                    f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
                     "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} only if you need deeper per-device review after the main fleet step is clear.",
                 ]
@@ -730,8 +730,8 @@ def _managed_devices_workspace_handoff(
         else:
             lines.extend(
                 [
-                    f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the primary Managed Devices workspace.",
-                    "- Add the first fixed or variable load in the primary Managed Devices workspace because no surfaced unmanaged candidate is available.",
+                    f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
+                    "- Add the first fixed or variable load in the Managed Devices workspace because no surfaced unmanaged candidate is available.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need deeper per-device review.",
                 ]
             )
@@ -961,7 +961,7 @@ def _build_managed_device_detail_lines(
         f"- Failure count: {int(detail.get('failed_action_count') or 0)}",
         "",
         "Next native actions:",
-        f"- Return to {DEVICES_CONFIGURE_PATH} in Configure for primary Managed Devices workspace edits, enablement, promotion, or removal.",
+        f"- Return to {DEVICES_CONFIGURE_PATH} in Configure for Managed Devices workspace edits, enablement, promotion, or removal.",
         "- Use this device's sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]

@@ -248,7 +248,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
+        self.assertIn("- Open devices path in Configure for the Managed Devices workspace.", handoff)
         self.assertIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn("- In Promotion shortlist, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need deeper per-device review.", handoff)
@@ -315,9 +315,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path in Configure for the primary Managed Devices workspace.", handoff)
+        self.assertIn("- Open devices path in Configure for the Managed Devices workspace.", handoff)
         self.assertIn(
-            "- Add the first fixed or variable load in the primary Managed Devices workspace because no surfaced unmanaged candidate is available.",
+            "- Add the first fixed or variable load in the Managed Devices workspace because no surfaced unmanaged candidate is available.",
             handoff,
         )
         self.assertNotIn("ready yet", "\n".join(handoff))
@@ -338,7 +338,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Reopen devices path in Configure for the primary Managed Devices workspace.", handoff)
+        self.assertIn("- Reopen devices path in Configure for the Managed Devices workspace.", handoff)
         self.assertIn(
             "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",
             handoff,
@@ -1059,7 +1059,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "- After repair: Open devices path to continue in the primary Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available.",
+            "- After repair: Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available.",
             lines,
         )
         self.assertNotIn(
@@ -1384,7 +1384,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last action age: 2m 5s", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
         self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
-        self.assertIn("Return to devices path in Configure for primary Managed Devices workspace edits, enablement, promotion, or removal.", message)
+        self.assertIn("Return to devices path in Configure for Managed Devices workspace edits, enablement, promotion, or removal.", message)
 
     def test_managed_device_detail_button_uses_workspace_fallback_when_no_next_step_exists(self) -> None:
         notification_calls: list[dict] = []
