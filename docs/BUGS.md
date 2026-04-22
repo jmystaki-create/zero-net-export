@@ -1964,6 +1964,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this empty-fleet deeper-review summary cleanup in the next exact-build deploy, then confirm the live Managed Devices descriptions keep the workspace-first split without re-expanding the device-page handoff into overlapping narration.
 
+## ZNE-158 - Managed Devices config-flow fallback still lagged the stronger workspace-first handoff
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing `custom_components/zero_net_export/config_flow.py` against the already-aligned command-center and helper-sensor steady-fleet handoffs
+- **current observed behavior:** the steady managed-fleet fallback in `ZeroNetExportOptionsFlow._device_next_step(...)` was still returning `Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning.` Even after the latest Workstream B cleanup, that left the Configure-side next-step summary softer than the matching command-center and sensor handoffs, which now explicitly say `Open ... to continue in the Managed Devices workspace...`.
+- **expected behavior:** the Configure fallback should use the same workspace-first wording as the opening command center and helper sensors so steady managed fleets keep one consistent native handoff across the product.
+- **evidence:** this run's repo audit found the weaker fallback still hard-coded in `custom_components/zero_net_export/config_flow.py`, while `custom_components/zero_net_export/native_support.py` and `sensor.py` had already moved to `Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there.` The focused regression in `tests/test_config_flow_device_runtime_overlay.py` was also still locking the older softer sentence into place.
+- **suspected cause:** the earlier steady-fleet wording pass tightened the opening command center and helper sensors first, but the parallel Configure fallback remained on the older non-path-specific phrasing.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` so the steady managed-fleet fallback now matches the stronger workspace-first handoff already used elsewhere, and refreshes `tests/test_config_flow_device_runtime_overlay.py` to lock the aligned wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this last steady-fleet Configure handoff cleanup in the next exact-build deploy, then confirm the live Managed Devices flow, command center, and helper sensors all keep the same workspace-first wording.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

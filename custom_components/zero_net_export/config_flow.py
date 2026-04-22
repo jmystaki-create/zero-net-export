@@ -2871,7 +2871,9 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return (
                 f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
             )
-        return "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning."
+        return (
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there."
+        )
 
     def _detailed_management_summary(self) -> str:
         command_center = build_native_command_center_summary(self._coordinator())

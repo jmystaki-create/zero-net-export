@@ -2904,7 +2904,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Use the Managed Devices workspace to stage enablement, or edit an existing device if the current fleet still needs tuning.",
+            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there.",
         )
 
     def test_device_next_step_keeps_managed_devices_workspace_wording_when_candidates_remain(self) -> None:
