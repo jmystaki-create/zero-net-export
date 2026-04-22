@@ -1926,6 +1926,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`.
 - **next action:** include this native-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices forms keep Configure primary while the device page reads as deeper review only.
 
+## ZNE-155 - Command-center attention context could duplicate the same device's plan row and crowd out the real active-runtime story
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `ui`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing `custom_components/zero_net_export/native_support.py` against Workstream A in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the opening `Fleet activity` strip was still over-reporting the same managed device when that device already owned the attention slot. In the distinct-device case, the summary could emit both `attention first Pool pump ...` and `plan Pool pump ...`, which spent scarce state-budget space repeating the same device and made it easier for the actually active runtime load to get crowded out of the top-board story.
+- **expected behavior:** when one device already owns the `attention first` slot, the command-center summary should not also spend another row on the same device's plan unless that same device is also the currently active runtime load. The top board should preserve the real attention-versus-active-runtime split first.
+- **evidence:** repo inspection on `7420396` showed `_build_command_center_fleet_activity_summary(...)` had special-case logic that expanded the attention label for shared attention/blocked/planned devices, but it still left the separate planned row visible in the distinct-device case. The focused regression in `tests/test_command_center_summary.py` now proves the repaired behavior: `attention first Pool pump (fixed | action turn_on)` stays visible, `active device Heated floor (variable | active 920 W)` stays visible, and the duplicate `plan Pool pump` row no longer appears when it would just restate the same attention-first device.
+- **suspected cause:** earlier Workstream A summary cleanup tried to enrich the attention label for overlap cases, but the command-center still treated `planned` as independently eligible even when the attention row already carried the same device context.
+- **repo fix:** `7420396` updates `custom_components/zero_net_export/native_support.py` so the command-center always uses the shared managed snapshot focus label for the attention row, removing the duplicate overlap branch that was letting the same device consume both the attention slot and a redundant planned slot. `tests/test_command_center_summary.py` now locks the distinct-device case and the still-valid active-same-device case in place.
+- **validation status:** repo-side fix verified by the focused regression coverage already updated in `tests/test_command_center_summary.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include `7420396` in the next exact-build deploy, then confirm the live Configure top board keeps the active runtime device visible whenever a different managed device owns the attention-first slot.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
