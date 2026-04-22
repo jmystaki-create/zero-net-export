@@ -1794,7 +1794,7 @@ def _command_center_device_status_with_unmanaged_context(
     if review_needed_count:
         summary += f"; {_count_label(review_needed_count, 'needs review', 'need review')}"
     if ready_candidate_count:
-        summary += f"; {_count_label(ready_candidate_count, 'ready to promote')}"
+        summary += f"; {_count_label(ready_candidate_count, 'ready to promote', 'ready to promote')}"
     if review_candidate_preview and review_candidate_name:
         summary += f"; review {review_candidate_preview}"
     if ready_candidate_preview and ready_candidate_name:
@@ -1819,7 +1819,7 @@ def _command_center_device_status_with_unmanaged_context(
         elif review_candidate_name:
             compact_parts.append(f"review {review_candidate_name}")
     if ready_candidate_count:
-        compact_parts.append(_count_label(ready_candidate_count, "ready to promote"))
+        compact_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
         if ready_candidate_preview:
             compact_parts.append(f"ready {ready_candidate_preview}")
         elif ready_candidate_name:
@@ -1899,7 +1899,7 @@ def _command_center_device_status_with_unmanaged_context(
     if review_needed_count:
         essential_parts.append(_count_label(review_needed_count, "needs review", "need review"))
     if ready_candidate_count:
-        essential_parts.append(_count_label(ready_candidate_count, "ready to promote"))
+        essential_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
     if review_candidate_preview:
         essential_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=48))
     elif review_candidate_name:
@@ -1926,7 +1926,7 @@ def _command_center_device_status_with_unmanaged_context(
             elif review_candidate_name:
                 single_kind_parts.append(f"review {review_candidate_name}")
         if ready_candidate_count:
-            single_kind_parts.append(_count_label(ready_candidate_count, "ready to promote"))
+            single_kind_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
             if ready_candidate_preview:
                 single_kind_parts.append(f"ready {ready_candidate_preview}")
             elif ready_candidate_name:
@@ -1970,7 +1970,7 @@ def _command_center_device_status_with_unmanaged_context(
             _clip_part(f"review {(review_candidate_preview or review_candidate_name)}", max_chars=36)
         )
     if ready_candidate_count:
-        minimal_parts.append(_count_label(ready_candidate_count, "ready to promote"))
+        minimal_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
         minimal_parts.append(
             _clip_part(f"ready {(ready_candidate_preview or ready_candidate_name)}", max_chars=36)
         )
