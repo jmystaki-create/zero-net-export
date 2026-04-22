@@ -887,6 +887,21 @@ def _first_runtime_device_detail(state: Any, *, predicate) -> dict[str, Any] | N
     return None
 
 
+def _first_distinct_runtime_device_detail(
+    state: Any,
+    *,
+    predicate,
+    excluded: tuple[dict[str, Any] | None, ...],
+) -> dict[str, Any] | None:
+    for detail in _ordered_runtime_device_details(state):
+        if not predicate(detail):
+            continue
+        if any(_same_runtime_device(detail, other) for other in excluded if other):
+            continue
+        return detail
+    return None
+
+
 def _runtime_device_has_blocked_activity(detail: dict[str, Any]) -> bool:
     planned_action = str(detail.get("planned_action") or "").strip().lower()
     if detail.get("usable") is False:
@@ -2026,6 +2041,11 @@ def _build_command_center_fleet_activity_summary(
         state,
         predicate=lambda detail: detail.get("observed_active") is True,
     )
+    active_focus_device = _first_distinct_runtime_device_detail(
+        state,
+        predicate=lambda detail: detail.get("observed_active") is True,
+        excluded=(first_attention_device, first_blocked_device, first_planned_device),
+    ) or first_active_device
     planned_activity_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_active_plan(detail))
         if state is not None
@@ -2076,9 +2096,16 @@ def _build_command_center_fleet_activity_summary(
                 if active_managed_count == 1
                 else f"{active_managed_count} active managed devices"
             )
-            if first_active_device and (not attention_device_count or not _same_runtime_device(first_active_device, first_attention_device)) and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(first_active_device, first_blocked_device))) and (not planned_activity_count or (first_planned_device and not _same_runtime_device(first_active_device, first_planned_device))):
+            if active_focus_device and (
+                active_focus_device is not first_active_device
+                or (
+                    (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
+                    and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                    and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
+                )
+            ):
                 summary_parts.append(
-                    f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}"
+                    f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}"
                 )
 
     if managed_count > 0:
@@ -2250,10 +2277,17 @@ def _build_command_center_fleet_activity_summary(
             if active_managed_count == 1
             else f"{active_managed_count} active managed devices"
         )
-        if first_active_device and (not attention_device_count or not _same_runtime_device(first_active_device, first_attention_device)) and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(first_active_device, first_blocked_device))) and (not planned_activity_count or (first_planned_device and not _same_runtime_device(first_active_device, first_planned_device))):
+        if active_focus_device and (
+            active_focus_device is not first_active_device
+            or (
+                (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
+                and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
+            )
+        ):
             minimal_parts.append(
                 _clip_part(
-                    f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}",
+                    f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}",
                     max_chars=72,
                 )
             )
@@ -2478,9 +2512,11 @@ def _build_command_center_fleet_activity_summary(
         and candidate_count <= 2
         and managed_count > 1
         and active_managed_count > 0
-        and first_active_device
-        and (not first_attention_device or not _same_runtime_device(first_active_device, first_attention_device))
-        and (not first_blocked_device or not _same_runtime_device(first_active_device, first_blocked_device))
+        and active_focus_device
+        and (active_focus_device is not first_active_device or (
+            (not first_attention_device or not _same_runtime_device(active_focus_device, first_attention_device))
+            and (not first_blocked_device or not _same_runtime_device(active_focus_device, first_blocked_device))
+        ))
     ):
         managed_unmanaged_split_parts: list[str] = []
         backlog_inserted = False
@@ -2619,10 +2655,17 @@ def _build_command_center_fleet_activity_summary(
             if active_managed_count == 1
             else f"{active_managed_count} active managed devices"
         )
-        if first_active_device and (not attention_device_count or not _same_runtime_device(first_active_device, first_attention_device)) and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(first_active_device, first_blocked_device))) and (not planned_activity_count or (first_planned_device and not _same_runtime_device(first_active_device, first_planned_device))):
+        if active_focus_device and (
+            active_focus_device is not first_active_device
+            or (
+                (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
+                and (not blocked_activity_count or (first_blocked_device and not _same_runtime_device(active_focus_device, first_blocked_device)))
+                and (not planned_activity_count or (first_planned_device and not _same_runtime_device(active_focus_device, first_planned_device)))
+            )
+        ):
             essential_parts.append(
                 _clip_part(
-                    f"active device {_command_center_managed_snapshot_focus_label(first_active_device)}",
+                    f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}",
                     max_chars=32,
                 )
             )
