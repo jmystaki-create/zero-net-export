@@ -2045,8 +2045,8 @@ def _build_command_center_fleet_activity_summary(
 
     if managed_count <= 0:
         summary_parts.append(_unmanaged_count_label(candidate_count))
-    if source_blocked:
-        summary_parts.append("repair sources first")
+        if source_blocked:
+            summary_parts.append("repair sources first")
 
     if managed_count > 0:
         if attention_device_count:
@@ -2088,6 +2088,8 @@ def _build_command_center_fleet_activity_summary(
 
     if managed_count > 0:
         summary_parts.append(_unmanaged_count_label(candidate_count))
+        if source_blocked:
+            summary_parts.append("repair sources first")
 
     if candidate_count:
         if fixed_candidate_count:
@@ -2202,8 +2204,8 @@ def _build_command_center_fleet_activity_summary(
 
     if managed_count <= 0:
         minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
-    if source_blocked:
-        minimal_parts.append("repair sources first")
+        if source_blocked:
+            minimal_parts.append("repair sources first")
 
     if managed_count > 0 and kind_known and variable_managed_count:
         minimal_parts.append(f"{fixed_managed_count} fixed managed")
@@ -2262,6 +2264,8 @@ def _build_command_center_fleet_activity_summary(
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     if managed_count > 0:
         minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
+        if source_blocked:
+            minimal_parts.append("repair sources first")
 
     if fixed_candidate_count and variable_candidate_count:
         minimal_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
@@ -2568,8 +2572,8 @@ def _build_command_center_fleet_activity_summary(
     essential_parts: list[str] = [_managed_count_label(managed_count)]
     if managed_count <= 0:
         essential_parts.append(_compact_unmanaged_count_label(candidate_count))
-    if source_blocked:
-        essential_parts.append("repair sources first")
+        if source_blocked:
+            essential_parts.append("repair sources first")
     if first_attention_device:
         essential_parts.append(
             _clip_part(
@@ -2605,6 +2609,8 @@ def _build_command_center_fleet_activity_summary(
             )
     if managed_count > 0:
         essential_parts.append(_compact_unmanaged_count_label(candidate_count))
+        if source_blocked:
+            essential_parts.append("repair sources first")
     if fixed_candidate_count and variable_candidate_count:
         essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))

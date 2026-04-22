@@ -1632,6 +1632,79 @@ class CommandCenterSummaryTests(unittest.TestCase):
             )
         )
 
+    def test_command_center_summary_keeps_managed_unmanaged_split_ahead_of_source_repair_note(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Repair the mapped-source blockers first.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [native_support.CONF_GRID_EXPORT_POWER_ENTITY],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "Grid export power is unavailable"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "Grid export power"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources need attention"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Grid export: sensor.grid_export_power"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [{"name": "AC Outlet 2", "entity_id": "switch.ac_outlet_2", "kind": "fixed"}],
+            "AC Outlet 2",
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Needs attention",
+            diagnostic_summary="Needs attention",
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            blocked_planned_action_count=1,
+            device_details={
+                "pool": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                },
+                "heater": {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920,
+                    "planned_action": "hold",
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLess(
+            summary["fleet_activity_summary"].index("attention first Pool pump"),
+            summary["fleet_activity_summary"].index("1 unmanaged backlog"),
+        )
+        self.assertLess(
+            summary["fleet_activity_summary"].index("1 unmanaged backlog"),
+            summary["fleet_activity_summary"].index("repair sources first"),
+        )
+        self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
+        self.assertIn("review AC Outlet 2", summary["fleet_activity_summary"])
+
     def test_command_center_summary_prefers_top_candidate_preview_for_empty_fleet_next_step(self) -> None:
         native_support = _load_native_support_module()
 
