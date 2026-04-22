@@ -2030,6 +2030,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_button_entity_categories tests.test_source_repair_guidance`, `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/button.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this workspace-first handoff cleanup in the next exact-build deploy, then confirm the live command center, Managed Devices helper sensors, Configure follow-through, and device-page fallback all keep `continue in the Managed Devices workspace` instead of the older `review ... workspace` phrasing.
 
+## ZNE-163 - Empty-fleet attention helper still leaked review-first and repair narration instead of grouped workspace signals
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensor`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing `sensor.zero_net_export_managed_fleet_attention` against the latest Workstream A/B wording cleanup in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** even after the latest command-center, Configure, and helper-sensor cleanup, the empty-fleet `managed_fleet_attention` sensor still fell back to `Repair sources first before returning to Managed Devices` and `Review Managed Devices workspace first: ...`. That kept one parallel helper surface on older helper-style narration instead of the grouped operational signal plus workspace-first wording now used elsewhere.
+- **expected behavior:** when the fleet is empty, the attention helper should use the same concise grouped signal as the opening console (`source blockers active`) and should tell operators to start in the unmanaged section of the Managed Devices workspace instead of telling them to review it first.
+- **evidence:** this run's repo audit found those stale strings still hard-coded in `custom_components/zero_net_export/sensor.py`, with matching expectations in `tests/test_sensor_entity_categories.py`.
+- **suspected cause:** the recent Workstream A/B cleanup updated the main command-center and next-step helpers first, but this narrower empty-fleet attention branch in `managed_fleet_attention` was missed.
+- **repo fix:** this run updates `custom_components/zero_net_export/sensor.py` so the empty-fleet attention helper now reports `No managed devices yet | source blockers active` when source repair still blocks fleet work, and `No managed devices yet | Managed Devices workspace: start in the unmanaged section ...` when surfaced unmanaged review is the real next step. `tests/test_sensor_entity_categories.py` now locks both strings in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this helper-sensor wording cleanup in the next exact-build deploy, then confirm the live empty-fleet attention helper keeps the grouped source-blocker signal and workspace-first unmanaged handoff.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

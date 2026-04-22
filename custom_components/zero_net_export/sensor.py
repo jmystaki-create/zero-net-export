@@ -834,10 +834,11 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             if self._key == "managed_fleet_attention":
                 if counts["managed_count"] == 0:
                     if source_blocked:
-                        return "Repair sources first before returning to Managed Devices"
+                        return _truncate_sensor_state(f"No managed devices yet | {SOURCE_BLOCKER_ACTIVE_LABEL}")
                     if review_candidate_name:
                         return _truncate_sensor_state(
-                            f"No managed devices yet | Review Managed Devices workspace first: {review_candidate_preview or review_candidate_name}"
+                            "No managed devices yet | Managed Devices workspace: "
+                            f"start in the unmanaged section: {review_candidate_preview or review_candidate_name}"
                         )
                     return "No managed devices yet"
                 attention_parts = []

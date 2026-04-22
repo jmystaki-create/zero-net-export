@@ -194,7 +194,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             sensor.native_value,
-            "Repair sources first before returning to Managed Devices",
+            "No managed devices yet | source blockers active",
         )
 
     def test_managed_fleet_attention_uses_bucket_first_clear_state_when_no_attention_remains(self) -> None:
@@ -245,7 +245,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             sensor.native_value,
-            "No managed devices yet | Review Managed Devices workspace first: Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
+            "No managed devices yet | Managed Devices workspace: start in the unmanaged section: Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
         )
 
     def test_managed_overview_sensor_uses_managed_devices_label(self) -> None:
