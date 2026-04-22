@@ -162,6 +162,66 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("configured device available", summary["device_status"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
 
+    def test_command_center_summary_preserves_control_metrics_when_reason_text_is_long(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Monitoring export drift before acting.",
+            control_reason=" ".join(["Waiting for the long-running device guard and export hysteresis review."] * 8),
+            control_summary=" ".join(["Managed fleet outcome remains queued while runtime notes continue to stream."] * 8),
+            export_error_w=350.0,
+            planned_action_count=2,
+            executable_action_count=1,
+            active_controlled_power_w=1200.0,
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1200.0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("mode monitoring", summary["control_decision_summary"])
+        self.assertIn("target", summary["control_decision_summary"])
+        self.assertIn("error 350.0 W", summary["control_decision_summary"])
+        self.assertNotEqual(summary["control_decision_summary"], "mode monitoring")
+        self.assertIn("planned actions 2", summary["control_outcome_summary"])
+        self.assertIn("executable 1", summary["control_outcome_summary"])
+        self.assertIn("active load 1200.0 W", summary["control_outcome_summary"])
+        self.assertNotEqual(
+            summary["control_outcome_summary"],
+            "Control outcome will appear here after runtime loads.",
+        )
+        self.assertLessEqual(len(summary["control_decision_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertLessEqual(len(summary["control_outcome_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
         native_support = _load_native_support_module()
 

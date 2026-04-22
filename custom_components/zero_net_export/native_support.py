@@ -248,6 +248,75 @@ def _truncate_state_summary(text: str, *, fallback: str) -> str:
     return fallback
 
 
+def _clip_state_part(text: str, *, max_chars: int) -> str:
+    normalized = " ".join(str(text).split())
+    if len(normalized) <= max_chars:
+        return normalized
+    if max_chars <= 3:
+        return normalized[:max_chars]
+    return normalized[: max_chars - 3].rstrip() + "..."
+
+
+def _compact_control_decision_summary(
+    *,
+    current_mode: str,
+    target_export_w: int,
+    export_error_w: Any,
+    control_reason: str,
+) -> str:
+    base_parts = [
+        f"mode {current_mode}",
+        f"target {target_export_w} W",
+        f"error {export_error_w} W" if export_error_w is not None else None,
+    ]
+    detail = str(control_reason or "").strip() or None
+    full_summary = " | ".join(part for part in [*base_parts, detail] if part is not None)
+    if full_summary and len(full_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return full_summary
+    metrics_summary = " | ".join(part for part in base_parts if part is not None)
+    if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return metrics_summary
+    if detail:
+        clipped_detail = _clip_state_part(detail, max_chars=96)
+        clipped_summary = " | ".join(part for part in [*base_parts, clipped_detail] if part is not None)
+        if clipped_summary and len(clipped_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return clipped_summary
+        if clipped_detail and len(clipped_detail) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return clipped_detail
+    return f"mode {current_mode}"
+
+
+
+def _compact_control_outcome_summary(
+    *,
+    control_summary: str,
+    planned_action_count: Any,
+    executable_action_count: Any,
+    active_controlled_power_w: Any,
+) -> str:
+    detail = str(control_summary or "").strip() or None
+    metric_parts = [
+        f"planned actions {planned_action_count}" if planned_action_count is not None else None,
+        f"executable {executable_action_count}" if executable_action_count is not None else None,
+        f"active load {active_controlled_power_w} W" if active_controlled_power_w is not None else None,
+    ]
+    full_summary = " | ".join(part for part in [detail, *metric_parts] if part is not None)
+    if full_summary and len(full_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return full_summary
+    metrics_summary = " | ".join(part for part in metric_parts if part is not None)
+    if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return metrics_summary
+    if detail:
+        clipped_detail = _clip_state_part(detail, max_chars=96)
+        if metrics_summary:
+            clipped_summary = f"{metrics_summary} | {clipped_detail}"
+            if len(clipped_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return clipped_summary
+        if len(clipped_detail) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return clipped_detail
+    return "Control outcome will appear here after runtime loads."
+
+
 def _compact_top_alert_summary(*variants: list[str], fallback: str) -> str:
     for variant in variants:
         summary = " | ".join(str(part).strip() for part in variant if str(part).strip())
@@ -1567,6 +1636,23 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
     """Return the basic setup focused command-center guide text."""
     alert_summary = _normalize_native_path_text(command_center.get("alert_summary"))
     next_action_summary = _normalize_native_path_text(command_center.get("next_action_summary"))
+    has_detailed_source_blockers = any(
+        str(command_center.get(key) or "").strip() not in {"", "None"}
+        for key in ("unavailable_sources", "stale_sources", "source_attention_roles", "blocking_validation_details")
+    )
+    now_lines = [
+        "Now",
+        f"- Headline decision: {command_center.get('headline_decision')}",
+        f"- Alerts: {alert_summary}",
+        f"- Recommended next step: {next_action_summary}",
+    ]
+    if has_detailed_source_blockers:
+        now_lines.extend(
+            [
+                f"- Recommended section: {command_center.get('recommended_section')}",
+                f"- Recommended path: {command_center.get('recommended_path')}",
+            ]
+        )
     return "\n".join(
         [
             "Zero Net Export command center",
@@ -1575,10 +1661,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "Finish source mapping and core control checks here.",
             "When the next step moves into fleet work, continue in the Managed Devices workspace.",
             "",
-            "Now",
-            f"- Headline decision: {command_center.get('headline_decision')}",
-            f"- Alerts: {alert_summary}",
-            f"- Recommended next step: {next_action_summary}",
+            *now_lines,
             "",
             "Structured control board",
             f"- Energy state: {command_center.get('energy_state_summary')}",
@@ -3372,31 +3455,17 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         ) or "Energy state will appear here after runtime loads.",
         fallback="Energy state will appear here after runtime loads.",
     )
-    control_decision_summary = _truncate_state_summary(
-        " | ".join(
-            part
-            for part in [
-                f"mode {current_mode}",
-                f"target {int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W)} W",
-                f"error {getattr(state, 'export_error_w', None)} W" if state is not None and getattr(state, 'export_error_w', None) is not None else None,
-                str(getattr(state, 'control_reason', '') or '').strip() or None,
-            ]
-            if part is not None
-        ) or f"mode {current_mode}",
-        fallback=f"mode {current_mode}",
+    control_decision_summary = _compact_control_decision_summary(
+        current_mode=current_mode,
+        target_export_w=int(merged.get(CONF_TARGET_EXPORT_W, DEFAULT_TARGET_EXPORT_W) or DEFAULT_TARGET_EXPORT_W),
+        export_error_w=getattr(state, 'export_error_w', None) if state is not None else None,
+        control_reason=str(getattr(state, 'control_reason', '') or '').strip(),
     )
-    control_outcome_summary = _truncate_state_summary(
-        " | ".join(
-            part
-            for part in [
-                str(getattr(state, 'control_summary', '') or '').strip() or None,
-                f"planned actions {getattr(state, 'planned_action_count', None)}" if state is not None and getattr(state, 'planned_action_count', None) is not None else None,
-                f"executable {getattr(state, 'executable_action_count', None)}" if state is not None and getattr(state, 'executable_action_count', None) is not None else None,
-                f"active load {getattr(state, 'active_controlled_power_w', None)} W" if state is not None and getattr(state, 'active_controlled_power_w', None) is not None else None,
-            ]
-            if part is not None
-        ) or "Control outcome will appear here after runtime loads.",
-        fallback="Control outcome will appear here after runtime loads.",
+    control_outcome_summary = _compact_control_outcome_summary(
+        control_summary=str(getattr(state, 'control_summary', '') or '').strip(),
+        planned_action_count=getattr(state, 'planned_action_count', None) if state is not None else None,
+        executable_action_count=getattr(state, 'executable_action_count', None) if state is not None else None,
+        active_controlled_power_w=getattr(state, 'active_controlled_power_w', None) if state is not None else None,
     )
     fleet_activity_summary = _truncate_state_summary(
         _prefer_review_ready_over_large_kind_mix(
