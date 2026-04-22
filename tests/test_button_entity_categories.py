@@ -437,9 +437,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Managed Devices workspace in Configure: devices path", message)
-        self.assertIn("Secondary device-page review path: detailed device path", message)
+        self.assertIn("Deeper device-page review path: detailed device path", message)
         self.assertIn(
-            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
+            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",
             message,
         )
         self.assertIn("Before fleet work:", message)
@@ -487,7 +487,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Then reopen devices path for Managed Devices.", message)
         self.assertIn("- Use detailed device path only for deeper per-device review after the main fleet step is clear.", message)
         self.assertIn(
-            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
+            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",
             message,
         )
 
@@ -758,9 +758,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("entity=switch.pool_pump", message)
         self.assertIn("Currently surfaced unmanaged candidates:", message)
         self.assertIn("- Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
-        self.assertIn("Secondary device-page audit path: detailed device path", message)
+        self.assertIn("Deeper device-page audit path: detailed device path", message)
         self.assertIn(
-            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
+            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",
             message,
         )
         self.assertIn("Use the per-device Review buttons on the Zero Net Export device page when you need a deeper audit trail for one managed device.", message)
@@ -772,7 +772,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Then reopen devices path for Managed Devices.", message)
         self.assertIn("- Use detailed device path only for deeper per-device review after the main fleet step is clear.", message)
         self.assertIn(
-            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
+            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",
             message,
         )
 
@@ -830,7 +830,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(
             attrs["workspace_boundary"],
-            "Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
+            "Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",
         )
         self.assertEqual(attrs["unmanaged_candidate_count"], 1)
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "number.ev_limit")
@@ -844,7 +844,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
         self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
         self.assertIn(
-            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
+            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",
             attrs["promotion_handoff"],
         )
 

@@ -1939,6 +1939,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_sensor_entity_categories tests.test_command_center_summary`, `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/sensor.py tests/test_config_flow_device_runtime_overlay.py tests/test_sensor_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include `7420396` plus this follow-on workspace/sensor alignment in the next exact-build deploy, then confirm the live Configure top board and Managed Devices workspace keep the distinct active runtime device visible whenever a different managed device owns the attention-first slot.
 
+## ZNE-156 - Device-page handoffs still framed the deeper review path as `secondary`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing device-page handoff wording against `docs/UI_DESIGN.md` and Workstreams B/E in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** even after the recent Managed Devices wording cleanup, the repo still had operator-facing handoffs calling the Zero Net Export device page a `secondary device-page review path` or `secondary review and handoff`. That wording understated the documented native device path and made the deeper review surface sound like a lesser fallback instead of the intended deeper native review path under Home Assistant.
+- **expected behavior:** Configure should remain the Managed Devices workspace, while the device page should be described consistently as the deeper device-page review path and handoff surface.
+- **evidence:** `rg -n "secondary device-page review path|secondary review and handoff" custom_components/zero_net_export/{native_support.py,config_flow.py,button.py} tests/test_{button_entity_categories,config_flow_device_runtime_overlay}.py` found the stale wording still present in repo state on this run.
+- **suspected cause:** earlier wording cleanup removed most `main/secondary` narration from strings and notifications first, but the deeper-review helper builders and fallback copy kept the older `secondary` phrasing.
+- **repo fix:** this run updates `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/config_flow.py`, and `custom_components/zero_net_export/button.py` so those handoffs now say `deeper device-page review path` / `deeper review and handoff`, and refreshes the focused regressions in `tests/test_button_entity_categories.py` and `tests/test_config_flow_device_runtime_overlay.py` to lock that wording in place.
+- **validation status:** repo-side fix verified in this run with the focused test and compile gates listed below; live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this device-page handoff wording cleanup in the next exact-build deploy, then confirm the live Configure and device-page paths keep the intended workspace-versus-deeper-review split without `secondary` wording drift.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

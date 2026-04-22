@@ -662,7 +662,7 @@ def _first_ready_candidate(candidates: list[dict] | None) -> dict | None:
 def _managed_devices_workspace_boundary() -> str:
     return (
         f"Make promotion, enablement, removal, and other fleet edits in {DEVICES_CONFIGURE_PATH}; "
-        "use the device page only for secondary review and handoff."
+        "use the device page only for deeper review and handoff."
     )
 
 
@@ -835,7 +835,7 @@ def _build_managed_device_detail_lines(
         "Zero Net Export managed-device detail review",
         "",
         f"Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
-        f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
+        f"Deeper device-page audit path: {DETAILED_MANAGEMENT_PATH}",
         f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
         "",
@@ -1106,7 +1106,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'Zero Net Export managed devices workspace',
             '',
             f'Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
-            f'Secondary device-page review path: {DETAILED_MANAGEMENT_PATH}',
+            f'Deeper device-page review path: {DETAILED_MANAGEMENT_PATH}',
             f'Device-page boundary: {_managed_devices_workspace_boundary()}',
             f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),
@@ -1283,7 +1283,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "Zero Net Export managed devices review",
             "",
             f"Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
-            f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
+            f"Deeper device-page audit path: {DETAILED_MANAGEMENT_PATH}",
             f"Device-page boundary: {_managed_devices_workspace_boundary()}",
             f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
             *(["", *blocker_first_lines] if blocker_first_lines else []),
