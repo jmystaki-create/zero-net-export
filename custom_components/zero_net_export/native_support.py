@@ -2104,11 +2104,12 @@ def _build_command_center_fleet_activity_summary(
                 f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
             )
         if blocked_activity_count:
-            summary_parts.append(
-                f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
-                if first_blocked_device
-                else _blocked_activity_count_label(blocked_activity_count)
-            )
+            if blocked_activity_count > 1 or not first_blocked_device:
+                summary_parts.append(_blocked_activity_count_label(blocked_activity_count))
+            if first_blocked_device:
+                summary_parts.append(
+                    f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
+                )
         if planned_activity_count:
             summary_parts.append(
                 _planned_action_count_label(planned_activity_count)
@@ -2278,15 +2279,16 @@ def _build_command_center_fleet_activity_summary(
                 max_chars=72,
             )
         )
-    if first_blocked_device:
-        minimal_parts.append(
-            _clip_part(
-                f"blocked {_command_center_fleet_focus_label(first_blocked_device)}",
-                max_chars=72,
+    if blocked_activity_count:
+        if blocked_activity_count > 1 or not first_blocked_device:
+            minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
+        if first_blocked_device:
+            minimal_parts.append(
+                _clip_part(
+                    f"blocked {_command_center_fleet_focus_label(first_blocked_device)}",
+                    max_chars=72,
+                )
             )
-        )
-    elif blocked_activity_count:
-        minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
 
     if planned_activity_count:
         minimal_parts.append(_planned_action_count_label(planned_activity_count))
@@ -2666,14 +2668,15 @@ def _build_command_center_fleet_activity_summary(
             )
         )
     if blocked_activity_count:
-        essential_parts.append(
-            _clip_part(
-                f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
-                if first_blocked_device
-                else _blocked_activity_count_label(blocked_activity_count),
-                max_chars=32,
+        if blocked_activity_count > 1 or not first_blocked_device:
+            essential_parts.append(_blocked_activity_count_label(blocked_activity_count))
+        if first_blocked_device:
+            essential_parts.append(
+                _clip_part(
+                    f"blocked {_command_center_fleet_focus_label(first_blocked_device)}",
+                    max_chars=32,
+                )
             )
-        )
     if planned_activity_count:
         essential_parts.append(_planned_action_count_label(planned_activity_count))
     if active_managed_count > 0:
