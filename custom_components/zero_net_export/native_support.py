@@ -968,10 +968,13 @@ def _command_center_managed_snapshot_focus_label(detail: dict[str, Any] | None) 
             parts.append(f"action {planned_action}")
     elif _runtime_device_has_recent_attention(detail) and detail.get("last_action_status"):
         parts.append(f"last {detail.get('last_action_status')}")
-    if detail.get("observed_active") is True and detail.get("current_power_w") not in (None, ""):
-        active_power = f"active {float(detail.get('current_power_w') or 0):g} W"
-        if active_power not in parts:
-            parts.append(active_power)
+    if detail.get("observed_active") is True:
+        if detail.get("current_power_w") not in (None, ""):
+            active_power = f"active {float(detail.get('current_power_w') or 0):g} W"
+            if active_power not in parts:
+                parts.append(active_power)
+        elif "active" not in parts:
+            parts.append("active")
     return f"{name} ({' | '.join(parts)})" if parts else name
 
 
@@ -2070,8 +2073,9 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(
                 f"plan {_command_center_fleet_focus_label(first_planned_device, include_plan_context=True)}"
             )
-        if active_managed_power_w > 0:
-            summary_parts.append(f"active load {active_managed_power_w:g} W")
+        if active_managed_count > 0:
+            if active_managed_power_w > 0:
+                summary_parts.append(f"active load {active_managed_power_w:g} W")
             summary_parts.append(
                 "1 active managed device"
                 if active_managed_count == 1
@@ -2239,8 +2243,9 @@ def _build_command_center_fleet_activity_summary(
                 )
             )
 
-    if active_managed_power_w > 0:
-        minimal_parts.append(f"active load {active_managed_power_w:g} W")
+    if active_managed_count > 0:
+        if active_managed_power_w > 0:
+            minimal_parts.append(f"active load {active_managed_power_w:g} W")
         minimal_parts.append(
             "1 active managed device"
             if active_managed_count == 1
@@ -2583,8 +2588,9 @@ def _build_command_center_fleet_activity_summary(
         )
     if planned_activity_count:
         essential_parts.append(_planned_action_count_label(planned_activity_count))
-    if active_managed_power_w > 0:
-        essential_parts.append(f"active load {active_managed_power_w:g} W")
+    if active_managed_count > 0:
+        if active_managed_power_w > 0:
+            essential_parts.append(f"active load {active_managed_power_w:g} W")
         essential_parts.append(
             "1 active managed device"
             if active_managed_count == 1
