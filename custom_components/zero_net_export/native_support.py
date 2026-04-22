@@ -3272,9 +3272,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         SOURCES_SECTION_LABEL: (
             f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
         ),
-        DEVICES_SECTION_LABEL: (
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace."
-        ),
+        DEVICES_SECTION_LABEL: device_next_step,
         POLICY_SECTION_LABEL: (
             f"Open {POLICY_CONFIGURE_PATH} to continue in Controls and tune target export, deadband, reserve, or live mode."
         ),
