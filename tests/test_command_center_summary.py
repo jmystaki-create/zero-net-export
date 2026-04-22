@@ -661,8 +661,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("1 ready to promote", summary["fleet_activity_summary"])
-        self.assertIn("review Garage subboard auxili", summary["fleet_activity_summary"])
-        self.assertIn("ready Pool plant room contact", summary["fleet_activity_summary"])
+        self.assertIn("review Garage subboard au", summary["fleet_activity_summary"])
+        self.assertIn("ready Pool plant room con", summary["fleet_activity_summary"])
 
     def test_command_center_summary_keeps_candidate_kind_mix_when_overflow_compacts(self) -> None:
         native_support = _load_native_support_module()
@@ -4213,6 +4213,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("active load 5300 W", summary["fleet_activity_summary"])
         self.assertIn("active device EV char", summary["fleet_activity_summary"])
         self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertIn("fixed backlog 1 review", summary["fleet_activity_summary"])
+        self.assertIn("variable backlog 1 ready", summary["fleet_activity_summary"])
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("1 ready to promote", summary["fleet_activity_summary"])
         self.assertIn("review Garage subboard", summary["fleet_activity_summary"])

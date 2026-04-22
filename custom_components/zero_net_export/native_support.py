@@ -2538,6 +2538,11 @@ def _build_command_center_fleet_activity_summary(
         if backlog_parts and bool(fixed_candidate_count) != bool(variable_candidate_count)
         else single_kind_backlog_parts if single_kind_backlog_parts and not backlog_parts else []
     )
+    preserve_compact_kind_backlog = bool(
+        backlog_parts and fixed_candidate_count <= 5 and variable_candidate_count <= 5
+    )
+    if preserve_compact_kind_backlog:
+        minimal_parts.extend(backlog_parts)
 
     if review_needed_count:
         minimal_parts.append(
@@ -2893,6 +2898,11 @@ def _build_command_center_fleet_activity_summary(
     if fixed_candidate_count and variable_candidate_count:
         essential_parts.append(_count_label(fixed_candidate_count, "fixed candidate"))
         essential_parts.append(_count_label(variable_candidate_count, "variable candidate"))
+    preserve_compact_kind_backlog = bool(
+        backlog_parts and fixed_candidate_count <= 5 and variable_candidate_count <= 5
+    )
+    if preserve_compact_kind_backlog:
+        essential_parts.extend(backlog_parts)
     if review_needed_count:
         essential_parts.append(
             "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
@@ -3019,9 +3029,9 @@ def _build_command_center_fleet_activity_summary(
             part
             for part in active_story_parts
             if not (
-                _matches_count_label(part, "needs review", "need review")
-                or _matches_count_label(part, "ready to promote")
-                or _matches_count_label(part, "active managed device", "active managed devices")
+                _matches_count_label(part, "active managed device", "active managed devices")
+                or part.endswith(" managed device needs attention")
+                or part.endswith(" managed devices need attention")
             )
         ]
         story_backlog_parts = backlog_parts or single_kind_overflow_backlog_parts or single_kind_backlog_parts
@@ -3041,6 +3051,16 @@ def _build_command_center_fleet_activity_summary(
             focused_active_story_parts = [
                 part for part in focused_active_story_parts if part != SOURCE_BLOCKER_ACTIVE_LABEL
             ]
+        focused_active_story_parts = [
+            _clip_part(part, max_chars=28)
+            if part.startswith(("attention first ", "blocked ", "plan ", "active device "))
+            else _clip_part(part, max_chars=25)
+            if part.startswith("review ")
+            else _clip_part(part, max_chars=22)
+            if part.startswith("ready ")
+            else part
+            for part in focused_active_story_parts
+        ]
         focused_active_story_summary = " | ".join(focused_active_story_parts)
         if focused_active_story_summary and len(focused_active_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return focused_active_story_summary
@@ -3050,9 +3070,9 @@ def _build_command_center_fleet_activity_summary(
         if (
             _matches_count_label(part, "fixed candidate")
             or _matches_count_label(part, "variable candidate")
-            or _matches_count_label(part, "needs review", "need review")
-            or _matches_count_label(part, "ready to promote")
             or _matches_count_label(part, "active managed device", "active managed devices")
+            or part.endswith(" managed device needs attention")
+            or part.endswith(" managed devices need attention")
             or part.startswith(("surfaced ", "enabled ", "usable "))
             or part.endswith(" W nominal")
         ):
@@ -3077,6 +3097,42 @@ def _build_command_center_fleet_activity_summary(
     operator_story_summary = " | ".join(operator_story_parts)
     if operator_story_summary and len(operator_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return operator_story_summary
+
+    compact_operator_story_source_parts = list(operator_story_parts)
+    for duplicate_prefix, duplicate_active in (
+        ("blocked ", duplicate_attention_blocked),
+        ("plan ", duplicate_attention_planned),
+    ):
+        if duplicate_active:
+            for index, part in enumerate(list(compact_operator_story_source_parts)):
+                if part.startswith(duplicate_prefix):
+                    del compact_operator_story_source_parts[index]
+                    break
+    compact_operator_story_parts = [
+        _clip_part(part, max_chars=30)
+        if part.startswith(("attention first ", "blocked ", "plan ", "active device "))
+        else _clip_part(part, max_chars=25)
+        if part.startswith("review ")
+        else _clip_part(part, max_chars=22)
+        if part.startswith("ready ")
+        else part
+        for part in compact_operator_story_source_parts
+    ]
+    compact_operator_story_summary = " | ".join(compact_operator_story_parts)
+    if SOURCE_BLOCKER_ACTIVE_LABEL in compact_operator_story_parts:
+        compact_operator_story_without_source_blockers = [
+            part for part in compact_operator_story_parts if part != SOURCE_BLOCKER_ACTIVE_LABEL
+        ]
+        compact_operator_story_without_source_blockers_summary = " | ".join(
+            compact_operator_story_without_source_blockers
+        )
+        if (
+            compact_operator_story_without_source_blockers_summary
+            and len(compact_operator_story_without_source_blockers_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+        ):
+            return compact_operator_story_without_source_blockers_summary
+    if compact_operator_story_summary and len(compact_operator_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compact_operator_story_summary
 
     if single_kind_overflow_backlog_parts and candidate_count > 1:
         compact_single_kind_backlog_parts = [
