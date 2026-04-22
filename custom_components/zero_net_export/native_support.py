@@ -2952,7 +2952,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
     else:
         device_status = _command_center_device_status_with_unmanaged_context(
-            "Managed Devices: no managed devices configured yet",
+            "Managed Devices: no managed yet",
             managed_count=0,
             candidate_count=candidate_count,
             fixed_candidate_count=fixed_candidate_count,
@@ -3166,7 +3166,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
             device_alert = f"Managed Devices: {attention_target}"
         elif not has_managed_devices:
-            device_alert = "Managed Devices: no managed devices configured yet."
+            device_alert = "Managed Devices: no managed yet."
 
         if review_needed_count:
             review_target = review_candidate_preview or review_candidate_name or "the first unmanaged candidate"
