@@ -16,7 +16,7 @@ blocker: supervisor-state ranking drift; the unchanged six-file live exact-build
 user_action: none until the audit either identifies one specific higher-priority remaining A-D/F defect or confirms that no such repo-side gap remains and the project is truly back at an explicit James approval boundary
 
 # One short durable constraint
-notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, keep `0.1.86` as the current live correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated, and treat the unchanged divergent live `0.1.87` install as release drift rather than as the default next-step ranking while implementation-map runway still exists.
+notes: keep native Home Assistant surfaces as the primary operator path, treat manual entity-ID fields only as a fallback when Home Assistant selector validation rejects a valid choice, keep version tracking explicit across local repo state, remote GitHub state, and public release state, keep `0.1.86` as the current live correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated, and treat the unchanged six-file live exact-build mismatch as release drift rather than as the default next-step ranking while implementation-map runway still exists.
 
 # Last time this file materially changed
-last_modified: 2026-04-22 10:10
+last_modified: 2026-04-22 10:45
