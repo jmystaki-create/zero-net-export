@@ -211,10 +211,14 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("mode monitoring", summary["control_decision_summary"])
         self.assertIn("target", summary["control_decision_summary"])
         self.assertIn("error 350.0 W", summary["control_decision_summary"])
+        self.assertIn("Waiting for the long-running device guard", summary["control_decision_summary"])
+        self.assertIn("...", summary["control_decision_summary"])
         self.assertNotEqual(summary["control_decision_summary"], "mode monitoring")
         self.assertIn("planned actions 2", summary["control_outcome_summary"])
         self.assertIn("executable 1", summary["control_outcome_summary"])
         self.assertIn("active load 1200.0 W", summary["control_outcome_summary"])
+        self.assertIn("Managed fleet outcome remains queued", summary["control_outcome_summary"])
+        self.assertIn("...", summary["control_outcome_summary"])
         self.assertNotEqual(
             summary["control_outcome_summary"],
             "Control outcome will appear here after runtime loads.",

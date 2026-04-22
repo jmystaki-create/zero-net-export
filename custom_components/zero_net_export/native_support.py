@@ -274,15 +274,17 @@ def _compact_control_decision_summary(
     if full_summary and len(full_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return full_summary
     metrics_summary = " | ".join(part for part in base_parts if part is not None)
-    if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
-        return metrics_summary
     if detail:
         clipped_detail = _clip_state_part(detail, max_chars=96)
         clipped_summary = " | ".join(part for part in [*base_parts, clipped_detail] if part is not None)
         if clipped_summary and len(clipped_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return clipped_summary
+        if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return metrics_summary
         if clipped_detail and len(clipped_detail) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return clipped_detail
+    if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return metrics_summary
     return f"mode {current_mode}"
 
 
@@ -304,16 +306,18 @@ def _compact_control_outcome_summary(
     if full_summary and len(full_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return full_summary
     metrics_summary = " | ".join(part for part in metric_parts if part is not None)
-    if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
-        return metrics_summary
     if detail:
         clipped_detail = _clip_state_part(detail, max_chars=96)
         if metrics_summary:
             clipped_summary = f"{metrics_summary} | {clipped_detail}"
             if len(clipped_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
                 return clipped_summary
+        if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return metrics_summary
         if len(clipped_detail) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return clipped_detail
+    if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return metrics_summary
     return "Control outcome will appear here after runtime loads."
 
 
