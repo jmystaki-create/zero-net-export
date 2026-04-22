@@ -1499,7 +1499,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | no unmanaged candidates | 1 managed device needs attention | plan Pool pump | active load 920 W | 1 active managed device | active device Heated floor (variable | active 920 W) | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
+            "2 managed | no unmanaged candidates | 1 managed device needs attention | 1 active plan | active load 920 W | 1 active managed device | active device Heated floor (variable | active 920 W) | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
         )
 
     def test_managed_fleet_overview_surfaces_active_managed_load_and_count(self) -> None:
@@ -1575,7 +1575,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             overview.native_value,
-            "2 managed | no unmanaged candidates | 1 managed device needs attention | plan Pool pump | 1 active managed device | active device Heated floor (variable | active) | 2 enabled | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
+            "2 managed | no unmanaged candidates | 1 managed device needs attention | 1 active plan | 1 active managed device | active device Heated floor (variable | active) | 2 enabled | 2 usable | 1 fixed managed | 1 variable managed | 3385 W nominal",
         )
 
     def test_managed_fleet_overview_surfaces_failed_only_attention_before_steady_rows(self) -> None:

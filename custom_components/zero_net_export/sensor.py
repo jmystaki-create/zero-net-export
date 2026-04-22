@@ -817,6 +817,13 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 ),
                 None,
             )
+            suppress_planned_focus = bool(
+                first_planned_detail
+                and first_attention_detail
+                and first_active_detail
+                and _same_managed_detail(first_planned_detail, first_attention_detail)
+                and not _same_managed_detail(first_planned_detail, first_active_detail)
+            )
             merged = _merged_entry_config(self.coordinator.entry)
             blocking_source_summary = build_source_attention_summary(state, merged, limit=2, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=1)
@@ -967,7 +974,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 )
             if counts["planned_count"]:
                 summary_parts.append(
-                    f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
+                    f"plan {first_planned_name}"
+                    if first_planned_name and not suppress_planned_focus
+                    else f"{counts['planned_count']} active plan"
                 )
             if counts["active_count"]:
                 if counts["active_power_w"] > 0:

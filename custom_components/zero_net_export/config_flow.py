@@ -892,6 +892,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         active_device = next((device for device in ordered if device.get("observed_active") is True), None)
         blocked_device = next((device for device in ordered if self._device_has_blocked_activity(device)), None)
         planned_device = next((device for device in ordered if self._active_planned_action(device)), None)
+        suppress_planned_focus = bool(
+            planned_device
+            and attention_device
+            and active_device
+            and self._same_managed_device(planned_device, attention_device)
+            and not self._same_managed_device(planned_device, active_device)
+        )
         fleet_summary_parts = [f"{len(devices)} managed device(s)"]
         if attention_count:
             fleet_summary_parts.append(
@@ -911,7 +918,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             fleet_summary_parts.append(
                 "1 planned action(s)" if planned_count == 1 else f"{planned_count} planned action(s)"
             )
-            if planned_device:
+            if planned_device and not suppress_planned_focus:
                 fleet_summary_parts.append(f"plan {self._managed_snapshot_focus_label(planned_device)}")
         if active_count:
             if active_power_w > 0:
@@ -1030,6 +1037,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         active_device = next((device for device in ordered if device.get("observed_active") is True), None)
         blocked_device = next((device for device in ordered if self._device_has_blocked_activity(device)), None)
         planned_device = next((device for device in ordered if self._active_planned_action(device)), None)
+        suppress_planned_focus = bool(
+            planned_device
+            and attention_device
+            and active_device
+            and self._same_managed_device(planned_device, attention_device)
+            and not self._same_managed_device(planned_device, active_device)
+        )
         summary_parts = [
             f"{len(devices)} managed",
             f"{enabled_count} enabled",
@@ -1060,7 +1074,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             summary_parts.append(f"blocked {self._managed_snapshot_focus_label(blocked_device)}")
         if planned_count:
             summary_parts.append(f"{planned_count} planned action(s)")
-        if planned_device:
+        if planned_device and not suppress_planned_focus:
             summary_parts.append(f"plan {self._managed_snapshot_focus_label(planned_device)}")
         return " | ".join(summary_parts)
 

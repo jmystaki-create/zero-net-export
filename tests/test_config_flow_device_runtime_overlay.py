@@ -1266,11 +1266,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "2 managed | 2 enabled | 2 usable | active load 920 W | 1 active managed device | active device Heated floor (variable | active 920 W) | 1 managed device needs attention | attention first Pool pump (fixed | action turn_on) | 1 fixed managed | 1 variable managed | 3385 W nominal | 1 planned action(s) | plan Pool pump (fixed | action turn_on)",
+            "2 managed | 2 enabled | 2 usable | active load 920 W | 1 active managed device | active device Heated floor (variable | active 920 W) | 1 managed device needs attention | attention first Pool pump (fixed | action turn_on) | 1 fixed managed | 1 variable managed | 3385 W nominal | 1 planned action(s)",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices)[0],
-            "- Fleet summary: 2 managed device(s), 1 managed device needs attention, attention first Pool pump (fixed | action turn_on), 1 planned action(s), plan Pool pump (fixed | action turn_on), active load 920 W, 1 active managed device, active device Heated floor (variable | active 920 W), 2 enabled, 2 usable, 0 blocked, 1 fixed, 1 variable, 3385 W nominal controllable power",
+            "- Fleet summary: 2 managed device(s), 1 managed device needs attention, attention first Pool pump (fixed | action turn_on), 1 planned action(s), active load 920 W, 1 active managed device, active device Heated floor (variable | active 920 W), 2 enabled, 2 usable, 0 blocked, 1 fixed, 1 variable, 3385 W nominal controllable power",
         )
 
     def test_managed_snapshot_names_active_device_when_fleet_is_healthy(self) -> None:
@@ -1348,11 +1348,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._managed_snapshot_text(devices),
-            "2 managed | 2 enabled | 2 usable | 1 active managed device | active device Heated floor (variable | active) | 1 managed device needs attention | attention first Pool pump (fixed | action turn_on) | 1 fixed managed | 1 variable managed | 3385 W nominal | 1 planned action(s) | plan Pool pump (fixed | action turn_on)",
+            "2 managed | 2 enabled | 2 usable | 1 active managed device | active device Heated floor (variable | active) | 1 managed device needs attention | attention first Pool pump (fixed | action turn_on) | 1 fixed managed | 1 variable managed | 3385 W nominal | 1 planned action(s)",
         )
         self.assertEqual(
             flow._fleet_summary_lines(devices)[0],
-            "- Fleet summary: 2 managed device(s), 1 managed device needs attention, attention first Pool pump (fixed | action turn_on), 1 planned action(s), plan Pool pump (fixed | action turn_on), 1 active managed device, active device Heated floor (variable | active), 2 enabled, 2 usable, 0 blocked, 1 fixed, 1 variable, 3385 W nominal controllable power",
+            "- Fleet summary: 2 managed device(s), 1 managed device needs attention, attention first Pool pump (fixed | action turn_on), 1 planned action(s), 1 active managed device, active device Heated floor (variable | active), 2 enabled, 2 usable, 0 blocked, 1 fixed, 1 variable, 3385 W nominal controllable power",
         )
 
     def test_support_form_exposes_exact_bucket_paths(self) -> None:
