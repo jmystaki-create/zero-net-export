@@ -1926,6 +1926,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`.
 - **next action:** include this native-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices forms keep Configure primary while the device page reads as deeper review only.
 
+## ZNE-155 - Watchdog resumed Managed Devices wording churn again after ZNE-152 on the same undeployed mixed build
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo/commit audit plus documented HA SSH fingerprint recheck on 2026-04-22
+- **current observed behavior:** after ZNE-152 explicitly told the watchdog to stop spending runs on another A/B wording pass unless it first found a fresh concrete screenshot-visible defect, the next two component-changing commits still landed as Managed Devices microcopy cleanup on the same undeployed `0.1.86` candidate: `1c11775` and `049e82e`. In the same run, the documented Home Assistant SSH path still reported the same unchanged six-file mixed build on `button.py`, `config_flow.py`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json`, with both repo and live `manifest_version` still at `0.1.86`. That means the supervisor/watchdog loop regressed immediately after the prior anti-churn correction and again displaced the real question of whether any higher-ranked `0.1.87` repo runway remains.
+- **expected behavior:** once ZNE-152 has already been recorded and the live mismatch is unchanged, the next run should either (1) advance one clearly named remaining ordered workstream item that materially changes the native screenshots, or (2) say no project change, or (3) ask James directly for release/deploy approval if the project has actually reached that edge. It should not keep converting the same undeployed candidate into another Managed Devices wording pass.
+- **evidence:** `git log --oneline --decorate -5` in this run showed `049e82e fix: simplify managed devices review-path copy`, `1c11775 fix: align managed fleet empty-state wording`, `7e2cbb5 docs: record renewed watchdog wording churn`, `3405b8e fix: keep fleet split ahead of source repair note`, and `d7e492e fix: drop remaining primary managed-workspace labels`. This run also retried the documented HA path from `TOOLS.md` with `python3 scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config`, which still returned `overall_match=false` on the same six tracked-file mismatches while keeping `manifest_version` aligned at `0.1.86`.
+- **suspected cause:** the process correction was documented, but the supervisor still permitted low-value Workstream B wording cleanup to count as progress even after the roadmap and ZNE-152 both said unchanged live mismatch should stay secondary to either a fresh ordered repo defect or a real release-approval boundary.
+- **repo fix:** this run updates the bug tracker again so the strongest current drift is explicit: the recurrence is no longer just stale release bookkeeping, but repeated supervisor-approved wording churn after that loop was already named. The next watchdog step should not make another copy-only Managed Devices change unless it first identifies a sharper ordered A-D/F defect than this process drift.
+- **validation status:** this is a process/source-of-truth correction. Repo commit history plus the live SSH fingerprint recheck in this run are sufficient validation.
+- **next action:** stop the churn loop. The next run should either identify one still-unfinished ordered `0.1.87` repo-side defect that materially changes the native HA outcome, or ask James directly for release/deploy approval if no such higher-ranked defect remains.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
