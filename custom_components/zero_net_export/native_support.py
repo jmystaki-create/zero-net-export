@@ -2145,9 +2145,9 @@ def _build_command_center_fleet_activity_summary(
         lambda part: _matches_count_label(part, "variable review"),
         lambda part: part.startswith("fixed backlog "),
         lambda part: part.startswith("variable backlog "),
+        lambda part: part.endswith(" W nominal"),
         lambda part: _matches_count_label(part, "fixed managed"),
         lambda part: _matches_count_label(part, "variable managed"),
-        lambda part: part.endswith(" W nominal"),
         lambda part: _matches_count_label(part, "planned action"),
         lambda part: part.startswith("plan "),
     ]
@@ -2196,9 +2196,11 @@ def _build_command_center_fleet_activity_summary(
         if source_blocked:
             minimal_parts.append("repair sources first")
 
-    if managed_count > 0 and kind_known and variable_managed_count:
-        minimal_parts.append(f"{fixed_managed_count} fixed managed")
-        minimal_parts.append(f"{variable_managed_count} variable managed")
+    if managed_count > 0 and kind_known:
+        if fixed_managed_count:
+            minimal_parts.append(f"{fixed_managed_count} fixed managed")
+        if variable_managed_count:
+            minimal_parts.append(f"{variable_managed_count} variable managed")
 
     if attention_device_count:
         minimal_parts.append(
@@ -2368,9 +2370,9 @@ def _build_command_center_fleet_activity_summary(
         lambda part: _matches_count_label(part, "variable candidate"),
         lambda part: part.startswith("fixed backlog "),
         lambda part: part.startswith("variable backlog "),
+        lambda part: part.endswith(" W nominal"),
         lambda part: _matches_count_label(part, "fixed managed"),
         lambda part: _matches_count_label(part, "variable managed"),
-        lambda part: part.endswith(" W nominal"),
         lambda part: _matches_count_label(part, "planned action"),
         lambda part: part.startswith("plan "),
     )
@@ -2497,6 +2499,28 @@ def _build_command_center_fleet_activity_summary(
         managed_unmanaged_split_summary = " | ".join(managed_unmanaged_split_parts)
         if managed_unmanaged_split_summary and len(managed_unmanaged_split_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return managed_unmanaged_split_summary
+
+    if managed_count > 0 and kind_known and bool(fixed_managed_count) != bool(variable_managed_count):
+        single_kind_managed_part = (
+            f"{fixed_managed_count} fixed managed" if fixed_managed_count else f"{variable_managed_count} variable managed"
+        )
+        if single_kind_managed_part not in attention_priority_parts:
+            managed_mix_attention_parts = list(attention_priority_parts)
+            insertion_index = next(
+                (
+                    index + 1
+                    for index, part in enumerate(managed_mix_attention_parts)
+                    if part == _managed_count_label(managed_count)
+                ),
+                1 if managed_mix_attention_parts else 0,
+            )
+            managed_mix_attention_parts.insert(insertion_index, single_kind_managed_part)
+            managed_mix_attention_summary = " | ".join(managed_mix_attention_parts)
+            if (
+                managed_mix_attention_summary
+                and len(managed_mix_attention_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+            ):
+                return managed_mix_attention_summary
 
     attention_priority_summary = " | ".join(attention_priority_parts)
     if attention_priority_summary and len(attention_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:

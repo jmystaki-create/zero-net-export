@@ -3524,6 +3524,83 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
         self.assertIn("ready EV charger", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_drops_nominal_before_single_kind_managed_mix_under_overflow(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {"name": "Garage candidate 02", "entity_id": "switch.garage_candidate_02", "kind": "fixed"},
+            ],
+            "Garage candidate 02",
+        )
+        native_support.assess_candidate = lambda candidate: (
+            {
+                "confidence": "low",
+                "warnings": ["generic outlet label needs manual verification before promotion"],
+            }
+            if candidate and candidate.get("entity_id") == "switch.garage_candidate_02"
+            else {"confidence": "high", "warnings": []}
+        )
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Garage candidate 02 (fixed) | review first | warn generic outlet label needs manual verification before promotion"
+            if candidate and candidate.get("entity_id") == "switch.garage_candidate_02"
+            else ""
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            device_status_summary="Managed Devices: 1 managed device needs attention, attention first Pool pump blocker (fixed | blocked)",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=0,
+            fixed_device_count=1,
+            variable_device_count=0,
+            controllable_nominal_power_w=4200.0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            blocked_planned_action_count=0,
+            device_details={
+                "pool_pump": {
+                    "name": "Pool pump blocker",
+                    "entity_id": "switch.pool_pump_blocker",
+                    "kind": "fixed",
+                    "usable": False,
+                    "action_executable": False,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
+        self.assertNotIn("4200 W nominal", summary["fleet_activity_summary"])
+        self.assertIn("1 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertIn("1 needs review", summary["fleet_activity_summary"])
+        self.assertIn("review Garage candidate 02", summary["fleet_activity_summary"])
+        self.assertNotIn("ready ", summary["fleet_activity_summary"])
+
     def test_command_center_summary_preserves_single_kind_review_only_backlog_under_overflow(self) -> None:
         native_support = _load_native_support_module()
 
