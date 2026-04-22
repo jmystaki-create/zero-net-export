@@ -256,7 +256,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("top AC Outlet 2", summary["fleet_activity_summary"])
         self.assertIn("review first", summary["fleet_activity_summary"])
         self.assertIn("warn generic outlet label", summary["fleet_activity_summary"])
-        self.assertIn("blocked 1", summary["fleet_activity_summary"])
+        self.assertIn("1 blocked managed action", summary["fleet_activity_summary"])
         self.assertIn("active load 1200 W", summary["fleet_activity_summary"])
         self.assertIn("1 active managed device", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])

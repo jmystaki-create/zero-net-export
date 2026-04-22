@@ -100,6 +100,10 @@ def _planned_action_count_label(count: int) -> str:
     return _count_label(count, "planned action")
 
 
+def _blocked_activity_count_label(count: int) -> str:
+    return _count_label(count, "blocked managed action")
+
+
 def _managed_count_label(count: int) -> str:
     return "no managed yet" if count <= 0 else f"{count} managed"
 
@@ -2080,7 +2084,7 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(
                 f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
                 if first_blocked_device
-                else f"blocked {blocked_activity_count}"
+                else _blocked_activity_count_label(blocked_activity_count)
             )
         if planned_activity_count:
             summary_parts.append(
@@ -2259,7 +2263,7 @@ def _build_command_center_fleet_activity_summary(
             )
         )
     elif blocked_activity_count:
-        minimal_parts.append(f"blocked {blocked_activity_count}")
+        minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
 
     if planned_activity_count:
         minimal_parts.append(_planned_action_count_label(planned_activity_count))
@@ -2643,7 +2647,7 @@ def _build_command_center_fleet_activity_summary(
             _clip_part(
                 f"blocked {_command_center_fleet_focus_label(first_blocked_device)}"
                 if first_blocked_device
-                else f"blocked {blocked_activity_count}",
+                else _blocked_activity_count_label(blocked_activity_count),
                 max_chars=32,
             )
         )
