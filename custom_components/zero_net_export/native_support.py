@@ -293,12 +293,12 @@ def _compact_next_action_fallback(
         if first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on {attention_target}."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, starting with attention on {attention_target}."
             )
         if review_candidate_name:
             compact_review = review_candidate_name
             compact_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {compact_review}"
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: {compact_review}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 compact_ready = ready_candidate_name
@@ -307,7 +307,7 @@ def _compact_next_action_fallback(
         if ready_candidate_name or top_candidate_name or top_candidate_preview:
             compact_ready = ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or "the next unmanaged candidate"
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {compact_ready}."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: {compact_ready}."
             )
         if has_managed_devices:
             return (
@@ -1243,7 +1243,7 @@ def _build_operator_checklist(
         phase = "device_onboarding"
         if review_candidate_name:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
@@ -1255,7 +1255,7 @@ def _build_operator_checklist(
             summary = "Sources are ready; the next milestone is reviewing the current unmanaged backlog in Managed Devices."
         elif ready_candidate_name or top_candidate_preview or top_candidate_name:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}."
             )
             summary = "Sources are ready; the next milestone is promoting the current unmanaged backlog in Managed Devices."
@@ -2935,12 +2935,12 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         elif first_attention_device:
             attention_target = _command_center_runtime_device_preview(first_attention_device) or "the first managed device needing attention"
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, starting with attention on {attention_target}."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, starting with attention on {attention_target}."
             )
         elif candidate_count:
             if review_candidate_name:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: "
+                    f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
                     f"{review_candidate_preview or review_candidate_name}"
                 )
                 if ready_candidate_name and ready_candidate_name != review_candidate_name:
@@ -2950,7 +2950,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                     )
             else:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: "
+                    f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
                     f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
                 )
         else:
@@ -2976,7 +2976,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
         if review_candidate_name:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
@@ -2986,7 +2986,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         elif ready_candidate_name or top_candidate_preview or top_candidate_name:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
             )
         else:
@@ -3040,7 +3040,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif not has_managed_devices:
         if review_candidate_name:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
@@ -3050,7 +3050,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         elif ready_candidate_name or ready_candidate_preview or top_candidate_preview or top_candidate_name:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or primary_candidate_focus}"
             )
         else:

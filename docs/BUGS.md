@@ -2017,6 +2017,19 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this final Managed Devices helper-sensor follow-on in the next exact-build deploy, then confirm the live device-page attention helper still surfaces active managed runtime when watts are temporarily unavailable.
 
+## ZNE-162 - Managed Devices handoffs still told operators to `review` the workspace after the workspace-first pass
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-22 while comparing current Managed Devices handoffs against `docs/UI_DESIGN.md`, Workstream B in `docs/UI_IMPLEMENTATION_MAP.md`, and the tracker entries that already claimed this wording family was fixed
+- **current observed behavior:** several live repo handoffs were still saying `Open ... to review the Managed Devices workspace ...` across the command center, helper sensors, Configure follow-through, and one device-page fallback. That left the primary fleet path one wording pass behind the stronger workspace-first direction already recorded in `docs/BUGS.md`, and it meant the tracker had quietly drifted ahead of the actual repo state.
+- **expected behavior:** the native fleet handoff should keep `Configure -> Managed Devices` framed as the place to continue the current fleet work, not as a workspace to inspect before the real action starts.
+- **evidence:** this run's repo audit found the stale `review the Managed Devices workspace` wording still repeated in `custom_components/zero_net_export/native_support.py`, `sensor.py`, `config_flow.py`, and `button.py`, with matching regressions still locked in `tests/test_command_center_summary.py`, `tests/test_sensor_entity_categories.py`, `tests/test_config_flow_device_runtime_overlay.py`, `tests/test_button_entity_categories.py`, and `tests/test_source_repair_guidance.py`.
+- **suspected cause:** earlier Workstream B cleanup tightened the bucket naming and empty-fleet/ready-next content first, but stopped one wording pass short of replacing the remaining `review the Managed Devices workspace` phrasing across all parallel handoff builders.
+- **repo fix:** this run updates those handoffs so they now say `continue in the Managed Devices workspace` for attention-first, review-first, ready-next, and Controls-follow-through paths, and refreshes the focused regressions listed above to lock that wording in place.
+- **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_button_entity_categories tests.test_source_repair_guidance`, `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/button.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this workspace-first handoff cleanup in the next exact-build deploy, then confirm the live command center, Managed Devices helper sensors, Configure follow-through, and device-page fallback all keep `continue in the Managed Devices workspace` instead of the older `review ... workspace` phrasing.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

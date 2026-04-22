@@ -705,7 +705,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         self.assertEqual(readiness["phase"], "device_onboarding")
         self.assertIn(
-            "review the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | review first",
+            "continue in the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | review first",
             readiness["next_step"],
         )
         self.assertIn(

@@ -1857,7 +1857,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             for phrase in (
                 "review blocked devices in the Managed Devices workspace",
                 "confirm the active fleet plan in the Managed Devices workspace",
-                "review the Managed Devices workspace, starting with attention on",
+                "continue in the Managed Devices workspace, starting with attention on",
                 "continue in the Managed Devices workspace, then edit device settings or stage enablement changes there",
             )
         ):
@@ -2252,7 +2252,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     )
                 elif not devices and primary_candidate:
                     source_next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}"
+                        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}"
                     )
                     if ready_candidate and ready_candidate != primary_candidate:
                         source_next_step += (
@@ -2267,7 +2267,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     candidate_focus = self._top_candidate_focus_text(primary_candidate)
                     if review_candidate:
                         source_next_step = (
-                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {candidate_focus}"
+                            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: {candidate_focus}"
                         )
                         if ready_candidate and ready_candidate != primary_candidate:
                             source_next_step += (
@@ -2276,7 +2276,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                         source_next_step += "."
                     else:
                         source_next_step = (
-                            f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
+                            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
                         )
                 else:
                     source_next_step = (
@@ -2829,7 +2829,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 for phrase in (
                     "review blocked devices in the Managed Devices workspace",
                     "confirm the active fleet plan in the Managed Devices workspace",
-                    "review the Managed Devices workspace, starting with attention on",
+                    "continue in the Managed Devices workspace, starting with attention on",
                 )
             ):
                 return device_blocker_step
@@ -2863,7 +2863,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             candidate_focus = self._top_candidate_focus_text(primary_candidate)
             if review_candidate:
                 next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, start in the unmanaged section: {candidate_focus}"
+                    f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: {candidate_focus}"
                 )
                 if ready_candidate and ready_candidate != primary_candidate:
                     next_step += (
@@ -2871,7 +2871,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     )
                 return next_step + "."
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: {candidate_focus}."
             )
         return (
             f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there."
@@ -3683,7 +3683,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             primary_candidate = review_candidate or (candidates[0] if candidates else None)
             if primary_candidate is not None:
                 policy_next_step = (
-                    f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to review the Managed Devices workspace, "
+                    f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
                     f"start in the unmanaged section: {self._top_candidate_focus_text(primary_candidate)}"
                 )
                 if ready_candidate is not None and ready_candidate is not primary_candidate:
