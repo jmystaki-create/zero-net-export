@@ -4387,6 +4387,120 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("ready Garage subboa", summary["fleet_activity_summary"])
         self.assertNotIn("configured devices available", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_keeps_source_blockers_visible_before_device_status_fallback(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime needs source repair before fleet changes.",
+            "next_step": "Repair the mapped source blockers before relying on control.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support.REQUIRED_SOURCE_KEYS = [native_support.CONF_SOLAR_POWER_ENTITY]
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0",
+                    "entity_id": "switch.review_candidate_0",
+                    "kind": "variable",
+                },
+                {
+                    "name": "ReviewCandidate1 ReviewCandidate1 ReviewCandidate1 ReviewCandidate1 ReviewCandidate1",
+                    "entity_id": "switch.review_candidate_1",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "ReadyCandidate0 ReadyCandidate0 ReadyCandidate0 ReadyCandidate0 ReadyCandidate0 ReadyCandidate0",
+                    "entity_id": "number.ready_candidate_0",
+                    "kind": "variable",
+                },
+                {
+                    "name": "ReadyCandidate1 ReadyCandidate1 ReadyCandidate1 ReadyCandidate1",
+                    "entity_id": "switch.ready_candidate_1",
+                    "kind": "fixed",
+                },
+            ],
+            "ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if "ReviewCandidate" in str(candidate.get("name") or "") else "high",
+            "warnings": ["Generic outlet hardware label needs review."]
+            if "ReviewCandidate" in str(candidate.get("name") or "")
+            else [],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 ReviewCandidate0 (variable) | review first | warn generic outlet hardware label needs review"
+            if candidate and candidate.get("entity_id") == "switch.review_candidate_0"
+            else "ReviewCandidate1 ReviewCandidate1 ReviewCandidate1 ReviewCandidate1 ReviewCandidate1 (fixed) | review first | warn generic outlet hardware label needs review"
+            if candidate and candidate.get("entity_id") == "switch.review_candidate_1"
+            else "ReadyCandidate0 ReadyCandidate0 ReadyCandidate0 ReadyCandidate0 ReadyCandidate0 ReadyCandidate0 (variable) | likely useful | key warning: No immediate warnings"
+            if candidate and candidate.get("entity_id") == "number.ready_candidate_0"
+            else "ReadyCandidate1 ReadyCandidate1 ReadyCandidate1 ReadyCandidate1 (fixed) | likely useful | key warning: No immediate warnings"
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=2,
+            fixed_device_count=2,
+            variable_device_count=0,
+            controllable_nominal_power_w=6500.0,
+            blocked_planned_action_count=2,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_details={
+                "managed_0": {
+                    "name": "Managed0 Managed0",
+                    "entity_id": "switch.managed_0",
+                    "kind": "fixed",
+                    "usable": True,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                    "last_action_status": "failed",
+                },
+                "managed_1": {
+                    "name": "Managed1 Managed1",
+                    "entity_id": "switch.managed_1",
+                    "kind": "fixed",
+                    "usable": True,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                    "last_action_status": "failed",
+                },
+            },
+        )
+        coordinator = SimpleNamespace(
+            data=state,
+            entry=entry,
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("source blockers active", summary["fleet_activity_summary"])
+        self.assertIn("2 managed", summary["fleet_activity_summary"])
+        self.assertIn("4 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertIn("review ReviewCandidate0", summary["fleet_activity_summary"])
+        self.assertIn("ready ReadyCandidate0", summary["fleet_activity_summary"])
+        self.assertNotEqual(summary["fleet_activity_summary"], summary["device_status"])
+        self.assertNotIn("configured devices available", summary["fleet_activity_summary"])
+
     def test_command_center_summary_drops_nominal_before_single_kind_managed_mix_under_overflow(self) -> None:
         native_support = _load_native_support_module()
 

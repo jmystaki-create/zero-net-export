@@ -124,6 +124,11 @@ def _is_unmanaged_count_part(text: str) -> bool:
     return normalized == "no unmanaged candidates" or normalized.endswith(" unmanaged") or normalized.endswith(" unmanaged backlog")
 
 
+def _is_managed_count_part(text: str) -> bool:
+    normalized = " ".join(str(text or "").split())
+    return normalized == "no managed yet" or normalized.endswith(" managed")
+
+
 def _matches_count_label(text: str, singular: str, plural: str | None = None) -> bool:
     normalized = " ".join(str(text or "").split())
     if not normalized:
@@ -246,6 +251,81 @@ def _truncate_state_summary(text: str, *, fallback: str) -> str:
     if len(normalized) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return normalized
     return fallback
+
+
+def _compact_fleet_activity_overflow_summary(summary: str) -> str:
+    normalized = " ".join(str(summary or "").split())
+    if len(normalized) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return normalized
+
+    parts = [part.strip() for part in normalized.split(" | ") if part.strip()]
+    compact_parts = list(parts)
+    removable_matchers = (
+        lambda part: part.endswith(" managed device needs attention") or part.endswith(" managed devices need attention"),
+        lambda part: _matches_count_label(part, "blocked managed action"),
+        lambda part: _matches_count_label(part, "needs review", "need review"),
+        lambda part: _matches_count_label(part, "ready to promote"),
+        lambda part: _matches_count_label(part, "active managed device", "active managed devices"),
+        lambda part: _matches_count_label(part, "fixed candidate") or _matches_count_label(part, "variable candidate"),
+        lambda part: part.startswith("fixed backlog ") or part.startswith("variable backlog "),
+        lambda part: _matches_count_label(part, "planned action"),
+        lambda part: part.startswith(("enabled ", "usable ")) or part.endswith(" W nominal"),
+    )
+    for matcher in removable_matchers:
+        if len(" | ".join(compact_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            break
+        for index, part in enumerate(list(compact_parts)):
+            if matcher(part):
+                del compact_parts[index]
+                break
+
+    compact_summary = " | ".join(compact_parts)
+    if compact_summary and len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compact_summary
+
+    priority_parts: list[str] = []
+    managed_part = next((part for part in parts if _is_managed_count_part(part)), "")
+    unmanaged_part = next((part for part in parts if _is_unmanaged_count_part(part)), "")
+    source_blocker_part = next((part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL), "")
+    review_part = next((part for part in parts if part.startswith("review ")), "")
+    ready_part = next((part for part in parts if part.startswith("ready ")), "")
+    focus_parts = [
+        part
+        for part in parts
+        if part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
+    ]
+
+    if managed_part:
+        priority_parts.append(managed_part)
+    priority_parts.extend(focus_parts[:2])
+    if unmanaged_part:
+        priority_parts.append(unmanaged_part)
+    if source_blocker_part:
+        priority_parts.append(source_blocker_part)
+    if review_part:
+        priority_parts.append(_clip_state_part(review_part, max_chars=36))
+    if ready_part:
+        priority_parts.append(_clip_state_part(ready_part, max_chars=36))
+
+    priority_summary = " | ".join(priority_parts)
+    if priority_summary and len(priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return priority_summary
+
+    tighter_priority_parts = []
+    for part in priority_parts:
+        if part.startswith(("attention first ", "blocked ", "plan ", "active device ")):
+            tighter_priority_parts.append(_clip_state_part(part, max_chars=30))
+        elif part.startswith("active load "):
+            tighter_priority_parts.append(part)
+        elif part.startswith(("review ", "ready ")):
+            tighter_priority_parts.append(_clip_state_part(part, max_chars=28))
+        else:
+            tighter_priority_parts.append(part)
+    tighter_priority_summary = " | ".join(tighter_priority_parts)
+    if tighter_priority_summary and len(tighter_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return tighter_priority_summary
+
+    return normalized
 
 
 def _clip_state_part(text: str, *, max_chars: int) -> str:
@@ -3768,22 +3848,24 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         active_controlled_power_w=getattr(state, 'active_controlled_power_w', None) if state is not None else None,
     )
     fleet_activity_summary = _truncate_state_summary(
-        _prefer_review_ready_over_large_kind_mix(
-            _build_command_center_fleet_activity_summary(
-                state,
-                candidate_count=candidate_count,
-                fixed_candidate_count=fixed_candidate_count,
-                variable_candidate_count=variable_candidate_count,
-                review_needed_count=review_needed_count,
-                fixed_review_count=fixed_review_count,
-                variable_review_count=variable_review_count,
-                review_candidate_name=review_candidate_name,
-                review_candidate_preview=review_candidate_preview,
-                ready_candidate_name=ready_candidate_name,
-                ready_candidate_preview=ready_candidate_preview,
-                top_candidate_name=top_candidate_name,
-                top_candidate_preview=top_candidate_preview,
-                source_blocked=bool(missing_required_sources or runtime_source_attention),
+        _compact_fleet_activity_overflow_summary(
+            _prefer_review_ready_over_large_kind_mix(
+                _build_command_center_fleet_activity_summary(
+                    state,
+                    candidate_count=candidate_count,
+                    fixed_candidate_count=fixed_candidate_count,
+                    variable_candidate_count=variable_candidate_count,
+                    review_needed_count=review_needed_count,
+                    fixed_review_count=fixed_review_count,
+                    variable_review_count=variable_review_count,
+                    review_candidate_name=review_candidate_name,
+                    review_candidate_preview=review_candidate_preview,
+                    ready_candidate_name=ready_candidate_name,
+                    ready_candidate_preview=ready_candidate_preview,
+                    top_candidate_name=top_candidate_name,
+                    top_candidate_preview=top_candidate_preview,
+                    source_blocked=bool(missing_required_sources or runtime_source_attention),
+                )
             )
         ),
         fallback=device_status,
