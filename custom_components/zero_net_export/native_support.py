@@ -2180,6 +2180,7 @@ def _command_center_device_status_with_unmanaged_context(
     blocked_activity_count: int = 0,
     active_managed_count: int = 0,
     active_managed_power_w: float = 0.0,
+    active_device_preview: str = "",
     source_blocked: bool = False,
 ) -> str:
     def _clip_part(text: str, *, max_chars: int) -> str:
@@ -2200,6 +2201,38 @@ def _command_center_device_status_with_unmanaged_context(
     )
     summary = _managed_count_label(managed_count) if generic_managed_status and managed_count > 0 else base_status
     managed_parts: list[str] = []
+    compact_active_device_preview = active_device_preview and "." not in active_device_preview.partition(" ")[0]
+
+    def _compact_managed_base_parts(*, max_chars: int) -> list[str]:
+        if not (generic_managed_status and managed_count > 0):
+            return [_clip_part(base_status, max_chars=max_chars)]
+
+        compact_parts: list[str] = [_managed_count_label(managed_count)]
+        if active_managed_count:
+            if active_managed_power_w > 0 and not (candidate_count > 0 and active_device_preview):
+                compact_parts.append(f"active load {active_managed_power_w:g} W")
+            compact_parts.append(
+                "1 active managed device"
+                if active_managed_count == 1
+                else f"{active_managed_count} active managed devices"
+            )
+            if compact_active_device_preview and candidate_count > 1 and 0 < review_needed_count < candidate_count:
+                compact_parts.append(
+                    _clip_part(
+                        f"active device {active_device_preview}",
+                        max_chars=min(max_chars, 48),
+                    )
+                )
+        if managed_attention_count:
+            compact_parts.append(
+                "1 managed device needs attention"
+                if managed_attention_count == 1
+                else f"{managed_attention_count} managed devices need attention"
+            )
+        if blocked_activity_count:
+            compact_parts.append(_blocked_activity_count_label(blocked_activity_count))
+        return compact_parts
+
     if generic_managed_status and managed_count > 0:
         if active_managed_count:
             if active_managed_power_w > 0:
@@ -2209,6 +2242,8 @@ def _command_center_device_status_with_unmanaged_context(
                 if active_managed_count == 1
                 else f"{active_managed_count} active managed devices"
             )
+            if active_device_preview:
+                managed_parts.append(f"active device {active_device_preview}")
         if managed_attention_count:
             managed_parts.append(
                 "1 managed device needs attention"
@@ -2273,7 +2308,7 @@ def _command_center_device_status_with_unmanaged_context(
         return summary
 
     compact_parts: list[str] = [
-        _clip_part(summary if managed_parts else base_status, max_chars=72),
+        *_compact_managed_base_parts(max_chars=72),
         _compact_unmanaged_count_label(candidate_count),
     ]
     if source_blocked:
@@ -2297,7 +2332,7 @@ def _command_center_device_status_with_unmanaged_context(
     compact_summary = "; ".join(compact_parts)
     if single_kind_overflow_backlog_parts:
         single_kind_compact_parts: list[str] = [
-            _clip_part(summary if managed_parts else base_status, max_chars=72),
+            *_compact_managed_base_parts(max_chars=72),
             _compact_unmanaged_count_label(candidate_count),
         ]
         if source_blocked:
@@ -2323,7 +2358,7 @@ def _command_center_device_status_with_unmanaged_context(
 
     if single_kind_overflow_backlog_parts:
         single_kind_compact_parts: list[str] = [
-            _clip_part(summary if managed_parts else base_status, max_chars=72),
+            *_compact_managed_base_parts(max_chars=72),
             _compact_unmanaged_count_label(candidate_count),
         ]
         if source_blocked:
@@ -2346,7 +2381,7 @@ def _command_center_device_status_with_unmanaged_context(
             return single_kind_compact_summary
 
         single_kind_named_parts: list[str] = [
-            _clip_part(summary if managed_parts else base_status, max_chars=56),
+            *_compact_managed_base_parts(max_chars=56),
             _compact_unmanaged_count_label(candidate_count),
         ]
         if source_blocked:
@@ -2381,7 +2416,7 @@ def _command_center_device_status_with_unmanaged_context(
         return clipped_compact_summary
 
     essential_parts: list[str] = [
-        _clip_part(summary if managed_parts else base_status, max_chars=48),
+        *_compact_managed_base_parts(max_chars=48),
         _compact_unmanaged_count_label(candidate_count),
     ]
     if source_blocked:
@@ -2409,7 +2444,7 @@ def _command_center_device_status_with_unmanaged_context(
 
     if single_kind_overflow_backlog_parts:
         single_kind_parts: list[str] = [
-            _clip_part(summary if managed_parts else base_status, max_chars=40),
+            *_compact_managed_base_parts(max_chars=40),
             _compact_unmanaged_count_label(candidate_count),
         ]
         if source_blocked:
@@ -2432,7 +2467,7 @@ def _command_center_device_status_with_unmanaged_context(
             return single_kind_summary
 
         concise_single_kind_parts: list[str] = [
-            _clip_part(summary if managed_parts else base_status, max_chars=40),
+            *_compact_managed_base_parts(max_chars=40),
             _compact_unmanaged_count_label(candidate_count),
         ]
         if source_blocked:
@@ -2465,7 +2500,7 @@ def _command_center_device_status_with_unmanaged_context(
             return clipped_single_kind_summary
 
     minimal_parts: list[str] = [
-        _clip_part(base_status, max_chars=40),
+        *_compact_managed_base_parts(max_chars=40),
         _compact_unmanaged_count_label(candidate_count),
     ]
     if source_blocked:
@@ -3916,6 +3951,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         else 0
     )
     active_managed_count, active_managed_power_w = _managed_runtime_activity(state)
+    first_active_device = _first_runtime_device_detail(
+        state,
+        predicate=lambda detail: detail.get("observed_active") is True,
+    )
+    active_device_preview = _command_center_managed_snapshot_focus_label(first_active_device)
     blocked_activity_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
         if state is not None
@@ -4004,6 +4044,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_preview=ready_candidate_preview,
             active_managed_count=active_managed_count,
             active_managed_power_w=active_managed_power_w,
+            active_device_preview=active_device_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
@@ -4028,6 +4069,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             blocked_activity_count=blocked_activity_count,
             active_managed_count=active_managed_count,
             active_managed_power_w=active_managed_power_w,
+            active_device_preview=active_device_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         if blocked_activity_count:
@@ -4083,6 +4125,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_preview=ready_candidate_preview,
             active_managed_count=active_managed_count,
             active_managed_power_w=active_managed_power_w,
+            active_device_preview=active_device_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         if review_candidate_name:
