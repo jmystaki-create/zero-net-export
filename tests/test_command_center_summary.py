@@ -5672,6 +5672,102 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage auxiliary", summary["device_status"])
         self.assertIn("ready EV charger", summary["device_status"])
 
+    def test_device_status_overflow_keeps_managed_focus_without_unmanaged_candidates(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "setup_needed",
+            "summary": "Finish source mapping first.",
+            "next_step": "Open Sensors and finish the missing source roles.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": ["solar_power"],
+            "stale_source_keys": [],
+            "validation_details": {"issues": []},
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "Missing solar power"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "Solar power"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Source blockers active"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: ""
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            device_status_summary="4 configured devices available",
+            device_count=4,
+            enabled_device_count=4,
+            usable_device_count=3,
+            fixed_device_count=3,
+            variable_device_count=1,
+            controllable_nominal_power_w=6000.0,
+            blocked_planned_action_count=2,
+            active_controlled_power_w=4485.0,
+            mode="monitoring",
+            health_summary="Attention",
+            diagnostic_summary="Attention",
+            validation_details={},
+            device_details={
+                "pool_pump": {
+                    "name": "Pool pump with very long label near pergola side walkway",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "effective_enabled": True,
+                    "planned_action": "turn_on",
+                    "last_result_label": "failed",
+                    "observed_active": True,
+                    "current_power_w": 1185.0,
+                },
+                "hot_water": {
+                    "name": "Hot water relay with long label near garage door opener",
+                    "entity_id": "switch.hot_water",
+                    "kind": "fixed",
+                    "usable": False,
+                    "effective_enabled": True,
+                    "planned_action": "turn_on",
+                    "last_result_label": "timeout",
+                    "observed_active": False,
+                },
+                "ev_charger": {
+                    "name": "EV charger with very long label near front driveway panel",
+                    "entity_id": "number.ev_export_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "effective_enabled": True,
+                    "observed_active": True,
+                    "current_power_w": 3300.0,
+                },
+                "dishwasher": {
+                    "name": "Dishwasher plug with label near kitchen bench",
+                    "entity_id": "switch.dishwasher",
+                    "kind": "fixed",
+                    "usable": True,
+                    "effective_enabled": True,
+                    "observed_active": False,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(
+            data=state,
+            entry=entry,
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["device_status"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("4 managed", summary["device_status"])
+        self.assertIn("2 active managed devices", summary["device_status"])
+        self.assertIn("2 managed devices need attention", summary["device_status"])
+        self.assertIn("2 blocked managed actions", summary["device_status"])
+        self.assertIn("no unmanaged candidates", summary["device_status"])
+        self.assertIn("source blockers active", summary["device_status"])
+
     def test_fleet_activity_overflow_keeps_active_device_focus_with_unmanaged_backlog(self) -> None:
         native_support = _load_native_support_module()
 

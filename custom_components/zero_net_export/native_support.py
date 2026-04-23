@@ -2318,7 +2318,35 @@ def _command_center_device_status_with_unmanaged_context(
             summary += "; no unmanaged candidates"
             if source_blocked:
                 summary += f"; {SOURCE_BLOCKER_ACTIVE_LABEL}"
-            return summary
+            if len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return summary
+
+            compact_parts = [*_compact_managed_base_parts(max_chars=40), "no unmanaged candidates"]
+            if source_blocked:
+                compact_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+            compact_summary = "; ".join(compact_parts)
+            if len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return compact_summary
+
+            fallback_parts = [_managed_count_label(managed_count)]
+            if active_managed_count:
+                fallback_parts.append(
+                    "1 active managed device"
+                    if active_managed_count == 1
+                    else f"{active_managed_count} active managed devices"
+                )
+            if managed_attention_count:
+                fallback_parts.append(
+                    "1 managed device needs attention"
+                    if managed_attention_count == 1
+                    else f"{managed_attention_count} managed devices need attention"
+                )
+            if blocked_activity_count:
+                fallback_parts.append(_blocked_activity_count_label(blocked_activity_count))
+            fallback_parts.append("no unmanaged candidates")
+            if source_blocked:
+                fallback_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+            return "; ".join(fallback_parts)
         return f"{summary}; {SOURCE_BLOCKER_ACTIVE_LABEL}" if source_blocked else summary
     summary += f"; {_unmanaged_count_label(candidate_count)}"
     if source_blocked:
