@@ -4575,6 +4575,31 @@ class CommandCenterSummaryTests(unittest.TestCase):
             ),
         )
 
+    def test_command_center_summary_preserves_candidate_kind_in_tighter_priority_overflow(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "2 managed",
+                    "attention first Hot water relay with an extraordinarily verbose managed-device attention label that should require tighter priority compaction",
+                    "active load 5300 W",
+                    "2 active managed devices",
+                    "active device EV charger with an extraordinarily verbose active managed-device label that should remain visible after tighter priority compaction",
+                    "2 unmanaged backlog",
+                    "source blockers active",
+                    "review Garage subboard auxiliary outlet bank candidate 02 (fixed) | review first | warn generic outlet label needs manual verification before promotion",
+                    "ready EV charger export absorption control limit (variable) | likely useful | key warning: No immediate warnings",
+                ]
+            )
+        )
+
+        self.assertLessEqual(len(compacted), 255)
+        self.assertIn("review ", compacted)
+        self.assertIn("(fixed)", compacted)
+        self.assertIn("ready ", compacted)
+        self.assertIn("(variable)", compacted)
+
     def test_command_center_summary_keeps_source_blockers_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 

@@ -368,9 +368,9 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     if source_blocker_part:
         priority_parts.append(source_blocker_part)
     if review_part:
-        priority_parts.append(_clip_state_part(review_part, max_chars=36))
+        priority_parts.append(_clip_review_ready_state_part(review_part, max_chars=36))
     if ready_part:
-        priority_parts.append(_clip_state_part(ready_part, max_chars=36))
+        priority_parts.append(_clip_review_ready_state_part(ready_part, max_chars=36))
 
     priority_summary = " | ".join(priority_parts)
     if priority_summary and len(priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -383,7 +383,7 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         elif part.startswith("active load "):
             tighter_priority_parts.append(part)
         elif part.startswith(("review ", "ready ")):
-            tighter_priority_parts.append(_clip_state_part(part, max_chars=28))
+            tighter_priority_parts.append(_clip_review_ready_state_part(part, max_chars=28))
         else:
             tighter_priority_parts.append(part)
     tighter_priority_summary = " | ".join(tighter_priority_parts)
@@ -404,8 +404,8 @@ def _clip_state_part(text: str, *, max_chars: int) -> str:
 
 def _clip_review_ready_state_part(text: str, *, max_chars: int) -> str:
     normalized = " ".join(str(text).split())
-    if len(normalized) <= max_chars or max_chars < 30:
-        return _clip_state_part(normalized, max_chars=max_chars)
+    if len(normalized) <= max_chars:
+        return normalized
 
     prefix, separator, payload = normalized.partition(" ")
     if prefix not in {"review", "ready"} or not separator or not payload:
