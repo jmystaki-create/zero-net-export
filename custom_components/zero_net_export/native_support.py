@@ -2302,20 +2302,24 @@ def _command_center_device_status_with_unmanaged_context(
             single_kind_named_parts.append(_count_label(review_needed_count, "needs review", "need review"))
         if ready_candidate_count:
             single_kind_named_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
-        if review_candidate_name:
-            single_kind_named_parts.append(f"review {review_candidate_name}")
-        elif review_candidate_preview:
+        if review_candidate_preview:
             single_kind_named_parts.append(f"review {review_candidate_preview}")
-        if ready_candidate_name:
-            single_kind_named_parts.append(f"ready {ready_candidate_name}")
-        elif ready_candidate_preview:
+        elif review_candidate_name:
+            single_kind_named_parts.append(f"review {review_candidate_name}")
+        if ready_candidate_preview:
             single_kind_named_parts.append(f"ready {ready_candidate_preview}")
+        elif ready_candidate_name:
+            single_kind_named_parts.append(f"ready {ready_candidate_name}")
         single_kind_named_summary = "; ".join(single_kind_named_parts)
         if len(single_kind_named_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return single_kind_named_summary
 
     clipped_compact_parts = [
-        _clip_part(part, max_chars=72) if part.startswith(("review ", "ready ", "surfaced ")) else part
+        _clip_review_ready_state_part(part, max_chars=72)
+        if part.startswith(("review ", "ready "))
+        else _clip_part(part, max_chars=72)
+        if part.startswith(("surfaced ",))
+        else part
         for part in compact_parts
     ]
     clipped_compact_summary = "; ".join(clipped_compact_parts)
@@ -2337,13 +2341,13 @@ def _command_center_device_status_with_unmanaged_context(
     if ready_candidate_count:
         essential_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
     if review_candidate_preview:
-        essential_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=48))
+        essential_parts.append(_clip_review_ready_state_part(f"review {review_candidate_preview}", max_chars=48))
     elif review_candidate_name:
-        essential_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=48))
+        essential_parts.append(_clip_review_ready_state_part(f"review {review_candidate_name}", max_chars=48))
     if ready_candidate_preview:
-        essential_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=48))
+        essential_parts.append(_clip_review_ready_state_part(f"ready {ready_candidate_preview}", max_chars=48))
     elif ready_candidate_name:
-        essential_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=48))
+        essential_parts.append(_clip_review_ready_state_part(f"ready {ready_candidate_name}", max_chars=48))
 
     essential_summary = "; ".join(essential_parts)
     if len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -2384,20 +2388,22 @@ def _command_center_device_status_with_unmanaged_context(
             concise_single_kind_parts.append(_count_label(review_needed_count, "needs review", "need review"))
         if ready_candidate_count:
             concise_single_kind_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
-        if review_candidate_name:
-            concise_single_kind_parts.append(f"review {review_candidate_name}")
-        elif review_candidate_preview:
+        if review_candidate_preview:
             concise_single_kind_parts.append(f"review {review_candidate_preview}")
-        if ready_candidate_name:
-            concise_single_kind_parts.append(f"ready {ready_candidate_name}")
-        elif ready_candidate_preview:
+        elif review_candidate_name:
+            concise_single_kind_parts.append(f"review {review_candidate_name}")
+        if ready_candidate_preview:
             concise_single_kind_parts.append(f"ready {ready_candidate_preview}")
+        elif ready_candidate_name:
+            concise_single_kind_parts.append(f"ready {ready_candidate_name}")
         concise_single_kind_summary = "; ".join(concise_single_kind_parts)
         if len(concise_single_kind_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return concise_single_kind_summary
 
         clipped_single_kind_parts = [
-            _clip_part(part, max_chars=48) if part.startswith(("review ", "ready ")) else part
+            _clip_review_ready_state_part(part, max_chars=48)
+            if part.startswith(("review ", "ready "))
+            else part
             for part in concise_single_kind_parts
         ]
         clipped_single_kind_summary = "; ".join(clipped_single_kind_parts)
@@ -2413,12 +2419,18 @@ def _command_center_device_status_with_unmanaged_context(
     if review_needed_count:
         minimal_parts.append(_count_label(review_needed_count, "needs review", "need review"))
         minimal_parts.append(
-            _clip_part(f"review {(review_candidate_preview or review_candidate_name)}", max_chars=36)
+            _clip_review_ready_state_part(
+                f"review {(review_candidate_preview or review_candidate_name)}",
+                max_chars=36,
+            )
         )
     if ready_candidate_count:
         minimal_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
         minimal_parts.append(
-            _clip_part(f"ready {(ready_candidate_preview or ready_candidate_name)}", max_chars=36)
+            _clip_review_ready_state_part(
+                f"ready {(ready_candidate_preview or ready_candidate_name)}",
+                max_chars=36,
+            )
         )
     minimal_summary = "; ".join(part for part in minimal_parts if part)
     if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -2929,9 +2941,13 @@ def _build_command_center_fleet_activity_summary(
             "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
         )
         if review_candidate_preview:
-            minimal_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=72))
+            minimal_parts.append(
+                _clip_review_ready_state_part(f"review {review_candidate_preview}", max_chars=72)
+            )
         elif review_candidate_name:
-            minimal_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=72))
+            minimal_parts.append(
+                _clip_review_ready_state_part(f"review {review_candidate_name}", max_chars=72)
+            )
 
     if ready_candidate_count:
         minimal_parts.append(
@@ -2940,9 +2956,13 @@ def _build_command_center_fleet_activity_summary(
             else f"{ready_candidate_count} ready to promote"
         )
         if ready_candidate_preview and ready_candidate_name:
-            minimal_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=72))
+            minimal_parts.append(
+                _clip_review_ready_state_part(f"ready {ready_candidate_preview}", max_chars=72)
+            )
         elif ready_candidate_name:
-            minimal_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=72))
+            minimal_parts.append(
+                _clip_review_ready_state_part(f"ready {ready_candidate_name}", max_chars=72)
+            )
 
     if top_candidate_preview and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
         minimal_parts.append(_clip_part(f"surfaced {top_candidate_preview}", max_chars=72))
@@ -2979,11 +2999,11 @@ def _build_command_center_fleet_activity_summary(
             )
             if review_candidate_preview:
                 empty_fleet_kind_parts.append(
-                    _clip_part(f"review {review_candidate_preview}", max_chars=40)
+                    _clip_review_ready_state_part(f"review {review_candidate_preview}", max_chars=40)
                 )
             elif review_candidate_name:
                 empty_fleet_kind_parts.append(
-                    _clip_part(f"review {review_candidate_name}", max_chars=40)
+                    _clip_review_ready_state_part(f"review {review_candidate_name}", max_chars=40)
                 )
         if ready_candidate_count:
             empty_fleet_kind_parts.append(
@@ -2993,11 +3013,11 @@ def _build_command_center_fleet_activity_summary(
             )
             if ready_candidate_preview and ready_candidate_name:
                 empty_fleet_kind_parts.append(
-                    _clip_part(f"ready {ready_candidate_preview}", max_chars=40)
+                    _clip_review_ready_state_part(f"ready {ready_candidate_preview}", max_chars=40)
                 )
             elif ready_candidate_name:
                 empty_fleet_kind_parts.append(
-                    _clip_part(f"ready {ready_candidate_name}", max_chars=40)
+                    _clip_review_ready_state_part(f"ready {ready_candidate_name}", max_chars=40)
                 )
         empty_fleet_kind_summary = " | ".join(empty_fleet_kind_parts)
         if len(empty_fleet_kind_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -3315,9 +3335,13 @@ def _build_command_center_fleet_activity_summary(
             "1 needs review" if review_needed_count == 1 else f"{review_needed_count} need review"
         )
         if review_candidate_preview:
-            essential_parts.append(_clip_part(f"review {review_candidate_preview}", max_chars=32))
+            essential_parts.append(
+                _clip_review_ready_state_part(f"review {review_candidate_preview}", max_chars=32)
+            )
         elif review_candidate_name:
-            essential_parts.append(_clip_part(f"review {review_candidate_name}", max_chars=32))
+            essential_parts.append(
+                _clip_review_ready_state_part(f"review {review_candidate_name}", max_chars=32)
+            )
     if ready_candidate_count:
         essential_parts.append(
             "1 ready to promote"
@@ -3325,9 +3349,13 @@ def _build_command_center_fleet_activity_summary(
             else f"{ready_candidate_count} ready to promote"
         )
         if ready_candidate_preview and ready_candidate_name:
-            essential_parts.append(_clip_part(f"ready {ready_candidate_preview}", max_chars=32))
+            essential_parts.append(
+                _clip_review_ready_state_part(f"ready {ready_candidate_preview}", max_chars=32)
+            )
         elif ready_candidate_name:
-            essential_parts.append(_clip_part(f"ready {ready_candidate_name}", max_chars=32))
+            essential_parts.append(
+                _clip_review_ready_state_part(f"ready {ready_candidate_name}", max_chars=32)
+            )
 
     essential_summary = " | ".join(essential_parts)
     if essential_summary and len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -3370,11 +3398,11 @@ def _build_command_center_fleet_activity_summary(
             continue
         if part.startswith("review ") and review_backlog_label:
             managed_backlog_essential_parts.append(
-                _clip_part(f"review {review_backlog_label}", max_chars=32)
+                _clip_review_ready_state_part(f"review {review_backlog_label}", max_chars=32)
             )
         elif part.startswith("ready ") and ready_backlog_label:
             managed_backlog_essential_parts.append(
-                _clip_part(f"ready {ready_backlog_label}", max_chars=32)
+                _clip_review_ready_state_part(f"ready {ready_backlog_label}", max_chars=32)
             )
         else:
             managed_backlog_essential_parts.append(part)
@@ -3474,9 +3502,9 @@ def _build_command_center_fleet_activity_summary(
         focused_active_story_parts = [
             _clip_part(part, max_chars=28)
             if part.startswith(("attention first ", "blocked ", "plan ", "active device "))
-            else _clip_part(part, max_chars=25)
+            else _clip_review_ready_state_part(part, max_chars=25)
             if part.startswith("review ")
-            else _clip_part(part, max_chars=22)
+            else _clip_review_ready_state_part(part, max_chars=22)
             if part.startswith("ready ")
             else part
             for part in focused_active_story_parts
@@ -3513,8 +3541,10 @@ def _build_command_center_fleet_activity_summary(
             or part.endswith(" W nominal")
         ):
             continue
-        if part.startswith(("attention first ", "blocked ", "plan ", "active device ", "review ", "ready ")):
+        if part.startswith(("attention first ", "blocked ", "plan ", "active device ")):
             operator_story_parts.append(_clip_part(part, max_chars=28))
+        elif part.startswith(("review ", "ready ")):
+            operator_story_parts.append(_clip_review_ready_state_part(part, max_chars=28))
         else:
             operator_story_parts.append(part)
     story_backlog_parts = backlog_parts or single_kind_overflow_backlog_parts or single_kind_backlog_parts
@@ -3547,9 +3577,9 @@ def _build_command_center_fleet_activity_summary(
     compact_operator_story_parts = [
         _clip_part(part, max_chars=30)
         if part.startswith(("attention first ", "blocked ", "plan ", "active device "))
-        else _clip_part(part, max_chars=25)
+        else _clip_review_ready_state_part(part, max_chars=25)
         if part.startswith("review ")
-        else _clip_part(part, max_chars=22)
+        else _clip_review_ready_state_part(part, max_chars=22)
         if part.startswith("ready ")
         else part
         for part in compact_operator_story_source_parts
@@ -3600,7 +3630,9 @@ def _build_command_center_fleet_activity_summary(
         ]
         compact_single_kind_backlog_parts = [
             _clip_part(part, max_chars=28)
-            if part.startswith(("attention first ", "blocked ", "review ", "ready "))
+            if part.startswith(("attention first ", "blocked "))
+            else _clip_review_ready_state_part(part, max_chars=28)
+            if part.startswith(("review ", "ready "))
             else part
             for part in compact_single_kind_backlog_parts
         ]
@@ -3626,8 +3658,10 @@ def _build_command_center_fleet_activity_summary(
         return ultra_summary
 
     clipped_ultra_parts = [
-        _clip_part(part, max_chars=36)
-        if part.startswith(("review ", "ready ", "surfaced "))
+        _clip_review_ready_state_part(part, max_chars=36)
+        if part.startswith(("review ", "ready "))
+        else _clip_part(part, max_chars=36)
+        if part.startswith(("surfaced ",))
         else part
         for part in ultra_parts
     ]

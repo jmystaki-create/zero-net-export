@@ -735,8 +735,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("1 ready to promote", summary["fleet_activity_summary"])
-        self.assertIn("review Garage subboard au", summary["fleet_activity_summary"])
-        self.assertIn("ready Pool plant room con", summary["fleet_activity_summary"])
+        self.assertIn("review Garage", summary["fleet_activity_summary"])
+        self.assertIn("(fixed)", summary["fleet_activity_summary"])
+        self.assertIn("ready Pool", summary["fleet_activity_summary"])
 
     def test_command_center_summary_keeps_candidate_kind_mix_when_overflow_compacts(self) -> None:
         native_support = _load_native_support_module()
@@ -813,8 +814,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 variable candidate", summary["fleet_activity_summary"])
         self.assertIn("1 needs review", summary["fleet_activity_summary"])
         self.assertIn("1 ready to promote", summary["fleet_activity_summary"])
-        self.assertIn("review Garage subboard auxili", summary["fleet_activity_summary"])
-        self.assertIn("ready EV charger export absor", summary["fleet_activity_summary"])
+        self.assertIn("review Garage", summary["fleet_activity_summary"])
+        self.assertIn("(fixed)", summary["fleet_activity_summary"])
+        self.assertIn("ready EV", summary["fleet_activity_summary"])
+        self.assertIn("(variable)", summary["fleet_activity_summary"])
 
     def test_command_center_summary_drops_large_kind_mix_counts_before_review_ready_signals(self) -> None:
         native_support = _load_native_support_module()
@@ -899,8 +902,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("blocked Hot water relay", summary["fleet_activity_summary"])
         self.assertIn("6 need review", summary["fleet_activity_summary"])
         self.assertIn("6 ready to promote", summary["fleet_activity_summary"])
-        self.assertIn("review Garage auxiliary outle", summary["fleet_activity_summary"])
-        self.assertIn("ready EV charger export absor", summary["fleet_activity_summary"])
+        self.assertIn("review Garage", summary["fleet_activity_summary"])
+        self.assertIn("(fixed)", summary["fleet_activity_summary"])
+        self.assertIn("ready EV", summary["fleet_activity_summary"])
+        self.assertIn("(variable)", summary["fleet_activity_summary"])
         self.assertNotIn("6 fixed candidates", summary["fleet_activity_summary"])
         self.assertNotIn("6 variable candidates", summary["fleet_activity_summary"])
         self.assertNotIn("fixed backlog", summary["fleet_activity_summary"])
@@ -977,8 +982,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("2 unmanaged;", summary["device_status"])
         self.assertIn("1 needs review", summary["device_status"])
         self.assertIn("1 ready to promote", summary["device_status"])
-        self.assertIn("review Virtual load helper", summary["device_status"])
-        self.assertIn("ready EV charger export absorber", summary["device_status"])
+        self.assertIn("review Virtual", summary["device_status"])
+        self.assertIn("(fixed)", summary["device_status"])
+        self.assertIn("ready EV charger", summary["device_status"])
+        self.assertIn("(variable)", summary["device_status"])
 
     def test_device_status_helper_keeps_ready_to_promote_grammar_under_plural_compaction(self) -> None:
         native_support = _load_native_support_module()
@@ -4316,8 +4323,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
         self.assertIn("fixed backlog 1 review/1 ready", summary["fleet_activity_summary"])
-        self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
-        self.assertIn("ready Pool shed", summary["fleet_activity_summary"])
+        self.assertIn("review Garage", summary["fleet_activity_summary"])
+        self.assertIn("(fixed)", summary["fleet_activity_summary"])
+        self.assertIn("ready Pool", summary["fleet_activity_summary"])
         self.assertNotIn("enabled 2", summary["fleet_activity_summary"])
         self.assertNotIn("usable 1", summary["fleet_activity_summary"])
         self.assertNotIn("1 fixed managed", summary["fleet_activity_summary"])
@@ -4416,11 +4424,13 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("fixed backlog 1 review/1 ready", summary["fleet_activity_summary"])
-        self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
-        self.assertIn("ready Pool shed", summary["fleet_activity_summary"])
+        self.assertIn("review Garage", summary["fleet_activity_summary"])
+        self.assertIn("(fixed)", summary["fleet_activity_summary"])
+        self.assertIn("ready Pool", summary["fleet_activity_summary"])
         self.assertIn("fixed backlog 1 review/1 ready", summary["device_status"])
-        self.assertIn("review Garage subboard auxiliary outlet bank candidate 02", summary["device_status"])
-        self.assertIn("ready Pool shed circulation relay candidate 03", summary["device_status"])
+        self.assertIn("review Garage", summary["device_status"])
+        self.assertIn("(fixed)", summary["device_status"])
+        self.assertIn("ready Pool", summary["device_status"])
 
     def test_command_center_summary_keeps_managed_and_unmanaged_story_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
@@ -4519,8 +4529,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("source blockers active", summary["fleet_activity_summary"])
         self.assertIn("fixed backlog 1 review", summary["fleet_activity_summary"])
         self.assertIn("variable backlog 1 ready", summary["fleet_activity_summary"])
-        self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
-        self.assertIn("ready EV charger", summary["fleet_activity_summary"])
+        self.assertIn("review Garage", summary["fleet_activity_summary"])
+        self.assertIn("(fixed)", summary["fleet_activity_summary"])
+        self.assertIn("ready EV", summary["fleet_activity_summary"])
+        self.assertIn("(variable)", summary["fleet_activity_summary"])
 
     def test_command_center_summary_keeps_active_device_signal_in_tighter_fleet_activity_overflow(self) -> None:
         native_support = _load_native_support_module()
@@ -4554,8 +4566,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("active device EV charger", compacted)
         self.assertIn("2 unmanaged backlog", compacted)
         self.assertIn("source blockers active", compacted)
-        self.assertIn("review Garage subboard", compacted)
-        self.assertIn("ready EV charger export", compacted)
+        self.assertIn("review Garage", compacted)
+        self.assertIn("ready EV", compacted)
 
     def test_command_center_summary_preserves_candidate_kind_in_review_ready_clipping(self) -> None:
         native_support = _load_native_support_module()
@@ -4690,8 +4702,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("source blockers active", summary["fleet_activity_summary"])
         self.assertIn("2 managed", summary["fleet_activity_summary"])
         self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
-        self.assertIn("review EV charger", summary["fleet_activity_summary"])
-        self.assertIn("ready Garage subboa", summary["fleet_activity_summary"])
+        self.assertIn("review EV", summary["fleet_activity_summary"])
+        self.assertIn("(variable)", summary["fleet_activity_summary"])
+        self.assertIn("ready Garag", summary["fleet_activity_summary"])
         self.assertNotIn("configured devices available", summary["fleet_activity_summary"])
 
     def test_command_center_summary_keeps_source_blockers_visible_before_device_status_fallback(self) -> None:
@@ -5071,11 +5084,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
         self.assertIn("1 active managed device", summary["fleet_activity_summary"])
         self.assertIn("fixed backlog 2 review", summary["fleet_activity_summary"])
-        self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
+        self.assertIn("review Garage", summary["fleet_activity_summary"])
         self.assertNotIn("ready ", summary["fleet_activity_summary"])
         self.assertLessEqual(len(summary["device_status"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
         self.assertIn("fixed backlog 2 review", summary["device_status"])
-        self.assertIn("review Garage subboard auxiliary outlet bank candidate 02", summary["device_status"])
+        self.assertIn("review Garage", summary["device_status"])
+        self.assertIn("(fixed)", summary["device_status"])
         self.assertNotIn("ready ", summary["device_status"])
 
     def test_command_center_summary_prefers_controls_over_diagnostics_when_policy_is_the_recommended_home(self) -> None:
