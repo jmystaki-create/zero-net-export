@@ -60,7 +60,7 @@ Optimize for:
 - real operator success in native Home Assistant
 - clearer operator workflow through existing native surfaces
 - visible product improvement over abstract internal cleanup
-- finishing the remaining `0.1.87` UI rollout in strict order
+- finishing the remaining `0.1.88` UI rollout in strict order
 - producing evidence that moves checklist items forward
 
 Do not drift into:
@@ -210,7 +210,7 @@ If blocked on James, continue only with safe adjacent work that does not violate
 ## Acceptance stance
 
 The project is in good shape for this phase when:
-- the ordered `0.1.87` UI work has been completed in sequence
+- the ordered `0.1.88` UI work has been completed in sequence
 - the native operator path is clearly understandable in Home Assistant
 - Configure is clearly the command center
 - Managed Devices is clearly the fleet workspace
