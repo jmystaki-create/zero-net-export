@@ -104,6 +104,10 @@ def _blocked_activity_count_label(count: int) -> str:
     return _count_label(count, "blocked managed action")
 
 
+def _managed_attention_count_label(count: int) -> str:
+    return _count_label(count, "managed device needs attention", "managed devices need attention")
+
+
 def _managed_count_label(count: int) -> str:
     return "no managed yet" if count <= 0 else f"{count} managed"
 
@@ -3827,17 +3831,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 attention_target = _command_center_runtime_device_preview(first_attention_device)
                 if managed_attention_count > 1:
                     device_alert = (
-                        f"Managed Devices: {managed_attention_count} managed devices need attention, "
-                        f"starting with {attention_target}"
+                        f"Managed Devices: {_managed_attention_count_label(managed_attention_count)}, "
+                        f"attention first {attention_target}"
                     )
                 else:
-                    device_alert = f"Managed Devices: 1 managed device needs attention: {attention_target}"
+                    device_alert = f"Managed Devices: attention first {attention_target}"
             else:
-                device_alert = (
-                    "Managed Devices: 1 managed device needs attention"
-                    if managed_attention_count == 1
-                    else f"Managed Devices: {managed_attention_count} managed devices need attention"
-                )
+                device_alert = f"Managed Devices: {_managed_attention_count_label(managed_attention_count)}"
         elif not has_managed_devices:
             device_alert = "Managed Devices: no managed yet."
 

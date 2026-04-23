@@ -2462,7 +2462,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn(
-            "Managed Devices: 2 managed devices need attention, starting with Pool pump (fixed | last failed)",
+            "Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | last failed)",
             summary["alert_summary"],
         )
 
@@ -2511,7 +2511,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn(
-            "Managed Devices: 1 managed device needs attention: Pool pump (fixed | last failed)",
+            "Managed Devices: attention first Pool pump (fixed | last failed)",
             summary["alert_summary"],
         )
 
