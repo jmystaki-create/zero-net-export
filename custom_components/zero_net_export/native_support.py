@@ -213,7 +213,7 @@ def _prefer_review_ready_over_large_kind_mix(summary: str) -> str:
     normalized = " ".join(str(summary or "").split())
     if len(normalized) > MAX_NATIVE_SENSOR_STATE_CHARS:
         return normalized
-    parts = [part.strip() for part in normalized.split(" | ") if part.strip()]
+    parts = _split_fleet_activity_parts(normalized)
     if not any(part.startswith("review ") for part in parts):
         return normalized
     if not any(part.startswith("ready ") for part in parts):
@@ -257,12 +257,66 @@ def _truncate_state_summary(text: str, *, fallback: str) -> str:
     return fallback
 
 
+def _is_fleet_activity_top_level_part(text: str) -> bool:
+    normalized = " ".join(str(text or "").split())
+    if not normalized:
+        return False
+    if normalized in {"review first", "review carefully"}:
+        return False
+    return bool(
+        normalized == SOURCE_BLOCKER_ACTIVE_LABEL
+        or _is_managed_count_part(normalized)
+        or _is_unmanaged_count_part(normalized)
+        or normalized.startswith(
+            (
+                "attention first ",
+                "blocked ",
+                "plan ",
+                "active load ",
+                "active device ",
+                "review ",
+                "ready ",
+                "surfaced ",
+                "enabled ",
+                "usable ",
+                "fixed backlog ",
+                "variable backlog ",
+            )
+        )
+        or _matches_count_label(normalized, "managed device needs attention", "managed devices need attention")
+        or _matches_count_label(normalized, "blocked managed action")
+        or _matches_count_label(normalized, "needs review", "need review")
+        or _matches_count_label(normalized, "ready to promote")
+        or _matches_count_label(normalized, "fixed candidate")
+        or _matches_count_label(normalized, "variable candidate")
+        or _matches_count_label(normalized, "fixed managed")
+        or _matches_count_label(normalized, "variable managed")
+        or _matches_count_label(normalized, "planned action")
+        or _matches_count_label(normalized, "active managed device", "active managed devices")
+        or normalized.endswith(" W nominal")
+    )
+
+
+def _split_fleet_activity_parts(summary: str) -> list[str]:
+    raw_parts = [part.strip() for part in str(summary or "").split(" | ") if part.strip()]
+    if not raw_parts:
+        return []
+
+    parts: list[str] = []
+    for raw_part in raw_parts:
+        if parts and not _is_fleet_activity_top_level_part(raw_part):
+            parts[-1] = f"{parts[-1]} | {raw_part}"
+        else:
+            parts.append(raw_part)
+    return parts
+
+
 def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     normalized = " ".join(str(summary or "").split())
     if len(normalized) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return normalized
 
-    parts = [part.strip() for part in normalized.split(" | ") if part.strip()]
+    parts = _split_fleet_activity_parts(normalized)
 
     signal_first_parts = list(parts)
     signal_first_removable_matchers = (

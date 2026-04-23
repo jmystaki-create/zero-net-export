@@ -4612,6 +4612,57 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("ready ", compacted)
         self.assertIn("(variable)", compacted)
 
+    def test_command_center_summary_overflow_compaction_drops_review_ready_helper_fragments(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "1 managed",
+                    "attention first Pool pump with a deliberately long operator label",
+                    "enabled 1",
+                    "usable 1",
+                    "1 fixed managed",
+                    "4200 W nominal",
+                    "2 unmanaged backlog",
+                    "1 needs review",
+                    "review Review Candidate Alpha with a deliberately long label (fixed) | review first | warn generic outlet label",
+                    "1 ready to promote",
+                    "ready Ready Candidate Beta with a deliberately long label (variable) | likely useful | key warning: No immediate warnings",
+                ]
+            )
+        )
+
+        self.assertGreater(
+            len(
+                " | ".join(
+                    [
+                        "1 managed",
+                        "attention first Pool pump with a deliberately long operator label",
+                        "enabled 1",
+                        "usable 1",
+                        "1 fixed managed",
+                        "4200 W nominal",
+                        "2 unmanaged backlog",
+                        "1 needs review",
+                        "review Review Candidate Alpha with a deliberately long label (fixed) | review first | warn generic outlet label",
+                        "1 ready to promote",
+                        "ready Ready Candidate Beta with a deliberately long label (variable) | likely useful | key warning: No immediate warnings",
+                    ]
+                )
+            ),
+            native_support.MAX_NATIVE_SENSOR_STATE_CHARS,
+        )
+        self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("review Review Candida", compacted)
+        self.assertIn("(fixed)", compacted)
+        self.assertIn("ready Ready Candid", compacted)
+        self.assertIn("(variable)", compacted)
+        self.assertNotIn("review first", compacted)
+        self.assertNotIn("warn generic outlet label", compacted)
+        self.assertNotIn("likely useful", compacted)
+        self.assertNotIn("key warning:", compacted)
+
     def test_command_center_summary_keeps_source_blockers_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 
