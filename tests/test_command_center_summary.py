@@ -82,6 +82,21 @@ def _load_native_support_module():
 
 
 class CommandCenterSummaryTests(unittest.TestCase):
+    def test_compact_top_alert_summary_drops_literal_none_placeholders(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support._compact_top_alert_summary(
+            ["None", "Managed Devices: blocked Pool pump (fixed | action turn_on)"],
+            ["None", "Managed Devices: review first Virtual load (fixed) | review first"],
+            fallback="No top-level alerts right now.",
+        )
+
+        self.assertEqual(
+            summary,
+            "Managed Devices: blocked Pool pump (fixed | action turn_on)",
+        )
+        self.assertNotIn("None", summary)
+
     def test_command_center_summary_exposes_structured_control_board_fields(self) -> None:
         native_support = _load_native_support_module()
 

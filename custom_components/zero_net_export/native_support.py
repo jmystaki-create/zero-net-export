@@ -528,9 +528,19 @@ def _compact_control_outcome_summary(
     return "Control outcome will appear here after runtime loads."
 
 
+def _normalized_alert_part(part: Any) -> str:
+    normalized = " ".join(str(part or "").split())
+    return "" if normalized.lower() == "none" else normalized
+
+
+
 def _compact_top_alert_summary(*variants: list[str], fallback: str) -> str:
     for variant in variants:
-        summary = " | ".join(str(part).strip() for part in variant if str(part).strip())
+        summary = " | ".join(
+            normalized
+            for part in variant
+            if (normalized := _normalized_alert_part(part))
+        )
         if summary and len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return summary
     return fallback
