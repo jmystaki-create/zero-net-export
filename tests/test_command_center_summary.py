@@ -4294,6 +4294,39 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
         self.assertIn("ready EV charger", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_keeps_active_device_signal_in_tighter_fleet_activity_overflow(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "2 managed",
+                    "2 managed devices need attention",
+                    "attention first Hot water relay with an extraordinarily verbose managed-device attention label that should require tighter priority compaction",
+                    "blocked Hot water relay with an extraordinarily verbose managed-device blocked label that should require tighter priority compaction",
+                    "1 planned action(s)",
+                    "plan Hot water relay with an extraordinarily verbose managed-device plan label that should require tighter priority compaction",
+                    "active load 5300 W",
+                    "1 active managed device",
+                    "active device EV charger with an extraordinarily verbose active managed-device label that should remain visible after tighter priority compaction",
+                    "2 unmanaged backlog",
+                    "source blockers active",
+                    "fixed backlog 1 review",
+                    "variable backlog 1 ready",
+                    "review Garage subboard auxiliary outlet bank candidate 02 with an extraordinarily verbose review-first descriptor that should require tighter priority compaction",
+                    "ready EV charger export absorption control limit with an extraordinarily verbose ready-next descriptor that should require tighter priority compaction",
+                ]
+            )
+        )
+
+        self.assertLessEqual(len(compacted), 255)
+        self.assertIn("attention first Hot water", compacted)
+        self.assertIn("active device EV charger", compacted)
+        self.assertIn("2 unmanaged backlog", compacted)
+        self.assertIn("source blockers active", compacted)
+        self.assertIn("review Garage subboard", compacted)
+        self.assertIn("ready EV charger export", compacted)
+
     def test_command_center_summary_keeps_source_blockers_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 

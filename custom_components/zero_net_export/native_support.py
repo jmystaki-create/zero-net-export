@@ -294,10 +294,17 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         for part in parts
         if part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
     ]
+    prioritized_focus_parts: list[str] = []
+    for prefix in ("attention first ", "blocked ", "active device ", "active load ", "plan "):
+        focus_part = next((part for part in parts if part.startswith(prefix)), "")
+        if focus_part and focus_part not in prioritized_focus_parts:
+            prioritized_focus_parts.append(focus_part)
+    if not prioritized_focus_parts:
+        prioritized_focus_parts = focus_parts[:2]
 
     if managed_part:
         priority_parts.append(managed_part)
-    priority_parts.extend(focus_parts[:2])
+    priority_parts.extend(prioritized_focus_parts[:3])
     if unmanaged_part:
         priority_parts.append(unmanaged_part)
     if source_blocker_part:
