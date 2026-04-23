@@ -2632,6 +2632,87 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertNotIn("active device Pool pump", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_keeps_active_cue_when_attention_first_device_overflows(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and confirm the current live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Review Candidate Alpha with a deliberately long label near the garage side board and utility room",
+                    "entity_id": "switch.review_candidate_alpha",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "Ready Candidate Beta with a deliberately long label near the garage side board and utility room",
+                    "entity_id": "switch.ready_candidate_beta",
+                    "kind": "fixed",
+                },
+            ],
+            "Review Candidate Alpha with a deliberately long label near the garage side board and utility room",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if "Review" in candidate.get("name", "") else "high",
+            "warnings": ["helper-backed load needs review"] if "Review" in candidate.get("name", "") else [],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Review Candidate Alpha with a deliberately long label near the garage side board and utility room (fixed) | review first | warn helper-backed load needs review"
+            if "Review" in candidate.get("name", "")
+            else "Ready Candidate Beta with a deliberately long label near the garage side board and utility room (fixed) | likely useful | key warning: No immediate warnings"
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            blocked_planned_action_count=1,
+            device_details={
+                "pool": {
+                    "name": "Pool pump with a spectacularly verbose blocked-and-active label near the patio side walkway and west fence line",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                    "observed_active": True,
+                },
+                "heater": {
+                    "name": "Heated floor controller with a shorter idle label",
+                    "entity_id": "switch.heated_floor_controller",
+                    "kind": "fixed",
+                    "usable": True,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("attention first", summary["fleet_activity_summary"])
+        self.assertIn("active", summary["fleet_activity_summary"])
+        self.assertIn("review ", summary["fleet_activity_summary"])
+        self.assertIn("ready ", summary["fleet_activity_summary"])
+
     def test_command_center_summary_keeps_distinct_active_device_when_first_active_load_is_planned(self) -> None:
         native_support = _load_native_support_module()
 
@@ -4786,10 +4867,34 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
         self.assertIn("attention first", compacted)
-        self.assertIn("(block)", compacted)
+        self.assertTrue("(block)" in compacted or "(blocked)" in compacted)
         self.assertIn("active device", compacted)
         self.assertIn("(active)", compacted)
         self.assertIn("source blockers active", compacted)
+        self.assertIn("review ", compacted)
+        self.assertIn("ready ", compacted)
+
+    def test_command_center_summary_overflow_compaction_keeps_active_cue_on_attention_first_device(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "2 managed",
+                    "attention first Pool pump with a spectacularly verbose blocked-and-active label near the patio side walkway (fixed | not usable | active 920 W)",
+                    "2 unmanaged backlog",
+                    "fixed backlog 2 review/2 ready",
+                    "2 need review",
+                    "review Review Candidate Alpha with a deliberately long label (fixed) | review first | warn helper-backed load needs review and validation",
+                    "2 ready to promote",
+                    "ready Ready Candidate Beta with a deliberately long label (fixed) | likely useful | key warning: No immediate warnings",
+                ]
+            )
+        )
+
+        self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("attention first", compacted)
+        self.assertIn("active", compacted)
         self.assertIn("review ", compacted)
         self.assertIn("ready ", compacted)
 

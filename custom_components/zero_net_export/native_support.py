@@ -529,10 +529,12 @@ def _clip_focus_state_part(text: str, *, max_chars: int) -> str | None:
             detail_parts = parsed_detail_parts
 
     kind_detail = next((part for part in detail_parts if part in {"fixed", "variable"}), "")
-    status_detail = next((part for part in detail_parts if part not in {"fixed", "variable"}), "")
+    state_details = [part for part in detail_parts if part not in {"fixed", "variable"}]
+    status_detail = state_details[0] if state_details else ""
     if status_detail == "not usable":
         status_detail = "blocked"
 
+    active_detail = next((part for part in state_details if part.startswith("active")), "")
     compact_status_detail = status_detail
     if status_detail == "blocked":
         compact_status_detail = "block"
@@ -541,7 +543,20 @@ def _clip_focus_state_part(text: str, *, max_chars: int) -> str | None:
     elif status_detail.startswith("action "):
         compact_status_detail = status_detail.removeprefix("action ").strip() or status_detail
 
+    compact_active_detail = "active" if active_detail.startswith("active ") else active_detail
+
     suffix_options: list[str] = []
+    if status_detail and active_detail and active_detail != status_detail:
+        suffix_options.append(f" ({status_detail} | {active_detail})")
+        if compact_active_detail and compact_active_detail != active_detail:
+            suffix_options.append(f" ({status_detail} | {compact_active_detail})")
+        if compact_status_detail and compact_status_detail != status_detail:
+            suffix_options.append(f" ({compact_status_detail} | {compact_active_detail or active_detail})")
+        if compact_active_detail:
+            suffix_options.append(f" ({compact_active_detail})")
+        if kind_detail:
+            suffix_options.append(f" ({kind_detail} | {compact_status_detail or status_detail} | {compact_active_detail or active_detail})")
+            suffix_options.append(f" ({kind_detail} | {status_detail} | {compact_active_detail or active_detail})")
     if status_detail:
         suffix_options.append(f" ({status_detail})")
         if compact_status_detail and compact_status_detail != status_detail:
@@ -551,9 +566,16 @@ def _clip_focus_state_part(text: str, *, max_chars: int) -> str | None:
     if kind_detail:
         suffix_options.append(f" ({kind_detail})")
 
+    seen_suffixes: set[str] = set()
+    unique_suffix_options = []
     for suffix in suffix_options:
+        if suffix not in seen_suffixes:
+            unique_suffix_options.append(suffix)
+            seen_suffixes.add(suffix)
+
+    for suffix in unique_suffix_options:
         available_label_chars = max_chars - len(prefix) - len(suffix)
-        if available_label_chars <= 3:
+        if available_label_chars <= 1:
             continue
         clipped_label = _clip_state_part(primary_label, max_chars=available_label_chars)
         clipped = f"{prefix}{clipped_label}{suffix}".strip()
