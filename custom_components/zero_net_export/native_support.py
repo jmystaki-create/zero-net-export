@@ -1349,6 +1349,10 @@ def _managed_runtime_activity(state: Any) -> tuple[int, float]:
             for detail in device_details
             if detail.get("observed_active") is True
         )
+    if active_count <= 0 and active_power_w > 0:
+        managed_count = int(getattr(state, "device_count", 0) or 0)
+        if managed_count > 0:
+            active_count = 1
     return active_count, round(active_power_w, 1)
 
 
@@ -2018,6 +2022,8 @@ def _command_center_device_status_with_unmanaged_context(
     ready_candidate_preview: str,
     managed_attention_count: int = 0,
     blocked_activity_count: int = 0,
+    active_managed_count: int = 0,
+    active_managed_power_w: float = 0.0,
     source_blocked: bool = False,
 ) -> str:
     def _clip_part(text: str, *, max_chars: int) -> str:
@@ -2039,6 +2045,14 @@ def _command_center_device_status_with_unmanaged_context(
     summary = _managed_count_label(managed_count) if generic_managed_status and managed_count > 0 else base_status
     managed_parts: list[str] = []
     if generic_managed_status and managed_count > 0:
+        if active_managed_count:
+            if active_managed_power_w > 0:
+                managed_parts.append(f"active load {active_managed_power_w:g} W")
+            managed_parts.append(
+                "1 active managed device"
+                if active_managed_count == 1
+                else f"{active_managed_count} active managed devices"
+            )
         if managed_attention_count:
             managed_parts.append(
                 "1 managed device needs attention"
@@ -3418,6 +3432,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         if state is not None
         else 0
     )
+    active_managed_count, active_managed_power_w = _managed_runtime_activity(state)
     blocked_activity_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
         if state is not None
@@ -3504,6 +3519,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             review_candidate_preview=review_candidate_preview,
             ready_candidate_name=ready_candidate_name,
             ready_candidate_preview=ready_candidate_preview,
+            active_managed_count=active_managed_count,
+            active_managed_power_w=active_managed_power_w,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
@@ -3526,6 +3543,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_preview=ready_candidate_preview,
             managed_attention_count=managed_attention_count,
             blocked_activity_count=blocked_activity_count,
+            active_managed_count=active_managed_count,
+            active_managed_power_w=active_managed_power_w,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         if blocked_activity_count:
@@ -3579,6 +3598,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             review_candidate_preview=review_candidate_preview,
             ready_candidate_name=ready_candidate_name,
             ready_candidate_preview=ready_candidate_preview,
+            active_managed_count=active_managed_count,
+            active_managed_power_w=active_managed_power_w,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         if review_candidate_name:

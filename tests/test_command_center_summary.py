@@ -144,7 +144,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(summary["headline_decision"], "Action queued, waiting for device guard.")
-        self.assertEqual(summary["alert_summary"], "1 managed; no unmanaged candidates")
+        self.assertEqual(
+            summary["alert_summary"],
+            "1 managed; active load 1200 W; 1 active managed device; no unmanaged candidates",
+        )
         self.assertIn("solar 4200.0 W", summary["energy_state_summary"])
         self.assertIn("grid import 350.0 W", summary["energy_state_summary"])
         self.assertIn("battery charge 900.0 W", summary["energy_state_summary"])
@@ -154,14 +157,70 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("planned actions 1", summary["control_outcome_summary"])
         self.assertIn("active load 1200.0 W", summary["control_outcome_summary"])
         self.assertIn("1 managed", summary["fleet_activity_summary"])
+        self.assertIn("active load 1200", summary["fleet_activity_summary"])
+        self.assertIn("1 active managed device", summary["fleet_activity_summary"])
         self.assertIn("enabled 1", summary["fleet_activity_summary"])
         self.assertIn("usable 1", summary["fleet_activity_summary"])
         self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
         self.assertIn("1200 W nominal", summary["fleet_activity_summary"])
-        self.assertEqual(summary["device_status"], "1 managed; no unmanaged candidates")
+        self.assertEqual(
+            summary["device_status"],
+            "1 managed; active load 1200 W; 1 active managed device; no unmanaged candidates",
+        )
         self.assertNotIn("configured device available", summary["fleet_activity_summary"])
         self.assertNotIn("configured device available", summary["device_status"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
+
+    def test_command_center_summary_uses_aggregate_active_load_when_runtime_rows_are_missing(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Holding near target.",
+            control_reason="Active load already holding export near target.",
+            control_summary="One managed load is already active.",
+            export_error_w=25.0,
+            active_controlled_power_w=1800.0,
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=1800.0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry)
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("active load 1800", summary["fleet_activity_summary"])
+        self.assertIn("1 active managed device", summary["fleet_activity_summary"])
+        self.assertEqual(
+            summary["device_status"],
+            "1 managed; active load 1800 W; 1 active managed device; no unmanaged candidates",
+        )
 
     def test_command_center_summary_preserves_control_metrics_when_reason_text_is_long(self) -> None:
         native_support = _load_native_support_module()
