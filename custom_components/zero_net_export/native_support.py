@@ -3831,7 +3831,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                         f"starting with {attention_target}"
                     )
                 else:
-                    device_alert = f"Managed Devices: {attention_target}"
+                    device_alert = f"Managed Devices: 1 managed device needs attention: {attention_target}"
             else:
                 device_alert = (
                     "Managed Devices: 1 managed device needs attention"
