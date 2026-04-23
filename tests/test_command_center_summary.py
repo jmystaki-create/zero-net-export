@@ -5672,6 +5672,102 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage auxiliary", summary["device_status"])
         self.assertIn("ready EV charger", summary["device_status"])
 
+    def test_fleet_activity_overflow_keeps_active_device_focus_with_unmanaged_backlog(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "setup_needed",
+            "summary": "Finish source mapping first.",
+            "next_step": "Open Sensors and finish the missing source roles.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": ["solar_power"],
+            "stale_source_keys": [],
+            "validation_details": {"issues": []},
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "Missing solar power"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "Solar power"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Source blockers active"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: ""
+
+        candidates = [
+            {
+                "name": "Lounge Room Heated Floor Adaptive Controller",
+                "entity_id": "number.lounge_room_heated_floor",
+                "kind": "variable",
+            },
+            {
+                "name": "Air Purifier North Bedroom High Output",
+                "entity_id": "switch.air_purifier_north_bedroom",
+                "kind": "fixed",
+            },
+        ]
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            candidates,
+            candidates[0]["name"],
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("kind") == "variable" else "high",
+            "warnings": ["Helper-backed entity needs review"] if candidate.get("kind") == "variable" else [],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Lounge Room Heated Floor Adaptive Controller (variable) | review first | warn helper-backed entity needs review"
+            if candidate and candidate.get("kind") == "variable"
+            else "Air Purifier North Bedroom High Output (fixed) | likely useful | key warning: No immediate warnings"
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Monitoring while source setup is still incomplete.",
+            control_reason="Waiting for missing source roles.",
+            status="Paused",
+            device_status_summary="1 configured device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            variable_device_count=0,
+            controllable_nominal_power_w=1185.0,
+            active_controlled_power_w=1185.0,
+            blocked_planned_action_count=0,
+            mode="monitoring",
+            health_summary="Needs setup",
+            diagnostic_summary="Needs setup",
+            validation_details={},
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 1185.0,
+                    "planned_action": "hold",
+                    "nominal_power_w": 1185.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(
+            data=state,
+            entry=entry,
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("1 managed", summary["fleet_activity_summary"])
+        self.assertIn("active device Pool Pu", summary["fleet_activity_summary"])
+        self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertIn("source blockers active", summary["fleet_activity_summary"])
+        self.assertIn("review Lounge Room", summary["fleet_activity_summary"])
+        self.assertIn("ready Air Purifier", summary["fleet_activity_summary"])
+
     def test_fleet_activity_leads_with_operational_signals_before_inventory_counts(self) -> None:
         native_support = _load_native_support_module()
         native_support.build_source_mapping_summary = lambda merged: ""

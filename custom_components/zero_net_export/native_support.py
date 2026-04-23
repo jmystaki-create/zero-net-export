@@ -397,7 +397,7 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         if part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
     ]
     prioritized_focus_parts: list[str] = []
-    for prefix in ("attention first ", "active load ", "active device ", "blocked ", "plan "):
+    for prefix in ("attention first ", "active device ", "active load ", "blocked ", "plan "):
         focus_part = next((part for part in parts if part.startswith(prefix)), "")
         if focus_part and focus_part not in prioritized_focus_parts:
             prioritized_focus_parts.append(focus_part)
