@@ -263,6 +263,42 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         return normalized
 
     parts = [part.strip() for part in normalized.split(" | ") if part.strip()]
+
+    signal_first_parts = list(parts)
+    signal_first_removable_matchers = (
+        lambda part: part.endswith(" managed device needs attention") or part.endswith(" managed devices need attention"),
+        lambda part: _matches_count_label(part, "blocked managed action"),
+        lambda part: _matches_count_label(part, "needs review", "need review"),
+        lambda part: _matches_count_label(part, "ready to promote"),
+        lambda part: _matches_count_label(part, "fixed candidate") or _matches_count_label(part, "variable candidate"),
+        lambda part: part.startswith("fixed backlog ") or part.startswith("variable backlog "),
+        lambda part: _matches_count_label(part, "planned action"),
+        lambda part: part.startswith(("enabled ", "usable ")) or part.endswith(" W nominal"),
+    )
+    for matcher in signal_first_removable_matchers:
+        if len(" | ".join(signal_first_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            break
+        for index, part in enumerate(list(signal_first_parts)):
+            if matcher(part):
+                del signal_first_parts[index]
+                break
+
+    signal_first_summary = " | ".join(signal_first_parts)
+    if signal_first_summary and len(signal_first_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return signal_first_summary
+
+    signal_first_tighter_parts = []
+    for part in signal_first_parts:
+        if part.startswith(("attention first ", "blocked ", "plan ", "active device ")):
+            signal_first_tighter_parts.append(_clip_state_part(part, max_chars=28))
+        elif part.startswith(("review ", "ready ")):
+            signal_first_tighter_parts.append(_clip_state_part(part, max_chars=32))
+        else:
+            signal_first_tighter_parts.append(part)
+    signal_first_tighter_summary = " | ".join(signal_first_tighter_parts)
+    if signal_first_tighter_summary and len(signal_first_tighter_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return signal_first_tighter_summary
+
     compact_parts = list(parts)
     removable_matchers = (
         lambda part: part.endswith(" managed device needs attention") or part.endswith(" managed devices need attention"),
@@ -2591,6 +2627,40 @@ def _build_command_center_fleet_activity_summary(
                 break
 
     compact_summary = " | ".join(compact_summary_parts)
+    active_count_label = (
+        "1 active managed device"
+        if active_managed_count == 1
+        else f"{active_managed_count} active managed devices"
+        if active_managed_count > 1
+        else ""
+    )
+    if (
+        compact_summary
+        and len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+        and active_count_label
+        and active_count_label not in compact_summary_parts
+    ):
+        active_signal_parts = [
+            part
+            for part in compact_summary_parts
+            if not (
+                part.endswith(" managed device needs attention")
+                or part.endswith(" managed devices need attention")
+            )
+        ]
+        insertion_index = next(
+            (
+                index + 1
+                for index, part in enumerate(active_signal_parts)
+                if part.startswith(("active load ", "plan ", "blocked ", "attention first "))
+            ),
+            len(active_signal_parts),
+        )
+        active_signal_parts.insert(insertion_index, active_count_label)
+        active_signal_summary = " | ".join(active_signal_parts)
+        if len(active_signal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return active_signal_summary
+
     compact_review_focus_parts = [
         part
         for part in compact_summary_parts
@@ -2873,13 +2943,14 @@ def _build_command_center_fleet_activity_summary(
             part
             for part in single_kind_review_focus_parts
             if not (
-                _matches_count_label(part, "needs review", "need review")
+                part.endswith(" managed device needs attention")
+                or part.endswith(" managed devices need attention")
+                or _matches_count_label(part, "needs review", "need review")
                 or _matches_count_label(part, "ready to promote")
-                or _matches_count_label(part, "active managed device", "active managed devices")
             )
         ]
         compact_single_kind_review_focus_parts = [
-            _clip_part(part, max_chars=28)
+            _clip_part(part, max_chars=27)
             if part.startswith(("attention first ", "blocked ", "review ", "ready ", "active device "))
             else part
             for part in compact_single_kind_review_focus_parts

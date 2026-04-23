@@ -4827,6 +4827,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("1 active managed device", summary["fleet_activity_summary"])
         self.assertIn("fixed backlog 2 review", summary["fleet_activity_summary"])
         self.assertIn("review Garage subboard", summary["fleet_activity_summary"])
         self.assertNotIn("ready ", summary["fleet_activity_summary"])
