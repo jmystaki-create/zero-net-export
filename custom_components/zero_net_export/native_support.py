@@ -292,7 +292,7 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         if part.startswith(("attention first ", "blocked ", "plan ", "active device ")):
             signal_first_tighter_parts.append(_clip_state_part(part, max_chars=28))
         elif part.startswith(("review ", "ready ")):
-            signal_first_tighter_parts.append(_clip_state_part(part, max_chars=32))
+            signal_first_tighter_parts.append(_clip_review_ready_state_part(part, max_chars=32))
         else:
             signal_first_tighter_parts.append(part)
     signal_first_tighter_summary = " | ".join(signal_first_tighter_parts)
@@ -400,6 +400,40 @@ def _clip_state_part(text: str, *, max_chars: int) -> str:
     if max_chars <= 3:
         return normalized[:max_chars]
     return normalized[: max_chars - 3].rstrip() + "..."
+
+
+def _clip_review_ready_state_part(text: str, *, max_chars: int) -> str:
+    normalized = " ".join(str(text).split())
+    if len(normalized) <= max_chars or max_chars < 30:
+        return _clip_state_part(normalized, max_chars=max_chars)
+
+    prefix, separator, payload = normalized.partition(" ")
+    if prefix not in {"review", "ready"} or not separator or not payload:
+        return _clip_state_part(normalized, max_chars=max_chars)
+
+    primary_label = payload.split(" | ", 1)[0].strip()
+    if not primary_label:
+        return _clip_state_part(normalized, max_chars=max_chars)
+
+    base_label = primary_label
+    kind_suffix = ""
+    if primary_label.endswith(")") and " (" in primary_label:
+        possible_base, possible_suffix = primary_label.rsplit(" (", 1)
+        possible_suffix = f" ({possible_suffix}"
+        if possible_base and len(possible_suffix) < max_chars - len(prefix) - 1:
+            base_label = possible_base.strip()
+            kind_suffix = possible_suffix
+
+    available_label_chars = max_chars - len(prefix) - 1 - len(kind_suffix)
+    if available_label_chars <= 0:
+        return _clip_state_part(f"{prefix} {primary_label}", max_chars=max_chars)
+
+    clipped_label = _clip_state_part(base_label, max_chars=available_label_chars)
+    clipped = f"{prefix} {clipped_label}{kind_suffix}".strip()
+    if len(clipped) <= max_chars:
+        return clipped
+
+    return _clip_state_part(f"{prefix} {primary_label}", max_chars=max_chars)
 
 
 def _compact_metric_value(value: Any) -> str:

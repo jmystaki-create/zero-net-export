@@ -4557,6 +4557,24 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage subboard", compacted)
         self.assertIn("ready EV charger export", compacted)
 
+    def test_command_center_summary_preserves_candidate_kind_in_review_ready_clipping(self) -> None:
+        native_support = _load_native_support_module()
+
+        self.assertEqual(
+            "review Garage subboar... (fixed)",
+            native_support._clip_review_ready_state_part(
+                "review Garage subboard auxiliary outlet bank candidate 02 (fixed) | review first | warn generic outlet label",
+                max_chars=32,
+            ),
+        )
+        self.assertEqual(
+            "ready EV charger e... (variable)",
+            native_support._clip_review_ready_state_part(
+                "ready EV charger export absorption control limit (variable) | likely useful",
+                max_chars=32,
+            ),
+        )
+
     def test_command_center_summary_keeps_source_blockers_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 
