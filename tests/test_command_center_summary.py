@@ -1501,11 +1501,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertIn("1 configured, with 1 issue(s) to repair", summary["device_status"])
         self.assertIn("2 unmanaged backlog", summary["device_status"])
+        self.assertIn("source blockers active", summary["device_status"])
         self.assertNotIn("| 2 unmanaged |", f"| {summary['device_status']} |")
         self.assertIn("1 needs review", summary["device_status"])
         self.assertIn("1 ready to promote", summary["device_status"])
-        self.assertIn("review Garage Power (fixed) | review first | warn generic circuit label", summary["device_status"])
-        self.assertIn("ready Dishwasher Power (fixed) | likely useful", summary["device_status"])
+        self.assertIn("review Garage Power", summary["device_status"])
+        self.assertIn("ready Dishwasher Power", summary["device_status"])
         self.assertNotIn("2 unmanaged ready", summary["device_status"])
 
     def test_command_center_summary_keeps_review_first_hint_when_review_target_differs_from_top_candidate(self) -> None:
@@ -4498,6 +4499,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("4 unmanaged backlog", summary["fleet_activity_summary"])
         self.assertIn("review ReviewCandidate0", summary["fleet_activity_summary"])
         self.assertIn("ready ReadyCandidate0", summary["fleet_activity_summary"])
+        self.assertIn("source blockers active", summary["device_status"])
+        self.assertIn("4 unmanaged backlog", summary["device_status"])
         self.assertNotEqual(summary["fleet_activity_summary"], summary["device_status"])
         self.assertNotIn("configured devices available", summary["fleet_activity_summary"])
 

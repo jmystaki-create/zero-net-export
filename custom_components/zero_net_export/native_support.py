@@ -2011,6 +2011,7 @@ def _command_center_device_status_with_unmanaged_context(
     ready_candidate_preview: str,
     managed_attention_count: int = 0,
     blocked_activity_count: int = 0,
+    source_blocked: bool = False,
 ) -> str:
     def _clip_part(text: str, *, max_chars: int) -> str:
         normalized = " ".join(str(text).split())
@@ -2042,8 +2043,15 @@ def _command_center_device_status_with_unmanaged_context(
     if managed_parts:
         summary = "; ".join([summary, *managed_parts])
     if candidate_count <= 0:
-        return f"{summary}; no unmanaged candidates" if generic_managed_status and managed_count > 0 else summary
+        if generic_managed_status and managed_count > 0:
+            summary += "; no unmanaged candidates"
+            if source_blocked:
+                summary += f"; {SOURCE_BLOCKER_ACTIVE_LABEL}"
+            return summary
+        return f"{summary}; {SOURCE_BLOCKER_ACTIVE_LABEL}" if source_blocked else summary
     summary += f"; {_unmanaged_count_label(candidate_count)}"
+    if source_blocked:
+        summary += f"; {SOURCE_BLOCKER_ACTIVE_LABEL}"
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
@@ -2091,6 +2099,8 @@ def _command_center_device_status_with_unmanaged_context(
         _clip_part(summary if managed_parts else base_status, max_chars=72),
         _compact_unmanaged_count_label(candidate_count),
     ]
+    if source_blocked:
+        compact_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if backlog_parts:
         compact_parts.extend(backlog_parts)
     elif single_kind_backlog_parts:
@@ -2112,8 +2122,14 @@ def _command_center_device_status_with_unmanaged_context(
         single_kind_compact_parts: list[str] = [
             _clip_part(summary if managed_parts else base_status, max_chars=72),
             _compact_unmanaged_count_label(candidate_count),
-            *single_kind_overflow_backlog_parts,
         ]
+        if source_blocked:
+            single_kind_compact_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+        single_kind_compact_parts.extend(single_kind_overflow_backlog_parts)
+        if review_needed_count:
+            single_kind_compact_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+        if ready_candidate_count:
+            single_kind_compact_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
         if review_candidate_preview:
             single_kind_compact_parts.append(f"review {review_candidate_preview}")
         elif review_candidate_name:
@@ -2132,8 +2148,14 @@ def _command_center_device_status_with_unmanaged_context(
         single_kind_compact_parts: list[str] = [
             _clip_part(summary if managed_parts else base_status, max_chars=72),
             _compact_unmanaged_count_label(candidate_count),
-            *single_kind_overflow_backlog_parts,
         ]
+        if source_blocked:
+            single_kind_compact_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+        single_kind_compact_parts.extend(single_kind_overflow_backlog_parts)
+        if review_needed_count:
+            single_kind_compact_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+        if ready_candidate_count:
+            single_kind_compact_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
         if review_candidate_preview:
             single_kind_compact_parts.append(f"review {review_candidate_preview}")
         elif review_candidate_name:
@@ -2149,8 +2171,14 @@ def _command_center_device_status_with_unmanaged_context(
         single_kind_named_parts: list[str] = [
             _clip_part(summary if managed_parts else base_status, max_chars=56),
             _compact_unmanaged_count_label(candidate_count),
-            *single_kind_overflow_backlog_parts,
         ]
+        if source_blocked:
+            single_kind_named_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+        single_kind_named_parts.extend(single_kind_overflow_backlog_parts)
+        if review_needed_count:
+            single_kind_named_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+        if ready_candidate_count:
+            single_kind_named_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
         if review_candidate_name:
             single_kind_named_parts.append(f"review {review_candidate_name}")
         elif review_candidate_preview:
@@ -2175,6 +2203,8 @@ def _command_center_device_status_with_unmanaged_context(
         _clip_part(summary if managed_parts else base_status, max_chars=48),
         _compact_unmanaged_count_label(candidate_count),
     ]
+    if source_blocked:
+        essential_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if backlog_parts:
         essential_parts.extend(backlog_parts)
     elif single_kind_backlog_parts:
@@ -2200,8 +2230,10 @@ def _command_center_device_status_with_unmanaged_context(
         single_kind_parts: list[str] = [
             _clip_part(summary if managed_parts else base_status, max_chars=40),
             _compact_unmanaged_count_label(candidate_count),
-            *single_kind_overflow_backlog_parts,
         ]
+        if source_blocked:
+            single_kind_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+        single_kind_parts.extend(single_kind_overflow_backlog_parts)
         if review_needed_count:
             single_kind_parts.append(_count_label(review_needed_count, "needs review", "need review"))
             if review_candidate_preview:
@@ -2221,8 +2253,14 @@ def _command_center_device_status_with_unmanaged_context(
         concise_single_kind_parts: list[str] = [
             _clip_part(summary if managed_parts else base_status, max_chars=40),
             _compact_unmanaged_count_label(candidate_count),
-            *single_kind_overflow_backlog_parts,
         ]
+        if source_blocked:
+            concise_single_kind_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+        concise_single_kind_parts.extend(single_kind_overflow_backlog_parts)
+        if review_needed_count:
+            concise_single_kind_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+        if ready_candidate_count:
+            concise_single_kind_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
         if review_candidate_name:
             concise_single_kind_parts.append(f"review {review_candidate_name}")
         elif review_candidate_preview:
@@ -2247,6 +2285,8 @@ def _command_center_device_status_with_unmanaged_context(
         _clip_part(base_status, max_chars=40),
         _compact_unmanaged_count_label(candidate_count),
     ]
+    if source_blocked:
+        minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if review_needed_count:
         minimal_parts.append(_count_label(review_needed_count, "needs review", "need review"))
         minimal_parts.append(
@@ -3457,6 +3497,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             review_candidate_preview=review_candidate_preview,
             ready_candidate_name=ready_candidate_name,
             ready_candidate_preview=ready_candidate_preview,
+            source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         device_next_step = f"Open {DEVICES_CONFIGURE_PATH} to repair the managed-device configuration before relying on control."
     elif has_managed_devices:
@@ -3478,6 +3519,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_preview=ready_candidate_preview,
             managed_attention_count=managed_attention_count,
             blocked_activity_count=blocked_activity_count,
+            source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         if blocked_activity_count:
             blocked_target = _command_center_runtime_device_preview(first_blocked_device) or "the first blocked device"
@@ -3530,6 +3572,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             review_candidate_preview=review_candidate_preview,
             ready_candidate_name=ready_candidate_name,
             ready_candidate_preview=ready_candidate_preview,
+            source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
         if review_candidate_name:
             device_next_step = (
