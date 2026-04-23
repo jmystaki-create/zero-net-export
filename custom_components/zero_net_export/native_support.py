@@ -265,11 +265,11 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         lambda part: _matches_count_label(part, "blocked managed action"),
         lambda part: _matches_count_label(part, "needs review", "need review"),
         lambda part: _matches_count_label(part, "ready to promote"),
-        lambda part: _matches_count_label(part, "active managed device", "active managed devices"),
         lambda part: _matches_count_label(part, "fixed candidate") or _matches_count_label(part, "variable candidate"),
         lambda part: part.startswith("fixed backlog ") or part.startswith("variable backlog "),
         lambda part: _matches_count_label(part, "planned action"),
         lambda part: part.startswith(("enabled ", "usable ")) or part.endswith(" W nominal"),
+        lambda part: _matches_count_label(part, "active managed device", "active managed devices"),
     )
     for matcher in removable_matchers:
         if len(" | ".join(compact_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -289,13 +289,21 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     source_blocker_part = next((part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL), "")
     review_part = next((part for part in parts if part.startswith("review ")), "")
     ready_part = next((part for part in parts if part.startswith("ready ")), "")
+    active_count_part = next(
+        (
+            part
+            for part in parts
+            if _matches_count_label(part, "active managed device", "active managed devices")
+        ),
+        "",
+    )
     focus_parts = [
         part
         for part in parts
         if part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
     ]
     prioritized_focus_parts: list[str] = []
-    for prefix in ("attention first ", "blocked ", "active device ", "active load ", "plan "):
+    for prefix in ("attention first ", "active load ", "active device ", "blocked ", "plan "):
         focus_part = next((part for part in parts if part.startswith(prefix)), "")
         if focus_part and focus_part not in prioritized_focus_parts:
             prioritized_focus_parts.append(focus_part)
@@ -305,6 +313,16 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     if managed_part:
         priority_parts.append(managed_part)
     priority_parts.extend(prioritized_focus_parts[:3])
+    if active_count_part and active_count_part not in priority_parts:
+        insertion_index = next(
+            (
+                index + 1
+                for index, part in enumerate(priority_parts)
+                if part.startswith(("active load ", "active device "))
+            ),
+            len(priority_parts),
+        )
+        priority_parts.insert(insertion_index, active_count_part)
     if unmanaged_part:
         priority_parts.append(unmanaged_part)
     if source_blocker_part:

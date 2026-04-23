@@ -4366,7 +4366,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
                     "1 planned action(s)",
                     "plan Hot water relay with an extraordinarily verbose managed-device plan label that should require tighter priority compaction",
                     "active load 5300 W",
-                    "1 active managed device",
+                    "2 active managed devices",
                     "active device EV charger with an extraordinarily verbose active managed-device label that should remain visible after tighter priority compaction",
                     "2 unmanaged backlog",
                     "source blockers active",
@@ -4380,6 +4380,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertLessEqual(len(compacted), 255)
         self.assertIn("attention first Hot water", compacted)
+        self.assertIn("active load 5300 W", compacted)
+        self.assertIn("2 active managed devices", compacted)
         self.assertIn("active device EV charger", compacted)
         self.assertIn("2 unmanaged backlog", compacted)
         self.assertIn("source blockers active", compacted)
