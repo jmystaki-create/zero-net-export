@@ -5550,6 +5550,70 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Garage auxiliary outle", fleet_activity)
         self.assertIn("ready EV charger", fleet_activity)
 
+    def test_fleet_activity_prioritizes_review_ready_story_ahead_of_candidate_inventory_counts(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.build_source_mapping_summary = lambda merged: ""
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Garage auxiliary outlet bank",
+                    "entity_id": "switch.garage_aux",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "EV charger",
+                    "entity_id": "switch.ev_charger",
+                    "kind": "variable",
+                },
+            ],
+            "Garage auxiliary outlet bank",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("kind") == "variable" else "medium",
+            "warnings": [] if candidate.get("kind") == "variable" else ["Generic outlet label"],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: candidate.get("name", "")
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Holding while unmanaged review and ready-next backlog remain.",
+            control_reason="Keeping fleet context visible.",
+            status="Active",
+            device_status_summary="Managed Devices: 1 managed, 2 unmanaged backlog",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            variable_device_count=0,
+            controllable_nominal_power_w=1200.0,
+            active_controlled_power_w=0.0,
+            blocked_planned_action_count=0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            validation_details={},
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "observed_active": False,
+                    "planned_action": "hold",
+                    "nominal_power_w": 1200.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+        fleet_activity = summary["fleet_activity_summary"]
+
+        self.assertLess(fleet_activity.index("fixed backlog 1 review"), fleet_activity.index("1 fixed candidate"))
+        self.assertLess(fleet_activity.index("variable backlog 1 ready"), fleet_activity.index("1 variable candidate"))
+        self.assertLess(fleet_activity.index("review Garage auxiliary outlet bank"), fleet_activity.index("1 fixed candidate"))
+        self.assertLess(fleet_activity.index("ready EV charger"), fleet_activity.index("1 variable candidate"))
+
 
 if __name__ == "__main__":
     unittest.main()

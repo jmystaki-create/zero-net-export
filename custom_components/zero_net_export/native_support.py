@@ -2638,30 +2638,94 @@ def _build_command_center_fleet_activity_summary(
     show_inventory_context = managed_count > 0 and candidate_count <= 0 and not source_blocked
 
     def _prioritize_operational_parts(parts: list[str]) -> list[str]:
-        if managed_count <= 0:
-            return list(parts)
-        managed_label = _managed_count_label(managed_count)
-        if managed_label not in parts:
-            return list(parts)
         ordered_parts = list(parts)
-        managed_index = ordered_parts.index(managed_label)
-        del ordered_parts[managed_index]
 
-        def _is_operational_part(part: str) -> bool:
-            return bool(
-                part.endswith(" managed device needs attention")
-                or part.endswith(" managed devices need attention")
-                or part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
-                or _matches_count_label(part, "planned action")
-                or _matches_count_label(part, "active managed device", "active managed devices")
-                or _matches_count_label(part, "blocked managed action", "blocked managed actions")
-            )
+        if managed_count > 0:
+            managed_label = _managed_count_label(managed_count)
+            if managed_label in ordered_parts:
+                managed_index = ordered_parts.index(managed_label)
+                del ordered_parts[managed_index]
 
-        insertion_index = next(
-            (index for index, part in enumerate(ordered_parts) if not _is_operational_part(part)),
-            len(ordered_parts),
-        )
-        ordered_parts.insert(insertion_index, managed_label)
+                def _is_managed_operational_part(part: str) -> bool:
+                    return bool(
+                        part.endswith(" managed device needs attention")
+                        or part.endswith(" managed devices need attention")
+                        or part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
+                        or _matches_count_label(part, "planned action")
+                        or _matches_count_label(part, "active managed device", "active managed devices")
+                        or _matches_count_label(part, "blocked managed action", "blocked managed actions")
+                    )
+
+                insertion_index = next(
+                    (index for index, part in enumerate(ordered_parts) if not _is_managed_operational_part(part)),
+                    len(ordered_parts),
+                )
+                ordered_parts.insert(insertion_index, managed_label)
+
+        if managed_count > 0 and candidate_count > 0:
+            unmanaged_label = _unmanaged_count_label(candidate_count)
+            if unmanaged_label in ordered_parts:
+                unmanaged_index = ordered_parts.index(unmanaged_label)
+                del ordered_parts[unmanaged_index]
+
+                source_blocker_part = SOURCE_BLOCKER_ACTIVE_LABEL if SOURCE_BLOCKER_ACTIVE_LABEL in ordered_parts else ""
+                if source_blocker_part:
+                    ordered_parts.remove(source_blocker_part)
+
+                backlog_parts = [
+                    part for part in ordered_parts if part.startswith(("fixed backlog ", "variable backlog "))
+                ]
+                review_ready_parts = [
+                    part
+                    for part in ordered_parts
+                    if _matches_count_label(part, "needs review", "need review")
+                    or _matches_count_label(part, "ready to promote")
+                    or _matches_count_label(part, "fixed review")
+                    or _matches_count_label(part, "variable review")
+                    or part.startswith(("review ", "ready "))
+                ]
+                candidate_inventory_parts = [
+                    part
+                    for part in ordered_parts
+                    if _matches_count_label(part, "fixed candidate")
+                    or _matches_count_label(part, "variable candidate")
+                ]
+                surfaced_parts = [part for part in ordered_parts if part.startswith("surfaced ")]
+
+                reordered_unmanaged_parts: list[str] = [unmanaged_label]
+                if source_blocker_part:
+                    reordered_unmanaged_parts.append(source_blocker_part)
+                reordered_unmanaged_parts.extend(backlog_parts)
+                reordered_unmanaged_parts.extend(review_ready_parts)
+                reordered_unmanaged_parts.extend(candidate_inventory_parts)
+                reordered_unmanaged_parts.extend(surfaced_parts)
+
+                consumed_parts = {
+                    unmanaged_label,
+                    source_blocker_part,
+                    *backlog_parts,
+                    *review_ready_parts,
+                    *candidate_inventory_parts,
+                    *surfaced_parts,
+                }
+                remaining_parts = [part for part in ordered_parts if part not in consumed_parts]
+
+                insertion_index = max(
+                    (
+                        index + 1
+                        for index, part in enumerate(remaining_parts)
+                        if _is_managed_count_part(part)
+                        or part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
+                        or part.endswith(" managed device needs attention")
+                        or part.endswith(" managed devices need attention")
+                        or _matches_count_label(part, "planned action")
+                        or _matches_count_label(part, "active managed device", "active managed devices")
+                        or _matches_count_label(part, "blocked managed action", "blocked managed actions")
+                    ),
+                    default=0,
+                )
+                ordered_parts = remaining_parts[:insertion_index] + reordered_unmanaged_parts + remaining_parts[insertion_index:]
+
         return ordered_parts
 
     if managed_count <= 0:
