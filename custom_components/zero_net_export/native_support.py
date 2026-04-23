@@ -2535,6 +2535,7 @@ def _build_command_center_fleet_activity_summary(
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
+    show_inventory_context = managed_count > 0 and candidate_count <= 0 and not source_blocked
 
     if managed_count <= 0:
         summary_parts.append(_unmanaged_count_label(candidate_count))
@@ -2637,7 +2638,7 @@ def _build_command_center_fleet_activity_summary(
         if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
             summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
 
-    if managed_count > 0:
+    if show_inventory_context:
         summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
         if kind_known:
             summary_parts.append(f"{fixed_managed_count} fixed managed")
@@ -2789,7 +2790,7 @@ def _build_command_center_fleet_activity_summary(
         if source_blocked:
             minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
 
-    if managed_count > 0 and kind_known:
+    if show_inventory_context and kind_known:
         if fixed_managed_count:
             minimal_parts.append(f"{fixed_managed_count} fixed managed")
         if variable_managed_count:
@@ -2914,11 +2915,11 @@ def _build_command_center_fleet_activity_summary(
     elif top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
         minimal_parts.append(_clip_part(f"surfaced {top_candidate_name}", max_chars=72))
 
-    if managed_count > 0:
+    if show_inventory_context:
         minimal_parts.append(f"enabled {enabled_count}")
         minimal_parts.append(f"usable {usable_count}")
 
-    if kind_known and nominal_power_w > 0:
+    if show_inventory_context and kind_known and nominal_power_w > 0:
         minimal_parts.append(f"{nominal_power_w} W nominal")
 
     minimal_summary = " | ".join(minimal_parts)
@@ -3109,7 +3110,7 @@ def _build_command_center_fleet_activity_summary(
         if managed_unmanaged_split_summary and len(managed_unmanaged_split_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return managed_unmanaged_split_summary
 
-    if managed_count > 0 and kind_known and bool(fixed_managed_count) != bool(variable_managed_count):
+    if show_inventory_context and kind_known and bool(fixed_managed_count) != bool(variable_managed_count):
         single_kind_managed_part = (
             f"{fixed_managed_count} fixed managed" if fixed_managed_count else f"{variable_managed_count} variable managed"
         )
