@@ -2635,7 +2635,7 @@ def _build_command_center_fleet_activity_summary(
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
-    show_inventory_context = managed_count > 0 and candidate_count <= 0 and not source_blocked
+    show_inventory_context = managed_count > 0 and candidate_count <= 0
 
     def _prioritize_operational_parts(parts: list[str]) -> list[str]:
         ordered_parts = list(parts)
@@ -3128,6 +3128,46 @@ def _build_command_center_fleet_activity_summary(
     minimal_summary = " | ".join(minimal_parts)
     if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimal_summary
+
+    if managed_count > 0 and candidate_count <= 0 and source_blocked and kind_known:
+        source_blocked_inventory_parts: list[str] = []
+        if managed_attention_count:
+            source_blocked_inventory_parts.append(
+                "1 managed device needs attention"
+                if managed_attention_count == 1
+                else f"{managed_attention_count} managed devices need attention"
+            )
+        if first_attention_device:
+            source_blocked_inventory_parts.append(
+                _clip_part(
+                    f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}",
+                    max_chars=56,
+                )
+            )
+        if active_managed_count > 0:
+            if active_managed_power_w > 0:
+                source_blocked_inventory_parts.append(f"active load {active_managed_power_w:g} W")
+            source_blocked_inventory_parts.append(
+                "1 active managed device"
+                if active_managed_count == 1
+                else f"{active_managed_count} active managed devices"
+            )
+        source_blocked_inventory_parts.extend(
+            [
+                _managed_count_label(managed_count),
+                _compact_unmanaged_count_label(candidate_count),
+                SOURCE_BLOCKER_ACTIVE_LABEL,
+                f"{fixed_managed_count} fixed managed",
+            ]
+        )
+        if variable_managed_count:
+            source_blocked_inventory_parts.append(f"{variable_managed_count} variable managed")
+        if nominal_power_w > 0:
+            source_blocked_inventory_parts.append(f"{nominal_power_w} W nominal")
+        source_blocked_inventory_parts = _prioritize_operational_parts(source_blocked_inventory_parts)
+        source_blocked_inventory_summary = " | ".join(source_blocked_inventory_parts)
+        if len(source_blocked_inventory_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return source_blocked_inventory_summary
 
     if managed_count <= 0 and fixed_candidate_count and variable_candidate_count:
         empty_fleet_kind_parts: list[str] = [

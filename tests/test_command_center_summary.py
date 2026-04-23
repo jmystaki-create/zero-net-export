@@ -4534,6 +4534,78 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("ready EV", summary["fleet_activity_summary"])
         self.assertIn("(variable)", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_keeps_managed_inventory_context_when_sources_block_fleet(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Repair the mapped-source blockers first.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [native_support.CONF_GRID_EXPORT_POWER_ENTITY],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "Grid export power is unavailable"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "Grid export power"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources need attention"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Grid export: sensor.grid_export_power"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Needs attention",
+            diagnostic_summary="Needs attention",
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            fixed_device_count=1,
+            controllable_nominal_power_w=6500.0,
+            device_details={
+                "pool": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                    "nominal_power_w": 1200,
+                },
+                "ev": {
+                    "name": "EV charger",
+                    "entity_id": "number.ev_charger_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 5300.0,
+                    "nominal_power_w": 5300,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(
+            data=state,
+            entry=entry,
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("source blockers active", summary["fleet_activity_summary"])
+        self.assertIn("2 managed", summary["fleet_activity_summary"])
+        self.assertIn("1 fixed managed", summary["fleet_activity_summary"])
+        self.assertIn("1 variable managed", summary["fleet_activity_summary"])
+        self.assertIn("6500 W nominal", summary["fleet_activity_summary"])
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+
     def test_command_center_summary_keeps_active_device_signal_in_tighter_fleet_activity_overflow(self) -> None:
         native_support = _load_native_support_module()
 
