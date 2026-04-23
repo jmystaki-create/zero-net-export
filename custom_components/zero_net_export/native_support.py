@@ -447,10 +447,69 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     return normalized
 
 
+def _clip_focus_state_part(text: str, *, max_chars: int) -> str | None:
+    normalized = " ".join(str(text).split())
+    prefixes = ("attention first ", "blocked ", "plan ", "active device ")
+    prefix = next((item for item in prefixes if normalized.startswith(item)), "")
+    if not prefix:
+        return None
+
+    payload = normalized[len(prefix):].strip()
+    if not payload:
+        return None
+
+    primary_label = payload
+    detail_parts: list[str] = []
+    if payload.endswith(")") and " (" in payload:
+        possible_label, possible_details = payload.rsplit(" (", 1)
+        possible_details = possible_details[:-1]
+        parsed_detail_parts = [part.strip() for part in possible_details.split("|") if part.strip()]
+        if possible_label.strip() and parsed_detail_parts:
+            primary_label = possible_label.strip()
+            detail_parts = parsed_detail_parts
+
+    kind_detail = next((part for part in detail_parts if part in {"fixed", "variable"}), "")
+    status_detail = next((part for part in detail_parts if part not in {"fixed", "variable"}), "")
+    if status_detail == "not usable":
+        status_detail = "blocked"
+
+    compact_status_detail = status_detail
+    if status_detail == "blocked":
+        compact_status_detail = "block"
+    elif status_detail.startswith("active "):
+        compact_status_detail = "active"
+    elif status_detail.startswith("action "):
+        compact_status_detail = status_detail.removeprefix("action ").strip() or status_detail
+
+    suffix_options: list[str] = []
+    if status_detail:
+        suffix_options.append(f" ({status_detail})")
+        if compact_status_detail and compact_status_detail != status_detail:
+            suffix_options.append(f" ({compact_status_detail})")
+    if kind_detail and status_detail:
+        suffix_options.append(f" ({kind_detail} | {status_detail})")
+    if kind_detail:
+        suffix_options.append(f" ({kind_detail})")
+
+    for suffix in suffix_options:
+        available_label_chars = max_chars - len(prefix) - len(suffix)
+        if available_label_chars <= 3:
+            continue
+        clipped_label = _clip_state_part(primary_label, max_chars=available_label_chars)
+        clipped = f"{prefix}{clipped_label}{suffix}".strip()
+        if len(clipped) <= max_chars:
+            return clipped
+
+    return None
+
+
 def _clip_state_part(text: str, *, max_chars: int) -> str:
     normalized = " ".join(str(text).split())
     if len(normalized) <= max_chars:
         return normalized
+    focus_clipped = _clip_focus_state_part(normalized, max_chars=max_chars)
+    if focus_clipped:
+        return focus_clipped
     if max_chars <= 3:
         return normalized[:max_chars]
     return normalized[: max_chars - 3].rstrip() + "..."

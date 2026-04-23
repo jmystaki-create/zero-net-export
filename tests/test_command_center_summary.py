@@ -4735,6 +4735,34 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("likely useful", compacted)
         self.assertNotIn("key warning:", compacted)
 
+    def test_command_center_summary_overflow_compaction_keeps_focus_state_context(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "2 managed",
+                    "attention first Pool pump with a very long blocked label near the patio and side walkway (fixed | not usable | action turn_on)",
+                    "active load 920 W",
+                    "1 active managed device",
+                    "active device Heated floor west wing zone controller with a very long active runtime label (variable | active 920 W)",
+                    "2 unmanaged backlog",
+                    "source blockers active",
+                    "review Virtual load helper with a spectacularly verbose review-first label in the garage south-west board (fixed) | review first | warn helper-backed load needs review and validation",
+                    "ready Dishwasher outlet with a remarkably long ready-next promotion candidate label near the utility room (fixed) | likely useful | warn high standby draw",
+                ]
+            )
+        )
+
+        self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("attention first", compacted)
+        self.assertIn("(block)", compacted)
+        self.assertIn("active device", compacted)
+        self.assertIn("(active)", compacted)
+        self.assertIn("source blockers active", compacted)
+        self.assertIn("review ", compacted)
+        self.assertIn("ready ", compacted)
+
     def test_command_center_summary_keeps_source_blockers_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 
