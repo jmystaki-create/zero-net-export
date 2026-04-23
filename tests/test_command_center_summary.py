@@ -5474,6 +5474,82 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("active device Pool Pump (fixed | active)", summary["fleet_activity_summary"])
         self.assertNotIn("active load 0", summary["fleet_activity_summary"])
 
+    def test_fleet_activity_leads_with_operational_signals_before_inventory_counts(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.build_source_mapping_summary = lambda merged: ""
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Garage auxiliary outlet bank",
+                    "entity_id": "switch.garage_aux",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "EV charger",
+                    "entity_id": "switch.ev_charger",
+                    "kind": "variable",
+                },
+            ],
+            "Garage auxiliary outlet bank",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("kind") == "variable" else "medium",
+            "warnings": [] if candidate.get("kind") == "variable" else ["Generic outlet label"],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: candidate.get("name", "")
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Holding while one load is blocked and another is active.",
+            control_reason="Waiting for the blocked load to clear.",
+            status="Active",
+            device_status_summary="Managed Devices: 2 managed, 2 unmanaged backlog",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            fixed_device_count=1,
+            variable_device_count=1,
+            controllable_nominal_power_w=3200.0,
+            active_controlled_power_w=920.0,
+            blocked_planned_action_count=1,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            validation_details={},
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "observed_active": False,
+                    "planned_action": "turn_on",
+                    "last_action_status": "blocked by safety",
+                    "nominal_power_w": 1200.0,
+                },
+                "heated_floor": {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920.0,
+                    "planned_action": "hold",
+                    "nominal_power_w": 2000.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+        fleet_activity = summary["fleet_activity_summary"]
+
+        self.assertLess(fleet_activity.index("attention first Pool Pump"), fleet_activity.index("2 managed"))
+        self.assertLess(fleet_activity.index("active device Heated"), fleet_activity.index("2 managed"))
+        self.assertIn("2 unmanaged backlog", fleet_activity)
+        self.assertIn("review Garage auxiliary outle", fleet_activity)
+        self.assertIn("ready EV charger", fleet_activity)
+
 
 if __name__ == "__main__":
     unittest.main()

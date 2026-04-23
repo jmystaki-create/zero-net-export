@@ -2630,14 +2630,42 @@ def _build_command_center_fleet_activity_summary(
     )
     managed_attention_count = max(managed_attention_count, blocked_activity_count, planned_activity_count)
 
-    summary_parts: list[str] = [_managed_count_label(managed_count)]
+    summary_parts: list[str] = []
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
     show_inventory_context = managed_count > 0 and candidate_count <= 0 and not source_blocked
 
+    def _prioritize_operational_parts(parts: list[str]) -> list[str]:
+        if managed_count <= 0:
+            return list(parts)
+        managed_label = _managed_count_label(managed_count)
+        if managed_label not in parts:
+            return list(parts)
+        ordered_parts = list(parts)
+        managed_index = ordered_parts.index(managed_label)
+        del ordered_parts[managed_index]
+
+        def _is_operational_part(part: str) -> bool:
+            return bool(
+                part.endswith(" managed device needs attention")
+                or part.endswith(" managed devices need attention")
+                or part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
+                or _matches_count_label(part, "planned action")
+                or _matches_count_label(part, "active managed device", "active managed devices")
+                or _matches_count_label(part, "blocked managed action", "blocked managed actions")
+            )
+
+        insertion_index = next(
+            (index for index, part in enumerate(ordered_parts) if not _is_operational_part(part)),
+            len(ordered_parts),
+        )
+        ordered_parts.insert(insertion_index, managed_label)
+        return ordered_parts
+
     if managed_count <= 0:
+        summary_parts.append(_managed_count_label(managed_count))
         summary_parts.append(_unmanaged_count_label(candidate_count))
         if source_blocked:
             summary_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
@@ -2687,8 +2715,7 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(
                     f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}"
                 )
-
-    if managed_count > 0:
+        summary_parts.append(_managed_count_label(managed_count))
         summary_parts.append(_unmanaged_count_label(candidate_count))
         if source_blocked:
             summary_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
@@ -2746,6 +2773,7 @@ def _build_command_center_fleet_activity_summary(
                 summary_parts.append(f"{variable_managed_count} variable managed")
             summary_parts.append(f"{nominal_power_w} W nominal")
 
+    summary_parts = _prioritize_operational_parts(summary_parts)
     summary = " | ".join(summary_parts)
     if len(summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return summary
@@ -2883,9 +2911,10 @@ def _build_command_center_fleet_activity_summary(
             return normalized[:max_chars]
         return normalized[: max_chars - 3].rstrip() + "..."
 
-    minimal_parts: list[str] = [_managed_count_label(managed_count)]
+    minimal_parts: list[str] = []
 
     if managed_count <= 0:
+        minimal_parts.append(_managed_count_label(managed_count))
         minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
         if source_blocked:
             minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
@@ -2956,6 +2985,7 @@ def _build_command_center_fleet_activity_summary(
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     if managed_count > 0:
+        minimal_parts.append(_managed_count_label(managed_count))
         minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
         if source_blocked:
             minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
@@ -3030,6 +3060,7 @@ def _build_command_center_fleet_activity_summary(
     if show_inventory_context and kind_known and nominal_power_w > 0:
         minimal_parts.append(f"{nominal_power_w} W nominal")
 
+    minimal_parts = _prioritize_operational_parts(minimal_parts)
     minimal_summary = " | ".join(minimal_parts)
     if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimal_summary
@@ -3266,6 +3297,7 @@ def _build_command_center_fleet_activity_summary(
             ):
                 return ready_count_attention_summary
 
+    attention_priority_parts = _prioritize_operational_parts(attention_priority_parts)
     attention_priority_summary = " | ".join(attention_priority_parts)
     if attention_priority_summary and len(attention_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return attention_priority_summary
@@ -3411,6 +3443,7 @@ def _build_command_center_fleet_activity_summary(
                 _clip_review_ready_state_part(f"ready {ready_candidate_name}", max_chars=32)
             )
 
+    essential_parts = _prioritize_operational_parts(essential_parts)
     essential_summary = " | ".join(essential_parts)
     if essential_summary and len(essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return essential_summary
@@ -3472,6 +3505,7 @@ def _build_command_center_fleet_activity_summary(
         for backlog_part in reversed(single_kind_overflow_backlog_parts):
             if backlog_part not in managed_backlog_essential_parts:
                 managed_backlog_essential_parts.insert(insertion_index, backlog_part)
+    managed_backlog_essential_parts = _prioritize_operational_parts(managed_backlog_essential_parts)
     managed_backlog_essential_summary = " | ".join(managed_backlog_essential_parts)
     if managed_backlog_essential_summary and len(managed_backlog_essential_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return managed_backlog_essential_summary
@@ -3614,6 +3648,7 @@ def _build_command_center_fleet_activity_summary(
         for backlog_part in reversed(story_backlog_parts):
             if backlog_part not in operator_story_parts:
                 operator_story_parts.insert(insertion_index, backlog_part)
+    operator_story_parts = _prioritize_operational_parts(operator_story_parts)
     operator_story_summary = " | ".join(operator_story_parts)
     if operator_story_summary and len(operator_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return operator_story_summary
