@@ -2393,6 +2393,51 @@ def _command_center_device_status_with_unmanaged_context(
     return _clip_part(minimal_summary or compact_summary or summary, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
 
 
+def _restore_ready_promotion_count_under_overflow(
+    summary: str,
+    *,
+    review_needed_count: int,
+    ready_candidate_count: int,
+) -> str:
+    if (
+        not summary
+        or review_needed_count
+        or ready_candidate_count <= 0
+        or "ready to promote" in summary
+        or "ready " not in summary
+    ):
+        return summary
+
+    ready_count_part = (
+        "1 ready to promote"
+        if ready_candidate_count == 1
+        else f"{ready_candidate_count} ready to promote"
+    )
+    parts = [part.strip() for part in summary.split("|") if part.strip()]
+    if ready_count_part in parts:
+        return summary
+
+    ready_preview_index = next(
+        (index for index, part in enumerate(parts) if part.startswith("ready ")),
+        None,
+    )
+    if ready_preview_index is None:
+        return summary
+
+    candidate_parts = list(parts)
+    candidate_parts.insert(ready_preview_index, ready_count_part)
+    candidate_summary = " | ".join(candidate_parts)
+    if len(candidate_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return candidate_summary
+
+    without_active_load = [part for part in candidate_parts if not part.startswith("active load ")]
+    without_active_load_summary = " | ".join(without_active_load)
+    if len(without_active_load_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return without_active_load_summary
+
+    return summary
+
+
 def _build_command_center_fleet_activity_summary(
     state: Any,
     *,
@@ -2658,6 +2703,28 @@ def _build_command_center_fleet_activity_summary(
         )
         active_signal_parts.insert(insertion_index, active_count_label)
         active_signal_summary = " | ".join(active_signal_parts)
+        if ready_candidate_count and not review_needed_count:
+            ready_count_part = (
+                "1 ready to promote"
+                if ready_candidate_count == 1
+                else f"{ready_candidate_count} ready to promote"
+            )
+            if ready_count_part not in active_signal_parts:
+                ready_count_active_parts = [
+                    part for part in active_signal_parts if not part.startswith("active load ")
+                ]
+                ready_insertion_index = next(
+                    (
+                        index
+                        for index, part in enumerate(ready_count_active_parts)
+                        if part.startswith("ready ")
+                    ),
+                    len(ready_count_active_parts),
+                )
+                ready_count_active_parts.insert(ready_insertion_index, ready_count_part)
+                ready_count_active_summary = " | ".join(ready_count_active_parts)
+                if len(ready_count_active_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                    return ready_count_active_summary
         if len(active_signal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             return active_signal_summary
 
@@ -2679,6 +2746,31 @@ def _build_command_center_fleet_activity_summary(
         and (fixed_candidate_count > 5 or variable_candidate_count > 5)
     ):
         return compact_review_focus_summary
+    if ready_candidate_count and not review_needed_count:
+        ready_count_part = (
+            "1 ready to promote"
+            if ready_candidate_count == 1
+            else f"{ready_candidate_count} ready to promote"
+        )
+        if ready_count_part not in compact_summary_parts:
+            ready_count_compact_parts = [
+                part for part in compact_summary_parts if not part.startswith("active load ")
+            ]
+            insertion_index = next(
+                (
+                    index
+                    for index, part in enumerate(ready_count_compact_parts)
+                    if part.startswith("ready ")
+                ),
+                len(ready_count_compact_parts),
+            )
+            ready_count_compact_parts.insert(insertion_index, ready_count_part)
+            ready_count_compact_summary = " | ".join(ready_count_compact_parts)
+            if (
+                ready_count_compact_summary
+                and len(ready_count_compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+            ):
+                return ready_count_compact_summary
     if compact_summary and len(compact_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return compact_summary
 
@@ -3038,6 +3130,32 @@ def _build_command_center_fleet_activity_summary(
                 and len(managed_mix_attention_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
             ):
                 return managed_mix_attention_summary
+
+    if ready_candidate_count and not review_needed_count:
+        ready_count_part = (
+            "1 ready to promote"
+            if ready_candidate_count == 1
+            else f"{ready_candidate_count} ready to promote"
+        )
+        if ready_count_part not in attention_priority_parts:
+            ready_count_attention_parts = [
+                part for part in attention_priority_parts if not part.startswith("active load ")
+            ]
+            insertion_index = next(
+                (
+                    index
+                    for index, part in enumerate(ready_count_attention_parts)
+                    if part.startswith("ready ")
+                ),
+                len(ready_count_attention_parts),
+            )
+            ready_count_attention_parts.insert(insertion_index, ready_count_part)
+            ready_count_attention_summary = " | ".join(ready_count_attention_parts)
+            if (
+                ready_count_attention_summary
+                and len(ready_count_attention_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS
+            ):
+                return ready_count_attention_summary
 
     attention_priority_summary = " | ".join(attention_priority_parts)
     if attention_priority_summary and len(attention_priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -4018,25 +4136,29 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         active_controlled_power_w=getattr(state, 'active_controlled_power_w', None) if state is not None else None,
     )
     fleet_activity_summary = _truncate_state_summary(
-        _compact_fleet_activity_overflow_summary(
-            _prefer_review_ready_over_large_kind_mix(
-                _build_command_center_fleet_activity_summary(
-                    state,
-                    candidate_count=candidate_count,
-                    fixed_candidate_count=fixed_candidate_count,
-                    variable_candidate_count=variable_candidate_count,
-                    review_needed_count=review_needed_count,
-                    fixed_review_count=fixed_review_count,
-                    variable_review_count=variable_review_count,
-                    review_candidate_name=review_candidate_name,
-                    review_candidate_preview=review_candidate_preview,
-                    ready_candidate_name=ready_candidate_name,
-                    ready_candidate_preview=ready_candidate_preview,
-                    top_candidate_name=top_candidate_name,
-                    top_candidate_preview=top_candidate_preview,
-                    source_blocked=bool(missing_required_sources or runtime_source_attention),
+        _restore_ready_promotion_count_under_overflow(
+            _compact_fleet_activity_overflow_summary(
+                _prefer_review_ready_over_large_kind_mix(
+                    _build_command_center_fleet_activity_summary(
+                        state,
+                        candidate_count=candidate_count,
+                        fixed_candidate_count=fixed_candidate_count,
+                        variable_candidate_count=variable_candidate_count,
+                        review_needed_count=review_needed_count,
+                        fixed_review_count=fixed_review_count,
+                        variable_review_count=variable_review_count,
+                        review_candidate_name=review_candidate_name,
+                        review_candidate_preview=review_candidate_preview,
+                        ready_candidate_name=ready_candidate_name,
+                        ready_candidate_preview=ready_candidate_preview,
+                        top_candidate_name=top_candidate_name,
+                        top_candidate_preview=top_candidate_preview,
+                        source_blocked=bool(missing_required_sources or runtime_source_attention),
+                    )
                 )
-            )
+            ),
+            review_needed_count=review_needed_count,
+            ready_candidate_count=ready_candidate_count,
         ),
         fallback=device_status,
     )
