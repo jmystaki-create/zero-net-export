@@ -4735,6 +4735,36 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("likely useful", compacted)
         self.assertNotIn("key warning:", compacted)
 
+    def test_command_center_summary_overflow_prefers_backlog_story_over_candidate_inventory_counts(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "2 managed",
+                    "attention first Pool pump with an intentionally long attention label near the pergola west walkway",
+                    "active load 920 W",
+                    "1 active managed device",
+                    "active device Heated floor west wing zone controller with a deliberately long runtime label",
+                    "2 unmanaged backlog",
+                    "1 fixed candidate",
+                    "1 variable candidate",
+                    "fixed backlog 1 review",
+                    "variable backlog 1 ready",
+                    "review Garage auxiliary outlet bank candidate 02 with a deliberately long review-first descriptor (fixed) | review first | warn generic outlet label needs review",
+                    "ready EV charger export absorption control limit with a deliberately long ready-next descriptor (variable) | likely useful | key warning: No immediate warnings",
+                ]
+            )
+        )
+
+        self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("2 managed", compacted)
+        self.assertIn("2 unmanaged backlog", compacted)
+        self.assertIn("review Garage", compacted)
+        self.assertIn("ready EV", compacted)
+        self.assertNotIn("1 fixed candidate", compacted)
+        self.assertNotIn("1 variable candidate", compacted)
+
     def test_command_center_summary_overflow_compaction_keeps_focus_state_context(self) -> None:
         native_support = _load_native_support_module()
 

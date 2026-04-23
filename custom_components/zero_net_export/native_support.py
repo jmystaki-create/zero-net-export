@@ -339,6 +339,48 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
 
     signal_first_summary = " | ".join(signal_first_parts)
     if signal_first_summary and len(signal_first_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        has_review_ready_story = any(part.startswith(("review ", "ready ")) for part in signal_first_parts)
+        has_backlog_mix = any(part.startswith(("fixed backlog ", "variable backlog ")) for part in signal_first_parts)
+        has_candidate_inventory = any(
+            _matches_count_label(part, "fixed candidate") or _matches_count_label(part, "variable candidate")
+            for part in signal_first_parts
+        )
+        if has_review_ready_story and has_backlog_mix and has_candidate_inventory:
+            story_first_parts = [
+                part
+                for part in signal_first_parts
+                if not (
+                    _matches_count_label(part, "fixed candidate")
+                    or _matches_count_label(part, "variable candidate")
+                )
+            ]
+            story_first_summary = " | ".join(story_first_parts)
+            if story_first_summary and len(story_first_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return story_first_summary
+
+            story_backlog_parts = [
+                part
+                for part in story_first_parts
+                if not (
+                    part.endswith(" managed device needs attention")
+                    or part.endswith(" managed devices need attention")
+                    or _matches_count_label(part, "blocked managed action")
+                    or _matches_count_label(part, "needs review", "need review")
+                    or _matches_count_label(part, "ready to promote")
+                    or _matches_count_label(part, "active managed device", "active managed devices")
+                )
+            ]
+            story_backlog_tighter_parts = []
+            for part in story_backlog_parts:
+                if part.startswith(("attention first ", "blocked ", "plan ", "active device ")):
+                    story_backlog_tighter_parts.append(_clip_state_part(part, max_chars=26))
+                elif part.startswith(("review ", "ready ")):
+                    story_backlog_tighter_parts.append(_clip_review_ready_state_part(part, max_chars=24))
+                else:
+                    story_backlog_tighter_parts.append(part)
+            story_backlog_tighter_summary = " | ".join(story_backlog_tighter_parts)
+            if story_backlog_tighter_summary and len(story_backlog_tighter_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return story_backlog_tighter_summary
         return signal_first_summary
 
     signal_first_tighter_parts = []
@@ -351,6 +393,24 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
             signal_first_tighter_parts.append(part)
     signal_first_tighter_summary = " | ".join(signal_first_tighter_parts)
     if signal_first_tighter_summary and len(signal_first_tighter_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        has_review_ready_story = any(part.startswith(("review ", "ready ")) for part in signal_first_tighter_parts)
+        has_backlog_mix = any(part.startswith(("fixed backlog ", "variable backlog ")) for part in signal_first_tighter_parts)
+        if has_review_ready_story and has_backlog_mix:
+            story_backlog_tighter_parts = [
+                part
+                for part in signal_first_tighter_parts
+                if not (
+                    part.endswith(" managed device needs attention")
+                    or part.endswith(" managed devices need attention")
+                    or _matches_count_label(part, "blocked managed action")
+                    or _matches_count_label(part, "needs review", "need review")
+                    or _matches_count_label(part, "ready to promote")
+                    or _matches_count_label(part, "active managed device", "active managed devices")
+                )
+            ]
+            story_backlog_tighter_summary = " | ".join(story_backlog_tighter_parts)
+            if story_backlog_tighter_summary and len(story_backlog_tighter_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return story_backlog_tighter_summary
         return signal_first_tighter_summary
 
     compact_parts = list(parts)
