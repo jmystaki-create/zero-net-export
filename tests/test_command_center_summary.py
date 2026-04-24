@@ -4877,6 +4877,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
             "ready EV charger garage load-shedding candidate (variable) | likely useful | warn helper-backed",
             max_chars=80,
         )
+        ready_without_warning = native_support._clip_review_ready_state_part(
+            "ready EV charger export absorption control limit (variable) | likely useful | key warning: No immediate warnings",
+            max_chars=80,
+        )
 
         self.assertLessEqual(len(review), 80)
         self.assertIn("review Garage", review)
@@ -4884,7 +4888,11 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("review carefully", review)
         self.assertLessEqual(len(ready), 80)
         self.assertIn("ready EV charger", ready)
-        self.assertIn("likely useful", ready)
+        self.assertIn("| warn helper-backed", ready)
+        self.assertNotIn("likely useful", ready)
+        self.assertLessEqual(len(ready_without_warning), 80)
+        self.assertIn("ready EV charger", ready_without_warning)
+        self.assertIn("likely useful", ready_without_warning)
 
     def test_command_center_summary_preserves_candidate_kind_in_tighter_priority_overflow(self) -> None:
         native_support = _load_native_support_module()

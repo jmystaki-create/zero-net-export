@@ -645,14 +645,25 @@ def _clip_review_ready_state_part(text: str, *, max_chars: int) -> str:
         if detail not in detail_candidates:
             detail_candidates.append(detail)
 
+    warning_details = [
+        detail
+        for detail in detail_candidates
+        if detail.startswith("warn ") or detail.startswith("key warning:")
+    ]
+    non_warning_details = [detail for detail in detail_candidates if detail not in warning_details]
+    meaningful_warning_details = [
+        detail for detail in warning_details if "no immediate warnings" not in detail.lower()
+    ]
+
     if prefix == "review":
-        warning_details = [
+        detail_candidates = warning_details + non_warning_details
+    elif prefix == "ready" and meaningful_warning_details:
+        trailing_details = [
             detail
             for detail in detail_candidates
-            if detail.startswith("warn ") or detail.startswith("key warning:")
+            if detail not in meaningful_warning_details and detail not in warning_details
         ]
-        non_warning_details = [detail for detail in detail_candidates if detail not in warning_details]
-        detail_candidates = warning_details + non_warning_details
+        detail_candidates = meaningful_warning_details + trailing_details
 
     detailed = clipped
     for detail in detail_candidates:
