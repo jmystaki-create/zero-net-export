@@ -4639,6 +4639,79 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("(fixed)", summary["device_status"])
         self.assertIn("ready Pool", summary["device_status"])
 
+    def test_command_center_summary_fleet_activity_fallback_stays_signal_first(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the current fleet signals.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar"
+        native_support._build_command_center_fleet_activity_summary = lambda *args, **kwargs: (
+            "This intentionally oversized fleet-activity sentence should overflow the Home Assistant state limit and force "
+            "the command center to fall back to its shorter device-status signal story while keeping the managed and "
+            "unmanaged context visible instead of repeating helper-style section labels. "
+        ) * 3
+        native_support._prefer_review_ready_over_large_kind_mix = lambda summary: summary
+        native_support._compact_fleet_activity_overflow_summary = lambda summary: summary
+        native_support._restore_ready_promotion_count_under_overflow = lambda summary, **kwargs: summary
+        native_support._restore_active_device_under_overflow = lambda summary, **kwargs: summary
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Holding while one managed device needs attention.",
+            control_reason="Attention-first fleet check remains the next action.",
+            status="Active",
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary=(
+                "Managed Devices: 1 managed device needs attention; attention first Pool pump (fixed | blocked); "
+                "1 unmanaged backlog; source blockers active"
+            ),
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=0,
+            blocked_planned_action_count=1,
+            device_details={
+                "pool_pump": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(
+            data=state,
+            entry=entry,
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), 255)
+        self.assertNotIn("Managed Devices:", summary["fleet_activity_summary"])
+        self.assertIn("attention first Pool pump", summary["fleet_activity_summary"])
+        self.assertIn("1 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertIn("source blockers active", summary["fleet_activity_summary"])
+
     def test_command_center_summary_keeps_managed_and_unmanaged_story_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 

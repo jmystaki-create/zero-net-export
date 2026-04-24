@@ -257,6 +257,20 @@ def _truncate_state_summary(text: str, *, fallback: str) -> str:
     return fallback
 
 
+def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
+    normalized = " ".join(str(device_status or "").split())
+    if not normalized:
+        return "Fleet activity will appear here after runtime loads."
+    if normalized.startswith(f"{DEVICES_SECTION_LABEL}:"):
+        normalized = normalized.partition(":")[2].strip()
+    normalized = normalized.rstrip(".").replace("; ", " | ")
+    compacted = _compact_fleet_activity_overflow_summary(normalized)
+    if compacted and len(compacted) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return compacted
+    clipped = _clip_state_part(normalized, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
+    return clipped or "Fleet activity will appear here after runtime loads."
+
+
 def _is_fleet_activity_top_level_part(text: str) -> bool:
     normalized = " ".join(str(text or "").split())
     if not normalized:
@@ -4982,7 +4996,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             active_managed_count=active_managed_count,
             active_device_preview=active_device_preview,
         ),
-        fallback=device_status,
+        fallback=_fleet_activity_fallback_from_device_status(device_status),
     )
 
     return {
