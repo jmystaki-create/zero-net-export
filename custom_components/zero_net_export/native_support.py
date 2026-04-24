@@ -2162,23 +2162,12 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
     """Return the basic setup focused command-center guide text."""
     alert_summary = _normalize_native_path_text(command_center.get("alert_summary"))
     next_action_summary = _normalize_native_path_text(command_center.get("next_action_summary"))
-    has_detailed_source_blockers = any(
-        str(command_center.get(key) or "").strip() not in {"", "None"}
-        for key in ("unavailable_sources", "stale_sources", "source_attention_roles", "blocking_validation_details")
-    )
     now_lines = [
         "Now",
         f"- Headline decision: {command_center.get('headline_decision')}",
         f"- Alerts: {alert_summary}",
         f"- Recommended next step: {next_action_summary}",
     ]
-    if has_detailed_source_blockers:
-        now_lines.extend(
-            [
-                f"- Recommended section: {command_center.get('recommended_section')}",
-                f"- Recommended path: {command_center.get('recommended_path')}",
-            ]
-        )
     return "\n".join(
         [
             "Zero Net Export command center",
