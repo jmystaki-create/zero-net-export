@@ -4874,6 +4874,41 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review ", compacted)
         self.assertIn("ready ", compacted)
 
+    def test_command_center_summary_tighter_priority_overflow_keeps_operational_focus_before_inventory_counts(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "2 managed",
+                    "2 managed devices need attention",
+                    "attention first Pool pump with a very long blocked label near the patio and side walkway (fixed | not usable | action turn_on | extra extra extra extra extra extra extra extra)",
+                    "2 blocked managed actions",
+                    "blocked Pool pump with a very long blocked label near the patio and side walkway (fixed | blocked | action turn_on | extra extra extra extra extra extra extra extra)",
+                    "2 planned actions",
+                    "plan Pool pump with a very long blocked label near the patio and side walkway (fixed | action turn_on | extra extra extra extra extra extra extra extra)",
+                    "active load 920 W",
+                    "1 active managed device",
+                    "active device Heated floor west wing zone controller with a very long active runtime label (variable | active 920 W | extra extra extra extra extra extra extra)",
+                    "4 unmanaged backlog",
+                    "source blockers active",
+                    "fixed backlog 2 review/2 ready",
+                    "2 need review",
+                    "review Review Candidate Alpha with a deliberately long label (fixed) | review first | warn helper-backed load needs review and validation",
+                    "2 ready to promote",
+                    "ready Ready Candidate Beta with a deliberately long label (fixed) | likely useful | key warning: No immediate warnings",
+                ]
+            )
+        )
+
+        self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertLess(compacted.index("attention first"), compacted.index("2 managed"))
+        self.assertLess(compacted.index("active device"), compacted.index("2 managed"))
+        self.assertIn("4 unmanaged backlog", compacted)
+        self.assertIn("source blockers active", compacted)
+        self.assertIn("review ", compacted)
+        self.assertIn("ready ", compacted)
+
     def test_command_center_summary_overflow_compaction_keeps_active_cue_on_attention_first_device(self) -> None:
         native_support = _load_native_support_module()
 

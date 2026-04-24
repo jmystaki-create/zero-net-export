@@ -464,8 +464,6 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     if not prioritized_focus_parts:
         prioritized_focus_parts = focus_parts[:2]
 
-    if managed_part:
-        priority_parts.append(managed_part)
     priority_parts.extend(prioritized_focus_parts[:3])
     if active_count_part and active_count_part not in priority_parts:
         insertion_index = next(
@@ -477,6 +475,8 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
             len(priority_parts),
         )
         priority_parts.insert(insertion_index, active_count_part)
+    if managed_part:
+        priority_parts.append(managed_part)
     if unmanaged_part:
         priority_parts.append(unmanaged_part)
     if source_blocker_part:
