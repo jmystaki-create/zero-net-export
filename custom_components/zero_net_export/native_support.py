@@ -2367,6 +2367,8 @@ def _command_center_device_status_with_unmanaged_context(
     summary = _managed_count_label(managed_count) if generic_managed_status and managed_count > 0 else base_status
     managed_parts: list[str] = []
     compact_active_device_preview = active_device_preview and "." not in active_device_preview.partition(" ")[0]
+    base_has_unmanaged_label = managed_count > 0 and candidate_count > 0 and _unmanaged_count_label(candidate_count) in normalized_base_status
+    base_has_source_blockers = SOURCE_BLOCKER_ACTIVE_LABEL in normalized_base_status
 
     def _compact_focus_part(prefix: str, preview: str, *, max_chars: int) -> str:
         focus_part = f"{prefix}{preview}".strip()
@@ -2524,8 +2526,10 @@ def _command_center_device_status_with_unmanaged_context(
                 ]
             )
         return f"{summary}; {SOURCE_BLOCKER_ACTIVE_LABEL}" if source_blocked else summary
-    summary += f"; {_unmanaged_count_label(candidate_count)}"
-    if source_blocked:
+    unmanaged_label = _unmanaged_count_label(candidate_count)
+    if not base_has_unmanaged_label:
+        summary += f"; {unmanaged_label}"
+    if source_blocked and not (generic_managed_status and base_has_source_blockers):
         summary += f"; {SOURCE_BLOCKER_ACTIVE_LABEL}"
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
@@ -2572,9 +2576,9 @@ def _command_center_device_status_with_unmanaged_context(
 
     compact_parts: list[str] = [
         *_compact_managed_base_parts(max_chars=72),
-        _compact_unmanaged_count_label(candidate_count),
+        *([] if (generic_managed_status and base_has_unmanaged_label) else [_compact_unmanaged_count_label(candidate_count)]),
     ]
-    if source_blocked:
+    if source_blocked and not (generic_managed_status and base_has_source_blockers):
         compact_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if backlog_parts:
         compact_parts.extend(backlog_parts)
@@ -2596,9 +2600,9 @@ def _command_center_device_status_with_unmanaged_context(
     if single_kind_overflow_backlog_parts:
         single_kind_compact_parts: list[str] = [
             *_compact_managed_base_parts(max_chars=72),
-            _compact_unmanaged_count_label(candidate_count),
+            *([] if (generic_managed_status and base_has_unmanaged_label) else [_compact_unmanaged_count_label(candidate_count)]),
         ]
-        if source_blocked:
+        if source_blocked and not (generic_managed_status and base_has_source_blockers):
             single_kind_compact_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
         single_kind_compact_parts.extend(single_kind_overflow_backlog_parts)
         if review_needed_count:
@@ -2645,9 +2649,9 @@ def _command_center_device_status_with_unmanaged_context(
 
         single_kind_named_parts: list[str] = [
             *_compact_managed_base_parts(max_chars=56),
-            _compact_unmanaged_count_label(candidate_count),
+            *([] if (generic_managed_status and base_has_unmanaged_label) else [_compact_unmanaged_count_label(candidate_count)]),
         ]
-        if source_blocked:
+        if source_blocked and not (generic_managed_status and base_has_source_blockers):
             single_kind_named_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
         single_kind_named_parts.extend(single_kind_overflow_backlog_parts)
         if review_needed_count:
@@ -2680,9 +2684,9 @@ def _command_center_device_status_with_unmanaged_context(
 
     essential_parts: list[str] = [
         *_compact_managed_base_parts(max_chars=48),
-        _compact_unmanaged_count_label(candidate_count),
+        *([] if (generic_managed_status and base_has_unmanaged_label) else [_compact_unmanaged_count_label(candidate_count)]),
     ]
-    if source_blocked:
+    if source_blocked and not (generic_managed_status and base_has_source_blockers):
         essential_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if backlog_parts:
         essential_parts.extend(backlog_parts)
@@ -2708,9 +2712,9 @@ def _command_center_device_status_with_unmanaged_context(
     if single_kind_overflow_backlog_parts:
         single_kind_parts: list[str] = [
             *_compact_managed_base_parts(max_chars=40),
-            _compact_unmanaged_count_label(candidate_count),
+            *([] if (generic_managed_status and base_has_unmanaged_label) else [_compact_unmanaged_count_label(candidate_count)]),
         ]
-        if source_blocked:
+        if source_blocked and not (generic_managed_status and base_has_source_blockers):
             single_kind_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
         single_kind_parts.extend(single_kind_overflow_backlog_parts)
         if review_needed_count:
@@ -2731,9 +2735,9 @@ def _command_center_device_status_with_unmanaged_context(
 
         concise_single_kind_parts: list[str] = [
             *_compact_managed_base_parts(max_chars=40),
-            _compact_unmanaged_count_label(candidate_count),
+            *([] if (generic_managed_status and base_has_unmanaged_label) else [_compact_unmanaged_count_label(candidate_count)]),
         ]
-        if source_blocked:
+        if source_blocked and not (generic_managed_status and base_has_source_blockers):
             concise_single_kind_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
         concise_single_kind_parts.extend(single_kind_overflow_backlog_parts)
         if review_needed_count:
@@ -2764,9 +2768,9 @@ def _command_center_device_status_with_unmanaged_context(
 
     minimal_parts: list[str] = [
         *_compact_managed_base_parts(max_chars=40),
-        _compact_unmanaged_count_label(candidate_count),
+        *([] if (generic_managed_status and base_has_unmanaged_label) else [_compact_unmanaged_count_label(candidate_count)]),
     ]
-    if source_blocked:
+    if source_blocked and not (generic_managed_status and base_has_source_blockers):
         minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if review_needed_count:
         minimal_parts.append(_count_label(review_needed_count, "needs review", "need review"))
@@ -2813,8 +2817,9 @@ def _command_center_device_status_with_unmanaged_context(
         )
         if active_device_preview:
             tighter_minimal_parts.append(_compact_focus_part("active device ", active_device_preview, max_chars=20))
-    tighter_minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
-    if source_blocked:
+    if not (generic_managed_status and base_has_unmanaged_label):
+        tighter_minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
+    if source_blocked and not (generic_managed_status and base_has_source_blockers):
         tighter_minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
     if review_needed_count:
         tighter_minimal_parts.append(_count_label(review_needed_count, "needs review", "need review"))

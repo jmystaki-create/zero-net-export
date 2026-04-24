@@ -1047,6 +1047,33 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 ready to promote", summary)
         self.assertLessEqual(len(summary), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
 
+    def test_device_status_helper_does_not_repeat_existing_unmanaged_or_source_blocker_story(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support._command_center_device_status_with_unmanaged_context(
+            "Managed Devices: 2 managed, 2 unmanaged backlog; source blockers active",
+            managed_count=2,
+            candidate_count=2,
+            fixed_candidate_count=1,
+            variable_candidate_count=1,
+            review_needed_count=1,
+            fixed_review_count=1,
+            variable_review_count=0,
+            top_candidate_name="Review Candidate Alpha",
+            top_candidate_preview="Review Candidate Alpha (fixed) | review first | warn helper-backed load needs review and validation",
+            review_candidate_name="Review Candidate Alpha",
+            review_candidate_preview="Review Candidate Alpha (fixed) | review first | warn helper-backed load needs review and validation",
+            ready_candidate_name="Ready Candidate Beta",
+            ready_candidate_preview="Ready Candidate Beta (variable) | likely useful | warm-floor preload absorber near main hallway",
+            source_blocked=True,
+        )
+
+        self.assertEqual(summary.count("unmanaged"), 1)
+        self.assertEqual(summary.count("source blockers active"), 1)
+        self.assertIn("review Review Candidate", summary)
+        self.assertIn("ready Ready Candidate", summary)
+        self.assertLessEqual(len(summary), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+
     def test_command_center_summary_keeps_managed_attention_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 
