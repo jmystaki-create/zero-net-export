@@ -3199,10 +3199,12 @@ def _build_command_center_fleet_activity_summary(
             if variable_managed_count:
                 summary_parts.append(f"{variable_managed_count} variable managed")
             summary_parts.append(f"{nominal_power_w} W nominal")
-    elif show_quiet_managed_inventory_context and kind_known:
-        summary_parts.append(f"{fixed_managed_count} fixed managed")
-        if variable_managed_count:
-            summary_parts.append(f"{variable_managed_count} variable managed")
+    elif show_quiet_managed_inventory_context:
+        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+        if kind_known:
+            summary_parts.append(f"{fixed_managed_count} fixed managed")
+            if variable_managed_count:
+                summary_parts.append(f"{variable_managed_count} variable managed")
 
     summary_parts = _prioritize_operational_parts(summary_parts)
     summary = " | ".join(summary_parts)
@@ -3211,8 +3213,6 @@ def _build_command_center_fleet_activity_summary(
 
     compact_summary_parts = list(summary_parts)
     optional_part_matchers = [
-        lambda part: part.startswith("usable "),
-        lambda part: part.startswith("enabled "),
         lambda part: _matches_count_label(part, "fixed review"),
         lambda part: _matches_count_label(part, "variable review"),
     ]
@@ -3225,6 +3225,8 @@ def _build_command_center_fleet_activity_summary(
         )
     optional_part_matchers.extend(
         [
+            lambda part: part.startswith("usable "),
+            lambda part: part.startswith("enabled "),
             lambda part: part.startswith("fixed backlog "),
             lambda part: part.startswith("variable backlog "),
             lambda part: part.endswith(" W nominal"),

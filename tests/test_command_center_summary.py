@@ -6385,7 +6385,11 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
         fleet_activity = summary["fleet_activity_summary"]
 
+        self.assertIn("enabled 1", fleet_activity)
+        self.assertIn("usable 1", fleet_activity)
         self.assertIn("1 fixed managed", fleet_activity)
+        self.assertLess(fleet_activity.index("enabled 1"), fleet_activity.index("2 unmanaged backlog"))
+        self.assertLess(fleet_activity.index("usable 1"), fleet_activity.index("2 unmanaged backlog"))
         self.assertLess(fleet_activity.index("1 fixed managed"), fleet_activity.index("2 unmanaged backlog"))
         self.assertIn("fixed backlog 1 review", fleet_activity)
         self.assertIn("variable backlog 1 ready", fleet_activity)
