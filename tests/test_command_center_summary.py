@@ -4970,6 +4970,63 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("likely useful", compacted)
         self.assertNotIn("key warning:", compacted)
 
+    def test_command_center_summary_compaction_keeps_active_device_alongside_review_ready_backlog_story(self) -> None:
+        native_support = _load_native_support_module()
+
+        state = SimpleNamespace(
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=2,
+            device_details={
+                "pool": {
+                    "name": "Pool pump with a deliberately verbose patio-side equipment label",
+                    "kind": "fixed",
+                    "effective_enabled": True,
+                    "usable": True,
+                    "planned_action": "turn_on",
+                    "observed_active": False,
+                    "current_power_w": 0,
+                },
+                "ev": {
+                    "name": "EV charger with a deliberately verbose garage-side runtime label",
+                    "kind": "variable",
+                    "effective_enabled": True,
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920,
+                    "current_target_power_w": 920,
+                },
+            },
+        )
+
+        summary = native_support._restore_active_device_under_overflow(
+            native_support._build_command_center_fleet_activity_summary(
+                state,
+                candidate_count=2,
+                fixed_candidate_count=1,
+                variable_candidate_count=1,
+                review_needed_count=1,
+                fixed_review_count=1,
+                variable_review_count=0,
+                review_candidate_name="Garage auxiliary outlet bank candidate with a deliberately verbose review label",
+                review_candidate_preview="Garage auxiliary outlet bank candidate with a deliberately verbose review label (fixed) | review carefully | warn generic outlet label requires review",
+                ready_candidate_name="Air purifier circulation candidate with a deliberately verbose ready label",
+                ready_candidate_preview="Air purifier circulation candidate with a deliberately verbose ready label (variable) | likely useful | warn helper-backed load should be verified",
+                top_candidate_name="Garage auxiliary outlet bank candidate with a deliberately verbose review label",
+                top_candidate_preview="Garage auxiliary outlet bank candidate with a deliberately verbose review label (fixed) | review carefully | warn generic outlet label requires review",
+                source_blocked=False,
+            ),
+            active_managed_count=1,
+            active_device_preview="EV charger with a deliberately verbose garage-side runtime label (variable | active 920 W)",
+        )
+
+        self.assertLessEqual(len(summary), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("attention first Pool pump", summary)
+        self.assertIn("active device EV charger", summary)
+        self.assertIn("2 unmanaged backlog", summary)
+        self.assertIn("review Garage auxiliary", summary)
+        self.assertIn("ready Air purifier", summary)
+
     def test_command_center_summary_overflow_prefers_backlog_story_over_candidate_inventory_counts(self) -> None:
         native_support = _load_native_support_module()
 

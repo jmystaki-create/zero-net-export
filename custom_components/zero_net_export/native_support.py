@@ -2864,6 +2864,82 @@ def _command_center_device_status_with_unmanaged_context(
     return _clip_part(tighter_minimal_summary or minimal_summary or compact_summary or summary, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
 
 
+def _restore_active_device_under_overflow(
+    summary: str,
+    *,
+    active_managed_count: int,
+    active_device_preview: str,
+) -> str:
+    if (
+        not summary
+        or active_managed_count <= 0
+        or not active_device_preview
+        or "active device " in summary
+        or "blocked " in summary
+        or ("review " not in summary and "ready " not in summary)
+    ):
+        return summary
+
+    active_device_part = _clip_state_part(
+        f"active device {active_device_preview}",
+        max_chars=48,
+    ) or f"active device {active_device_preview}"
+    parts = [part.strip() for part in summary.split("|") if part.strip()]
+    if active_device_part in parts:
+        return summary
+
+    insertion_index = next(
+        (
+            index + 1
+            for index, part in enumerate(parts)
+            if part.startswith(("active load ",))
+            or _matches_count_label(part, "active managed device", "active managed devices")
+        ),
+        next(
+            (
+                index + 1
+                for index, part in enumerate(parts)
+                if part.startswith(("attention first ", "blocked ", "plan "))
+            ),
+            len(parts),
+        ),
+    )
+
+    candidate_parts = list(parts)
+    candidate_parts.insert(insertion_index, active_device_part)
+    candidate_summary = " | ".join(candidate_parts)
+    if len(candidate_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return candidate_summary
+
+    removable_matchers = (
+        lambda part: _matches_count_label(part, "fixed candidate"),
+        lambda part: _matches_count_label(part, "variable candidate"),
+        lambda part: _matches_count_label(part, "fixed review"),
+        lambda part: _matches_count_label(part, "variable review"),
+        lambda part: part.startswith("fixed backlog "),
+        lambda part: part.startswith("variable backlog "),
+        lambda part: part.startswith(("enabled ", "usable ")),
+        lambda part: part.endswith(" W nominal"),
+        lambda part: _matches_count_label(part, "fixed managed"),
+        lambda part: _matches_count_label(part, "variable managed"),
+        lambda part: _matches_count_label(part, "planned action"),
+        lambda part: part.startswith("plan "),
+        lambda part: part.startswith("active load "),
+    )
+    for matcher in removable_matchers:
+        if len(candidate_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            break
+        for index, part in enumerate(list(candidate_parts)):
+            if part == active_device_part:
+                continue
+            if matcher(part):
+                del candidate_parts[index]
+                candidate_summary = " | ".join(candidate_parts)
+                break
+
+    return candidate_summary if len(candidate_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS else summary
+
+
 def _restore_ready_promotion_count_under_overflow(
     summary: str,
     *,
@@ -4870,29 +4946,33 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         active_controlled_power_w=getattr(state, 'active_controlled_power_w', None) if state is not None else None,
     )
     fleet_activity_summary = _truncate_state_summary(
-        _restore_ready_promotion_count_under_overflow(
-            _compact_fleet_activity_overflow_summary(
-                _prefer_review_ready_over_large_kind_mix(
-                    _build_command_center_fleet_activity_summary(
-                        state,
-                        candidate_count=candidate_count,
-                        fixed_candidate_count=fixed_candidate_count,
-                        variable_candidate_count=variable_candidate_count,
-                        review_needed_count=review_needed_count,
-                        fixed_review_count=fixed_review_count,
-                        variable_review_count=variable_review_count,
-                        review_candidate_name=review_candidate_name,
-                        review_candidate_preview=review_candidate_preview,
-                        ready_candidate_name=ready_candidate_name,
-                        ready_candidate_preview=ready_candidate_preview,
-                        top_candidate_name=top_candidate_name,
-                        top_candidate_preview=top_candidate_preview,
-                        source_blocked=bool(missing_required_sources or runtime_source_attention),
+        _restore_active_device_under_overflow(
+            _restore_ready_promotion_count_under_overflow(
+                _compact_fleet_activity_overflow_summary(
+                    _prefer_review_ready_over_large_kind_mix(
+                        _build_command_center_fleet_activity_summary(
+                            state,
+                            candidate_count=candidate_count,
+                            fixed_candidate_count=fixed_candidate_count,
+                            variable_candidate_count=variable_candidate_count,
+                            review_needed_count=review_needed_count,
+                            fixed_review_count=fixed_review_count,
+                            variable_review_count=variable_review_count,
+                            review_candidate_name=review_candidate_name,
+                            review_candidate_preview=review_candidate_preview,
+                            ready_candidate_name=ready_candidate_name,
+                            ready_candidate_preview=ready_candidate_preview,
+                            top_candidate_name=top_candidate_name,
+                            top_candidate_preview=top_candidate_preview,
+                            source_blocked=bool(missing_required_sources or runtime_source_attention),
+                        )
                     )
-                )
+                ),
+                review_needed_count=review_needed_count,
+                ready_candidate_count=ready_candidate_count,
             ),
-            review_needed_count=review_needed_count,
-            ready_candidate_count=ready_candidate_count,
+            active_managed_count=active_managed_count,
+            active_device_preview=active_device_preview,
         ),
         fallback=device_status,
     )
