@@ -1011,6 +1011,42 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("ready to promotes", summary)
         self.assertLessEqual(len(summary), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
 
+    def test_device_status_helper_keeps_attention_first_focus_under_compaction(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support._command_center_device_status_with_unmanaged_context(
+            "2 configured devices available",
+            managed_count=2,
+            candidate_count=2,
+            fixed_candidate_count=1,
+            variable_candidate_count=1,
+            review_needed_count=1,
+            fixed_review_count=1,
+            variable_review_count=0,
+            top_candidate_name="Review Candidate Alpha",
+            top_candidate_preview="Review Candidate Alpha (fixed) | review first | warn helper-backed load needs review and validation",
+            review_candidate_name="Review Candidate Alpha",
+            review_candidate_preview="Review Candidate Alpha (fixed) | review first | warn helper-backed load needs review and validation",
+            ready_candidate_name="Ready Candidate Beta",
+            ready_candidate_preview="Ready Candidate Beta (variable) | likely useful | warm-floor preload absorber near main hallway",
+            managed_attention_count=1,
+            blocked_activity_count=1,
+            active_managed_count=1,
+            active_managed_power_w=920.0,
+            attention_device_preview="Pool pump blocker (fixed | blocked)",
+            blocked_device_preview="Pool pump blocker (fixed | blocked)",
+            planned_device_preview="Heated floor (variable | target 920 W | action turn_on)",
+            active_device_preview="Heated floor (variable | active 920 W)",
+        )
+
+        self.assertIn("attention first", summary)
+        self.assertIn("blocked Po", summary)
+        self.assertIn("plan H", summary)
+        self.assertIn("active device Hea", summary)
+        self.assertIn("2 unmanaged backlog", summary)
+        self.assertIn("1 ready to promote", summary)
+        self.assertLessEqual(len(summary), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+
     def test_command_center_summary_keeps_managed_attention_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 

@@ -2348,6 +2348,9 @@ def _command_center_device_status_with_unmanaged_context(
     blocked_activity_count: int = 0,
     active_managed_count: int = 0,
     active_managed_power_w: float = 0.0,
+    attention_device_preview: str = "",
+    blocked_device_preview: str = "",
+    planned_device_preview: str = "",
     active_device_preview: str = "",
     source_blocked: bool = False,
 ) -> str:
@@ -2371,11 +2374,35 @@ def _command_center_device_status_with_unmanaged_context(
     managed_parts: list[str] = []
     compact_active_device_preview = active_device_preview and "." not in active_device_preview.partition(" ")[0]
 
+    def _compact_focus_part(prefix: str, preview: str, *, max_chars: int) -> str:
+        focus_part = f"{prefix}{preview}".strip()
+        return _clip_state_part(focus_part, max_chars=max_chars) or _clip_part(focus_part, max_chars=max_chars)
+
     def _compact_managed_base_parts(*, max_chars: int) -> list[str]:
         if not (generic_managed_status and managed_count > 0):
             return [_clip_part(base_status, max_chars=max_chars)]
 
         compact_parts: list[str] = [_managed_count_label(managed_count)]
+        if managed_attention_count:
+            compact_parts.append(
+                "1 managed device needs attention"
+                if managed_attention_count == 1
+                else f"{managed_attention_count} managed devices need attention"
+            )
+            if attention_device_preview:
+                compact_parts.append(
+                    _compact_focus_part("attention first ", attention_device_preview, max_chars=min(max_chars, 52))
+                )
+        if blocked_activity_count:
+            compact_parts.append(_blocked_activity_count_label(blocked_activity_count))
+            if blocked_device_preview:
+                compact_parts.append(
+                    _compact_focus_part("blocked ", blocked_device_preview, max_chars=min(max_chars, 52))
+                )
+        if planned_device_preview:
+            compact_parts.append(
+                _compact_focus_part("plan ", planned_device_preview, max_chars=min(max_chars, 52))
+            )
         if active_managed_count:
             if active_managed_power_w > 0 and not (candidate_count > 0 and active_device_preview):
                 compact_parts.append(f"active load {active_managed_power_w:g} W")
@@ -2386,22 +2413,29 @@ def _command_center_device_status_with_unmanaged_context(
             )
             if compact_active_device_preview and candidate_count > 1 and 0 < review_needed_count < candidate_count:
                 compact_parts.append(
-                    _clip_part(
-                        f"active device {active_device_preview}",
+                    _compact_focus_part(
+                        "active device ",
+                        active_device_preview,
                         max_chars=min(max_chars, 48),
                     )
                 )
+        return compact_parts
+
+    if generic_managed_status and managed_count > 0:
         if managed_attention_count:
-            compact_parts.append(
+            managed_parts.append(
                 "1 managed device needs attention"
                 if managed_attention_count == 1
                 else f"{managed_attention_count} managed devices need attention"
             )
+            if attention_device_preview:
+                managed_parts.append(f"attention first {attention_device_preview}")
         if blocked_activity_count:
-            compact_parts.append(_blocked_activity_count_label(blocked_activity_count))
-        return compact_parts
-
-    if generic_managed_status and managed_count > 0:
+            managed_parts.append(_blocked_activity_count_label(blocked_activity_count))
+            if blocked_device_preview:
+                managed_parts.append(f"blocked {blocked_device_preview}")
+        if planned_device_preview:
+            managed_parts.append(f"plan {planned_device_preview}")
         if active_managed_count:
             if active_managed_power_w > 0:
                 managed_parts.append(f"active load {active_managed_power_w:g} W")
@@ -2412,14 +2446,6 @@ def _command_center_device_status_with_unmanaged_context(
             )
             if active_device_preview:
                 managed_parts.append(f"active device {active_device_preview}")
-        if managed_attention_count:
-            managed_parts.append(
-                "1 managed device needs attention"
-                if managed_attention_count == 1
-                else f"{managed_attention_count} managed devices need attention"
-            )
-        if blocked_activity_count:
-            managed_parts.append(_blocked_activity_count_label(blocked_activity_count))
     if managed_parts:
         summary = "; ".join([summary, *managed_parts])
     if candidate_count <= 0:
@@ -2438,24 +2464,71 @@ def _command_center_device_status_with_unmanaged_context(
                 return compact_summary
 
             fallback_parts = [_managed_count_label(managed_count)]
-            if active_managed_count:
-                fallback_parts.append(
-                    "1 active managed device"
-                    if active_managed_count == 1
-                    else f"{active_managed_count} active managed devices"
-                )
             if managed_attention_count:
                 fallback_parts.append(
                     "1 managed device needs attention"
                     if managed_attention_count == 1
                     else f"{managed_attention_count} managed devices need attention"
                 )
+                if attention_device_preview:
+                    fallback_parts.append(
+                        _compact_focus_part("attention first ", attention_device_preview, max_chars=48)
+                    )
             if blocked_activity_count:
                 fallback_parts.append(_blocked_activity_count_label(blocked_activity_count))
+                if blocked_device_preview:
+                    fallback_parts.append(_compact_focus_part("blocked ", blocked_device_preview, max_chars=48))
+            if planned_device_preview:
+                fallback_parts.append(_compact_focus_part("plan ", planned_device_preview, max_chars=48))
+            if active_managed_count:
+                fallback_parts.append(
+                    "1 active managed device"
+                    if active_managed_count == 1
+                    else f"{active_managed_count} active managed devices"
+                )
             fallback_parts.append("no unmanaged candidates")
             if source_blocked:
                 fallback_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
-            return "; ".join(fallback_parts)
+            fallback_summary = "; ".join(fallback_parts)
+            if len(fallback_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return fallback_summary
+
+            tighter_fallback_parts = [*_compact_managed_base_parts(max_chars=32), "no unmanaged candidates"]
+            if source_blocked:
+                tighter_fallback_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+            tighter_fallback_summary = "; ".join(tighter_fallback_parts)
+            if len(tighter_fallback_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return tighter_fallback_summary
+            return "; ".join(
+                [
+                    _managed_count_label(managed_count),
+                    *(
+                        [
+                            "1 managed device needs attention"
+                            if managed_attention_count == 1
+                            else f"{managed_attention_count} managed devices need attention"
+                        ]
+                        if managed_attention_count
+                        else []
+                    ),
+                    *(
+                        [_blocked_activity_count_label(blocked_activity_count)]
+                        if blocked_activity_count
+                        else []
+                    ),
+                    *(
+                        [
+                            "1 active managed device"
+                            if active_managed_count == 1
+                            else f"{active_managed_count} active managed devices"
+                        ]
+                        if active_managed_count
+                        else []
+                    ),
+                    "no unmanaged candidates",
+                    *([SOURCE_BLOCKER_ACTIVE_LABEL] if source_blocked else []),
+                ]
+            )
         return f"{summary}; {SOURCE_BLOCKER_ACTIVE_LABEL}" if source_blocked else summary
     summary += f"; {_unmanaged_count_label(candidate_count)}"
     if source_blocked:
@@ -2721,7 +2794,55 @@ def _command_center_device_status_with_unmanaged_context(
     if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimal_summary
 
-    return _clip_part(minimal_summary or compact_summary or summary, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
+    tighter_minimal_parts: list[str] = [_managed_count_label(managed_count)]
+    if managed_attention_count:
+        tighter_minimal_parts.append(
+            "1 managed device needs attention"
+            if managed_attention_count == 1
+            else f"{managed_attention_count} managed devices need attention"
+        )
+        if attention_device_preview:
+            tighter_minimal_parts.append(
+                _compact_focus_part("attention first ", attention_device_preview, max_chars=20)
+            )
+    if blocked_activity_count and not blocked_device_preview:
+        tighter_minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
+    if blocked_device_preview:
+        tighter_minimal_parts.append(_compact_focus_part("blocked ", blocked_device_preview, max_chars=20))
+    if planned_device_preview:
+        tighter_minimal_parts.append(_compact_focus_part("plan ", planned_device_preview, max_chars=20))
+    if active_managed_count:
+        tighter_minimal_parts.append(
+            "1 active managed device"
+            if active_managed_count == 1
+            else f"{active_managed_count} active managed devices"
+        )
+        if active_device_preview:
+            tighter_minimal_parts.append(_compact_focus_part("active device ", active_device_preview, max_chars=20))
+    tighter_minimal_parts.append(_compact_unmanaged_count_label(candidate_count))
+    if source_blocked:
+        tighter_minimal_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+    if review_needed_count:
+        tighter_minimal_parts.append(_count_label(review_needed_count, "needs review", "need review"))
+        tighter_minimal_parts.append(
+            _clip_review_ready_state_part(
+                f"review {(review_candidate_preview or review_candidate_name)}",
+                max_chars=20,
+            )
+        )
+    if ready_candidate_count:
+        tighter_minimal_parts.append(_count_label(ready_candidate_count, "ready to promote", "ready to promote"))
+        tighter_minimal_parts.append(
+            _clip_review_ready_state_part(
+                f"ready {(ready_candidate_preview or ready_candidate_name)}",
+                max_chars=20,
+            )
+        )
+    tighter_minimal_summary = "; ".join(part for part in tighter_minimal_parts if part)
+    if len(tighter_minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+        return tighter_minimal_summary
+
+    return _clip_part(tighter_minimal_summary or minimal_summary or compact_summary or summary, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
 
 
 def _restore_ready_promotion_count_under_overflow(
@@ -4295,6 +4416,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_preview=ready_candidate_preview,
             active_managed_count=active_managed_count,
             active_managed_power_w=active_managed_power_w,
+            attention_device_preview=_command_center_managed_snapshot_focus_label(first_attention_device),
+            blocked_device_preview=_command_center_fleet_focus_label(first_blocked_device),
+            planned_device_preview=_command_center_fleet_focus_label(first_planned_device, include_plan_context=True),
             active_device_preview=active_device_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
@@ -4320,6 +4444,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             blocked_activity_count=blocked_activity_count,
             active_managed_count=active_managed_count,
             active_managed_power_w=active_managed_power_w,
+            attention_device_preview=_command_center_managed_snapshot_focus_label(first_attention_device),
+            blocked_device_preview=_command_center_fleet_focus_label(first_blocked_device),
+            planned_device_preview=_command_center_fleet_focus_label(first_planned_device, include_plan_context=True),
             active_device_preview=active_device_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
@@ -4376,6 +4503,9 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ready_candidate_preview=ready_candidate_preview,
             active_managed_count=active_managed_count,
             active_managed_power_w=active_managed_power_w,
+            attention_device_preview=_command_center_managed_snapshot_focus_label(first_attention_device),
+            blocked_device_preview=_command_center_fleet_focus_label(first_blocked_device),
+            planned_device_preview=_command_center_fleet_focus_label(first_planned_device, include_plan_context=True),
             active_device_preview=active_device_preview,
             source_blocked=bool(missing_required_sources or runtime_source_attention),
         )
