@@ -105,14 +105,17 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             }
         )
 
-        self.assertIn("Use this command center for live setup, the current operating picture, and the next native action.", text)
-        self.assertIn("When the next step moves into fleet work, continue in the Managed Devices workspace.", text)
+        self.assertIn("Use this command center for live setup and the current operating picture.", text)
+        self.assertIn(
+            "Finish source mapping and core control checks here, then continue in the Managed Devices workspace when fleet work is next.",
+            text,
+        )
         self.assertNotIn("This surface is for the basic setup only.", text)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", text)
         self.assertIn("Now", text)
         self.assertIn("- Alerts: Missing required source roles: Solar power", text)
         self.assertIn(
-            f"- Recommended next step: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
+            f"- Next action: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,
         )
         self.assertNotIn("- Recommended section:", text)
@@ -181,7 +184,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
 
         self.assertIn("- Alerts: Mapped-source blockers: Solar power stale", text)
         self.assertIn(
-            f"- Recommended next step: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
+            f"- Next action: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,
         )
         self.assertNotIn("- Recommended section:", text)

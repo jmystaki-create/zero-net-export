@@ -374,12 +374,15 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "mode_path": native_support.MODE_CONTROL_PATH,
             }
         )
-        self.assertIn("Use this command center for live setup, the current operating picture, and the next native action.", guide)
-        self.assertIn("When the next step moves into fleet work, continue in the Managed Devices workspace.", guide)
+        self.assertIn("Use this command center for live setup and the current operating picture.", guide)
+        self.assertIn(
+            "Finish source mapping and core control checks here, then continue in the Managed Devices workspace when fleet work is next.",
+            guide,
+        )
         self.assertNotIn("This surface is for the basic setup only.", guide)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", guide)
         self.assertIn("Now", guide)
-        self.assertIn("- Recommended next step: Repair the mapped-source blockers first.", guide)
+        self.assertIn("- Next action: Repair the mapped-source blockers first.", guide)
         self.assertNotIn("- Recommended section:", guide)
         self.assertNotIn("- Recommended path:", guide)
         self.assertIn("Structured control board", guide)
