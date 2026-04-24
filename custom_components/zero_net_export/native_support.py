@@ -5017,7 +5017,11 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
     compact_source_alert = source_alert_compact or source_alert
     compact_device_alert = device_alert_compact or device_alert
-    tight_source_alert = SOURCE_BLOCKER_ACTIVE_LABEL if runtime_source_attention and not missing_required_sources else compact_source_alert
+    tight_source_alert = (
+        SOURCE_BLOCKER_ACTIVE_LABEL
+        if (missing_required_sources or runtime_source_attention)
+        else compact_source_alert
+    )
     alert_summary = _compact_top_alert_summary(
         top_alerts,
         [source_alert, device_alert, review_or_ready, readiness_alert, install_alert],
