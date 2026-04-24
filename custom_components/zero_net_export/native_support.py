@@ -606,7 +606,8 @@ def _clip_review_ready_state_part(text: str, *, max_chars: int) -> str:
     if prefix not in {"review", "ready"} or not separator or not payload:
         return _clip_state_part(normalized, max_chars=max_chars)
 
-    primary_label = payload.split(" | ", 1)[0].strip()
+    payload_parts = [part.strip() for part in payload.split(" | ") if part.strip()]
+    primary_label = payload_parts[0] if payload_parts else ""
     if not primary_label:
         return _clip_state_part(normalized, max_chars=max_chars)
 
@@ -619,16 +620,42 @@ def _clip_review_ready_state_part(text: str, *, max_chars: int) -> str:
             base_label = possible_base.strip()
             kind_suffix = possible_suffix
 
-    available_label_chars = max_chars - len(prefix) - 1 - len(kind_suffix)
+    detail_parts = payload_parts[1:]
+    detail_reserve = 0
+    if detail_parts and max_chars >= 80:
+        preferred_detail_chars = min(len(detail_parts[0]), 18)
+        reserved_candidate = max_chars - len(prefix) - 1 - len(kind_suffix) - len(" | ") - preferred_detail_chars
+        if reserved_candidate >= 12:
+            detail_reserve = len(" | ") + preferred_detail_chars
+
+    available_label_chars = max_chars - len(prefix) - 1 - len(kind_suffix) - detail_reserve
     if available_label_chars <= 0:
         return _clip_state_part(f"{prefix} {primary_label}", max_chars=max_chars)
 
     clipped_label = _clip_state_part(base_label, max_chars=available_label_chars)
     clipped = f"{prefix} {clipped_label}{kind_suffix}".strip()
-    if len(clipped) <= max_chars:
+    if len(clipped) > max_chars:
+        return _clip_state_part(f"{prefix} {primary_label}", max_chars=max_chars)
+
+    if not detail_parts:
         return clipped
 
-    return _clip_state_part(f"{prefix} {primary_label}", max_chars=max_chars)
+    detail_candidates: list[str] = []
+    for detail in detail_parts:
+        if detail not in detail_candidates:
+            detail_candidates.append(detail)
+
+    detailed = clipped
+    for detail in detail_candidates:
+        remaining_chars = max_chars - len(detailed) - len(" | ")
+        if remaining_chars <= 0:
+            break
+        clipped_detail = _clip_state_part(detail, max_chars=remaining_chars)
+        candidate = f"{detailed} | {clipped_detail}".strip()
+        if len(candidate) <= max_chars:
+            detailed = candidate
+
+    return detailed
 
 
 def _compact_metric_value(value: Any) -> str:

@@ -4740,6 +4740,25 @@ class CommandCenterSummaryTests(unittest.TestCase):
             ),
         )
 
+    def test_clip_review_ready_state_part_keeps_candidate_fit_signal_when_clipped(self) -> None:
+        native_support = _load_native_support_module()
+
+        review = native_support._clip_review_ready_state_part(
+            "review Garage subboard auxiliary outlet bank candidate 02 west wing (fixed) | review carefully | warn generic circuit label",
+            max_chars=80,
+        )
+        ready = native_support._clip_review_ready_state_part(
+            "ready EV charger garage load-shedding candidate (variable) | likely useful | warn helper-backed",
+            max_chars=80,
+        )
+
+        self.assertLessEqual(len(review), 80)
+        self.assertIn("review Garage", review)
+        self.assertIn("review carefully", review)
+        self.assertLessEqual(len(ready), 80)
+        self.assertIn("ready EV charger", ready)
+        self.assertIn("likely useful", ready)
+
     def test_command_center_summary_preserves_candidate_kind_in_tighter_priority_overflow(self) -> None:
         native_support = _load_native_support_module()
 
