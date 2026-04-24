@@ -2958,12 +2958,16 @@ def _restore_active_device_under_overflow(
     ):
         return summary
 
-    if "blocked " in summary and (
-        "fixed backlog " in summary
-        or "variable backlog " in summary
-        or "needs review" in summary
-        or "need review" in summary
-        or "ready to promote" in summary
+    if (
+        active_managed_count <= 1
+        and "blocked " in summary
+        and (
+            "fixed backlog " in summary
+            or "variable backlog " in summary
+            or "needs review" in summary
+            or "need review" in summary
+            or "ready to promote" in summary
+        )
     ):
         return summary
 
@@ -4538,7 +4542,6 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         state,
         predicate=lambda detail: detail.get("observed_active") is True,
     )
-    active_device_preview = _command_center_managed_snapshot_focus_label(first_active_device)
     blocked_activity_count = (
         sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
         if state is not None
@@ -4570,6 +4573,12 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     first_blocked_device = _first_runtime_device_detail(state, predicate=_runtime_device_has_blocked_activity)
     first_planned_device = _first_runtime_device_detail(state, predicate=_runtime_device_has_active_plan)
     first_attention_device = _first_runtime_device_detail(state, predicate=_runtime_device_needs_attention)
+    active_restore_device = _first_distinct_runtime_device_detail(
+        state,
+        predicate=lambda detail: detail.get("observed_active") is True,
+        excluded=(first_attention_device, first_blocked_device, first_planned_device),
+    ) or first_active_device
+    active_device_preview = _command_center_managed_snapshot_focus_label(active_restore_device)
     install_consistency = build_install_consistency_summary(install_provenance)
     install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
     install_provenance_blocked = install_provenance_pending or install_provenance.get("manifest_matches_code_version") is False

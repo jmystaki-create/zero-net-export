@@ -2839,6 +2839,97 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review ", summary["fleet_activity_summary"])
         self.assertIn("ready ", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_keeps_distinct_active_device_when_blocked_attention_overflows(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and confirm the current live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Garage auxiliary outlet backlog candidate with a very long review-first descriptor for overflow coverage",
+                    "entity_id": "switch.review_candidate_alpha",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "EV charger export absorption candidate with a very long ready-next descriptor for overflow coverage",
+                    "entity_id": "number.ready_candidate_beta",
+                    "kind": "variable",
+                },
+            ],
+            "Garage auxiliary outlet backlog candidate with a very long review-first descriptor for overflow coverage",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("entity_id") == "switch.review_candidate_alpha" else "high",
+            "warnings": ["helper-backed load needs review"]
+            if candidate.get("entity_id") == "switch.review_candidate_alpha"
+            else [],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Garage auxiliary outlet backlog candidate with a very long review-first descriptor for overflow coverage (fixed) | review first | warn helper-backed load needs review"
+            if candidate.get("entity_id") == "switch.review_candidate_alpha"
+            else "EV charger export absorption candidate with a very long ready-next descriptor for overflow coverage (variable) | likely useful | key warning: No immediate warnings"
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            blocked_planned_action_count=1,
+            active_controlled_power_w=3000,
+            device_details={
+                "pool": {
+                    "name": "Pool Pump Alpha with a blocked-and-active label that stays long enough to force overflow",
+                    "entity_id": "switch.pool_pump_alpha",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "action_executable": False,
+                    "last_action_status": "guard waiting",
+                    "observed_active": True,
+                    "current_power_w": 1200,
+                },
+                "heater": {
+                    "name": "Heated floor west wing zone controller",
+                    "entity_id": "number.heated_floor_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "planned_action": "hold",
+                    "observed_active": True,
+                    "current_power_w": 1800,
+                    "current_target_power_w": 1800,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("blocked Pool Pump", summary["fleet_activity_summary"])
+        self.assertIn("review ", summary["fleet_activity_summary"])
+        self.assertIn("ready ", summary["fleet_activity_summary"])
+        self.assertIn("active device Heated floor", summary["fleet_activity_summary"])
+
     def test_command_center_summary_keeps_distinct_active_device_when_first_active_load_is_planned(self) -> None:
         native_support = _load_native_support_module()
 
