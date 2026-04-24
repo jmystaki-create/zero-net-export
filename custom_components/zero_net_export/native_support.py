@@ -3202,6 +3202,10 @@ def _build_command_center_fleet_activity_summary(
         normalized = " ".join(str(text).split())
         if len(normalized) <= max_chars:
             return normalized
+        if max_chars >= 40 and normalized.startswith(("attention first ", "active device ")):
+            focus_clipped = _clip_state_part(normalized, max_chars=max_chars)
+            if focus_clipped:
+                return focus_clipped
         if max_chars <= 3:
             return normalized[:max_chars]
         return normalized[: max_chars - 3].rstrip() + "..."
@@ -3228,31 +3232,29 @@ def _build_command_center_fleet_activity_summary(
         )
 
     if first_attention_device:
+        attention_part = (
+            f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
+        )
         minimal_parts.append(
-            _clip_part(
-                f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}",
-                max_chars=72,
-            )
+            _clip_state_part(attention_part, max_chars=72) or _clip_part(attention_part, max_chars=72)
         )
     if blocked_activity_count:
         if blocked_activity_count > 1 or not blocked_focus_device:
             minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
         if blocked_focus_device:
+            blocked_part = f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}"
             minimal_parts.append(
-                _clip_part(
-                    f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}",
-                    max_chars=72,
-                )
+                _clip_state_part(blocked_part, max_chars=72) or _clip_part(blocked_part, max_chars=72)
             )
 
     if planned_activity_count:
         minimal_parts.append(_planned_action_count_label(planned_activity_count))
         if planned_focus_device and not suppress_planned_focus:
+            planned_part = (
+                f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}"
+            )
             minimal_parts.append(
-                _clip_part(
-                    f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}",
-                    max_chars=72,
-                )
+                _clip_state_part(planned_part, max_chars=72) or _clip_part(planned_part, max_chars=72)
             )
 
     if active_managed_count > 0:
@@ -3271,11 +3273,12 @@ def _build_command_center_fleet_activity_summary(
                 and (not planned_activity_count or (planned_focus_device and not _same_runtime_device(active_focus_device, planned_focus_device)))
             )
         ):
+            active_device_part = (
+                f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}"
+            )
             minimal_parts.append(
-                _clip_part(
-                    f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}",
-                    max_chars=72,
-                )
+                _clip_state_part(active_device_part, max_chars=72)
+                or _clip_part(active_device_part, max_chars=72)
             )
 
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
@@ -3360,6 +3363,53 @@ def _build_command_center_fleet_activity_summary(
     if len(minimal_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return minimal_summary
 
+    if managed_count > 0 and candidate_count <= 0 and not (source_blocked and kind_known):
+        compact_focus_context_parts: list[str] = []
+        if managed_attention_count:
+            compact_focus_context_parts.append(
+                "1 managed device needs attention"
+                if managed_attention_count == 1
+                else f"{managed_attention_count} managed devices need attention"
+            )
+        if first_attention_device:
+            attention_part = (
+                f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
+            )
+            compact_focus_context_parts.append(
+                _clip_state_part(attention_part, max_chars=48) or _clip_part(attention_part, max_chars=48)
+            )
+        if active_managed_count > 0:
+            if active_managed_power_w > 0:
+                compact_focus_context_parts.append(f"active load {active_managed_power_w:g} W")
+            compact_focus_context_parts.append(
+                "1 active managed device"
+                if active_managed_count == 1
+                else f"{active_managed_count} active managed devices"
+            )
+            if active_focus_device and (
+                active_focus_device is not first_active_device
+                or (
+                    (not attention_device_count or not _same_runtime_device(active_focus_device, first_attention_device))
+                    and (not blocked_activity_count or (blocked_focus_device and not _same_runtime_device(active_focus_device, blocked_focus_device)))
+                    and (not planned_activity_count or (planned_focus_device and not _same_runtime_device(active_focus_device, planned_focus_device)))
+                )
+            ):
+                active_device_part = (
+                    f"active device {_command_center_managed_snapshot_focus_label(active_focus_device)}"
+                )
+                compact_focus_context_parts.append(
+                    _clip_state_part(active_device_part, max_chars=48)
+                    or _clip_part(active_device_part, max_chars=48)
+                )
+        compact_focus_context_parts.append(_managed_count_label(managed_count))
+        compact_focus_context_parts.append(_compact_unmanaged_count_label(candidate_count))
+        if source_blocked:
+            compact_focus_context_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+        compact_focus_context_parts = _prioritize_operational_parts(compact_focus_context_parts)
+        compact_focus_context_summary = " | ".join(compact_focus_context_parts)
+        if len(compact_focus_context_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            return compact_focus_context_summary
+
     if managed_count > 0 and candidate_count <= 0 and source_blocked and kind_known:
         source_blocked_inventory_parts: list[str] = []
         if managed_attention_count:
@@ -3369,11 +3419,12 @@ def _build_command_center_fleet_activity_summary(
                 else f"{managed_attention_count} managed devices need attention"
             )
         if first_attention_device:
+            attention_part = (
+                f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
+            )
             source_blocked_inventory_parts.append(
-                _clip_part(
-                    f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}",
-                    max_chars=56,
-                )
+                _clip_state_part(attention_part, max_chars=56)
+                or _clip_part(attention_part, max_chars=56)
             )
         if active_managed_count > 0:
             if active_managed_power_w > 0:
@@ -3684,8 +3735,12 @@ def _build_command_center_fleet_activity_summary(
         return backlog_priority_summary
 
     compact_minimal_parts = [
-        _clip_part(part, max_chars=48)
-        if part.startswith(("blocked ", "attention first ", "review ", "ready ", "surfaced "))
+        _clip_state_part(part, max_chars=48) or _clip_part(part, max_chars=48)
+        if part.startswith(("attention first ", "active device "))
+        else _clip_review_ready_state_part(part, max_chars=48)
+        if part.startswith(("review ", "ready "))
+        else _clip_part(part, max_chars=48)
+        if part.startswith(("blocked ", "surfaced "))
         else part
         for part in minimal_parts
     ]
