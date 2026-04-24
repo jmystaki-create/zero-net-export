@@ -2987,6 +2987,14 @@ def _build_command_center_fleet_activity_summary(
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
     show_inventory_context = managed_count > 0 and candidate_count <= 0
+    show_quiet_managed_inventory_context = bool(
+        managed_count > 0
+        and candidate_count > 0
+        and not managed_attention_count
+        and not blocked_activity_count
+        and not planned_activity_count
+        and active_managed_count <= 0
+    )
 
     def _prioritize_operational_parts(parts: list[str]) -> list[str]:
         ordered_parts = list(parts)
@@ -3005,6 +3013,10 @@ def _build_command_center_fleet_activity_summary(
                         or _matches_count_label(part, "planned action")
                         or _matches_count_label(part, "active managed device", "active managed devices")
                         or _matches_count_label(part, "blocked managed action", "blocked managed actions")
+                        or part.startswith(("enabled ", "usable "))
+                        or _matches_count_label(part, "fixed managed")
+                        or _matches_count_label(part, "variable managed")
+                        or part.endswith(" W nominal")
                     )
 
                 insertion_index = next(
@@ -3187,6 +3199,10 @@ def _build_command_center_fleet_activity_summary(
             if variable_managed_count:
                 summary_parts.append(f"{variable_managed_count} variable managed")
             summary_parts.append(f"{nominal_power_w} W nominal")
+    elif show_quiet_managed_inventory_context and kind_known:
+        summary_parts.append(f"{fixed_managed_count} fixed managed")
+        if variable_managed_count:
+            summary_parts.append(f"{variable_managed_count} variable managed")
 
     summary_parts = _prioritize_operational_parts(summary_parts)
     summary = " | ".join(summary_parts)
@@ -3199,14 +3215,25 @@ def _build_command_center_fleet_activity_summary(
         lambda part: part.startswith("enabled "),
         lambda part: _matches_count_label(part, "fixed review"),
         lambda part: _matches_count_label(part, "variable review"),
-        lambda part: part.startswith("fixed backlog "),
-        lambda part: part.startswith("variable backlog "),
-        lambda part: part.endswith(" W nominal"),
-        lambda part: _matches_count_label(part, "fixed managed"),
-        lambda part: _matches_count_label(part, "variable managed"),
-        lambda part: _matches_count_label(part, "planned action"),
-        lambda part: part.startswith("plan "),
     ]
+    if show_quiet_managed_inventory_context:
+        optional_part_matchers.extend(
+            [
+                lambda part: _matches_count_label(part, "fixed candidate"),
+                lambda part: _matches_count_label(part, "variable candidate"),
+            ]
+        )
+    optional_part_matchers.extend(
+        [
+            lambda part: part.startswith("fixed backlog "),
+            lambda part: part.startswith("variable backlog "),
+            lambda part: part.endswith(" W nominal"),
+            lambda part: _matches_count_label(part, "fixed managed"),
+            lambda part: _matches_count_label(part, "variable managed"),
+            lambda part: _matches_count_label(part, "planned action"),
+            lambda part: part.startswith("plan "),
+        ]
+    )
     for matcher in optional_part_matchers:
         if len(" | ".join(compact_summary_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
             break
