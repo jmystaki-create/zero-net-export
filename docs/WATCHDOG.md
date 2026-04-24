@@ -110,7 +110,7 @@ Do not make a second doc-only `docs/BUGS.md` or watchdog-guidance refresh just t
 
 ### Rule 6: Treat repeated unchanged live validation as secondary while ordered repo work remains
 
-If meaningful `0.1.87` implementation runway still exists, and live validation is unchanged, do not restate unchanged live mismatch as the main next step.
+If meaningful `0.1.88` implementation runway still exists, and live validation is unchanged, do not restate unchanged live mismatch as the main next step.
 Instead audit whether supervisor correctly stayed on the next ordered build-stage item.
 
 ### Rule 7: Use available access before escalating
