@@ -4818,12 +4818,20 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         install_alert = f"Installed package needs exact-build revalidation: {install_consistency}"
 
     source_alert = None
+    source_alert_compact = None
     if missing_required_sources:
         source_alert = "Missing required source roles: " + ", ".join(
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
+        source_alert_compact = source_alert
     elif runtime_source_attention:
         source_alert = f"Mapped-source blockers: {source_attention_summary_display}"
+        compact_source_detail = (
+            source_attention_roles
+            if source_attention_roles != "None"
+            else source_attention_summary_display
+        )
+        source_alert_compact = f"Mapped-source blockers: {compact_source_detail}"
 
     device_alert = None
     review_alert = None
@@ -4890,19 +4898,25 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     top_alert_fallback = next(
         (
             alert
-            for alert in [source_alert, device_alert, review_or_ready_compact, review_or_ready, readiness_alert, install_alert]
+            for alert in [source_alert_compact, source_alert, device_alert, review_or_ready_compact, review_or_ready, readiness_alert, install_alert]
             if alert
         ),
         "No top-level alerts right now.",
     )
+    compact_source_alert = source_alert_compact or source_alert
+    tight_source_alert = SOURCE_BLOCKER_ACTIVE_LABEL if runtime_source_attention and not missing_required_sources else compact_source_alert
     alert_summary = _compact_top_alert_summary(
         top_alerts,
         [source_alert, device_alert, review_or_ready, readiness_alert, install_alert],
         [source_alert, device_alert, review_or_ready_compact, readiness_alert],
-        [source_alert, device_alert, review_or_ready_compact],
-        [source_alert, device_alert, review_or_ready],
-        [source_alert, device_alert],
+        [compact_source_alert, device_alert, review_or_ready_compact],
+        [tight_source_alert, device_alert, review_or_ready_compact],
+        [compact_source_alert, device_alert, review_or_ready],
+        [compact_source_alert, device_alert],
+        [tight_source_alert, review_or_ready_compact],
+        [compact_source_alert, review_or_ready_compact],
         [device_alert, review_or_ready_compact],
+        [compact_source_alert],
         [device_alert],
         [review_or_ready_compact],
         [readiness_alert],
