@@ -5215,6 +5215,30 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review ", compacted)
         self.assertIn("ready ", compacted)
 
+    def test_command_center_summary_restore_active_device_keeps_active_cue_with_blocked_story(self) -> None:
+        native_support = _load_native_support_module()
+
+        restored = native_support._restore_active_device_under_overflow(
+            " | ".join(
+                [
+                    "2 managed",
+                    "blocked Pool pump (fixed | blocked)",
+                    "1 active managed device",
+                    "2 unmanaged backlog",
+                    "review Virtual load (fixed)",
+                    "ready EV charger (variable)",
+                ]
+            ),
+            active_managed_count=1,
+            active_device_preview="Heated floor (active 920 W)",
+        )
+
+        self.assertLessEqual(len(restored), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("blocked Pool pump", restored)
+        self.assertIn("active device", restored)
+        self.assertIn("review ", restored)
+        self.assertIn("ready ", restored)
+
     def test_command_center_summary_keeps_source_blockers_visible_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 

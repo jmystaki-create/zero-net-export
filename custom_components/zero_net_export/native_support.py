@@ -2875,8 +2875,16 @@ def _restore_active_device_under_overflow(
         or active_managed_count <= 0
         or not active_device_preview
         or "active device " in summary
-        or "blocked " in summary
         or ("review " not in summary and "ready " not in summary)
+    ):
+        return summary
+
+    if "blocked " in summary and (
+        "fixed backlog " in summary
+        or "variable backlog " in summary
+        or "needs review" in summary
+        or "need review" in summary
+        or "ready to promote" in summary
     ):
         return summary
 
