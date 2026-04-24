@@ -2948,6 +2948,8 @@ def _restore_active_device_under_overflow(
     *,
     active_managed_count: int,
     active_device_preview: str,
+    active_device_distinct: bool = False,
+    source_blocked: bool = False,
 ) -> str:
     if (
         not summary
@@ -2960,6 +2962,7 @@ def _restore_active_device_under_overflow(
 
     if (
         active_managed_count <= 1
+        and (not active_device_distinct or not source_blocked)
         and "blocked " in summary
         and (
             "fixed backlog " in summary
@@ -3003,6 +3006,7 @@ def _restore_active_device_under_overflow(
         return candidate_summary
 
     removable_matchers = (
+        lambda part: part.startswith("active load "),
         lambda part: _matches_count_label(part, "fixed candidate"),
         lambda part: _matches_count_label(part, "variable candidate"),
         lambda part: _matches_count_label(part, "fixed review"),
@@ -3015,7 +3019,6 @@ def _restore_active_device_under_overflow(
         lambda part: _matches_count_label(part, "variable managed"),
         lambda part: _matches_count_label(part, "planned action"),
         lambda part: part.startswith("plan "),
-        lambda part: part.startswith("active load "),
     )
     for matcher in removable_matchers:
         if len(candidate_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -4579,6 +4582,17 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         excluded=(first_attention_device, first_blocked_device, first_planned_device),
     ) or first_active_device
     active_device_preview = _command_center_managed_snapshot_focus_label(active_restore_device)
+    active_device_distinct = bool(
+        active_restore_device
+        and (
+            active_restore_device is not first_active_device
+            or (
+                (not first_attention_device or not _same_runtime_device(active_restore_device, first_attention_device))
+                and (not first_blocked_device or not _same_runtime_device(active_restore_device, first_blocked_device))
+                and (not first_planned_device or not _same_runtime_device(active_restore_device, first_planned_device))
+            )
+        )
+    )
     install_consistency = build_install_consistency_summary(install_provenance)
     install_provenance_pending = bool(install_provenance.get("pending_async_refresh"))
     install_provenance_blocked = install_provenance_pending or install_provenance.get("manifest_matches_code_version") is False
@@ -5133,6 +5147,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             ),
             active_managed_count=active_managed_count,
             active_device_preview=active_device_preview,
+            active_device_distinct=active_device_distinct,
+            source_blocked=bool(missing_required_sources or runtime_source_attention),
         ),
         fallback=_fleet_activity_fallback_from_device_status(device_status),
     )

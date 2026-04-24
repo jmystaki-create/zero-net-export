@@ -6689,6 +6689,98 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Lounge Room", summary["fleet_activity_summary"])
         self.assertIn("ready Air Purifier", summary["fleet_activity_summary"])
 
+    def test_fleet_activity_overflow_restores_distinct_active_device_even_with_blocked_backlog(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.build_source_mapping_summary = lambda merged: ""
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Review Candidate Alpha with a deliberately long label near the garage side board and utility room",
+                    "entity_id": "switch.review_alpha",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "Ready Candidate Beta with a deliberately long label near the patio board and laundry branch",
+                    "entity_id": "switch.ready_beta",
+                    "kind": "variable",
+                },
+            ],
+            "Review Candidate Alpha with a deliberately long label near the garage side board and utility room",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("kind") == "fixed" else "high",
+            "warnings": ["helper-backed load needs review and validation"] if candidate.get("kind") == "fixed" else [],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Review Candidate Alpha with a deliberately long label near the garage side board and utility room (fixed) | review first | warn helper-backed load needs review and validation"
+            if candidate and candidate.get("kind") == "fixed"
+            else "Ready Candidate Beta with a deliberately long label near the patio board and laundry branch (variable) | likely useful | key warning: No immediate warnings"
+        )
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Holding while one load is blocked, another is planned, and a third is actively running.",
+            control_reason="Keeping the opening fleet story visible under overflow.",
+            status="Active",
+            device_status_summary="Managed Devices: 3 managed devices need attention",
+            device_count=3,
+            enabled_device_count=3,
+            usable_device_count=1,
+            fixed_device_count=2,
+            variable_device_count=1,
+            controllable_nominal_power_w=5000.0,
+            active_controlled_power_w=1800.0,
+            blocked_planned_action_count=2,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            validation_details={},
+            device_details={
+                "pool": {
+                    "name": "Pool Pump West Patio Bank",
+                    "entity_id": "switch.pool",
+                    "kind": "fixed",
+                    "usable": False,
+                    "observed_active": False,
+                    "planned_action": "turn_on",
+                    "last_action_status": "blocked by safety",
+                    "nominal_power_w": 1200.0,
+                },
+                "ev": {
+                    "name": "EV charger north branch with long plan focus",
+                    "entity_id": "number.ev",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": False,
+                    "planned_action": "set_power",
+                    "nominal_power_w": 2400.0,
+                },
+                "heater": {
+                    "name": "Heated floor utility room south wing with long runtime focus",
+                    "entity_id": "number.heater",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 1800.0,
+                    "planned_action": "hold",
+                    "nominal_power_w": 1400.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(
+            data=state,
+            entry=entry,
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["fleet_activity_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("attention first Pool Pump", summary["fleet_activity_summary"])
+        self.assertIn("active device Heated", summary["fleet_activity_summary"])
+        self.assertIn("review Review", summary["fleet_activity_summary"])
+        self.assertIn("ready ", summary["fleet_activity_summary"])
+
     def test_fleet_activity_leads_with_operational_signals_before_inventory_counts(self) -> None:
         native_support = _load_native_support_module()
         native_support.build_source_mapping_summary = lambda merged: ""
