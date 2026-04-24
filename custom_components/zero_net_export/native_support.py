@@ -882,13 +882,62 @@ def _compact_command_center_device_alert_target(
     *,
     max_chars: int = 46,
 ) -> str:
+    detail = detail or {}
+    name = str(detail.get("name") or detail.get("entity_id") or "managed device").strip()
+    signal_parts: list[str] = []
+    deferred_parts: list[str] = []
+    kind = str(detail.get("kind") or "").strip()
+
+    planned_action = str(detail.get("planned_action") or "").strip()
+    last_action_status = str(detail.get("last_action_status") or "").strip()
+    if _runtime_device_has_blocked_activity(detail):
+        signal_parts.append("not usable" if detail.get("usable") is False else "blocked")
+        if planned_action and planned_action.lower() != "hold":
+            signal_parts.append(f"action {planned_action}")
+        if last_action_status and last_action_status.lower() not in {"ok", "applied", "success"}:
+            signal_parts.append(f"last {last_action_status}")
+    elif _runtime_device_has_active_plan(detail):
+        if planned_action:
+            signal_parts.append(f"action {planned_action}")
+    elif _runtime_device_has_recent_attention(detail) and last_action_status:
+        signal_parts.append(f"last {last_action_status}")
+
+    if detail.get("observed_active") is True:
+        current_power = detail.get("current_power_w")
+        if current_power not in (None, ""):
+            signal_parts.append(f"active {float(current_power or 0):g} W")
+        elif "active" not in signal_parts:
+            signal_parts.append("active")
+
+    if kind:
+        deferred_parts.append(kind)
+    signal_parts.extend(deferred_parts)
+
+    for keep_count in range(len(signal_parts), 0, -1):
+        signal_text = " | ".join(signal_parts[:keep_count])
+        reserved_chars = len(prefix) + len(signal_text) + 3
+        name_budget = max_chars - reserved_chars
+        if name_budget < 8:
+            continue
+        compact_name = _clip_state_part(name, max_chars=name_budget)
+        if not compact_name:
+            continue
+        compact_label = f"{prefix}{compact_name} ({signal_text})"
+        if len(compact_label) <= max_chars:
+            return compact_label
+
+    signal_first_preview = _command_center_managed_snapshot_focus_label(detail)
+    if signal_first_preview:
+        compact = _clip_state_part(f"{prefix}{signal_first_preview}", max_chars=max_chars)
+        if compact:
+            return compact
+
     preview = _command_center_runtime_device_preview(detail)
-    if not preview:
-        return ""
-    compact = _clip_state_part(f"{prefix}{preview}", max_chars=max_chars)
-    if compact:
-        return compact
-    name = str((detail or {}).get("name") or (detail or {}).get("entity_id") or "managed device").strip()
+    if preview:
+        compact = _clip_state_part(f"{prefix}{preview}", max_chars=max_chars)
+        if compact:
+            return compact
+
     compact_name = _clip_state_part(f"{prefix}{name}", max_chars=max_chars)
     return compact_name or f"{prefix}{name}".strip()
 

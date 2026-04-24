@@ -3759,6 +3759,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertLessEqual(len(summary["alert_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
         self.assertIn("source blockers active", summary["alert_summary"])
         self.assertIn("attention first Pool pump", summary["alert_summary"])
+        self.assertIn("action turn_on", summary["alert_summary"])
+        self.assertNotIn("power 1185.0 W", summary["alert_summary"])
         self.assertIn("review first Garage candidate 02", summary["alert_summary"])
         self.assertIn("ready next Hot water relay", summary["alert_summary"])
 
