@@ -876,6 +876,23 @@ def _compact_top_alert_summary(*variants: list[str], fallback: str) -> str:
     return fallback
 
 
+def _compact_command_center_device_alert_target(
+    prefix: str,
+    detail: dict[str, Any] | None,
+    *,
+    max_chars: int = 46,
+) -> str:
+    preview = _command_center_runtime_device_preview(detail)
+    if not preview:
+        return ""
+    compact = _clip_state_part(f"{prefix}{preview}", max_chars=max_chars)
+    if compact:
+        return compact
+    name = str((detail or {}).get("name") or (detail or {}).get("entity_id") or "managed device").strip()
+    compact_name = _clip_state_part(f"{prefix}{name}", max_chars=max_chars)
+    return compact_name or f"{prefix}{name}".strip()
+
+
 def _compact_next_action_fallback(
     *,
     missing_required_sources: list[str],
@@ -4834,6 +4851,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         source_alert_compact = f"Mapped-source blockers: {compact_source_detail}"
 
     device_alert = None
+    device_alert_compact = None
     review_alert = None
     review_alert_compact = None
     ready_alert = None
@@ -4841,37 +4859,64 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     if device_parse_issues:
         device_alert = f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s)."
+        device_alert_compact = device_alert
     else:
         if blocked_activity_count:
             if first_blocked_device:
                 blocked_target = _command_center_runtime_device_preview(first_blocked_device)
+                compact_blocked_target = _compact_command_center_device_alert_target(
+                    "blocked ",
+                    first_blocked_device,
+                )
                 if blocked_activity_count > 1:
                     device_alert = (
                         f"Managed Devices: {_blocked_activity_count_label(blocked_activity_count)}, "
                         f"starting with {blocked_target}"
                     )
+                    device_alert_compact = (
+                        f"Managed Devices: {_blocked_activity_count_label(blocked_activity_count)}, "
+                        f"{compact_blocked_target or 'blocked managed device'}"
+                    )
                 else:
                     device_alert = f"Managed Devices: blocked {blocked_target}"
+                    device_alert_compact = (
+                        f"Managed Devices: {compact_blocked_target or 'blocked managed device'}"
+                    )
             else:
                 device_alert = f"Managed Devices: {_blocked_activity_count_label(blocked_activity_count)}"
+                device_alert_compact = device_alert
         elif managed_attention_count:
             if first_attention_device:
                 attention_target = _command_center_runtime_device_preview(first_attention_device)
+                compact_attention_target = _compact_command_center_device_alert_target(
+                    "attention first ",
+                    first_attention_device,
+                )
                 if managed_attention_count > 1:
                     device_alert = (
                         f"Managed Devices: {_managed_attention_count_label(managed_attention_count)}, "
                         f"attention first {attention_target}"
                     )
+                    device_alert_compact = (
+                        f"Managed Devices: {_managed_attention_count_label(managed_attention_count)}, "
+                        f"{compact_attention_target or 'attention first managed device'}"
+                    )
                 else:
                     device_alert = f"Managed Devices: attention first {attention_target}"
+                    device_alert_compact = (
+                        f"Managed Devices: {compact_attention_target or 'attention first managed device'}"
+                    )
             else:
                 device_alert = f"Managed Devices: {_managed_attention_count_label(managed_attention_count)}"
+                device_alert_compact = device_alert
         elif not has_managed_devices:
             device_alert = "Managed Devices: no managed yet."
+            device_alert_compact = device_alert
             if candidate_count:
                 device_alert = (
                     f"Managed Devices: no managed yet; {_unmanaged_count_label(candidate_count)}."
                 )
+                device_alert_compact = device_alert
 
         if review_needed_count:
             review_target = review_candidate_preview or review_candidate_name or "the first unmanaged candidate"
@@ -4898,25 +4943,39 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     top_alert_fallback = next(
         (
             alert
-            for alert in [source_alert_compact, source_alert, device_alert, review_or_ready_compact, review_or_ready, readiness_alert, install_alert]
+            for alert in [
+                source_alert_compact,
+                source_alert,
+                device_alert_compact,
+                device_alert,
+                review_or_ready_compact,
+                review_or_ready,
+                readiness_alert,
+                install_alert,
+            ]
             if alert
         ),
         "No top-level alerts right now.",
     )
     compact_source_alert = source_alert_compact or source_alert
+    compact_device_alert = device_alert_compact or device_alert
     tight_source_alert = SOURCE_BLOCKER_ACTIVE_LABEL if runtime_source_attention and not missing_required_sources else compact_source_alert
     alert_summary = _compact_top_alert_summary(
         top_alerts,
         [source_alert, device_alert, review_or_ready, readiness_alert, install_alert],
         [source_alert, device_alert, review_or_ready_compact, readiness_alert],
+        [tight_source_alert, compact_device_alert, review_or_ready_compact],
+        [compact_source_alert, compact_device_alert, review_or_ready_compact],
         [compact_source_alert, device_alert, review_or_ready_compact],
-        [tight_source_alert, device_alert, review_or_ready_compact],
+        [tight_source_alert, compact_device_alert],
+        [compact_source_alert, compact_device_alert],
         [compact_source_alert, device_alert, review_or_ready],
-        [compact_source_alert, device_alert],
         [tight_source_alert, review_or_ready_compact],
-        [compact_source_alert, review_or_ready_compact],
+        [compact_device_alert, review_or_ready_compact],
         [device_alert, review_or_ready_compact],
+        [compact_source_alert, review_or_ready_compact],
         [compact_source_alert],
+        [compact_device_alert],
         [device_alert],
         [review_or_ready_compact],
         [readiness_alert],
