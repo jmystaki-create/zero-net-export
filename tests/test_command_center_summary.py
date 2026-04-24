@@ -4866,7 +4866,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             ),
         )
 
-    def test_clip_review_ready_state_part_keeps_candidate_fit_signal_when_clipped(self) -> None:
+    def test_clip_review_ready_state_part_prefers_review_warning_over_helperish_fit_copy_when_clipped(self) -> None:
         native_support = _load_native_support_module()
 
         review = native_support._clip_review_ready_state_part(
@@ -4880,7 +4880,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertLessEqual(len(review), 80)
         self.assertIn("review Garage", review)
-        self.assertIn("review carefully", review)
+        self.assertIn("| warn ", review)
+        self.assertNotIn("review carefully", review)
         self.assertLessEqual(len(ready), 80)
         self.assertIn("ready EV charger", ready)
         self.assertIn("likely useful", ready)
