@@ -4860,6 +4860,10 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 device_alert = f"Managed Devices: {_managed_attention_count_label(managed_attention_count)}"
         elif not has_managed_devices:
             device_alert = "Managed Devices: no managed yet."
+            if candidate_count:
+                device_alert = (
+                    f"Managed Devices: no managed yet; {_unmanaged_count_label(candidate_count)}."
+                )
 
         if review_needed_count:
             review_target = review_candidate_preview or review_candidate_name or "the first unmanaged candidate"
