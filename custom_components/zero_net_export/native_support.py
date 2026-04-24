@@ -1568,14 +1568,19 @@ def _command_center_managed_snapshot_focus_label(detail: dict[str, Any] | None) 
     kind = str(detail.get("kind") or "").strip()
     if kind:
         parts.append(kind)
+    planned_action = str(detail.get("planned_action") or "").strip()
+    last_action_status = str(detail.get("last_action_status") or "").strip()
     if _runtime_device_has_blocked_activity(detail):
         parts.append("not usable" if detail.get("usable") is False else "blocked")
+        if planned_action and planned_action.lower() != "hold":
+            parts.append(f"action {planned_action}")
+        if last_action_status and last_action_status.lower() not in {"ok", "applied", "success"}:
+            parts.append(f"last {last_action_status}")
     elif _runtime_device_has_active_plan(detail):
-        planned_action = str(detail.get("planned_action") or "").strip()
         if planned_action:
             parts.append(f"action {planned_action}")
-    elif _runtime_device_has_recent_attention(detail) and detail.get("last_action_status"):
-        parts.append(f"last {detail.get('last_action_status')}")
+    elif _runtime_device_has_recent_attention(detail) and last_action_status:
+        parts.append(f"last {last_action_status}")
     if detail.get("observed_active") is True:
         if detail.get("current_power_w") not in (None, ""):
             active_power = f"active {float(detail.get('current_power_w') or 0):g} W"

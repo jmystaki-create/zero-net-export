@@ -2216,6 +2216,66 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["fleet_activity_summary"].index("plan Pool pump"),
         )
 
+    def test_command_center_summary_keeps_attention_focus_context_for_blocked_device(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review the managed fleet and validate the next live action.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="2 configured devices available",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            blocked_planned_action_count=1,
+            device_details={
+                "pool": {
+                    "name": "Pool pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "planned_action": "turn_on",
+                    "last_action_status": "failed to start",
+                },
+                "ev": {
+                    "name": "EV charger",
+                    "entity_id": "number.ev_charger_limit",
+                    "kind": "variable",
+                    "usable": True,
+                    "planned_action": "hold",
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn(
+            "attention first Pool pump (fixed | not usable | action turn_on | last failed to start)",
+            summary["fleet_activity_summary"],
+        )
+
     def test_command_center_summary_keeps_distinct_active_device_visible_with_attention(self) -> None:
         native_support = _load_native_support_module()
 
@@ -2329,7 +2389,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn(
-            "attention first Pool pump (fixed | blocked)",
+            "attention first Pool pump (fixed | blocked | action turn_on)",
             summary["fleet_activity_summary"],
         )
         self.assertIn(
@@ -2389,7 +2449,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("attention first Pool pump (fixed | blocked)", summary["fleet_activity_summary"])
+        self.assertIn(
+            "attention first Pool pump (fixed | blocked | action turn_on)",
+            summary["fleet_activity_summary"],
+        )
         self.assertIn("2 blocked managed actions", summary["fleet_activity_summary"])
         self.assertIn("blocked Water heater (fixed | blocked | action turn_off)", summary["fleet_activity_summary"])
         self.assertNotIn("blocked Pool pump (fixed | blocked | action turn_on)", summary["fleet_activity_summary"])
