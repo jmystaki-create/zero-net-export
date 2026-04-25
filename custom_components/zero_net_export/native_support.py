@@ -290,7 +290,8 @@ def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
 def format_fleet_activity_for_operator(summary: str) -> str:
     """Make compact fleet state read as managed versus unmanaged in prose surfaces."""
 
-    normalized = _dedupe_fleet_activity_summary(str(summary or "").strip())
+    normalized = " ".join(str(summary or "").strip().split()).replace("; ", " | ")
+    normalized = _dedupe_fleet_activity_summary(normalized)
     if not normalized:
         return "Fleet activity will appear here after runtime loads."
 

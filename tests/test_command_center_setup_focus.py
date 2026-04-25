@@ -155,6 +155,39 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertNotIn("Managed-device deep review", text)
         self.assertNotIn("Not here", text)
 
+    def test_command_center_guide_groups_semicolon_fleet_activity_fallbacks(self) -> None:
+        native_support = _load_native_support_module()
+        text = native_support.build_native_command_center_guide_text(
+            {
+                "headline_decision": "Action queued, waiting for device guard.",
+                "alert_summary": "Managed Devices needs review.",
+                "next_action_summary": "Open Configure > Managed Devices next.",
+                "source_status": "Sources healthy",
+                "policy_status": "Mode zero export; target 0 W",
+                "support_status": "Diagnostics is available.",
+                "energy_state_summary": "solar 4200 W | grid import 350 W",
+                "control_decision_summary": "mode zero export | target 0 W",
+                "control_outcome_summary": "planned actions 1 | active load 1200 W",
+                "fleet_activity_summary": "1 managed; active load 1200 W; 1 active managed device; no unmanaged candidates",
+                "recommended_section": native_support.DEVICES_SECTION_LABEL,
+                "recommended_path": native_support.DEVICES_CONFIGURE_PATH,
+                "source_mapping_summary": "Solar power -> sensor.pv_power",
+                "source_attention_summary": "None",
+                "source_repair_step": "No source repair needed.",
+                "sources_path": native_support.SOURCES_CONFIGURE_PATH,
+                "policy_path": native_support.POLICY_CONFIGURE_PATH,
+                "mode_path": native_support.MODE_CONTROL_PATH,
+                "support_path": native_support.SUPPORT_CONFIGURE_PATH,
+                "devices_path": native_support.DEVICES_CONFIGURE_PATH,
+            }
+        )
+
+        self.assertIn(
+            "- Fleet activity: Managed: 1 managed | active load 1200 W | 1 active managed device; unmanaged: no unmanaged candidates",
+            text,
+        )
+        self.assertNotIn("Fleet activity: 1 managed; active load", text)
+
     def test_command_center_guide_stays_compact_even_with_detailed_source_blockers(self) -> None:
         native_support = _load_native_support_module()
         text = native_support.build_native_command_center_guide_text(
