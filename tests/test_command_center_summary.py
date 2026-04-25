@@ -215,6 +215,25 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("configured device available", summary["device_status"])
         self.assertIn("Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["source_repair_step"])
 
+    def test_fleet_activity_operator_format_keeps_trailing_managed_inventory_in_managed_bucket(self) -> None:
+        native_support = _load_native_support_module()
+
+        formatted = native_support.format_fleet_activity_for_operator(
+            "1 managed | 2 unmanaged backlog | source blockers active | fixed backlog 1 review | "
+            "variable backlog 1 ready | review Garage heater (fixed | review) | "
+            "ready EV charger (variable | ready) | enabled 1 | usable 1 | 1 fixed managed"
+        )
+
+        self.assertTrue(formatted.startswith("source blockers active; Managed: "))
+        self.assertIn(
+            "Managed: 1 managed | enabled 1 | usable 1 | 1 fixed managed; unmanaged: 2 unmanaged backlog",
+            formatted,
+        )
+        unmanaged_bucket = formatted.split("; unmanaged: ", 1)[1]
+        self.assertNotIn("enabled 1", unmanaged_bucket)
+        self.assertNotIn("usable 1", unmanaged_bucket)
+        self.assertNotIn("1 fixed managed", unmanaged_bucket)
+
     def test_command_center_summary_uses_aggregate_active_load_when_runtime_rows_are_missing(self) -> None:
         native_support = _load_native_support_module()
 

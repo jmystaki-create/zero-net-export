@@ -333,12 +333,28 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     if managed_index is None:
         return normalized
 
+    def _is_managed_inventory_part(part: str) -> bool:
+        return bool(
+            part.startswith(("enabled ", "usable "))
+            or _matches_count_label(part, "fixed managed")
+            or _matches_count_label(part, "variable managed")
+            or part.endswith(" W nominal")
+        )
+
     global_problem_parts = [part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL]
     prefix_parts = [part for part in parts[:managed_index] if part and part not in global_problem_parts]
     managed_parts = [
         part for part in parts[managed_index:unmanaged_index] if part and part not in global_problem_parts
     ]
-    unmanaged_parts = [part for part in parts[unmanaged_index:] if part and part not in global_problem_parts]
+    trailing_managed_parts = [
+        part for part in parts[unmanaged_index:] if part and part not in global_problem_parts and _is_managed_inventory_part(part)
+    ]
+    unmanaged_parts = [
+        part
+        for part in parts[unmanaged_index:]
+        if part and part not in global_problem_parts and not _is_managed_inventory_part(part)
+    ]
+    managed_parts.extend(part for part in trailing_managed_parts if part not in managed_parts)
     prefix_parts = [*global_problem_parts, *prefix_parts]
     if not managed_parts or not unmanaged_parts:
         return normalized
