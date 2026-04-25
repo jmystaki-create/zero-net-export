@@ -353,6 +353,11 @@ def _candidate_devices_for_state(coordinator, hass, state) -> list[dict[str, str
     return candidates
 
 
+def _count_label(count: int, singular: str, plural: str | None = None) -> str:
+    label = singular if count == 1 else (plural or f"{singular}s")
+    return f"{count} {label}"
+
+
 def _managed_count_label(count: int) -> str:
     return "no managed yet" if count <= 0 else f"{count} managed"
 
@@ -414,7 +419,7 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
     if first_blocked_name:
         parts.append(f"blocked {first_blocked_name}")
     if include_planned_count:
-        parts.append(f"{planned_count} planned action(s)")
+        parts.append(_count_label(planned_count, "planned action"))
     if first_planned_name:
         parts.append(f"plan {first_planned_name}")
     return " | ".join(parts)
