@@ -90,6 +90,11 @@ def _compare_integration_versions(previous_version: str | None, current_version:
     return 0
 
 
+def _count_label(count: int, singular: str, plural: str | None = None) -> str:
+    noun = singular if count == 1 else (plural or f"{singular}s")
+    return f"{count} {noun}"
+
+
 @dataclass
 class DeviceGuardRuntime:
     observed_active: bool
@@ -401,14 +406,21 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         enabled = sum(1 for runtime in runtimes if runtime.config.enabled)
         unsupported = sum(1 for runtime in runtimes if runtime.adapter is None and runtime.config.enabled)
         if safe_mode:
-            return f"{enabled} enabled device(s) configured, but source validation is holding control in safe mode"
+            return f"{_count_label(enabled, 'enabled device')} configured, but source validation is holding control in safe mode"
         if unsupported and usable == 0:
-            return f"{unsupported} enabled device(s) still need a supported adapter before control can start"
+            unsupported_verb = "needs" if unsupported == 1 else "need"
+            return f"{_count_label(unsupported, 'enabled device')} still {unsupported_verb} a supported adapter before control can start"
         if unsupported:
-            return f"{usable} of {enabled} enabled device(s) are usable; {unsupported} still need a supported adapter"
+            usable_verb = "is" if usable == 1 else "are"
+            unsupported_verb = "needs" if unsupported == 1 else "need"
+            return (
+                f"{usable} of {_count_label(enabled, 'enabled device')} {usable_verb} usable; "
+                f"{_count_label(unsupported, 'device')} still {unsupported_verb} a supported adapter"
+            )
         if usable == 0:
             return "Devices are configured, but none are currently usable"
-        return f"{usable} of {enabled} enabled device(s) are currently usable"
+        usable_verb = "is" if usable == 1 else "are"
+        return f"{usable} of {_count_label(enabled, 'enabled device')} {usable_verb} currently usable"
 
     def _sync_device_guard_state(self, runtimes: list[DeviceRuntime], now: datetime) -> dict[str, DeviceGuardRuntime]:
         active_keys = {runtime.config.key for runtime in runtimes}
@@ -1166,12 +1178,12 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         success_count = sum(1 for result in results if result.success)
         failed_count = len(results) - success_count
         if failed_count == 0:
-            summary = f"Applied {success_count} guarded Home Assistant action(s) this cycle."
+            summary = f"Applied {_count_label(success_count, 'guarded Home Assistant action')} this cycle."
             return "applied", summary, success_count, failed_count
         if success_count == 0:
-            summary = f"All {failed_count} attempted Home Assistant action(s) failed or were unsupported."
+            summary = f"All {_count_label(failed_count, 'attempted Home Assistant action')} failed or were unsupported."
             return "failed", summary, success_count, failed_count
-        summary = f"Applied {success_count} action(s); {failed_count} action(s) failed or were unsupported."
+        summary = f"Applied {_count_label(success_count, 'action')}; {_count_label(failed_count, 'action')} failed or were unsupported."
         return "partial", summary, success_count, failed_count
 
     def _control_guard_summary(
@@ -1187,16 +1199,16 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             success_count = sum(1 for result in results if result.success)
             failed_count = len(results) - success_count
             if failed_count == 0:
-                return f"Executed {success_count} guard-approved action(s); {blocked_count} planned action(s) remained blocked"
+                return f"Executed {_count_label(success_count, 'guard-approved action')}; {_count_label(blocked_count, 'planned action')} remained blocked"
             return (
-                f"Attempted {len(results)} guard-approved action(s): {success_count} applied, "
+                f"Attempted {_count_label(len(results), 'guard-approved action')}: {success_count} applied, "
                 f"{failed_count} failed/unsupported, {blocked_count} still blocked"
             )
         if executable_count == planned_count:
-            return f"All {planned_count} planned action(s) passed the current anti-flap guards"
+            return f"All {_count_label(planned_count, 'planned action')} passed the current anti-flap guards"
         if executable_count == 0:
-            return f"All {blocked_count} planned action(s) were blocked by anti-flap or state guards"
-        return f"{executable_count} planned action(s) passed guards and {blocked_count} were held back"
+            return f"All {_count_label(blocked_count, 'planned action')} were blocked by anti-flap or state guards"
+        return f"{_count_label(executable_count, 'planned action')} passed guards and {blocked_count} were held back"
 
     async def _async_update_data(self) -> ZeroNetExportState:
         try:
@@ -1263,7 +1275,8 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                     reason = "Sources validated; managed devices exist but no devices are currently usable"
                 else:
                     status = "ready"
-                    reason = f"Sources validated; {device_summary.usable_devices} controllable device(s) are ready"
+                    ready_verb = "is" if device_summary.usable_devices == 1 else "are"
+                    reason = f"Sources validated; {_count_label(device_summary.usable_devices, 'controllable device')} {ready_verb} ready"
             else:
                 status = validation.status
                 reason = validation.reason

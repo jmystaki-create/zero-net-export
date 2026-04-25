@@ -60,6 +60,11 @@ class ModePolicy:
     reason: str
 
 
+def _count_label(count: int, singular: str, plural: str | None = None) -> str:
+    noun = singular if count == 1 else (plural or f"{singular}s")
+    return f"{count} {noun}"
+
+
 def build_control_plan(context: PlannerContext, devices: list[DeviceRuntime]) -> ControlPlan:
     """Build the advisory plan for the current coordinator cycle.
 
@@ -132,7 +137,7 @@ def build_control_plan(context: PlannerContext, devices: list[DeviceRuntime]) ->
         return ControlPlan(
             status="plan_ready",
             summary=(
-                f"Planned {len(runtime_cap_actions)} runtime-cap safety action(s) before normal balancing in {mode_policy.label} mode"
+                f"Planned {_count_label(len(runtime_cap_actions), 'runtime-cap safety action')} before normal balancing in {mode_policy.label} mode"
             ),
             reason=(
                 "One or more active devices exceeded their configured max_active_seconds safety window, so the planner is pre-emptively "
@@ -346,7 +351,7 @@ def _plan_absorb_surplus(export_error_w: float, devices: list[DeviceRuntime], mo
     planned_power_delta_w = variable_delta_w + fixed_delta_w
     uncovered_w = max(remaining_w, 0.0)
     summary = (
-        f"Planned {len(actions)} action(s) to absorb about {round(planned_power_delta_w)} W "
+        f"Planned {_count_label(len(actions), 'action')} to absorb about {round(planned_power_delta_w)} W "
         f"against {round(export_error_w)} W of excess export in {mode_policy.label} mode"
     )
     reason = (
@@ -463,7 +468,7 @@ def _plan_reduce_load(import_error_w: float, devices: list[DeviceRuntime], mode_
     planned_power_delta_w = variable_delta_w + fixed_delta_w
     uncovered_w = max(remaining_w, 0.0)
     summary = (
-        f"Planned {len(actions)} action(s) to reduce load by about {round(abs(planned_power_delta_w))} W "
+        f"Planned {_count_label(len(actions), 'action')} to reduce load by about {round(abs(planned_power_delta_w))} W "
         f"against {round(import_error_w)} W of import pressure in {mode_policy.label} mode"
     )
     reason = (
