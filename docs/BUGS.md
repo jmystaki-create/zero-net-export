@@ -2368,6 +2368,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py tests/test_source_repair_guidance.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Workstream E wording alignment in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-189 - Entity model still described surfaced unmanaged candidates as `top`
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking neutral surfaced-candidate wording after the secondary device-page review/audit wording cleanup
+- **current observed behavior:** `docs/ENTITY_MODEL.md` still said `button.zero_net_export_show_managed_device_review` publishes `top unmanaged candidates`, even though the current UI design and product copy intentionally use neutral `currently surfaced unmanaged candidate` language instead of implying the product already knows one best candidate.
+- **expected behavior:** entity documentation should match the neutral promotion/review vocabulary: unmanaged candidates are currently surfaced, review-first, or ready-next, not generically `top`.
+- **evidence:** this run grepped repo docs and product copy after reading `docs/UI_DESIGN.md`, the Detailed remaining work map in `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/BUGS.md`; `docs/ENTITY_MODEL.md` was the remaining active non-historical doc with `top unmanaged candidates` wording.
+- **repo fix:** this run updates `docs/ENTITY_MODEL.md` so the managed-device review button publishes `currently surfaced unmanaged candidates` instead of `top unmanaged candidates`.
+- **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy/vocabulary correction.
+- **next action:** keep entity documentation aligned with neutral surfaced-candidate wording; do not let this docs-only cleanup displace A-D/F repo work or the direct James deploy/restart approval boundary once no sharper implementation gap remains.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
