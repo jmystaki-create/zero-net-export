@@ -93,7 +93,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("start in the unmanaged section when a surfaced candidate exists", guidance)
         self.assertIn("add the first fixed or variable load there when no surfaced unmanaged candidate is available", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
-        self.assertIn("as the secondary device-page review path once the fleet exists", guidance)
+        self.assertIn("as the secondary device-page review/audit path once the fleet exists", guidance)
         self.assertNotIn("as the deeper device-page review path", guidance)
         self.assertNotIn("promote a currently surfaced unmanaged candidate when one fits", guidance)
         self.assertNotIn("review a currently surfaced unmanaged candidate in the Managed Devices workspace when one fits", guidance)
@@ -109,7 +109,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
 
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
-        self.assertIn("as the secondary device-page review path", guidance)
+        self.assertIn("as the secondary device-page review/audit path", guidance)
         self.assertIn("when the fleet needs audit detail", guidance)
         self.assertNotIn("deeper device-page review path", guidance)
         self.assertNotIn("fleet needs deeper review", guidance)
@@ -123,7 +123,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             state=state,
         )
 
-        self.assertIn("as the secondary device-page review path", guidance)
+        self.assertIn("as the secondary device-page review/audit path", guidance)
         self.assertIn("then return to the Managed Devices workspace", guidance)
         self.assertNotIn("as the deeper device-page review path", guidance)
 

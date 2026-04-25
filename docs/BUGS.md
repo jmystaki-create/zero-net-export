@@ -2356,6 +2356,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with the focused native UI tests plus grep in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this secondary-path wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-188 - Shared device-page handoff still omitted audit from secondary review/audit wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking active Workstream E handoffs against the current secondary review/audit hierarchy in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the source-of-truth docs and recent bug state had moved the device-page role to `secondary review/audit`, but the shared `build_detailed_management_handoff(...)` product copy and Managed Devices fallback still called it only the `secondary device-page review path`. That was not a custom UI leak, but it lagged the current hierarchy and underplayed the audit role of the native device page.
+- **expected behavior:** Configure -> Managed Devices remains the primary fleet workspace, and the device page is described consistently as the secondary review/audit path for per-device status, guards, planned actions, reset actions, and audit detail.
+- **evidence:** this run's repo grep found `secondary device-page review path` in `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/config_flow.py`, and the focused regressions after ZNE-185/ZNE-187 had already aligned the rest of the hierarchy on review/audit wording.
+- **repo fix:** this run changes those product strings and focused tests to `secondary device-page review/audit path`, and updates the helper docstring so it no longer says `deeper native device-view handoff`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py tests/test_source_repair_guidance.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Workstream E wording alignment in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

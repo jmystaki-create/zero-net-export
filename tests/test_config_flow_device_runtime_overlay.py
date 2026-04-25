@@ -1106,7 +1106,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             flow._detailed_management_summary(),
-            f"Use {module.DETAILED_MANAGEMENT_PATH} as the secondary device-page review path for managed-device audit detail.",
+            f"Use {module.DETAILED_MANAGEMENT_PATH} as the secondary device-page review/audit path for managed-device audit detail.",
         )
 
     def test_managed_snapshot_treats_non_executable_plans_as_blocked_before_usable_flips_false(self) -> None:
