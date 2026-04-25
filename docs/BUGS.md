@@ -2404,6 +2404,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified in this watchdog run with `python3 -m unittest discover -s tests -q`; live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include `e4880fe` in the next exact-build deploy; if no sharper A-D/F implementation defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved exact `0.1.88` build.
 
+## ZNE-192 - Bug tracker missed the latest empty-fleet Fleet activity wording fix
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog bug-tracker audit on 2026-04-26 after inspecting recent commits against `docs/BUGS.md` and the Detailed remaining work map
+- **current observed behavior:** repo `HEAD` already contains `bd54286`, which normalizes the opening command-center/device-page command-center `Fleet activity` text from `Managed: 0 managed` to `Managed: no managed yet`, but `docs/BUGS.md` still stopped at ZNE-191 and did not record that latest user-visible Workstream A wording fix. That left the bug tracker one component commit behind the current repo candidate.
+- **expected behavior:** BUGS.md should record real user-visible fixes that affect release validation and source-of-truth state, especially when the fix changes the exact component build that needs deploy/restart approval.
+- **evidence:** `git log --oneline -3` shows `bd54286 fix: normalize empty fleet activity wording` after the ZNE-191 documentation commit; `git show bd54286` changes `custom_components/zero_net_export/native_support.py` and focused command-center guide tests so zero managed fleets render as `no managed yet` instead of `0 managed`.
+- **repo fix:** `bd54286` - normalize empty managed-fleet wording in `format_fleet_activity_for_operator(...)` and update focused command-center setup/support guide coverage. This watchdog run records the missing bug-tracker state so future release validation includes the latest component-changing build instead of treating ZNE-191 as the current tail.
+- **validation status:** repo-side fix was re-verified in this watchdog run with `python3 -m unittest discover -s tests -q`; live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include `bd54286` in the helper-resolved exact-build deploy; if the next A-D/F repo defect check remains clean, ask James directly to approve deploy/restart instead of refreshing release/fingerprint wording again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
