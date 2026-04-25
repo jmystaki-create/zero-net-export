@@ -2083,11 +2083,6 @@ Suggested area labels:
 - **validation status:** repo-side source-of-truth correction verified by re-reading the checklist against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`; no live HA validation is required for this docs-only gate correction.
 - **next action:** keep live acceptance focused on Configure, Managed Devices, promotion flow, four-bucket IA, and exact-build proof rather than treating dashboard configuration as a release prerequisite.
 
-## Closure rule
-
-Do not mark a bug `closed` just because a commit exists.
-If the bug affects the user-visible product or live Home Assistant behavior, closure should usually require live validation evidence.
-
 ## ZNE-152 - Watchdog resumed A/B wording churn on the same undeployed mixed build
 - **status:** `closed`
 - **severity:** `medium`
@@ -2151,3 +2146,21 @@ If the bug affects the user-visible product or live Home Assistant behavior, clo
 - **repo fix:** this run restores `when fleet work is next, continue in the Managed Devices workspace` in the translated Configure command-center copy, the shared device-page command-center guide, and the focused copy regressions.
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_command_center_modal_copy tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py`.
 - **next action:** include this command-center intro regression fix in the next exact-build deploy, then confirm the live opening command center keeps Managed Devices workspace-first when fleet work is next.
+
+## ZNE-171 - Closure rule sat above newly appended active bug entries
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog bug-tracker audit on 2026-04-26 while reviewing `docs/BUGS.md` against the supervisor rule that BUGS.md is the source of truth for active bugs, regressions, validation status, and closure state
+- **current observed behavior:** the `Closure rule` section had drifted above later appended entries (`ZNE-152`, `ZNE-164`, `ZNE-167`, `ZNE-169`, and `ZNE-170`), so the bug tracker no longer ended with its closure rule and the newest active/fixed-pending entries visually looked like after-the-rules appendices instead of part of the active tracker.
+- **expected behavior:** the closure rule should remain the final policy section after all bug entries, so newly added active or validated bugs stay clearly inside the bug tracker before the terminal closure guidance.
+- **evidence:** this run inspected the tail of `docs/BUGS.md` and found new bug entries appended after `## Closure rule`, including the current command-center regression entry `ZNE-170`.
+- **suspected cause:** recent watchdog bug entries were appended at EOF after the closure rule instead of inserted before it.
+- **repo fix:** this run moves the closure rule back to the end of `docs/BUGS.md` and records this tracker-structure correction here so future watchdog passes do not treat post-rule bug entries as an intentional separate section.
+- **validation status:** validated by direct source-of-truth inspection; no live Home Assistant validation is required for this bug-tracker structure fix.
+- **next action:** keep adding new bug entries before the final closure rule, and reserve live validation work for actual product/runtime bugs.
+
+## Closure rule
+
+Do not mark a bug `closed` just because a commit exists.
+If the bug affects the user-visible product or live Home Assistant behavior, closure should usually require live validation evidence.
