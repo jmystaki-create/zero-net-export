@@ -2196,11 +2196,6 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus the focused native UI suite in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Diagnostics IA cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
-## Closure rule
-
-Do not mark a bug `closed` just because a commit exists.
-If the bug affects the user-visible product or live Home Assistant behavior, closure should usually require live validation evidence.
-
 ## ZNE-175 - README still used helper/ranking fleet wording in the managed-device path
 - **status:** `validated`
 - **severity:** `low`
@@ -2213,3 +2208,20 @@ If the bug affects the user-visible product or live Home Assistant behavior, clo
 - **repo fix:** this run updates `README.md` so the feature list says `Managed Devices enable/disable step` and the configuration path says to `promote an appropriate reviewed candidate` instead of over-ranking a `best-fit` candidate.
 - **validation status:** validated repo-side in this run with `rg -n "fleet-review enable|best-fit candidate" README.md custom_components tests docs/UI_DESIGN.md docs/UI_IMPLEMENTATION_MAP.md`, which no longer finds the stale README wording.
 - **next action:** no further action beyond keeping README operator wording aligned with future native Managed Devices copy changes.
+
+## ZNE-176 - Closure rule drifted above a new bug entry again
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog bug-tracker audit on 2026-04-26 while checking that `docs/BUGS.md` still ends with its closure rule after the latest README wording bug entry
+- **current observed behavior:** `ZNE-175` had been appended after the `Closure rule`, reintroducing the tracker-structure drift that ZNE-171 had just corrected. That made the final closure policy no longer the final section and risked future bug entries being treated as after-rule appendices instead of active tracker content.
+- **expected behavior:** all bug entries should appear before the terminal `Closure rule`, and the closure rule should remain the last section in `docs/BUGS.md`.
+- **evidence:** this run inspected the tail of `docs/BUGS.md` and found `## Closure rule` immediately before `## ZNE-175 - README still used helper/ranking fleet wording in the managed-device path`.
+- **repo fix:** this run moves the `Closure rule` back to the end of `docs/BUGS.md` and records this recurrence so future watchdog entries are inserted before the terminal rule instead of after it.
+- **validation status:** validated by direct `docs/BUGS.md` tail inspection after the edit; no Home Assistant live validation is required.
+- **next action:** keep adding new bug entries before the final closure rule; do not let tracker-structure cleanup displace product work unless the rule position regresses again.
+
+## Closure rule
+
+Do not mark a bug `closed` just because a commit exists.
+If the bug affects the user-visible product or live Home Assistant behavior, closure should usually require live validation evidence.
