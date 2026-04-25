@@ -971,12 +971,21 @@ def _compact_control_outcome_summary(
     planned_action_count: Any,
     executable_action_count: Any,
     active_controlled_power_w: Any,
+    active_managed_count: int = 0,
 ) -> str:
     detail = str(control_summary or "").strip() or None
+    active_power_known = active_controlled_power_w is not None and not _value_is_zeroish(active_controlled_power_w)
+    active_count_part = None
+    if active_managed_count > 0 and not active_power_known:
+        active_count_part = (
+            "1 active managed device"
+            if active_managed_count == 1
+            else f"{active_managed_count} active managed devices"
+        )
     metric_parts = [
         f"planned actions {planned_action_count}" if planned_action_count is not None else None,
         f"executable {executable_action_count}" if executable_action_count is not None else None,
-        f"active load {active_controlled_power_w} W" if active_controlled_power_w is not None else None,
+        f"active load {active_controlled_power_w} W" if active_power_known else active_count_part,
     ]
     metrics_summary = " | ".join(part for part in metric_parts if part is not None)
     full_summary = " | ".join(part for part in [metrics_summary, detail] if part)
@@ -5308,6 +5317,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         planned_action_count=getattr(state, 'planned_action_count', None) if state is not None else None,
         executable_action_count=getattr(state, 'executable_action_count', None) if state is not None else None,
         active_controlled_power_w=getattr(state, 'active_controlled_power_w', None) if state is not None else None,
+        active_managed_count=active_managed_count,
     )
     fleet_activity_summary_raw = _restore_active_device_under_overflow(
         _restore_ready_promotion_count_under_overflow(

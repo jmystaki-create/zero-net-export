@@ -3215,6 +3215,8 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertNotIn("active load 0", summary["fleet_activity_summary"])
         self.assertNotIn("active device Pool pump", summary["fleet_activity_summary"])
+        self.assertIn("1 active managed device", summary["control_outcome_summary"])
+        self.assertNotIn("active load 0", summary["control_outcome_summary"])
 
     def test_command_center_summary_prefers_managed_devices_when_unmanaged_backlog_exists(self) -> None:
         native_support = _load_native_support_module()
