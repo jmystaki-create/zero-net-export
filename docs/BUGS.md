@@ -2281,6 +2281,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_source_repair_guidance tests.test_command_center_setup_focus tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/native_support.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this secondary device-page wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-182 - Per-device review action still omitted the article before Managed Devices workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking secondary device-page review handoffs after the latest Workstream B/E wording cleanup
+- **current observed behavior:** the per-device `Review {device}` notification had mostly moved onto the correct Configure-first hierarchy, but its `Next native actions` block still said `Return to ... in Configure for Managed Devices workspace edits, enablement, promotion, or removal.` That was a small but visible leftover from the same wording family ZNE-174/ZNE-177 were tightening, because it named the workspace as an adjective stack instead of the operator-facing `the Managed Devices workspace`.
+- **expected behavior:** per-device review should continue to send fleet edits back to Configure and name `the Managed Devices workspace` directly, while the device-page action remains a secondary audit/review surface.
+- **evidence:** this run's repo grep found the stale string in `custom_components/zero_net_export/button.py` and its focused expectation in `tests/test_button_entity_categories.py` after the broader `for Managed Devices` / `in Managed Devices` cleanup had already landed.
+- **repo fix:** this run changes the per-device review line to `Return to ... in Configure for the Managed Devices workspace for edits, enablement, promotion, or removal.` and refreshes the focused button regression.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this per-device review wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

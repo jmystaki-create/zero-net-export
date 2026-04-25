@@ -967,7 +967,7 @@ def _build_managed_device_detail_lines(
         f"- Failure count: {int(detail.get('failed_action_count') or 0)}",
         "",
         "Next native actions:",
-        f"- Return to {DEVICES_CONFIGURE_PATH} in Configure for Managed Devices workspace edits, enablement, promotion, or removal.",
+        f"- Return to {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace for edits, enablement, promotion, or removal.",
         "- Use this device's sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]
