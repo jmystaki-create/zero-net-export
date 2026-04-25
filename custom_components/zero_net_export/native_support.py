@@ -326,12 +326,23 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     if unmanaged_index is None:
         return normalized
 
-    managed_parts = [part for part in parts[:unmanaged_index] if part]
+    managed_index = next(
+        (index for index, part in enumerate(parts[:unmanaged_index]) if _is_managed_count_part(part)),
+        None,
+    )
+    if managed_index is None:
+        return normalized
+
+    prefix_parts = [part for part in parts[:managed_index] if part]
+    managed_parts = [part for part in parts[managed_index:unmanaged_index] if part]
     unmanaged_parts = [part for part in parts[unmanaged_index:] if part]
     if not managed_parts or not unmanaged_parts:
         return normalized
 
-    return f"Managed: {' | '.join(managed_parts)}; unmanaged: {' | '.join(unmanaged_parts)}"
+    grouped_summary = f"Managed: {' | '.join(managed_parts)}; unmanaged: {' | '.join(unmanaged_parts)}"
+    if prefix_parts:
+        return f"{' | '.join(prefix_parts)}; {grouped_summary}"
+    return grouped_summary
 
 
 def _is_fleet_activity_top_level_part(text: str) -> bool:
