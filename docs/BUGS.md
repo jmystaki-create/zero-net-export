@@ -436,16 +436,16 @@ Suggested area labels:
 - **next action:** keep building the highest remaining mapped `0.1.88` UI step, and do not bump versioned metadata again until the Workstream G freeze boundary is actually reached.
 
 ## ZNE-051 - `project_status.md` incorrectly treated divergent live `0.1.87` as a steering change
-- **status:** `validated`
+- **status:** `closed`
 - **severity:** `medium`
 - **area:** `process`
 - **where seen:** repo audit on 2026-04-19 after the latest watchdog/source-of-truth comparison
-- **current observed behavior:** `project_status.md` had drifted into saying `do not regress into stale 0.1.86 steering now that the documented HA SSH fingerprint check confirms the live install is already a divergent 0.1.87 build`. That contradicted `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the active fingerprint bugs, which still treat `0.1.86` as the current live correction line and the live `0.1.87` install as release mismatch, not a legit steering change.
-- **expected behavior:** project status should keep `0.1.86` as the current correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated. A divergent live `0.1.87` install should be described as release drift only.
-- **evidence:** this run rechecked the documented HA SSH path with `python3 scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config`, which still reports `overall_match=false`, live `manifest_version=0.1.87`, and the same eleven tracked-file mismatches against expected commit `bade75f`. That is unchanged release drift, not proof that repo steering should move off `0.1.86`.
-- **repo fix:** this run updates `project_status.md` so the durable note now says to keep `0.1.86` as the live correction line until `0.1.87` is explicitly frozen, approved, shipped, and validated, and explicitly says the divergent live `0.1.87` install is release drift rather than a steering change.
-- **validation status:** repo-side source-of-truth audit plus direct status-file correction in this run. This is enough evidence for a project-status wording bug.
-- **next action:** keep the next watchdog/supervisor ranking focused on unfinished mapped `0.1.87` repo work or an explicitly approved deploy, not on treating the divergent live manifest as a new steering baseline
+- **historical behavior:** `project_status.md` had drifted into saying `do not regress into stale 0.1.86 steering now that the documented HA SSH fingerprint check confirms the live install is already a divergent 0.1.87 build`. That contradicted the then-current source-of-truth docs and active fingerprint bugs, which still treated `0.1.86` as the current live correction line and the live `0.1.87` install as release mismatch, not a legit steering change.
+- **expected behavior:** project status should not promote a divergent live manifest into a steering baseline. The current source of truth now keeps `0.1.86` as the live correction line until the frozen `0.1.88` UI-complete candidate is explicitly approved, shipped, and validated.
+- **evidence:** the original run rechecked the documented HA SSH path with `python3 scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config`, which still reported `overall_match=false`, live `manifest_version=0.1.87`, and the same tracked-file mismatch class. This watchdog audit confirmed the stale part is now only this entry's old next-action wording: current `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and ZNE-104/ZNE-150 all point at the `0.1.88` A-D/F defect check, then direct James deploy/restart approval if no sharper defect remains.
+- **repo fix:** the original run updated `project_status.md` so the divergent live `0.1.87` install was release drift rather than a steering change. This watchdog run closes the stale bug-tracker tail so ZNE-051 no longer requeues outdated `0.1.87` repo work.
+- **closure evidence:** repo-side source-of-truth audit plus direct bug-tracker correction. No live Home Assistant validation is required for this historical process-entry cleanup.
+- **next action:** no further action for this historical `0.1.87` steering bug; use the current `0.1.88` source-of-truth map and ZNE-104/ZNE-150 for the final A-D/F check versus explicit deploy/restart approval boundary.
 
 ## ZNE-052 - Device-page review copy still described the device path as the primary Managed Devices workspace
 - **status:** `fixed_pending_validation`
