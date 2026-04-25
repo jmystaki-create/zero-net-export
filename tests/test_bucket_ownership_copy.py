@@ -14,7 +14,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         init_description = steps["init"]["description"]
         self.assertTrue(init_description.startswith("Now\n- Headline decision:"))
         self.assertIn("\n\nCommand-center use\n- Live setup and current operating picture.", init_description)
-        self.assertIn("when fleet work is next, continue in Managed Devices.", init_description)
+        self.assertIn("when fleet work is next, continue in the Managed Devices workspace.", init_description)
         self.assertNotIn("Use this command center for the basic setup and current operating picture only.", init_description)
         self.assertLess(init_description.index("Now\n- Headline decision:"), init_description.index("\n\nStructured control board"))
         self.assertLess(init_description.index("\n\nStructured control board"), init_description.index("\n\nCommand-center use"))

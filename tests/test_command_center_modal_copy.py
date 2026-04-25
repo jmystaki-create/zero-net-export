@@ -14,7 +14,7 @@ class TestCommandCenterModalCopy(unittest.TestCase):
         self.assertTrue(description.startswith("Now\n- Headline decision:"))
         self.assertIn("\n\nCommand-center use\n- Live setup and current operating picture.", description)
         self.assertIn(
-            "- Finish source mapping and core control checks here; when fleet work is next, continue in Managed Devices.",
+            "- Finish source mapping and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
             description,
         )
         self.assertNotIn("basic setup and current operating picture only", description)

@@ -2420,7 +2420,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "",
             "Command-center use",
             "- Live setup and current operating picture.",
-            "- Finish source mapping and core control checks here; when fleet work is next, continue in Managed Devices.",
+            "- Finish source mapping and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
             "",
             "Native paths",
             f"- Sensors: {command_center.get('sources_path')}",
