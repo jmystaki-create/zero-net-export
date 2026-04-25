@@ -345,7 +345,7 @@ Avoid dropping the operator back cold after a meaningful action.
 - review new managed device details
 - tune priority
 - check enablement
-- return to Managed Devices
+- return to the Managed Devices workspace
 
 The product should give a clean landing, not a contextless bounce.
 

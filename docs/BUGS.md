@@ -2257,6 +2257,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance`, `python3 -m py_compile custom_components/zero_net_export/native_support.py`, and a grep confirming the old `deeper device-page review path` / `fleet needs deeper review` phrases are gone from product code and docs outside negative regression assertions. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this secondary device-page wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-180 - UI implementation spec still used generic Managed Devices return wording
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while comparing older UI planning docs against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the current workspace-first Managed Devices wording fixes
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_SPEC.md` still listed the promotion success landing next action as `return to Managed Devices`, while current Workstream B/C wording requires the operator path to read as the `Managed Devices workspace` rather than a generic bucket label.
+- **expected behavior:** supplemental implementation specs should reinforce the same native Configure -> Managed Devices workspace wording used by current product copy, tests, and the source-of-truth map.
+- **evidence:** this run's grep found the stale `return to Managed Devices` example in `docs/UI_IMPLEMENTATION_SPEC.md` after the product code and focused tests had already been tightened to workspace-first wording.
+- **repo fix:** this run updates the success-landing example to `return to the Managed Devices workspace`, keeping the older spec subordinate to the current `0.1.88` native-HA implementation map and Workstream B/C language.
+- **validation status:** validated by direct doc inspection and grep; no Home Assistant live validation is required for this supplemental-doc wording fix.
+- **next action:** keep supplemental planning docs aligned with the current source-of-truth set; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
