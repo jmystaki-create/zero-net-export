@@ -3593,6 +3593,85 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("review Virtual load (fixed) | review first", summary["fleet_activity_summary"])
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_compacts_review_ready_alert_targets_before_dropping_backlog_story(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime looks healthy.",
+            "next_step": "Review Managed Devices.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Virtual load helper with a spectacularly verbose review-first label in the garage south-west board and utility cupboard for overflow coverage",
+                    "entity_id": "input_boolean.virtual_load_helper",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "Hot water relay with a remarkably long ready-next descriptor across the laundry branch and patio circuit for overflow coverage",
+                    "entity_id": "switch.hot_water_relay",
+                    "kind": "fixed",
+                },
+            ],
+            "Virtual load helper with a spectacularly verbose review-first label in the garage south-west board and utility cupboard for overflow coverage",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if "Virtual load helper" in candidate.get("name", "") else "high",
+            "warnings": ["helper-backed load needs review and validation"]
+            if "Virtual load helper" in candidate.get("name", "")
+            else [],
+        }
+        native_support.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Virtual load helper with a spectacularly verbose review-first label in the garage south-west board and utility cupboard for overflow coverage (fixed) | review first | warn helper-backed load needs review and validation"
+            if candidate and "Virtual load helper" in candidate.get("name", "")
+            else "Hot water relay with a remarkably long ready-next descriptor across the laundry branch and patio circuit for overflow coverage (fixed) | likely useful"
+        )
+
+        entry = SimpleNamespace(data={
+            native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power",
+            native_support.CONF_SOLAR_ENERGY_ENTITY: "sensor.solar_energy",
+            native_support.CONF_GRID_IMPORT_POWER_ENTITY: "sensor.grid_import_power",
+            native_support.CONF_GRID_EXPORT_POWER_ENTITY: "sensor.grid_export_power",
+            native_support.CONF_GRID_IMPORT_ENERGY_ENTITY: "sensor.grid_import_energy",
+            native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
+        }, options={})
+        state = SimpleNamespace(
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            device_status_summary="Managed Devices: no managed yet",
+            device_count=0,
+            enabled_device_count=0,
+            usable_device_count=0,
+            blocked_planned_action_count=0,
+            device_details={},
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertLessEqual(len(summary["alert_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("Managed Devices: no managed yet; 2 unmanaged backlog.", summary["alert_summary"])
+        self.assertIn("Managed Devices: review first Virtual load helper", summary["alert_summary"])
+        self.assertIn("ready next Hot water relay", summary["alert_summary"])
+        self.assertNotIn("utility cupboard for overflow coverage", summary["alert_summary"])
+        self.assertNotIn("laundry branch and patio circuit for overflow coverage", summary["alert_summary"])
+
     def test_command_center_summary_surfaces_ready_only_unmanaged_backlog_in_top_alerts(self) -> None:
         native_support = _load_native_support_module()
 

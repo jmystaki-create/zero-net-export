@@ -4969,6 +4969,15 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     ready_alert = None
     ready_alert_compact = None
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
+
+    def _compact_alert_review_ready_target(prefix: str, preview: str, name: str) -> str:
+        compact = _clip_review_ready_state_part(
+            f"{prefix} {preview or name}".strip(),
+            max_chars=72,
+        )
+        if compact.startswith(f"{prefix} "):
+            return compact[len(prefix) + 1 :].strip()
+        return preview or name
     if device_parse_issues:
         device_alert = f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s)."
         device_alert_compact = device_alert
@@ -5032,16 +5041,31 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
         if review_needed_count:
             review_target = review_candidate_preview or review_candidate_name or "the first unmanaged candidate"
+            compact_review_target = _compact_alert_review_ready_target(
+                "review",
+                review_candidate_preview,
+                review_candidate_name or "the first unmanaged candidate",
+            )
             review_alert = f"Managed Devices: review first {review_target}"
-            review_alert_compact = f"Managed Devices: review first {review_candidate_name or 'the first unmanaged candidate'}"
+            review_alert_compact = f"Managed Devices: review first {compact_review_target}"
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 ready_target = ready_candidate_preview or ready_candidate_name
+                compact_ready_target = _compact_alert_review_ready_target(
+                    "ready",
+                    ready_candidate_preview,
+                    ready_candidate_name,
+                )
                 review_alert += f"; ready next {ready_target}"
-                review_alert_compact += f"; ready next {ready_candidate_name}"
+                review_alert_compact += f"; ready next {compact_ready_target}"
         elif ready_candidate_count:
             ready_target = ready_candidate_preview or ready_candidate_name or "the next unmanaged candidate"
+            compact_ready_target = _compact_alert_review_ready_target(
+                "ready",
+                ready_candidate_preview,
+                ready_candidate_name or "the next unmanaged candidate",
+            )
             ready_alert = f"Managed Devices: ready next {ready_target}"
-            ready_alert_compact = f"Managed Devices: ready next {ready_candidate_name or 'the next unmanaged candidate'}"
+            ready_alert_compact = f"Managed Devices: ready next {compact_ready_target}"
 
     readiness_alert = str(readiness.get("summary") or support_status) if readiness_phase == "runtime_readiness" else None
 
