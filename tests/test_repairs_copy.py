@@ -38,6 +38,8 @@ class RepairsCopyTests(unittest.TestCase):
         description = runtime_attention["description"]
         self.assertEqual(runtime_attention["title"], "Zero Net Export runtime blockers")
         self.assertIn("Now\n• Health:", description)
+        self.assertNotIn("Installed package:", description)
+        self.assertNotIn("Install consistency:", description)
         self.assertIn("\n\nMapped-source blockers\n• Unavailable roles:", description)
         self.assertIn("\n\nDo next\n• Mapped-source repair path:", description)
         self.assertIn("\n\nFallback, only if Home Assistant rejects a valid choice\n•", description)
