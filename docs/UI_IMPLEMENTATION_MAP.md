@@ -105,7 +105,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Still to do**
 1. Make the managed-on-top / unmanaged-below split visually obvious on the exact deployed build.
 2. Make managed summaries show enough operational detail that the top of the workspace feels active, not skeletal.
-3. Validate on the exact deployed build that unmanaged summaries now read as actionable backlog mix, with review burden, ready-to-promote count, and top-candidate quality all visible at a glance.
+3. Validate on the exact deployed build that unmanaged summaries now read as actionable backlog mix, with review burden, ready-to-promote count, and first surfaced candidate quality all visible at a glance.
 4. Remove any remaining wording, ordering, or summary behavior that makes Configure -> Managed Devices feel like a thin helper layer instead of the real fleet workspace.
 5. Confirm blocked or review-first items are easy to spot at a glance.
 

@@ -2479,6 +2479,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified in this watchdog run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`; this run re-ran the same focused command-center suite after `740aafc` and it passed (`Ran 114 tests ... OK`). Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include both Workstream A grouping fixes in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-198 - Remaining-work map still used `top-candidate` ranking wording
+
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog source-of-truth audit on 2026-04-26 while checking the Detailed remaining work map against the neutral surfaced-candidate wording required by the current Managed Devices and promotion-flow copy.
+- **current observed behavior:** Workstream B still said live validation should show `top-candidate quality` at a glance, even though the current product/docs direction avoids ranking one unmanaged device as the top/best candidate before review.
+- **expected behavior:** the source-of-truth remaining-work map should ask validators to confirm surfaced-candidate quality and backlog readiness without reintroducing ranking language that conflicts with the neutral review-first promotion model.
+- **evidence:** `rg -n "top-candidate|top candidate|top unmanaged|best-fit|best fit" docs/UI_IMPLEMENTATION_MAP.md custom_components/zero_net_export README.md` found the active `top-candidate quality` wording only in `docs/UI_IMPLEMENTATION_MAP.md`, while product tests already reject older `Top unmanaged candidate` copy on active surfaces.
+- **repo fix:** this run changes Workstream B validation wording from `top-candidate quality` to `first surfaced candidate quality`, preserving the at-a-glance validation requirement without implying the product has pre-ranked one best candidate.
+- **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only source-of-truth wording correction.
+- **next action:** keep the remaining-work map on neutral surfaced-candidate wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval for the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
