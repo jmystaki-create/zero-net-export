@@ -98,7 +98,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "Review managed devices workspace and enablement",
         )
         self.assertIn("Review managed-device enablement here, with managed devices on top and the unmanaged promotion backlog below.", bulk_enable_description)
-        self.assertIn("Configure stays the primary fleet workspace for enablement", bulk_enable_description)
+        self.assertIn("Keep enablement in the Managed Devices workspace.", bulk_enable_description)
+        self.assertNotIn("Configure stays the primary fleet workspace", bulk_enable_description)
         self.assertIn("Keep source repair in Sensors, controller tuning in Controls, and troubleshooting in Diagnostics.", bulk_enable_description)
         self.assertIn("Managed Devices path: {configure_path}.", bulk_enable_description)
         self.assertNotIn("Primary path: {configure_path}.", bulk_enable_description)
