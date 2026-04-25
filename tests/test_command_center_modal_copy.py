@@ -11,19 +11,21 @@ class TestCommandCenterModalCopy(unittest.TestCase):
 
         description = strings["options"]["step"]["init"]["description"]
 
-        self.assertIn("Use this command center for live setup and the current operating picture.", description)
+        self.assertTrue(description.startswith("Now\n- Headline decision:"))
+        self.assertIn("\n\nCommand-center use\n- Live setup and current operating picture.", description)
         self.assertIn(
-            "Finish source mapping and core control checks here, then continue in the Managed Devices workspace when fleet work is next.",
+            "- Finish source mapping and core control checks here; when fleet work is next, continue in Managed Devices.",
             description,
         )
         self.assertNotIn("basic setup and current operating picture only", description)
-        self.assertIn("\n\nNow\n- Headline decision:", description)
         self.assertIn("\n- Alerts: {alert_summary}", description)
         self.assertIn("\n- Next action: {next_action_summary}", description)
         self.assertNotIn("\n- Recommended section: {recommended_section}", description)
         self.assertNotIn("\n- Recommended path: {recommended_path}", description)
         self.assertIn("\n\nStructured control board\n- Energy state:", description)
         self.assertIn("\n\nSetup check\n- Sensors:", description)
+        self.assertLess(description.index("Now\n- Headline decision:"), description.index("\n\nStructured control board"))
+        self.assertLess(description.index("\n\nStructured control board"), description.index("\n\nCommand-center use"))
         self.assertIn("\n\nNative paths\n- Sensors:", description)
         self.assertIn("\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", description)
         self.assertIn("\n- Managed Devices: {devices_path}", description)

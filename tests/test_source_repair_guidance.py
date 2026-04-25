@@ -374,9 +374,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "mode_path": native_support.MODE_CONTROL_PATH,
             }
         )
-        self.assertIn("Use this command center for live setup and the current operating picture.", guide)
+        self.assertIn("Zero Net Export command center\n\nNow", guide)
+        self.assertIn("Command-center use\n- Live setup and current operating picture.", guide)
         self.assertIn(
-            "Finish source mapping and core control checks here, then continue in the Managed Devices workspace when fleet work is next.",
+            "- Finish source mapping and core control checks here; when fleet work is next, continue in Managed Devices.",
             guide,
         )
         self.assertNotIn("This surface is for the basic setup only.", guide)
@@ -391,6 +392,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("| 4 unmanaged |", guide)
         self.assertIn("Setup check", guide)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", guide)
+        self.assertLess(guide.index("Now"), guide.index("Structured control board"))
+        self.assertLess(guide.index("Structured control board"), guide.index("Command-center use"))
         self.assertIn("- Diagnostics: Runtime attention remains.", guide)
         self.assertNotIn("- Runtime health:", guide)
         self.assertIn("- Source blockers: Solar power (Pv Power, unavailable)", guide)
