@@ -141,9 +141,9 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Done when**
 - an operator can tell where to go next without guessing, and the live UI no longer feels like overlapping narrative sections.
 
-### Workstream E. Finish the device-page deeper review path
+### Workstream E. Finish the secondary device-page review/audit path
 **Goal**
-- make the device page a genuinely useful secondary inspection path without competing with Configure -> Managed Devices
+- make the device page a genuinely useful secondary review/audit path without competing with Configure -> Managed Devices
 
 **Still to do**
 1. Validate live that the device-page managed review actions are clearly secondary to Configure -> Managed Devices.
@@ -151,7 +151,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 3. Make sure the installed device-page review path supports deeper inspection without diluting Configure -> Managed Devices as the primary workspace.
 
 **Done when**
-- the device page is clearly the deeper review path, not a competing workspace.
+- the device page is clearly the secondary review/audit path, not a competing workspace.
 
 ### Workstream F. Finish notification and support-surface cleanup
 **Goal**
@@ -279,11 +279,11 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - managed-device rows now surface guard state, planned action, and last action status directly in the native fleet view
 - selector ordering now surfaces blocked managed devices first, then actively planned loads, then healthy enabled/usable rows so the first exception stays visible in native fleet workflows
 - Configure -> Managed Devices summary blocks now split `Managed devices needing attention first` from `Other managed devices`, so blocked or actively planned rows stay visually ahead of steady-state rows throughout the native fleet forms
-- the device page now exposes first-class `Review managed devices workspace` and `Review managed devices` handoffs for deeper fleet review without competing with Configure -> Managed Devices
+- the device page now exposes first-class `Review managed devices workspace` and `Review managed devices` handoffs for secondary fleet review/audit without competing with Configure -> Managed Devices
 
 **Remaining**
 - make the managed-on-top / unmanaged-below structure visually obvious in live HA
-- confirm on the exact deployed build that the device-page deeper-review path reads clearly as secondary to Configure -> Managed Devices, rather than relying on repo copy alone
+- confirm on the exact deployed build that the device-page review/audit path reads clearly as secondary to Configure -> Managed Devices, rather than relying on repo copy alone
 - confirm the next recommended fleet action is obvious at a glance in the installed UI, not just in repo copy
 
 **Features in this stage**
@@ -359,7 +359,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 ### Stage 8. Device-page detailed management path
 **Purpose**
-- provide a deeper review path for richer per-device and fleet-level inspection without bloating the top-level workflow
+- provide a secondary review/audit path for richer per-device and fleet-level inspection without bloating the top-level workflow
 
 **Completed**
 - concept and requirement are documented
@@ -373,7 +373,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - make sure the installed device-page review path supports deeper inspection while keeping Configure -> Managed Devices as the clear primary fleet workflow
 
 **Features in this stage**
-- deeper fleet review
+- secondary fleet review/audit
 - per-device review buttons from the native device page
 - per-device operational detail
 - spreadsheet-style or audit-style fleet inspection
@@ -415,7 +415,7 @@ This is the explicit `0.1.88` rollout target James asked for. It converts the st
    - managed devices clearly on top
    - unmanaged candidates clearly below
    - visually obvious managed vs unmanaged split
-   - Configure -> Managed Devices clearly feels like the primary fleet workspace, with the device page supporting deeper review
+   - Configure -> Managed Devices clearly feels like the primary fleet workspace, with the device page supporting secondary review/audit detail
 
 4. **Promotion workflow completion**
    - shortlist -> review -> promote path reads as one coherent native flow
@@ -439,7 +439,7 @@ This is the explicit `0.1.88` rollout target James asked for. It converts the st
 ### 0.1.88 acceptance test
 `0.1.88` is only successful if James can open the live HA surfaces and see:
 - the command center behaving like a setup-first operator console with the current operating picture obvious at the top, not like a setup-only helper screen
-- Configure -> Managed Devices clearly functioning as the managed-devices workspace, with the device page acting as the deeper review path
+- Configure -> Managed Devices clearly functioning as the managed-devices workspace, with the device page acting as the secondary review/audit path
 - managed vs unmanaged visually obvious
 - promotion/review workflow clearly visible
 - notifications noticeably cleaner and tighter

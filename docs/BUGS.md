@@ -1914,7 +1914,7 @@ Suggested area labels:
 - **next action:** include this final `primary`-narration cleanup in the next exact-build deploy, then confirm the live save feedback and device-page notifications name the Managed Devices workspace directly too.
 
 ## ZNE-154 - Managed Devices strings still framed the device page as a `secondary native review path`
-- **status:** `fixed_pending_validation`
+- **status:** `closed`
 - **severity:** `low`
 - **area:** `managed_devices`
 - **where seen:** watchdog repo audit on 2026-04-22 while comparing `custom_components/zero_net_export/strings.json` and `translations/en.json` against Workstreams B/E in `docs/UI_IMPLEMENTATION_MAP.md`
@@ -1924,7 +1924,8 @@ Suggested area labels:
 - **suspected cause:** earlier Workstream B cleanup focused on runtime summaries, notifications, and action handoffs first, leaving the native form-description copy on the older `main/secondary` wording.
 - **repo fix:** this run updates the Managed Devices native strings so they now say `This is the Managed Devices workspace` and `Deeper per-device review path ...` across the workspace, promotion, save, remove, and JSON-editor descriptions, with matching regressions refreshed in `tests/test_bucket_ownership_copy.py`.
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`.
-- **next action:** include this native-copy cleanup in the next exact-build deploy, then confirm the live Managed Devices forms keep Configure primary while the device page reads as deeper review only.
+- **closure evidence:** superseded by the later Workstream B/E hierarchy correction in ZNE-178 through ZNE-185. Current product and source-of-truth wording intentionally uses `secondary review/audit` for the device-page path, so this older `deeper review only` wording target must not drive future work.
+- **next action:** no further action for this superseded wording direction; use ZNE-185 and the current implementation map for the active secondary review/audit hierarchy.
 
 ## ZNE-155 - Command-center attention context could duplicate the same device's plan row and crowd out the real active-runtime story
 - **status:** `fixed_pending_validation`
@@ -1940,7 +1941,7 @@ Suggested area labels:
 - **next action:** include `7420396` plus this follow-on workspace/sensor alignment in the next exact-build deploy, then confirm the live Configure top board and Managed Devices workspace keep the distinct active runtime device visible whenever a different managed device owns the attention-first slot.
 
 ## ZNE-156 - Device-page handoffs still framed the deeper review path as `secondary`
-- **status:** `fixed_pending_validation`
+- **status:** `closed`
 - **severity:** `low`
 - **area:** `managed_devices`
 - **where seen:** watchdog repo audit on 2026-04-22 while comparing device-page handoff wording against `docs/UI_DESIGN.md` and Workstreams B/E in `docs/UI_IMPLEMENTATION_MAP.md`
@@ -1950,10 +1951,11 @@ Suggested area labels:
 - **suspected cause:** earlier wording cleanup removed most `main/secondary` narration from strings and notifications first, but the deeper-review helper builders and fallback copy kept the older `secondary` phrasing.
 - **repo fix:** this run updates `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/config_flow.py`, and `custom_components/zero_net_export/button.py` so those handoffs now say `deeper device-page review path` / `deeper review and handoff`, and refreshes the focused regressions in `tests/test_button_entity_categories.py` and `tests/test_config_flow_device_runtime_overlay.py` to lock that wording in place.
 - **validation status:** repo-side fix verified in this run with the focused test and compile gates listed below; live Home Assistant validation is still pending on the next exact-build deploy.
-- **next action:** include this device-page handoff wording cleanup in the next exact-build deploy, then confirm the live Configure and device-page paths keep the intended workspace-versus-deeper-review split without `secondary` wording drift.
+- **closure evidence:** superseded by the later Workstream B/E hierarchy correction in ZNE-178 through ZNE-185. Current product and source-of-truth wording intentionally uses `secondary review/audit`, so this older anti-`secondary` instruction is stale and must not be treated as an active bug.
+- **next action:** no further action for this superseded wording direction; use ZNE-185 and the current implementation map for the active secondary review/audit hierarchy.
 
 ## ZNE-157 - Empty-fleet deeper-review summary still mixed primary Managed Devices action copy into the device-page handoff
-- **status:** `fixed_pending_validation`
+- **status:** `closed`
 - **severity:** `low`
 - **area:** `managed_devices`
 - **where seen:** watchdog repo audit on 2026-04-22 while comparing the empty-fleet `build_detailed_management_handoff(...)` copy in `custom_components/zero_net_export/native_support.py` against Workstreams B and E in `docs/UI_IMPLEMENTATION_MAP.md`
@@ -1963,7 +1965,8 @@ Suggested area labels:
 - **suspected cause:** the earlier deeper-review wording cleanup removed the more obvious `secondary` narration first, but the empty-fleet branch kept an older combined handoff that still embedded primary Managed Devices action guidance inside the device-page summary.
 - **repo fix:** this run updates `custom_components/zero_net_export/native_support.py` so the empty-fleet summary now says `Keep ... as the Managed Devices workspace: start in the unmanaged section when a surfaced candidate exists...; use ... as the deeper device-page review path once the fleet exists.` `tests/test_source_repair_guidance.py` now locks that tighter workspace-first split into place.
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation is still pending on the next exact-build deploy.
-- **next action:** include this empty-fleet deeper-review summary cleanup in the next exact-build deploy, then confirm the live Managed Devices descriptions keep the workspace-first split without re-expanding the device-page handoff into overlapping narration.
+- **closure evidence:** superseded by the later Workstream B/E hierarchy correction in ZNE-178 through ZNE-185. Current product and source-of-truth wording keeps the workspace-first split but names the device-page role as secondary review/audit, not `deeper review`.
+- **next action:** no further action for this superseded wording direction; use ZNE-185 and the current implementation map for the active secondary review/audit hierarchy.
 
 ## ZNE-158 - Managed Devices config-flow fallback still lagged the stronger workspace-first handoff
 - **status:** `fixed_pending_validation`
@@ -2316,6 +2319,18 @@ Suggested area labels:
 - **repo fix:** this run updates README setup steps so the integration device page is the `secondary review/audit path`, changes the verification step to `secondary verification`, and fixes the duplicate step number.
 - **validation status:** validated by direct README inspection and grep; no live Home Assistant validation is required for this public-doc wording/numbering fix.
 - **next action:** keep README guidance aligned with the native Configure-first hierarchy; do not let README cleanup displace deploy/restart approval once no sharper A-D/F repo defect remains.
+
+## ZNE-185 - Source-of-truth map still called the secondary device-page path `deeper review`
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream B/E hierarchy wording after the product copy moved to secondary review/audit language
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_MAP.md` and `docs/SUPERVISOR.md` still described the device-page managed-device route as the `deeper review path` / `deeper fleet review`. That conflicted with the current product copy and recent bug-tracker state, which intentionally frame the device page as a secondary review/audit path so it does not compete with Configure -> Managed Devices as the primary fleet workspace.
+- **expected behavior:** source-of-truth steering should use the same secondary review/audit hierarchy as the native product surfaces: Configure -> Managed Devices is primary for fleet work, and the device page supports per-device review/audit detail.
+- **evidence:** this run grepped `docs/UI_IMPLEMENTATION_MAP.md` and `docs/SUPERVISOR.md` after reading `docs/UI_DESIGN.md`, the detailed remaining-work map, and the latest managed-device bug entries; the current steering docs still used `deeper review path` / `deeper fleet review` for the managed-device device-page hierarchy.
+- **repo fix:** this run updates `docs/UI_IMPLEMENTATION_MAP.md` and `docs/SUPERVISOR.md` to call Workstream E / Stage 8 the secondary device-page review/audit path, keeps the `0.1.88` rollout/acceptance text aligned with Configure -> Managed Devices as the primary workspace, and closes superseded ZNE-154/ZNE-156/ZNE-157 bug-state entries so old anti-`secondary` wording does not requeue stale work.
+- **validation status:** validated by direct grep and diff inspection of the current steering docs; no live Home Assistant validation is required for this source-of-truth wording correction.
+- **next action:** keep future product and source-doc wording on `secondary review/audit`; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
 ## Closure rule
 

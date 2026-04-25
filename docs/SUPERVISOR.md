@@ -215,7 +215,7 @@ The project is in good shape for this phase when:
 - Configure is clearly the command center
 - Managed Devices is clearly the fleet workspace
 - Controls, Sensors, Managed Devices, and Diagnostics are obviously distinct
-- the device-page deeper-review path is coherent without competing with Configure
+- the secondary device-page review/audit path is coherent without competing with Configure
 - the tested live install is known to be serving the intended package/build
 - release confidence is based on real proof, not repo confidence alone
 
