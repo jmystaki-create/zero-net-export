@@ -180,7 +180,7 @@ The backend control engine is substantially built, and the project is now in a l
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 
-**Current highest-value next step:** keep the next pass on the highest remaining mapped `0.1.88` repo-side A-D/F gap, not another unchanged fingerprint or deploy-approval loop. The documented HA SSH path still works and the live mismatch remains real release drift, but Workstream G should not displace unfinished implementation-map runway before the `0.1.88` cut line is actually coherent.
+**Current highest-value next step:** run one final concrete A-D/F repo-side defect check against the mapped `0.1.88` native-UI runway. If that check finds no sharper implementation defect, stop refreshing unchanged fingerprint/deploy wording and ask James directly to approve deploy/restart of the helper-resolved exact build before Workstream G release validation. The documented HA SSH path still works, and the live mismatch remains real release drift rather than evidence for another release-bookkeeping pass.
 
 - [x] Config flow & source validation
 - [x] Device model & guards

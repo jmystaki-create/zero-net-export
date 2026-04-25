@@ -2043,6 +2043,20 @@ Suggested area labels:
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories`, `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`, and `python3 -m unittest discover -s tests -q`. Live Home Assistant validation is still pending on the next exact-build deploy.
 - **next action:** include this helper-sensor wording cleanup in the next exact-build deploy, then confirm the live empty-fleet attention helper keeps the grouped source-blocker signal and workspace-first unmanaged handoff.
 
+
+## ZNE-165 - README still understated the explicit `0.1.88` release-approval boundary
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-25 after `project_status.md` surfaced the frozen-`0.1.88` approval boundary
+- **current observed behavior:** `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and ZNE-104 now agree that if one final A-D/F defect check finds no sharper repo-side implementation gap, the next real boundary is to ask James directly for deploy/restart approval of the helper-resolved exact `0.1.88` build. `README.md` still said the next pass should avoid a `deploy-approval loop` and that Workstream G should not displace implementation runway before the cut line is coherent, but it did not say what to do after the final A-D/F check is clean. That made the public status text softer than the current approval-boundary source of truth.
+- **expected behavior:** secondary status/docs should preserve the anti-churn rule while making the edge-triggered approval step explicit once repo inspection finds no remaining concrete A-D/F defect.
+- **evidence:** this run compared `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, ZNE-104, and `README.md`; only the README status paragraph still lacked the explicit `ask James directly` handoff after a clean final A-D/F check. The local helper still reports `manifest_version=0.1.88`, `preferred_validation_commit=b6df6c5`, and docs-only `repo_head_commit=c6530d1`, so this is not a candidate-hash refresh.
+- **suspected cause:** the latest approval-boundary correction landed in `project_status.md` but did not carry the same edge-triggered wording into the README development-status paragraph.
+- **repo fix:** this run updates `README.md` so the current highest-value next step is: perform one final concrete A-D/F defect check, then if it is clean, stop fingerprint/deploy wording churn and ask James directly for deploy/restart approval before Workstream G release validation.
+- **validation status:** validated repo-side by re-reading the updated README against the supervisor/map/project-status boundary. No live HA validation is needed for this process-doc correction.
+- **next action:** do not create another approval-target refresh unless live evidence, approval state, or the helper-resolved component boundary materially changes; after one clean A-D/F check, ask James directly for deploy/restart approval.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
