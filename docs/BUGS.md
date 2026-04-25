@@ -2392,6 +2392,18 @@ Suggested area labels:
 - **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this source-doc wording correction.
 - **next action:** keep the map on secondary review/audit wording; the next real boundary remains either a sharper A-D/F implementation defect or direct James deploy/restart approval for the helper-resolved exact `0.1.88` build.
 
+## ZNE-191 - Command-center setup check hid the recommended section behind menu-position prose
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-26 while comparing the opening command-center modal against Workstream A/D in `docs/UI_IMPLEMENTATION_MAP.md` and the native bucket design in `docs/UI_DESIGN.md`
+- **current observed behavior:** the latest product fix in `e4880fe` corrected a real opening-console wording drift: the Configure command-center setup check had been using a generated `recommended_menu_hint` sentence (`The first menu item below now matches the recommended next section...`) instead of surfacing the recommended section as one of the grouped setup-check signals. That made the top native operator console lean on menu-position narration where the source docs require grouped operational signals and clear Controls/Sensors/Managed Devices/Diagnostics ownership.
+- **expected behavior:** the opening command-center setup check should show the recommended bucket directly as `Recommended section: ...` while keeping the first-menu-item mechanics out of the visible operator copy.
+- **evidence:** repo diff `e4880fe` removes the `recommended_menu_hint` placeholder from `custom_components/zero_net_export/config_flow.py`, replaces `{recommended_menu_hint}` in `strings.json` / `translations/en.json` with `- Recommended section: {recommended_section}`, and updates `tests/test_bucket_ownership_copy.py` plus `tests/test_command_center_modal_copy.py` to reject the old menu-position prose.
+- **repo fix:** `e4880fe` - surface the command-center recommended section as a grouped setup-check signal and remove the helper-ish first-menu-item sentence from the Configure command-center modal.
+- **validation status:** repo-side fixed and verified in this watchdog run with `python3 -m unittest discover -s tests -q`; live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include `e4880fe` in the next exact-build deploy; if no sharper A-D/F implementation defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved exact `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
