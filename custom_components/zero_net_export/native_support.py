@@ -984,7 +984,7 @@ def _compact_control_outcome_summary(
         )
     metric_parts = [
         f"planned actions {planned_action_count}" if planned_action_count is not None else None,
-        f"executable {executable_action_count}" if executable_action_count is not None else None,
+        f"ready actions {executable_action_count}" if executable_action_count is not None else None,
         f"active load {active_controlled_power_w} W" if active_power_known else active_count_part,
     ]
     metrics_summary = " | ".join(part for part in metric_parts if part is not None)
