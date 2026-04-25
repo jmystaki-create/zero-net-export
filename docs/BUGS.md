@@ -2466,6 +2466,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py tests/test_command_center_summary.py`. The watchdog follow-on was verified with `python3 -m py_compile custom_components/zero_net_export/coordinator.py custom_components/zero_net_export/planner.py` and `python3 -m unittest -q tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_source_freshness_probes tests.test_release_update_details tests.test_sensor_entity_categories`. This run verified the remaining placeholder cleanup with `python3 -m unittest tests.test_button_entity_categories tests.test_source_repair_guidance -q` and the full `python3 -m unittest discover -s tests -q` suite. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this command-center grammar cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-197 - Fleet activity grouping put source blockers inside the Managed bucket
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `command_center`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream A `Fleet activity` grouping against the opening operator-console design.
+- **current observed behavior:** the latest grouping formatter correctly split managed and unmanaged fleet details, but if a higher-level source blocker appeared before the managed count, `format_fleet_activity_for_operator(...)` grouped that blocker under `Managed:`. That blurred the top-board IA by making source-health blockers look like managed-fleet inventory instead of a separate precondition signal.
+- **expected behavior:** opening-console Fleet activity should keep source/setup blockers outside the managed-device bucket while still grouping the managed and unmanaged fleet story clearly.
+- **evidence:** `1e9145f` adds focused coverage for `source blockers active | 1 managed | blocked Pool pump | 2 unmanaged backlog | 1 needs review | review Garage relay` and confirms the rendered summary starts with `source blockers active; Managed: 1 managed` instead of `Managed: source blockers active`.
+- **repo fix:** `1e9145f` updates `custom_components/zero_net_export/native_support.py` so fleet-activity grouping begins the managed bucket at the managed-count fragment, preserving any earlier top-level blocker fragments as a prefix outside `Managed:`.
+- **validation status:** repo-side fixed and verified in this watchdog run with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Workstream A grouping fix in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
