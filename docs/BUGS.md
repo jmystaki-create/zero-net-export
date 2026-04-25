@@ -2070,6 +2070,19 @@ Suggested area labels:
 - **validation status:** source-of-truth/process correction verified by re-reading the edited checklist against the supervisor/map/project-status boundary. No live HA validation is needed for this doc correction.
 - **next action:** keep the next run on one concrete remaining A-D/F defect check; if clean, ask James directly for deploy/restart approval instead of running or restating another unchanged live validation pass.
 
+## ZNE-168 - Validation checklist still implied Energy dashboard setup was required
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-25 while comparing `docs/VALIDATION_CHECKLIST.md` against the native-only product direction in `docs/UI_DESIGN.md` and the `0.1.88` workstream order in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the pre-install checklist still required `Energy dashboard configured with solar/grid entities`. That made the optional dashboard surface sound like a release prerequisite even though the supported operator path is native Configure, device page, entities/notifications/Repairs, with dashboards only secondary.
+- **expected behavior:** validation prerequisites should require real source entities for native source mapping, not an Energy dashboard configuration. Dashboard evidence can remain optional supplemental visibility, but it must not become a gate or workaround for the native Home Assistant UI.
+- **evidence:** `docs/UI_DESIGN.md` explicitly says optional dashboards are supplemental and not part of the required operator path or current release gate. `docs/UI_IMPLEMENTATION_MAP.md` keeps the `0.1.88` success criteria on Configure, Managed Devices, promotion flow, four-bucket IA, and exact live proof, not dashboard setup.
+- **suspected cause:** the validation checklist retained an older Home Assistant energy-dashboard assumption from before the native operator path was tightened.
+- **repo fix:** this run changes the pre-install checklist to require real solar/grid source entities for native source mapping and states that Energy dashboard setup is optional evidence only, not part of the supported operator path.
+- **validation status:** repo-side source-of-truth correction verified by re-reading the checklist against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`; no live HA validation is required for this docs-only gate correction.
+- **next action:** keep live acceptance focused on Configure, Managed Devices, promotion flow, four-bucket IA, and exact-build proof rather than treating dashboard configuration as a release prerequisite.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

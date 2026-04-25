@@ -39,7 +39,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 
 - [ ] Home Assistant version >= 2024.6.0
 - [ ] HACS installed (if using HACS install path)
-- [ ] Energy dashboard configured with solar/grid entities
+- [ ] Real solar/grid source entities available for native source mapping; Energy dashboard setup is optional evidence only and is not required for the supported operator path
 - [ ] At least one controllable load available (switch, light, or number entity)
 - [ ] Battery system available (optional but recommended for full validation)
 
