@@ -2423,7 +2423,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("Review-first unmanaged candidate: AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", feedback["message"])
         self.assertIn("Managed Devices workspace in Configure: devices path", feedback["message"])
         self.assertIn(
-            "Secondary device-page review path, after the main fleet step is clear: detailed device path",
+            "Secondary device-page review/audit path, after the main fleet step is clear: detailed device path",
             feedback["message"],
         )
         self.assertIn(

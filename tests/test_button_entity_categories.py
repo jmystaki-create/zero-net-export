@@ -118,7 +118,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         "policy_status": "Controls ready.",
         "policy_readiness": "Ready after source repair.",
         "support_status": "Diagnostics available.",
-        "detailed_management_summary": "Use the device page for secondary per-device review.",
+        "detailed_management_summary": "Use the device page for secondary per-device review/audit.",
         "sources_path": "sources path",
         "devices_path": "devices path",
         "policy_path": "policy path",
@@ -251,7 +251,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Open devices path in Configure for the Managed Devices workspace.", handoff)
         self.assertIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn("- In Promotion shortlist, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
-        self.assertIn("- Use detailed device path afterward only if you need secondary per-device review.", handoff)
+        self.assertIn("- Use detailed device path afterward only if you need secondary per-device review/audit.", handoff)
         self.assertNotIn("Choose Promote fixed-load candidate", "\n".join(handoff))
 
     def test_workspace_handoff_prefers_first_review_candidate_over_top_rank(self) -> None:
@@ -437,7 +437,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Managed Devices workspace in Configure: devices path", message)
-        self.assertIn("Secondary device-page review path: detailed device path", message)
+        self.assertIn("Secondary device-page review/audit path: detailed device path", message)
         self.assertIn(
             "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
             message,
@@ -485,7 +485,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Why: Mapped source blockers remain.", message)
         self.assertIn("- Next fleet step after repair: Review the next managed device.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
-        self.assertIn("- Use detailed device path only for secondary per-device review after the main fleet step is clear.", message)
+        self.assertIn("- Use detailed device path only for secondary per-device review/audit after the main fleet step is clear.", message)
         self.assertIn(
             "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
             message,
@@ -770,7 +770,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Open sources path first.", message)
         self.assertIn("- Why: Mapped source blockers remain.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
-        self.assertIn("- Use detailed device path only for secondary per-device review after the main fleet step is clear.", message)
+        self.assertIn("- Use detailed device path only for secondary per-device review/audit after the main fleet step is clear.", message)
         self.assertIn(
             "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
             message,
@@ -1431,7 +1431,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "recommended_reason": "",
             "next_action_summary": "",
             "device_next_step": "",
-            "detailed_management_summary": "Use the device page for secondary per-device review.",
+            "detailed_management_summary": "Use the device page for secondary per-device review/audit.",
             "sources_path": "sources path",
             "devices_path": "devices path",
             "policy_path": "policy path",
@@ -1653,7 +1653,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "recommended_reason": "",
             "next_action_summary": "",
             "device_next_step": "",
-            "detailed_management_summary": "Use the device page for secondary per-device review.",
+            "detailed_management_summary": "Use the device page for secondary per-device review/audit.",
             "sources_path": "sources path",
             "devices_path": "devices path",
             "policy_path": "policy path",
@@ -1801,7 +1801,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Zero Net Export native command center guide", message)
         self.assertIn("Recommended section right now: Sensors", message)
         self.assertIn("Why this section is recommended: Mapped source blockers remain.", message)
-        self.assertIn("Managed-device audit path: Use the device page for secondary per-device review.", message)
+        self.assertIn("Managed-device audit path: Use the device page for secondary per-device review/audit.", message)
 
 
 if __name__ == "__main__":

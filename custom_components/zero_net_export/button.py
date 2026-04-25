@@ -696,7 +696,7 @@ def _managed_devices_workspace_handoff(
         if next_step:
             lines.append(f"- Next fleet step after repair: {next_step}")
         lines.append(f"- Then reopen {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.")
-        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for secondary per-device review after the main fleet step is clear.")
+        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for secondary per-device review/audit after the main fleet step is clear.")
         lines.append(f"- {_managed_devices_workspace_boundary()}")
         return lines
 
@@ -723,14 +723,14 @@ def _managed_devices_workspace_handoff(
             lines.append(
                 f"- Then promote next from the unmanaged section: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}."
             )
-        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review.")
+        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review/audit.")
     else:
         if has_managed_devices:
             lines.extend(
                 [
                     f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
                     "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",
-                    f"- Use {DETAILED_MANAGEMENT_PATH} only if you need secondary per-device review after the main fleet step is clear.",
+                    f"- Use {DETAILED_MANAGEMENT_PATH} only if you need secondary per-device review/audit after the main fleet step is clear.",
                 ]
             )
         else:
@@ -738,7 +738,7 @@ def _managed_devices_workspace_handoff(
                 [
                     f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
                     "- Add the first fixed or variable load in the Managed Devices workspace because no surfaced unmanaged candidate is available.",
-                    f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review.",
+                    f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review/audit.",
                 ]
             )
     lines.append(f"- {_managed_devices_workspace_boundary()}")
@@ -1112,7 +1112,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'Zero Net Export managed devices workspace',
             '',
             f'Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
-            f'Secondary device-page review path: {DETAILED_MANAGEMENT_PATH}',
+            f'Secondary device-page review/audit path: {DETAILED_MANAGEMENT_PATH}',
             f'Device-page boundary: {_managed_devices_workspace_boundary()}',
             f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),

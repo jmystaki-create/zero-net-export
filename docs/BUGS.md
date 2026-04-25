@@ -2440,6 +2440,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified in this watchdog run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this config-flow wording fix in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly to approve deploy/restart instead of refreshing release/fingerprint wording again.
 
+## ZNE-195 - Device-page secondary handoffs still omitted audit in active code
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream E against the secondary review/audit hierarchy in `docs/UI_IMPLEMENTATION_MAP.md` and the recently recorded ZNE-188 state.
+- **current observed behavior:** despite ZNE-188 recording the secondary review/audit wording as aligned, active product code still emitted `Secondary device-page review path` in `custom_components/zero_net_export/button.py` and `custom_components/zero_net_export/config_flow.py`, and several device-page handoff lines still said `secondary per-device review` without `audit`. That left the installed native device-page handoffs slightly behind the documented role of the device page as a secondary review/audit path under Configure -> Managed Devices.
+- **expected behavior:** Configure -> Managed Devices remains the primary fleet workspace, and all secondary device-page/per-device handoffs should consistently say review/audit when describing the native audit path.
+- **evidence:** this run's grep found the stale strings in `button.py`, `config_flow.py`, and focused assertions; after the fix, `rg -n "Secondary device-page review path|secondary per-device review\.|secondary per-device review after|Use the device page for secondary per-device review\." custom_components/zero_net_export tests/test_button_entity_categories.py tests/test_config_flow_device_runtime_overlay.py` returns no active hits.
+- **repo fix:** this run changes the remaining active button/config-flow handoffs and focused regression assertions to `secondary per-device review/audit` and `Secondary device-page review/audit path`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/config_flow.py tests/test_button_entity_categories.py tests/test_config_flow_device_runtime_overlay.py`, and the active-string grep above. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Workstream E wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly to approve deploy/restart instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
