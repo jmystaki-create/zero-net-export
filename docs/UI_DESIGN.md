@@ -332,7 +332,7 @@ It should contain:
 - priority
 - per-device overrides
 - fleet review
-- deeper device-management entry points
+- secondary device-page review/audit entry points
 
 This must feel like a real native workspace.
 It must not feel like a fallback helper section.

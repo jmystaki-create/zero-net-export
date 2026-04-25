@@ -2416,6 +2416,18 @@ Suggested area labels:
 - **validation status:** validated by direct bug-tracker inspection in this run: ZNE-192 now records the previously missing `bd54286` component fix, and the exact component boundary is already helper-resolved by `scripts/print_expected_install_fingerprint.py`. The underlying UI fix still needs live validation with the next exact-build deploy, but this bug-tracker drift itself is corrected and does not need a separate live HA proof step.
 - **next action:** include `bd54286` in the helper-resolved exact-build deploy through ZNE-003/ZNE-022 validation; if the next A-D/F repo defect check remains clean, ask James directly to approve deploy/restart instead of refreshing release/fingerprint wording again.
 
+## ZNE-193 - UI design still called Managed Devices device-page entries `deeper device-management`
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog source-of-truth audit on 2026-04-26 while rechecking the current secondary review/audit hierarchy against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** `docs/UI_DESIGN.md` still listed `deeper device-management entry points` under Managed Devices even though the current implementation map, product copy, and recent bug state describe the device page as a secondary review/audit path below `Configure -> Managed Devices`. That wording was source-of-truth drift: it could nudge future work back toward treating the device page as another management lane instead of a support/audit entry point.
+- **expected behavior:** the design source should keep `Configure -> Managed Devices` as the primary fleet workspace and describe device-page entries as secondary review/audit paths.
+- **evidence:** this run's grep found `deeper device-management entry points` in `docs/UI_DESIGN.md` while `docs/UI_IMPLEMENTATION_MAP.md` Workstream E says the device page should be a `secondary review/audit path` that does not compete with Configure -> Managed Devices.
+- **repo fix:** this run updates `docs/UI_DESIGN.md` so the Managed Devices bullet now says `secondary device-page review/audit entry points`.
+- **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
+- **next action:** keep source-of-truth design wording aligned with the secondary review/audit hierarchy; if no sharper A-D/F product defect remains, ask James directly to approve deploy/restart of the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
