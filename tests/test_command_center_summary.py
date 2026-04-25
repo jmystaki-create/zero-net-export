@@ -1817,6 +1817,92 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("ready Hot water relay (fixed) | likely useful", summary["device_status"])
         self.assertNotIn("top Virtual load (fixed) | review carefully | warn helper-backed load needs review", summary["device_status"])
 
+    def test_fleet_activity_uses_configured_managed_count_when_runtime_state_is_absent(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime not loaded yet.",
+            "next_step": "Continue in Managed Devices.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources healthy"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.DEVICES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar\n- Grid: sensor.grid"
+        native_support.parse_device_configs = lambda raw: (
+            [
+                SimpleNamespace(
+                    key="pool_pump",
+                    name="Pool Pump",
+                    kind="fixed",
+                    entity_id="switch.pool_pump",
+                    adapter="switch",
+                    nominal_power_w=1200,
+                    min_power_w=0,
+                    max_power_w=1200,
+                    step_w=1200,
+                    priority=100,
+                    enabled=True,
+                    min_on_seconds=0,
+                    min_off_seconds=0,
+                    cooldown_seconds=0,
+                    max_active_seconds=0,
+                ),
+                SimpleNamespace(
+                    key="heated_floor",
+                    name="Heated Floor",
+                    kind="variable",
+                    entity_id="number.heated_floor",
+                    adapter="number",
+                    nominal_power_w=2000,
+                    min_power_w=400,
+                    max_power_w=2000,
+                    step_w=100,
+                    priority=200,
+                    enabled=True,
+                    min_on_seconds=0,
+                    min_off_seconds=0,
+                    cooldown_seconds=0,
+                    max_active_seconds=0,
+                ),
+            ],
+            [],
+        )
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {"name": "Garage outlet", "entity_id": "switch.garage_outlet", "kind": "fixed"},
+                {"name": "EV charger", "entity_id": "number.ev_charger", "kind": "variable"},
+            ],
+            "Garage outlet",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "medium" if candidate.get("name") == "Garage outlet" else "high",
+            "warnings": ["Generic outlet label"] if candidate.get("name") == "Garage outlet" else [],
+        }
+        native_support.candidate_needs_review = lambda fit: fit.get("confidence") != "high"
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: (
+            "Garage outlet (fixed) | review first | warn Generic outlet label"
+            if candidate and candidate.get("name") == "Garage outlet"
+            else "EV charger (variable) | likely useful"
+        )
+
+        entry = SimpleNamespace(data={native_support.CONF_DEVICE_INVENTORY_JSON: "[]"}, options={})
+        coordinator = SimpleNamespace(data=None, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("2 managed", summary["fleet_activity_summary"])
+        self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
+        self.assertNotIn("no managed yet", summary["fleet_activity_summary"])
+
     def test_command_center_summary_names_ready_top_candidate_when_no_review_first_candidate_exists(self) -> None:
         native_support = _load_native_support_module()
 

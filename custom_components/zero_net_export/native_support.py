@@ -3185,9 +3185,12 @@ def _build_command_center_fleet_activity_summary(
     top_candidate_name: str,
     top_candidate_preview: str,
     source_blocked: bool,
+    configured_managed_count: int = 0,
 ) -> str:
     device_details = list((getattr(state, "device_details", {}) or {}).values()) if state is not None else []
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
+    if configured_managed_count > managed_count:
+        managed_count = configured_managed_count
     enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
     if device_details:
@@ -3277,9 +3280,11 @@ def _build_command_center_fleet_activity_summary(
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
     suppress_duplicate_attention_context = candidate_count > 0
-    show_inventory_context = managed_count > 0 and candidate_count <= 0
+    runtime_inventory_known = state is not None
+    show_inventory_context = runtime_inventory_known and managed_count > 0 and candidate_count <= 0
     show_quiet_managed_inventory_context = bool(
-        managed_count > 0
+        runtime_inventory_known
+        and managed_count > 0
         and candidate_count > 0
         and not managed_attention_count
         and not blocked_activity_count
@@ -5301,6 +5306,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                             top_candidate_name=top_candidate_name,
                             top_candidate_preview=top_candidate_preview,
                             source_blocked=bool(missing_required_sources or runtime_source_attention),
+                            configured_managed_count=len(configured_devices),
                         )
                     )
                 ),
