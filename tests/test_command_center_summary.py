@@ -295,7 +295,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("...", summary["control_outcome_summary"])
         self.assertNotEqual(
             summary["control_outcome_summary"],
-            "Control outcome will appear here after runtime loads.",
+            "runtime pending | control outcome waiting",
         )
         self.assertLessEqual(len(summary["control_decision_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
         self.assertLessEqual(len(summary["control_outcome_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
@@ -354,13 +354,50 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertNotEqual(summary["energy_state_summary"], "Energy state will appear here after runtime loads.")
+        self.assertNotEqual(summary["energy_state_summary"], "runtime pending | energy state waiting")
         self.assertIn("solar ", summary["energy_state_summary"])
         self.assertIn("grid import ", summary["energy_state_summary"])
         self.assertIn("grid export ", summary["energy_state_summary"])
         self.assertIn("home load ", summary["energy_state_summary"])
         self.assertIn("battery ", summary["energy_state_summary"])
         self.assertLessEqual(len(summary["energy_state_summary"]), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+
+    def test_command_center_summary_uses_compact_runtime_pending_board_signals_before_first_runtime_load(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "setup_incomplete",
+            "summary": "Runtime has not reported yet.",
+            "next_step": "Open Configure and finish source mapping.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "None"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Sources pending"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Managed Devices ready."
+        native_support.build_source_mapping_summary = lambda merged: "No source mapping yet"
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+
+        entry = SimpleNamespace(data={}, options={})
+        coordinator = SimpleNamespace(data=None, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertEqual(summary["energy_state_summary"], "runtime pending | energy state waiting")
+        self.assertEqual(summary["control_outcome_summary"], "runtime pending | control outcome waiting")
+        self.assertIn("managed", summary["fleet_activity_summary"])
+        self.assertIn("no unmanaged candidates", summary["fleet_activity_summary"])
+        self.assertNotIn("will appear here", summary["energy_state_summary"])
+        self.assertNotIn("will appear here", summary["control_outcome_summary"])
+        self.assertNotIn("will appear here", native_support.format_fleet_activity_for_operator(""))
 
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
         native_support = _load_native_support_module()

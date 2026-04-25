@@ -275,7 +275,7 @@ def _dedupe_fleet_activity_summary(
 def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
     normalized = " ".join(str(device_status or "").split())
     if not normalized:
-        return "Fleet activity will appear here after runtime loads."
+        return "runtime pending | fleet activity waiting"
     if normalized.startswith(f"{DEVICES_SECTION_LABEL}:"):
         normalized = normalized.partition(":")[2].strip()
     normalized = normalized.rstrip(".").replace("; ", " | ")
@@ -284,7 +284,7 @@ def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
     if compacted and len(compacted) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return compacted
     clipped = _clip_state_part(normalized, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)
-    return clipped or "Fleet activity will appear here after runtime loads."
+    return clipped or "runtime pending | fleet activity waiting"
 
 
 def format_fleet_activity_for_operator(summary: str) -> str:
@@ -293,7 +293,7 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     normalized = " ".join(str(summary or "").strip().split()).replace("; ", " | ")
     normalized = _dedupe_fleet_activity_summary(normalized)
     if not normalized:
-        return "Fleet activity will appear here after runtime loads."
+        return "runtime pending | fleet activity waiting"
 
     parts = []
     for part in _split_fleet_activity_parts(normalized):
@@ -1005,7 +1005,7 @@ def _compact_control_outcome_summary(
             return clipped_detail
     if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return metrics_summary
-    return "Control outcome will appear here after runtime loads."
+    return "runtime pending | control outcome waiting"
 
 
 def _normalized_alert_part(part: Any) -> str:
@@ -5305,8 +5305,8 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     )
 
     energy_state_summary = _truncate_state_summary(
-        _compact_energy_state_summary(state) or "Energy state will appear here after runtime loads.",
-        fallback="Energy state will appear here after runtime loads.",
+        _compact_energy_state_summary(state) or "runtime pending | energy state waiting",
+        fallback="runtime pending | energy state waiting",
     )
     control_decision_summary = _compact_control_decision_summary(
         current_mode=current_mode,
