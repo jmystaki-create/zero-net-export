@@ -2380,6 +2380,18 @@ Suggested area labels:
 - **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy/vocabulary correction.
 - **next action:** keep entity documentation aligned with neutral surfaced-candidate wording; do not let this docs-only cleanup displace A-D/F repo work or the direct James deploy/restart approval boundary once no sharper implementation gap remains.
 
+## ZNE-190 - Implementation map still used `deep-review` shorthand for the secondary device-page path
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking the Detailed remaining work map against the current secondary review/audit hierarchy after ZNE-185 through ZNE-188
+- **current observed behavior:** three active `docs/UI_IMPLEMENTATION_MAP.md` bullets still called the managed-device save/device-page handoff a `deep-review path` or `deep-review handoff`, even though the same source-of-truth map, current product copy, and recent bug state now require the device page to read as a secondary review/audit path under Configure -> Managed Devices.
+- **expected behavior:** the implementation map should not preserve shorthand that makes the secondary device-page route sound like a competing deeper management lane; save feedback should point to Managed Devices plus the secondary review/audit path.
+- **evidence:** this run's grep found `deep-review` still present in `docs/UI_IMPLEMENTATION_MAP.md` lines describing native success summaries, Stage 5 completion, and Stage 8 completion.
+- **repo fix:** this run changes those map bullets to `secondary review/audit path` / `secondary review/audit handoff` so the remaining-work map matches the current native Configure-first hierarchy.
+- **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this source-doc wording correction.
+- **next action:** keep the map on secondary review/audit wording; the next real boundary remains either a sharper A-D/F implementation defect or direct James deploy/restart approval for the helper-resolved exact `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

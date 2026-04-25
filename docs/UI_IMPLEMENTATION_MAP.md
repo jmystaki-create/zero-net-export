@@ -31,7 +31,7 @@ If a change does not materially improve one of those visible outcomes, it should
 - Candidate shortlist and full-list pick flows exist, and they now share the same fit/warning signals plus the stronger review-first plus ready-candidate surfaced guidance.
 - Candidate vetting/review now includes an explicit balanced review shape covering control suitability, safety/confidence, and operational value.
 - Unmanaged backlog summaries now carry explicit ready-to-promote counts across the opening operator console, Managed Devices snapshots, and fleet-workspace overview surfaces instead of only naming review debt plus one ready candidate.
-- Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or deep-review path.
+- Managed-device save flows now land on a native success summary with what changed plus the next Managed Devices or secondary review/audit path.
 - Managed Devices selector labels and device-page promotion handoffs now use explicit promotion-workflow wording plus neutral ready-candidate handoffs instead of generic add-device helper wording or over-ranked next-pick phrasing when surfaced candidates are available.
 - Managed Devices row labels now lead with `blocked`, `planned`, `attention`, or `active` when that higher-value state exists, so attention-first fleet rows scan more clearly than generic runtime text.
 - Fleet review / bulk enable-disable scaffolding exists.
@@ -302,7 +302,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - full candidate list exists
 - candidate vetting step exists
 - template-selection and save path exist
-- managed-device save flows now post a native success landing with what changed plus the next Managed Devices and deep-review path
+- managed-device save flows now post a native success landing with what changed plus the next Managed Devices and secondary review/audit path
 - candidate review now uses a balanced native summary of control suitability, safety/confidence, and operational value
 - candidate discovery, shortlist, review, and managed-device review now share the same fit/warning guidance plus the stronger review-first plus ready-candidate surfaced cues
 
@@ -365,7 +365,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - concept and requirement are documented
 - the Zero Net Export device page now exposes first-class `Review managed devices workspace` and `Review managed devices` entry points
 - the device page now also exposes per-device managed review buttons for each configured load, alongside the paired per-device status/reset actions
-- the deep-review handoff is now referenced directly from managed-device save feedback
+- the secondary review/audit handoff is now referenced directly from managed-device save feedback
 
 **Remaining**
 - validate the concrete native entry path in live HA, including the new per-device review buttons on the Zero Net Export device page
