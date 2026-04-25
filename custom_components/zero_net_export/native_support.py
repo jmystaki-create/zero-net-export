@@ -257,6 +257,21 @@ def _truncate_state_summary(text: str, *, fallback: str) -> str:
     return fallback
 
 
+def _dedupe_fleet_activity_summary(
+    summary: str,
+    *,
+    suppress_blocked: bool = True,
+    suppress_planned: bool = True,
+) -> str:
+    return " | ".join(
+        _dedupe_attention_overlap_parts(
+            _split_fleet_activity_parts(summary),
+            suppress_blocked=suppress_blocked,
+            suppress_planned=suppress_planned,
+        )
+    )
+
+
 def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
     normalized = " ".join(str(device_status or "").split())
     if not normalized:
@@ -264,7 +279,7 @@ def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
     if normalized.startswith(f"{DEVICES_SECTION_LABEL}:"):
         normalized = normalized.partition(":")[2].strip()
     normalized = normalized.rstrip(".").replace("; ", " | ")
-    normalized = " | ".join(_dedupe_attention_overlap_parts(_split_fleet_activity_parts(normalized)))
+    normalized = _dedupe_fleet_activity_summary(normalized)
     compacted = _compact_fleet_activity_overflow_summary(normalized)
     if compacted and len(compacted) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return compacted
@@ -339,12 +354,17 @@ def _focus_state_subject(part: str) -> str:
     if not prefix:
         return ""
     payload = normalized[len(prefix) :].strip()
-    if payload.endswith(")") and " (" in payload:
+    if " (" in payload:
         payload = payload.rsplit(" (", 1)[0].strip()
     return payload.casefold()
 
 
-def _dedupe_attention_overlap_parts(parts: list[str]) -> list[str]:
+def _dedupe_attention_overlap_parts(
+    parts: list[str],
+    *,
+    suppress_blocked: bool = True,
+    suppress_planned: bool = True,
+) -> list[str]:
     attention_subjects = {
         subject for part in parts if part.startswith("attention first ") if (subject := _focus_state_subject(part))
     }
@@ -356,10 +376,10 @@ def _dedupe_attention_overlap_parts(parts: list[str]) -> list[str]:
     suppressed_planned = False
     for part in parts:
         subject = _focus_state_subject(part)
-        if part.startswith("blocked ") and subject in attention_subjects:
+        if suppress_blocked and part.startswith("blocked ") and subject in attention_subjects:
             suppressed_blocked = True
             continue
-        if part.startswith("plan ") and subject in attention_subjects:
+        if suppress_planned and part.startswith("plan ") and subject in attention_subjects:
             suppressed_planned = True
             continue
         compact_parts.append(part)
@@ -3189,7 +3209,7 @@ def _build_command_center_fleet_activity_summary(
 ) -> str:
     device_details = list((getattr(state, "device_details", {}) or {}).values()) if state is not None else []
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
-    if configured_managed_count > managed_count:
+    if state is None and configured_managed_count > managed_count:
         managed_count = configured_managed_count
     enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
@@ -3279,7 +3299,6 @@ def _build_command_center_fleet_activity_summary(
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
-    suppress_duplicate_attention_context = candidate_count > 0
     runtime_inventory_known = state is not None
     show_inventory_context = runtime_inventory_known and managed_count > 0 and candidate_count <= 0
     show_quiet_managed_inventory_context = bool(
@@ -3405,30 +3424,17 @@ def _build_command_center_fleet_activity_summary(
                 f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
             )
         if blocked_activity_count:
-            if (
-                blocked_activity_count > 1
-                or not blocked_focus_device
-                or not (suppress_duplicate_attention_context and attention_covers_blocked_focus)
-            ):
+            if blocked_activity_count > 1 or not blocked_focus_device:
                 summary_parts.append(_blocked_activity_count_label(blocked_activity_count))
-            if blocked_focus_device and not (
-                suppress_duplicate_attention_context and attention_covers_blocked_focus
-            ):
+            if blocked_focus_device:
                 summary_parts.append(
                     f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}"
                 )
         if planned_activity_count:
-            if (
-                planned_activity_count > 1
-                or not planned_focus_device
-                or not (suppress_duplicate_attention_context and attention_covers_planned_focus)
-            ):
-                summary_parts.append(
-                    _planned_action_count_label(planned_activity_count)
-                )
-        if planned_focus_device and not suppress_planned_focus and not (
-            suppress_duplicate_attention_context and attention_covers_planned_focus
-        ):
+            summary_parts.append(
+                _planned_action_count_label(planned_activity_count)
+            )
+        if planned_focus_device and not suppress_planned_focus:
             summary_parts.append(
                 f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}"
             )
@@ -3697,30 +3703,17 @@ def _build_command_center_fleet_activity_summary(
             _clip_state_part(attention_part, max_chars=72) or _clip_part(attention_part, max_chars=72)
         )
     if blocked_activity_count:
-        if (
-            blocked_activity_count > 1
-            or not blocked_focus_device
-            or not (suppress_duplicate_attention_context and attention_covers_blocked_focus)
-        ):
+        if blocked_activity_count > 1 or not blocked_focus_device:
             minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
-        if blocked_focus_device and not (
-            suppress_duplicate_attention_context and attention_covers_blocked_focus
-        ):
+        if blocked_focus_device:
             blocked_part = f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}"
             minimal_parts.append(
                 _clip_state_part(blocked_part, max_chars=72) or _clip_part(blocked_part, max_chars=72)
             )
 
     if planned_activity_count:
-        if (
-            planned_activity_count > 1
-            or not planned_focus_device
-            or not (suppress_duplicate_attention_context and attention_covers_planned_focus)
-        ):
-            minimal_parts.append(_planned_action_count_label(planned_activity_count))
-        if planned_focus_device and not suppress_planned_focus and not (
-            suppress_duplicate_attention_context and attention_covers_planned_focus
-        ):
+        minimal_parts.append(_planned_action_count_label(planned_activity_count))
+        if planned_focus_device and not suppress_planned_focus:
             planned_part = (
                 f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}"
             )
@@ -4232,15 +4225,9 @@ def _build_command_center_fleet_activity_summary(
             )
         )
     if blocked_activity_count:
-        if (
-            blocked_activity_count > 1
-            or not blocked_focus_device
-            or not (suppress_duplicate_attention_context and attention_covers_blocked_focus)
-        ):
+        if blocked_activity_count > 1 or not blocked_focus_device:
             essential_parts.append(_blocked_activity_count_label(blocked_activity_count))
-        if blocked_focus_device and not (
-            suppress_duplicate_attention_context and attention_covers_blocked_focus
-        ):
+        if blocked_focus_device:
             essential_parts.append(
                 _clip_part(
                     f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}",
@@ -4248,12 +4235,7 @@ def _build_command_center_fleet_activity_summary(
                 )
             )
     if planned_activity_count:
-        if (
-            planned_activity_count > 1
-            or not planned_focus_device
-            or not (suppress_duplicate_attention_context and attention_covers_planned_focus)
-        ):
-            essential_parts.append(_planned_action_count_label(planned_activity_count))
+        essential_parts.append(_planned_action_count_label(planned_activity_count))
     if active_managed_count > 0:
         if active_managed_power_w > 0:
             essential_parts.append(f"active load {active_managed_power_w:g} W")
@@ -5286,38 +5268,45 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         executable_action_count=getattr(state, 'executable_action_count', None) if state is not None else None,
         active_controlled_power_w=getattr(state, 'active_controlled_power_w', None) if state is not None else None,
     )
-    fleet_activity_summary = _truncate_state_summary(
-        _restore_active_device_under_overflow(
-            _restore_ready_promotion_count_under_overflow(
-                _compact_fleet_activity_overflow_summary(
-                    _prefer_review_ready_over_large_kind_mix(
-                        _build_command_center_fleet_activity_summary(
-                            state,
-                            candidate_count=candidate_count,
-                            fixed_candidate_count=fixed_candidate_count,
-                            variable_candidate_count=variable_candidate_count,
-                            review_needed_count=review_needed_count,
-                            fixed_review_count=fixed_review_count,
-                            variable_review_count=variable_review_count,
-                            review_candidate_name=review_candidate_name,
-                            review_candidate_preview=review_candidate_preview,
-                            ready_candidate_name=ready_candidate_name,
-                            ready_candidate_preview=ready_candidate_preview,
-                            top_candidate_name=top_candidate_name,
-                            top_candidate_preview=top_candidate_preview,
-                            source_blocked=bool(missing_required_sources or runtime_source_attention),
-                            configured_managed_count=len(configured_devices),
-                        )
+    fleet_activity_summary_raw = _restore_active_device_under_overflow(
+        _restore_ready_promotion_count_under_overflow(
+            _compact_fleet_activity_overflow_summary(
+                _prefer_review_ready_over_large_kind_mix(
+                    _build_command_center_fleet_activity_summary(
+                        state,
+                        candidate_count=candidate_count,
+                        fixed_candidate_count=fixed_candidate_count,
+                        variable_candidate_count=variable_candidate_count,
+                        review_needed_count=review_needed_count,
+                        fixed_review_count=fixed_review_count,
+                        variable_review_count=variable_review_count,
+                        review_candidate_name=review_candidate_name,
+                        review_candidate_preview=review_candidate_preview,
+                        ready_candidate_name=ready_candidate_name,
+                        ready_candidate_preview=ready_candidate_preview,
+                        top_candidate_name=top_candidate_name,
+                        top_candidate_preview=top_candidate_preview,
+                        source_blocked=bool(missing_required_sources or runtime_source_attention),
+                        configured_managed_count=len(configured_devices),
                     )
-                ),
-                review_needed_count=review_needed_count,
-                ready_candidate_count=ready_candidate_count,
+                )
             ),
-            active_managed_count=active_managed_count,
-            active_device_preview=active_device_preview,
-            active_device_distinct=active_device_distinct,
-            source_blocked=bool(missing_required_sources or runtime_source_attention),
+            review_needed_count=review_needed_count,
+            ready_candidate_count=ready_candidate_count,
         ),
+        active_managed_count=active_managed_count,
+        active_device_preview=active_device_preview,
+        active_device_distinct=active_device_distinct,
+        source_blocked=bool(missing_required_sources or runtime_source_attention),
+    )
+    if candidate_count:
+        fleet_activity_summary_raw = _dedupe_fleet_activity_summary(
+            fleet_activity_summary_raw,
+            suppress_blocked=candidate_count > 1,
+            suppress_planned=True,
+        )
+    fleet_activity_summary = _truncate_state_summary(
+        fleet_activity_summary_raw,
         fallback=_fleet_activity_fallback_from_device_status(device_status),
     )
 
