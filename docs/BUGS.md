@@ -2505,6 +2505,19 @@ Suggested area labels:
 - **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
 - **next action:** keep the remaining-work map on secondary review/audit wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval for the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-200 - Sensors and Diagnostics source-candidate copy still used `Best live` ranking language
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F bucket copy after the remaining-work map was moved to neutral surfaced-candidate language.
+- **current observed behavior:** active Sensors and Diagnostics copy still labeled source-repair suggestions as `Best live candidates` / `Best live candidate cues`, and the device-page Diagnostics guide told operators to review `ranked live source candidates`. That wording was narrower than the earlier unmanaged-candidate ranking bugs, but it still kept ranking language in source-repair surfaces after the native UI direction had moved toward neutral cues and bucket-owned follow-through.
+- **expected behavior:** source-repair surfaces should present live candidate cues without implying the product has already selected the best/ranked choice; Sensors should own source repair, Diagnostics should relay compact troubleshooting handoff, and Managed Devices promotion wording should remain neutral.
+- **evidence:** this run's grep found `Best live candidates for the current blocker` in `strings.json` / `translations/en.json`, `Best live candidate cues for blocked roles` in the Configure Diagnostics copy and device-page Diagnostics guide, and `ranked live source candidates` in `build_native_support_center(...)`.
+- **repo fix:** this run changes those headings and handoffs to `Live candidate cues ...` and removes `ranked` from the device-page Diagnostics source-candidate handoff, while keeping the same Sensors-owned repair path and blocker triage structure. Focused expectations in `tests/test_bucket_ownership_copy.py` and `tests/test_source_repair_guidance.py` now lock the neutral wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_source_repair_guidance tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Workstream D/F copy cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

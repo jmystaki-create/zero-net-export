@@ -5499,7 +5499,7 @@ def build_native_support_center(coordinator: Any) -> str:
     )
     if blocking_keys or blocking_validation_issues:
         priority_candidate_hints = (
-            f"Open {SOURCES_CONFIGURE_PATH} to review the ranked live source candidates for the blocked roles."
+            f"Open {SOURCES_CONFIGURE_PATH} to review live source candidates for the blocked roles."
         )
     else:
         priority_candidate_hints = "Not needed right now."
@@ -5523,7 +5523,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Blocking validation details: {command_center.get('blocking_validation_details') or 'None'}",
             f"- If Sensors owns the repair, use: {command_center.get('source_repair_step')}",
             f"- For deeper source-map detail, open Sensors: {command_center.get('sources_path')}",
-            f"- Best live candidate cues for blocked roles: {priority_candidate_hints}",
+            f"- Live candidate cues for blocked roles: {priority_candidate_hints}",
             f"- Selector workaround, only if Home Assistant rejects a valid choice: {fallback_hint}",
             "",
             "Install validation",

@@ -518,7 +518,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             support_center,
         )
         self.assertIn(
-            "- Best live candidate cues for blocked roles: Not needed right now.",
+            "- Live candidate cues for blocked roles: Not needed right now.",
             support_center,
         )
         self.assertIn("- Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.", support_center)
@@ -1088,7 +1088,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             support_center,
         )
         self.assertIn(
-            f"Best live candidate cues for blocked roles: Open {native_support.SOURCES_CONFIGURE_PATH} to review the ranked live source candidates for the blocked roles.",
+            f"Live candidate cues for blocked roles: Open {native_support.SOURCES_CONFIGURE_PATH} to review live source candidates for the blocked roles.",
             support_center,
         )
         self.assertNotIn("Current mapped roles for reference", support_center)
