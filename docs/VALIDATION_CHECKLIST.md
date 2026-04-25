@@ -6,28 +6,34 @@ Supervisor note: this document is the evidence ledger for the release gates defi
 
 ## Recommended next validation run
 
+Supervisor note: this checklist is a validation ledger, not a standing instruction to skip the mapped `0.1.88` workstream order.
+
+Current release-boundary order:
+1. Complete one final concrete repo-side A-D/F defect check against `docs/UI_IMPLEMENTATION_MAP.md`.
+2. If that check finds no sharper implementation defect, ask James directly to approve deploy/restart of the helper-resolved exact `0.1.88` build.
+3. Only after approval, use the deploy and fingerprint commands below, then perform the live Home Assistant validation pass.
+
 Repo-side helper for mixed-build checks:
 - Run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` in this repo before trusting deploy or validation results. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the remote Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the live install path is inspected over SSH without remote Python. For release/deploy boundaries, the helper now keeps `expected_commit`, `expected_component_commit`, and `preferred_validation_commit` aligned on the latest component-changing commit, while exposing full repo HEAD separately as `repo_head_commit`, so doc-only or bug-tracker-only commits do not create false deploy-candidate drift. Compare that component anchor, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or the device-page Review diagnostics / Review diagnostics snapshot actions.
 - If you need to overwrite a mixed manual install from one exact repo build first, ask James directly to approve deploy/restart before using deploy commands. After approval, run `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` (or point it at the live Home Assistant `custom_components` or installed `custom_components/zero_net_export` path outside this repo). If you want to sanity-check the resolved destination first, add `--dry-run`. The deploy helper replaces the destination component directory instead of layering files onto an older copy, keeps a timestamped backup by default, and then runs the same fingerprint validation against the deployed path before restart. If repo-only docs moved since the last component change, pin the deploy with `--expected-component-commit <commit>` instead of treating repo HEAD as the shipped target.
 - If you need the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare script exits non-zero on mismatch, fails fast if the path does not actually contain `zero_net_export/manifest.json`, refuses repo-local paths so a repo copy cannot be mistaken for live validation, and can save the full comparison verdict as validation evidence.
 
-If you are progressing the project right now, do this in order:
+After James approves deploy/restart and the exact build is installed, validate in this order:
 
-1. Install or upgrade the currently shipped package in a real Home Assistant instance.
-2. Verify the intended operator path still works end-to-end:
-   - add integration
-   - complete bootstrap-only config flow
+1. Verify the intended operator path still works end-to-end:
+   - add integration if needed, or reopen the existing integration
+   - complete bootstrap-only config flow if setup is not already complete
    - open Configure from the integration card
    - confirm it is obvious where sources live, where policy/settings live, and where managed-device work lives
    - map required sources in native setup, including the correct combined-versus-separate grid sensor layout
    - add at least one managed device through the native add/edit/remove flow in Configure, preferably by promoting a discovered unmanaged candidate when one is offered, then edit it in place once
    - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational
-3. Use at least one real controllable device and verify a real control loop decision/action path.
-4. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel, sidebar, or external UI handoff.
-5. If the install is good, package the result as the next release. If not, capture the exact failure surface and fix that before doing more UX expansion.
+2. Use at least one real controllable device and verify a real control loop decision/action path.
+3. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel, sidebar, or external UI handoff.
+4. If the install is good, package the result as the next release. If not, capture the exact failure surface and fix that before doing more UX expansion.
 
-This is the current highest-value path because native onboarding is now the only supported product path.
+This is the live validation path once the repo-side A-D/F check is clean and James has approved deploy/restart; it must not be used to justify another unchanged fingerprint or release-bookkeeping loop.
 
 ## Pre-Installation Checks
 

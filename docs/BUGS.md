@@ -2057,6 +2057,19 @@ Suggested area labels:
 - **validation status:** validated repo-side by re-reading the updated README against the supervisor/map/project-status boundary. No live HA validation is needed for this process-doc correction.
 - **next action:** do not create another approval-target refresh unless live evidence, approval state, or the helper-resolved component boundary materially changes; after one clean A-D/F check, ask James directly for deploy/restart approval.
 
+## ZNE-166 - Validation checklist still promoted live validation ahead of the final A-D/F check and approval boundary
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-25 while comparing `docs/VALIDATION_CHECKLIST.md` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `project_status.md`, and ZNE-104/ZNE-165
+- **current observed behavior:** the validation checklist still told project runners to install or upgrade the currently shipped package and run the real-HA validation path as the current highest-value path. That contradicted the current frozen-`0.1.88` boundary: one final concrete A-D/F repo-side defect check comes first, then James must explicitly approve deploy/restart before Workstream G live validation starts.
+- **expected behavior:** the validation checklist should remain the evidence ledger for post-approval live validation, not a parallel instruction that re-elevates unchanged live validation or deploy commands above the mapped workstream order and explicit release approval.
+- **evidence:** this run inspected `docs/VALIDATION_CHECKLIST.md` and found the `Recommended next validation run` section still ended with `This is the current highest-value path because native onboarding is now the only supported product path.` It also began the action list with `Install or upgrade the currently shipped package in a real Home Assistant instance`, which skipped the final A-D/F check and made deploy/restart sound like the next default action instead of an approval-gated Workstream G step.
+- **suspected cause:** README and project-status release-boundary wording had been updated, but the older validation checklist retained pre-freeze validation-run ordering.
+- **repo fix:** this run updates `docs/VALIDATION_CHECKLIST.md` so it explicitly says the checklist is a validation ledger, orders the current boundary as final A-D/F check -> direct James deploy/restart approval -> post-approval deploy/fingerprint/live validation, and removes the stale `current highest-value path` line that could restart the unchanged validation loop.
+- **validation status:** source-of-truth/process correction verified by re-reading the edited checklist against the supervisor/map/project-status boundary. No live HA validation is needed for this doc correction.
+- **next action:** keep the next run on one concrete remaining A-D/F defect check; if clean, ask James directly for deploy/restart approval instead of running or restating another unchanged live validation pass.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
