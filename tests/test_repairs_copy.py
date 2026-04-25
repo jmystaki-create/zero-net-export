@@ -24,7 +24,8 @@ class RepairsCopyTests(unittest.TestCase):
     def test_device_inventory_invalid_copy_uses_compact_sections(self) -> None:
         description = self.strings["issues"]["device_inventory_invalid"]["description"]
         self.assertIn("Status\n• Issue count:", description)
-        self.assertIn("\n\nDo next\n• Repair the affected fleet entries in Managed Devices first.", description)
+        self.assertIn("\n\nDo next\n• Repair the affected fleet entries in the Managed Devices workspace first.", description)
+        self.assertNotIn("Repair the affected fleet entries in Managed Devices first.", description)
         self.assertIn("\n\nOpen\n• Managed Devices:", description)
         self.assertIn("\n• Advanced recovery:", description)
         self.assertNotIn("Primary repair path:", description)

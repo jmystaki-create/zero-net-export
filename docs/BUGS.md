@@ -2221,6 +2221,18 @@ Suggested area labels:
 - **validation status:** validated by direct `docs/BUGS.md` tail inspection after the edit; no Home Assistant live validation is required.
 - **next action:** keep adding new bug entries before the final closure rule; do not let tracker-structure cleanup displace product work unless the rule position regresses again.
 
+## ZNE-177 - Sensors and Controls bucket copy still dropped Managed Devices workspace wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `ui`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream D bucket ownership and Workstream B workspace-first wording against the current `0.1.88` repo candidate
+- **current observed behavior:** the main Managed Devices surfaces were workspace-first, but adjacent Sensors, Controls, and device-inventory repair copy still said fleet work belonged `in Managed Devices` or to repair entries `in Managed Devices first`. Those phrases were native-HA-only and locally understandable, but they weakened the repeated source-of-truth rule that Configure -> Managed Devices should read as the real `Managed Devices workspace`, not just another generic bucket label.
+- **expected behavior:** cross-bucket guidance should keep source repair in Sensors, policy tuning in Controls, troubleshooting in Diagnostics, and fleet onboarding/promotion/repair in the Managed Devices workspace.
+- **evidence:** this run's grep found the stale wording in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, `tests/test_bucket_ownership_copy.py`, and `tests/test_repairs_copy.py` after ZNE-173 had already fixed the parallel Python-built handoff paths.
+- **repo fix:** this run updates the translatable Sensors, Controls, and managed-device repair copy to say `the Managed Devices workspace`, and adds regression assertions rejecting the older generic `in Managed Devices` repair/fleet-work wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_repairs_copy tests.test_translation_sync tests.test_command_center_modal_copy tests.test_config_flow_device_runtime_overlay tests.test_source_repair_guidance`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this final cross-bucket workspace wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
