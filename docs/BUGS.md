@@ -2184,6 +2184,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_source_repair_guidance tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this workspace-first copy fix in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-174 - Configure Diagnostics still repeated command-center routing lines
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream D/F leakage after the secondary fleet-handoff cleanup
+- **current observed behavior:** the Configure-side Diagnostics step had been compacted, but its `Diagnostics now` block still repeated `Recommended section` and `Recommended next step` from the command-center routing model. That made Diagnostics keep carrying ordinary navigation/steering work even though the current UI design says Diagnostics should stay secondary and own troubleshooting, repairs, and install validation.
+- **expected behavior:** Diagnostics should summarize readiness/health/alerts plus blocker/install evidence, while ordinary bucket routing stays in Configure's command-center/next-step surfaces instead of being repeated inside the support path.
+- **evidence:** this run compared `docs/UI_DESIGN.md` and Workstream D/F in `docs/UI_IMPLEMENTATION_MAP.md` against `custom_components/zero_net_export/strings.json` and `translations/en.json`; both translated Diagnostics descriptions still included `- Recommended section: {recommended_section}` and `- Recommended next step: {next_action_summary}` in the support screen.
+- **repo fix:** this run removes those two command-center routing lines from the Configure Diagnostics description in `strings.json` and `translations/en.json`, leaving the screen on readiness, health, top alerts, blocker triage, install validation, and bucket paths. `tests/test_bucket_ownership_copy.py` now rejects those leaked routing lines.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus the focused native UI suite in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Diagnostics IA cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
