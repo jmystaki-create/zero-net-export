@@ -2245,6 +2245,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Managed Devices hierarchy wording fix in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-179 - Device-page managed handoff still called secondary review `deeper`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream B/E hierarchy wording after ZNE-178
+- **current observed behavior:** `build_detailed_management_handoff(...)` in `native_support.py` still described the device-page review path as the `deeper device-page review path` and said to use it when the fleet needed `deeper review`. That repeated the same hierarchy blur already fixed in the Configure fallback and made the secondary device-page path sound like an alternate primary management depth rather than an audit/support path below Configure -> Managed Devices.
+- **expected behavior:** device-page managed-review handoffs should keep Configure -> Managed Devices as the primary fleet workspace and describe the device page as a secondary review/audit path for per-device details.
+- **evidence:** this run grepped the current repo after reading `docs/UI_DESIGN.md` and the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`; `custom_components/zero_net_export/native_support.py` still contained the stale `deeper device-page review path` / `fleet needs deeper review` wording while the map keeps the device page secondary to the Managed Devices workspace.
+- **repo fix:** this run changes `build_detailed_management_handoff(...)` so empty, unusable, and usable-fleet handoffs all call the device page the `secondary device-page review path`; the usable-fleet branch now says it is for per-device status, planned actions, guard state, and reset actions when the fleet needs `audit detail`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance`, `python3 -m py_compile custom_components/zero_net_export/native_support.py`, and a grep confirming the old `deeper device-page review path` / `fleet needs deeper review` phrases are gone from product code and docs outside negative regression assertions. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this secondary device-page wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
