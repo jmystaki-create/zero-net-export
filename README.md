@@ -110,10 +110,10 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
     - Home Load Power (optional if solar and grid sources are already mapped)
     - (Optional) Battery Entities
 5.  Use **Managed devices** in Configure as the Managed Devices workspace: add fixed or variable controllable devices, review unmanaged candidates, stage larger installs, promote an appropriate reviewed candidate into the managed fleet, then edit, enable or disable, and remove devices from that same native path. Use the JSON editor only for bulk structural edits or recovery.
-6.  Treat **Managed devices** as the home for per-device enablement, priority, overrides, promotion, and fleet operations, and use the integration device page only as the deeper review path when Configure points you there.
+6.  Treat **Managed devices** as the home for per-device enablement, priority, overrides, promotion, and fleet operations, and use the integration device page only as the secondary review/audit path when Configure points you there.
 7.  Use **Policy and controller settings** in Configure for target/deadband/reserve defaults and related control behavior once sources and managed devices are in place.
 8.  Use **Diagnostics** in Configure for the next native triage step when runtime is blocked or unclear.
-8.  For deeper verification, use the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, then its buttons, entities, diagnostics, and **Repairs** after Configure points you to the next blocker.
+9.  For secondary verification, use the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, then its buttons, entities, diagnostics, and **Repairs** after Configure points you to the next blocker.
 
 ### Advanced / fallback paths
 

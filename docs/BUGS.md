@@ -2305,6 +2305,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this per-device review wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-184 - README still called the device page the deeper review path
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog README audit on 2026-04-26 while rechecking Workstream B/E hierarchy wording after the product copy moved to secondary review/audit language
+- **current observed behavior:** README operator steps still told users to use the integration device page as the `deeper review path`, and the numbered list repeated item `8`, even though current source-of-truth and product copy keep Configure -> Managed Devices as the primary fleet workspace and frame the device page as secondary review/audit only.
+- **expected behavior:** public operator guidance should keep the device page subordinate to Configure -> Managed Devices and avoid `deeper` hierarchy wording that makes the secondary path sound like a competing management lane; numbered setup steps should stay ordered.
+- **evidence:** repo grep found `deeper review path` and a duplicate `8.` in the README configuration path after ZNE-178/ZNE-181 had already removed the same hierarchy wording from product surfaces.
+- **repo fix:** this run updates README setup steps so the integration device page is the `secondary review/audit path`, changes the verification step to `secondary verification`, and fixes the duplicate step number.
+- **validation status:** validated by direct README inspection and grep; no live Home Assistant validation is required for this public-doc wording/numbering fix.
+- **next action:** keep README guidance aligned with the native Configure-first hierarchy; do not let README cleanup displace deploy/restart approval once no sharper A-D/F repo defect remains.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
