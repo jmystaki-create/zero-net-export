@@ -1742,11 +1742,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             template["description_placeholders"]["promotion_path_summary"],
-            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices.",
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into the Managed Devices workspace.",
         )
         self.assertEqual(
             add["description_placeholders"]["promotion_path_summary"],
-            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices.",
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into the Managed Devices workspace.",
         )
         self.assertEqual(template["description_placeholders"]["candidate_fit_usefulness"], "likely useful")
         self.assertEqual(template["description_placeholders"]["candidate_fit_summary"], "Strong match.")
@@ -1754,7 +1754,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(template["description_placeholders"]["suggested_template"], "Fixed plug")
         self.assertEqual(
             template["description_placeholders"]["candidate_next_step"],
-            "Choose the closest preset, then confirm the final device settings before saving into Managed Devices.",
+            "Choose the closest preset, then confirm the final device settings before saving into the Managed Devices workspace.",
         )
         self.assertEqual(
             add["description_placeholders"]["candidate_preview"],

@@ -3132,7 +3132,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "1. Pick a candidate from the shortlist.\n"
             "2. Review fit and warnings.\n"
             "3. Choose a preset.\n"
-            "4. Save it into Managed Devices."
+            "4. Save it into the Managed Devices workspace."
         )
         return self.async_show_form(
             step_id="device_pick_candidate",
@@ -3185,7 +3185,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "1. Pick a candidate from the shortlist or full list.\n"
             "2. Review fit and warnings.\n"
             "3. Choose a preset.\n"
-            "4. Save it into Managed Devices."
+            "4. Save it into the Managed Devices workspace."
         )
         return self.async_show_form(
             step_id="device_pick_candidate_full",
@@ -3224,7 +3224,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             else "Continue only if this entity really drives a controllable device. If not, go back and choose manual selection or a different candidate."
         )
         promotion_path_summary = (
-            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into the Managed Devices workspace."
         )
         devices, _ = self._load_devices()
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
@@ -3290,12 +3290,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             self._pending_device_template_key = str(self._pending_candidate_summary["suggested_template_key"])
 
         next_step = (
-            "Choose the closest preset, then confirm the final device settings before saving into Managed Devices."
+            "Choose the closest preset, then confirm the final device settings before saving into the Managed Devices workspace."
             if (summary or {}).get("fit_confidence") != "low"
             else "Choose a preset only if this entity really drives a controllable device. Otherwise go back and pick a different candidate or use manual selection."
         )
         promotion_path_summary = (
-            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into the Managed Devices workspace."
         )
 
         options = [
@@ -3388,7 +3388,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         display_devices = _overlay_runtime_device_details(devices, self._coordinator())
         promotion_path_summary = (
-            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into Managed Devices."
+            "Promotion path: shortlist or full list -> review candidate -> choose preset -> save into the Managed Devices workspace."
         )
         workspace_placeholders = self._managed_devices_workspace_placeholders(display_devices, candidates)
         if not editing_key and self._pending_candidate_entity_id:
