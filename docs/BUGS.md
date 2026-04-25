@@ -2332,6 +2332,18 @@ Suggested area labels:
 - **validation status:** validated by direct grep and diff inspection of the current steering docs; no live Home Assistant validation is required for this source-of-truth wording correction.
 - **next action:** keep future product and source-doc wording on `secondary review/audit`; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-186 - Entity model still described device-page review as `deeper`
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking secondary device-page review/audit wording after ZNE-185
+- **current observed behavior:** `docs/ENTITY_MODEL.md` still described the command-center handoff as `deeper-review`, the managed-device review button as `deeper managed-devices review`, and the per-device review button as `deeper per-device managed review`, even though the current product and source-of-truth map now frame the device page as a secondary review/audit path under Configure -> Managed Devices.
+- **expected behavior:** entity documentation should match the native hierarchy: Configure -> Managed Devices remains the primary fleet workspace, and device-page buttons publish secondary review/audit handoffs rather than a competing deeper management lane.
+- **evidence:** this run grepped repo docs and product copy after reading `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and recent bug entries; `docs/ENTITY_MODEL.md` was the remaining non-historical doc with active `deeper` review wording outside negative tests and historical bug text.
+- **repo fix:** this run updates `docs/ENTITY_MODEL.md` so the command-center handoff says `secondary review/audit`, `button.zero_net_export_show_managed_device_review` publishes a `secondary managed-devices audit/review`, and per-device review buttons publish `secondary per-device managed audit/review`.
+- **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
+- **next action:** keep entity documentation aligned with the secondary review/audit hierarchy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
