@@ -6929,6 +6929,34 @@ class CommandCenterSummaryTests(unittest.TestCase):
         if "1 variable candidate" in fleet_activity:
             self.assertLess(fleet_activity.index("variable backlog 1 ready"), fleet_activity.index("1 variable candidate"))
 
+    def test_fleet_activity_overflow_drops_candidate_inventory_before_review_ready_previews(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._compact_fleet_activity_overflow_summary(
+            " | ".join(
+                [
+                    "1 managed",
+                    "2 unmanaged backlog",
+                    "1 fixed candidate",
+                    "1 variable candidate",
+                    "fixed backlog 1 review",
+                    "variable backlog 1 ready",
+                    "review Review Candidate Alpha with a deliberately long label near the garage side board and utility room (fixed) | review first | warn helper-backed load needs review and validation",
+                    "ready Ready Candidate Beta with a deliberately long label near the patio board and laundry branch (variable) | likely useful | key warning: No immediate warnings",
+                ]
+            )
+        )
+
+        self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("1 managed", compacted)
+        self.assertIn("2 unmanaged backlog", compacted)
+        self.assertIn("fixed backlog 1 review", compacted)
+        self.assertIn("variable backlog 1 ready", compacted)
+        self.assertIn("review Review Candida", compacted)
+        self.assertIn("ready Ready Candid", compacted)
+        self.assertNotIn("1 fixed candidate", compacted)
+        self.assertNotIn("1 variable candidate", compacted)
+
 
 if __name__ == "__main__":
     unittest.main()

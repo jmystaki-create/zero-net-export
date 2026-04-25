@@ -332,6 +332,46 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
 
     parts = _split_fleet_activity_parts(normalized)
 
+    managed_part = next((part for part in parts if _is_managed_count_part(part)), "")
+    if (
+        managed_part
+        and managed_part != "no managed yet"
+        and any(part.startswith("review ") for part in parts)
+        and any(part.startswith("ready ") for part in parts)
+        and any(part.startswith(("fixed backlog ", "variable backlog ")) for part in parts)
+        and any(
+            _matches_count_label(part, "fixed candidate") or _matches_count_label(part, "variable candidate")
+            for part in parts
+        )
+        and SOURCE_BLOCKER_ACTIVE_LABEL not in parts
+        and not any(
+            part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
+            for part in parts
+        )
+    ):
+        review_story_parts = [
+            part
+            for part in parts
+            if not (
+                _matches_count_label(part, "fixed candidate")
+                or _matches_count_label(part, "variable candidate")
+            )
+        ]
+        review_story_variants = [review_story_parts]
+        for max_chars in (40, 32, 28):
+            review_story_variants.append(
+                [
+                    _clip_review_ready_state_part(part, max_chars=max_chars)
+                    if part.startswith(("review ", "ready "))
+                    else part
+                    for part in review_story_parts
+                ]
+            )
+        for review_story_parts_variant in review_story_variants:
+            review_story_summary = " | ".join(review_story_parts_variant)
+            if review_story_summary and len(review_story_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                return review_story_summary
+
     signal_first_parts = list(parts)
     signal_first_removable_matchers = (
         lambda part: part.endswith(" managed device needs attention") or part.endswith(" managed devices need attention"),
