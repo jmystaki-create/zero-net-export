@@ -388,7 +388,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("- Recommended path:", guide)
         self.assertIn("Structured control board", guide)
         self.assertIn("- Energy state: solar 0 W | grid import 900 W", guide)
-        self.assertIn("- Fleet activity: 0 managed | 4 unmanaged backlog | surfaced AC Outlet 2", guide)
+        self.assertIn("- Fleet activity: Managed: 0 managed; unmanaged: 4 unmanaged backlog | surfaced AC Outlet 2", guide)
         self.assertNotIn("| 4 unmanaged |", guide)
         self.assertIn("Setup check", guide)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", guide)

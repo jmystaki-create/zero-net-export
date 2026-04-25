@@ -124,7 +124,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("Structured control board", text)
         self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
         self.assertIn("- Control outcome: planned actions 1 | active load 1200 W", text)
-        self.assertIn("- Fleet activity: 0 managed | 3 unmanaged backlog | surfaced AC Outlet 2", text)
+        self.assertIn("- Fleet activity: Managed: 0 managed; unmanaged: 3 unmanaged backlog | surfaced AC Outlet 2", text)
         self.assertNotIn("| 3 unmanaged |", text)
         self.assertIn("Setup check", text)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", text)
@@ -187,6 +187,10 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         )
 
         self.assertIn("- Alerts: Mapped-source blockers: Solar power stale", text)
+        self.assertIn(
+            "- Fleet activity: Managed: 1 managed; unmanaged: 1 unmanaged backlog | source blockers active | review AC Outlet 2 (fixed) | review first",
+            text,
+        )
         self.assertIn(
             f"- Next action: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,

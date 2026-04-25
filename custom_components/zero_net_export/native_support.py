@@ -287,6 +287,34 @@ def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
     return clipped or "Fleet activity will appear here after runtime loads."
 
 
+def format_fleet_activity_for_operator(summary: str) -> str:
+    """Make compact fleet state read as managed versus unmanaged in prose surfaces."""
+
+    normalized = _dedupe_fleet_activity_summary(str(summary or "").strip())
+    if not normalized:
+        return "Fleet activity will appear here after runtime loads."
+
+    parts = []
+    for part in _split_fleet_activity_parts(normalized):
+        tokens = part.split()
+        if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
+            part = f"{tokens[0]} unmanaged backlog"
+        parts.append(part)
+    unmanaged_index = next(
+        (index for index, part in enumerate(parts) if _is_unmanaged_count_part(part)),
+        None,
+    )
+    if unmanaged_index is None:
+        return normalized
+
+    managed_parts = [part for part in parts[:unmanaged_index] if part]
+    unmanaged_parts = [part for part in parts[unmanaged_index:] if part]
+    if not managed_parts or not unmanaged_parts:
+        return normalized
+
+    return f"Managed: {' | '.join(managed_parts)}; unmanaged: {' | '.join(unmanaged_parts)}"
+
+
 def _is_fleet_activity_top_level_part(text: str) -> bool:
     normalized = " ".join(str(text or "").split())
     if not normalized:
@@ -2369,22 +2397,8 @@ def build_native_setup_recommendation(
 
 
 def _command_center_guide_fleet_activity_summary(command_center: dict[str, Any]) -> str:
-    """Return command-center guide fleet activity with workspace backlog wording."""
-    raw_summary = str(command_center.get("fleet_activity_summary") or "").strip()
-    if not raw_summary:
-        return "Fleet activity will appear here after runtime loads."
-    parts: list[str] = []
-    for part in raw_summary.split(" | "):
-        normalized = " ".join(part.split())
-        tokens = normalized.split()
-        if (
-            len(tokens) == 2
-            and tokens[0].isdigit()
-            and tokens[1] == "unmanaged"
-        ):
-            normalized = f"{tokens[0]} unmanaged backlog"
-        parts.append(normalized)
-    return " | ".join(parts)
+    """Return command-center guide fleet activity with managed/unmanaged grouping."""
+    return format_fleet_activity_for_operator(str(command_center.get("fleet_activity_summary") or ""))
 
 
 def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
