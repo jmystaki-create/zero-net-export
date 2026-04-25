@@ -2099,3 +2099,16 @@ If the bug affects the user-visible product or live Home Assistant behavior, clo
 - **repo fix:** `8044a21` - `fix: restore fleet activity compaction signals`. The fix applies configured-device fallback only when runtime state is absent, preserves blocked/planned managed-device rows before compaction, and dedupes duplicate attention overlap after the compact operator story is built so review/ready backlog cues stay visible without dropping required blocked or plan signals.
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary`; live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** do not keep treating ZNE-164 as a repo-open Workstream A blocker. Continue the ordered map by checking for any remaining concrete A-D/F repo gap; if none is found, the next boundary is direct James approval for deploy/restart of the exact helper-resolved `0.1.88` build.
+
+## ZNE-167 - Diagnostics support screen still called itself the `Primary path`
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-25 while checking Workstream D/F bucket boundaries against the current Diagnostics options-flow copy
+- **current observed behavior:** Diagnostics had already been compacted, but its final path cue still said `Primary path: {support_path}.` That is consistent with the local screen label, but it weakens the four-bucket IA because Diagnostics is supposed to stay the secondary troubleshooting/install-validation home, not read like another primary operator path beside Configure, Sensors, Controls, and Managed Devices.
+- **expected behavior:** Diagnostics should name its native path without elevating itself to a primary operator path. Normal source mapping, policy tuning, and managed-device promotion should remain explicitly outside Diagnostics.
+- **evidence:** `docs/UI_DESIGN.md` says Diagnostics should be visible but secondary and should not become the primary place where normal work is explained. `docs/UI_IMPLEMENTATION_MAP.md` Workstream D keeps Diagnostics focused on troubleshooting, checklists, repairs, and install/package trust, while Workstream F still calls for removing overly wordy support/diagnostics surfaces.
+- **suspected cause:** earlier support-copy cleanup removed duplicated command-center recap lines but left the shared `Primary path` footer pattern in place.
+- **repo fix:** this run changes the Diagnostics footer in `strings.json` and `translations/en.json` from `Primary path: {support_path}.` to `Diagnostics path: {support_path}.` and updates the bucket-ownership regression test so the support surface cannot reintroduce that primary-path wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live HA validation remains pending on the exact deployed `0.1.88` build.
+- **next action:** include this Diagnostics IA wording cleanup in the next exact-build deploy, then confirm live Diagnostics still reads as troubleshooting/install validation rather than a competing primary workflow.

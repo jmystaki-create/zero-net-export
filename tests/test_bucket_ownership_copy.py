@@ -391,7 +391,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", support_description)
         self.assertIn("- Managed Devices: {devices_path}", support_description)
         self.assertIn("- Diagnostics: {support_path}", support_description)
-        self.assertIn("Primary path: {support_path}.", support_description)
+        self.assertIn("Diagnostics path: {support_path}.", support_description)
+        self.assertNotIn("Primary path: {support_path}.", support_description)
 
 
 if __name__ == "__main__":
