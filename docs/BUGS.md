@@ -1277,7 +1277,7 @@ Suggested area labels:
 - **next action:** include this shared empty-fleet handoff cleanup in the next exact-build deploy, then confirm the live deeper-review path keeps the same fixed/variable-load wording as the rest of Managed Devices.
 
 ## ZNE-104 - Post-freeze watchdog churn is still displacing the mapped `0.1.88` next step
-- **status:** `open`
+- **status:** `validated`
 - **severity:** `medium`
 - **area:** `process`
 - **where seen:** watchdog repo/commit audit plus documented HA SSH fingerprint recheck on 2026-04-25 while comparing recent commits against `docs/SUPERVISOR.md` and the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`
