@@ -2883,7 +2883,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         command_center = build_native_command_center_summary(self._coordinator())
         return str(
             command_center.get("detailed_management_summary")
-            or f"Use {DETAILED_MANAGEMENT_PATH} as the deeper device-page review path for deeper managed-device review."
+            or f"Use {DETAILED_MANAGEMENT_PATH} as the secondary device-page review path for managed-device audit detail."
         )
 
     async def async_step_devices(self, user_input=None):
