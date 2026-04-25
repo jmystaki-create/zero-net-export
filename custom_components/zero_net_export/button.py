@@ -668,7 +668,7 @@ def _first_ready_candidate(candidates: list[dict] | None) -> dict | None:
 def _managed_devices_workspace_boundary() -> str:
     return (
         f"Make promotion, enablement, removal, and other fleet edits in {DEVICES_CONFIGURE_PATH}; "
-        "use the device page only for secondary review and handoff."
+        "use the device page only for secondary review/audit and handoff."
     )
 
 
