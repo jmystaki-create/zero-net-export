@@ -2368,10 +2368,30 @@ def build_native_setup_recommendation(
     }
 
 
+def _command_center_guide_fleet_activity_summary(command_center: dict[str, Any]) -> str:
+    """Return command-center guide fleet activity with workspace backlog wording."""
+    raw_summary = str(command_center.get("fleet_activity_summary") or "").strip()
+    if not raw_summary:
+        return "Fleet activity will appear here after runtime loads."
+    parts: list[str] = []
+    for part in raw_summary.split(" | "):
+        normalized = " ".join(part.split())
+        tokens = normalized.split()
+        if (
+            len(tokens) == 2
+            and tokens[0].isdigit()
+            and tokens[1] == "unmanaged"
+        ):
+            normalized = f"{tokens[0]} unmanaged backlog"
+        parts.append(normalized)
+    return " | ".join(parts)
+
+
 def build_native_command_center_guide_text(command_center: dict[str, Any]) -> str:
     """Return the basic setup focused command-center guide text."""
     alert_summary = _normalize_native_path_text(command_center.get("alert_summary"))
     next_action_summary = _normalize_native_path_text(command_center.get("next_action_summary"))
+    fleet_activity_summary = _command_center_guide_fleet_activity_summary(command_center)
     now_lines = [
         "Now",
         f"- Headline decision: {command_center.get('headline_decision')}",
@@ -2391,7 +2411,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Energy state: {command_center.get('energy_state_summary')}",
             f"- Control decision: {command_center.get('control_decision_summary')}",
             f"- Control outcome: {command_center.get('control_outcome_summary')}",
-            f"- Fleet activity: {command_center.get('fleet_activity_summary')}",
+            f"- Fleet activity: {fleet_activity_summary}",
             "",
             "Setup check",
             f"- Sensors: {command_center.get('source_status')}",
