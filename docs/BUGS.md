@@ -2200,3 +2200,16 @@ Suggested area labels:
 
 Do not mark a bug `closed` just because a commit exists.
 If the bug affects the user-visible product or live Home Assistant behavior, closure should usually require live validation evidence.
+
+## ZNE-175 - README still used helper/ranking fleet wording in the managed-device path
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog README audit on 2026-04-26 after the repo candidate had moved to neutral surfaced-candidate wording
+- **current observed behavior:** historical in this run. The README still described the native managed-device workspace as a `fleet-review enable/disable step` and told operators to `promote the best-fit candidate`, which lagged the current source-of-truth wording that keeps Configure -> Managed Devices as the workspace and avoids over-ranking one unmanaged candidate before review.
+- **expected behavior:** README operator guidance should match the native-only design: Managed Devices is the fleet workspace, unmanaged devices are reviewed neutrally, and promotion follows review rather than claiming a single best fit up front.
+- **evidence:** this run compared `README.md` against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`, then found the stale `fleet-review enable/disable step` and `promote the best-fit candidate` wording in the README while current code/tests already reject ranking-style `Top surfaced`/helper copy on product surfaces.
+- **suspected cause:** public README copy was not included in the later Workstream B/C wording passes that tightened the native UI strings and regression tests.
+- **repo fix:** this run updates `README.md` so the feature list says `Managed Devices enable/disable step` and the configuration path says to `promote an appropriate reviewed candidate` instead of over-ranking a `best-fit` candidate.
+- **validation status:** validated repo-side in this run with `rg -n "fleet-review enable|best-fit candidate" README.md custom_components tests docs/UI_DESIGN.md docs/UI_IMPLEMENTATION_MAP.md`, which no longer finds the stale README wording.
+- **next action:** no further action beyond keeping README operator wording aligned with future native Managed Devices copy changes.
