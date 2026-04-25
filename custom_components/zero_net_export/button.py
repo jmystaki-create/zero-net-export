@@ -1507,7 +1507,7 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
         message = (
             "Native Zero Net Export diagnostics snapshot\n\n"
             "This is intended for the Home Assistant device page, Scripts, and button.press automations so diagnostics stay reachable from native Home Assistant surfaces.\n\n"
-            f"Primary setup path: {PRIMARY_CONFIGURE_PATH}\n"
+            f"Command center path: {PRIMARY_CONFIGURE_PATH}\n"
             f"Diagnostics path: {SUPPORT_CONFIGURE_PATH}\n\n"
             f"```\n{snapshot}\n```"
         )
@@ -1553,7 +1553,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 "Zero Net Export native setup checklist",
                 "",
                 f"Entry: {self.coordinator.entry.title}",
-                f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
+                f"Command center path: {PRIMARY_CONFIGURE_PATH}",
                 f"Diagnostics path: {SUPPORT_CONFIGURE_PATH}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
                 f"Summary: {readiness.get('summary') or (self._state.health_summary if self._state else None)}",

@@ -5451,7 +5451,7 @@ def build_native_support_center(coordinator: Any) -> str:
             "Zero Net Export diagnostics guide",
             "",
             "Use Diagnostics when setup is blocked, runtime health needs explanation, or install trust needs proof.",
-            f"Primary setup path: {PRIMARY_CONFIGURE_PATH}",
+            f"Command center path: {PRIMARY_CONFIGURE_PATH}",
             "",
             "Diagnostics now",
             f"- Readiness phase: {operator_readiness.get('phase')}",

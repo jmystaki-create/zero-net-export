@@ -1706,7 +1706,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["first_blocked_device"], "Pool pump")
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 0 W nominal | blocked Pool pump | 1 planned action(s) | plan Pool pump")
 
-    def test_setup_checklist_button_keeps_primary_setup_path_in_attributes(self) -> None:
+    def test_setup_checklist_button_keeps_command_center_path_in_attributes(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
@@ -1750,7 +1750,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export native setup checklist", message)
-        self.assertIn("Primary setup path: primary path", message)
+        self.assertIn("Command center path: primary path", message)
+        self.assertNotIn("Primary setup path:", message)
         self.assertIn("Diagnostics path: support path", message)
         self.assertIn("Readiness phase: setup", message)
         self.assertIn("Summary: Finish source mapping first.", message)
@@ -1759,6 +1760,27 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- [ ] Managed Devices: Review the unmanaged section next.", message)
         self.assertNotIn("Recommended command-center section:", message)
         self.assertNotIn("Recommended command-center path:", message)
+
+    def test_diagnostics_snapshot_button_names_command_center_without_primary_path_leak(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        button_module.build_native_support_snapshot = lambda coordinator: "snapshot evidence"
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportShowNativeDiagnosticsButton(coordinator)
+        button.hass = SimpleNamespace()
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        self.assertEqual(len(notification_calls), 1)
+        message = notification_calls[0]["args"][1]
+        self.assertIn("Native Zero Net Export diagnostics snapshot", message)
+        self.assertIn("Command center path: primary path", message)
+        self.assertIn("Diagnostics path: support path", message)
+        self.assertNotIn("Primary setup path:", message)
 
     def test_command_center_guide_button_uses_shared_full_guide_text(self) -> None:
         notification_calls: list[dict] = []

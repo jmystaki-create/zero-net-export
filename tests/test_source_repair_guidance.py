@@ -468,6 +468,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("native support center", support_center)
         self.assertIn("Use Diagnostics when setup is blocked", support_center)
         self.assertIn("Diagnostics now", support_center)
+        self.assertIn(f"Command center path: {native_support.PRIMARY_CONFIGURE_PATH}", support_center)
+        self.assertNotIn("Primary setup path:", support_center)
         self.assertIn("- Top alerts:", support_center)
         self.assertIn("Blocker triage", support_center)
         self.assertIn("Install validation", support_center)
