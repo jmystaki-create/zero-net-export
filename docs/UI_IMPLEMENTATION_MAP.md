@@ -148,7 +148,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Still to do**
 1. Validate live that the device-page managed review actions are clearly secondary to Configure -> Managed Devices.
 2. Confirm the richer per-device audit rows, save feedback, and handoff text render clearly on the exact deployed build.
-3. Make sure the installed device-page review path supports deeper inspection without diluting Configure -> Managed Devices as the primary workspace.
+3. Make sure the installed device-page review path supports secondary review/audit inspection without diluting Configure -> Managed Devices as the primary workspace.
 
 **Done when**
 - the device page is clearly the secondary review/audit path, not a competing workspace.
@@ -370,7 +370,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Remaining**
 - validate the concrete native entry path in live HA, including the new per-device review buttons on the Zero Net Export device page
 - confirm the richer per-device audit rows, save feedback, and handoff text render clearly on the exact deployed build
-- make sure the installed device-page review path supports deeper inspection while keeping Configure -> Managed Devices as the clear primary fleet workflow
+- make sure the installed device-page review path supports secondary review/audit inspection while keeping Configure -> Managed Devices as the clear primary fleet workflow
 
 **Features in this stage**
 - secondary fleet review/audit

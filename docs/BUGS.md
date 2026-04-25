@@ -2492,6 +2492,19 @@ Suggested area labels:
 - **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only source-of-truth wording correction.
 - **next action:** keep the remaining-work map on neutral surfaced-candidate wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval for the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-199 - Remaining-work map still described the secondary device-page path as `deeper inspection`
+
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog source-of-truth audit on 2026-04-26 while rechecking Workstream E after the product and bug tracker moved device-page wording to the secondary review/audit hierarchy.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_MAP.md` still said the installed device-page review path should support `deeper inspection` in both Workstream E and Stage 8. That was softer than the earlier `deeper review` leaks, but it still preserved the old hierarchy shorthand inside the implementation source of truth after the current native UI wording had moved to `secondary review/audit`.
+- **expected behavior:** the remaining-work map should describe the device page as a secondary review/audit inspection path that supports Configure -> Managed Devices, not as a deeper management lane.
+- **evidence:** this run's grep found the active `deeper inspection` wording in `docs/UI_IMPLEMENTATION_MAP.md` while nearby Workstream E and the current product-copy bugs already require `secondary review/audit` wording for the device-page path.
+- **repo fix:** this run changes both map bullets to `secondary review/audit inspection`, keeping Workstream E aligned with the current Configure-first hierarchy.
+- **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
+- **next action:** keep the remaining-work map on secondary review/audit wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval for the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
