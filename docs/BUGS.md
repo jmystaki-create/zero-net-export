@@ -2344,6 +2344,18 @@ Suggested area labels:
 - **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
 - **next action:** keep entity documentation aligned with the secondary review/audit hierarchy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-187 - Product copy still leaked `Deeper device-page` hierarchy wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking active product copy after ZNE-185/ZNE-186 aligned the source docs on secondary review/audit wording
+- **current observed behavior:** source docs and several handoffs had moved to `secondary device-page review/audit`, but active product messages still exposed `Deeper device-page audit path` / `Deeper device-page review path` in `button.py` and `config_flow.py`. That kept a visible hierarchy leak in the installed native UI candidate, making the device page sound like a competing deeper management lane instead of the documented secondary review/audit path under Configure -> Managed Devices.
+- **expected behavior:** all live-facing Managed Devices handoffs should keep Configure -> Managed Devices as the primary fleet workspace and describe the device page only as the secondary review/audit path.
+- **evidence:** this run grepped active code and focused tests after reading `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the latest bug entries; `custom_components/zero_net_export/button.py` still had two `Deeper device-page audit path` lines plus one `Deeper device-page review path` line, and `custom_components/zero_net_export/config_flow.py` still emitted `Deeper device-page review path, after the main fleet step is clear`.
+- **repo fix:** this run updates those product strings to `Secondary device-page audit path` / `Secondary device-page review path` and refreshes the focused button/config-flow expectations.
+- **validation status:** repo-side fixed and verified with the focused native UI tests plus grep in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this secondary-path wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

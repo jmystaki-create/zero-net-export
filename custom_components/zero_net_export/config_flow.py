@@ -1953,7 +1953,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             [
                 "",
                 f"Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
-                f"Deeper device-page review path, after the main fleet step is clear: {DETAILED_MANAGEMENT_PATH}",
+                f"Secondary device-page review path, after the main fleet step is clear: {DETAILED_MANAGEMENT_PATH}",
                 next_step,
             ]
         )

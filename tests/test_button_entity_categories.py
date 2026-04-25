@@ -437,7 +437,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Managed Devices workspace in Configure: devices path", message)
-        self.assertIn("Deeper device-page review path: detailed device path", message)
+        self.assertIn("Secondary device-page review path: detailed device path", message)
         self.assertIn(
             "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
             message,
@@ -758,7 +758,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("entity=switch.pool_pump", message)
         self.assertIn("Currently surfaced unmanaged candidates:", message)
         self.assertIn("- Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
-        self.assertIn("Deeper device-page audit path: detailed device path", message)
+        self.assertIn("Secondary device-page audit path: detailed device path", message)
         self.assertIn(
             "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review and handoff.",
             message,
