@@ -929,14 +929,14 @@ def _compact_control_outcome_summary(
         f"executable {executable_action_count}" if executable_action_count is not None else None,
         f"active load {active_controlled_power_w} W" if active_controlled_power_w is not None else None,
     ]
-    full_summary = " | ".join(part for part in [detail, *metric_parts] if part is not None)
+    metrics_summary = " | ".join(part for part in metric_parts if part is not None)
+    full_summary = " | ".join(part for part in [metrics_summary, detail] if part)
     if full_summary and len(full_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return full_summary
-    metrics_summary = " | ".join(part for part in metric_parts if part is not None)
     if detail:
         clipped_detail = _clip_state_part(detail, max_chars=96)
         if metrics_summary:
-            clipped_summary = f"{metrics_summary} | {clipped_detail}"
+            clipped_summary = " | ".join(part for part in [metrics_summary, clipped_detail] if part)
             if len(clipped_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
                 return clipped_summary
         if metrics_summary and len(metrics_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
