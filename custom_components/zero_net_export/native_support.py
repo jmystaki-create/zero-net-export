@@ -264,6 +264,7 @@ def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
     if normalized.startswith(f"{DEVICES_SECTION_LABEL}:"):
         normalized = normalized.partition(":")[2].strip()
     normalized = normalized.rstrip(".").replace("; ", " | ")
+    normalized = " | ".join(_dedupe_attention_overlap_parts(_split_fleet_activity_parts(normalized)))
     compacted = _compact_fleet_activity_overflow_summary(normalized)
     if compacted and len(compacted) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return compacted
@@ -323,6 +324,55 @@ def _split_fleet_activity_parts(summary: str) -> list[str]:
         else:
             parts.append(raw_part)
     return parts
+
+
+def _focus_state_subject(part: str) -> str:
+    normalized = " ".join(str(part or "").split())
+    prefix = next(
+        (
+            candidate
+            for candidate in ("attention first ", "blocked ", "plan ", "active device ")
+            if normalized.startswith(candidate)
+        ),
+        "",
+    )
+    if not prefix:
+        return ""
+    payload = normalized[len(prefix) :].strip()
+    if payload.endswith(")") and " (" in payload:
+        payload = payload.rsplit(" (", 1)[0].strip()
+    return payload.casefold()
+
+
+def _dedupe_attention_overlap_parts(parts: list[str]) -> list[str]:
+    attention_subjects = {
+        subject for part in parts if part.startswith("attention first ") if (subject := _focus_state_subject(part))
+    }
+    if not attention_subjects:
+        return parts
+
+    compact_parts: list[str] = []
+    suppressed_blocked = False
+    suppressed_planned = False
+    for part in parts:
+        subject = _focus_state_subject(part)
+        if part.startswith("blocked ") and subject in attention_subjects:
+            suppressed_blocked = True
+            continue
+        if part.startswith("plan ") and subject in attention_subjects:
+            suppressed_planned = True
+            continue
+        compact_parts.append(part)
+
+    if suppressed_blocked:
+        compact_parts = [
+            part
+            for part in compact_parts
+            if _count_label_value(part, "blocked managed action") not in {1}
+        ]
+    if suppressed_planned:
+        compact_parts = [part for part in compact_parts if _count_label_value(part, "planned action") not in {1}]
+    return compact_parts
 
 
 def _compact_fleet_activity_overflow_summary(summary: str) -> str:

@@ -5067,6 +5067,28 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("1 unmanaged backlog", summary["fleet_activity_summary"])
         self.assertIn("source blockers active", summary["fleet_activity_summary"])
 
+    def test_fleet_activity_fallback_dedupes_attention_overlap_from_device_status(self) -> None:
+        native_support = _load_native_support_module()
+
+        compacted = native_support._fleet_activity_fallback_from_device_status(
+            "Managed Devices: 1 managed device needs attention; attention first Pool pump (fixed | blocked); "
+            "1 blocked managed action; blocked Pool pump (fixed | blocked); 1 planned action; "
+            "plan Pool pump (fixed | action turn_on); 2 managed; 2 unmanaged backlog; source blockers active; "
+            "review Garage helper with a deliberately long review-first label near the utility room board (fixed) | review first | warn helper-backed load needs review and validation; "
+            "ready EV charger with a deliberately long ready-next label near the driveway board (variable) | likely useful"
+        )
+
+        self.assertLessEqual(len(compacted), native_support.MAX_NATIVE_SENSOR_STATE_CHARS)
+        self.assertIn("attention first", compacted)
+        self.assertIn("2 unmanaged backlog", compacted)
+        self.assertIn("source blockers active", compacted)
+        self.assertIn("review Garage helper", compacted)
+        self.assertIn("ready EV charger", compacted)
+        self.assertNotIn("blocked Pool pump", compacted)
+        self.assertNotIn("1 blocked managed action", compacted)
+        self.assertNotIn("1 planned action", compacted)
+        self.assertNotIn("plan Pool pump", compacted)
+
     def test_command_center_summary_keeps_managed_and_unmanaged_story_when_fleet_activity_overflows(self) -> None:
         native_support = _load_native_support_module()
 
