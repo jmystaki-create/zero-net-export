@@ -88,7 +88,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Currently surfaced unmanaged candidate: {top_candidate}", devices_description)
         self.assertNotIn("Top unmanaged candidate right now", devices_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", devices_description)
-        self.assertIn("Secondary per-device review path:", devices_description)
+        self.assertIn("Secondary per-device review/audit path:", devices_description)
         self.assertIn("Managed Devices path: {configure_path}.", devices_description)
         self.assertNotIn("Primary path: {configure_path}.", devices_description)
         self.assertIn("Bucket ownership and paths", devices_description)
@@ -126,7 +126,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", bulk_enable_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", bulk_enable_description)
         self.assertIn("Candidate snapshot", bulk_enable_description)
-        self.assertIn("Secondary per-device review path:", bulk_enable_description)
+        self.assertIn("Secondary per-device review/audit path:", bulk_enable_description)
         self.assertIn("Bucket ownership and paths", bulk_enable_description)
         self.assertIn("- Managed Devices: {configure_path}", bulk_enable_description)
         self.assertIn("- Sensors: {sources_path}", bulk_enable_description)
@@ -237,7 +237,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", vetting_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", vetting_description)
         self.assertIn("Candidate snapshot", vetting_description)
-        self.assertIn("Secondary per-device review path after promotion:", vetting_description)
+        self.assertIn("Secondary per-device review/audit path after promotion:", vetting_description)
         self.assertIn("Bucket ownership and paths", vetting_description)
 
         template_description = steps["device_template"]["description"]
@@ -288,7 +288,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", add_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", add_description)
         self.assertIn("Candidate snapshot", add_description)
-        self.assertIn("Secondary per-device review path after save:", add_description)
+        self.assertIn("Secondary per-device review/audit path after save:", add_description)
         self.assertIn("Bucket ownership and paths", add_description)
 
         shortlist_step = steps["device_pick_candidate"]
