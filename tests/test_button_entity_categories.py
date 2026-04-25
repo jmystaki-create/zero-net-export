@@ -1419,7 +1419,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last action age: 2m 5s", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
         self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
-        self.assertIn("Return to devices path in Configure for the Managed Devices workspace for edits, enablement, promotion, or removal.", message)
+        self.assertIn("Return to devices path in Configure for edits, enablement, promotion, or removal in the Managed Devices workspace.", message)
+        self.assertNotIn("for the Managed Devices workspace for", message)
 
     def test_managed_device_detail_button_uses_workspace_fallback_when_no_next_step_exists(self) -> None:
         notification_calls: list[dict] = []

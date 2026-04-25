@@ -2293,6 +2293,18 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this per-device review wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-183 - Per-device review return line repeated `for` around Managed Devices workspace
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking the latest per-device review wording after ZNE-182
+- **current observed behavior:** the per-device `Review {device}` notification line had been corrected to name `the Managed Devices workspace`, but the final sentence read `Return to ... in Configure for the Managed Devices workspace for edits, enablement, promotion, or removal.` That kept a visible grammar stumble in the secondary device-page handoff and made the otherwise workspace-first action read like helper copy.
+- **expected behavior:** the per-device review action should send operators back to Configure for edits, enablement, promotion, or removal in the Managed Devices workspace, without duplicated prepositions or adjective-stack phrasing.
+- **evidence:** repo grep found the exact `for the Managed Devices workspace for` string in `custom_components/zero_net_export/button.py` and the matching focused assertion in `tests/test_button_entity_categories.py`.
+- **repo fix:** this run changes the line to `Return to ... in Configure for edits, enablement, promotion, or removal in the Managed Devices workspace.` and adds a focused negative assertion so the duplicated `for the Managed Devices workspace for` wording cannot return.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this per-device review wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
