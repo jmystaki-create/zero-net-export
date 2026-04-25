@@ -3348,10 +3348,15 @@ def _build_command_center_fleet_activity_summary(
                         or _matches_count_label(part, "planned action")
                         or _matches_count_label(part, "active managed device", "active managed devices")
                         or _matches_count_label(part, "blocked managed action", "blocked managed actions")
-                        or part.startswith(("enabled ", "usable "))
-                        or _matches_count_label(part, "fixed managed")
-                        or _matches_count_label(part, "variable managed")
-                        or part.endswith(" W nominal")
+                        or (
+                            candidate_count <= 0
+                            and (
+                                part.startswith(("enabled ", "usable "))
+                                or _matches_count_label(part, "fixed managed")
+                                or _matches_count_label(part, "variable managed")
+                                or part.endswith(" W nominal")
+                            )
+                        )
                     )
 
                 insertion_index = next(
@@ -3412,7 +3417,7 @@ def _build_command_center_fleet_activity_summary(
                     (
                         index + 1
                         for index, part in enumerate(remaining_parts)
-                        if _is_managed_count_part(part)
+                        if part == _managed_count_label(managed_count)
                         or part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
                         or part.endswith(" managed device needs attention")
                         or part.endswith(" managed devices need attention")

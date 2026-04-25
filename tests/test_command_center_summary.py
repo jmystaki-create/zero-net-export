@@ -7105,9 +7105,9 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("enabled 1", fleet_activity)
         self.assertIn("usable 1", fleet_activity)
         self.assertIn("1 fixed managed", fleet_activity)
-        self.assertLess(fleet_activity.index("enabled 1"), fleet_activity.index("2 unmanaged backlog"))
-        self.assertLess(fleet_activity.index("usable 1"), fleet_activity.index("2 unmanaged backlog"))
-        self.assertLess(fleet_activity.index("1 fixed managed"), fleet_activity.index("2 unmanaged backlog"))
+        self.assertLess(fleet_activity.index("2 unmanaged backlog"), fleet_activity.index("enabled 1"))
+        self.assertLess(fleet_activity.index("2 unmanaged backlog"), fleet_activity.index("usable 1"))
+        self.assertLess(fleet_activity.index("2 unmanaged backlog"), fleet_activity.index("1 fixed managed"))
         self.assertIn("fixed backlog 1 review", fleet_activity)
         self.assertIn("variable backlog 1 ready", fleet_activity)
         if "1 fixed candidate" in fleet_activity:
