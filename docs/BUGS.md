@@ -2125,3 +2125,16 @@ If the bug affects the user-visible product or live Home Assistant behavior, clo
 - **repo fix:** this run changes the Diagnostics footer in `strings.json` and `translations/en.json` from `Primary path: {support_path}.` to `Diagnostics path: {support_path}.` and updates the bucket-ownership regression test so the support surface cannot reintroduce that primary-path wording.
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`. Live HA validation remains pending on the exact deployed `0.1.88` build.
 - **next action:** include this Diagnostics IA wording cleanup in the next exact-build deploy, then confirm live Diagnostics still reads as troubleshooting/install validation rather than a competing primary workflow.
+
+## ZNE-169 - Native bucket screens still used a generic `Primary path` footer
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `ui`
+- **where seen:** watchdog repo audit on 2026-04-25 while checking the current options-flow strings against `docs/UI_DESIGN.md` and the remaining Workstream F copy-simplification runway in `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** after ZNE-167 fixed Diagnostics, the Sensors, Managed Devices, promotion, recovery, and Controls options-flow screens still ended with a generic `Primary path: ...` footer. The wording was not an external/custom UI leak, but it blurred the native bucket names and repeated the same primary-path pattern across local subflows instead of reinforcing which Home Assistant bucket owns the work.
+- **expected behavior:** native screen footers should name the owning bucket path directly: `Sensors path`, `Managed Devices path`, `Managed Devices recovery path`, or `Controls path`. Diagnostics should remain `Diagnostics path`, and none of these copy blocks should reintroduce a custom panel, sidebar, or external UI path.
+- **evidence:** `rg -n "Primary path:" custom_components/zero_net_export/strings.json custom_components/zero_net_export/translations/en.json` showed the remaining generic footers in source/translations while `docs/UI_DESIGN.md` defines the native-only bucket model and Workstream F still calls for removing awkward/overly generic support text.
+- **suspected cause:** earlier IA cleanup fixed Diagnostics first but left the shared footer phrase in the other native buckets because it was locally accurate and test-covered.
+- **repo fix:** this run replaces the remaining shipped/translatable options-flow `Primary path` footers with bucket-specific native labels and expands `tests/test_bucket_ownership_copy.py` so Sensors, Managed Devices, Controls, and Diagnostics reject the generic `Primary path` wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_command_center_summary tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_button_entity_categories tests.test_source_repair_guidance`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include the copy cleanup in the next exact-build deploy, then continue the ordered remaining-work map instead of refreshing unchanged release fingerprints.

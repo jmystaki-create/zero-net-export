@@ -84,6 +84,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", devices_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", devices_description)
         self.assertIn("Deeper per-device review path:", devices_description)
+        self.assertIn("Managed Devices path: {configure_path}.", devices_description)
+        self.assertNotIn("Primary path: {configure_path}.", devices_description)
         self.assertIn("Bucket ownership and paths", devices_description)
         self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {configure_path}", devices_description)
         self.assertIn("- Sensors owns source mapping and source repair: {sources_path}", devices_description)
@@ -98,7 +100,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Review managed-device enablement here, with managed devices on top and the unmanaged promotion backlog below.", bulk_enable_description)
         self.assertIn("Configure stays the primary fleet workspace for enablement", bulk_enable_description)
         self.assertIn("Keep source repair in Sensors, controller tuning in Controls, and troubleshooting in Diagnostics.", bulk_enable_description)
-        self.assertIn("Primary path: {configure_path}.", bulk_enable_description)
+        self.assertIn("Managed Devices path: {configure_path}.", bulk_enable_description)
+        self.assertNotIn("Primary path: {configure_path}.", bulk_enable_description)
         self.assertNotIn("Managed Devices owns fleet enablement", bulk_enable_description)
         self.assertNotIn("while you work through this workspace", bulk_enable_description)
         self.assertNotIn("while you use this screen", bulk_enable_description)
@@ -341,6 +344,13 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", full_list_description)
         self.assertNotIn("Current managed fleet:", full_list_description)
 
+        source_description = steps["native_setup"]["description"]
+        source_mapping_description = steps["native_setup_sources"]["description"]
+        self.assertIn("Sensors path: {configure_path}.", source_description)
+        self.assertIn("Sensors path: {configure_path}.", source_mapping_description)
+        self.assertNotIn("Primary path:", source_description)
+        self.assertNotIn("Primary path:", source_mapping_description)
+
         policy_description = steps["policy"]["description"]
         self.assertIn("Controls owns controller behaviour and outcome.", policy_description)
         self.assertNotIn("Controls owns controller behaviour once source mapping is healthy and managed devices are ready", policy_description)
@@ -356,7 +366,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("- Sensors: {sources_path}", policy_description)
         self.assertIn("- Managed Devices: {devices_path}", policy_description)
         self.assertIn("- Diagnostics: {support_path}", policy_description)
-        self.assertIn("Primary path: {policy_path}.", policy_description)
+        self.assertIn("Controls path: {policy_path}.", policy_description)
+        self.assertNotIn("Primary path: {policy_path}.", policy_description)
 
         support_description = steps["support"]["description"]
         self.assertIn("Use Diagnostics when setup is blocked, runtime health needs explanation, or you need install-validation evidence.", support_description)
@@ -392,7 +403,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("- Managed Devices: {devices_path}", support_description)
         self.assertIn("- Diagnostics: {support_path}", support_description)
         self.assertIn("Diagnostics path: {support_path}.", support_description)
-        self.assertNotIn("Primary path: {support_path}.", support_description)
+        self.assertNotIn("Primary path:", support_description)
 
 
 if __name__ == "__main__":
