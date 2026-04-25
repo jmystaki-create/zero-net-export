@@ -7008,6 +7008,138 @@ class CommandCenterSummaryTests(unittest.TestCase):
         if "1 variable candidate" in fleet_activity:
             self.assertLess(fleet_activity.index("variable backlog 1 ready"), fleet_activity.index("1 variable candidate"))
 
+    def test_fleet_activity_attention_label_absorbs_duplicate_blocked_focus(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.build_source_mapping_summary = lambda merged: ""
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Garage helper",
+                    "entity_id": "switch.garage_helper",
+                    "kind": "fixed",
+                },
+                {
+                    "name": "EV charger",
+                    "entity_id": "switch.ev_charger",
+                    "kind": "variable",
+                },
+            ],
+            "Garage helper",
+        )
+        native_support.assess_candidate = lambda candidate: {
+            "confidence": "high" if candidate.get("kind") == "variable" else "medium",
+            "warnings": [] if candidate.get("kind") == "variable" else ["Generic outlet label"],
+        }
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: candidate.get("name", "")
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Holding while one blocked load needs attention.",
+            control_reason="Waiting for the blocked load to clear.",
+            status="Active",
+            device_status_summary="Managed Devices: 2 managed",
+            device_count=2,
+            enabled_device_count=2,
+            usable_device_count=1,
+            fixed_device_count=1,
+            variable_device_count=1,
+            controllable_nominal_power_w=3200.0,
+            active_controlled_power_w=920.0,
+            blocked_planned_action_count=1,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            validation_details={},
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": False,
+                    "observed_active": False,
+                    "planned_action": "turn_on",
+                    "last_action_status": "blocked by safety",
+                    "nominal_power_w": 1200.0,
+                },
+                "heated_floor": {
+                    "name": "Heated floor",
+                    "entity_id": "number.heated_floor",
+                    "kind": "variable",
+                    "usable": True,
+                    "observed_active": True,
+                    "current_power_w": 920.0,
+                    "planned_action": "hold",
+                    "nominal_power_w": 2000.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+        fleet_activity = summary["fleet_activity_summary"]
+
+        self.assertIn("attention first Pool Pump", fleet_activity)
+        self.assertIn("active device Heated", fleet_activity)
+        self.assertIn("2 unmanaged backlog", fleet_activity)
+        self.assertNotIn("blocked Pool Pump", fleet_activity)
+        self.assertNotIn("1 blocked managed action", fleet_activity)
+
+    def test_fleet_activity_attention_label_absorbs_duplicate_planned_focus(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.build_source_mapping_summary = lambda merged: ""
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: (
+            [
+                {
+                    "name": "Garage helper",
+                    "entity_id": "switch.garage_helper",
+                    "kind": "fixed",
+                }
+            ],
+            "Garage helper",
+        )
+        native_support.assess_candidate = lambda candidate: {"confidence": "medium", "warnings": ["Generic outlet label"]}
+        native_support.build_candidate_compact_preview = lambda candidate, include_warning=True: candidate.get("name", "")
+
+        entry = SimpleNamespace(data={}, options={})
+        state = SimpleNamespace(
+            reason="Holding while one planned load needs attention.",
+            control_reason="Preparing the next managed action.",
+            status="Active",
+            device_status_summary="Managed Devices: 1 managed",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            fixed_device_count=1,
+            variable_device_count=0,
+            controllable_nominal_power_w=1200.0,
+            active_controlled_power_w=0.0,
+            blocked_planned_action_count=0,
+            mode="monitoring",
+            health_summary="Healthy",
+            diagnostic_summary="Healthy",
+            validation_details={},
+            device_details={
+                "pool_pump": {
+                    "name": "Pool Pump",
+                    "entity_id": "switch.pool_pump",
+                    "kind": "fixed",
+                    "usable": True,
+                    "observed_active": False,
+                    "planned_action": "turn_on",
+                    "nominal_power_w": 1200.0,
+                },
+            },
+        )
+        coordinator = SimpleNamespace(data=state, entry=entry, hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])))
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+        fleet_activity = summary["fleet_activity_summary"]
+
+        self.assertIn("attention first Pool Pump", fleet_activity)
+        self.assertIn("1 unmanaged backlog", fleet_activity)
+        self.assertNotIn("plan Pool Pump", fleet_activity)
+        self.assertNotIn("1 planned action", fleet_activity)
+
     def test_fleet_activity_overflow_drops_candidate_inventory_before_review_ready_previews(self) -> None:
         native_support = _load_native_support_module()
 

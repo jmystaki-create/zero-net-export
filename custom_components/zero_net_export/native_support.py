@@ -3188,6 +3188,16 @@ def _build_command_center_fleet_activity_summary(
         excluded=(first_attention_device,),
     ) or first_planned_device
     attention_focus_label = _command_center_managed_snapshot_focus_label(first_attention_device)
+    attention_covers_blocked_focus = bool(
+        first_attention_device
+        and blocked_focus_device
+        and _same_runtime_device(first_attention_device, blocked_focus_device)
+    )
+    attention_covers_planned_focus = bool(
+        first_attention_device
+        and planned_focus_device
+        and _same_runtime_device(first_attention_device, planned_focus_device)
+    )
     first_active_device = _first_runtime_device_detail(
         state,
         predicate=lambda detail: detail.get("observed_active") is True,
@@ -3216,6 +3226,7 @@ def _build_command_center_fleet_activity_summary(
     ready_candidate_count = max(candidate_count - review_needed_count, 0)
     fixed_ready_count = max(fixed_candidate_count - fixed_review_count, 0)
     variable_ready_count = max(variable_candidate_count - variable_review_count, 0)
+    suppress_duplicate_attention_context = candidate_count > 0
     show_inventory_context = managed_count > 0 and candidate_count <= 0
     show_quiet_managed_inventory_context = bool(
         managed_count > 0
@@ -3339,17 +3350,30 @@ def _build_command_center_fleet_activity_summary(
                 f"attention first {attention_focus_label or _command_center_fleet_focus_label(first_attention_device)}"
             )
         if blocked_activity_count:
-            if blocked_activity_count > 1 or not blocked_focus_device:
+            if (
+                blocked_activity_count > 1
+                or not blocked_focus_device
+                or not (suppress_duplicate_attention_context and attention_covers_blocked_focus)
+            ):
                 summary_parts.append(_blocked_activity_count_label(blocked_activity_count))
-            if blocked_focus_device:
+            if blocked_focus_device and not (
+                suppress_duplicate_attention_context and attention_covers_blocked_focus
+            ):
                 summary_parts.append(
                     f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}"
                 )
         if planned_activity_count:
-            summary_parts.append(
-                _planned_action_count_label(planned_activity_count)
-            )
-        if planned_focus_device and not suppress_planned_focus:
+            if (
+                planned_activity_count > 1
+                or not planned_focus_device
+                or not (suppress_duplicate_attention_context and attention_covers_planned_focus)
+            ):
+                summary_parts.append(
+                    _planned_action_count_label(planned_activity_count)
+                )
+        if planned_focus_device and not suppress_planned_focus and not (
+            suppress_duplicate_attention_context and attention_covers_planned_focus
+        ):
             summary_parts.append(
                 f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}"
             )
@@ -3618,17 +3642,30 @@ def _build_command_center_fleet_activity_summary(
             _clip_state_part(attention_part, max_chars=72) or _clip_part(attention_part, max_chars=72)
         )
     if blocked_activity_count:
-        if blocked_activity_count > 1 or not blocked_focus_device:
+        if (
+            blocked_activity_count > 1
+            or not blocked_focus_device
+            or not (suppress_duplicate_attention_context and attention_covers_blocked_focus)
+        ):
             minimal_parts.append(_blocked_activity_count_label(blocked_activity_count))
-        if blocked_focus_device:
+        if blocked_focus_device and not (
+            suppress_duplicate_attention_context and attention_covers_blocked_focus
+        ):
             blocked_part = f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}"
             minimal_parts.append(
                 _clip_state_part(blocked_part, max_chars=72) or _clip_part(blocked_part, max_chars=72)
             )
 
     if planned_activity_count:
-        minimal_parts.append(_planned_action_count_label(planned_activity_count))
-        if planned_focus_device and not suppress_planned_focus:
+        if (
+            planned_activity_count > 1
+            or not planned_focus_device
+            or not (suppress_duplicate_attention_context and attention_covers_planned_focus)
+        ):
+            minimal_parts.append(_planned_action_count_label(planned_activity_count))
+        if planned_focus_device and not suppress_planned_focus and not (
+            suppress_duplicate_attention_context and attention_covers_planned_focus
+        ):
             planned_part = (
                 f"plan {_command_center_fleet_focus_label(planned_focus_device, include_plan_context=True)}"
             )
@@ -4140,9 +4177,15 @@ def _build_command_center_fleet_activity_summary(
             )
         )
     if blocked_activity_count:
-        if blocked_activity_count > 1 or not blocked_focus_device:
+        if (
+            blocked_activity_count > 1
+            or not blocked_focus_device
+            or not (suppress_duplicate_attention_context and attention_covers_blocked_focus)
+        ):
             essential_parts.append(_blocked_activity_count_label(blocked_activity_count))
-        if blocked_focus_device:
+        if blocked_focus_device and not (
+            suppress_duplicate_attention_context and attention_covers_blocked_focus
+        ):
             essential_parts.append(
                 _clip_part(
                     f"blocked {_command_center_fleet_focus_label(blocked_focus_device)}",
@@ -4150,7 +4193,12 @@ def _build_command_center_fleet_activity_summary(
                 )
             )
     if planned_activity_count:
-        essential_parts.append(_planned_action_count_label(planned_activity_count))
+        if (
+            planned_activity_count > 1
+            or not planned_focus_device
+            or not (suppress_duplicate_attention_context and attention_covers_planned_focus)
+        ):
+            essential_parts.append(_planned_action_count_label(planned_activity_count))
     if active_managed_count > 0:
         if active_managed_power_w > 0:
             essential_parts.append(f"active load {active_managed_power_w:g} W")
