@@ -159,6 +159,7 @@ def _load_config_flow_module():
     native_support_module.build_source_mapping_summary = lambda *args, **kwargs: "None"
     native_support_module.build_source_repair_step = lambda *args, **kwargs: "Repair step"
     native_support_module.build_source_selector_fallback_hint = lambda *args, **kwargs: "Fallback hint"
+    native_support_module.format_fleet_activity_for_operator = lambda summary: str(summary or "")
     native_support_module.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
     sys.modules[native_support_module.__name__] = native_support_module
 

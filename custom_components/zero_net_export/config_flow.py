@@ -90,6 +90,7 @@ from .native_support import (
     build_source_mapping_summary,
     build_source_repair_step,
     build_source_selector_fallback_hint,
+    format_fleet_activity_for_operator,
     summarize_validation_issue_messages,
 )
 from .release_info import (
@@ -145,31 +146,6 @@ def _coerce_text(value: Any, fallback: str) -> str:
         return value
     return str(value)
 
-
-def _format_fleet_activity_for_operator(summary: str) -> str:
-    """Label the opening Fleet activity line by managed and unmanaged groups."""
-
-    parts: list[str] = []
-    for part in str(summary or "").split(" | "):
-        normalized = " ".join(part.split())
-        tokens = normalized.split()
-        if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
-            normalized = f"{tokens[0]} unmanaged backlog"
-        if normalized:
-            parts.append(normalized)
-    unmanaged_index = next(
-        (
-            index
-            for index, part in enumerate(parts)
-            if part == "no unmanaged candidates"
-            or part.endswith(" unmanaged")
-            or part.endswith(" unmanaged backlog")
-        ),
-        None,
-    )
-    if unmanaged_index is None or unmanaged_index <= 0:
-        return " | ".join(parts) or "Fleet activity will appear here after runtime loads."
-    return f"Managed: {' | '.join(parts[:unmanaged_index])}; unmanaged: {' | '.join(parts[unmanaged_index:])}"
 
 
 def _entry_default_number(config_entry, key: str, fallback: int | float) -> int | float:
@@ -2459,7 +2435,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "energy_state_summary": command_center["energy_state_summary"],
             "control_decision_summary": command_center["control_decision_summary"],
             "control_outcome_summary": command_center["control_outcome_summary"],
-            "fleet_activity_summary": _format_fleet_activity_for_operator(command_center["fleet_activity_summary"]),
+            "fleet_activity_summary": format_fleet_activity_for_operator(command_center["fleet_activity_summary"]),
             "source_status": command_center["source_status"],
             "source_attention_summary": command_center["source_attention_summary"],
             "source_attention_roles": command_center["source_attention_roles"],
