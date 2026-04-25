@@ -1274,7 +1274,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                 "effective_enabled": True,
                 "current_power_w": 0,
                 "guard_status": "blocked",
-                "guard_reason": "Action cooldown is still active for about 120 more second(s).",
+                "guard_reason": "Action cooldown is still active for about 120 more seconds.",
                 "action_executable": False,
                 "planned_action": "turn_on",
                 "planned_action_reason": "Use the pump to absorb export.",
@@ -1283,7 +1283,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             line,
-            "- Pool pump: fixed | Ready for control | usable | enabled | power 0 W | guard blocked | action turn_on | why Use the pump to absorb export | guard why Action cooldown is still active for about 120 more second(s)",
+            "- Pool pump: fixed | Ready for control | usable | enabled | power 0 W | guard blocked | action turn_on | why Use the pump to absorb export | guard why Action cooldown is still active for about 120 more seconds",
         )
 
     def test_managed_device_review_line_audit_mode_adds_nominal_and_last_action_timing(self) -> None:
@@ -1692,7 +1692,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
                         "effective_enabled": True,
                         "status": "Ready for control",
                         "guard_status": "blocked",
-                        "guard_reason": "Action cooldown is still active for about 120 more second(s).",
+                        "guard_reason": "Action cooldown is still active for about 120 more seconds.",
                         "action_executable": False,
                         "planned_action": "turn_on",
                     }

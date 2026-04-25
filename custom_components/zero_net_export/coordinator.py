@@ -521,7 +521,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 wait_s = round(runtime.config.cooldown_seconds - since_action)
                 return {
                     "guard_status": "blocked",
-                    "guard_reason": f"Variable device cooldown is still active for about {wait_s} more second(s).",
+                    "guard_reason": f"Variable device cooldown is still active for about {_count_label(wait_s, 'more second')}.",
                     "action_executable": False,
                     "blocked_by": "cooldown",
                     "last_action": memory.last_action if memory else None,
@@ -553,7 +553,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 wait_s = round(runtime.config.min_off_seconds - since_off)
                 return {
                     "guard_status": "blocked",
-                    "guard_reason": f"Min-off protection is still active for about {wait_s} more second(s).",
+                    "guard_reason": f"Min-off protection is still active for about {_count_label(wait_s, 'more second')}.",
                     "action_executable": False,
                     "blocked_by": "min_off",
                     "last_action": memory.last_action if memory else None,
@@ -564,7 +564,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 wait_s = round(runtime.config.cooldown_seconds - since_action)
                 return {
                     "guard_status": "blocked",
-                    "guard_reason": f"Action cooldown is still active for about {wait_s} more second(s).",
+                    "guard_reason": f"Action cooldown is still active for about {_count_label(wait_s, 'more second')}.",
                     "action_executable": False,
                     "blocked_by": "cooldown",
                     "last_action": memory.last_action if memory else None,
@@ -586,7 +586,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 wait_s = round(runtime.config.min_on_seconds - since_on)
                 return {
                     "guard_status": "blocked",
-                    "guard_reason": f"Min-on protection is still active for about {wait_s} more second(s).",
+                    "guard_reason": f"Min-on protection is still active for about {_count_label(wait_s, 'more second')}.",
                     "action_executable": False,
                     "blocked_by": "min_on",
                     "last_action": memory.last_action if memory else None,
@@ -597,7 +597,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 wait_s = round(runtime.config.cooldown_seconds - since_action)
                 return {
                     "guard_status": "blocked",
-                    "guard_reason": f"Action cooldown is still active for about {wait_s} more second(s).",
+                    "guard_reason": f"Action cooldown is still active for about {_count_label(wait_s, 'more second')}.",
                     "action_executable": False,
                     "blocked_by": "cooldown",
                     "last_action": memory.last_action if memory else None,

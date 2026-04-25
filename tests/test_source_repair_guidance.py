@@ -906,7 +906,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 stale_data=False,
                 usable_device_count=0,
                 safe_mode=False,
-                diagnostic_summary="Mapped sources currently look healthy across 6 mapped role(s).",
+                diagnostic_summary="Mapped sources currently look healthy across 6 mapped roles.",
                 health_summary="Healthy.",
                 mode="automatic",
             )
@@ -1027,7 +1027,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 usable_device_count=1,
                 safe_mode=False,
                 health_summary="Healthy.",
-                diagnostic_summary="Mapped sources currently look healthy across 6 mapped role(s).",
+                diagnostic_summary="Mapped sources currently look healthy across 6 mapped roles.",
                 mode="automatic",
             )
 

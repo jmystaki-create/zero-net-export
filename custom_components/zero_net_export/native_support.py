@@ -1653,7 +1653,7 @@ def build_live_source_health_summary(state: Any) -> str:
     source_diagnostics = source_attention.get("source_diagnostics", {})
     if source_diagnostics:
         ok_count = sum(1 for details in source_diagnostics.values() if details.get("status") == "ok")
-        return f"Mapped sources currently look healthy across {ok_count} mapped role(s)."
+        return f"Mapped sources currently look healthy across {_count_label(ok_count, 'mapped role')}."
 
     return "Mapped sources currently look healthy."
 
