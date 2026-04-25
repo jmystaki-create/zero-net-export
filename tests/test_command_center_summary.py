@@ -440,6 +440,18 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("unmanaged: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
         self.assertNotIn("Managed: source blockers active", summary)
 
+    def test_command_center_fleet_activity_grouping_keeps_source_blocker_outside_unmanaged_bucket(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support.format_fleet_activity_for_operator(
+            "1 managed | blocked Pool pump | 2 unmanaged backlog | source blockers active | 1 needs review | review Garage relay"
+        )
+
+        self.assertTrue(summary.startswith("source blockers active; Managed: 1 managed"))
+        self.assertIn("Managed: 1 managed | blocked Pool pump", summary)
+        self.assertIn("unmanaged: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
+        self.assertNotIn("unmanaged: 2 unmanaged backlog | source blockers active", summary)
+
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
         native_support = _load_native_support_module()
 

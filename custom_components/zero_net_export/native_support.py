@@ -333,9 +333,13 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     if managed_index is None:
         return normalized
 
-    prefix_parts = [part for part in parts[:managed_index] if part]
-    managed_parts = [part for part in parts[managed_index:unmanaged_index] if part]
-    unmanaged_parts = [part for part in parts[unmanaged_index:] if part]
+    global_problem_parts = [part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL]
+    prefix_parts = [part for part in parts[:managed_index] if part and part not in global_problem_parts]
+    managed_parts = [
+        part for part in parts[managed_index:unmanaged_index] if part and part not in global_problem_parts
+    ]
+    unmanaged_parts = [part for part in parts[unmanaged_index:] if part and part not in global_problem_parts]
+    prefix_parts = [*global_problem_parts, *prefix_parts]
     if not managed_parts or not unmanaged_parts:
         return normalized
 
