@@ -16,7 +16,7 @@
   "issues": {
     "setup_incomplete": {
       "title": "Finish native Zero Net Export setup",
-      "description": "Zero Net Export still needs a few native setup steps.\n\nStatus\n\u2022 Summary: {summary}\n\u2022 Missing required sources: {missing_sources}\n\u2022 Managed Devices: {device_count}\n\nDo next\n\u2022 {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n\u2022 {fallback_hint}\n\nOpen\n\u2022 Command center: {configure_path}\n\u2022 Sensors: {sources_path}\n\u2022 Managed Devices: {devices_path}"
+      "description": "Zero Net Export still needs a few native setup steps.\n\nStatus\n\u2022 Summary: {summary}\n\u2022 Missing required sources: {missing_sources}\n\u2022 Managed Devices: {device_count}\n\nDo next\n\u2022 {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n\u2022 {fallback_hint}\n\nOpen\n\u2022 Command center: {configure_path}\n\u2022 Sensors: {sources_path}\n\u2022 Controls: {policy_path}\n\u2022 Managed Devices: {devices_path}\n\u2022 Diagnostics: {support_path}"
     },
     "device_inventory_invalid": {
       "title": "Managed-device configuration needs repair",
