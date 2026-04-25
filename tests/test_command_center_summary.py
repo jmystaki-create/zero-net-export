@@ -82,6 +82,35 @@ def _load_native_support_module():
 
 
 class CommandCenterSummaryTests(unittest.TestCase):
+    def test_operator_checklist_uses_normal_plural_copy_for_device_counts(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_source_attention_details = lambda state: {
+            "validation_details": {"issues": []},
+            "source_diagnostics": {},
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_selector_fallback_hint = lambda *args, **kwargs: ""
+
+        entry = SimpleNamespace(data={key: f"sensor.{key}" for key in native_support.REQUIRED_SOURCE_KEYS}, options={})
+        state = SimpleNamespace(usable_device_count=1, stale_data=False, safe_mode=False)
+
+        checklist = native_support._build_operator_checklist(
+            state,
+            entry,
+            [
+                {"key": "pool", "name": "Pool pump"},
+                {"key": "heater", "name": "Heater"},
+            ],
+            [],
+        )["checklist"]
+        details = {item["key"]: item["detail"] for item in checklist}
+
+        self.assertEqual(details["devices_configured"], "2 devices configured.")
+        self.assertEqual(details["devices_usable"], "1 usable device available right now.")
+        self.assertNotIn("device(s)", "\n".join(details.values()))
+
     def test_compact_top_alert_summary_drops_literal_none_placeholders(self) -> None:
         native_support = _load_native_support_module()
 
@@ -946,7 +975,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("6 variable candidates", summary["fleet_activity_summary"])
         self.assertNotIn("fixed backlog", summary["fleet_activity_summary"])
         self.assertNotIn("variable backlog", summary["fleet_activity_summary"])
-        self.assertNotIn("1 planned action(s)", summary["fleet_activity_summary"])
+        self.assertNotIn("planned action(s)", summary["fleet_activity_summary"])
 
     def test_command_center_summary_compacts_device_status_before_it_can_overflow_fallback_surfaces(self) -> None:
         native_support = _load_native_support_module()
@@ -1679,7 +1708,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         summary = native_support.build_native_command_center_summary(coordinator)
 
-        self.assertIn("1 configured, with 1 issue(s) to repair", summary["device_status"])
+        self.assertIn("1 configured, with 1 issue to repair", summary["device_status"])
         self.assertIn("2 unmanaged backlog", summary["device_status"])
         self.assertIn("source blockers active", summary["device_status"])
         self.assertNotIn("| 2 unmanaged |", f"| {summary['device_status']} |")
@@ -3589,7 +3618,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("Mapped-source blockers: Grid export power is unavailable", summary["alert_summary"])
-        self.assertIn("Managed-device configuration needs repair for 1 item(s).", summary["alert_summary"])
+        self.assertIn("Managed-device configuration needs repair for 1 item.", summary["alert_summary"])
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
         self.assertEqual(
             summary["fleet_activity_summary"],
@@ -4971,7 +5000,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
         }, options={})
         state = SimpleNamespace(
-            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action(s), plan Pool pump (fixed | action turn_on)",
+            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action, plan Pool pump (fixed | action turn_on)",
             device_count=2,
             enabled_device_count=2,
             usable_device_count=1,
@@ -5077,7 +5106,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
         }, options={})
         state = SimpleNamespace(
-            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action(s), plan Pool pump (fixed | action turn_on)",
+            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action, plan Pool pump (fixed | action turn_on)",
             device_count=2,
             enabled_device_count=2,
             usable_device_count=1,
@@ -5397,7 +5426,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
                     "2 managed devices need attention",
                     "attention first Hot water relay with an extraordinarily verbose managed-device attention label that should require tighter priority compaction",
                     "blocked Hot water relay with an extraordinarily verbose managed-device blocked label that should require tighter priority compaction",
-                    "1 planned action(s)",
+                    "1 planned action",
                     "plan Hot water relay with an extraordinarily verbose managed-device plan label that should require tighter priority compaction",
                     "active load 5300 W",
                     "2 active managed devices",
@@ -6156,7 +6185,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
         }, options={})
         state = SimpleNamespace(
-            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action(s), plan Pool pump (fixed | action turn_on)",
+            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action, plan Pool pump (fixed | action turn_on)",
             device_count=2,
             enabled_device_count=2,
             usable_device_count=1,
@@ -6250,7 +6279,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             native_support.CONF_GRID_EXPORT_ENERGY_ENTITY: "sensor.grid_export_energy",
         }, options={})
         state = SimpleNamespace(
-            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action(s), plan Pool pump (fixed | action turn_on)",
+            device_status_summary="Managed Devices: 2 managed devices need attention, attention first Pool pump (fixed | action turn_on), blocked Pool pump (fixed | blocked), 1 planned action, plan Pool pump (fixed | action turn_on)",
             device_count=2,
             enabled_device_count=2,
             usable_device_count=1,

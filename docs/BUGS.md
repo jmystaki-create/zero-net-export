@@ -2453,6 +2453,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/config_flow.py tests/test_button_entity_categories.py tests/test_config_flow_device_runtime_overlay.py`, and the active-string grep above. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Workstream E wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly to approve deploy/restart instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-196 - Command-center setup/repair copy still exposed plural placeholders
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `command_center`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream A command-center polish and the recent managed-device plural-copy fixes in ZNE-194.
+- **current observed behavior:** active command-center support code still emitted developer plural placeholders in visible setup and repair lines, including `2 device(s) configured.`, `1 usable device(s) available right now.`, `1 configured, with 1 issue(s) to repair`, `Managed-device configuration needs repair for 1 item(s).`, and the options-flow policy warning `1 issue(s)`. That left the top native setup/check/alert surfaces slightly behind the polished operator grammar already fixed for Managed Devices and device-page planned-action summaries.
+- **expected behavior:** command-center setup and repair copy should use normal native operator wording such as `2 devices configured.`, `1 usable device available right now.`, `1 issue to repair`, and `1 item`.
+- **evidence:** this run's grep found `device(s)`, `usable device(s)`, `issue(s)`, and `item(s)` in `custom_components/zero_net_export/native_support.py` and `custom_components/zero_net_export/config_flow.py`, with focused command-center tests still expecting the placeholder repair wording.
+- **repo fix:** this run reuses the native count-label helpers for setup checklist device/usable counts, command-center repair summaries, top alert repair items, and the policy-tuning repair warning, and refreshes focused command-center expectations so the placeholder grammar cannot re-enter those surfaces.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this command-center grammar cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

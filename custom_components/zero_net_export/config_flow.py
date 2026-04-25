@@ -3666,7 +3666,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             policy_readiness = source_placeholders["source_health"] + ". " + source_placeholders["source_next_step"]
             policy_next_step = source_placeholders["source_next_step"]
         elif device_issues:
-            policy_readiness = f"Managed-device issues still need repair before policy tuning can be trusted ({len(device_issues)} issue(s))."
+            policy_readiness = (
+                "Managed-device issues still need repair before policy tuning can be trusted "
+                f"({self._count_label(len(device_issues), 'issue')})."
+            )
             policy_next_step = f"Open {DEVICES_CONFIGURE_PATH} and repair the fleet before trusting policy changes."
         elif not devices:
             policy_readiness = "No managed devices are configured yet. You can tune policy now, but control will not act until devices are added."

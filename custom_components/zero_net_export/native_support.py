@@ -112,6 +112,22 @@ def _managed_count_label(count: int) -> str:
     return "no managed yet" if count <= 0 else f"{count} managed"
 
 
+def _configured_device_count_label(count: int) -> str:
+    return _count_label(count, "device")
+
+
+def _usable_device_count_label(count: int) -> str:
+    return _count_label(count, "usable device")
+
+
+def _repair_issue_count_label(count: int) -> str:
+    return _count_label(count, "issue")
+
+
+def _repair_item_count_label(count: int) -> str:
+    return _count_label(count, "item")
+
+
 SOURCE_BLOCKER_ACTIVE_LABEL = "source blockers active"
 
 
@@ -2009,7 +2025,7 @@ def _build_operator_checklist(
             "label": "Controllable devices onboarded",
             "complete": bool(configured_devices) and not device_parse_issues,
             "detail": (
-                f"{len(configured_devices)} device(s) configured."
+                f"{_configured_device_count_label(len(configured_devices))} configured."
                 if configured_devices and not device_parse_issues
                 else (
                     f"Managed-device configuration issues: {'; '.join(device_parse_issues[:3])}"
@@ -2023,7 +2039,7 @@ def _build_operator_checklist(
             "label": "At least one device currently usable",
             "complete": bool(state_usable_device_count),
             "detail": (
-                f"{state_usable_device_count} usable device(s) available right now."
+                f"{_usable_device_count_label(state_usable_device_count)} available right now."
                 if state_usable_device_count
                 else "No managed devices are currently usable for control."
             ),
@@ -4811,7 +4827,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     if device_parse_issues:
         device_status = _command_center_device_status_with_unmanaged_context(
-            f"{len(configured_devices)} configured, with {len(device_parse_issues)} issue(s) to repair",
+            f"{len(configured_devices)} configured, with {_repair_issue_count_label(len(device_parse_issues))} to repair",
             managed_count=len(configured_devices),
             candidate_count=candidate_count,
             fixed_candidate_count=fixed_candidate_count,
@@ -5116,7 +5132,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             return compact[len(prefix) + 1 :].strip()
         return preview or name
     if device_parse_issues:
-        device_alert = f"Managed-device configuration needs repair for {len(device_parse_issues)} item(s)."
+        device_alert = f"Managed-device configuration needs repair for {_repair_item_count_label(len(device_parse_issues))}."
         device_alert_compact = device_alert
     else:
         if blocked_activity_count:
