@@ -5490,7 +5490,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Live mode shortcut ({POLICY_SECTION_LABEL} device action): {command_center.get('mode_path')}",
             f"- {DEVICES_SECTION_LABEL}: {command_center.get('devices_path')}",
             f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_path')}",
-            f"- Managed-device deep review: {command_center.get('detailed_management_summary')}",
+            f"- Managed-device audit path: {command_center.get('detailed_management_summary')}",
             f"- Review diagnostics snapshot: {snapshot_path}",
             f"- Show setup checklist: {checklist_path}",
         ]

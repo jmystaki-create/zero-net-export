@@ -396,7 +396,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "policy_status": "Mode Automatic",
                 "policy_readiness": "Repair mapped-source blockers first.",
                 "support_status": "Runtime attention remains.",
-                "detailed_management_summary": "Use the device page for deeper per-device review.",
+                "detailed_management_summary": "Use the device page for secondary per-device review.",
                 "sources_path": native_support.SOURCES_CONFIGURE_PATH,
                 "devices_path": native_support.DEVICES_CONFIGURE_PATH,
                 "policy_path": native_support.POLICY_CONFIGURE_PATH,
@@ -615,7 +615,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("Recommended command-center path:", snapshot)
         self.assertNotIn("Why this section is recommended:", snapshot)
         self.assertNotIn("Command-center next action:", snapshot)
-        self.assertNotIn("Managed-device deep review:", snapshot)
+        self.assertNotIn("Managed-device audit path:", snapshot)
 
     def test_support_snapshot_uses_friendly_source_and_device_labels(self) -> None:
         native_support = _load_native_support_module(

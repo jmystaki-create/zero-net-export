@@ -2269,6 +2269,18 @@ Suggested area labels:
 - **validation status:** validated by direct doc inspection and grep; no Home Assistant live validation is required for this supplemental-doc wording fix.
 - **next action:** keep supplemental planning docs aligned with the current source-of-truth set; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
 
+## ZNE-181 - Device-page review handoffs still used `deeper` wording after secondary-path cleanup
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream D/F support-surface wording and Workstream E device-page hierarchy after ZNE-178/ZNE-179
+- **current observed behavior:** the Python-built device-page managed-device notifications had already moved toward the correct hierarchy, but several remaining handoff lines still said the device page was for `deeper review`, `deeper per-device review`, or a `deeper audit trail`. That kept the secondary device-page path sounding like a deeper competing management lane instead of a supporting review/audit path below Configure -> Managed Devices.
+- **expected behavior:** Configure -> Managed Devices should remain the primary fleet workspace; device-page managed-device actions should be described as secondary review, handoff, or audit detail only.
+- **evidence:** this run grepped `custom_components/zero_net_export/button.py`, `native_support.py`, and focused button/source-repair tests after reading `docs/UI_DESIGN.md` and the remaining-work map; the stale `deeper ... review` wording remained in the workspace boundary, promotion handoffs, blocker-return handoff, and command-center guide label.
+- **repo fix:** this run updates `custom_components/zero_net_export/button.py` and `custom_components/zero_net_export/native_support.py` so the device-page boundary says `secondary review and handoff`, per-device review handoffs say `secondary per-device review`, the per-device Review buttons mention a `secondary audit trail`, and the command-center guide labels this as the `Managed-device audit path` instead of `Managed-device deep review`. Focused expectations in `tests/test_button_entity_categories.py` and `tests/test_source_repair_guidance.py` were updated with the same hierarchy wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_source_repair_guidance tests.test_command_center_setup_focus tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/native_support.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this secondary device-page wording cleanup in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
