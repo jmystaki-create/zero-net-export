@@ -903,7 +903,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             and self._same_managed_device(planned_device, attention_device)
             and not self._same_managed_device(planned_device, active_device)
         )
-        fleet_summary_parts = [f"{len(devices)} managed device(s)"]
+        fleet_summary_parts = [self._count_label(len(devices), "managed device")]
         if attention_count:
             fleet_summary_parts.append(
                 "1 managed device needs attention"
@@ -920,7 +920,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             fleet_summary_parts.append(f"{blocked_count} blocked")
         if planned_count:
             fleet_summary_parts.append(
-                "1 planned action(s)" if planned_count == 1 else f"{planned_count} planned action(s)"
+                self._count_label(planned_count, "planned action")
             )
             if planned_device and not suppress_planned_focus:
                 fleet_summary_parts.append(f"plan {self._managed_snapshot_focus_label(planned_device)}")
@@ -1077,7 +1077,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if blocked_device:
             summary_parts.append(f"blocked {self._managed_snapshot_focus_label(blocked_device)}")
         if planned_count:
-            summary_parts.append(f"{planned_count} planned action(s)")
+            summary_parts.append(self._count_label(planned_count, "planned action"))
         if planned_device and not suppress_planned_focus:
             summary_parts.append(f"plan {self._managed_snapshot_focus_label(planned_device)}")
         return " | ".join(summary_parts)
@@ -3697,7 +3697,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     "then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
                 )
         else:
-            policy_readiness = f"Sources are mapped and {len(devices)} managed device(s) are configured, so policy changes are actionable now."
+            policy_readiness = f"Sources are mapped and {self._count_label(len(devices), 'managed device')} configured, so policy changes are actionable now."
             policy_next_step = (
                 f"Tune behaviour here, then use {MODE_CONTROL_PATH} or {INTEGRATION_DEVICE_PATH} to verify the current controller outcome."
             )

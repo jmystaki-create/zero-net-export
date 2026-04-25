@@ -2428,6 +2428,18 @@ Suggested area labels:
 - **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
 - **next action:** keep source-of-truth design wording aligned with the secondary review/audit hierarchy; if no sharper A-D/F product defect remains, ask James directly to approve deploy/restart of the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-194 - Managed Devices fleet summary still exposed developer plural placeholders
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the Workstream B Managed Devices workspace against the native operator-console wording in `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** the primary Configure -> Managed Devices fleet summary still rendered helper-ish plural placeholders such as `2 managed device(s)` and `1 planned action(s)`. That made the top managed-fleet line read like generated debug copy instead of the polished native fleet workspace required by Workstream B.
+- **expected behavior:** Managed Devices summary copy should use normal operator wording such as `2 managed devices`, `1 planned action`, and `2 planned actions`.
+- **evidence:** repo grep found `managed device(s)` and `planned action(s)` in `custom_components/zero_net_export/config_flow.py`, including the `Fleet summary` line used by the Managed Devices workspace.
+- **repo fix:** this run updates `custom_components/zero_net_export/config_flow.py` to reuse the existing `_count_label(...)` helper for managed-device and planned-action counts, and refreshes `tests/test_config_flow_device_runtime_overlay.py` so the primary Managed Devices workspace rejects the placeholder grammar.
+- **validation status:** repo-side fixed and verified in this watchdog run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this config-flow wording fix in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly to approve deploy/restart instead of refreshing release/fingerprint wording again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
