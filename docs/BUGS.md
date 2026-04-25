@@ -2172,6 +2172,18 @@ Suggested area labels:
 - **validation status:** validated by direct doc inspection after the edit; no Home Assistant live validation is required for this archive/source-of-truth correction.
 - **next action:** keep older docs clearly subordinate to the current source-of-truth set; do not let archived dashboard or stale release-target wording displace the `0.1.88` native-HA workstream order.
 
+## ZNE-173 - Secondary fleet handoffs still dropped `workspace` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream B workspace-first copy after the command-center intro regression fix
+- **current observed behavior:** several secondary native handoffs still said `for Managed Devices`, `return to Managed Devices`, or described the next milestone as backlog work `in Managed Devices` even though the surrounding source-of-truth and recent fixes require `Managed Devices workspace` wording for fleet work. The affected repo paths were the device-page managed-workspace handoff in `button.py`, operator-readiness summaries and deeper-review handoff in `native_support.py`, and edit/remove/manual-promotion follow-through text in `config_flow.py`.
+- **expected behavior:** secondary fleet handoffs should keep the same workspace-first phrasing as the primary Configure flow, so Workstream B does not regress into generic bucket labels or helper-screen wording.
+- **evidence:** this run's repo grep found stale workspace omissions in `custom_components/zero_net_export/button.py`, `custom_components/zero_net_export/native_support.py`, and `custom_components/zero_net_export/config_flow.py`, while `docs/UI_IMPLEMENTATION_MAP.md` Workstream B still says to remove wording that makes `Configure -> Managed Devices` feel like a thin helper layer instead of the real fleet workspace.
+- **repo fix:** this run changes those secondary handoffs to say `the Managed Devices workspace`, including the device-page `Then reopen ...` blocker-repair line, the promotion save hint, the operator-readiness unmanaged-backlog summaries, the deeper-review return handoff, and edit/remove/manual-promotion follow-through text.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_source_repair_guidance tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this workspace-first copy fix in the next exact-build deploy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

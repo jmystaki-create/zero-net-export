@@ -695,7 +695,7 @@ def _managed_devices_workspace_handoff(
             lines.append(f"- Why: {recommended_reason}")
         if next_step:
             lines.append(f"- Next fleet step after repair: {next_step}")
-        lines.append(f"- Then reopen {DEVICES_CONFIGURE_PATH} for Managed Devices.")
+        lines.append(f"- Then reopen {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.")
         lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for deeper per-device review after the main fleet step is clear.")
         lines.append(f"- {_managed_devices_workspace_boundary()}")
         return lines
@@ -716,7 +716,7 @@ def _managed_devices_workspace_handoff(
                 f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
                 shortlist_step,
                 f"- In Promotion shortlist, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
-                "- Review fit and warnings, then save it into Managed Devices.",
+                "- Review fit and warnings, then save it into the Managed Devices workspace.",
             ]
         )
         if ready_candidate and ready_candidate != primary_candidate:

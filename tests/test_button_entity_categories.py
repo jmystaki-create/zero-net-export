@@ -484,7 +484,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Open sources path first.", message)
         self.assertIn("- Why: Mapped source blockers remain.", message)
         self.assertIn("- Next fleet step after repair: Review the next managed device.", message)
-        self.assertIn("- Then reopen devices path for Managed Devices.", message)
+        self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
         self.assertIn("- Use detailed device path only for deeper per-device review after the main fleet step is clear.", message)
         self.assertIn(
             "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",
@@ -769,7 +769,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Return after blocker repair:", message)
         self.assertIn("- Open sources path first.", message)
         self.assertIn("- Why: Mapped source blockers remain.", message)
-        self.assertIn("- Then reopen devices path for Managed Devices.", message)
+        self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
         self.assertIn("- Use detailed device path only for deeper per-device review after the main fleet step is clear.", message)
         self.assertIn(
             "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for deeper review and handoff.",

@@ -2108,13 +2108,13 @@ def _build_operator_checklist(
                     f"{ready_candidate_preview or ready_candidate_name}"
                 )
             next_step += "."
-            summary = "Sources are ready; the next milestone is reviewing the current unmanaged backlog in Managed Devices."
+            summary = "Sources are ready; the next milestone is reviewing the current unmanaged backlog in the Managed Devices workspace."
         elif ready_candidate_name or top_candidate_preview or top_candidate_name:
             next_step = (
                 f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}."
             )
-            summary = "Sources are ready; the next milestone is promoting the current unmanaged backlog in Managed Devices."
+            summary = "Sources are ready; the next milestone is promoting the current unmanaged backlog in the Managed Devices workspace."
         else:
             next_step = (
                 f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
@@ -2180,7 +2180,7 @@ def build_detailed_management_handoff(
     if usable_count <= 0:
         return (
             f"Use {DETAILED_MANAGEMENT_PATH} as the deeper device-page review path to inspect each managed device's status, guards, plans, and reset actions, "
-            "then return to Managed Devices to adjust the fleet if needed."
+            "then return to the Managed Devices workspace to adjust the fleet if needed."
         )
 
     return (

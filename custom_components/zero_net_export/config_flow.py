@@ -1908,13 +1908,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         elif action == "edit" and device is not None:
             title = "managed-device update saved"
-            changed = f"Updated {current_name} in Managed Devices."
+            changed = f"Updated {current_name} in the Managed Devices workspace."
             next_step = (
                 f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then {candidate_follow_through}."
             )
         elif action == "remove" and previous_device is not None:
             title = "managed-device removal saved"
-            changed = f"Removed {current_name} from Managed Devices."
+            changed = f"Removed {current_name} from the Managed Devices workspace."
             next_step = (
                 f"Next step: reopen {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then {candidate_follow_through}."
             )
@@ -2850,7 +2850,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "Repair the managed-device issues first, then return here to review enablement or add another load."
         if not devices and primary_candidate:
             next_step = (
-                f"Start by reviewing {self._top_candidate_focus_text(primary_candidate)} through the matching promotion action below, then save it into Managed Devices"
+                f"Start by reviewing {self._top_candidate_focus_text(primary_candidate)} through the matching promotion action below, then save it into the Managed Devices workspace"
             )
             if ready_candidate and ready_candidate != primary_candidate:
                 next_step += (
