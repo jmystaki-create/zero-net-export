@@ -1,10 +1,13 @@
-# UI Design for Zero Net Export
+# Archived UI Design Snapshot for Zero Net Export
 
-This document is the single source of truth for the **product design** of the native Home Assistant UI.
+> **Archive note:** this file is historical only. It is not a current source of truth and must not be used for active UI steering, release gating, or watchdog ranking.
+>
+> Current source-of-truth files are:
+> - `docs/UI_DESIGN.md` for product design and supported native Home Assistant surfaces
+> - `docs/UI_IMPLEMENTATION_MAP.md` for implementation strategy, delivery status, remaining work, and active release line
+> - `docs/BUGS.md` for active bugs, regressions, validation state, and closure state
 
-If another project document appears to disagree about UI direction, supported operator surfaces, or section ownership, follow this file.
-
-The implementation plan, delivery phases, completed work, and remaining work now live in `docs/UI_IMPLEMENTATION_MAP.md`.
+This archived snapshot is kept only for historical comparison. If it disagrees with the current UI direction, supported surfaces, release target, dashboard scope, or section ownership, ignore this file and follow the current source-of-truth files above.
 
 ## Product intent
 

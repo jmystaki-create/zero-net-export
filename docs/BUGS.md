@@ -2160,6 +2160,18 @@ Suggested area labels:
 - **validation status:** validated by direct source-of-truth inspection; no live Home Assistant validation is required for this bug-tracker structure fix.
 - **next action:** keep adding new bug entries before the final closure rule, and reserve live validation work for actual product/runtime bugs.
 
+## ZNE-172 - Archived UI design snapshot still claimed source-of-truth authority
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while comparing older project docs against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/SUPERVISOR.md`
+- **current observed behavior:** `docs/UI_DESIGN-old.md` was named as an old snapshot but still opened by claiming it was the single source of truth for the native UI design, and it still carried stale `0.1.83` dashboard/release-gate wording. That created a real source-of-truth leak because a future watchdog or operator could follow the archived file instead of the current native-HA-only design and `0.1.88` implementation map.
+- **expected behavior:** archived design snapshots should clearly defer to `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/BUGS.md` so they cannot override current native Home Assistant steering or restart dashboard/custom-UI churn.
+- **evidence:** this run inspected `docs/UI_DESIGN-old.md` and found the stale `single source of truth` header plus `0.1.83` release-gate language, while the current source docs define `0.1.88`, native-only Configure / device-page / entities / Repairs surfaces, and optional dashboards outside the release gate.
+- **repo fix:** this run rewrites the archived file header so it explicitly says the file is historical only, not a source of truth, and names `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/BUGS.md` as the current authorities.
+- **validation status:** validated by direct doc inspection after the edit; no Home Assistant live validation is required for this archive/source-of-truth correction.
+- **next action:** keep older docs clearly subordinate to the current source-of-truth set; do not let archived dashboard or stale release-target wording displace the `0.1.88` native-HA workstream order.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
