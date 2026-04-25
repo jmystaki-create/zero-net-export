@@ -298,7 +298,9 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     parts = []
     for part in _split_fleet_activity_parts(normalized):
         tokens = part.split()
-        if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
+        if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "managed" and tokens[0] == "0":
+            part = "no managed yet"
+        elif len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
             part = f"{tokens[0]} unmanaged backlog"
         parts.append(part)
     unmanaged_index = next(
