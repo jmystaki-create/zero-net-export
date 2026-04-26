@@ -612,7 +612,7 @@ def _managed_devices_post_blocker_step(
             "or opening Diagnostics."
         )
     return (
-        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
     )
 
 

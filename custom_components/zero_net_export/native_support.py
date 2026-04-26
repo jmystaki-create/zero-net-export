@@ -1299,10 +1299,10 @@ def _compact_next_action_fallback(
             )
         if has_managed_devices:
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes."
             )
         return (
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
         )
 
     if recommended_section == POLICY_SECTION_LABEL:
@@ -2273,7 +2273,7 @@ def _build_operator_checklist(
             summary = "Sources are ready; the next milestone is promoting the current unmanaged backlog in the Managed Devices workspace."
         else:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
             )
             summary = "Sources are ready; the next milestone is adding controllable devices."
     elif not state_usable_device_count:
@@ -2328,7 +2328,7 @@ def build_detailed_management_handoff(
     devices = configured_devices or []
     if not devices:
         return (
-            f"Keep {DEVICES_CONFIGURE_PATH} as the Managed Devices workspace: review the unmanaged candidate when one is surfaced, or add the first fixed or variable load in Managed Devices when no surfaced unmanaged candidate is available; use {DETAILED_MANAGEMENT_PATH} "
+            f"Keep {DEVICES_CONFIGURE_PATH} as the Managed Devices workspace: review the unmanaged candidate when one is surfaced, or add the first fixed or variable load manually when no surfaced unmanaged candidate is available; use {DETAILED_MANAGEMENT_PATH} "
             "as the secondary device-page review/audit path once the fleet exists."
         )
 
@@ -5068,7 +5068,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
                 )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes."
             )
     else:
         device_status = _command_center_device_status_with_unmanaged_context(
@@ -5111,7 +5111,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
             )
 
     recommendation = build_native_setup_recommendation(
@@ -5175,7 +5175,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             )
         else:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
             )
     elif readiness_phase == "runtime_readiness":
         next_action_summary = str(

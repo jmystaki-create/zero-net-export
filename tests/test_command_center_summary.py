@@ -2543,7 +2543,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         expected = (
             "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices "
-            "to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+            "to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
         )
         self.assertEqual(expected, summary["device_next_step"])
         self.assertEqual(expected, summary["next_action_summary"])
@@ -3686,7 +3686,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertEqual(
             summary["device_next_step"],
-            f"Open {native_support.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices.",
+            f"Open {native_support.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes.",
         )
         self.assertNotIn("review the fleet", summary["device_next_step"])
 

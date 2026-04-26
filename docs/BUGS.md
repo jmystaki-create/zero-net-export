@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-301 - Managed Devices follow-through repeated the workspace name inside local action text
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream B/D follow-through copy after the latest helper-style wording cleanup.
+- **current observed behavior:** several native follow-through strings already opened `Configure -> Managed Devices` and anchored the operator in the `Managed Devices workspace`, then repeated `in Managed Devices` inside the local action itself, for example `then add the first fixed or variable load in Managed Devices...` and `then edit device settings or stage enablement changes in Managed Devices.` That made the fleet handoff feel like repeated helper narration instead of a crisp workspace action.
+- **expected behavior:** once a next step has anchored the operator in the Managed Devices workspace, the local action should be direct: add the first fixed or variable load manually, or edit device settings / stage enablement changes, without repeating the bucket name.
+- **evidence:** direct repo inspection found the repeated wording in `custom_components/zero_net_export/config_flow.py`, `custom_components/zero_net_export/sensor.py`, `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/button.py`, and focused regression expectations.
+- **repo fix:** this run changes those follow-through lines to `add the first fixed or variable load manually...` and `edit device settings or stage enablement changes`, updates focused tests, and records the compact `0.1.89` changelog note.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_sensor_entity_categories tests.test_command_center_summary tests.test_button_entity_categories tests.test_source_repair_guidance`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream B/D follow-through cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-300 - Fallback field descriptions still used local here wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

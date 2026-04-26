@@ -1087,7 +1087,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "- After repair: Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
+            "- After repair: Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
             lines,
         )
         self.assertNotIn(

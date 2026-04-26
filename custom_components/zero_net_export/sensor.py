@@ -750,10 +750,10 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
         )
     if counts["managed_count"] == 0:
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available"
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available"
         )
     return _truncate_sensor_state(
-        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices"
+        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes"
     )
 
 

@@ -106,7 +106,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Keep", guidance)
         self.assertIn("as the Managed Devices workspace", guidance)
         self.assertIn("review the unmanaged candidate when one is surfaced", guidance)
-        self.assertIn("add the first fixed or variable load in Managed Devices when no surfaced unmanaged candidate is available", guidance)
+        self.assertIn("add the first fixed or variable load manually when no surfaced unmanaged candidate is available", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
         self.assertIn("as the secondary device-page review/audit path once the fleet exists", guidance)
         self.assertNotIn("as the deeper device-page review path", guidance)

@@ -1320,7 +1320,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         if managed_count > 0:
             return "edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics"
-        return "add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available"
+        return "add the first fixed or variable load manually because no surfaced unmanaged candidate is available"
 
     @staticmethod
     def _candidate_snapshot_text(candidates: list[dict[str, Any]], *, limit: int = 12) -> str:
@@ -1867,7 +1867,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "review blocked devices in the Managed Devices workspace",
                 "confirm the active fleet plan in the Managed Devices workspace",
                 "continue in the Managed Devices workspace, starting with attention on",
-                "continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices",
+                "continue in the Managed Devices workspace, then edit device settings or stage enablement changes",
             )
         ):
             return device_next_step
@@ -2274,7 +2274,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     source_next_step += "."
                 elif not devices:
                     source_next_step = (
-                        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+                        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
                     )
                 elif primary_candidate:
                     candidate_focus = self._top_candidate_focus_text(primary_candidate)
@@ -2867,7 +2867,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return next_step + "."
         if not devices:
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
             )
         if primary_candidate:
             candidate_focus = self._top_candidate_focus_text(primary_candidate)
@@ -2884,7 +2884,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: {candidate_focus}."
             )
         return (
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices."
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes."
         )
 
     def _detailed_management_summary(self) -> str:
@@ -3708,7 +3708,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             else:
                 policy_next_step = (
                     f"After saving Controls defaults, open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
-                    "then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
+                    "then add the first fixed or variable load manually because no surfaced unmanaged candidate is available."
                 )
         else:
             policy_readiness = f"Source roles are complete and {self._count_label(len(devices), 'managed device')} configured, so Controls changes are actionable now."

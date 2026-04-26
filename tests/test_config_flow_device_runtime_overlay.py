@@ -2131,7 +2131,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             placeholders["source_next_step"],
-            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
+            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
         )
         self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required source roles mapped")
         self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
@@ -2424,7 +2424,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"After saving Controls defaults, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
+            f"After saving Controls defaults, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
         )
         self.assertNotIn("After saving Controls defaults here", result["description_placeholders"]["policy_next_step"])
 
@@ -2804,7 +2804,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
     def test_build_device_action_feedback_prefers_managed_workspace_follow_through_from_command_center(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
-            "device_next_step": "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices."
+            "device_next_step": "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes."
         }
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(title="Zero Net Export", entry_id="entry-1", options={}))
         flow.hass = SimpleNamespace(data={module.DOMAIN: {"entry-1": SimpleNamespace(data=SimpleNamespace())}})
@@ -2819,7 +2819,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices.",
+            "Next step: Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes.",
             feedback["message"],
         )
         self.assertNotIn("confirm the updated enablement snapshot", feedback["message"])
@@ -2838,7 +2838,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn(
-            "Next step: reopen devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
+            "Next step: reopen devices path to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
             feedback["message"],
         )
         self.assertNotIn("remaining fleet", feedback["message"])
@@ -2975,7 +2975,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
+            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available.",
         )
 
     def test_device_next_step_uses_managed_devices_workspace_wording_for_enablement(self) -> None:
@@ -2991,7 +2991,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             next_step,
-            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices.",
+            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes.",
         )
 
     def test_device_next_step_keeps_managed_devices_workspace_wording_when_candidates_remain(self) -> None:

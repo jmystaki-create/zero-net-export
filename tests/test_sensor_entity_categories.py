@@ -1233,7 +1233,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available",
+            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available",
         )
 
     def test_fleet_console_next_step_names_ready_next_candidate_after_review_when_backlog_is_mixed(self) -> None:
@@ -1314,7 +1314,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices",
+            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes",
         )
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("sources path", next_step.native_value)
@@ -1389,7 +1389,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available",
+            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load manually because no surfaced unmanaged candidate is available",
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
@@ -1420,7 +1420,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices",
+            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes",
         )
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
