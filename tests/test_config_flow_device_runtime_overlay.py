@@ -54,6 +54,7 @@ def _load_config_flow_module():
     config_entries_module.ConfigFlow = ConfigFlow
     config_entries_module.OptionsFlow = OptionsFlow
     sys.modules[config_entries_module.__name__] = config_entries_module
+    homeassistant_module.config_entries = config_entries_module
 
     core_module = types.ModuleType("homeassistant.core")
     core_module.callback = lambda func: func

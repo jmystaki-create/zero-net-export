@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-367 - Config-flow regression tests could fail after setup-notice tests polluted Home Assistant stubs
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 while running adjacent native-UI regression suites together after recent Workstream A-D/F fixes.
+- **current observed behavior:** `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` failed 78 config-flow tests with `AttributeError: module 'homeassistant.config_entries' has no attribute 'ConfigFlow'` when earlier setup-notice tests left a parent `homeassistant.config_entries` stub without the config-flow classes.
+- **expected behavior:** focused native-UI regression suites should be order-independent so validation failures reflect real product regressions, not stale test stubs from earlier modules.
+- **evidence:** the combined suite failed while `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` passed alone, confirming test-order pollution rather than a config-flow product failure.
+- **repo fix:** this run makes the config-flow test loader also attach its replacement `homeassistant.config_entries` module to the parent `homeassistant` stub, so `from homeassistant import config_entries` resolves the intended ConfigFlow/OptionsFlow test double after earlier suites run.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` and `python3 -m py_compile tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation is not applicable for this process/test-isolation fix.
+- **next action:** keep this validation-stability fix in the next `0.1.89` candidate; the single next project gap remains James's direct approval for the `0.1.89` freeze/release/deploy/restart path if no sharper A-D/F implementation defect appears.
+
 ## ZNE-366 - Release-info changelog preview still leaked mapped-source wording and overlong 0.1.89 notes
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
