@@ -162,18 +162,6 @@ def _normalize_native_path_text(text: Any) -> str:
         "Open Managed Devices to": f"Open {DEVICES_CONFIGURE_PATH} to",
         "Open Diagnostics and": f"Open {SUPPORT_CONFIGURE_PATH} and",
         "Open Diagnostics to": f"Open {SUPPORT_CONFIGURE_PATH} to",
-        "Open Configure > Sensors": f"Open {SOURCES_CONFIGURE_PATH}",
-        "Open Configure > Controls": f"Open {POLICY_CONFIGURE_PATH}",
-        "Open Configure > Managed Devices": f"Open {DEVICES_CONFIGURE_PATH}",
-        "Open Configure > Diagnostics": f"Open {SUPPORT_CONFIGURE_PATH}",
-        "Open Configure -> Sensors": f"Open {SOURCES_CONFIGURE_PATH}",
-        "Open Configure -> Controls": f"Open {POLICY_CONFIGURE_PATH}",
-        "Open Configure -> Managed Devices": f"Open {DEVICES_CONFIGURE_PATH}",
-        "Open Configure -> Diagnostics": f"Open {SUPPORT_CONFIGURE_PATH}",
-        "Open Configure → Sensors": f"Open {SOURCES_CONFIGURE_PATH}",
-        "Open Configure → Controls": f"Open {POLICY_CONFIGURE_PATH}",
-        "Open Configure → Managed Devices": f"Open {DEVICES_CONFIGURE_PATH}",
-        "Open Configure → Diagnostics": f"Open {SUPPORT_CONFIGURE_PATH}",
         "Start in the unmanaged section": f"Review the Managed Devices workspace at {DEVICES_CONFIGURE_PATH}, starting with unmanaged candidates",
         "start in the unmanaged section": f"review the Managed Devices workspace at {DEVICES_CONFIGURE_PATH}, starting with unmanaged candidates",
         "Review the unmanaged section": f"Review the Managed Devices workspace at {DEVICES_CONFIGURE_PATH}, starting with unmanaged candidates",
@@ -247,20 +235,21 @@ def _normalize_native_path_text(text: Any) -> str:
         "Diagnostics": SUPPORT_CONFIGURE_PATH,
     }
     for section_label, section_path in arrow_paths.items():
+        escaped_section = re.escape(section_label)
         value = re.sub(
-            rf"(?<!Zero Net Export -> )Configure -> {re.escape(section_label)}",
+            rf"{re.escape(PRIMARY_CONFIGURE_PATH)}\s*(?:->|→|>)\s*{escaped_section}(?!; device-page diagnostics)",
             section_path,
             value,
             flags=re.IGNORECASE,
         )
         value = re.sub(
-            rf"(?<!Zero Net Export -> )Configure → {re.escape(section_label)}",
+            rf"(?<!Integrations -> )Zero Net Export\s*->\s*Configure\s*(?:->|→|>)\s*{escaped_section}(?!; device-page diagnostics)",
             section_path,
             value,
             flags=re.IGNORECASE,
         )
         value = re.sub(
-            rf"(?<!Zero Net Export -> )Configure > {re.escape(section_label)}",
+            rf"(?<!Zero Net Export -> )Configure\s*(?:->|→|>)\s*{escaped_section}(?!; device-page diagnostics)",
             section_path,
             value,
             flags=re.IGNORECASE,

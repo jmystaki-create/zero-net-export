@@ -319,13 +319,13 @@ class SetupNoticeCopyTests(unittest.TestCase):
             module._normalize_native_setup_notice_text(
                 "Path: Zero Net Export -> Configure → Sensors. Next: Zero Net Export -> Configure → Managed Devices."
             ),
-            "Path: Zero Net Export -> Configure → Sensors. Next: Zero Net Export -> Configure → Managed Devices.",
+            "Path: sensors path. Next: devices path.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
                 "Path: Zero Net Export -> Configure > Sensors. Next: Zero Net Export -> Configure > Managed Devices."
             ),
-            "Path: Zero Net Export -> Configure > Sensors. Next: Zero Net Export -> Configure > Managed Devices.",
+            "Path: sensors path. Next: devices path.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(

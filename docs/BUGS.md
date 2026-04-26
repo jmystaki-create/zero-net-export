@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-357 - Partial Zero Net Export Configure paths stayed as shorthand instead of exact HA paths
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the repeated Workstream D/F native path-normalization fixes for remaining exact-path leaks and loop/churn behavior.
+- **current observed behavior:** the Configure bucket normalizers intentionally avoided double-expanding already-expanded paths, but the guard also preserved partial cached handoffs such as `Zero Net Export -> Configure > Sensors` and `Zero Net Export -> Configure → Managed Devices`. Those strings are not the exact Home Assistant paths defined by the native-UI source of truth, so command-center/support text or setup notifications could still render a shorthand integration-local path.
+- **expected behavior:** full `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure ...` paths should canonicalize safely without duplication, and partial `Zero Net Export -> Configure ...` or bare `Configure ...` bucket handoffs should expand to the exact native Home Assistant Configure paths before rendering.
+- **evidence:** focused regressions now exercise full unicode-arrow paths, partial `Zero Net Export -> Configure > ...` / `Zero Net Export -> Configure → ...` paths, and setup-notification equivalents, requiring exact native paths or canonical setup paths while rejecting the shorthand partial form.
+- **repo fix:** this run routes Configure bucket normalization through one guarded regex path in both native support text and setup notifications, removes the earlier exact-string `Open Configure ...` pre-replacements that could double-append Diagnostics guidance, canonicalizes full separator variants, and expands partial `Zero Net Export -> Configure ...` handoffs instead of preserving them.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D path-normalization cleanup in the next `0.1.89` exact build; after this fix, the stronger process gap is to stop path-variant churn unless a materially sharper A-D/F defect appears and ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
+
 ## ZNE-356 - Case-variant Configure bucket handoffs bypassed exact native path normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
