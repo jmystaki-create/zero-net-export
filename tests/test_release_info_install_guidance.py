@@ -82,6 +82,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("top-candidate", current_highlights)
         self.assertNotIn("runtime-ranked", current_highlights)
         self.assertNotIn("back into Configure -> Managed Devices", current_highlights)
+        self.assertNotIn("back into the full Settings", current_highlights)
         self.assertNotIn("deeper review", current_highlights)
         self.assertNotIn("deep-review", current_highlights)
 
