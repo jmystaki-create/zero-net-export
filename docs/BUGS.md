@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-332 - Fleet activity kind inventory could masquerade as the aggregate managed count
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** `format_fleet_activity_for_operator(...)` treated any text ending in `managed` as the aggregate managed count. Cached or fallback fleet text with kind inventory but no aggregate count, such as `1 fixed managed | 1 variable managed | 2 unmanaged backlog`, could render as `Managed devices: 1 fixed managed | 1 variable managed` instead of a clear aggregate managed-fleet count followed by kind inventory.
+- **expected behavior:** Fleet activity grouping should distinguish aggregate managed counts from fixed/variable managed inventory, infer the aggregate count from kind inventory when needed, and keep the top-board managed/unmanaged story obvious.
+- **evidence:** focused regression coverage now exercises kind-inventory-only summaries in normal and reversed order and rejects `Managed devices: 1 fixed managed` as the lead managed count.
+- **repo fix:** this run narrows aggregate managed-count recognition to exact `N managed` / `N managed device(s)` forms, infers `N managed` from fixed/variable managed inventory when no aggregate count is present, updates focused command-center coverage, and folds the cleanup into the compact Unreleased Fleet activity changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity fallback cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-331 - Setup notification normalization missed shorthand Configure bucket paths
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

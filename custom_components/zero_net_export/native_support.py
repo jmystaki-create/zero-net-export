@@ -230,7 +230,7 @@ def _is_managed_count_part(text: str) -> bool:
     normalized = " ".join(str(text or "").split())
     return (
         normalized == "no managed yet"
-        or normalized.endswith(" managed")
+        or re.fullmatch(r"\d+ managed", normalized) is not None
         or re.fullmatch(r"\d+ managed devices?", normalized) is not None
     )
 
@@ -472,7 +472,33 @@ def format_fleet_activity_for_operator(summary: str) -> str:
         None,
     )
     if managed_index is None:
-        return normalized
+        inferred_managed_count = sum(
+            count
+            for part in parts
+            for count in (
+                _count_label_value(part, "fixed managed")
+                or _count_label_value(part, "variable managed")
+                or 0,
+            )
+        )
+        first_managed_activity_index = next(
+            (
+                index
+                for index, part in enumerate(parts)
+                if not _is_unmanaged_count_part(part) and _is_managed_activity_part(part)
+            ),
+            None,
+        )
+        if not inferred_managed_count or first_managed_activity_index is None:
+            return normalized
+        parts = [
+            *parts[:first_managed_activity_index],
+            _managed_count_label(inferred_managed_count),
+            *parts[first_managed_activity_index:],
+        ]
+        if first_managed_activity_index <= unmanaged_index:
+            unmanaged_index += 1
+        managed_index = first_managed_activity_index
 
     if managed_index > unmanaged_index:
         global_problem_parts = [part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL]

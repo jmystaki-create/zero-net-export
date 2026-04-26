@@ -684,6 +684,35 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("2 managed devices", summary)
         self.assertNotIn("1 unmanaged candidate", summary)
 
+    def test_command_center_fleet_activity_infers_managed_count_from_kind_inventory(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support.format_fleet_activity_for_operator(
+            "enabled 2 | usable 2 | 1 fixed managed | 1 variable managed | "
+            "2 unmanaged backlog | 1 needs review | review Garage relay"
+        )
+
+        self.assertEqual(
+            summary,
+            "Managed devices: 2 managed | enabled 2 | usable 2 | 1 fixed managed | 1 variable managed; "
+            "Unmanaged backlog: 2 unmanaged backlog | 1 needs review | review Garage relay",
+        )
+        self.assertNotIn("Managed devices: 1 fixed managed", summary)
+
+    def test_command_center_fleet_activity_recovers_reversed_kind_inventory_without_count(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support.format_fleet_activity_for_operator(
+            "2 unmanaged backlog | review Garage relay | 1 fixed managed | 1 variable managed"
+        )
+
+        self.assertEqual(
+            summary,
+            "Managed devices: 2 managed | 1 fixed managed | 1 variable managed; "
+            "Unmanaged backlog: 2 unmanaged backlog | review Garage relay",
+        )
+        self.assertLess(summary.index("Managed devices:"), summary.index("Unmanaged backlog:"))
+
     def test_raw_fleet_activity_keeps_source_blocker_global_for_empty_managed_fleet(self) -> None:
         native_support = _load_native_support_module()
 
