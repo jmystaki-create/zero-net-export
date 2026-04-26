@@ -1659,7 +1659,7 @@ def build_source_repair_step(
 
     if blocking_details and blocking_details != "None":
         blocker_text = (
-            f"repair these highlighted mapped roles first: {affected_roles_text}, then clear the blocking source validation errors ({blocking_details})"
+            f"repair these highlighted source roles first: {affected_roles_text}, then clear the blocking source validation errors ({blocking_details})"
             if affected_roles_text and affected_roles_text != "None"
             else f"repair the blocking source validation errors ({blocking_details})"
         )
@@ -1670,7 +1670,7 @@ def build_source_repair_step(
         )
 
     return (
-        f"Open {SOURCES_CONFIGURE_PATH}, review the mapped sources, then save and reload the integration, "
+        f"Open {SOURCES_CONFIGURE_PATH}, review the source map, then save and reload the integration, "
         "then reopen Sensors to confirm live source health."
     )
 
@@ -5117,7 +5117,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
     )
     if missing_required_sources:
-        policy_readiness = "Finish source mapping first. Policy tuning is not actionable until the required mapped roles are complete."
+        policy_readiness = "Finish source mapping first. Policy tuning is not actionable until the required source roles are complete."
     elif runtime_source_attention:
         policy_readiness = f"Repair source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
     elif device_parse_issues:

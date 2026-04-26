@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Kept remaining Sensors and Controls source-repair readiness copy on operator-facing `source roles` / `source map` wording instead of reviving mapped-role labels in primary native handoffs.
 - Kept source-blocker summaries and healthy stale-source status on operator-facing `source roles` wording instead of reviving mapped-role/mapped-source jargon in Configure and runtime sensors.
 - Kept the setup checklist's healthy source-validation line on operator-facing `Source roles` wording instead of reviving mapped-source jargon in the device-page checklist.
 - Kept stale/unavailable runtime source-blocker reasons on operator-facing `source roles` wording instead of reviving mapped-source jargon in Repairs and operator-readiness handoffs.

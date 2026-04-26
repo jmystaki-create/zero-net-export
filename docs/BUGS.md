@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-243 - Sensors and Controls source-repair readiness copy still leaked mapped-role labels
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role cleanup after adjacent source-health, checklist, Repairs, helper-label, and source-summary wording had already moved off mapped-role jargon.
+- **current observed behavior:** the Controls readiness fallback still said policy tuning was blocked until `required mapped roles` were complete, the validation-only source repair handoff said to repair `highlighted mapped roles`, and the Sensors setup description still labeled unavailable/stale blockers as `Unavailable mapped roles` / `Stale mapped roles`. Those strings let lower-level mapping terminology carry primary native handoffs after the release line had standardized those surfaces on source roles/source map wording.
+- **expected behavior:** primary Sensors and Controls readiness copy should use operator-facing `source roles` / `source map` wording, while preserving mapped-entity detail only where operators are confirming the actual Home Assistant entity bindings.
+- **evidence:** repo grep in this run found the remaining active strings in `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/strings.json`, and `custom_components/zero_net_export/translations/en.json`.
+- **repo fix:** this run changes the Controls readiness copy to `required source roles`, changes the validation-only source repair handoff to `highlighted source roles`, changes the default repair fallback to `review the source map`, changes the Sensors setup labels to `Unavailable source roles` / `Stale source roles`, records the `0.1.89` changelog highlight, and adds regression coverage rejecting the older mapped-role labels.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_bucket_ownership_copy tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py tests/test_bucket_ownership_copy.py`, and focused grep confirming the old active mapped-role handoff strings are gone from active component code. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream D/F source-repair wording cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-242 - Runtime and Configure source summaries still used mapped-role wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

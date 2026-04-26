@@ -281,8 +281,17 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             blocking_validation_details="Battery state of charge entity sensor.battery_soc is not numeric",
             affected_roles="Battery state of charge -> sensor.battery_soc (Battery state of charge entity sensor.battery_soc is not numeric)",
         )
+        self.assertIn("repair these highlighted source roles first", guidance)
+        self.assertNotIn("repair these highlighted mapped roles first", guidance)
         self.assertIn("Confirm each mapped entity selection still points at the intended Home Assistant entity", guidance)
         self.assertIn("Battery state of charge entity sensor.battery_soc is not numeric", guidance)
+
+    def test_repair_step_default_review_uses_source_map_wording(self) -> None:
+        native_support = _load_native_support_module()
+        guidance = native_support.build_source_repair_step()
+
+        self.assertIn("review the source map", guidance)
+        self.assertNotIn("review the mapped sources", guidance)
 
     def test_attention_role_summary_includes_validation_only_role_errors(self) -> None:
         native_support = _load_native_support_module()
@@ -1188,6 +1197,16 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("Unavailable mapped roles:", support_center)
         self.assertNotIn("Stale mapped roles:", support_center)
         self.assertNotIn("Affected mapped roles:", support_center)
+
+    def test_sensors_blocking_source_repair_labels_use_source_roles(self) -> None:
+        strings_text = (PACKAGE_ROOT / "strings.json").read_text(encoding="utf-8")
+        translations_text = (PACKAGE_ROOT / "translations" / "en.json").read_text(encoding="utf-8")
+
+        for surface_text in (strings_text, translations_text):
+            self.assertIn("Unavailable source roles: {unavailable_sources}", surface_text)
+            self.assertIn("Stale source roles: {stale_sources}", surface_text)
+            self.assertNotIn("Unavailable mapped roles", surface_text)
+            self.assertNotIn("Stale mapped roles", surface_text)
 
 
 if __name__ == "__main__":
