@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-353 - Hyphenated source-mapping fallback text bypassed source-role normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native-path and setup-notification normalization after the adjacent hyphenated `Open source-mapping step` handoff fixes.
+- **current observed behavior:** `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` normalized spaced `Source mapping step` / `Source mappings` fallback text and hyphenated `Open source-mapping step` handoffs, but cached or restored non-Open hyphenated phrases such as `Source-mapping step incomplete`, `Source-mappings stale`, and `Finish source-mapping before control` could still reach command-center/support text or persistent setup notifications unchanged.
+- **expected behavior:** restored setup notifications, command-center summaries, device-page support text, and setup/support fallback handoffs should normalize hyphenated source-mapping fallback wording to current source-role wording before Home Assistant renders native support surfaces.
+- **evidence:** focused regressions now exercise hyphenated non-Open source-mapping fallback phrases in both native-support and setup-notification normalization and reject the stale hyphenated wording.
+- **repo fix:** this run adds hyphenated `Source-mapping(s) step`, `Source-mapping(s)`, and lower-case variants to both normalizers ahead of the spaced source-mapping replacements, and folds the cleanup into the compact `0.1.89` Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup/support normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-352 - Fleet activity unmanaged review signals without aggregate count could stay ungrouped
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -609,6 +609,21 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("source-mappings step", hyphen_plural_normalized)
         self.assertNotIn("source roles step", hyphen_plural_normalized)
 
+    def test_native_path_normalization_cleans_hyphenated_source_mapping_fallbacks(self) -> None:
+        native_support = _load_native_support_module()
+
+        normalized = native_support._normalize_native_path_text(
+            "Source-mapping step incomplete. Source-mappings stale. Finish source-mapping before control."
+        )
+
+        self.assertEqual(
+            normalized,
+            "Sensors source roles step incomplete. Source roles stale. Finish source roles before control.",
+        )
+        self.assertNotIn("Source-mapping", normalized)
+        self.assertNotIn("Source-mappings", normalized)
+        self.assertNotIn("source-mapping", normalized)
+
     def test_native_path_normalization_expands_bare_section_handoffs(self) -> None:
         native_support = _load_native_support_module()
 
