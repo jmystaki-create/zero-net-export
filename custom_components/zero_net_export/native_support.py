@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import json
+import re
 from typing import Any
 
 from homeassistant.util import dt as dt_util
@@ -315,6 +316,33 @@ SUPPORT_CONFIGURE_PATH = (
 )
 MAX_NATIVE_SENSOR_STATE_CHARS = 255
 
+_FLEET_ACTIVITY_COMMA_DELIMITER_RE = re.compile(
+    r", (?=(?:"
+    r"source blockers active|"
+    r"no managed yet|"
+    r"no unmanaged candidates|"
+    r"\d+ managed\b|"
+    r"\d+ unmanaged(?: backlog)?\b|"
+    r"enabled \d+|disabled \d+|usable \d+|"
+    r"\d+ fixed managed|\d+ variable managed|\d+ W nominal|"
+    r"\d+ managed device(?:s)? need(?:s)? attention|"
+    r"\d+ blocked managed action(?:s)?|"
+    r"\d+ planned action(?:s)?|"
+    r"\d+ active managed device(?:s)?|"
+    r"\d+ need(?:s)? review|"
+    r"\d+ ready to promote|"
+    r"attention first |blocked |plan |active load |active device |"
+    r"review |ready |surfaced |fixed backlog |variable backlog "
+    r"))"
+)
+
+
+def _normalize_fleet_activity_delimiters(summary: str) -> str:
+    """Normalize fallback fleet-list separators without splitting preview detail text."""
+
+    normalized = " ".join(str(summary or "").split()).replace("; ", " | ")
+    return _FLEET_ACTIVITY_COMMA_DELIMITER_RE.sub(" | ", normalized)
+
 
 def _truncate_state_summary(text: str, *, fallback: str) -> str:
     normalized = " ".join(str(text).split())
@@ -344,7 +372,7 @@ def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
         return "runtime pending | fleet activity waiting"
     if normalized.startswith(f"{DEVICES_SECTION_LABEL}:"):
         normalized = normalized.partition(":")[2].strip()
-    normalized = normalized.rstrip(".").replace("; ", " | ")
+    normalized = _normalize_fleet_activity_delimiters(normalized.rstrip("."))
     normalized = _dedupe_fleet_activity_summary(normalized)
     compacted = _compact_fleet_activity_overflow_summary(normalized)
     if compacted and len(compacted) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -356,7 +384,7 @@ def _fleet_activity_fallback_from_device_status(device_status: str) -> str:
 def format_fleet_activity_for_operator(summary: str) -> str:
     """Make compact fleet state read as managed versus unmanaged in prose surfaces."""
 
-    normalized = " ".join(str(summary or "").strip().split()).replace("; ", " | ")
+    normalized = _normalize_fleet_activity_delimiters(summary)
     normalized = _dedupe_fleet_activity_summary(normalized)
     if not normalized:
         return "runtime pending | fleet activity waiting"

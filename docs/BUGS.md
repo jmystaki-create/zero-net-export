@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-314 - Fleet activity fallback could preserve comma-joined managed/unmanaged counts
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** `_fleet_activity_fallback_from_device_status(...)` converted semicolon-separated fallback device-status text into Fleet activity parts, but preserved comma-separated managed/unmanaged counts such as `2 managed, 2 unmanaged backlog`; the operator formatter then could not split that into managed-on-top and unmanaged-below groups.
+- **expected behavior:** Fleet activity fallbacks should normalize comma-separated top-level fleet list items before formatting, so cached or fallback device-status summaries still recover the managed/unmanaged story.
+- **evidence:** direct repo inspection showed `Managed Devices: 2 managed, 2 unmanaged backlog; source blockers active` fell through as `2 managed, 2 unmanaged backlog | source blockers active` and did not render `Managed devices: ...; Unmanaged backlog: ...`.
+- **repo fix:** this run adds targeted comma-delimiter normalization for recognized top-level Fleet activity parts, applies it to device-status fallback and operator formatting, and adds focused command-center regression coverage.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity fallback cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-313 - Product spec user stories still used mapped sources and policy/settings wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

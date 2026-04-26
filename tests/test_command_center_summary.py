@@ -600,6 +600,22 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary,
         )
 
+    def test_fleet_activity_fallback_normalizes_comma_separated_managed_unmanaged_counts(self) -> None:
+        native_support = _load_native_support_module()
+
+        fallback = native_support._fleet_activity_fallback_from_device_status(
+            "Managed Devices: 2 managed, 2 unmanaged backlog; source blockers active"
+        )
+        summary = native_support.format_fleet_activity_for_operator(fallback)
+
+        self.assertEqual(
+            fallback,
+            "2 managed | 2 unmanaged backlog | source blockers active",
+        )
+        self.assertTrue(summary.startswith("source blockers active; Managed devices: 2 managed"))
+        self.assertIn("Unmanaged backlog: 2 unmanaged backlog", summary)
+        self.assertNotIn("2 managed, 2 unmanaged backlog", summary)
+
     def test_raw_fleet_activity_keeps_source_blocker_global_for_empty_managed_fleet(self) -> None:
         native_support = _load_native_support_module()
 
