@@ -495,6 +495,12 @@ def _normalize_fleet_activity_delimiters(summary: str) -> str:
     """Normalize fallback fleet-list separators without splitting preview detail text."""
 
     normalized = " ".join(str(summary or "").split()).replace("; ", " | ")
+    normalized = re.sub(
+        rf"^{re.escape(DEVICES_SECTION_LABEL)}\s*:",
+        "",
+        normalized,
+        flags=re.IGNORECASE,
+    ).strip()
     return _FLEET_ACTIVITY_COMMA_DELIMITER_RE.sub(" | ", normalized)
 
 

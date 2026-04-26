@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-358 - Fleet activity fallback could preserve case-variant Managed Devices prefixes
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** Fleet activity normalization stripped the exact `Managed Devices:` section prefix, but case-variant cached or fallback text such as `Managed devices: 2 managed, 1 unmanaged candidate` could preserve the prefix. That made the first managed count read like a labelled blob instead of clean managed-on-top / unmanaged-below grouping.
+- **expected behavior:** Fleet activity fallbacks should strip `Managed Devices:` prefixes case-insensitively before delimiter normalization and operator grouping, so the opening console consistently renders the managed fleet ahead of unmanaged backlog.
+- **evidence:** focused regressions now exercise sentence-case and lower-case `Managed devices:` prefixes through both direct operator formatting and device-status fallback normalization.
+- **repo fix:** this run moves the Managed Devices prefix cleanup into `_normalize_fleet_activity_delimiters(...)` with a case-insensitive guarded prefix strip, so both command-center fallback paths share the same cleanup before comma splitting and managed/unmanaged grouping.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity fallback cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-357 - Partial Zero Net Export Configure paths stayed as shorthand instead of exact HA paths
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
