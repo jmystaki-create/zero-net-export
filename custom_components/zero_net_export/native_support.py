@@ -1683,7 +1683,7 @@ def build_live_source_health_summary(state: Any) -> str:
     source_attention = build_source_attention_details(state)
     merged_attention = build_source_attention_summary(state, limit=4)
     if merged_attention != "None":
-        return f"Mapped source roles need attention: {merged_attention}"
+        return f"Source roles need attention: {merged_attention}"
 
     blocking_validation = summarize_validation_issue_messages(state, severities={"error"}, limit=3)
     if blocking_validation != "None":
@@ -1702,9 +1702,9 @@ def build_live_source_health_summary(state: Any) -> str:
     source_diagnostics = source_attention.get("source_diagnostics", {})
     if source_diagnostics:
         ok_count = sum(1 for details in source_diagnostics.values() if details.get("status") == "ok")
-        return f"Mapped sources currently look healthy across {_count_label(ok_count, 'mapped role')}."
+        return f"Source mapping currently looks healthy across {_count_label(ok_count, 'mapped role')}."
 
-    return "Mapped sources currently look healthy."
+    return "Source mapping currently looks healthy."
 
 
 def build_source_mapping_summary(

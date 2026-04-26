@@ -920,6 +920,47 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
         self.assertEqual(command_center["source_attention_summary"], "No source blockers currently highlighted")
 
+    def test_live_source_health_summary_uses_source_role_attention_copy(self) -> None:
+        native_support = _load_native_support_module()
+
+        state = types.SimpleNamespace(
+            validation_details={
+                "source_diagnostics": {
+                    "solar_power": {
+                        "status": "unavailable",
+                        "required": True,
+                        "entity_id": "sensor.pv_power",
+                    }
+                }
+            },
+            diagnostic_summary="Runtime source attention remains.",
+            stale_data=False,
+        )
+
+        summary = native_support.build_live_source_health_summary(state)
+
+        self.assertIn("Source roles need attention", summary)
+        self.assertNotIn("Mapped source roles need attention", summary)
+
+    def test_live_source_health_summary_uses_source_mapping_positive_copy(self) -> None:
+        native_support = _load_native_support_module()
+
+        state = types.SimpleNamespace(
+            validation_details={
+                "source_diagnostics": {
+                    "solar_power": {"status": "ok", "required": True},
+                    "grid_import_power": {"status": "ok", "required": True},
+                }
+            },
+            diagnostic_summary="Source model looks internally consistent; no calibration issues detected right now",
+            stale_data=False,
+        )
+
+        summary = native_support.build_live_source_health_summary(state)
+
+        self.assertEqual(summary, "Source mapping currently looks healthy across 2 mapped roles.")
+        self.assertNotIn("Mapped sources currently look healthy", summary)
+
     def test_command_center_blocker_copy_ignores_optional_stale_sources(self) -> None:
         native_support = _load_native_support_module()
 

@@ -2217,7 +2217,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 issue_parts.append(f"unavailable: {unavailable_sources}")
             if stale_source_keys:
                 issue_parts.append(f"stale: {stale_sources}")
-            source_health = "Mapped source roles need attention, " + "; ".join(issue_parts)
+            source_health = "Source roles need attention: " + "; ".join(issue_parts)
             source_next_step = str(
                 readiness.get("next_step")
                 or build_source_repair_step(
@@ -2228,7 +2228,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if runtime_attention_fallback_hint and runtime_attention_fallback_hint not in source_next_step:
                 source_next_step += f" {runtime_attention_fallback_hint}"
         elif blocking_validation_details != "None":
-            source_health = "Mapped source validation still has blocking errors: " + blocking_validation_details
+            source_health = "Source validation still has blocking errors: " + blocking_validation_details
             source_next_step = str(
                 readiness.get("next_step")
                 or build_source_repair_step(blocking_validation_details=blocking_validation_details)

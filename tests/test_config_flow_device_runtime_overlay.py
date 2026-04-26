@@ -2253,6 +2253,52 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "4 missing required roles; 1 unavailable mapped role; 1 stale mapped role; blocking validation errors present",
         )
 
+    def test_source_placeholders_use_source_role_attention_copy(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "state": SimpleNamespace(),
+            "readiness": {},
+            "effective_config": {},
+            "missing_source_keys": [],
+            "unavailable_source_keys": [module.CONF_SOLAR_POWER_ENTITY],
+            "stale_source_keys": [module.CONF_GRID_IMPORT_POWER_ENTITY],
+            "blocking_validation_details": "None",
+            "validation_details": {"issues": []},
+        }
+        flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+
+        placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_COMBINED)
+
+        self.assertEqual(
+            placeholders["source_health"],
+            "Source roles need attention: unavailable: Solar power; stale: Grid import power",
+        )
+        self.assertNotIn("Mapped source roles need attention", placeholders["source_health"])
+
+    def test_source_placeholders_use_source_validation_attention_copy(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow._source_attention_state = lambda effective_config=None, grid_mode=None: {
+            "state": SimpleNamespace(),
+            "readiness": {},
+            "effective_config": {},
+            "missing_source_keys": [],
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "blocking_validation_details": "Grid import power has validation errors",
+            "validation_details": {"issues": [{"severity": "error"}]},
+        }
+        flow._priority_source_candidate_hint_summary = lambda grid_mode, priority_role_keys: "None"
+
+        placeholders = flow._source_placeholders(grid_mode=module.GRID_SENSOR_MODE_COMBINED)
+
+        self.assertEqual(
+            placeholders["source_health"],
+            "Source validation still has blocking errors: Grid import power has validation errors",
+        )
+        self.assertNotIn("Mapped source validation", placeholders["source_health"])
+
     def test_policy_step_keeps_healthy_follow_through_on_controls_and_device_surfaces(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(

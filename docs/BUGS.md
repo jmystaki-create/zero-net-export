@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-239 - Sensors source-health summaries still led with mapped-source jargon
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-blocker wording after command-center alerts, helper sensor labels, repair handoffs, and recommended reasons had moved to operator-facing `Source blockers` / `source blockers` language.
+- **current observed behavior:** the native Sensors setup placeholders and shared live source-health helper could still surface `Mapped source roles need attention`, `Mapped source validation still has blocking errors`, or `Mapped sources currently look healthy...` as the primary source-health line. That kept lower-level mapped-source jargon in the normal Sensors workspace even though the surrounding native path now uses simpler operator-facing source-blocker language and leaves mapped-role detail for actual repair context.
+- **expected behavior:** the primary source-health sentence in Sensors should lead with operator-facing `Source roles` / `Source validation` / `Source mapping` wording, while preserving mapped-role counts and details in the dedicated repair/detail rows where they help operators fix the actual entity bindings.
+- **evidence:** repo grep during this run found the remaining visible strings in `custom_components/zero_net_export/config_flow.py` and `custom_components/zero_net_export/native_support.py` after the adjacent source-blocker normalization fixes had landed.
+- **repo fix:** this run changes the Sensors source-health placeholders to `Source roles need attention:` and `Source validation still has blocking errors:`, changes the shared positive source-health fallback to `Source mapping currently looks healthy...`, records the `0.1.89` changelog highlight, and adds focused regression coverage rejecting the older primary `Mapped source...` source-health copy.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py tests/test_config_flow_device_runtime_overlay.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream D/F Sensors source-health wording cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is still James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-238 - Device-page command-center guide could preserve mapped-source alert wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
