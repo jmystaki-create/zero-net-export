@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-327 - Cached source setup handoff could keep bare Configure `to finish` wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream A/D/F native path normalization against cached/fallback command-center source-role handoffs.
+- **current observed behavior:** `_normalize_native_path_text(...)` expanded older `Open Configure and finish source mapping/source roles` handoffs to the exact Sensors Configure path, but the adjacent cached form `Open Configure to finish source mapping.` normalized only to `Open Configure to finish source roles.`, leaving a bare Configure instruction in rendered Home Assistant copy.
+- **expected behavior:** cached or fallback source-setup handoffs should expand both `and finish` and `to finish` bare Configure wording to the exact `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors` path with current source-role language.
+- **evidence:** direct repo inspection found explicit normalization for `Open Configure and finish ...` but no matching `Open Configure to finish ...` variants; focused regression coverage now exercises `Open Configure to finish source mapping.` and rejects the bare Configure result.
+- **repo fix:** this run adds explicit native-path normalization for `Open Configure to finish source mapping/source roles/required source roles`, adds regression coverage in `tests/test_command_center_summary.py`, and folds the cleanup into the compact Unreleased source-role/path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-326 - Cached command-center source setup handoff could keep bare Configure wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
