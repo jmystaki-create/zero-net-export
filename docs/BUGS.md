@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-229 - Steering still named 0.1.88 after the map moved the rollout to 0.1.89
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-26 after `docs/UI_IMPLEMENTATION_MAP.md` and `docs/RELEASE_0.1.89_PLAN.md` made `0.1.89` the clean follow-up release line for post-`v0.1.88` UI fixes.
+- **current observed behavior:** `docs/UI_DESIGN.md`, `docs/SUPERVISOR.md`, `README.md`, and `project_status.md` still pointed future work at a `0.1.88` rollout/deploy approval boundary even though the implementation map now says published `v0.1.88` is superseded for future UI validation unless James explicitly chooses to retag it.
+- **expected behavior:** active steering should name `0.1.89` as the future native-UI rollout target, keep published `v0.1.88` historical unless James asks to retag, and ask for approval of the `0.1.89` freeze/release/deploy path only after the final A-D/F defect check is clean.
+- **evidence:** repo grep found active `0.1.88` rollout wording in `docs/UI_DESIGN.md`, `docs/SUPERVISOR.md`, `README.md`, and `project_status.md` while `docs/UI_IMPLEMENTATION_MAP.md` already defined `0.1.89` as the UI-shaping checklist and release target.
+- **repo fix:** this run updates those active steering/status files onto `0.1.89`, preserves the native-Home-Assistant-only path, and keeps the unchanged live mismatch from becoming another fingerprint-refresh loop.
+- **validation status:** validated repo-side by source-doc grep and direct inspection; this is a process/source-of-truth correction, so no live Home Assistant validation is required.
+- **next action:** continue the final concrete A-D/F repo-side defect check; if no sharper implementation defect remains, ask James directly to approve the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-228 - Command-center setup check still used mapped-source blocker wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
