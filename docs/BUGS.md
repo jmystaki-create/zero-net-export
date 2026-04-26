@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-311 - Sensors opening still described source setup as entity mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D source-role ownership in the Configure -> Sensors opening copy.
+- **current observed behavior:** Configure -> Sensors still opened with `Sensors maps the required entities for the current source layout`, so the primary Sensors surface led with lower-level entity-mapping work even after the release line moved operator-facing setup to source roles and source health.
+- **expected behavior:** the Sensors opening should name required source-role ownership first, while concrete entity bindings remain in selector details and the cross-check-only source-map section.
+- **evidence:** direct repo inspection found the stale opening sentence in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; existing bucket-ownership coverage still required it.
+- **repo fix:** this run changes the opening to `Sensors owns required source roles for the current source layout`, syncs translations, updates bucket-ownership regression coverage to reject the old mapping lead, and folds the wording into the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D Sensors ownership cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-310 - Source selector current option still said Current mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
