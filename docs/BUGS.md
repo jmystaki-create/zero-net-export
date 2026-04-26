@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-339 - Setup notification normalization could produce doubled source-role wording for spaced mapped-source fallback text
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream F setup-notification normalization after ZNE-338.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` normalized hyphenated `mapped-source blocker(s)` / `mapped-source role(s)` and generic `mapped source(s)`, but missed spaced `mapped source blocker(s)` / `mapped source role(s)`. A restored setup notification using spaced fallback text such as `Mapped source blockers: ... Review mapped source roles.` therefore normalized through the generic singular replacement and could render doubled wording like `source role blockers` or `source role roles`.
+- **expected behavior:** setup notifications should normalize spaced mapped-source blocker/role fallback text directly to source-role/source-role-blocker wording before Home Assistant renders the persistent native setup notification.
+- **evidence:** direct normalization check showed `Repair mapped source blockers, then review mapped source roles.` became `Repair source role blockers, then review source role roles.` before this fix; focused setup-notice regression coverage now exercises spaced plural and singular fallback forms.
+- **repo fix:** this run adds setup-notification normalization for `Mapped source blocker(s)`, `mapped source blocker(s)`, `Mapped source role(s)`, and `mapped source role(s)`, before the generic mapped-source fallback replacements.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream F setup-notification normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-338 - Setup notification normalization missed singular mapped-role fallback text
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

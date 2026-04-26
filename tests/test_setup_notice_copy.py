@@ -202,6 +202,14 @@ class SetupNoticeCopyTests(unittest.TestCase):
             "Source-role blockers: Solar power stale. Review Source roles.",
         )
         self.assertEqual(
+            module._normalize_native_setup_notice_text("Mapped source blockers: Solar power stale. Review mapped source roles."),
+            "Source-role blockers: Solar power stale. Review source roles.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Mapped source blocker: Solar power stale. Review mapped source role."),
+            "Source-role blocker: Solar power stale. Review source role.",
+        )
+        self.assertEqual(
             module._normalize_native_setup_notice_text("Mapped-role blocker: Solar power stale. Review Mapped-role."),
             "Source-role blocker: Solar power stale. Review Source role.",
         )
