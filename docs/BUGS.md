@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-290 - Sensors progress heading still said source mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D source-role cleanup against the Sensors Configure copy and regression expectations.
+- **current observed behavior:** Configure -> Sensors still used the visible heading `Source mapping progress` in both the opening Sensors step and the required-entities step, even though the surrounding bucket language now presents Sensors as the source-role/source-health home and reserves source-map wording for deeper cross-check evidence.
+- **expected behavior:** primary Sensors progress should use source-role setup wording, with source-map terminology limited to explicit cross-check/evidence detail.
+- **evidence:** direct repo inspection found `Source mapping progress` in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `tests/test_bucket_ownership_copy.py`, where the regression still required the stale heading.
+- **repo fix:** this run changes the visible heading to `Source-role setup progress` in strings and translations, and updates bucket-ownership coverage to reject the old `Source mapping progress` heading while keeping the explicit `Current source map, for cross-check only` detail.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D Sensors heading cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-289 - Full unmanaged list fallback still called manual add a form
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
