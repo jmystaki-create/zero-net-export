@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-325 - Entity model diagnostics note still said mapped source role
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active project docs against the `0.1.89` Sensors/source-role wording and four-bucket IA.
+- **current observed behavior:** `docs/ENTITY_MODEL.md` still described per-source diagnostics as existing for each `mapped source role`, keeping lower-level mapping wording in an active entity/reference doc after the native UI line moved operator-facing Sensors/status language to source roles.
+- **expected behavior:** active entity/reference docs should describe these diagnostics as source-role diagnostics, reserving mapping language only for concrete entity-binding cross-checks where needed.
+- **evidence:** direct repo inspection found the stale sentence in `docs/ENTITY_MODEL.md`; the active-doc regression coverage did not include this entity-model note.
+- **repo fix:** this run changes the note to `each source role`, folds the cleanup into the compact Unreleased source-role changelog bullet, and adds regression coverage in `tests/test_bucket_ownership_copy.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_release_info_install_guidance` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc correction.
+- **next action:** include this entity/reference cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-324 - Optional dashboard setup docs still used mapped-source wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

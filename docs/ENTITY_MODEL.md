@@ -90,7 +90,7 @@ Configuration-only via options flow:
 - `sensor.zero_net_export_variable_planned_power_delta_w`
 - `sensor.zero_net_export_fixed_planned_power_delta_w`
 
-Per-source diagnostic entities now also exist for each mapped source role, including:
+Per-source diagnostic entities now also exist for each source role, including:
 - `sensor.zero_net_export_source_<source_key>_status`
 - `sensor.zero_net_export_source_<source_key>_reading`
 - `sensor.zero_net_export_source_<source_key>_age_seconds`

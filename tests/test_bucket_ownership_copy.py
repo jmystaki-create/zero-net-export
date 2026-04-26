@@ -645,6 +645,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         }
         ui_design = (project_root / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
         ui_implementation_spec = (project_root / "docs" / "UI_IMPLEMENTATION_SPEC.md").read_text(encoding="utf-8")
+        entity_model = (project_root / "docs" / "ENTITY_MODEL.md").read_text(encoding="utf-8")
         supervisor = (project_root / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
 
         for name, text in docs.items():
@@ -690,6 +691,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("missing source mapping", ui_implementation_spec)
         self.assertNotIn("mapping status", ui_implementation_spec)
         self.assertNotIn("Additional telemetry belongs here", ui_implementation_spec)
+        self.assertIn("diagnostic entities now also exist for each source role", entity_model)
+        self.assertNotIn("diagnostic entities now also exist for each mapped source role", entity_model)
 
 
 if __name__ == "__main__":
