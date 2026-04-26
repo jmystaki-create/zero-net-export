@@ -9,24 +9,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
-- Reworded the Controls Configure intro so it names target export, deadband, reserve, refresh interval, and live mode directly instead of opening with older controller-policy tuning phrasing.
-- Aligned the UI design source of truth with the current source-role/source-map split so Sensors ownership no longer says generic `source mapping status` for primary blocker visibility.
-- Aligned the concrete UI implementation spec's global-alert examples with the current source-role wording so screen-level guidance no longer pulls Workstream A/D review back toward generic source-mapping language.
-- Removed the last active product-spec and validation-checklist uses of generic source-mapping wording from high-level control and validation gates, keeping normal operator/release guidance on source-role setup and healthy source bindings.
-- Aligned active product, dashboard, reference, and validation docs with the current Sensors/source roles, Controls, Managed Devices, and Diagnostics IA so validation guidance no longer falls back to older sources/policy/support wording.
-- Normalized stale Managed Devices blocker handoffs so cached or fallback `source mapping` next steps now render as source-role guidance before they reach promotion/save feedback.
-- Normalized stale native setup-notification readiness payloads so cached or fallback summaries no longer reintroduce `source mappings` wording after the active Sensors/source-role cleanup.
-- Replaced the remaining live Sensors source-health success summary that still said `Source mapping currently looks healthy` with source-role wording, including stale diagnostic-summary normalization before it reaches Configure.
-- Replaced the remaining primary Sensors/Managed Devices cross-bucket hints that still said `controller tuning` / `controller-policy tuning` with the current Controls ownership language for target export, reserve, deadband, and live mode.
-- Clarified Home Assistant source-validation, Sensors source-role setup, Controls readiness, setup checklist, and native readiness copy so source blockers, setup blockers, progress labels, and policy gating consistently say `source role(s)` / `required source roles` instead of source-mapping, logical-role, or generic required-role wording.
-- Tightened operator-ready and setup-checklist handoffs so final review stays anchored to the exact native Configure and device Diagnostics paths, with stale unmanaged-section wording normalized away.
-- Hardened stale unmanaged-section normalization so cached or fallback review/promote handoffs now resolve back to the exact Managed Devices workspace path instead of shorter section-navigation copy.
-- Tightened Managed Devices handoffs and review snapshots so unmanaged-candidate review, ready-promotion, disabled-load counts, no-candidate, empty-fleet, and manual-add next steps stay workspace-first and read as direct fleet actions.
-- Hardened command-center and device-page normalization so stale source-role/source-blocker payloads render as operator-facing guidance across landing summaries, setup checks, guides, and next-action handoffs.
-- Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, runtime source-health summaries, command-center setup checks, and source-repair next steps on consistent `Source blockers` and `source roles` wording.
-- Aligned the active validation checklist, README upgrade/setup path, and bootstrap helper with the same source-role and four-bucket wording so restart/recovery and entry-creation guidance no longer sends operators back to lower-level source-mapping terminology.
-- Clarified Configure's Fleet activity empty-unmanaged state as `Unmanaged candidates: no unmanaged candidates` and kept global source blockers separate from managed/unmanaged backlog work.
+- Reworded the Controls Configure intro and cross-bucket hints so Controls consistently names target export, deadband, reserve, refresh interval, and live mode instead of older tuning-bucket phrasing.
+- Aligned Home Assistant source-role wording across the UI design/spec docs, product/validation docs, README setup/restart guidance, bootstrap copy, source-validation recommendations, Sensors source-health/progress labels, Controls readiness, setup checklist, and native readiness copy.
+- Hardened stale Source blockers and source-role normalization across Managed Devices blocker handoffs, native setup notifications, command-center summaries, device-page guides, setup checks, and next-action handoffs before cached or fallback text reaches Home Assistant.
+- Tightened Managed Devices workspace handoffs and review snapshots so unmanaged review, ready promotion, disabled-load counts, no-candidate, empty-fleet, manual-add, and setup-checklist next steps stay workspace-first and read as direct fleet actions.
+- Clarified Configure Fleet activity so empty unmanaged inventory reads as `Unmanaged candidates: no unmanaged candidates`, global source blockers stay separate from managed/unmanaged backlog work, and fleet state remains compact for native Home Assistant surfaces.
 - Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
+- Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, with final review/follow-up staying inside those native Home Assistant paths.
+- Recompacted the `0.1.89` Unreleased notes after later microfixes so release metadata stays grouped, operator-facing, and under the compact release-note guard instead of becoming source-wording churn.
 
 ### Planning
 - Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that.
