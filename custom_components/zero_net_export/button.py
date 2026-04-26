@@ -625,13 +625,20 @@ def _managed_devices_recommended_next_step(command_center: dict) -> str:
     )
 
 
+def _normalize_setup_checklist_label(label: object) -> str:
+    normalized = _normalize_native_path_text(label)
+    if normalized == "Source map":
+        return "Source roles"
+    return normalized
+
+
 def _normalized_setup_checklist(checklist: list[dict] | None) -> list[dict]:
     normalized: list[dict] = []
     for item in checklist or []:
         normalized.append(
             {
                 **item,
-                "label": _normalize_native_path_text(item.get("label")),
+                "label": _normalize_setup_checklist_label(item.get("label")),
                 "detail": _normalize_native_path_text(item.get("detail")),
             }
         )

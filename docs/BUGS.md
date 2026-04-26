@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-308 - Setup checklist notification could preserve stale Source map labels
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F source-role normalization in the setup-checklist notification path.
+- **current observed behavior:** `ZeroNetExportShowSetupChecklistButton` normalized checklist details and next steps, but a cached or fallback readiness checklist label of `Source map` could still render unchanged in the native setup-checklist notification, even though the current UI line uses `Source roles` for operator-facing setup evidence.
+- **expected behavior:** setup-checklist notification labels should normalize stale `Source map` labels to `Source roles` before reaching Home Assistant, while preserving the checklist detail text.
+- **evidence:** direct repo inspection found `_normalized_setup_checklist(...)` only passed labels through `_normalize_native_path_text(...)`, which did not convert the exact `Source map` label; the focused setup-checklist notification test still expected `- [x] Source map: ...` from a fallback readiness payload.
+- **repo fix:** this run adds setup-checklist label normalization for the exact stale `Source map` label, updates the notification regression to require `Source roles`, and folds the change into the grouped `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup-checklist label cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-307 - Sensors validation error summary still said source mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
