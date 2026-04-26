@@ -163,7 +163,7 @@ class SetupNoticeCopyTests(unittest.TestCase):
         self.assertIn("\n• Managed Devices: 0", message)
         self.assertIn("\n• Managed-device issues: No controllable devices have been added yet.", message)
         self.assertIn("\n• Active blockers: Solar power", message)
-        self.assertIn("\n\nDo next\n• Repair source-role blockers, then review source roles before relying on control.", message)
+        self.assertIn("\n\nDo next\n• Repair source blockers, then review source roles before relying on control.", message)
         self.assertIn(
             "\n\nFallback, only if Home Assistant rejects a valid choice\n• Capture the validation error, then paste the same entity id into the matching fallback field.",
             message,
@@ -191,35 +191,35 @@ class SetupNoticeCopyTests(unittest.TestCase):
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Repair mapped-role blockers, then review mapped sources."),
-            "Repair source-role blockers, then review source roles.",
+            "Repair source blockers, then review source roles.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Repair mapped-source blockers, then review mapped-source roles."),
-            "Repair source-role blockers, then review source roles.",
+            "Repair source blockers, then review source roles.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Mapped-source blockers: Solar power stale. Review Mapped-source roles."),
-            "Source-role blockers: Solar power stale. Review Source roles.",
+            "Source blockers: Solar power stale. Review Source roles.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Mapped source blockers: Solar power stale. Review mapped source roles."),
-            "Source-role blockers: Solar power stale. Review source roles.",
+            "Source blockers: Solar power stale. Review source roles.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Mapped source blocker: Solar power stale. Review mapped source role."),
-            "Source-role blocker: Solar power stale. Review source role.",
+            "Source blocker: Solar power stale. Review source role.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Mapped-role blocker: Solar power stale. Review Mapped-role."),
-            "Source-role blocker: Solar power stale. Review Source role.",
+            "Source blocker: Solar power stale. Review Source role.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Mapped role blocker: Solar power stale. Review mapped role."),
-            "Source-role blocker: Solar power stale. Review source role.",
+            "Source blocker: Solar power stale. Review source role.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Mapped role blockers: Solar power stale. Review mapped role blockers."),
-            "Source-role blockers: Solar power stale. Review source-role blockers.",
+            "Source blockers: Solar power stale. Review source blockers.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(

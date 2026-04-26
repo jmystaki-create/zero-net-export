@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-347 - Setup notification blocker normalization kept a separate source-role blocker label
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while comparing recent setup-notification mapped-role fixes against the current UI source of truth and adjacent command-center/native-support wording.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` normalized stale `mapped-source blocker(s)` and `mapped-role blocker(s)` fallback text to `source-role blocker(s)`, while the rest of the primary native operator surfaces and release plan use the compact `source blocker(s)` / `Source blockers` label. A restored setup notification could therefore keep a separate blocker label in the persistent Home Assistant setup alert even after adjacent surfaces had converged.
+- **expected behavior:** primary setup-notification blocker copy should use the same operator-facing `source blocker(s)` label as command-center, Sensors, Repairs, and Managed Devices blocker handoffs, while preserving `source roles` for actual role-mapping tasks and evidence.
+- **evidence:** focused setup-notice regression coverage now exercises hyphenated and spaced mapped-source/mapped-role blocker fallback text and expects `source blocker(s)` while still preserving `source roles` for role review wording.
+- **repo fix:** this run changes setup-notification blocker normalization from `source-role blocker(s)` to `source blocker(s)`, refreshes focused setup-notice expectations, and records the cleanup in the `0.1.89` Unreleased changelog.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream F setup-notification cleanup in the next `0.1.89` exact build; if no sharper implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more unchanged fingerprint or candidate-hash bookkeeping.
+
 ## ZNE-346 - Command-center support normalization missed spaced mapped-role blocker text
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
