@@ -916,7 +916,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             )
 
         command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
-        self.assertEqual(command_center["source_attention_summary"], "No mapped-source blockers currently highlighted")
+        self.assertEqual(command_center["source_attention_summary"], "No source blockers currently highlighted")
 
     def test_command_center_blocker_copy_ignores_optional_stale_sources(self) -> None:
         native_support = _load_native_support_module()
@@ -1036,7 +1036,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             )
 
         command_center = native_support.build_native_command_center_summary(_FakeCoordinator())
-        self.assertEqual(command_center["source_attention_summary"], "No mapped-source blockers currently highlighted")
+        self.assertEqual(command_center["source_attention_summary"], "No source blockers currently highlighted")
         self.assertNotIn("solar_energy", command_center["recommended_reason"])
 
     def test_support_center_surfaces_current_source_blockers_near_the_top(self) -> None:

@@ -5144,7 +5144,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     source_attention_summary_display = (
         source_attention_summary
         if source_attention_summary != "None"
-        else "No mapped-source blockers currently highlighted"
+        else "No source blockers currently highlighted"
     )
     install_alert = None
     if install_provenance_pending:
@@ -5160,13 +5160,13 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
         source_alert_compact = source_alert
     elif runtime_source_attention:
-        source_alert = f"Mapped-source blockers: {source_attention_summary_display}"
+        source_alert = f"Source blockers: {source_attention_summary_display}"
         compact_source_detail = (
             source_attention_roles
             if source_attention_roles != "None"
             else source_attention_summary_display
         )
-        source_alert_compact = f"Mapped-source blockers: {compact_source_detail}"
+        source_alert_compact = f"Source blockers: {compact_source_detail}"
 
     device_alert = None
     device_alert_compact = None

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-226 - Command-center source alert kept mapped-source jargon in the global alert
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream A/D/F problem-signal wording after Repairs and Sensors copy had already moved away from mapped-source-only labels
+- **current observed behavior:** the opening command-center global alert still rendered runtime source problems as `Mapped-source blockers: ...`, and the no-blocker summary still said `No mapped-source blockers currently highlighted`. That left the top global alert sounding like source-mapping internals even though the rest of the native path now uses simpler `Source repair path` / blocker-first wording and keeps source-map details in Sensors/Diagnostics.
+- **expected behavior:** Configure's top alert should use operator-facing `Source blockers` wording while the deeper Sensors and Diagnostics paths keep the mapped-role detail where it belongs.
+- **evidence:** repo inspection of `custom_components/zero_net_export/native_support.py` found `source_alert`, `source_alert_compact`, and the no-blocker display string still using `Mapped-source blockers` / `mapped-source blockers`; focused command-center/source-guidance tests were locking that older wording in place.
+- **repo fix:** this run changes the command-center global source alert and no-blocker display to `Source blockers` / `No source blockers currently highlighted`, and updates the focused command-center/source-guidance regressions.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this Workstream A/D/F top-alert wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still a direct James tag/release/deploy decision, not another unchanged fingerprint refresh.
+
 ## ZNE-225 - No-candidate Managed Devices selector fell back to generic add-device labels
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
