@@ -248,7 +248,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path in Configure for the Managed Devices workspace.", handoff)
+        self.assertIn("- Open devices path for the Managed Devices workspace.", handoff)
         self.assertIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn("- In Promotion shortlist, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need secondary per-device review/audit.", handoff)
@@ -315,7 +315,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Open devices path in Configure for the Managed Devices workspace.", handoff)
+        self.assertIn("- Open devices path for the Managed Devices workspace.", handoff)
         self.assertIn(
             "- Add the first fixed or variable load in the Managed Devices workspace because no surfaced unmanaged candidate is available.",
             handoff,
@@ -338,7 +338,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertEqual(handoff[0], "Promotion handoff:")
-        self.assertIn("- Reopen devices path in Configure for the Managed Devices workspace.", handoff)
+        self.assertIn("- Reopen devices path for the Managed Devices workspace.", handoff)
         self.assertIn(
             "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",
             handoff,
@@ -436,7 +436,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices workspace")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices workspace", message)
-        self.assertIn("Managed Devices workspace in Configure: devices path", message)
+        self.assertIn("Managed Devices workspace: devices path", message)
         self.assertIn("Secondary device-page review/audit path: detailed device path", message)
         self.assertIn(
             "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
@@ -1387,7 +1387,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
-        self.assertIn("Managed Devices workspace in Configure: devices path", message)
+        self.assertIn("Managed Devices workspace: devices path", message)
         self.assertIn("Recommended next step: Review the next managed device.", message)
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
@@ -1419,7 +1419,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Last action age: 2m 5s", message)
         self.assertIn("- Last action result: Turned on successfully.", message)
         self.assertIn("- Last applied at: 2026-04-18T08:31:00Z", message)
-        self.assertIn("Return to devices path in Configure for edits, enablement, promotion, or removal in the Managed Devices workspace.", message)
+        self.assertIn("Return to devices path for edits, enablement, promotion, or removal in the Managed Devices workspace.", message)
         self.assertNotIn("for the Managed Devices workspace for", message)
 
     def test_managed_device_detail_button_uses_workspace_fallback_when_no_next_step_exists(self) -> None:

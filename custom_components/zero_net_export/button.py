@@ -718,7 +718,7 @@ def _managed_devices_workspace_handoff(
         )
         lines.extend(
             [
-                f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
+                f"- Open {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.",
                 shortlist_step,
                 f"- In Promotion shortlist, select {build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}.",
                 "- Review fit and warnings, then save it into the Managed Devices workspace.",
@@ -733,7 +733,7 @@ def _managed_devices_workspace_handoff(
         if has_managed_devices:
             lines.extend(
                 [
-                    f"- Reopen {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
+                    f"- Reopen {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.",
                     "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} only if you need secondary per-device review/audit after the main fleet step is clear.",
                 ]
@@ -741,7 +741,7 @@ def _managed_devices_workspace_handoff(
         else:
             lines.extend(
                 [
-                    f"- Open {DEVICES_CONFIGURE_PATH} in Configure for the Managed Devices workspace.",
+                    f"- Open {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.",
                     "- Add the first fixed or variable load in the Managed Devices workspace because no surfaced unmanaged candidate is available.",
                     f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review/audit.",
                 ]
@@ -845,7 +845,7 @@ def _build_managed_device_detail_lines(
     lines = [
         "Zero Net Export managed-device detail review",
         "",
-        f"Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
+        f"Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
         f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
         f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
@@ -972,7 +972,7 @@ def _build_managed_device_detail_lines(
         f"- Failure count: {int(detail.get('failed_action_count') or 0)}",
         "",
         "Next native actions:",
-        f"- Return to {DEVICES_CONFIGURE_PATH} in Configure for edits, enablement, promotion, or removal in the Managed Devices workspace.",
+        f"- Return to {DEVICES_CONFIGURE_PATH} for edits, enablement, promotion, or removal in the Managed Devices workspace.",
         "- Use this device's sensors on the Zero Net Export device page to watch current power, plan, guard, and last-action detail.",
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]
@@ -1116,7 +1116,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         lines = [
             'Zero Net Export managed devices workspace',
             '',
-            f'Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}',
+            f'Managed Devices workspace: {DEVICES_CONFIGURE_PATH}',
             f'Secondary device-page review/audit path: {DETAILED_MANAGEMENT_PATH}',
             f'Device-page boundary: {_managed_devices_workspace_boundary()}',
             f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",
@@ -1293,7 +1293,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         lines = [
             "Zero Net Export managed devices review",
             "",
-            f"Managed Devices workspace in Configure: {DEVICES_CONFIGURE_PATH}",
+            f"Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
             f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
             f"Device-page boundary: {_managed_devices_workspace_boundary()}",
             f"Recommended next step: {_managed_devices_recommended_next_step(command_center)}",

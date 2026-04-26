@@ -2557,6 +2557,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with focused Diagnostics/source-repair copy tests and translation sync in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Diagnostics wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-204 - Device-page review notifications redundantly said the Managed Devices path was `in Configure`
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Stage 4 secondary review/audit wording against the native Configure-first hierarchy.
+- **current observed behavior:** several device-page review and fleet-console notifications in `custom_components/zero_net_export/button.py` rendered phrases like `Open Configure -> Managed Devices in Configure` or `Managed Devices workspace in Configure: Configure -> Managed Devices`. The path itself was correct and native-only, but the repeated `in Configure` made the secondary review/audit handoff sound awkward and less polished than the surrounding Managed Devices workspace copy.
+- **expected behavior:** device-page notifications should keep the Configure -> Managed Devices path explicit without duplicating the Configure label, and should continue to present the device page only as secondary review/audit.
+- **evidence:** `rg -n "\\{DEVICES_CONFIGURE_PATH\\} in Configure|Managed Devices workspace in Configure" custom_components/zero_net_export/button.py tests/test_button_entity_categories.py` found active product strings and matching expectations with the duplicated Configure wording.
+- **repo fix:** this run removes the redundant `in Configure` wording from the affected managed-device handoff strings in `custom_components/zero_net_export/button.py` and refreshes the focused button notification expectations in `tests/test_button_entity_categories.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`, and a follow-up grep confirming the duplicated wording no longer appears. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Stage 4 secondary review/audit polish in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
