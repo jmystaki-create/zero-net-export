@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-379 - Unreleased changelog repeated old recommended-next wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the current `0.1.89` Unreleased release-info highlights after the device-page managed review next-step wording cleanup.
+- **current observed behavior:** the Unreleased changelog highlight for the device-page managed review cleanup still quoted `Recommended next step` while describing that the visible label had been replaced. Those highlights feed compact Home Assistant release-info metadata, so the old recommendation/ranking label could reappear in the shipped support surface even after the product copy was neutralized.
+- **expected behavior:** current release metadata should describe the cleanup without repeating the retired recommendation-style label in visible highlight text.
+- **evidence:** direct repo inspection found the stale quoted phrase in `CHANGELOG.md`, and `tests/test_release_info_install_guidance.py` did not reject it for Unreleased highlights.
+- **repo fix:** this run folds the device-page managed review notification-label cleanup into the broader Managed Devices Unreleased highlight without repeating the retired label, keeping the compact highlight count under the release-info limit, and extends release-info regression coverage to reject `Recommended next step` in the current Unreleased highlights.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for `0.1.89` freeze/release/deploy/restart approval instead of refreshing unchanged fingerprint bookkeeping again.
+
 ## ZNE-378 - Device-page managed review notifications kept recommended-next wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
