@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-304 - Default Sensors fallback guidance still described dropdown workaround mechanics
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `source_mapping`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F source-role copy after ZNE-303.
+- **current observed behavior:** the default `fallback_guidance` used by Configure -> Sensors when no specific source blocker was present still said Combined / net grid energy and battery SOC `now use native dropdowns to reduce Home Assistant selector validation failures`, so the fallback block could reintroduce selector-workaround mechanics even after primary source-role descriptions had been normalized.
+- **expected behavior:** the fallback block should stay fallback-only and operator-facing: use it only when Home Assistant rejects a valid source-role choice, without describing the primary selector implementation as a workaround.
+- **evidence:** direct repo inspection found the stale default fallback string in `custom_components/zero_net_export/config_flow.py`; existing regression coverage rejected workaround wording in field descriptions but did not guard the default fallback text.
+- **repo fix:** this run rewrites the default fallback guidance to state that fallback fields are only for valid Combined / net grid energy or Battery state of charge selections that Home Assistant rejects, and adds regression coverage rejecting the old dropdown-workaround sentence.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F fallback-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-303 - Source selector descriptions still described old entity-picker workaround mechanics
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

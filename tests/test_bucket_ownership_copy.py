@@ -153,6 +153,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("No required source roles currently look stale", coordinator_source)
         self.assertNotIn("unavailable mapped role", config_flow_source)
         self.assertNotIn("stale mapped role", config_flow_source)
+        self.assertNotIn("native dropdowns to reduce Home Assistant selector validation failures", config_flow_source)
+        self.assertIn("Fallback fields are only for valid Combined / net grid energy", config_flow_source)
         self.assertNotIn("return here to review enablement", config_flow_source)
         self.assertNotIn("entity not surfaced here", config_flow_source)
         self.assertIn("return to the Managed Devices workspace to review enablement", config_flow_source)

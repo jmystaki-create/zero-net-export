@@ -2792,7 +2792,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             else "Separate mode expects distinct import and export power and energy sensors from Home Assistant."
         )
         fallback_guidance = source_placeholders.get("source_fallback_hint") or (
-            "Combined / net grid energy and battery SOC now use native dropdowns to reduce Home Assistant selector validation failures on some installs. If Home Assistant still rejects a valid selection, clear that selector, paste the same entity ID into the matching fallback field below, then save again."
+            "Fallback fields are only for valid Combined / net grid energy or Battery state of charge selections that Home Assistant rejects. Clear the rejected selector, paste the same entity ID into the matching fallback field below, then save again."
         )
         return self.async_show_form(
             step_id="native_setup_sources",
