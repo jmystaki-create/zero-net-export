@@ -433,9 +433,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Zero Net Export command center\n\nNow", guide)
         self.assertIn("Command-center use\n- Live setup and current operating picture.", guide)
         self.assertIn(
-            "- Finish source mapping and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
+            "- Finish source roles and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
             guide,
         )
+        self.assertNotIn("Finish source mapping and core control checks here", guide)
         self.assertNotIn("This surface is for the basic setup only.", guide)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", guide)
         self.assertIn("Now", guide)

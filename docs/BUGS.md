@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-273 - Source-repair guide test still expected source-mapping command-center wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-26 while verifying the latest Workstream A/D source-role wording guards after `4479b73` aligned the shared command-center guide text.
+- **current observed behavior:** `tests.test_source_repair_guidance` still asserted the old `Finish source mapping and core control checks here` guide sentence even though the component now correctly renders `Finish source roles and core control checks here`, so the focused regression suite failed on stale test state rather than product behavior.
+- **expected behavior:** focused source-repair/command-center regression tests should lock the current source-role wording and explicitly reject the older source-mapping sentence in the setup-first command-center guide.
+- **evidence:** `python3 -m unittest -q tests.test_source_repair_guidance tests.test_command_center_setup_focus tests.test_bucket_ownership_copy tests.test_translation_sync` failed in `test_command_center_guide_text_includes_source_blocker_details` because the guide output contained `Finish source roles and core control checks here`.
+- **repo fix:** this run updates `tests/test_source_repair_guidance.py` to expect the source-role sentence and adds a negative guard against the stale source-mapping command-center wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_command_center_setup_focus tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_source_repair_guidance.py`.
+- **next action:** include this regression-suite cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-272 - Sensors opening workspace still called itself source-mapping home
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
