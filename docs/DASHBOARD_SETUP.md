@@ -15,7 +15,7 @@ The dashboard is structured as optional debug visibility around the native opera
 1. **Live power picture** — solar, home load, grid import/export, battery SOC, controlled load, surplus, export error
 2. **Controller intent and overrides** — enable switch, mode, target export, deadband, battery reserve, override visibility, and controller reasoning
 3. **Health, guards, and diagnostics** — safe mode, source mismatch, stale data, command failure, reserve gating, health summary, and native Diagnostics actions
-4. **Source-level diagnostics** — mapped source status, readings, age, and staleness
+4. **Source-role diagnostics** — source-role status, readings, age, and staleness
 5. **Fleet and planning summary** — managed/usable devices and current planned vs blocked control state
 6. **Action and failure timeline** — last action, last success, recent failure, and cycle totals
 7. **Daily impact** — daily action counts and redirected-energy estimate
@@ -85,7 +85,7 @@ The scaffold assumes the main controller exposes entities equivalent to:
 
 And supporting telemetry such as solar/home/grid/battery, planned action counts, last action state, the new recent-action / recent-failure summary sensors, the last-action / last-failure timing sensors, the daily reporting slice (`actions_today`, `successful_actions_today`, `failed_actions_today`, `active_controlled_power_w`, and `energy_redirected_today_kwh`), plus the stale-data / command-failure health slice (`binary_sensor.zero_net_export_stale_data`, `binary_sensor.zero_net_export_command_failure`, `sensor.zero_net_export_health_status`, `sensor.zero_net_export_health_summary`, `sensor.zero_net_export_stale_source_count`, and `sensor.zero_net_export_stale_source_summary`).
 
-The integration now also exposes a first-class per-source diagnostics slice for each mapped role:
+The integration now also exposes a first-class per-source diagnostics slice for each source role:
 - `sensor.zero_net_export_source_<source_key>_status`
 - `sensor.zero_net_export_source_<source_key>_reading`
 - `sensor.zero_net_export_source_<source_key>_age_seconds`

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-324 - Optional dashboard setup docs still used mapped-source wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active project docs against the `0.1.89` four-bucket IA and Sensors/source-role wording.
+- **current observed behavior:** `docs/DASHBOARD_SETUP.md` still described the optional Lovelace scaffold as `Source-level diagnostics — mapped source status` and said the integration exposes diagnostics for each `mapped role`. Although the dashboard is optional and secondary, this active setup/support doc could still pull operators back toward lower-level source-mapping terminology after the native UI line moved primary source setup and status to Sensors/source roles.
+- **expected behavior:** Optional dashboard guidance should stay clearly secondary to the native operator path and use source-role wording for visible support/status descriptions, reserving mapping language for concrete entity-binding cross-check detail only where needed.
+- **evidence:** direct repo inspection found the stale dashboard wording in `docs/DASHBOARD_SETUP.md`; active-doc regression coverage already included this file for bucket ownership but did not guard these two mapped-source phrases.
+- **repo fix:** this run changes the optional dashboard coverage item to `Source-role diagnostics — source-role status`, changes the per-source diagnostics sentence to `each source role`, folds the cleanup into the compact Unreleased source-role changelog bullet, and adds regression coverage in `tests/test_bucket_ownership_copy.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_release_info_install_guidance` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc correction; the optional dashboard remains explicitly secondary and outside the supported operator path.
+- **next action:** include this active-doc cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-323 - Sensors repair fallback still said source map and mapped entities
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
