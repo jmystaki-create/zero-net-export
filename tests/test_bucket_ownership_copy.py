@@ -465,7 +465,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         validation_source = (integration_root / "validation.py").read_text(encoding="utf-8")
 
         self.assertIn("each source role", validation_source)
+        self.assertIn("Complete the required source roles", validation_source)
         self.assertIn("required source roles", validation_source)
+        self.assertNotIn("Complete the required source mapping", validation_source)
         self.assertNotIn("each logical role", validation_source)
         self.assertNotIn("required roles or fix entity availability", validation_source)
 

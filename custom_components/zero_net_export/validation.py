@@ -350,7 +350,7 @@ def build_recommendation(issues: list[ValidationIssue]) -> str:
 
     if any(issue.severity == "error" for issue in issues):
         if any(code.endswith("_missing_entity") or code.endswith("_not_configured") for code in issue_codes):
-            return "Complete the required source mapping before enabling any control actions"
+            return "Complete the required source roles before enabling any control actions"
         if any(code.endswith("_duplicate_entity") for code in issue_codes):
             return "Assign distinct Home Assistant entities to each source role; import and export cannot safely share one source"
         if any(code.endswith("_non_numeric") or code.endswith("_unavailable") for code in issue_codes):

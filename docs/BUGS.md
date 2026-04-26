@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-266 - Source-validation missing-source recommendation still said source mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role wording after recent source-validation recommendations, Sensors labels, and native readiness copy had moved to `source role(s)` / `required source roles`.
+- **current observed behavior:** `build_recommendation(...)` still returned `Complete the required source mapping before enabling any control actions` for missing or unconfigured required sources, even though adjacent source-validation recommendations already use required source-role wording.
+- **expected behavior:** missing-source validation recommendations should tell operators to complete the required source roles before enabling control, keeping operator-facing validation aligned with the Sensors bucket and native setup blocker wording.
+- **evidence:** direct repo inspection of `custom_components/zero_net_export/validation.py` found the stale missing-source recommendation while the duplicate-source and non-numeric/unavailable recommendations had already been corrected.
+- **repo fix:** this run changes the missing-source recommendation to `Complete the required source roles before enabling any control actions`, folds the wording into the compact `0.1.89` changelog theme, and adds a regression guard rejecting the stale phrase.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/validation.py tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F validation wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-265 - Native readiness source-setup summary still said source mappings
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
