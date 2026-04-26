@@ -2542,7 +2542,7 @@ def _build_headline_decision(
             return "Source data needs attention, control is constrained."
         if blocking_validation_details != "None":
             return "Source validation failed, control is constrained."
-        return "Mapped sources need attention before control can continue."
+        return "Source data needs attention before control can continue."
     if state is None:
         return "Waiting for runtime state to load."
 
@@ -4857,7 +4857,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources
         )
     elif runtime_source_attention:
-        attention_prefix = "Mapped source blockers: " + source_attention_summary if source_attention_summary != "None" else "Mapped sources need attention."
+        attention_prefix = "Source blockers: " + source_attention_summary if source_attention_summary != "None" else "Source data needs attention."
         validation_suffix = (
             f" Blocking validation details: {blocking_validation_details}"
             if blocking_validation_details != "None"
@@ -5110,7 +5110,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     if missing_required_sources:
         policy_readiness = "Finish source mapping first. Policy tuning is not actionable until the required mapped roles are complete."
     elif runtime_source_attention:
-        policy_readiness = f"Repair mapped-source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
+        policy_readiness = f"Repair source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
     elif device_parse_issues:
         policy_readiness = "Repair the managed-device configuration first so policy changes apply to a trustworthy fleet."
     elif not has_managed_devices:

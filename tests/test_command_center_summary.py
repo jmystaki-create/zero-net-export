@@ -3793,6 +3793,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertIn("Source blockers: Grid export power is unavailable", summary["alert_summary"])
+        self.assertEqual(summary["source_status"], "Source blockers: Grid export power is unavailable")
+        self.assertIn("Repair source blockers in Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors", summary["policy_readiness"])
+        self.assertNotIn("Mapped source blockers", summary["source_status"])
+        self.assertNotIn("mapped-source blockers", summary["policy_readiness"])
         self.assertIn("Managed-device configuration needs repair for 1 item.", summary["alert_summary"])
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
         self.assertEqual(

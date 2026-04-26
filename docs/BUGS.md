@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-228 - Command-center setup check still used mapped-source blocker wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** supervisor repo audit on 2026-04-26 while advancing Workstream A opening-console copy after the top alert had already moved to operator-facing `Source blockers` wording
+- **current observed behavior:** the Configure command-center `Setup check` still built its Sensors/source line as `Mapped source blockers: ...`, and Controls readiness still said `Repair mapped-source blockers...`. That left the opening console mixing operator-facing source-blocker language with lower-level mapped-source jargon in the same native surface.
+- **expected behavior:** the opening command center should keep the top-board and setup-check problem signal on `Source blockers` / `source blockers` wording, while deeper Sensors/Diagnostics paths can carry mapped-role detail.
+- **evidence:** repo inspection of `custom_components/zero_net_export/native_support.py` found the runtime-source-attention `source_status` and `policy_readiness` branches still using the older mapped-source wording after the top alert cleanup.
+- **repo fix:** this run changes the command-center source-status branch to `Source blockers: ...`, changes the no-detail fallback to `Source data needs attention.`, and changes Controls readiness to `Repair source blockers...`; focused command-center regressions now reject the older wording in those generated fields.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this Workstream A/D opening-console wording cleanup in the next exact-build deploy/restart validation.
+
 ## ZNE-227 - Diagnostics fallback copy still named a picker bug
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
