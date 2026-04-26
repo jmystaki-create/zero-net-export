@@ -82,6 +82,21 @@ def _load_native_support_module(*, parse_device_result=([], [])):
 
 
 class SourceRepairGuidanceTests(unittest.TestCase):
+    def test_native_path_normalizer_rewrites_stale_unmanaged_section_handoffs_to_exact_workspace(self) -> None:
+        native_support = _load_native_support_module()
+
+        normalized = native_support._normalize_native_path_text(
+            "Open Configure > Managed Devices, then review first in the unmanaged section; "
+            "promote next from the unmanaged section when ready."
+        )
+
+        self.assertIn(native_support.DEVICES_CONFIGURE_PATH, normalized)
+        self.assertIn("Managed Devices workspace", normalized)
+        self.assertIn("review-first unmanaged candidate", normalized)
+        self.assertIn("ready unmanaged candidate", normalized)
+        self.assertNotIn("Configure > Managed Devices", normalized)
+        self.assertNotIn("unmanaged section", normalized)
+
     def test_detailed_management_handoff_keeps_review_first_guidance_when_fleet_is_empty(self) -> None:
         native_support = _load_native_support_module()
 

@@ -105,9 +105,9 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         str(text or "")
         .replace("Mapped source blockers", "Source blockers")
         .replace("mapped source blockers", "source blockers")
-        .replace("Start in the unmanaged section", "Review unmanaged candidates in Managed Devices")
-        .replace("Review the unmanaged section", "Review unmanaged candidates in Managed Devices")
-        .replace("Promote next from the unmanaged section", "Promote the ready unmanaged candidate in Managed Devices")
+        .replace("Start in the unmanaged section", "Review the Managed Devices workspace at devices path, starting with unmanaged candidates")
+        .replace("Review the unmanaged section", "Review the Managed Devices workspace at devices path, starting with unmanaged candidates")
+        .replace("Promote next from the unmanaged section", "Promote the ready unmanaged candidate in the Managed Devices workspace at devices path")
         .strip()
     )
     native_support_module.build_native_command_center_summary = lambda coordinator: {
@@ -1786,7 +1786,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Summary: Finish source mapping first.", message)
         self.assertIn("Next step: Review the Managed Devices workspace next.", message)
         self.assertIn("- [x] Source map: Solar power and grid export mapped.", message)
-        self.assertIn("- [ ] Managed Devices: Review unmanaged candidates in Managed Devices next.", message)
+        self.assertIn("- [ ] Managed Devices: Review the Managed Devices workspace at devices path, starting with unmanaged candidates next.", message)
         self.assertNotIn("Review the unmanaged section next.", message)
         self.assertNotIn("Recommended command-center section:", message)
         self.assertNotIn("Recommended command-center path:", message)
@@ -1810,10 +1810,13 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         attrs = button.extra_state_attributes
 
-        self.assertEqual(attrs["next_step"], "Promote the ready unmanaged candidate in Managed Devices.")
+        self.assertEqual(
+            attrs["next_step"],
+            "Promote the ready unmanaged candidate in the Managed Devices workspace at devices path.",
+        )
         self.assertEqual(
             attrs["checklist"][0]["detail"],
-            "Review unmanaged candidates in Managed Devices.",
+            "Review the Managed Devices workspace at devices path, starting with unmanaged candidates.",
         )
 
     def test_diagnostics_snapshot_button_names_command_center_without_primary_path_leak(self) -> None:
