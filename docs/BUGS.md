@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-317 - Unreleased 0.1.89 changelog exceeded compact highlight guard again
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog validation on 2026-04-27 while checking the current `0.1.89` follow-up candidate against release-info guards.
+- **current observed behavior:** the Unreleased changelog had grown to 11 parsed highlights after recent planning cleanup, so `tests.test_release_info_install_guidance.ReleaseInfoInstallGuidanceTests.test_unreleased_changelog_carries_0189_post_tag_ui_fixes` failed its compact release-note guard (`len(highlights) <= 10`). That would let release metadata drift back toward noisy bookkeeping instead of concise native Home Assistant UI highlights.
+- **expected behavior:** the `0.1.89` Unreleased changelog should keep the post-`v0.1.88` UI and planning summary compact enough for release-info surfaces while still naming the native Home Assistant, Managed Devices, Source blockers, Diagnostics, and direct-approval boundary.
+- **evidence:** `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_release_info_install_guidance` failed with `AssertionError: 11 not less than or equal to 10` in the Unreleased changelog compactness test.
+- **repo fix:** this run merges the two adjacent Planning bullets into one concise `0.1.89` steering/release-plan bullet, preserving James's direct approval prerequisite while returning the parsed highlight count to the guarded limit.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance` plus the broader focused suite rerun. Live Home Assistant validation is not required for this release-metadata compactness fix.
+- **next action:** include this release-note compactness fix in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the real next boundary is asking James directly to approve the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-316 - Supervisor current-position gap still used generic set-policy/review-health wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

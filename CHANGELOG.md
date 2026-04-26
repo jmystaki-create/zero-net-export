@@ -20,8 +20,7 @@ Target release: `0.1.89`
 - Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, with troubleshooting/install-validation work explicitly belonging in Diagnostics, diagnostics snapshots using source-role wording, and final review/follow-up staying inside native Home Assistant paths.
 
 ### Planning
-- Kept supervisor steering aligned with the current native bucket wording by replacing the remaining generic `set policy` / `review health` gap statement with Controls policy/live-mode and health-evidence language.
-- Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that, and making James's direct approval an explicit freeze prerequisite.
+- Kept supervisor steering and the `0.1.89` release plan aligned with current native bucket wording, the clean follow-up line after the already-published `v0.1.88` release, and James's direct approval as an explicit freeze prerequisite.
 
 ## [0.1.88]
 
