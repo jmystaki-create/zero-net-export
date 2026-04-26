@@ -8,10 +8,10 @@ The intended product design now lives in `docs/UI_DESIGN.md`.
 
 ## Scope
 
-The current live/UI correction line is now `0.1.86`, and `0.1.88` is the next UI-focused release line.
-Treat this document as the UI-shaping checklist for `0.1.88`, and do not use stale `0.1.83`, `0.1.85`, or `0.1.86` wording as if those were still the future UI target.
+The current live/UI correction history now includes a published `v0.1.88` release, but repo-side UI fixes continued after that tag. `0.1.89` is the clean follow-up release line for the final UI validation candidate unless James explicitly chooses to retag `v0.1.88`.
+Treat this document as the UI-shaping checklist for `0.1.89`, and do not use stale `0.1.83`, `0.1.85`, `0.1.86`, or published-but-superseded `0.1.88` wording as if those were still the future UI target.
 
-`0.1.88` should focus on the three native-UI outcomes James explicitly asked for:
+`0.1.89` should focus on the three native-UI outcomes James explicitly asked for:
 1. a clear **managed vs unmanaged** device experience
 2. a clear **promote / vet / review** native flow for bringing unmanaged devices into the managed fleet
 3. a clear native information architecture split between **Controls**, **Sensors**, **Managed Devices**, and **Diagnostics**
@@ -46,18 +46,18 @@ If a change does not materially improve one of those visible outcomes, it should
 - Diagnostics text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
-- The documented HA SSH path still works, but the live install is still not the frozen `0.1.88` repo candidate: `overall_match=false`, with the same unchanged mixed-build class of drift. The live install still differs on the six UI files `button.py`, `config_flow.py`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json`, and `manifest.json` / `manifest_version` still remain on live `0.1.86` while repo is frozen at `0.1.88`. Stale backup artifacts remain absent.
-- Release execution still has a tag/state drift to resolve before any deploy can be called the final `0.1.88` cut: the remote `v0.1.88` tag already exists on `ad5b56d`, while local `HEAD` includes later component fixes that are not on `origin/main` or that tag. Do not blindly create another `v0.1.88` tag, and do not keep hand-refreshing this line with every component commit; at Workstream G, use `scripts/print_expected_install_fingerprint.py` for the helper-resolved final candidate and ask James directly whether to move/recreate the existing tag to that candidate or cut a follow-up release instead.
+- The documented HA SSH path still works, but the live install still has not proven the final UI candidate: the last live checks showed a mixed-build class of drift, with live Home Assistant behind the repo candidate. Treat that as live-install state to re-check after James installs the next release, not as evidence that the repo UI plan is incomplete.
+- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.88` tag by default. Plan `v0.1.89` from the helper-resolved current component build, using `scripts/print_expected_install_fingerprint.py` immediately before release to capture the exact candidate.
 - Treat the exact deploy boundary as the current component-changing build reported by `scripts/print_expected_install_fingerprint.py`, not as a hash that needs to be recopied into source-of-truth docs every time another UI commit lands.
 - Repeated doc-only release-boundary refresh commits are process drift, not product progress. The helper-resolved component boundary must come from `scripts/print_expected_install_fingerprint.py` at deploy/validation time; later docs-only commits still do not create a new release target and should not displace the mapped Workstream A-D/F gap or a plain no-change report.
-- Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the `Detailed remaining work map` while a concrete A-D/F gap still exists. Do not spend watchdog or supervisor runs rephrasing the same mismatch unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a real repo inspection does not find a sharper remaining A-D/F defect, then Workstream G execution on the frozen `0.1.88` candidate becomes the next step. When formal deploy/restart truly becomes next, ask James directly for approval against that helper-resolved exact build.
+- Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the `Detailed remaining work map` while a concrete A-D/F gap still exists. Do not spend watchdog or supervisor runs rephrasing the same mismatch unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a real repo inspection does not find a sharper remaining A-D/F defect, then Workstream G execution on the `0.1.89` follow-up candidate becomes the next step.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path, promotion flow, and four-bucket IA still do not feel proven until the exact current helper-resolved build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
 
-## What counts as success for 0.1.88
+## What counts as success for 0.1.89
 
-`0.1.88` should not be called a successful UI release unless all of the following are true:
+`0.1.89` should not be called a successful UI release unless all of the following are true:
 
 1. **Managed vs unmanaged is visually obvious**
    - the Managed Devices path clearly shows the current managed fleet
@@ -83,7 +83,7 @@ This section is now the explicit staged delivery map. Each phase should be imple
 
 ## Detailed remaining work map
 
-This is the detailed remaining-step map for finishing the full `docs/UI_DESIGN.md` scope and getting the `0.1.88` release out.
+This is the detailed remaining-step map for finishing the full `docs/UI_DESIGN.md` scope and getting the `0.1.89` release out.
 Use this list to decide what still has to be built, what has to be proven live, and what order the remaining work should happen in.
 
 ### Workstream A. Finish the opening operator console
@@ -169,27 +169,27 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 ### Workstream G. Exact-build validation and release execution
 **Goal**
-- convert the repo candidate into a real shipped and validated `0.1.88` release
+- convert the repo candidate into a real shipped and validated `0.1.89` release
 
 **Still to do**
-1. Re-run the full validation pass on the exact frozen `0.1.88` candidate.
+1. Re-run the full validation pass on the exact helper-resolved `0.1.89` candidate.
 2. Push the final candidate to `main`.
-3. Resolve the already-pushed `v0.1.88` tag state before publication/deploy: with explicit James approval, either move/recreate the tag onto the helper-resolved final candidate or choose a follow-up release line if retagging is not acceptable.
-4. Publish the GitHub release from the approved tag/candidate.
-5. Deploy the exact approved `0.1.88` build to Home Assistant.
+3. Bump version-coupled metadata to `0.1.89` during the formal freeze.
+4. Publish the GitHub release from the approved `v0.1.89` tag/candidate.
+5. Deploy the exact approved `0.1.89` build to Home Assistant.
 6. Restart/reload Home Assistant and confirm the installed package matches the intended candidate.
 7. Capture live evidence that the UI outcome is actually present on the exact installed build.
 
 **Done when**
-- the approved `0.1.88` tag/candidate is resolved, published, deployed, and live-validated as the intended native UI build.
+- the approved `v0.1.89` tag/candidate is published, deployed, and live-validated as the intended native UI build.
 
 ### Order of execution from here
 1. Finish repo-side UI work only where a remaining stage is still visibly incomplete.
 2. Do not let unchanged fingerprint bookkeeping displace the next unfinished mapped workstream.
-3. Re-run full validation on the frozen `0.1.88` candidate.
-4. Resolve the existing `v0.1.88` tag state, then publish/deploy the approved candidate.
+3. Re-run full validation on the helper-resolved `0.1.89` candidate.
+4. Publish/deploy the approved `v0.1.89` candidate.
 5. Perform live screenshot-grade acceptance review.
-6. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.88` work instead of silently rolling the cut line forever.
+6. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.89` work instead of silently rolling the cut line forever.
 
 ### Stage 0. Baseline and source-of-truth consolidation
 **Purpose**
@@ -397,11 +397,13 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - screenshot-grade acceptance evidence
 - release-by-release validation discipline
 
-## 0.1.88 release rollout view
+## 0.1.89 release rollout view
 
-This is the explicit `0.1.88` rollout target James asked for. It converts the staged design work above into the release feature set.
+This is the explicit `0.1.89` follow-up rollout target after the already-published `v0.1.88` tag drifted behind later UI fixes. It converts the staged design work above into the release feature set without rewriting the published `v0.1.88` artifact.
 
-### 0.1.88 must include
+See `docs/RELEASE_0.1.89_PLAN.md` for the release execution plan.
+
+### 0.1.89 must include
 1. **Command center reduction**
    - setup-first operator surface with the current operating picture still visible
    - short top alert / next step
@@ -431,14 +433,14 @@ This is the explicit `0.1.88` rollout target James asked for. It converts the st
    - runtime attention notification tightened and reformatted
    - setup-finished/setup-warning notification tightened and reformatted
 
-### 0.1.88 should avoid being derailed by
+### 0.1.89 should avoid being derailed by
 - non-UI release churn unless required to keep HA loading
 - optional dashboard work
 - backend-only cleanup presented as shipped UI
 - wording tweaks that do not produce a visible HA change
 
-### 0.1.88 acceptance test
-`0.1.88` is only successful if James can open the live HA surfaces and see:
+### 0.1.89 acceptance test
+`0.1.89` is only successful if James can open the live HA surfaces and see:
 - the command center behaving like a setup-first operator console with the current operating picture obvious at the top, not like a setup-only helper screen
 - Configure -> Managed Devices clearly functioning as the managed-devices workspace, with the device page acting as the secondary review/audit path
 - managed vs unmanaged visually obvious

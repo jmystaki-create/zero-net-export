@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+Target release: `0.1.89`
+
+### Planning
+- Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that.
+
 ## [0.1.88]
 
 ### Fixed
