@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-277 - Native setup notification could echo stale source-mapping readiness payloads
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking remaining Workstream D/F source-role wording after live Sensors/source-health summaries had moved away from source-mapping language.
+- **current observed behavior:** `_async_update_native_setup_notice(...)` inserted `build_native_operator_readiness(...)` summary and next-step text directly into the persistent setup notification. A stale or fallback readiness payload could therefore still show `Setup still blocked by missing source mappings` or similar source-mapping wording in the native Home Assistant setup notification, even though the active Sensors/source-role surfaces had already been cleaned up.
+- **expected behavior:** native setup notifications should keep source blockers on operator-facing `source roles` / `required source roles` wording, with source-map terminology reserved for deeper entity-binding evidence.
+- **evidence:** focused repo inspection found `tests/test_setup_notice_copy.py` still locking a setup-notification summary containing `missing source mappings`, and `custom_components/zero_net_export/__init__.py` had no notification-side normalization before rendering readiness text.
+- **repo fix:** this run adds setup-notification text normalization for stale `source mapping(s)` readiness payloads, updates the setup-notice regression to expect `missing source roles`, and records the fix in the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup-notification wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-276 - Sensors source-health success summary still said source mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

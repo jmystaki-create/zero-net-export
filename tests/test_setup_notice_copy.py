@@ -154,7 +154,8 @@ class SetupNoticeCopyTests(unittest.TestCase):
         self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: finish native Zero Net Export setup")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export still needs a few native setup steps.", message)
-        self.assertIn("\n\nStatus\n• Summary: Setup still blocked by missing source mappings.", message)
+        self.assertIn("\n\nStatus\n• Summary: Setup still blocked by missing source roles.", message)
+        self.assertNotIn("source mappings", message)
         self.assertIn("\n• Missing required sources: Solar power, Home load power", message)
         self.assertIn("\n• Managed Devices: 0", message)
         self.assertIn("\n• Managed-device issues: No controllable devices have been added yet.", message)
@@ -175,6 +176,16 @@ class SetupNoticeCopyTests(unittest.TestCase):
         self.assertNotIn("Finish setup from Home Assistant's native integration surfaces.", message)
         self.assertNotIn("\n\nNext step:", message)
         self.assertNotIn("\n\nUse device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot for deeper diagnostics", message)
+
+    def test_setup_notice_normalizes_stale_source_mapping_next_step(self) -> None:
+        notification_calls: list[dict] = []
+        dismiss_calls: list[dict] = []
+        module = _load_init_module(notification_calls, dismiss_calls)
+
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Open the source mapping step before enabling control."),
+            "Open the Sensors source roles step before enabling control.",
+        )
 
 
 if __name__ == "__main__":

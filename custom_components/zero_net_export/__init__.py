@@ -58,6 +58,23 @@ def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
     return [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
 
 
+def _normalize_native_setup_notice_text(value: Any) -> str:
+    """Keep setup notifications on the operator-facing source-role wording."""
+    text = str(value or "")
+    replacements = {
+        "missing source mappings": "missing source roles",
+        "missing required source mappings": "missing required source roles",
+        "finish source mapping": "finish source roles",
+        "required source mapping": "required source roles",
+        "source mapping step": "Sensors source roles step",
+        "source mappings": "source roles",
+        "source mapping": "source roles",
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text
+
+
 async def _async_update_native_setup_notice(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -81,8 +98,11 @@ async def _async_update_native_setup_notice(
 
     readable_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in missing_sources]
     fallback_hint = build_source_selector_fallback_hint(role_keys=missing_sources) or "Not needed right now."
+    readiness_summary = _normalize_native_setup_notice_text(
+        readiness.get("summary") or "Zero Net Export still needs a few native setup steps."
+    )
     status_lines = [
-        f"• Summary: {readiness.get('summary') or 'Zero Net Export still needs a few native setup steps.'}",
+        f"• Summary: {readiness_summary}",
         f"• Missing required sources: {', '.join(readable_roles) if readable_roles else 'None'}",
         f"• Managed Devices: {len(devices)}",
     ]
@@ -93,7 +113,9 @@ async def _async_update_native_setup_notice(
     if source_attention_roles != "None":
         status_lines.append(f"• Active blockers: {source_attention_roles}")
 
-    next_step = str(readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup.")
+    next_step = _normalize_native_setup_notice_text(
+        readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup."
+    )
 
     message = (
         "Zero Net Export still needs a few native setup steps.\n\n"

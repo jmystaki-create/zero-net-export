@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Normalized stale native setup-notification readiness payloads so cached or fallback summaries no longer reintroduce `source mappings` wording after the active Sensors/source-role cleanup.
 - Replaced the remaining live Sensors source-health success summary that still said `Source mapping currently looks healthy` with source-role wording, including stale diagnostic-summary normalization before it reaches Configure.
 - Replaced the remaining primary Sensors/Managed Devices cross-bucket hints that still said `controller tuning` / `controller-policy tuning` with the current Controls ownership language for target export, reserve, deadband, and live mode.
 - Clarified Home Assistant source-validation, Sensors source-role setup, Controls readiness, setup checklist, and native readiness copy so source blockers, setup blockers, progress labels, and policy gating consistently say `source role(s)` / `required source roles` instead of source-mapping, logical-role, or generic required-role wording.
