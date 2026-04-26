@@ -3419,6 +3419,7 @@ def _build_command_center_fleet_activity_summary(
                     return bool(
                         part.endswith(" managed device needs attention")
                         or part.endswith(" managed devices need attention")
+                        or part == SOURCE_BLOCKER_ACTIVE_LABEL
                         or part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
                         or _matches_count_label(part, "planned action")
                         or _matches_count_label(part, "active managed device", "active managed devices")
@@ -3471,8 +3472,6 @@ def _build_command_center_fleet_activity_summary(
                 surfaced_parts = [part for part in ordered_parts if part.startswith("surfaced ")]
 
                 reordered_unmanaged_parts: list[str] = [unmanaged_label]
-                if source_blocker_part:
-                    reordered_unmanaged_parts.append(source_blocker_part)
                 reordered_unmanaged_parts.extend(backlog_parts)
                 reordered_unmanaged_parts.extend(review_ready_parts)
                 reordered_unmanaged_parts.extend(candidate_inventory_parts)
@@ -3503,6 +3502,8 @@ def _build_command_center_fleet_activity_summary(
                     default=0,
                 )
                 ordered_parts = remaining_parts[:insertion_index] + reordered_unmanaged_parts + remaining_parts[insertion_index:]
+                if source_blocker_part:
+                    ordered_parts.insert(0, source_blocker_part)
 
         return ordered_parts
 

@@ -2153,7 +2153,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             )
         )
 
-    def test_command_center_summary_keeps_managed_unmanaged_split_ahead_of_source_repair_note(self) -> None:
+    def test_command_center_summary_keeps_source_repair_note_outside_managed_unmanaged_split(self) -> None:
         native_support = _load_native_support_module()
 
         native_support.build_native_operator_readiness = lambda coordinator: {
@@ -2220,8 +2220,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
             summary["fleet_activity_summary"].index("1 unmanaged backlog"),
         )
         self.assertLess(
-            summary["fleet_activity_summary"].index("1 unmanaged backlog"),
             summary["fleet_activity_summary"].index("source blockers active"),
+            summary["fleet_activity_summary"].index("attention first Pool pump"),
+        )
+        self.assertLess(
+            summary["fleet_activity_summary"].index("source blockers active"),
+            summary["fleet_activity_summary"].index("1 unmanaged backlog"),
         )
         self.assertIn("blocked Pool pump", summary["fleet_activity_summary"])
         self.assertIn("review AC Outlet 2", summary["fleet_activity_summary"])
