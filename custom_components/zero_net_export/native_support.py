@@ -509,10 +509,29 @@ def format_fleet_activity_for_operator(summary: str) -> str:
             or _matches_count_label(part, "active managed device", "active managed devices")
         )
 
+    def _is_unmanaged_activity_part(part: str) -> bool:
+        return bool(
+            _is_unmanaged_count_part(part)
+            or part.startswith(("review ", "ready ", "surfaced ", "fixed backlog ", "variable backlog "))
+            or _matches_count_label(part, "needs review", "need review")
+            or _matches_count_label(part, "ready to promote")
+            or _matches_count_label(part, "fixed candidate")
+            or _matches_count_label(part, "variable candidate")
+        )
+
     unmanaged_index = next(
         (index for index, part in enumerate(parts) if _is_unmanaged_count_part(part)),
         None,
     )
+    if unmanaged_index is None:
+        unmanaged_index = next(
+            (
+                index
+                for index, part in enumerate(parts)
+                if not _is_managed_activity_part(part) and _is_unmanaged_activity_part(part)
+            ),
+            None,
+        )
     if unmanaged_index is None:
         return normalized
 

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-352 - Fleet activity unmanaged review signals without aggregate count could stay ungrouped
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** `format_fleet_activity_for_operator(...)` grouped managed/unmanaged fleet activity when an aggregate unmanaged count was present, but fallback fleet text with unmanaged review or ready signals and no aggregate unmanaged count, such as `1 managed | active load 900 W | 1 active managed device | 1 needs review | review Garage relay | ready EV charger`, stayed as a flat list. That weakened the managed-on-top / unmanaged-below story in the opening operator console.
+- **expected behavior:** Fleet activity formatting should still split managed action signals from unmanaged review/ready backlog signals when no aggregate unmanaged count can be inferred, keeping managed activity visibly ahead of unmanaged review work.
+- **evidence:** focused regressions now exercise normal and reversed unmanaged-review/no-count summaries and require `Managed devices: ...; Unmanaged backlog: ...` grouping.
+- **repo fix:** this run teaches the Fleet activity formatter to use the first unmanaged review/ready signal as the unmanaged bucket anchor when no aggregate unmanaged count is present, while preserving existing aggregate-count grouping and source-blocker handling.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity grouping cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-351 - Hyphenated source-mapping-step handoffs bypassed exact Configure path normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
