@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-254 - Setup checklist button could preserve stale unmanaged-section wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking ZNE-253's Managed Devices handoff cleanup against the Workstream B/C native workflow wording.
+- **current observed behavior:** the setup-checklist button notification and attributes rendered checklist details and fallback next steps from readiness data without passing them through the native-path text normalizer. A stale or test-supplied readiness payload could still show `Review the unmanaged section next`, `Start in the unmanaged section`, or `Promote next from the unmanaged section` even after the main Configure and Managed Devices handoffs had moved to direct fleet-action wording.
+- **expected behavior:** setup-checklist notifications and button attributes should preserve the native setup checklist while normalizing stale managed/unmanaged section-navigation phrases to direct Managed Devices actions.
+- **evidence:** repo grep found `tests/test_button_entity_categories.py` still locking a setup-checklist notification that displayed `Review the unmanaged section next.`; direct inspection of `ZeroNetExportShowSetupChecklistButton` showed raw checklist detail and fallback next-step rendering.
+- **repo fix:** this run extends `_normalize_native_path_text(...)` for stale unmanaged-section handoff phrases, normalizes setup-checklist button attributes and notification checklist rows, updates the `0.1.89` changelog, and adds regression coverage for stale readiness detail and next-step normalization.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/button.py custom_components/zero_net_export/native_support.py tests/test_button_entity_categories.py`, and focused grep confirming the stale phrases remain only as regression inputs/normalizer mappings, not rendered expectations. Live Home Assistant validation remains pending with the next `0.1.89` exact-build deploy.
+- **next action:** include this Workstream B/C setup-checklist hardening in the next `0.1.89` exact build; the single next project gap remains a direct James approval ask for the `0.1.89` freeze/release/deploy/restart path if no sharper A-D/F implementation defect is found.
+
 ## ZNE-253 - Managed Devices handoffs still sounded like section navigation
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

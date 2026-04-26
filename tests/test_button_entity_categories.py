@@ -101,7 +101,15 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     native_support_module.SOURCES_SECTION_LABEL = "Sensors"
     native_support_module.SUPPORT_CONFIGURE_PATH = "support path"
     native_support_module.SUPPORT_SECTION_LABEL = "Diagnostics"
-    native_support_module._normalize_native_path_text = lambda text: str(text or "").replace("Mapped source blockers", "Source blockers").replace("mapped source blockers", "source blockers").strip()
+    native_support_module._normalize_native_path_text = lambda text: (
+        str(text or "")
+        .replace("Mapped source blockers", "Source blockers")
+        .replace("mapped source blockers", "source blockers")
+        .replace("Start in the unmanaged section", "Review unmanaged candidates in Managed Devices")
+        .replace("Review the unmanaged section", "Review unmanaged candidates in Managed Devices")
+        .replace("Promote next from the unmanaged section", "Promote the ready unmanaged candidate in Managed Devices")
+        .strip()
+    )
     native_support_module.build_native_command_center_summary = lambda coordinator: {
         "recommended_section": "Sensors",
         "recommended_path": "sources path",
@@ -1759,9 +1767,35 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Summary: Finish source mapping first.", message)
         self.assertIn("Next step: Review the Managed Devices workspace next.", message)
         self.assertIn("- [x] Source map: Solar power and grid export mapped.", message)
-        self.assertIn("- [ ] Managed Devices: Review the unmanaged section next.", message)
+        self.assertIn("- [ ] Managed Devices: Review unmanaged candidates in Managed Devices next.", message)
+        self.assertNotIn("Review the unmanaged section next.", message)
         self.assertNotIn("Recommended command-center section:", message)
         self.assertNotIn("Recommended command-center path:", message)
+
+    def test_setup_checklist_button_attributes_normalize_stale_section_wording(self) -> None:
+        button_module = _load_button_module()
+        button_module.build_native_operator_readiness = lambda coordinator: {
+            "phase": "setup",
+            "summary": "Finish fleet setup.",
+            "checklist": [
+                {"complete": False, "label": "Managed Devices", "detail": "Start in the unmanaged section."},
+            ],
+            "next_step": "Promote next from the unmanaged section.",
+        }
+        button_module.build_native_command_center_summary = lambda coordinator: {}
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportShowSetupChecklistButton(coordinator)
+
+        attrs = button.extra_state_attributes
+
+        self.assertEqual(attrs["next_step"], "Promote the ready unmanaged candidate in Managed Devices.")
+        self.assertEqual(
+            attrs["checklist"][0]["detail"],
+            "Review unmanaged candidates in Managed Devices.",
+        )
 
     def test_diagnostics_snapshot_button_names_command_center_without_primary_path_leak(self) -> None:
         notification_calls: list[dict] = []

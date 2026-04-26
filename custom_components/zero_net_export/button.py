@@ -624,6 +624,19 @@ def _managed_devices_recommended_next_step(command_center: dict) -> str:
     )
 
 
+def _normalized_setup_checklist(checklist: list[dict] | None) -> list[dict]:
+    normalized: list[dict] = []
+    for item in checklist or []:
+        normalized.append(
+            {
+                **item,
+                "label": _normalize_native_path_text(item.get("label")),
+                "detail": _normalize_native_path_text(item.get("detail")),
+            }
+        )
+    return normalized
+
+
 def _managed_devices_blocker_first_lines(
     command_center: dict,
     candidates: list[dict] | None,
@@ -1543,17 +1556,19 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
-            "next_step": command_center.get("next_action_summary") or readiness.get("next_step"),
+            "next_step": _normalize_native_path_text(
+                command_center.get("next_action_summary") or readiness.get("next_step")
+            ),
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "source_mismatch": self._state.source_mismatch if self._state else None,
             "stale_data": self._state.stale_data if self._state else None,
-            "checklist": readiness.get("checklist"),
+            "checklist": _normalized_setup_checklist(readiness.get("checklist")),
         }
 
     async def async_press(self) -> None:
         readiness = build_native_operator_readiness(self.coordinator)
         command_center = build_native_command_center_summary(self.coordinator)
-        checklist = readiness.get("checklist") or []
+        checklist = _normalized_setup_checklist(readiness.get("checklist"))
         checklist_lines = [
             f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
             for item in checklist
