@@ -467,6 +467,15 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("each logical role", validation_source)
         self.assertNotIn("required roles or fix entity availability", validation_source)
 
+    def test_validation_checklist_uses_source_role_wording_for_active_source_recovery(self):
+        project_root = Path(__file__).resolve().parents[1]
+        checklist = (project_root / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
+
+        self.assertIn("previously saved source roles", checklist)
+        self.assertIn("required source roles recover as healthy runtime entities", checklist)
+        self.assertNotIn("previously saved mapped sources", checklist)
+        self.assertNotIn("required mapped sources recover", checklist)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -76,7 +76,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
-- [ ] Reopening Configure after restart still shows the previously saved mapped sources and current command-center guidance
+- [ ] Reopening Configure after restart still shows the previously saved source roles and current command-center guidance
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
 - [ ] Command-center landing screen shows current source status, managed-device status, policy summary, and a recommended next section that matches the real entry state
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
@@ -101,7 +101,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] Home load power entity shows valid reading when configured, or inferred home load behaves plausibly when no dedicated home-load sensor is mapped
 - [ ] Battery SOC entity shows valid reading (if configured)
 - [ ] Confidence sensor reports "high" when all sources valid
-- [ ] Once the coordinator loads after restart, required mapped sources recover as healthy runtime entities instead of staying stuck behind a setup failure
+- [ ] Once the coordinator loads after restart, required source roles recover as healthy runtime entities instead of staying stuck behind a setup failure
 - [ ] Safe mode activates when required source missing
 - [ ] Safe mode activates when source data stale (>120s)
 - [ ] Source mismatch detected when reconciliation fails

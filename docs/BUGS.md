@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-259 - Validation checklist restart checks still used mapped-source wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F source-role wording after active native Sensors, Diagnostics, and source-repair surfaces had moved to `source roles` / `source blockers`.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still told validators that reopening Configure should show previously saved `mapped sources`, and that after restart `required mapped sources` should recover. That stale validator wording could pull live validation back toward lower-level source-mapping jargon even though the current native UI release line now uses source-role wording for operator-facing source health.
+- **expected behavior:** active validation instructions should say `source roles` for restart/recovery checks, reserving mapped-entity detail for deeper Sensors/Diagnostics evidence where actual Home Assistant bindings are being inspected.
+- **evidence:** `rg -n "mapped sources|mapped-source|mapped roles|mapped role" docs/VALIDATION_CHECKLIST.md` found the two stale active checklist lines.
+- **repo fix:** this run changes the restart/configure and source-recovery checklist items to `previously saved source roles` and `required source roles recover`, records the `0.1.89` changelog note, and adds regression coverage preventing those active validation lines from reverting to mapped-source wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this process-checklist wording fix.
+- **next action:** keep validator guidance aligned with the `0.1.89` native source-role wording; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint refresh.
+
 ## ZNE-258 - 0.1.89 Unreleased changelog exceeded the compact release-note guard
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
