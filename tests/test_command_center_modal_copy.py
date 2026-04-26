@@ -14,9 +14,10 @@ class TestCommandCenterModalCopy(unittest.TestCase):
         self.assertTrue(description.startswith("Now\n- Headline decision:"))
         self.assertIn("\n\nCommand-center use\n- Live setup and current operating picture.", description)
         self.assertIn(
-            "- Finish source mapping and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
+            "- Finish source roles and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
             description,
         )
+        self.assertNotIn("Finish source mapping and core control checks", description)
         self.assertNotIn("basic setup and current operating picture only", description)
         self.assertIn("\n- Alerts: {alert_summary}", description)
         self.assertIn("\n- Next action: {next_action_summary}", description)
@@ -34,7 +35,8 @@ class TestCommandCenterModalCopy(unittest.TestCase):
         self.assertIn("\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", description)
         self.assertIn("\n- Managed Devices: {devices_path}", description)
         self.assertIn("\n- Diagnostics: {support_path}", description)
-        self.assertIn("\n\nBucket ownership\n- Sensors owns source mapping and source health.", description)
+        self.assertIn("\n\nBucket ownership\n- Sensors owns source roles and source health.", description)
+        self.assertNotIn("Sensors owns source mapping and source health.", description)
         self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {devices_path}", description)
         self.assertNotIn("Installed package details", description)
         self.assertNotIn("Recommended path right now", description)
