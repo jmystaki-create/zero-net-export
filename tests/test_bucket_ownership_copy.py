@@ -150,7 +150,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Primary path: {configure_path}.", devices_description)
         self.assertIn("Bucket ownership and paths", devices_description)
         self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {configure_path}", devices_description)
-        self.assertIn("- Sensors owns source mapping and source repair: {sources_path}", devices_description)
+        self.assertIn("- Sensors owns source roles and source repair: {sources_path}", devices_description)
+        self.assertNotIn("- Sensors owns source mapping and source repair", devices_description)
         self.assertIn("- Controls owns target export, reserve, deadband, and live mode: {policy_path}", devices_description)
         self.assertIn("- Diagnostics owns troubleshooting, repairs, and install validation: {support_path}", devices_description)
 

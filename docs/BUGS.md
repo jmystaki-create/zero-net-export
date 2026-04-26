@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-269 - Managed Devices bucket ownership still said source mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the Workstream D bucket-ownership copy inside the active Managed Devices Configure surface.
+- **current observed behavior:** Configure -> Managed Devices still described the Sensors bucket as `Sensors owns source mapping and source repair`, even after the command-center, bootstrap, Sensors, validation, and readiness surfaces had moved to source-role wording for the `0.1.89` native IA.
+- **expected behavior:** Managed Devices bucket-ownership guidance should keep fleet work in Managed Devices while naming Sensors as the home for source roles and source repair, avoiding stale source-mapping wording in an active operator surface.
+- **evidence:** direct repo inspection found the stale bucket-ownership line in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and the bucket-ownership regression expectation.
+- **repo fix:** this run changes the Managed Devices bucket-ownership line to `Sensors owns source roles and source repair`, syncs translations, and adds a regression guard rejecting the stale `source mapping and source repair` wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D Managed Devices bucket-ownership cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-268 - Command-center guide still used source-mapping wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
