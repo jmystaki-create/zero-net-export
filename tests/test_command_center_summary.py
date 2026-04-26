@@ -562,6 +562,20 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("to finish required source roles", normalized)
         self.assertNotIn("Open Configure to finish source", normalized)
 
+    def test_native_path_normalization_expands_open_source_mapping_step_handoff(self) -> None:
+        native_support = _load_native_support_module()
+
+        normalized = native_support._normalize_native_path_text(
+            "Open the source mapping step before enabling control."
+        )
+
+        self.assertEqual(
+            normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} before enabling control.",
+        )
+        self.assertNotIn("source mapping step", normalized)
+        self.assertNotIn("source roles step", normalized)
+
     def test_native_path_normalization_expands_bare_section_handoffs(self) -> None:
         native_support = _load_native_support_module()
 

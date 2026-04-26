@@ -187,7 +187,11 @@ class SetupNoticeCopyTests(unittest.TestCase):
 
         self.assertEqual(
             module._normalize_native_setup_notice_text("Open the source mapping step before enabling control."),
-            "Open the Sensors source roles step before enabling control.",
+            "Open sensors path before enabling control.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Open source mapping step before enabling control."),
+            "Open sensors path before enabling control.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
