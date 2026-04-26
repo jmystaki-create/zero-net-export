@@ -8,6 +8,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 Target release: `0.1.89`
 
+### Fixed
+- Kept Home Assistant source-blocker repair handoffs on operator-facing `Source blockers` / `source blockers` wording while preserving mapped-role detail where Sensors and Diagnostics need it for actual repair context.
+- Kept Configure's Fleet activity, Managed Devices helper sensors, and source-repair next-step surfaces aligned so global source blockers stay separate from managed/unmanaged backlog work.
+- Tightened the native Diagnostics selector fallback wording so support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
+- Kept no-candidate and empty-fleet Managed Devices handoffs workspace-first, including manual add fallback labels and `no managed yet` summaries when unmanaged promotion backlog exists.
+- Added disabled managed-load counts to native Managed Devices and device-page review snapshots so disabled fleet posture stays visible at a glance.
+
 ### Planning
 - Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that.
 

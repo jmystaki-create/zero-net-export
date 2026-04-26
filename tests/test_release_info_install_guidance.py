@@ -71,6 +71,17 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertIn("Home Assistant", info["changes_preview"])
 
+    def test_unreleased_changelog_carries_0189_post_tag_ui_fixes(self) -> None:
+        sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
+        unreleased_section = next(section for section in sections if section["version"] == "Unreleased")
+        unreleased_highlights = "\n".join(unreleased_section["highlights"])
+
+        self.assertIn("0.1.89", unreleased_highlights)
+        self.assertIn("Source blockers", unreleased_highlights)
+        self.assertIn("Managed Devices", unreleased_highlights)
+        self.assertIn("Diagnostics", unreleased_highlights)
+        self.assertNotIn("0.1.88 candidate", unreleased_highlights)
+
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-234 - Unreleased 0.1.89 changelog lacked the post-0.1.88 UI fixes
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-26 after `docs/UI_IMPLEMENTATION_MAP.md` and `docs/RELEASE_0.1.89_PLAN.md` made `0.1.89` the clean follow-up release line for UI fixes landed after the published `v0.1.88` tag.
+- **current observed behavior:** `CHANGELOG.md` had an `Unreleased` section targeting `0.1.89`, but it only recorded the planning decision. The actual post-`v0.1.88` native-UI fixes from recent component commits were still not summarized there, so release/install metadata for the follow-up candidate could look like a process-only release even though the repo contains real Workstream A/B/D/F fixes.
+- **expected behavior:** the `0.1.89` unreleased changelog should carry concise native-Home-Assistant UI fix highlights for the follow-up candidate without moving the published `v0.1.88` artifact or prematurely bumping manifest metadata before the formal freeze.
+- **evidence:** `git log --oneline v0.1.88^{}..HEAD -- custom_components/zero_net_export tests docs/RELEASE_0.1.89_PLAN.md` showed multiple post-tag component/test fixes, while direct `CHANGELOG.md` inspection showed only the `0.1.89` planning bullet under `Unreleased`.
+- **repo fix:** this run adds focused `0.1.89` Unreleased fixed highlights for source-blocker wording, Managed Devices workspace handoffs, Diagnostics fallback wording, empty-fleet/no-candidate summaries, and disabled managed-load counts, and adds release-info regression coverage that the Unreleased section carries those post-tag native-UI fix themes.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` and `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** keep the formal `0.1.89` freeze/release/deploy/restart boundary explicit; if no sharper A-D/F repo defect remains, ask James directly for approval instead of refreshing unchanged fingerprint bookkeeping.
+
 ## ZNE-233 - Source-repair next steps still used mapped-source blocker jargon
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
