@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-319 - Diagnostics blocker triage still labelled Sensors handoff as Source-map evidence
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F Diagnostics support copy against the current Sensors/source-role wording.
+- **current observed behavior:** Configure -> Diagnostics still rendered the blocker-triage handoff as `Source-map evidence: {sources_path}` even though the current `0.1.89` native IA uses Sensors/source roles for operator-facing source setup and support evidence.
+- **expected behavior:** Diagnostics should keep source troubleshooting evidence in the Diagnostics surface while labelling the Sensors handoff as source-role evidence, so support copy reinforces the same Sensors/source-role language as Configure, notifications, snapshots, and validation docs.
+- **evidence:** direct repo inspection found the stale label in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; existing bucket-ownership coverage still required the stale `Source-map evidence` text.
+- **repo fix:** this run changes the Diagnostics blocker-triage label to `Source-role evidence`, syncs the translation, folds the correction into the compact Unreleased Diagnostics changelog bullet, and updates regression coverage to reject the stale label.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Diagnostics wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-318 - UI implementation spec Sensors detail still used generic mapping/here wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
