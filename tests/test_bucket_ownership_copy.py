@@ -47,9 +47,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         native_setup_description = steps["native_setup"]["description"]
         self.assertIn(
-            "Use this Sensors workspace as the source-mapping and source-health home for the Zero Net Export command center.",
+            "Use this Sensors workspace as the source-role and source-health home for the Zero Net Export command center.",
             native_setup_description,
         )
+        self.assertNotIn("source-mapping and source-health home", native_setup_description)
         self.assertNotIn("Use this Sensors screen", native_setup_description)
         self.assertIn("Keep managed-device promotion in the Managed Devices workspace and controller-policy tuning in Controls.", native_setup_description)
         self.assertNotIn("Keep managed-device promotion in Managed Devices and controller-policy tuning in Controls.", native_setup_description)

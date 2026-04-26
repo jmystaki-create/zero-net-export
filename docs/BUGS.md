@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-272 - Sensors opening workspace still called itself source-mapping home
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the Workstream D source-role cleanup against the active Configure -> Sensors opening workspace.
+- **current observed behavior:** the first Sensors workspace description still said `Use this Sensors workspace as the source-mapping and source-health home for the Zero Net Export command center`, even after adjacent command-center, readiness, checklist, README, and Managed Devices ownership copy had moved the operator-facing bucket language to `source roles` / `source health`.
+- **expected behavior:** the opening Sensors workspace should describe itself as the source-role and source-health home, while leaving `source map` / `source mapping` wording only where the operator is actually reviewing entity bindings or mapping progress.
+- **evidence:** direct repo inspection found the stale primary bucket sentence in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and the bucket-ownership regression expectation.
+- **repo fix:** this run changes the Sensors opening description to `source-role and source-health home`, syncs translations, and adds a regression guard rejecting the stale `source-mapping and source-health home` phrase.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D Sensors bucket wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-271 - Controls readiness and setup checklist still said source mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
