@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-328 - Setup notification normalization missed bare Controls handoffs
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native setup-notification path normalization against the current four-bucket IA.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` expanded cached/fallback `Open Sensors ...`, `Open Managed Devices ...`, and `Open Diagnostics ...` handoffs to exact native Configure section paths before rendering the persistent setup notification, but it did not expand adjacent `Open Controls ...` handoffs. A restored readiness next step such as `Open Controls to adjust live mode.` could therefore leak a bare Controls instruction in the Home Assistant setup notification.
+- **expected behavior:** native setup notifications should normalize all four Configure bucket handoffs to exact Home Assistant native Configure paths, including Controls policy/live-mode handoffs.
+- **evidence:** direct repo inspection found setup-notification normalization entries for Sensors, Managed Devices, and Diagnostics only; focused setup-notice coverage now exercises `Open Controls to adjust live mode.` and requires the exact Controls Configure path.
+- **repo fix:** this run imports `POLICY_CONFIGURE_PATH` into `custom_components/zero_net_export/__init__.py`, adds `Open Controls and/to` setup-notice normalization, updates setup-notice regression coverage, and folds the correction into the compact Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup-notification path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-327 - Cached source setup handoff could keep bare Configure `to finish` wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

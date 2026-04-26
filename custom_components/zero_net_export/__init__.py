@@ -37,6 +37,7 @@ from .device_model import parse_device_configs
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
     DIAGNOSTICS_DEVICE_ACTIONS_PATH,
+    POLICY_CONFIGURE_PATH,
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
     SUPPORT_CONFIGURE_PATH,
@@ -68,6 +69,8 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
         "required source mapping": "required source roles",
         "Open Sensors and": f"Open {SOURCES_CONFIGURE_PATH} and",
         "Open Sensors to": f"Open {SOURCES_CONFIGURE_PATH} to",
+        "Open Controls and": f"Open {POLICY_CONFIGURE_PATH} and",
+        "Open Controls to": f"Open {POLICY_CONFIGURE_PATH} to",
         "Open Managed Devices and": f"Open {DEVICES_CONFIGURE_PATH} and",
         "Open Managed Devices to": f"Open {DEVICES_CONFIGURE_PATH} to",
         "Open Diagnostics and": f"Open {SUPPORT_CONFIGURE_PATH} and",

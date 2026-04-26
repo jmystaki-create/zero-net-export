@@ -98,6 +98,7 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     native_support_module = types.ModuleType(f"{package_name}.native_support")
     native_support_module.PRIMARY_CONFIGURE_PATH = "configure path"
     native_support_module.SOURCES_CONFIGURE_PATH = "sensors path"
+    native_support_module.POLICY_CONFIGURE_PATH = "controls path"
     native_support_module.DEVICES_CONFIGURE_PATH = "devices path"
     native_support_module.SUPPORT_CONFIGURE_PATH = "diagnostics path"
     native_support_module.DIAGNOSTICS_DEVICE_ACTIONS_PATH = "device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot"
@@ -195,6 +196,10 @@ class SetupNoticeCopyTests(unittest.TestCase):
         self.assertEqual(
             module._normalize_native_setup_notice_text("Open Sensors and finish the missing source roles."),
             "Open sensors path and finish the missing source roles.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Open Controls to adjust live mode."),
+            "Open controls path to adjust live mode.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Open Managed Devices to review candidates."),
