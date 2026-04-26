@@ -80,6 +80,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("Source blockers", unreleased_highlights)
         self.assertIn("Managed Devices", unreleased_highlights)
         self.assertIn("Diagnostics", unreleased_highlights)
+        self.assertIn("Home Assistant", unreleased_highlights)
+        self.assertLessEqual(len(unreleased_section["highlights"]), 10)
+        self.assertNotIn("mapped-source", unreleased_highlights.lower())
+        self.assertNotIn("mapped-role", unreleased_highlights.lower())
         self.assertNotIn("0.1.88 candidate", unreleased_highlights)
 
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:

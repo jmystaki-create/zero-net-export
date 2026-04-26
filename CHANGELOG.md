@@ -9,23 +9,10 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
-- Normalized stale hyphenated mapped-role readiness phrases at the command-center/device-page boundary so older payloads cannot leak `mapped-role` jargon into native next-action text.
-- Normalized command-center guide setup-check source blocker and repair-path text so stale mapped-source inputs cannot leak through the device-page guide after the main command-center summary is already clean.
-- Broadened native command-center text normalization so stale mapped-role or mapped-source readiness inputs render as operator-facing source-role guidance before reaching Home Assistant.
-- Normalized Configure command-center next-action text so stale source-blocker readiness inputs cannot revive mapped-source jargon in the native landing summary.
-- Kept the healthy live source-mapping summary on operator-facing `source roles` wording instead of reviving mapped-role jargon in native Sensors/source-health handoffs.
-- Kept runtime-attention, Sensors, and Diagnostics blocker labels on operator-facing `source roles` wording instead of reviving mapped-source/mapped-role labels in native handoffs.
-- Kept remaining Sensors and Controls source-repair readiness copy on operator-facing `source roles` / `source map` wording instead of reviving mapped-role labels in primary native handoffs.
-- Kept source-blocker summaries and healthy stale-source status on operator-facing `source roles` wording instead of reviving mapped-role/mapped-source jargon in Configure and runtime sensors.
-- Kept the setup checklist's healthy source-validation line on operator-facing `Source roles` wording instead of reviving mapped-source jargon in the device-page checklist.
-- Kept stale/unavailable runtime source-blocker reasons on operator-facing `source roles` wording instead of reviving mapped-source jargon in Repairs and operator-readiness handoffs.
-- Kept remaining Sensors source-health summaries on operator-facing `Source roles` / `Source mapping` wording instead of leading with mapped-source jargon in the native setup path.
-- Normalized the device-page command-center guide so stale mapped-source alert/status inputs render as operator-facing `Source blockers` wording before reaching Home Assistant.
-- Renamed the visible source-blocker helper sensor labels from mapped-source jargon to operator-facing `Source blocker summary` / `Source blocker next step` while keeping the underlying entity keys stable.
-- Reworded the Sensors selector descriptions for combined-grid energy and battery SOC so native setup no longer names a stale entity/UUID bug, while keeping the same fallback path for valid entities rejected by Home Assistant selector validation.
-- Kept Home Assistant source-blocker repair handoffs on operator-facing `Source blockers` / `source blockers` wording while preserving mapped-role detail where Sensors and Diagnostics need it for actual repair context.
+- Hardened Home Assistant command-center and device-page text normalization so stale source-role/source-blocker readiness payloads render as operator-facing guidance across the landing summary, setup check, guide, and next-action handoffs.
+- Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, and runtime source-health summaries on consistent `source roles`, `Source blockers`, and `source map` wording while leaving deeper entity-binding evidence in the right support paths.
 - Kept Configure's Fleet activity, Managed Devices helper sensors, and source-repair next-step surfaces aligned so global source blockers stay separate from managed/unmanaged backlog work.
-- Tightened the native Diagnostics selector fallback wording so support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
+- Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
 - Kept no-candidate and empty-fleet Managed Devices handoffs workspace-first, including manual add fallback labels and `no managed yet` summaries when unmanaged promotion backlog exists.
 - Added disabled managed-load counts to native Managed Devices and device-page review snapshots so disabled fleet posture stays visible at a glance.
 

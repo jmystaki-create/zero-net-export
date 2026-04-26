@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-250 - 0.1.89 unreleased changelog repeated source-wording microfix churn
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-26 after repeated source-role/source-blocker normalization commits accumulated at the top of the `0.1.89` Unreleased changelog.
+- **current observed behavior:** `CHANGELOG.md` listed many near-duplicate source-wording normalization bullets, several of which repeated the lower-level mapped-source/mapped-role jargon the release line had just removed from active native Home Assistant surfaces. That made the follow-up release notes read like normalization churn instead of a concise native UI candidate summary.
+- **expected behavior:** the `0.1.89` Unreleased section should stay concise and operator-facing: group the source-role/source-blocker normalization work into a small number of release-note themes, preserve the Managed Devices and Diagnostics highlights, and avoid reintroducing mapped-source/mapped-role jargon in the candidate-facing notes.
+- **evidence:** direct inspection of the Unreleased section showed the top release notes dominated by repeated mapped-source/mapped-role normalization bullets before the Managed Devices and Diagnostics highlights.
+- **repo fix:** this run compacts the repeated source-wording bullets into two broader Home Assistant/source-role themes, keeps the source-blocker, Diagnostics, Managed Devices, and disabled-fleet highlights visible, and adds release-info regression coverage that the Unreleased section remains compact and does not reintroduce mapped-source/mapped-role jargon.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation is not required for this release-note cleanup; final release-note validation remains part of the `0.1.89` freeze.
+- **next action:** keep `0.1.89` release notes concise during the freeze; if no sharper A-D/F implementation defect remains, the single next boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another source-wording or fingerprint-refresh loop.
+
 ## ZNE-249 - Command-center normalizer could still preserve hyphenated mapped-role wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
