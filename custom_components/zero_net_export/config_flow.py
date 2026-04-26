@@ -281,7 +281,7 @@ def _device_options_json(devices: list[dict[str, Any]]) -> str:
 COMBINED_GRID_ENERGY_FALLBACK_KEY = "grid_energy_entity_manual"
 BATTERY_SOC_FALLBACK_KEY = "battery_soc_entity_manual"
 MANUAL_CANDIDATE_SELECTION = "__manual__"
-MANUAL_CANDIDATE_SHORTLIST_LABEL = "Open manual add path in Managed Devices (entity not surfaced here)"
+MANUAL_CANDIDATE_SHORTLIST_LABEL = "Open manual add path in the Managed Devices workspace (entity not surfaced here)"
 
 
 def _build_derived_binding(mode: str, entity_id: str | None) -> str | None:

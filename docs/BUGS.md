@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-217 - Manual add fallback still omitted Managed Devices workspace wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B/C promotion fallback copy after `70801ad` moved the fallback off `manual Managed Devices form` wording
+- **current observed behavior:** the promotion shortlist, full unmanaged list, manual-add field guidance, and fallback selector had stopped calling the fallback a form, but they still said `manual add path in Managed Devices` / `Open manual add path in Managed Devices`. That left the newest fallback copy one step behind the workspace-first wording required by the current Managed Devices path.
+- **expected behavior:** manual-add fallback copy should keep operators inside the native `Managed Devices workspace` language, while still making shortlist/full-list promotion the preferred path and manual entity entry only the fallback when surfaced candidates miss the right entity.
+- **evidence:** repo grep found the active fallback strings in `custom_components/zero_net_export/config_flow.py`, `strings.json`, `translations/en.json`, and focused tests immediately after the prior fallback-form cleanup.
+- **repo fix:** this run changes the fallback selector and translatable shortlist/full-list/manual field guidance to `manual add path in the Managed Devices workspace`, and refreshes the focused bucket-ownership and config-flow expectations.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_config_flow_device_runtime_overlay tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_bucket_ownership_copy.py tests/test_config_flow_device_runtime_overlay.py`, and a grep confirming the older active fallback wording is gone. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Workstream B/C fallback wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is a direct James deploy/restart approval ask rather than another unchanged fingerprint/bookkeeping refresh.
+
 ## ZNE-216 - Promotion fallback still called the manual Managed Devices path a form
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
