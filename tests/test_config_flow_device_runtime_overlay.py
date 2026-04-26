@@ -2071,11 +2071,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             shortlist["data_schema"]["quick_pick"]["options"][-1]["label"],
-            "Open manual Managed Devices form (entity not surfaced here)",
+            "Open manual add path in Managed Devices (entity not surfaced here)",
         )
         self.assertEqual(
             full_list["data_schema"]["candidate_entity_id"]["options"][0]["label"],
-            "Open manual Managed Devices form (entity not surfaced here)",
+            "Open manual add path in Managed Devices (entity not surfaced here)",
         )
 
     def test_healthy_source_next_step_uses_managed_devices_when_fleet_setup_is_next(self) -> None:

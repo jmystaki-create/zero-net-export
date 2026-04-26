@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-216 - Promotion fallback still called the manual Managed Devices path a form
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream C promotion-copy trust against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`
+- **current observed behavior:** promotion shortlist, full-list, manual-add field guidance, and the manual fallback dropdown still said `manual Managed Devices form`. That was accurate in implementation terms but weaker than the native workspace language used elsewhere, and it made the fallback sound like an isolated helper form instead of the manual add path inside the Managed Devices workspace.
+- **expected behavior:** promotion fallback copy should keep operators in the native Managed Devices workspace language: shortlist and full-list promotion remain first, and manual entity entry is clearly the manual add path in Managed Devices only when the surfaced candidates miss the right entity.
+- **evidence:** repo inspection found `manual Managed Devices form` in `custom_components/zero_net_export/config_flow.py`, `strings.json`, `translations/en.json`, and copy regressions, while the Workstream C map still calls out removing ambiguous/helper-ish wording from the promotion path.
+- **repo fix:** this run renames the fallback selector label to `Open manual add path in Managed Devices (entity not surfaced here)` and updates shortlist/full-list/manual entity guidance in `strings.json` and `translations/en.json` to say `manual add path in Managed Devices`.
+- **validation status:** repo-side fix verified in this run with focused promotion/bucket translation regressions and the full unit suite. Live Home Assistant validation is still pending on the next exact-build deploy.
+- **next action:** include this promotion-copy cleanup in the exact `0.1.88` deploy/restart validation, then confirm live promotion fallback copy stays workspace-first.
+
 ## ZNE-204 - Candidate release preview test failed after changelog compaction
 - **status:** `validated`
 - **severity:** `medium`

@@ -302,7 +302,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Start promotion from the surfaced unmanaged {device_kind} candidates below, with managed devices on top and the unmanaged promotion backlog below.", shortlist_description)
         self.assertNotIn("Use this Managed Devices shortlist to review the currently surfaced unmanaged {device_kind} candidates below.", shortlist_description)
         self.assertNotIn("Start promotion from the surfaced unmanaged {device_kind} shortlist below.", shortlist_description)
-        self.assertIn("open the full unmanaged list or the manual Managed Devices form only if the right entity is still missing", shortlist_description)
+        self.assertIn("open the full unmanaged list or the manual add path in Managed Devices only if the right entity is still missing", shortlist_description)
         self.assertNotIn("best surfaced unmanaged", shortlist_description)
         self.assertNotIn("short, opinionated promotion shortlist", shortlist_description)
         self.assertIn("Unmanaged candidate devices: {candidate_count}", shortlist_description)
@@ -315,7 +315,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Bucket ownership and paths", shortlist_description)
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
-        self.assertIn("open the manual Managed Devices form from this dropdown and continue there", full_list_description)
+        self.assertIn("open the manual add path in Managed Devices from this dropdown and continue there", full_list_description)
         self.assertIn("Use the full unmanaged list when the shortlist still does not show the right surfaced entity, with managed devices on top and the unmanaged promotion backlog below.", full_list_description)
         self.assertIn("Managed Devices: {device_count}", full_list_description)
         self.assertIn("Unmanaged candidate devices: {candidate_count}", full_list_description)
