@@ -6,7 +6,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-## [0.1.88] - 2026-04-26
+## [0.1.88]
 
 ### Fixed
 - Extended the legacy discovery cleanup helper so it now removes nested `backup_*` artifacts and matching `backup_*.pyc` files from inside `custom_components/zero_net_export`, covering the newer `custom_components.zero_net_export.backup_*` import-failure variant that sibling-only cleanup missed.

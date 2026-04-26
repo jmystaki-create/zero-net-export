@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-203 - 0.1.88 changelog was finalized as released before approval
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** repo audit on 2026-04-26 after the candidate freeze commit
+- **current observed behavior:** the changelog header had moved to `## [0.1.88] - 2026-04-26` even though project steering still says Workstream G requires explicit James deploy/restart approval before release validation. That made native release metadata report `0.1.88` as already released while the approval boundary was still open.
+- **expected behavior:** the `0.1.88` changelog can describe the frozen candidate, but it should not carry a dated released header until the explicit release/deploy boundary is approved and executed.
+- **evidence:** current repo inspection showed `project_status.md` still requiring James approval while `CHANGELOG.md` had a dated `0.1.88` release header and `tests/test_release_info_install_guidance.py` expected `released_on == 2026-04-26`.
+- **repo fix:** this run changes the `0.1.88` changelog header back to an undated candidate header and updates release-info regression coverage so the current candidate still exposes changelog highlights but does not claim a release date before approval.
+- **validation status:** validated repo-side with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` and the full `python3 -m unittest discover -s tests -q` suite.
+- **next action:** when James explicitly approves and the release is actually tagged/published/deployed, date the `0.1.88` changelog header as part of that Workstream G release step.
+
 ## ZNE-001 - Repairs platform contract breaks integration recovery
 - **status:** `validated`
 - **severity:** `critical`
