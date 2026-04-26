@@ -2677,7 +2677,7 @@ def _command_center_device_status_with_unmanaged_context(
     } or (
         managed_count > 1 and normalized_base_status.rstrip(".") == f"{managed_count} configured devices available"
     )
-    summary = _managed_count_label(managed_count) if generic_managed_status and managed_count > 0 else base_status
+    summary = _managed_count_label(managed_count) if generic_managed_status else base_status
     managed_parts: list[str] = []
     compact_active_device_preview = active_device_preview and "." not in active_device_preview.partition(" ")[0]
     base_has_unmanaged_label = managed_count > 0 and candidate_count > 0 and _unmanaged_count_label(candidate_count) in normalized_base_status

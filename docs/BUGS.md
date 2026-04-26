@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-224 - Empty-fleet command-center fallback leaked configured-device wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `command_center`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream A/B Fleet activity wording after the empty-fleet and configured-managed fallback fixes
+- **current observed behavior:** if Home Assistant runtime reported `0 configured devices available` while unmanaged candidates were still surfaced, the command-center `Fleet activity` and `device_status` fallback could keep that older configured-device phrase instead of the operator-facing `no managed yet` wording used by the rest of the Managed Devices path. That made an empty managed fleet with promotion backlog read like internal configuration inventory rather than the managed/unmanaged workspace story.
+- **expected behavior:** empty managed-fleet summaries should normalize to `no managed yet` before adding unmanaged backlog, review, and ready-promotion cues, so Configure's opening board and fallback device-status line use the same native Managed Devices vocabulary.
+- **evidence:** repo inspection of `custom_components/zero_net_export/native_support.py` found `_command_center_device_status_with_unmanaged_context(...)` only replaced generic configured-device status with `_managed_count_label(...)` when `managed_count > 0`; the zero-managed branch kept `0 configured devices available`.
+- **repo fix:** this run normalizes all generic configured-device status through `_managed_count_label(...)`, including the zero-managed case, and adds a focused command-center regression for `0 configured devices available` plus a surfaced unmanaged candidate.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this empty-fleet wording fix in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## ZNE-223 - Sensors source-repair copy kept older mapped-source repair label
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
