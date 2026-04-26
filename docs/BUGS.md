@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-331 - Setup notification normalization missed shorthand Configure bucket paths
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native setup-notification path normalization against the current four-bucket IA.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` expanded bare `Open Sensors`, `Open Controls`, `Open Managed Devices`, and `Open Diagnostics` handoffs, but did not expand cached shorthand paths such as `Open Configure > Sensors` or `Open Configure > Diagnostics`. A restored setup-notification next step using those older Configure bucket paths could therefore render shorthand native navigation instead of the exact Home Assistant Configure section path.
+- **expected behavior:** native setup notifications should normalize all four shorthand Configure bucket paths to exact `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> ...` paths before Home Assistant renders them.
+- **evidence:** direct repo inspection found command-center normalization already covered `Open Configure > ...`, while setup-notification normalization did not; focused setup-notice coverage now exercises all four shorthand Configure bucket paths.
+- **repo fix:** this run adds setup-notification normalization for `Open Configure > Sensors`, `Open Configure > Controls`, `Open Configure > Managed Devices`, and `Open Configure > Diagnostics`, updates setup-notice regression coverage, and folds the cleanup into the compact Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup-notification path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-330 - Device-page promotion handoff made shortlist action look detached from Managed Devices
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

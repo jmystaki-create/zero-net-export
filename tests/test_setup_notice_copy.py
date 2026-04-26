@@ -211,6 +211,12 @@ class SetupNoticeCopyTests(unittest.TestCase):
             ),
             "Open sensors path first. Open controls path next. Open devices path for review. Open diagnostics path with install evidence.",
         )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text(
+                "Open Configure > Sensors. Open Configure > Controls. Open Configure > Managed Devices. Open Configure > Diagnostics."
+            ),
+            "Open sensors path. Open controls path. Open devices path. Open diagnostics path.",
+        )
 
 
 if __name__ == "__main__":
