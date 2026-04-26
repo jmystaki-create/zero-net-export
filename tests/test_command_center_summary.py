@@ -274,6 +274,29 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(fallback, "2 managed | 1 unmanaged backlog | ready EV charger")
         self.assertNotIn("managed devices:", fallback)
 
+    def test_fleet_activity_operator_format_canonicalizes_unmanaged_device_counts(self) -> None:
+        native_support = _load_native_support_module()
+
+        formatted = native_support.format_fleet_activity_for_operator(
+            "2 managed devices, 1 unmanaged device, review Garage relay"
+        )
+
+        self.assertEqual(
+            formatted,
+            "Managed devices: 2 managed; Unmanaged backlog: 1 unmanaged backlog | review Garage relay",
+        )
+        self.assertNotIn("1 unmanaged device", formatted)
+
+    def test_fleet_activity_fallback_canonicalizes_unmanaged_devices_label(self) -> None:
+        native_support = _load_native_support_module()
+
+        fallback = native_support._fleet_activity_fallback_from_device_status(
+            "Managed Devices: 2 managed devices, 3 unmanaged devices, ready EV charger"
+        )
+
+        self.assertEqual(fallback, "2 managed | 3 unmanaged backlog | ready EV charger")
+        self.assertNotIn("unmanaged devices", fallback)
+
     def test_fleet_activity_summary_names_disabled_managed_devices_when_inventory_is_visible(self) -> None:
         native_support = _load_native_support_module()
 

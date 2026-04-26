@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-365 - Fleet activity unmanaged-device count labels stayed ungrouped
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** fallback Fleet activity text could canonicalize `N unmanaged candidate(s)` labels, but cached or fallback wording such as `1 unmanaged device` or `3 unmanaged devices` stayed as raw text. That prevented the opening console formatter from consistently splitting managed devices above unmanaged backlog when older status text used unmanaged-device nouns.
+- **expected behavior:** Fleet activity fallbacks should canonicalize unmanaged-device count labels to `N unmanaged backlog` before grouping, so the managed-on-top / unmanaged-below story remains visible in the opening Configure console.
+- **evidence:** focused regressions now exercise `2 managed devices, 1 unmanaged device, review Garage relay` and `Managed Devices: 2 managed devices, 3 unmanaged devices, ready EV charger`, requiring canonical unmanaged backlog wording.
+- **repo fix:** this run extends unmanaged-count recognition, delimiter splitting, and count canonicalization to singular/plural `unmanaged device(s)` fallback labels.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity fallback cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-364 - Archived UI design snapshot still carried stale active-release direction
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

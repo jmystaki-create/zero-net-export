@@ -325,6 +325,7 @@ def _is_unmanaged_count_part(text: str) -> bool:
         normalized == "no unmanaged candidates"
         or normalized.endswith(" unmanaged")
         or normalized.endswith(" unmanaged backlog")
+        or re.fullmatch(r"\d+ unmanaged devices?", normalized) is not None
         or re.fullmatch(r"\d+ unmanaged candidates?", normalized) is not None
     )
 
@@ -348,6 +349,8 @@ def _canonicalize_fleet_activity_count_part(text: str) -> str:
     if len(tokens) == 3 and tokens[0].isdigit() and tokens[1:] in (["managed", "device"], ["managed", "devices"]):
         return f"{tokens[0]} managed"
     if len(tokens) == 3 and tokens[0].isdigit() and tokens[1:] in (["unmanaged", "candidate"], ["unmanaged", "candidates"]):
+        return f"{tokens[0]} unmanaged backlog"
+    if len(tokens) == 3 and tokens[0].isdigit() and tokens[1:] in (["unmanaged", "device"], ["unmanaged", "devices"]):
         return f"{tokens[0]} unmanaged backlog"
     return normalized
 
@@ -477,6 +480,7 @@ _FLEET_ACTIVITY_COMMA_DELIMITER_RE = re.compile(
     r"\d+ managed device(?:s)?\b|"
     r"\d+ unmanaged(?: backlog)?\b|"
     r"\d+ unmanaged candidate(?:s)?\b|"
+    r"\d+ unmanaged device(?:s)?\b|"
     r"enabled \d+|disabled \d+|usable \d+|"
     r"\d+ fixed managed|\d+ variable managed|\d+ W nominal|"
     r"\d+ managed device(?:s)? need(?:s)? attention|"
