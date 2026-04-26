@@ -135,7 +135,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("unavailable mapped role", config_flow_source)
         self.assertNotIn("stale mapped role", config_flow_source)
         self.assertNotIn("return here to review enablement", config_flow_source)
+        self.assertNotIn("entity not surfaced here", config_flow_source)
         self.assertIn("return to the Managed Devices workspace to review enablement", config_flow_source)
+        self.assertIn("entity not surfaced in the shortlist", config_flow_source)
         self.assertNotIn("required mapped roles are complete", native_support_source)
         self.assertNotIn("repair these highlighted mapped roles first", native_support_source)
         self.assertNotIn("review the mapped sources", native_support_source)
@@ -404,7 +406,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Bucket ownership and paths", shortlist_description)
 
         full_list_description = steps["device_pick_candidate_full"]["description"]
-        self.assertIn("open the manual add path in the Managed Devices workspace from this dropdown, then finish the save in that workspace", full_list_description)
+        self.assertIn("If the right entity is still missing from the full list, open the manual add path in the Managed Devices workspace from this dropdown, then finish the save in that workspace.", full_list_description)
+        self.assertNotIn("If it is still missing here", full_list_description)
         self.assertNotIn("continue there", full_list_description)
         self.assertIn("Use the full unmanaged list when the shortlist still does not show the right surfaced entity, with managed devices on top and the unmanaged promotion backlog below.", full_list_description)
         self.assertIn("Managed Devices: {device_count}", full_list_description)

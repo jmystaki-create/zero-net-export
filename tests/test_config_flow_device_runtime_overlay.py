@@ -2103,11 +2103,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             shortlist["data_schema"]["quick_pick"]["options"][-1]["label"],
-            "Open manual add path in the Managed Devices workspace (entity not surfaced here)",
+            "Open manual add path in the Managed Devices workspace (entity not surfaced in the shortlist)",
         )
         self.assertEqual(
             full_list["data_schema"]["candidate_entity_id"]["options"][0]["label"],
-            "Open manual add path in the Managed Devices workspace (entity not surfaced here)",
+            "Open manual add path in the Managed Devices workspace (entity not surfaced in the shortlist)",
         )
 
     def test_healthy_source_next_step_uses_managed_devices_when_fleet_setup_is_next(self) -> None:

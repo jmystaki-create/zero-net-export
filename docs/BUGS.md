@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-299 - Full-list manual-add fallback still used here-based absence wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream C item 5 for remaining helper-ish wording in the promotion path.
+- **current observed behavior:** Configure -> Managed Devices -> Promotion full list still said `If it is still missing here` and the manual-add selector label said `entity not surfaced here`, leaving local-screen `here` wording in the fallback path after earlier promotion-copy cleanup.
+- **expected behavior:** full-list fallback copy should name the full list/shortlist context directly and keep the operator anchored in the Managed Devices workspace without helper-style `here` phrasing.
+- **evidence:** direct repo inspection found the stale phrases in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, `custom_components/zero_net_export/config_flow.py`, and matching test expectations.
+- **repo fix:** this run changes the full-list fallback to `If the right entity is still missing from the full list...`, changes the manual-add selector label to `entity not surfaced in the shortlist`, syncs translations, and adds regression guards rejecting the old `here` wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_bucket_ownership_copy.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C fallback-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-298 - Fleet activity grouping could preserve reversed managed/unmanaged fallback order
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
