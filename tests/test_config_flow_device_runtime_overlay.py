@@ -1631,6 +1631,38 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             result["description_placeholders"]["candidate_summary"],
             "- No unmanaged candidate devices discovered right now",
         )
+
+    def test_device_vetting_fallback_preset_copy_stays_native(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))
+                }
+            },
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._pending_candidate_entity_id = "switch.manual_candidate"
+        flow._pending_candidate_summary = {
+            "name": "Manual Candidate",
+            "entity_id": "switch.manual_candidate",
+            "kind": module.DEVICE_KIND_FIXED,
+            "fit_confidence": "medium",
+            "fit_summary": "Review before promotion.",
+            "warnings": [],
+        }
+
+        result = asyncio.run(flow.async_step_device_vetting())
+
+        self.assertEqual(result["description_placeholders"]["suggested_template"], "Manual native settings")
+        self.assertEqual(
+            result["description_placeholders"]["suggested_template_description"],
+            "Use manual native settings for this entity.",
+        )
+        self.assertNotIn("Custom", result["description_placeholders"]["suggested_template"])
+        self.assertNotIn("custom configuration", result["description_placeholders"]["suggested_template_description"])
         self.assertNotIn("candidate_entity_id", result["description_placeholders"])
 
     def test_device_add_form_surfaces_blocker_summary_placeholder(self) -> None:

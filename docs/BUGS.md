@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-363 - Promotion fallback preset copy used generic custom-configuration wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream C promotion review/preset copy against the native-HA-only UI direction and repeated custom/external path leakage checks.
+- **current observed behavior:** when no suggested preset was available, the promotion review/template flow fell back to `Custom` and `Use a custom configuration for this entity.` That did not create a custom UI path, but it weakened the native Managed Devices workflow language at the exact review/preset decision point.
+- **expected behavior:** unmanaged-to-managed promotion should keep fallback preset language anchored to native/manual settings inside the Managed Devices workflow, without generic `custom configuration` wording that can read like a separate path.
+- **evidence:** direct repo inspection found the fallback strings in `_candidate_summary(...)`, `async_step_device_vetting(...)`, `async_step_device_template(...)`, and the device-add placeholder fallback in `custom_components/zero_net_export/config_flow.py`.
+- **repo fix:** this run changes those fallbacks to `Manual native settings` / `Use manual native settings for this entity.` and adds focused promotion-form regression coverage rejecting `custom configuration` fallback copy.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-copy cleanup in the next `0.1.89` exact build; the next most important gap remains James's direct approval for the `0.1.89` freeze/release/deploy/restart path once no sharper A-D/F repo defect appears.
+
 ## ZNE-362 - Source-role fallback normalization still produced helper-ish step wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
