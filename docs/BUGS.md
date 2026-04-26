@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-235 - Sensors selector descriptions still named an old entity/UUID bug
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F native Sensors fallback wording after Diagnostics and source-repair surfaces had already moved away from bug/workaround narration.
+- **current observed behavior:** the active Sensors source-mapping field descriptions for combined/net grid energy and battery SOC still said the native dropdown avoided or worked around a known `entity/UUID validation bug`. That kept stale bug-label wording in the normal native setup path even though adjacent fallback copy now says to use manual fields only when Home Assistant rejects a valid choice.
+- **expected behavior:** selector descriptions should stay operator-facing and neutral: native dropdowns and manual fields remain fallback tools for Home Assistant selector validation rejecting a valid entity, without naming an old bug in the primary Sensors setup surface.
+- **evidence:** repo inspection of `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` found `known entity/UUID validation bug` / `entity/UUID validation bug` in the active `grid_energy_entity` and `battery_soc_entity` descriptions.
+- **repo fix:** this run changes both descriptions to `selector validation rejects a valid entity`, keeps the manual fallback instructions intact, syncs `strings.json` and `translations/en.json`, records the fix in the `0.1.89` Unreleased changelog, and adds bucket-ownership regression coverage rejecting the older bug wording.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`, `python3 -m py_compile tests/test_bucket_ownership_copy.py`, and focused grep confirming no active component copy still contains the older entity/UUID bug wording. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Sensors fallback wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of refreshing unchanged fingerprint bookkeeping.
+
 ## ZNE-234 - Unreleased 0.1.89 changelog lacked the post-0.1.88 UI fixes
 - **status:** `fixed_pending_validation`
 - **severity:** `medium`

@@ -79,6 +79,17 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("- Diagnostics: {support_path}", source_mapping_description)
         self.assertNotIn("refresh_seconds", source_mapping_step["data"])
         self.assertNotIn("refresh_seconds", source_mapping_step["data_description"])
+        source_mapping_data_description = source_mapping_step["data_description"]
+        self.assertNotIn("known entity/UUID validation bug", source_mapping_data_description["grid_energy_entity"])
+        self.assertNotIn("entity/UUID validation bug", source_mapping_data_description["battery_soc_entity"])
+        self.assertIn(
+            "selector validation rejects a valid entity",
+            source_mapping_data_description["grid_energy_entity"],
+        )
+        self.assertIn(
+            "selector validation rejects a valid entity",
+            source_mapping_data_description["battery_soc_entity"],
+        )
 
         devices_description = steps["devices"]["description"]
         self.assertIn("This is the Managed Devices workspace.", devices_description)
