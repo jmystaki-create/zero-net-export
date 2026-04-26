@@ -76,6 +76,8 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
         "required source mapping": "required source roles",
         "Open Sensors and": f"Open {SOURCES_CONFIGURE_PATH} and",
         "Open Sensors to": f"Open {SOURCES_CONFIGURE_PATH} to",
+        "Open Sources and": f"Open {SOURCES_CONFIGURE_PATH} and",
+        "Open Sources to": f"Open {SOURCES_CONFIGURE_PATH} to",
         "Open Controls and": f"Open {POLICY_CONFIGURE_PATH} and",
         "Open Controls to": f"Open {POLICY_CONFIGURE_PATH} to",
         "Open Managed Devices and": f"Open {DEVICES_CONFIGURE_PATH} and",
@@ -98,6 +100,7 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
         text = text.replace(old, new)
     section_paths = {
         "Sensors": SOURCES_CONFIGURE_PATH,
+        "Sources": SOURCES_CONFIGURE_PATH,
         "Controls": POLICY_CONFIGURE_PATH,
         "Managed Devices": DEVICES_CONFIGURE_PATH,
         "Diagnostics": SUPPORT_CONFIGURE_PATH,

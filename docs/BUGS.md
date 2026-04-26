@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-334 - Legacy Sources handoffs could bypass exact Sensors path normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F path normalization for older cached native handoffs.
+- **current observed behavior:** command-center/support and setup-notification normalization expanded bare `Open Sensors ...` handoffs to the exact Sensors Configure path, but did not expand the older bucket name `Open Sources ...`. A restored summary or setup notice using `Open Sources first.` or `Open Sources and finish ...` could therefore leak stale source-bucket wording instead of the current `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors` path.
+- **expected behavior:** older `Sources` handoffs should normalize to the exact Sensors Configure path before Home Assistant renders command-center summaries, device-page support text, or persistent setup notifications.
+- **evidence:** direct repo inspection found `Sources` only normalized as part of `Sources and source mapping`, while the generic bare-section path expansion covered Sensors, Controls, Managed Devices, and Diagnostics only; focused regressions now exercise `Open Sources ...` forms in both native-path and setup-notification normalizers.
+- **repo fix:** this run adds `Open Sources and/to` replacements plus a generic `Open Sources ...` section-path expansion to both normalizers, updates command-center and setup-notice regression coverage, and folds the cleanup into the compact Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-333 - Setup notification normalization missed bare Configure source-finish prompts
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -86,6 +86,8 @@ def _normalize_native_path_text(text: Any) -> str:
         "Open Configure to finish source roles": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
         "Open Sensors and": f"Open {SOURCES_CONFIGURE_PATH} and",
         "Open Sensors to": f"Open {SOURCES_CONFIGURE_PATH} to",
+        "Open Sources and": f"Open {SOURCES_CONFIGURE_PATH} and",
+        "Open Sources to": f"Open {SOURCES_CONFIGURE_PATH} to",
         "Open Controls and": f"Open {POLICY_CONFIGURE_PATH} and",
         "Open Controls to": f"Open {POLICY_CONFIGURE_PATH} to",
         "Open Managed Devices and": f"Open {DEVICES_CONFIGURE_PATH} and",
@@ -155,6 +157,7 @@ def _normalize_native_path_text(text: Any) -> str:
         value = value.replace(old, new)
     section_paths = {
         SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
+        "Sources": SOURCES_CONFIGURE_PATH,
         POLICY_SECTION_LABEL: POLICY_CONFIGURE_PATH,
         DEVICES_SECTION_LABEL: DEVICES_CONFIGURE_PATH,
         SUPPORT_SECTION_LABEL: SUPPORT_CONFIGURE_PATH,
