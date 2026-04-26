@@ -190,6 +190,12 @@ class SetupNoticeCopyTests(unittest.TestCase):
             "Open the Sensors source roles step before enabling control.",
         )
         self.assertEqual(
+            module._normalize_native_setup_notice_text(
+                "Missing required source mappings. Source mapping step incomplete. Source mappings stale."
+            ),
+            "Missing required source roles. Sensors source roles step incomplete. Source roles stale.",
+        )
+        self.assertEqual(
             module._normalize_native_setup_notice_text("Repair mapped-role blockers, then review mapped sources."),
             "Repair source blockers, then review source roles.",
         )
