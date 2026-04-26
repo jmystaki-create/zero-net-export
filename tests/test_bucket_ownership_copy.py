@@ -638,6 +638,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         }
         ui_design = (project_root / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
         ui_implementation_spec = (project_root / "docs" / "UI_IMPLEMENTATION_SPEC.md").read_text(encoding="utf-8")
+        supervisor = (project_root / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
 
         for name, text in docs.items():
             with self.subTest(doc=name):
@@ -669,6 +670,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("source-role status and blocker visibility", ui_design)
         self.assertIn("source-map details only where an operator is cross-checking concrete entity bindings", ui_design)
         self.assertNotIn("source mapping status and blocker visibility", ui_design)
+        self.assertIn("adjust Controls policy/live mode", supervisor)
+        self.assertIn("review health evidence", supervisor)
+        self.assertNotIn("set policy, and review health", supervisor)
         self.assertIn("missing source roles", ui_implementation_spec)
         self.assertNotIn("missing source mapping", ui_implementation_spec)
 

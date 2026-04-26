@@ -26,7 +26,7 @@ What is already true:
 - The project is no longer primarily blocked by startup crashes.
 
 What is not yet true:
-- The native operator path is not yet coherent enough that an operator can instantly tell where to manage devices, set policy, and review health.
+- The native operator path is not yet coherent enough that an operator can instantly tell where to manage devices, adjust Controls policy/live mode, and review health evidence.
 - The integration still risks feeling like a large entity pack instead of a polished operator product.
 - The requested visible native UI outcome is not yet clearly complete in live Home Assistant.
 - Exact-build live proof is still gated by release drift and deploy/restart approval.

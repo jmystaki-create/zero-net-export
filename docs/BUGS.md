@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-316 - Supervisor current-position gap still used generic set-policy/review-health wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking `docs/SUPERVISOR.md` against the `0.1.89` four-bucket IA and the active product/validation wording.
+- **current observed behavior:** the supervisor's current-position gap still said operators could not instantly tell where to `manage devices, set policy, and review health`. That older shorthand could pull supervisor decisions back toward generic policy/health wording instead of the current Controls policy/live-mode, Managed Devices, and Diagnostics/health-evidence split.
+- **expected behavior:** steering should name the native buckets at the same level as the implementation map and validation guidance, so the remaining gap is framed as Managed Devices, Controls policy/live mode, and health evidence rather than vague settings/health copy.
+- **evidence:** direct repo inspection found the stale sentence in `docs/SUPERVISOR.md`; adjacent active docs and tests already reject similar `policy/settings` and `set policy` wording in product and validation guidance but did not cover supervisor steering.
+- **repo fix:** this run changes the supervisor gap sentence to `manage devices, adjust Controls policy/live mode, and review health evidence`, folds the correction into the compact Unreleased planning note, and adds regression coverage in `tests/test_bucket_ownership_copy.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this steering-doc correction.
+- **next action:** include this steering cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-315 - 0.1.89 release plan did not make direct approval a freeze prerequisite
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
