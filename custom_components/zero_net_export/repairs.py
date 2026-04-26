@@ -252,6 +252,7 @@ def async_sync_repairs_issues(
             translation_placeholders={
                 "configure_path": PRIMARY_CONFIGURE_PATH,
                 "sources_path": SOURCES_CONFIGURE_PATH,
+                "policy_path": POLICY_CONFIGURE_PATH,
                 "devices_path": DEVICES_CONFIGURE_PATH,
                 "support_path": SUPPORT_CONFIGURE_PATH if install_validation_blocked else (SOURCES_CONFIGURE_PATH if (missing_source_keys or unavailable_sources or stale_sources or data.stale_data) else SUPPORT_CONFIGURE_PATH),
                 "health_summary": str(data.health_summary or summary),

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-360 - Runtime Repairs Open list omitted the Controls bucket
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while comparing Workstream D/F four-bucket IA against the Repairs runtime-attention issue after the adjacent setup-notification Controls fix.
+- **current observed behavior:** the runtime-attention Repairs issue Open list exposed Command center, Sensors, Managed Devices, and Diagnostics, but omitted Controls even though Controls is the native home for target export, reserve, deadband, refresh interval, and live mode.
+- **expected behavior:** runtime blocker Repairs copy should keep all four primary Configure buckets visible in native Home Assistant: Sensors, Controls, Managed Devices, and Diagnostics, without introducing any external/custom UI path.
+- **evidence:** direct repo inspection found `runtime_attention` in `custom_components/zero_net_export/strings.json` and `translations/en.json` had no `• Controls: {policy_path}` row, and `async_sync_repairs_issues(...)` did not provide the `policy_path` placeholder for that issue.
+- **repo fix:** this run adds the missing Controls row to the runtime-attention Repairs Open list, wires `policy_path` into runtime-attention issue placeholders, and locks the copy in `tests/test_repairs_copy.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_repairs_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/repairs.py tests/test_repairs_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Repairs IA cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another path-variant or fingerprint-refresh loop.
+
 ## ZNE-359 - Setup notification Open list omitted the Controls bucket
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

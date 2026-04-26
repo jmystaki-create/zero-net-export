@@ -50,6 +50,7 @@ class RepairsCopyTests(unittest.TestCase):
         self.assertIn("\n\nFallback, only if Home Assistant rejects a valid choice\n•", description)
         self.assertIn("\n\nOpen\n• Command center:", description)
         self.assertIn("\n• Sensors:", description)
+        self.assertIn("\n• Controls:", description)
         self.assertIn("\n• Managed Devices:", description)
         self.assertIn("\n• Diagnostics:", description)
         self.assertNotIn("Best native troubleshooting path right now:", description)
