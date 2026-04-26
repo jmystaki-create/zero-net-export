@@ -73,6 +73,46 @@ DIAGNOSTICS_DEVICE_ACTIONS_PATH = (
 )
 
 
+def _normalize_source_mapping_case_drift(value: str) -> str:
+    """Catch title-case source-mapping fallback text before it reaches HA."""
+    value = re.sub(
+        r"\bOpen(?: the)? Source[- ]Mappings? Step\b",
+        f"Open {SOURCES_CONFIGURE_PATH}",
+        value,
+        flags=re.IGNORECASE,
+    )
+    value = re.sub(
+        r"\bMissing Required Source Mappings\b",
+        lambda match: "Missing required source roles" if match.group(0)[0].isupper() else "missing required source roles",
+        value,
+        flags=re.IGNORECASE,
+    )
+    value = re.sub(
+        r"\bRequired Source Mapping\b",
+        lambda match: "Required source roles" if match.group(0)[0].isupper() else "required source roles",
+        value,
+        flags=re.IGNORECASE,
+    )
+    value = re.sub(
+        r"\bFinish Source Mapping\b",
+        lambda match: "Finish source roles" if match.group(0)[0].isupper() else "finish source roles",
+        value,
+        flags=re.IGNORECASE,
+    )
+    value = re.sub(
+        r"\bSource[- ]Mappings? Step\b",
+        "Sensors source roles step",
+        value,
+        flags=re.IGNORECASE,
+    )
+    return re.sub(
+        r"\bSource[- ]Mappings?\b",
+        lambda match: "Source roles" if match.group(0)[0].isupper() else "source roles",
+        value,
+        flags=re.IGNORECASE,
+    )
+
+
 def _normalize_native_path_text(text: Any) -> str:
     value = str(text or "").strip()
     if not value:
@@ -187,6 +227,7 @@ def _normalize_native_path_text(text: Any) -> str:
     }
     for old, new in replacements.items():
         value = value.replace(old, new)
+    value = _normalize_source_mapping_case_drift(value)
     arrow_paths = {
         "Sensors": SOURCES_CONFIGURE_PATH,
         "Controls": POLICY_CONFIGURE_PATH,

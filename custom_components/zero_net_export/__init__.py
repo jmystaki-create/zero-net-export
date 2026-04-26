@@ -60,6 +60,46 @@ def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
     return [key for key in REQUIRED_SOURCE_KEYS if not merged.get(key)]
 
 
+def _normalize_source_mapping_case_drift(text: str) -> str:
+    """Catch title-case source-mapping fallback text before persistent notices render."""
+    text = re.sub(
+        r"\bOpen(?: the)? Source[- ]Mappings? Step\b",
+        f"Open {SOURCES_CONFIGURE_PATH}",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\bMissing Required Source Mappings\b",
+        lambda match: "Missing required source roles" if match.group(0)[0].isupper() else "missing required source roles",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\bRequired Source Mapping\b",
+        lambda match: "Required source roles" if match.group(0)[0].isupper() else "required source roles",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\bFinish Source Mapping\b",
+        lambda match: "Finish source roles" if match.group(0)[0].isupper() else "finish source roles",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\bSource[- ]Mappings? Step\b",
+        "Sensors source roles step",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return re.sub(
+        r"\bSource[- ]Mappings?\b",
+        lambda match: "Source roles" if match.group(0)[0].isupper() else "source roles",
+        text,
+        flags=re.IGNORECASE,
+    )
+
+
 def _normalize_native_setup_notice_text(value: Any) -> str:
     """Keep setup notifications on the operator-facing source-role wording."""
     text = str(value or "")
@@ -169,6 +209,7 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
+    text = _normalize_source_mapping_case_drift(text)
     arrow_paths = {
         "Sensors": SOURCES_CONFIGURE_PATH,
         "Controls": POLICY_CONFIGURE_PATH,

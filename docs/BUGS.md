@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-354 - Title-case source-mapping fallback text bypassed setup/support normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking repeated source-mapping normalization fixes for remaining Workstream D/F cached setup/support wording drift.
+- **current observed behavior:** `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` handled lower-case and sentence-start source-mapping fallback phrases, but title-case restored text such as `Open Source Mapping Step before enabling control.`, `Missing Required Source Mappings`, `Source Mapping Step incomplete`, and `Finish Source Mapping before control` could still reach command-center/support text or persistent setup notifications unchanged.
+- **expected behavior:** cached or restored setup notifications, command-center summaries, device-page support text, and setup/support fallback handoffs should normalize title-case source-mapping wording to exact Sensors Configure paths or source-role wording before Home Assistant renders native support surfaces.
+- **evidence:** focused regressions now exercise title-case source-mapping fallback phrases in both native-support and setup-notification normalization and reject stale `Source Mapping` / helper-ish `Source roles Step` output.
+- **repo fix:** this run adds a case-insensitive source-mapping fallback cleanup pass in both normalizers so mixed/title-case `Open Source Mapping Step`, `Missing Required Source Mappings`, `Source Mapping(s) Step`, and `Finish Source Mapping` variants converge to the same exact native Sensors path and source-role wording as the existing lower-case/sentence-case forms; the compact `0.1.89` Unreleased path-normalization changelog bullet now names title-case coverage.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup/support normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, stop the source-mapping variant churn and move to James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-353 - Hyphenated source-mapping fallback text bypassed source-role normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
