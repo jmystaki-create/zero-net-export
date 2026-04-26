@@ -568,6 +568,18 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Unmanaged backlog: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
         self.assertNotIn("Unmanaged backlog: 2 unmanaged backlog | source blockers active", summary)
 
+    def test_command_center_fleet_activity_grouping_recovers_managed_on_top_from_reversed_parts(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support.format_fleet_activity_for_operator(
+            "source blockers active | 2 unmanaged backlog | 1 needs review | review Garage relay | 1 managed | enabled 1 | usable 1 | 1 fixed managed"
+        )
+
+        self.assertTrue(summary.startswith("source blockers active; Managed devices: 1 managed"))
+        self.assertLess(summary.index("Managed devices:"), summary.index("Unmanaged backlog:"))
+        self.assertIn("Managed devices: 1 managed | enabled 1 | usable 1 | 1 fixed managed", summary)
+        self.assertIn("Unmanaged backlog: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
+
     def test_raw_fleet_activity_keeps_source_blocker_global_for_empty_managed_fleet(self) -> None:
         native_support = _load_native_support_module()
 

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-298 - Fleet activity grouping could preserve reversed managed/unmanaged fallback order
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, the remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** `format_fleet_activity_for_operator(...)` only grouped the command-center Fleet activity copy when a managed count appeared before the unmanaged count. If cached, fallback, or future raw summary text arrived with unmanaged backlog before managed inventory, the visible Configure top board could preserve that reversed order instead of recovering the managed-on-top / unmanaged-below story.
+- **expected behavior:** Fleet activity formatting should always recover the managed-first grouping when both managed and unmanaged signals are present, while keeping global source blockers outside both buckets.
+- **evidence:** direct repo inspection found the formatter searched only `parts[:unmanaged_index]` for a managed count before grouping.
+- **repo fix:** this run teaches the formatter to classify reversed managed/unmanaged fallback parts, emit `Managed devices` before `Unmanaged backlog`, keep source blockers global, and adds a regression for reversed fallback ordering.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity grouping cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-297 - Diagnostics support intro still used helper-style stay here wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

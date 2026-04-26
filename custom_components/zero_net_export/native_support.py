@@ -369,6 +369,14 @@ def format_fleet_activity_for_operator(summary: str) -> str:
         elif len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
             part = f"{tokens[0]} unmanaged backlog"
         parts.append(part)
+    def _is_managed_inventory_part(part: str) -> bool:
+        return bool(
+            part.startswith(("enabled ", "disabled ", "usable "))
+            or _matches_count_label(part, "fixed managed")
+            or _matches_count_label(part, "variable managed")
+            or part.endswith(" W nominal")
+        )
+
     unmanaged_index = next(
         (index for index, part in enumerate(parts) if _is_unmanaged_count_part(part)),
         None,
@@ -377,19 +385,46 @@ def format_fleet_activity_for_operator(summary: str) -> str:
         return normalized
 
     managed_index = next(
-        (index for index, part in enumerate(parts[:unmanaged_index]) if _is_managed_count_part(part)),
+        (index for index, part in enumerate(parts) if _is_managed_count_part(part)),
         None,
     )
     if managed_index is None:
         return normalized
 
-    def _is_managed_inventory_part(part: str) -> bool:
-        return bool(
-            part.startswith(("enabled ", "disabled ", "usable "))
-            or _matches_count_label(part, "fixed managed")
-            or _matches_count_label(part, "variable managed")
-            or part.endswith(" W nominal")
+    if managed_index > unmanaged_index:
+        global_problem_parts = [part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL]
+        grouping_start = min(managed_index, unmanaged_index)
+        prefix_parts = [
+            part
+            for part in parts[:grouping_start]
+            if part and part not in global_problem_parts
+        ]
+        candidate_parts = [
+            part
+            for part in parts[grouping_start:]
+            if part and part not in global_problem_parts
+        ]
+        managed_parts = [
+            part
+            for part in candidate_parts
+            if _is_managed_count_part(part) or _is_managed_inventory_part(part)
+        ]
+        unmanaged_parts = [
+            part
+            for part in candidate_parts
+            if not (_is_managed_count_part(part) or _is_managed_inventory_part(part))
+        ]
+        prefix_parts = [*global_problem_parts, *prefix_parts]
+        if not managed_parts or not unmanaged_parts:
+            return normalized
+
+        unmanaged_label = (
+            "Unmanaged candidates" if unmanaged_parts == ["no unmanaged candidates"] else "Unmanaged backlog"
         )
+        grouped_summary = f"Managed devices: {' | '.join(managed_parts)}; {unmanaged_label}: {' | '.join(unmanaged_parts)}"
+        if prefix_parts:
+            return f"{' | '.join(prefix_parts)}; {grouped_summary}"
+        return grouped_summary
 
     global_problem_parts = [part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL]
     prefix_parts = [part for part in parts[:managed_index] if part and part not in global_problem_parts]
