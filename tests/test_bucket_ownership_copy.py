@@ -458,6 +458,15 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Diagnostics path: {support_path}.", support_description)
         self.assertNotIn("Primary path:", support_description)
 
+    def test_source_validation_recommendations_use_source_role_wording(self):
+        integration_root = Path(__file__).resolve().parents[1] / "custom_components" / "zero_net_export"
+        validation_source = (integration_root / "validation.py").read_text(encoding="utf-8")
+
+        self.assertIn("each source role", validation_source)
+        self.assertIn("required source roles", validation_source)
+        self.assertNotIn("each logical role", validation_source)
+        self.assertNotIn("required roles or fix entity availability", validation_source)
+
 
 if __name__ == "__main__":
     unittest.main()

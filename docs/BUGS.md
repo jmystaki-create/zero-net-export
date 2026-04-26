@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-257 - Source-validation recommendations still used generic role wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F source-role wording after ZNE-256 tightened the Sensors source-mapping placeholders.
+- **current observed behavior:** `build_recommendation(...)` still returned `Assign distinct Home Assistant entities to each logical role...` for duplicate bindings and `Choose stable numeric sensors for required roles...` for unavailable or non-numeric required sources. Those recommendations can feed native repairs, notifications, helper sensors, and diagnostics handoffs, so they could reintroduce generic role wording after the visible Sensors bucket had moved to explicit source-role language.
+- **expected behavior:** source-validation recommendations should use operator-facing `source role` / `required source roles` wording while preserving deeper entity-binding detail in Sensors/Diagnostics evidence.
+- **evidence:** direct repo inspection of `custom_components/zero_net_export/validation.py` found the remaining `logical role` and `required roles` recommendation strings; `tests/test_bucket_ownership_copy.py` had no guard for this validation recommendation copy.
+- **repo fix:** this run changes the duplicate-source and unavailable/non-numeric-source recommendations to `source role` / `required source roles`, records the `0.1.89` changelog note, and adds a regression guard rejecting the old generic wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/validation.py tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next `0.1.89` exact-build deploy.
+- **next action:** include this Workstream D/F source-validation wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval rather than refreshing fingerprint bookkeeping.
+
 ## ZNE-256 - Sensors source-mapping progress used vague required-role wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
