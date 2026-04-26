@@ -130,6 +130,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertNotIn("| 3 unmanaged |", text)
         self.assertIn("Setup check", text)
         self.assertIn("- Source roles: Solar power -> sensor.pv_power", text)
+        self.assertIn("- Managed Devices: Managed devices: no managed yet; Unmanaged backlog: 3 unmanaged backlog | surfaced AC Outlet 2", text)
         self.assertNotIn("Finish source mapping and core control checks", text)
         self.assertNotIn("- Sensors owns source mapping and source health.", text)
         self.assertNotIn("- Source map: Solar power -> sensor.pv_power", text)

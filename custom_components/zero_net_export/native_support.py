@@ -2821,6 +2821,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             "Setup check",
             f"- Sensors: {source_status}",
             f"- Source roles: {command_center.get('source_mapping_summary')}",
+            f"- Managed Devices: {command_center.get('device_status') or fleet_activity_summary}",
             f"- Controls: {command_center.get('policy_status')}",
             f"- Diagnostics: {command_center.get('support_status')}",
             f"- Source blockers: {source_attention_summary}",

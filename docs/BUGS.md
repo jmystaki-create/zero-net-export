@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-361 - Command-center setup check omitted Managed Devices status
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while comparing Workstream A/D opening-console and four-bucket IA requirements against the command-center setup check.
+- **current observed behavior:** the opening Configure command-center setup check showed Sensors/source roles, Controls, Diagnostics, source blockers, repair path, and recommended section, but did not show Managed Devices status. Fleet activity existed above, but the setup-check block itself no longer kept all primary native buckets visible together.
+- **expected behavior:** the opening command-center setup check should keep the native IA complete by showing Managed Devices readiness/status alongside Sensors, Controls, and Diagnostics without introducing any custom or external UI path.
+- **evidence:** direct repo inspection found `strings.json`, `translations/en.json`, and `build_native_command_center_guide_text(...)` had no Managed Devices setup-check row even though `device_status` was already available in command-center placeholders.
+- **repo fix:** this run adds a `Managed Devices: {device_status}` row to the command-center modal setup check and adds the same row to the generated command-center guide text, falling back to the Fleet activity summary when older callers do not provide `device_status`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_modal_copy tests.test_command_center_setup_focus tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_modal_copy.py tests/test_command_center_setup_focus.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D opening-console IA cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the strongest remaining gap is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another unchanged fingerprint or path-variant loop.
+
 ## ZNE-360 - Runtime Repairs Open list omitted the Controls bucket
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
