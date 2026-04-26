@@ -90,6 +90,8 @@ def _normalize_native_path_text(text: Any) -> str:
         "Open source mapping step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open the Source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open the source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
+        "Open Source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
+        "Open source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open Sensors and": f"Open {SOURCES_CONFIGURE_PATH} and",
         "Open Sensors to": f"Open {SOURCES_CONFIGURE_PATH} to",
         "Open Sources and": f"Open {SOURCES_CONFIGURE_PATH} and",

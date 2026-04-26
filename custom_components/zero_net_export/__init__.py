@@ -76,6 +76,8 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
         "Open source mapping step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open the Source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open the source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
+        "Open Source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
+        "Open source mappings step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Missing required source mappings": "Missing required source roles",
         "missing required source mappings": "missing required source roles",
         "Missing source mappings": "Missing source roles",
