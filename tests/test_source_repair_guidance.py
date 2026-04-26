@@ -156,7 +156,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("mapped-source blockers", guidance)
         self.assertIn("Solar power -> Pv Power (unavailable)", guidance)
         self.assertIn("Grid export power -> Grid Export (stale 245 s)", guidance)
-        self.assertIn("make sure the mapped entities still exist and are reporting fresh numeric values", guidance)
+        self.assertIn("make sure the source-binding entities still exist and are reporting fresh numeric values", guidance)
+        self.assertNotIn("make sure the mapped entities still exist", guidance)
         self.assertIn("restore live availability for Solar power", guidance)
         self.assertIn("refresh or replace stale readings for Grid export power", guidance)
         self.assertIn("reopen Sensors to confirm these roles recover", guidance)
@@ -298,14 +299,16 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertIn("repair these highlighted source roles first", guidance)
         self.assertNotIn("repair these highlighted mapped roles first", guidance)
-        self.assertIn("Confirm each mapped entity selection still points at the intended Home Assistant entity", guidance)
+        self.assertIn("Confirm each source-role selection still points at the intended Home Assistant entity", guidance)
+        self.assertNotIn("Confirm each mapped entity selection", guidance)
         self.assertIn("Battery state of charge entity sensor.battery_soc is not numeric", guidance)
 
-    def test_repair_step_default_review_uses_source_map_wording(self) -> None:
+    def test_repair_step_default_review_uses_source_bindings_wording(self) -> None:
         native_support = _load_native_support_module()
         guidance = native_support.build_source_repair_step()
 
-        self.assertIn("review the source map", guidance)
+        self.assertNotIn("review the source map", guidance)
+        self.assertIn("review the current source bindings", guidance)
         self.assertNotIn("review the mapped sources", guidance)
 
     def test_attention_role_summary_includes_validation_only_role_errors(self) -> None:

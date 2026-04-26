@@ -1782,7 +1782,7 @@ def build_source_repair_step(
             else ", ".join(confirm_role_parts)
         )
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}. In Home Assistant, make sure the mapped entities still exist and are reporting fresh numeric values, "
+            f"Open {SOURCES_CONFIGURE_PATH}, repair {blocker_text}. In Home Assistant, make sure the source-binding entities still exist and are reporting fresh numeric values, "
             f"then {repair_action_text}, save and reload the integration, {_confirm_recovery_suffix(confirm_roles)}"
         )
 
@@ -1794,12 +1794,12 @@ def build_source_repair_step(
         )
         confirm_roles = affected_roles_text if affected_roles_text and affected_roles_text != "None" else blocking_details
         return (
-            f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}. Confirm each mapped entity selection still points at the intended Home Assistant entity, then save and reload the integration, "
+            f"Open {SOURCES_CONFIGURE_PATH}, {blocker_text}. Confirm each source-role selection still points at the intended Home Assistant entity, then save and reload the integration, "
             f"{_confirm_recovery_suffix(confirm_roles)}"
         )
 
     return (
-        f"Open {SOURCES_CONFIGURE_PATH}, review the source map, then save and reload the integration, "
+        f"Open {SOURCES_CONFIGURE_PATH}, review the current source bindings, then save and reload the integration, "
         "then reopen Sensors to confirm live source health."
     )
 
