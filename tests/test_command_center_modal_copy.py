@@ -26,6 +26,8 @@ class TestCommandCenterModalCopy(unittest.TestCase):
         self.assertNotIn("\n- Recommended path: {recommended_path}", description)
         self.assertIn("\n\nStructured control board\n- Energy state:", description)
         self.assertIn("\n\nSetup check\n- Sensors:", description)
+        self.assertIn("\n- Source roles: {source_mapping_summary}", description)
+        self.assertNotIn("\n- Source map: {source_mapping_summary}", description)
         self.assertLess(description.index("Now\n- Headline decision:"), description.index("\n\nStructured control board"))
         self.assertLess(description.index("\n\nStructured control board"), description.index("\n\nCommand-center use"))
         self.assertIn("\n\nNative paths\n- Sensors:", description)

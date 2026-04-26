@@ -14,7 +14,7 @@ Target release: `0.1.89`
 - Hardened stale unmanaged-section normalization so cached or fallback review/promote handoffs now resolve back to the exact Managed Devices workspace path instead of shorter section-navigation copy.
 - Tightened Managed Devices handoffs and review snapshots so unmanaged-candidate review, ready-promotion, disabled-load counts, no-candidate, empty-fleet, and manual-add next steps stay workspace-first and read as direct fleet actions.
 - Hardened command-center and device-page normalization so stale source-role/source-blocker payloads render as operator-facing guidance across landing summaries, setup checks, guides, and next-action handoffs.
-- Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, runtime source-health summaries, and source-repair next steps on consistent `Source blockers`, `source roles`, and `source map` wording.
+- Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, runtime source-health summaries, command-center setup checks, and source-repair next steps on consistent `Source blockers` and `source roles` wording.
 - Aligned the active validation checklist with the same source-role wording so restart/recovery validation no longer sends operators back to lower-level source-mapping terminology.
 - Clarified Configure's Fleet activity empty-unmanaged state as `Unmanaged candidates: no unmanaged candidates` and kept global source blockers separate from managed/unmanaged backlog work.
 - Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.

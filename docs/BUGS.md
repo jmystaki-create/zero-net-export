@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-262 - Command-center setup check still labelled source-role evidence as Source map
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking the opening command-center setup check against Workstream A/D source-role wording.
+- **current observed behavior:** the primary command-center setup check still rendered `Source map: {source_mapping_summary}` in `strings.json`, `translations/en.json`, and the shared device-page command-center guide even after adjacent Sensors progress and validation copy had moved to explicit `source role(s)` wording.
+- **expected behavior:** opening setup-check rows should label the same evidence as `Source roles` so the command-center keeps source-health language consistent without pushing lower-level source-map terminology into the first operator console.
+- **evidence:** repo grep found `- Source map: {source_mapping_summary}` in the command-center option description and `- Source map: ...` in `build_native_command_center_guide_text(...)` expectations.
+- **repo fix:** this run changes the command-center and shared guide setup-check label to `Source roles`, syncs translations, updates the compact `0.1.89` changelog wording, and adds regression coverage rejecting the stale primary `Source map` setup-check label.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_modal_copy tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_translation_sync tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_modal_copy.py tests/test_command_center_setup_focus.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D command-center wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the boundary is still James's direct approval for freeze/release/deploy/restart rather than another fingerprint refresh.
+
 ## ZNE-261 - Sensors source-mapping headings still used generic required-role wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
