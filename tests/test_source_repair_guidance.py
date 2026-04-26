@@ -497,8 +497,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         support_center = native_support.build_native_support_center(_FakeCoordinator())
         self.assertIn("Zero Net Export diagnostics guide", support_center)
         self.assertNotIn("native support center", support_center)
-        self.assertIn("Use Diagnostics when setup is blocked, runtime health needs explanation, or you need install-validation evidence.", support_center)
-        self.assertIn("Diagnostics owns troubleshooting, repairs, and install validation; normal source mapping, policy tuning, and managed-device promotion stay in their native buckets.", support_center)
+        self.assertIn("Diagnostics is for blockers, runtime health, and install evidence.", support_center)
+        self.assertIn("Troubleshooting, Repairs, and install validation stay here; Sensors, Controls, and Managed Devices keep normal operator work.", support_center)
         self.assertNotIn("install trust needs proof", support_center)
         self.assertIn("Diagnostics now", support_center)
         self.assertIn(f"Command center path: {native_support.PRIMARY_CONFIGURE_PATH}", support_center)
@@ -516,19 +516,19 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("- Recommended path now:", support_center)
         self.assertNotIn("- Why this section is recommended:", support_center)
         self.assertIn(
-            f"- For detailed source-map evidence, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
+            f"- Source-map evidence: {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
         self.assertNotIn("For deeper source-map detail", support_center)
         self.assertNotIn("deeper triage", support_center)
         self.assertIn(
-            "- Live candidate cues for blocked roles: Not needed right now.",
+            "- Blocked-role candidate cues: Not needed right now.",
             support_center,
         )
         self.assertIn("- Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.", support_center)
-        self.assertIn("- Exact-build next step: install repair step", support_center)
+        self.assertIn("- Exact-build step: install repair step", support_center)
         self.assertIn(
-            f"- Full install evidence: {native_support.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
+            f"- Install evidence: {native_support.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
             support_center,
         )
         self.assertNotIn("- Install provenance:", support_center)
@@ -1086,14 +1086,14 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             "Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.",
             support_center,
         )
-        self.assertIn("Exact-build next step: install repair step", support_center)
+        self.assertIn("Exact-build step: install repair step", support_center)
         self.assertIn(
-            f"For detailed source-map evidence, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
+            f"Source-map evidence: {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
         self.assertNotIn("For deeper source-map detail", support_center)
         self.assertIn(
-            f"Live candidate cues for blocked roles: Open {native_support.SOURCES_CONFIGURE_PATH} to review live source candidates for the blocked roles.",
+            f"Blocked-role candidate cues: Open {native_support.SOURCES_CONFIGURE_PATH} to review live source candidates for the blocked roles.",
             support_center,
         )
         self.assertNotIn("Current mapped roles for reference", support_center)
