@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-283 - UI design Sensors ownership still said source mapping status
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog source-of-truth audit on 2026-04-26 while checking Workstream D source-role cleanup against `docs/UI_DESIGN.md`.
+- **current observed behavior:** the Sensors ownership section in the UI design source of truth still listed `source mapping status and blocker visibility`, even though active native surfaces, validation gates, and the implementation spec now use source-role wording for primary operator-facing status.
+- **expected behavior:** the design source should keep primary Sensors status on source roles/source health, and reserve source-map wording for concrete entity-binding cross-check detail.
+- **evidence:** direct repo inspection found the stale bullet in `docs/UI_DESIGN.md` after recent source-role cleanup commits had aligned active Configure, setup, validation, and implementation-spec wording.
+- **repo fix:** this run changes the Sensors ownership bullet to `source-role status and blocker visibility`, adds the explicit source-map cross-check-only boundary, records the `0.1.89` changelog note, and extends bucket-ownership regression coverage to guard the design source itself.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this docs-only design-source correction.
+- **next action:** include this Workstream D source-of-truth cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-282 - Screen-level UI spec still used source-mapping alert wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

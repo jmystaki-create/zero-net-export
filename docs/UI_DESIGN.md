@@ -316,7 +316,8 @@ It should contain:
 - grid import/export power and energy
 - battery state of charge and charge/discharge
 - source-health and freshness signals
-- source mapping status and blocker visibility
+- source-role status and blocker visibility
+- source-map details only where an operator is cross-checking concrete entity bindings
 
 The most critical subset belongs in the top console.
 Deeper telemetry can live further down or behind deeper entries.

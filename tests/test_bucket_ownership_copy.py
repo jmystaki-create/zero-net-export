@@ -563,6 +563,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "REFERENCE_MATRIX.md": (project_root / "docs" / "REFERENCE_MATRIX.md").read_text(encoding="utf-8"),
             "VALIDATION_CHECKLIST.md": (project_root / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8"),
         }
+        ui_design = (project_root / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
         ui_implementation_spec = (project_root / "docs" / "UI_IMPLEMENTATION_SPEC.md").read_text(encoding="utf-8")
 
         for name, text in docs.items():
@@ -580,6 +581,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             docs["PRODUCT_SPEC_V1.md"],
         )
         self.assertNotIn("never act without validated source mapping", docs["PRODUCT_SPEC_V1.md"])
+        self.assertIn("source-role status and blocker visibility", ui_design)
+        self.assertIn("source-map details only where an operator is cross-checking concrete entity bindings", ui_design)
+        self.assertNotIn("source mapping status and blocker visibility", ui_design)
         self.assertIn("missing source roles", ui_implementation_spec)
         self.assertNotIn("missing source mapping", ui_implementation_spec)
 
