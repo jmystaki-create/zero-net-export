@@ -221,6 +221,12 @@ class SetupNoticeCopyTests(unittest.TestCase):
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
+                "Open Configure -> Sensors. Open Configure -> Controls. Open Configure -> Managed Devices. Open Configure -> Diagnostics."
+            ),
+            "Open sensors path. Open controls path. Open devices path. Open diagnostics path.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text(
                 "Open Configure and finish source mapping. Open Configure to finish required source roles."
             ),
             "Open sensors path and finish required source roles. Open sensors path to finish required source roles.",

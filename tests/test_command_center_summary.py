@@ -598,6 +598,23 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("Open Managed Devices for", normalized)
         self.assertNotIn("Open Diagnostics with", normalized)
 
+    def test_native_path_normalization_expands_arrow_configure_handoffs(self) -> None:
+        native_support = _load_native_support_module()
+
+        normalized = native_support._normalize_native_path_text(
+            "Open Configure -> Sensors. Open Configure -> Controls. "
+            "Open Configure -> Managed Devices. Open Configure -> Diagnostics."
+        )
+
+        self.assertEqual(
+            normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH}. "
+            f"Open {native_support.POLICY_CONFIGURE_PATH}. "
+            f"Open {native_support.DEVICES_CONFIGURE_PATH}. "
+            f"Open {native_support.SUPPORT_CONFIGURE_PATH}.",
+        )
+        self.assertNotIn("Open Configure ->", normalized)
+
     def test_command_center_fleet_activity_grouping_keeps_source_blocker_outside_managed_bucket(self) -> None:
         native_support = _load_native_support_module()
 
