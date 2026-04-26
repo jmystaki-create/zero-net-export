@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-302 - Unreleased changelog exceeded the compact release-note guard
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo validation on 2026-04-27 while checking the current `0.1.89` A-D/F candidate and release metadata guard.
+- **current observed behavior:** the focused release-info regression failed because `CHANGELOG.md` had 11 Unreleased highlights, exceeding the compact `0.1.89` release-note guard of 10. The extra self-referential bullet said the notes had been recompacted, which itself turned the release notes back into process/bookkeeping noise.
+- **expected behavior:** the Unreleased `0.1.89` notes should stay grouped, operator-facing, and within the compact release-note guard, without adding meta bullets about note compaction.
+- **evidence:** `python3 -m unittest -q tests.test_release_info_install_guidance` failed in `test_unreleased_changelog_carries_0189_post_tag_ui_fixes` with `AssertionError: 11 not less than or equal to 10`.
+- **repo fix:** this run removes the self-referential release-note compaction bullet from `CHANGELOG.md`; the actual grouped UI/support/release-plan highlights remain.
+- **validation status:** repo-side fix verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_sensor_entity_categories tests.test_button_entity_categories tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/release_info.py tests/test_release_info_install_guidance.py`.
+- **next action:** include this release-metadata cleanup in the next `0.1.89` candidate; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another release-note or fingerprint-refresh loop.
+
 ## ZNE-301 - Managed Devices follow-through repeated the workspace name inside local action text
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

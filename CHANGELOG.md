@@ -18,7 +18,6 @@ Target release: `0.1.89`
 - Clarified Configure Fleet activity so managed inventory stays grouped ahead of unmanaged backlog even when fallback parts arrive out of order, empty unmanaged inventory reads as `Unmanaged candidates: no unmanaged candidates`, global source blockers stay separate from managed/unmanaged backlog work, and fleet state remains compact for native Home Assistant surfaces.
 - Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
 - Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, with troubleshooting/install-validation work explicitly belonging in Diagnostics and final review/follow-up staying inside native Home Assistant paths.
-- Recompacted the `0.1.89` Unreleased notes after later microfixes so release metadata stays grouped, operator-facing, and under the compact release-note guard instead of becoming source-wording churn.
 
 ### Planning
 - Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that.
