@@ -184,9 +184,10 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "- Fleet activity: Managed devices: 1 managed | active load 1200 W | 1 active managed device; Unmanaged backlog: no unmanaged candidates",
+            "- Fleet activity: Managed devices: 1 managed | active load 1200 W | 1 active managed device; Unmanaged candidates: no unmanaged candidates",
             text,
         )
+        self.assertNotIn("Unmanaged backlog: no unmanaged candidates", text)
         self.assertNotIn("Fleet activity: 1 managed; active load", text)
 
     def test_command_center_guide_stays_compact_even_with_detailed_source_blockers(self) -> None:
