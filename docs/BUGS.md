@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-356 - Case-variant Configure bucket handoffs bypassed exact native path normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the repeated Workstream D/F path-normalization fixes for remaining cached setup/support wording drift.
+- **current observed behavior:** `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` normalized canonical `Configure -> Sensors`, `Configure > Managed Devices`, and `Configure → Controls` bucket handoffs, but case-variant cached forms such as `configure -> sensors`, `CONFIGURE > managed devices`, or lower-case bare `open diagnostics` could still render as shorthand bucket labels instead of exact Home Assistant Configure paths.
+- **expected behavior:** cached or fallback setup notifications, command-center summaries, device-page support text, and native handoffs should normalize case-variant Configure bucket labels to exact native Home Assistant Configure paths before rendering.
+- **evidence:** focused regressions now exercise mixed/lower/upper-case Configure bucket and bare-section handoffs in both native-support and setup-notification normalization and reject the shorthand forms.
+- **repo fix:** this run makes the guarded Configure bucket and bare `Open <section>` normalization passes case-insensitive in both normalizers, while preserving already-expanded `Zero Net Export -> Configure ...` paths.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; after this run, the stronger process gap is to stop source/path variant churn unless a materially sharper A-D/F defect appears and ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
+
 ## ZNE-355 - Case-variant bare Configure source-role finish prompts stayed off exact Sensors path
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

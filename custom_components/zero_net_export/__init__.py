@@ -233,16 +233,19 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
             rf"(?<!Zero Net Export -> )Configure -> {re.escape(section_label)}",
             section_path,
             text,
+            flags=re.IGNORECASE,
         )
         text = re.sub(
             rf"(?<!Zero Net Export -> )Configure → {re.escape(section_label)}",
             section_path,
             text,
+            flags=re.IGNORECASE,
         )
         text = re.sub(
             rf"(?<!Zero Net Export -> )Configure > {re.escape(section_label)}",
             section_path,
             text,
+            flags=re.IGNORECASE,
         )
     section_paths = {
         "Sensors": SOURCES_CONFIGURE_PATH,
@@ -253,9 +256,10 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
     }
     for section_label, section_path in section_paths.items():
         text = re.sub(
-            rf"\bOpen {re.escape(section_label)}(?=(?:\s|[.,;:]|$))",
+            rf"\bOpen {re.escape(section_label)}(?!(?:\s+path)\b)(?=(?:\s|[.,;:]|$))",
             f"Open {section_path}",
             text,
+            flags=re.IGNORECASE,
         )
     return text
 

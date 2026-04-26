@@ -746,6 +746,26 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("Next: Configure ->", normalized)
         self.assertNotIn("Then Configure →", normalized)
 
+    def test_native_path_normalization_expands_case_variant_configure_bucket_handoffs(self) -> None:
+        native_support = _load_native_support_module()
+
+        normalized = native_support._normalize_native_path_text(
+            "Open configure -> sensors. Path: CONFIGURE > managed devices. "
+            "Then configure → controls and open diagnostics with install evidence."
+        )
+
+        self.assertEqual(
+            normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH}. "
+            f"Path: {native_support.DEVICES_CONFIGURE_PATH}. "
+            f"Then {native_support.POLICY_CONFIGURE_PATH} and "
+            f"Open {native_support.SUPPORT_CONFIGURE_PATH} with install evidence.",
+        )
+        self.assertNotIn("configure -> sensors", normalized)
+        self.assertNotIn("CONFIGURE > managed devices", normalized)
+        self.assertNotIn("configure → controls", normalized)
+        self.assertNotIn("open diagnostics", normalized)
+
     def test_native_path_normalization_preserves_expanded_unicode_arrow_paths(self) -> None:
         native_support = _load_native_support_module()
 

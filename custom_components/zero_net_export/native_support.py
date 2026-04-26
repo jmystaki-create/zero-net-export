@@ -251,16 +251,19 @@ def _normalize_native_path_text(text: Any) -> str:
             rf"(?<!Zero Net Export -> )Configure -> {re.escape(section_label)}",
             section_path,
             value,
+            flags=re.IGNORECASE,
         )
         value = re.sub(
             rf"(?<!Zero Net Export -> )Configure → {re.escape(section_label)}",
             section_path,
             value,
+            flags=re.IGNORECASE,
         )
         value = re.sub(
             rf"(?<!Zero Net Export -> )Configure > {re.escape(section_label)}",
             section_path,
             value,
+            flags=re.IGNORECASE,
         )
     section_paths = {
         SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
@@ -271,9 +274,10 @@ def _normalize_native_path_text(text: Any) -> str:
     }
     for section_label, section_path in section_paths.items():
         value = re.sub(
-            rf"\bOpen {re.escape(section_label)}(?=(?:\s|[.,;:]|$))",
+            rf"\bOpen {re.escape(section_label)}(?!(?:\s+path)\b)(?=(?:\s|[.,;:]|$))",
             f"Open {section_path}",
             value,
+            flags=re.IGNORECASE,
         )
     return value
 
