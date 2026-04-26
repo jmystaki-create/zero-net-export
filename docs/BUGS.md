@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-345 - Spaced mapped-role setup fallback normalized to unhyphenated source-role blocker wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream F setup-notification normalization after the adjacent mapped-source/mapped-role fallback fixes.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` normalized hyphenated `mapped-role blocker(s)` to `source-role blocker(s)`, but the spaced `mapped role blocker(s)` variants became `source role blocker(s)` without the source-role hyphen. A restored setup notification using spaced fallback text could therefore render inconsistent source-role blocker wording compared with the rest of the setup-notification normalization path.
+- **expected behavior:** setup notifications should normalize both hyphenated and spaced mapped-role blocker fallback text to the same `source-role blocker(s)` wording before Home Assistant renders the persistent native setup notification.
+- **evidence:** focused setup-notice regression coverage now exercises spaced singular and plural `Mapped role blocker(s)` fallback forms and requires the hyphenated `Source-role blocker(s)` result.
+- **repo fix:** this run changes the spaced mapped-role blocker replacements in setup-notification normalization to emit `Source-role blocker(s)` / `source-role blocker(s)` consistently with the hyphenated fallback forms.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream F setup-notification normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-344 - Already-expanded angle Configure paths could double-expand
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
