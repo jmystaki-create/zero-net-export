@@ -884,6 +884,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             device for device in ordered if not self._device_needs_attention(device)
         ]
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
+        disabled_count = max(len(devices) - enabled_count, 0)
         usable_count = sum(1 for device in devices if device.get("usable") is True)
         blocked_count = sum(1 for device in devices if self._device_has_blocked_activity(device))
         planned_count = sum(1 for device in devices if self._active_planned_action(device))
@@ -934,9 +935,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 fleet_summary_parts.append(
                     f"active device {self._managed_snapshot_focus_label(active_device)}"
                 )
+        fleet_summary_parts.append(f"{enabled_count} enabled")
+        if disabled_count:
+            fleet_summary_parts.append(f"{disabled_count} disabled")
         fleet_summary_parts.extend(
             [
-                f"{enabled_count} enabled",
                 f"{usable_count} usable",
                 f"{blocked_count} blocked",
                 f"{fixed_count} fixed",
@@ -1028,6 +1031,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         ordered = sorted(devices, key=self._device_sort_key)
         enabled_count = sum(1 for device in devices if device.get("effective_enabled", device.get("enabled", True)))
+        disabled_count = max(len(devices) - enabled_count, 0)
         usable_count = sum(1 for device in devices if device.get("usable") is True)
         attention_count = sum(1 for device in devices if self._device_needs_attention(device))
         active_count, active_power_w = self._managed_runtime_activity(devices)
@@ -1051,8 +1055,10 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         summary_parts = [
             f"{len(devices)} managed",
             f"{enabled_count} enabled",
-            f"{usable_count} usable",
         ]
+        if disabled_count:
+            summary_parts.append(f"{disabled_count} disabled")
+        summary_parts.append(f"{usable_count} usable")
         if active_count:
             if active_power_w > 0:
                 summary_parts.append(f"active load {active_power_w:g} W")

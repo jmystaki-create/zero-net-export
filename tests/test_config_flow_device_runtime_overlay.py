@@ -570,6 +570,33 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             "no managed yet",
         )
 
+    def test_managed_snapshot_and_fleet_summary_name_disabled_devices(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
+        devices = [
+            {
+                "key": "pool_pump",
+                "name": "Pool pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "enabled": True,
+                "effective_enabled": True,
+                "usable": True,
+                "nominal_power_w": 1200,
+            },
+            {
+                "key": "water_heater",
+                "name": "Water heater",
+                "kind": module.DEVICE_KIND_FIXED,
+                "enabled": False,
+                "effective_enabled": False,
+                "usable": False,
+                "nominal_power_w": 900,
+            },
+        ]
+
+        self.assertIn("2 managed | 1 enabled | 1 disabled | 1 usable", flow._managed_snapshot_text(devices))
+        self.assertIn("1 disabled", flow._fleet_summary_lines(devices)[0])
+
     def test_managed_snapshot_surfaces_failed_only_attention(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())
@@ -811,11 +838,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             shortlist["description_placeholders"]["managed_snapshot"],
-            "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger (variable | not usable) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger (variable | not usable) | 1 planned action | plan Pool pump (fixed | action turn_on)",
+            "2 managed | 1 enabled | 1 disabled | 1 usable | 2 managed devices need attention | attention first EV charger (variable | not usable) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger (variable | not usable) | 1 planned action | plan Pool pump (fixed | action turn_on)",
         )
         self.assertEqual(
             shortlist["description_placeholders"]["device_summary"],
-            "- Fleet summary: 2 managed devices, 2 managed devices need attention, attention first EV charger (variable | not usable), blocked EV charger (variable | not usable), 1 planned action, plan Pool pump (fixed | action turn_on), 1 enabled, 1 usable, 1 blocked, 1 fixed, 1 variable, 0 W nominal controllable power\n"
+            "- Fleet summary: 2 managed devices, 2 managed devices need attention, attention first EV charger (variable | not usable), blocked EV charger (variable | not usable), 1 planned action, plan Pool pump (fixed | action turn_on), 1 enabled, 1 disabled, 1 usable, 1 blocked, 1 fixed, 1 variable, 0 W nominal controllable power\n"
             "- Managed devices needing attention first:\n"
             "- EV charger [blocked | not usable | power n/a] (variable, disabled, priority 0, nominal 0 W)\n"
             "- Pool pump [planned | usable | power n/a | action turn_on] (fixed, enabled, priority 0, nominal 0 W)\n"
@@ -1474,7 +1501,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             self.assertEqual(result["description_placeholders"]["support_path"], module.SUPPORT_CONFIGURE_PATH)
             self.assertEqual(
                 result["description_placeholders"]["managed_snapshot"],
-                "2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger (variable | not usable) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger (variable | not usable) | 1 planned action | plan Pool pump (fixed | action turn_on)",
+                "2 managed | 1 enabled | 1 disabled | 1 usable | 2 managed devices need attention | attention first EV charger (variable | not usable) | 1 fixed managed | 1 variable managed | 0 W nominal | blocked EV charger (variable | not usable) | 1 planned action | plan Pool pump (fixed | action turn_on)",
             )
             self.assertEqual(
                 result["description_placeholders"]["unmanaged_snapshot"],
@@ -2668,7 +2695,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         assert feedback is not None
         self.assertEqual(feedback["title"], "managed-device enablement saved")
         self.assertIn("Fleet now: 2 managed | 1 enabled | 1 disabled", feedback["message"])
-        self.assertIn("2 managed | 1 enabled | 0 usable", feedback["message"])
+        self.assertIn("2 managed | 1 enabled | 1 disabled | 0 usable", feedback["message"])
         self.assertIn("no unmanaged candidates", feedback["message"])
         self.assertIn(
             "Next step: reopen devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",

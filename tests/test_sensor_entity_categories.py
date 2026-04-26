@@ -1395,6 +1395,41 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0][1], {"switch.pool_pump"})
 
+    def test_managed_fleet_overview_names_disabled_devices(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "entity_id": "switch.pool_pump",
+                        "usable": True,
+                        "enabled": True,
+                        "effective_enabled": True,
+                        "kind": "fixed",
+                        "nominal_power_w": 1200,
+                    },
+                    "heater": {
+                        "name": "Water heater",
+                        "entity_id": "switch.water_heater",
+                        "usable": False,
+                        "enabled": False,
+                        "effective_enabled": False,
+                        "kind": "fixed",
+                        "nominal_power_w": 900,
+                    },
+                },
+                validation_details={},
+            ),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertIn("2 managed | no unmanaged candidates", overview.native_value)
+        self.assertIn("1 enabled | 1 disabled | 1 usable", overview.native_value)
+        self.assertEqual(overview.extra_state_attributes["disabled_count"], 1)
+
     def test_managed_fleet_overview_truncates_long_state_to_255_chars(self) -> None:
         sensor_module = _load_sensor_module()
         long_top_name = "Extremely Verbose Candidate Label " * 5

@@ -375,6 +375,11 @@ def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -
     return {
         "managed_count": len(devices),
         "enabled_count": sum(1 for detail in devices if detail.get("effective_enabled", detail.get("enabled", True))),
+        "disabled_count": max(
+            len(devices)
+            - sum(1 for detail in devices if detail.get("effective_enabled", detail.get("enabled", True))),
+            0,
+        ),
         "usable_count": sum(1 for detail in devices if detail.get("usable") is True),
         "blocked_count": sum(1 for detail in devices if detail.get("usable") is False),
         "planned_count": sum(1 for detail in devices if _device_has_active_plan(detail)),
@@ -1041,12 +1046,10 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     summary_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
                 if top_candidate_name and top_candidate_name not in {review_candidate_name, ready_candidate_name}:
                     summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
-            summary_parts.extend(
-                [
-                    f"{counts['enabled_count']} enabled",
-                    f"{counts['usable_count']} usable",
-                ]
-            )
+            summary_parts.append(f"{counts['enabled_count']} enabled")
+            if counts.get("disabled_count"):
+                summary_parts.append(f"{counts['disabled_count']} disabled")
+            summary_parts.append(f"{counts['usable_count']} usable")
             summary_parts.append(f"{counts['fixed_count']} fixed managed")
             if counts["variable_count"]:
                 summary_parts.append(f"{counts['variable_count']} variable managed")

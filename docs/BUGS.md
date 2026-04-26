@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-219 - Managed Devices summaries hid disabled fleet count
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B against the current command-center disabled-count fix
+- **current observed behavior:** the opening command-center Fleet activity now named disabled managed devices, but Configure -> Managed Devices snapshots and the `managed_fleet_overview` helper sensor still summarized only managed/enabled/usable counts. A fleet with disabled loads could therefore look like `2 managed | 1 enabled | 1 usable`, hiding the disabled row that Workstream B needs for a crisp managed-on-top fleet workspace.
+- **expected behavior:** native Managed Devices workspace summaries should name disabled managed devices whenever disabled managed loads exist, matching the command-center inventory story and making enabled/disabled fleet posture visible at a glance.
+- **evidence:** repo inspection found disabled-count wording in `native_support.py` but not in `_managed_snapshot_text(...)`, `_fleet_summary_lines(...)`, or `managed_fleet_overview`; focused tests now cover the missing Configure and sensor surfaces.
+- **repo fix:** this run adds disabled-count fragments to `custom_components/zero_net_export/config_flow.py` Managed Devices snapshots/fleet summary lines and `custom_components/zero_net_export/sensor.py` managed-fleet overview state/attributes.
+- **validation status:** repo-side fixed and verified with focused Managed Devices tests plus py_compile in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Workstream B disabled-fleet visibility fix in the next exact-build deploy/restart validation, then confirm the installed Managed Devices workspace names disabled managed loads when present.
+
 ## ZNE-218 - Already-pushed `v0.1.88` tag is behind the current local candidate
 - **status:** `open`
 - **severity:** `high`
