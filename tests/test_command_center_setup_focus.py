@@ -124,8 +124,8 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("Structured control board", text)
         self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
         self.assertIn("- Control outcome: planned actions 1 | active load 1200 W", text)
-        self.assertIn("- Fleet activity: Managed: no managed yet; unmanaged: 3 unmanaged backlog | surfaced AC Outlet 2", text)
-        self.assertNotIn("Managed: 0 managed", text)
+        self.assertIn("- Fleet activity: Managed devices: no managed yet; Unmanaged backlog: 3 unmanaged backlog | surfaced AC Outlet 2", text)
+        self.assertNotIn("Managed devices: 0 managed", text)
         self.assertNotIn("| 3 unmanaged |", text)
         self.assertIn("Setup check", text)
         self.assertIn("- Source map: Solar power -> sensor.pv_power", text)
@@ -184,7 +184,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "- Fleet activity: Managed: 1 managed | active load 1200 W | 1 active managed device; unmanaged: no unmanaged candidates",
+            "- Fleet activity: Managed devices: 1 managed | active load 1200 W | 1 active managed device; Unmanaged backlog: no unmanaged candidates",
             text,
         )
         self.assertNotIn("Fleet activity: 1 managed; active load", text)
@@ -222,7 +222,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
 
         self.assertIn("- Alerts: Mapped-source blockers: Solar power stale", text)
         self.assertIn(
-            "- Fleet activity: source blockers active; Managed: 1 managed; unmanaged: 1 unmanaged backlog | review AC Outlet 2 (fixed) | review first",
+            "- Fleet activity: source blockers active; Managed devices: 1 managed; Unmanaged backlog: 1 unmanaged backlog | review AC Outlet 2 (fixed) | review first",
             text,
         )
         self.assertIn(

@@ -224,12 +224,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
             "ready EV charger (variable | ready) | enabled 1 | usable 1 | 1 fixed managed"
         )
 
-        self.assertTrue(formatted.startswith("source blockers active; Managed: "))
+        self.assertTrue(formatted.startswith("source blockers active; Managed devices: "))
         self.assertIn(
-            "Managed: 1 managed | enabled 1 | usable 1 | 1 fixed managed; unmanaged: 2 unmanaged backlog",
+            "Managed devices: 1 managed | enabled 1 | usable 1 | 1 fixed managed; Unmanaged backlog: 2 unmanaged backlog",
             formatted,
         )
-        unmanaged_bucket = formatted.split("; unmanaged: ", 1)[1]
+        unmanaged_bucket = formatted.split("; Unmanaged backlog: ", 1)[1]
         self.assertNotIn("enabled 1", unmanaged_bucket)
         self.assertNotIn("usable 1", unmanaged_bucket)
         self.assertNotIn("1 fixed managed", unmanaged_bucket)
@@ -454,10 +454,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
             "source blockers active | 1 managed | blocked Pool pump | 2 unmanaged backlog | 1 needs review | review Garage relay"
         )
 
-        self.assertTrue(summary.startswith("source blockers active; Managed: 1 managed"))
-        self.assertIn("Managed: 1 managed | blocked Pool pump", summary)
-        self.assertIn("unmanaged: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
-        self.assertNotIn("Managed: source blockers active", summary)
+        self.assertTrue(summary.startswith("source blockers active; Managed devices: 1 managed"))
+        self.assertIn("Managed devices: 1 managed | blocked Pool pump", summary)
+        self.assertIn("Unmanaged backlog: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
+        self.assertNotIn("Managed devices: source blockers active", summary)
 
     def test_command_center_fleet_activity_grouping_keeps_source_blocker_outside_unmanaged_bucket(self) -> None:
         native_support = _load_native_support_module()
@@ -466,10 +466,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
             "1 managed | blocked Pool pump | 2 unmanaged backlog | source blockers active | 1 needs review | review Garage relay"
         )
 
-        self.assertTrue(summary.startswith("source blockers active; Managed: 1 managed"))
-        self.assertIn("Managed: 1 managed | blocked Pool pump", summary)
-        self.assertIn("unmanaged: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
-        self.assertNotIn("unmanaged: 2 unmanaged backlog | source blockers active", summary)
+        self.assertTrue(summary.startswith("source blockers active; Managed devices: 1 managed"))
+        self.assertIn("Managed devices: 1 managed | blocked Pool pump", summary)
+        self.assertIn("Unmanaged backlog: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
+        self.assertNotIn("Unmanaged backlog: 2 unmanaged backlog | source blockers active", summary)
 
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
         native_support = _load_native_support_module()
