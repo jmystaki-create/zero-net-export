@@ -279,7 +279,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("Choose Promote fixed-load candidate", "\n".join(handoff))
         self.assertIn(
-            "- Then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
+            "- Then promote ready unmanaged candidate: Dishwasher Power (fixed) | likely useful | key warning: No immediate warnings.",
             handoff,
         )
         self.assertFalse(any("Dishwasher Power" in line for line in handoff if "In Promotion shortlist" in line))
@@ -965,11 +965,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         attrs = button.extra_state_attributes
 
         self.assertIn(
-            "- Next fleet step after repair: Open devices path to continue in the Managed Devices workspace, start in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "- Next fleet step after repair: Open devices path to continue in the Managed Devices workspace, review unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             attrs["promotion_handoff"],
         )
         self.assertIn(
-            "- After repair: Open devices path to continue in the Managed Devices workspace, start in the unmanaged section: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
+            "- After repair: Open devices path to continue in the Managed Devices workspace, review unmanaged candidate: Hot water (fixed) | likely useful | key warning: No immediate warnings.",
             attrs["blocker_first"],
         )
         self.assertNotIn(
@@ -1016,11 +1016,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "start in the unmanaged section: Virtual load (fixed) | review first",
+            "review unmanaged candidate: Virtual load (fixed) | review first",
             next_step,
         )
         self.assertIn(
-            "then promote next from the unmanaged section: Hot water relay (fixed) | likely useful",
+            "then promote ready unmanaged candidate: Hot water relay (fixed) | likely useful",
             next_step,
         )
 
@@ -1060,7 +1060,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "- After repair: Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available.",
+            "- After repair: Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
             lines,
         )
         self.assertNotIn(

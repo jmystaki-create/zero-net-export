@@ -595,12 +595,12 @@ def _managed_devices_post_blocker_step(
     if primary_candidate:
         next_step = (
             f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
-            f"start in the unmanaged section: "
+            f"review unmanaged candidate: "
             f"{build_candidate_preview(primary_candidate, include_entity_id=False, include_state=False)}"
         )
         if ready_candidate and ready_candidate != primary_candidate:
             next_step += (
-                f", then promote next from the unmanaged section: "
+                f", then promote ready unmanaged candidate: "
                 f"{build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}"
             )
         return f"{next_step}."
@@ -611,7 +611,7 @@ def _managed_devices_post_blocker_step(
             "or opening Diagnostics."
         )
     return (
-        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
     )
 
 
@@ -731,7 +731,7 @@ def _managed_devices_workspace_handoff(
         )
         if ready_candidate and ready_candidate != primary_candidate:
             lines.append(
-                f"- Then promote next from the unmanaged section: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}."
+                f"- Then promote ready unmanaged candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}."
             )
         lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review/audit.")
     else:

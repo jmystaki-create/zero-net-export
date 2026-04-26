@@ -1233,23 +1233,23 @@ def _compact_next_action_fallback(
         if review_candidate_name:
             compact_review = review_candidate_name
             compact_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: {compact_review}"
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: {compact_review}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 compact_ready = ready_candidate_name
-                compact_step += f", then promote next from the unmanaged section: {compact_ready}"
+                compact_step += f", then promote ready unmanaged candidate: {compact_ready}"
             return compact_step + "."
         if ready_candidate_name or top_candidate_name or top_candidate_preview:
             compact_ready = ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or "the next unmanaged candidate"
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: {compact_ready}."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: {compact_ready}."
             )
         if has_managed_devices:
             return (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices."
             )
         return (
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
         )
 
     if recommended_section == POLICY_SECTION_LABEL:
@@ -2202,25 +2202,25 @@ def _build_operator_checklist(
         phase = "device_onboarding"
         if review_candidate_name:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 next_step += (
-                    f", then promote next from the unmanaged section: "
+                    f", then promote ready unmanaged candidate: "
                     f"{ready_candidate_preview or ready_candidate_name}"
                 )
             next_step += "."
             summary = "Sources are ready; the next milestone is reviewing the current unmanaged backlog in the Managed Devices workspace."
         elif ready_candidate_name or top_candidate_preview or top_candidate_name:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}."
             )
             summary = "Sources are ready; the next milestone is promoting the current unmanaged backlog in the Managed Devices workspace."
         else:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
             )
             summary = "Sources are ready; the next milestone is adding controllable devices."
     elif not state_usable_device_count:
@@ -2275,7 +2275,7 @@ def build_detailed_management_handoff(
     devices = configured_devices or []
     if not devices:
         return (
-            f"Keep {DEVICES_CONFIGURE_PATH} as the Managed Devices workspace: start in the unmanaged section when a surfaced candidate exists, or add the first fixed or variable load there when no surfaced unmanaged candidate is available; use {DETAILED_MANAGEMENT_PATH} "
+            f"Keep {DEVICES_CONFIGURE_PATH} as the Managed Devices workspace: review the unmanaged candidate when one is surfaced, or add the first fixed or variable load in Managed Devices when no surfaced unmanaged candidate is available; use {DETAILED_MANAGEMENT_PATH} "
             "as the secondary device-page review/audit path once the fleet exists."
         )
 
@@ -4991,22 +4991,22 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         elif candidate_count:
             if review_candidate_name:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
+                    f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: "
                     f"{review_candidate_preview or review_candidate_name}"
                 )
                 if ready_candidate_name and ready_candidate_name != review_candidate_name:
                     device_next_step += (
-                        f", then promote next from the unmanaged section: "
+                        f", then promote ready unmanaged candidate: "
                         f"{ready_candidate_preview or ready_candidate_name}"
                     )
             else:
                 device_next_step = (
-                    f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
+                    f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: "
                     f"{ready_candidate_preview or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
                 )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices."
             )
     else:
         device_status = _command_center_device_status_with_unmanaged_context(
@@ -5034,22 +5034,22 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
         if review_candidate_name:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 device_next_step += (
-                    f", then promote next from the unmanaged section: "
+                    f", then promote ready unmanaged candidate: "
                     f"{ready_candidate_preview or ready_candidate_name}"
                 )
         elif ready_candidate_name or top_candidate_preview or top_candidate_name:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or 'the next unmanaged candidate'}"
             )
         else:
             device_next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
             )
 
     recommendation = build_native_setup_recommendation(
@@ -5098,22 +5098,22 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif not has_managed_devices:
         if review_candidate_name:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: "
                 f"{review_candidate_preview or review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 next_action_summary += (
-                    f", then promote next from the unmanaged section: "
+                    f", then promote ready unmanaged candidate: "
                     f"{ready_candidate_preview or ready_candidate_name}"
                 )
         elif ready_candidate_name or ready_candidate_preview or top_candidate_preview or top_candidate_name:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: "
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: "
                 f"{ready_candidate_preview or ready_candidate_name or top_candidate_preview or top_candidate_name or primary_candidate_focus}"
             )
         else:
             next_action_summary = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available."
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
             )
     elif readiness_phase == "runtime_readiness":
         next_action_summary = str(

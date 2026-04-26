@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-253 - Managed Devices handoffs still sounded like section navigation
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B/C handoffs against the managed-on-top/unmanaged-below workspace design.
+- **current observed behavior:** several native next-step surfaces still told operators to `start in the unmanaged section`, `promote next from the unmanaged section`, or add/edit loads `there`. That wording made Configure -> Managed Devices sound like navigation inside a helper screen instead of direct review, promotion, and fleet-edit actions in the primary workspace.
+- **expected behavior:** Managed Devices handoffs should name direct fleet actions: review the surfaced unmanaged candidate, promote the ready unmanaged candidate, add the first fixed or variable load in Managed Devices, or edit/stage changes in Managed Devices.
+- **evidence:** repo grep found the stale phrases across `config_flow.py`, `native_support.py`, `sensor.py`, and `button.py`, with focused tests locking the same wording.
+- **repo fix:** this run updates those handoffs and matching tests to use direct fleet-action wording, and adds the `0.1.89` changelog note.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_sensor_entity_categories tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_button_entity_categories tests.test_source_repair_guidance tests.test_translation_sync`; focused grep confirms the stale section-navigation and `there` fallback phrases are gone from component code and tests. Live Home Assistant validation remains pending with the next `0.1.89` exact-build deploy.
+- **next action:** include this Workstream B/C handoff cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval rather than refreshing fingerprint bookkeeping.
+
 ## ZNE-252 - Command-center Fleet activity labeled an empty unmanaged section as backlog
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

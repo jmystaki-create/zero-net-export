@@ -710,15 +710,15 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
     if counts["managed_count"] == 0 and candidates:
         if review_candidate_name:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: {review_candidate_name}"
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: {review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 next_step += (
-                    f", then promote next from the unmanaged section: {ready_candidate_name}"
+                    f", then promote ready unmanaged candidate: {ready_candidate_name}"
                 )
             return _truncate_sensor_state(next_step)
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
         )
     if blocked_activity_count:
         target = f" starting with {first_blocked_name}" if first_blocked_name else ""
@@ -737,22 +737,22 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
     if candidates:
         if review_candidate_name:
             next_step = (
-                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, start in the unmanaged section: {review_candidate_name}"
+                f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: {review_candidate_name}"
             )
             if ready_candidate_name and ready_candidate_name != review_candidate_name:
                 next_step += (
-                    f", then promote next from the unmanaged section: {ready_candidate_name}"
+                    f", then promote ready unmanaged candidate: {ready_candidate_name}"
                 )
             return _truncate_sensor_state(next_step)
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote next from the unmanaged section: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then promote ready unmanaged candidate: {ready_candidate_name or top_candidate_name or 'the next unmanaged candidate'}"
         )
     if counts["managed_count"] == 0:
         return _truncate_sensor_state(
-            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available"
+            f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available"
         )
     return _truncate_sensor_state(
-        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there"
+        f"Open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices"
     )
 
 
@@ -845,7 +845,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     if review_candidate_name:
                         return _truncate_sensor_state(
                             "No managed devices yet | Managed Devices workspace: "
-                            f"start in the unmanaged section: {review_candidate_preview or review_candidate_name}"
+                            f"review unmanaged candidate: {review_candidate_preview or review_candidate_name}"
                         )
                     return "No managed devices yet"
                 attention_parts = []

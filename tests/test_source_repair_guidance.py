@@ -90,8 +90,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, guidance)
         self.assertIn("Keep", guidance)
         self.assertIn("as the Managed Devices workspace", guidance)
-        self.assertIn("start in the unmanaged section when a surfaced candidate exists", guidance)
-        self.assertIn("add the first fixed or variable load there when no surfaced unmanaged candidate is available", guidance)
+        self.assertIn("review the unmanaged candidate when one is surfaced", guidance)
+        self.assertIn("add the first fixed or variable load in Managed Devices when no surfaced unmanaged candidate is available", guidance)
         self.assertIn(native_support.DETAILED_MANAGEMENT_PATH, guidance)
         self.assertIn("as the secondary device-page review/audit path once the fleet exists", guidance)
         self.assertNotIn("as the deeper device-page review path", guidance)
@@ -764,11 +764,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         self.assertEqual(readiness["phase"], "device_onboarding")
         self.assertIn(
-            "continue in the Managed Devices workspace, start in the unmanaged section: Virtual load (fixed) | review first",
+            "continue in the Managed Devices workspace, review unmanaged candidate: Virtual load (fixed) | review first",
             readiness["next_step"],
         )
         self.assertIn(
-            "then promote next from the unmanaged section: Dishwasher Power (fixed) | likely useful",
+            "then promote ready unmanaged candidate: Dishwasher Power (fixed) | likely useful",
             readiness["next_step"],
         )
         self.assertNotIn("add the first controllable device", readiness["next_step"])

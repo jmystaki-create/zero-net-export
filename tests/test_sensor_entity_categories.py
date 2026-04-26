@@ -245,7 +245,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             sensor.native_value,
-            "No managed devices yet | Managed Devices workspace: start in the unmanaged section: Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
+            "No managed devices yet | Managed Devices workspace: review unmanaged candidate: Virtual load (fixed) | review carefully | warn This is an input_boolean helper.",
         )
 
     def test_managed_overview_sensor_uses_managed_devices_label(self) -> None:
@@ -1142,7 +1142,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, start in the unmanaged section: AC Outlet 2",
+            "Open devices path to continue in the Managed Devices workspace, review unmanaged candidate: AC Outlet 2",
         )
 
     def test_fleet_console_next_step_uses_review_first_candidate_before_promotion(self) -> None:
@@ -1162,7 +1162,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next from the unmanaged section: Dishwasher Power",
+            "Open devices path to continue in the Managed Devices workspace, review unmanaged candidate: Virtual load, then promote ready unmanaged candidate: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_uses_ready_next_wording_when_no_review_first_candidate_exists(self) -> None:
@@ -1181,7 +1181,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then promote next from the unmanaged section: Dishwasher Power",
+            "Open devices path to continue in the Managed Devices workspace, then promote ready unmanaged candidate: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_keeps_empty_fleet_manual_add_in_managed_devices(self) -> None:
@@ -1198,7 +1198,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available",
+            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available",
         )
 
     def test_fleet_console_next_step_names_ready_next_candidate_after_review_when_backlog_is_mixed(self) -> None:
@@ -1228,7 +1228,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, start in the unmanaged section: Virtual load, then promote next from the unmanaged section: Dishwasher Power",
+            "Open devices path to continue in the Managed Devices workspace, review unmanaged candidate: Virtual load, then promote ready unmanaged candidate: Dishwasher Power",
         )
 
     def test_fleet_console_next_step_prioritizes_source_repair_before_fleet_work(self) -> None:
@@ -1279,7 +1279,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there",
+            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices",
         )
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("sources path", next_step.native_value)
@@ -1317,7 +1317,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
     def test_mapped_source_blocker_next_step_reuses_operator_readiness_when_sources_are_healthy(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module.build_native_operator_readiness = lambda coordinator: {
-            "next_step": "Open devices path to continue in the Managed Devices workspace, start in the unmanaged section: AC Outlet 2"
+            "next_step": "Open devices path to continue in the Managed Devices workspace, review unmanaged candidate: AC Outlet 2"
         }
 
         coordinator = SimpleNamespace(
@@ -1333,7 +1333,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, start in the unmanaged section: AC Outlet 2",
+            "Open devices path to continue in the Managed Devices workspace, review unmanaged candidate: AC Outlet 2",
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
@@ -1354,7 +1354,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load there because no surfaced unmanaged candidate is available",
+            "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available",
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
@@ -1385,7 +1385,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             next_step.native_value,
-            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes there",
+            "Open devices path to continue in the Managed Devices workspace, then edit device settings or stage enablement changes in Managed Devices",
         )
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)

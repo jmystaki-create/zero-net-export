@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Tightened Managed Devices handoffs so unmanaged-candidate review and ready-promotion next steps read as direct fleet actions instead of section-navigation or `there` fallback wording.
 - Hardened Home Assistant command-center and device-page text normalization so stale source-role/source-blocker readiness payloads render as operator-facing guidance across the landing summary, setup check, guide, and next-action handoffs.
 - Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, and runtime source-health summaries on consistent `source roles`, `Source blockers`, and `source map` wording while leaving deeper entity-binding evidence in the right support paths.
 - Kept Configure's Fleet activity, Managed Devices helper sensors, and source-repair next-step surfaces aligned so global source blockers stay separate from managed/unmanaged backlog work.
