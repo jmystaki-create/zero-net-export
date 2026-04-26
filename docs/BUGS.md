@@ -85,6 +85,19 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-218 - Already-pushed `v0.1.88` tag is behind the current local candidate
+- **status:** `open`
+- **severity:** `high`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream G against the current repo and remote tag state
+- **current observed behavior:** `git ls-remote --tags origin 'v0.1.88'` shows the remote `v0.1.88` tag already exists, and local `git show --no-patch --decorate --oneline v0.1.88` points it at `ad5b56d`. The current local candidate is `5825eca`, two component-copy commits ahead of that tag (`70801ad`, `5825eca`), and `origin/main` is still at `ad5b56d`. That means the existing `v0.1.88` tag no longer represents the helper-resolved final repo candidate if the latest fallback-copy fixes are kept.
+- **expected behavior:** Workstream G should not tell the operator to simply create `v0.1.88` when that tag already exists on an older candidate. Before publication, deploy, or restart validation is described as final `0.1.88`, James needs an explicit approval decision: move/recreate the existing tag onto the helper-resolved final candidate, or leave it immutable and cut a follow-up release line for the later fixes.
+- **evidence:** `git ls-remote --tags origin 'v0.1.88'` returned `refs/tags/v0.1.88`; `git ls-remote --heads origin main` returned `ad5b56d`; local `git rev-list --left-right --count v0.1.88...HEAD` returned `0 2`; `git diff --stat v0.1.88..HEAD -- custom_components tests docs` showed the two latest manual-add fallback commits change `config_flow.py`, translations, tests, and `docs/BUGS.md`.
+- **suspected cause:** Workstream G bookkeeping still described the future tag-creation step even after a `v0.1.88` tag was pushed during ongoing post-freeze cleanup, so the release boundary became stale relative to the actual git state.
+- **repo fix:** this run updates `docs/UI_IMPLEMENTATION_MAP.md` so Workstream G says to resolve the already-pushed tag state instead of blindly creating `v0.1.88`. No tag mutation, release publication, deploy, or restart was attempted without James approval.
+- **validation status:** repo-side release-state audit only; no live Home Assistant validation was needed for this tag-state drift.
+- **next action:** ask James directly for the tag/release decision before any formal `0.1.88` publish/deploy/restart step: retag/recreate `v0.1.88` onto the helper-resolved final candidate, or cut a follow-up release line for the commits after `ad5b56d`.
+
 ## ZNE-217 - Manual add fallback still omitted Managed Devices workspace wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -47,6 +47,7 @@ If a change does not materially improve one of those visible outcomes, it should
 
 ### Still blocked or incomplete
 - The documented HA SSH path still works, but the live install is still not the frozen `0.1.88` repo candidate: `overall_match=false`, with the same unchanged mixed-build class of drift. The live install still differs on the six UI files `button.py`, `config_flow.py`, `native_support.py`, `sensor.py`, `strings.json`, and `translations/en.json`, and `manifest.json` / `manifest_version` still remain on live `0.1.86` while repo is frozen at `0.1.88`. Stale backup artifacts remain absent.
+- Release execution now has an additional tag/state drift to resolve before any deploy can be called the final `0.1.88` cut: the remote `v0.1.88` tag already exists on `ad5b56d`, while local `HEAD` includes later component fixes (`70801ad`, `5825eca`) that are not on `origin/main` or that tag. Do not blindly create another `v0.1.88` tag; when Workstream G is authorized, ask James directly whether to move/recreate the existing tag to the helper-resolved final candidate or cut a follow-up release instead.
 - Treat the exact deploy boundary as the current component-changing build reported by `scripts/print_expected_install_fingerprint.py`, not as a hash that needs to be recopied into source-of-truth docs every time another UI commit lands.
 - Repeated doc-only release-boundary refresh commits are process drift, not product progress. The helper-resolved component boundary must come from `scripts/print_expected_install_fingerprint.py` at deploy/validation time; later docs-only commits still do not create a new release target and should not displace the mapped Workstream A-D/F gap or a plain no-change report.
 - Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the `Detailed remaining work map` while a concrete A-D/F gap still exists. Do not spend watchdog or supervisor runs rephrasing the same mismatch unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a real repo inspection does not find a sharper remaining A-D/F defect, then Workstream G execution on the frozen `0.1.88` candidate becomes the next step. When formal deploy/restart truly becomes next, ask James directly for approval against that helper-resolved exact build.
@@ -173,20 +174,20 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Still to do**
 1. Re-run the full validation pass on the exact frozen `0.1.88` candidate.
 2. Push the final candidate to `main`.
-3. Create and push tag `v0.1.88`.
-4. Publish the GitHub release.
-5. Deploy the exact `0.1.88` build to Home Assistant.
+3. Resolve the already-pushed `v0.1.88` tag state before publication/deploy: with explicit James approval, either move/recreate the tag onto the helper-resolved final candidate or choose a follow-up release line if retagging is not acceptable.
+4. Publish the GitHub release from the approved tag/candidate.
+5. Deploy the exact approved `0.1.88` build to Home Assistant.
 6. Restart/reload Home Assistant and confirm the installed package matches the intended candidate.
 7. Capture live evidence that the UI outcome is actually present on the exact installed build.
 
 **Done when**
-- `0.1.88` is tagged, published, deployed, and live-validated as the intended native UI build.
+- the approved `0.1.88` tag/candidate is resolved, published, deployed, and live-validated as the intended native UI build.
 
 ### Order of execution from here
 1. Finish repo-side UI work only where a remaining stage is still visibly incomplete.
 2. Do not let unchanged fingerprint bookkeeping displace the next unfinished mapped workstream.
 3. Re-run full validation on the frozen `0.1.88` candidate.
-4. Tag/publish/deploy.
+4. Resolve the existing `v0.1.88` tag state, then publish/deploy the approved candidate.
 5. Perform live screenshot-grade acceptance review.
 6. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.88` work instead of silently rolling the cut line forever.
 
