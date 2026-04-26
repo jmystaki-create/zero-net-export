@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-291 - Missing-source status labels still omitted source-role wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F source-role cleanup across setup notifications, Sensors, and setup-checklist copy.
+- **current observed behavior:** several active Home Assistant surfaces still labelled the blocker as `Missing required sources` / `Currently missing required sources`, even though the surrounding `0.1.89` native UI now treats Sensors as the source-role/source-health home and uses `missing required source roles` in command-center and validation summaries.
+- **expected behavior:** primary blocker labels should consistently say `Missing required source roles` / `Currently missing required source roles`; `source` without `role` should only appear where the UI is describing concrete entity readings or source-health evidence.
+- **evidence:** direct repo inspection found the stale labels in setup-notification creation, Configure -> Sensors strings/translations, setup-checklist detail, and the options-flow source-health summary.
+- **repo fix:** this run changes those active labels to `source roles`, updates setup-notice regression coverage, syncs translations, and folds the change into the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_translation_sync tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/__init__.py custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F source-role label cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-290 - Sensors progress heading still said source mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

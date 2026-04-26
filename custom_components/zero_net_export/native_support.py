@@ -2094,9 +2094,9 @@ def _build_operator_checklist(
             "label": "Required source roles complete",
             "complete": not missing_required_sources,
             "detail": (
-                "All required solar and grid sources are configured."
+                "All required solar and grid source roles are configured."
                 if not missing_required_sources
-                else "Missing required sources: "
+                else "Missing required source roles: "
                 + ", ".join(SOURCE_ROLE_LABELS.get(key, key) for key in missing_required_sources)
             ),
         },

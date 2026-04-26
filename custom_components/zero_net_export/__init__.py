@@ -103,7 +103,7 @@ async def _async_update_native_setup_notice(
     )
     status_lines = [
         f"• Summary: {readiness_summary}",
-        f"• Missing required sources: {', '.join(readable_roles) if readable_roles else 'None'}",
+        f"• Missing required source roles: {', '.join(readable_roles) if readable_roles else 'None'}",
         f"• Managed Devices: {len(devices)}",
     ]
     if device_issues:

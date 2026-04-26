@@ -2211,7 +2211,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
 
         if missing_source_keys:
-            source_health = f"Missing required sources: {missing_sources}"
+            source_health = f"Missing required source roles: {missing_sources}"
             source_next_step = build_source_repair_step(missing_source_keys=missing_source_keys)
             if missing_fallback_hint:
                 source_next_step += f" {missing_fallback_hint}"

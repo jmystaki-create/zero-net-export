@@ -156,7 +156,7 @@ class SetupNoticeCopyTests(unittest.TestCase):
         self.assertIn("Zero Net Export still needs a few native setup steps.", message)
         self.assertIn("\n\nStatus\n• Summary: Setup still blocked by missing source roles.", message)
         self.assertNotIn("source mappings", message)
-        self.assertIn("\n• Missing required sources: Solar power, Home load power", message)
+        self.assertIn("\n• Missing required source roles: Solar power, Home load power", message)
         self.assertIn("\n• Managed Devices: 0", message)
         self.assertIn("\n• Managed-device issues: No controllable devices have been added yet.", message)
         self.assertIn("\n• Active blockers: Solar power", message)
