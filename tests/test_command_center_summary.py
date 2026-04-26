@@ -2012,6 +2012,36 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("2 unmanaged backlog", summary["fleet_activity_summary"])
         self.assertNotIn("no managed yet", summary["fleet_activity_summary"])
 
+    def test_fleet_activity_uses_configured_managed_count_when_runtime_count_is_missing(self) -> None:
+        native_support = _load_native_support_module()
+        state = SimpleNamespace(
+            enabled_device_count=0,
+            usable_device_count=0,
+            device_details={},
+        )
+
+        summary = native_support._build_command_center_fleet_activity_summary(
+            state,
+            candidate_count=0,
+            fixed_candidate_count=0,
+            variable_candidate_count=0,
+            review_needed_count=0,
+            fixed_review_count=0,
+            variable_review_count=0,
+            review_candidate_name="",
+            review_candidate_preview="",
+            ready_candidate_name="",
+            ready_candidate_preview="",
+            top_candidate_name="",
+            top_candidate_preview="",
+            source_blocked=False,
+            configured_managed_count=2,
+        )
+
+        self.assertIn("2 managed", summary)
+        self.assertIn("no unmanaged candidates", summary)
+        self.assertNotIn("no managed yet", summary)
+
     def test_command_center_summary_names_ready_top_candidate_when_no_review_first_candidate_exists(self) -> None:
         native_support = _load_native_support_module()
 

@@ -3302,8 +3302,9 @@ def _build_command_center_fleet_activity_summary(
     configured_managed_count: int = 0,
 ) -> str:
     device_details = list((getattr(state, "device_details", {}) or {}).values()) if state is not None else []
+    runtime_device_count_known = state is not None and hasattr(state, "device_count")
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
-    if state is None and configured_managed_count > managed_count:
+    if not runtime_device_count_known and configured_managed_count > managed_count:
         managed_count = configured_managed_count
     enabled_count = int(getattr(state, "enabled_device_count", 0) or 0) if state is not None else 0
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
