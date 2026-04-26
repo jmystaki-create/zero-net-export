@@ -212,11 +212,11 @@ def async_sync_repairs_issues(
         runtime_reasons.append(build_install_consistency_summary(install_provenance))
     if data.stale_data:
         if stale_sources:
-            runtime_reasons.append(f"Stale required mapped sources: {stale_sources}.")
+            runtime_reasons.append(f"Stale required source roles: {stale_sources}.")
         runtime_reasons.append(data.stale_source_summary or "One or more required source entities are stale.")
     if data.safe_mode:
         if unavailable_sources:
-            runtime_reasons.append(f"Unavailable mapped sources are holding safe mode: {unavailable_sources}.")
+            runtime_reasons.append(f"Unavailable source roles are holding safe mode: {unavailable_sources}.")
         if blocking_validation_details != "None":
             runtime_reasons.append(f"Blocking source validation details: {blocking_validation_details}.")
         runtime_reasons.append(data.reason or "Source validation has put the controller into safe mode.")

@@ -8,6 +8,7 @@ class RepairsCopyTests(unittest.TestCase):
         integration_root = Path(__file__).resolve().parents[1] / "custom_components" / "zero_net_export"
         with (integration_root / "strings.json").open(encoding="utf-8") as handle:
             self.strings = json.load(handle)
+        self.repairs_source = (integration_root / "repairs.py").read_text(encoding="utf-8")
 
     def test_setup_incomplete_copy_uses_compact_sections(self) -> None:
         description = self.strings["issues"]["setup_incomplete"]["description"]
@@ -53,6 +54,12 @@ class RepairsCopyTests(unittest.TestCase):
         self.assertIn("\n• Diagnostics:", description)
         self.assertNotIn("Best native troubleshooting path right now:", description)
         self.assertNotIn("Do next\n• Mapped-source repair path: {source_repair_step}\n• Next step: {next_step}\n• Selector fallback", description)
+
+    def test_runtime_attention_reasons_use_source_roles_not_mapped_source_jargon(self) -> None:
+        self.assertIn("Stale required source roles:", self.repairs_source)
+        self.assertIn("Unavailable source roles are holding safe mode:", self.repairs_source)
+        self.assertNotIn("Stale required mapped sources:", self.repairs_source)
+        self.assertNotIn("Unavailable mapped sources are holding safe mode:", self.repairs_source)
 
 
 if __name__ == "__main__":

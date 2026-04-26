@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Kept stale/unavailable runtime source-blocker reasons on operator-facing `source roles` wording instead of reviving mapped-source jargon in Repairs and operator-readiness handoffs.
 - Kept remaining Sensors source-health summaries on operator-facing `Source roles` / `Source mapping` wording instead of leading with mapped-source jargon in the native setup path.
 - Normalized the device-page command-center guide so stale mapped-source alert/status inputs render as operator-facing `Source blockers` wording before reaching Home Assistant.
 - Renamed the visible source-blocker helper sensor labels from mapped-source jargon to operator-facing `Source blocker summary` / `Source blocker next step` while keeping the underlying entity keys stable.

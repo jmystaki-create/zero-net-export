@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-240 - Runtime source-blocker reasons still used mapped-source jargon
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-blocker cleanup after source-health summaries, command-center alerts, helper labels, and repair handoffs had moved to operator-facing source-role/source-blocker wording.
+- **current observed behavior:** the runtime Repairs reason list could still say `Stale required mapped sources` or `Unavailable mapped sources are holding safe mode`, and the operator-readiness stale-data fallback could still tell operators to `fix the stale mapped sources`. That let lower-level mapped-source jargon reappear in native runtime/support handoffs even though those surfaces are meant to stay compact and operator-facing.
+- **expected behavior:** primary runtime-attention reasons and operator-readiness handoffs should use `source roles` / `source blockers` wording, while preserving mapped-role or mapped-source detail only in Sensors/Diagnostics evidence rows where it helps repair the actual entity bindings.
+- **evidence:** repo grep in this run found the remaining visible strings in `custom_components/zero_net_export/repairs.py` and `custom_components/zero_net_export/native_support.py` after the adjacent ZNE-233/ZNE-237/ZNE-238/ZNE-239 fixes had landed.
+- **repo fix:** this run changes the runtime Repairs reasons to `Stale required source roles` and `Unavailable source roles are holding safe mode`, changes the operator-readiness stale fallback to `fix the stale source roles`, records the `0.1.89` changelog highlight, and adds focused regressions rejecting the older primary mapped-source wording.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_repairs_copy tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/repairs.py tests/test_source_repair_guidance.py tests/test_repairs_copy.py`, and focused grep confirming the old runtime reason/fallback strings are gone from active component code. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream D/F runtime-attention wording cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-239 - Sensors source-health summaries still led with mapped-source jargon
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

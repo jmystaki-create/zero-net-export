@@ -2065,7 +2065,7 @@ def _build_operator_checklist(
                 else (
                     f"Blocking validation issues: {len(blocking_validation_issues)}"
                     if blocking_validation_issues
-                    else (stale_summary or "One or more mapped sources are stale.")
+                    else (stale_summary or "One or more source roles are stale.")
                 )
             ),
         },
@@ -2154,7 +2154,7 @@ def _build_operator_checklist(
         elif state_stale_data and stale_summary:
             next_step = (
                 f"Open {SOURCES_CONFIGURE_PATH} or {INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot, "
-                f"then fix the stale mapped sources. {stale_summary}."
+                f"then fix the stale source roles. {stale_summary}."
             )
         else:
             next_step = build_source_repair_step(

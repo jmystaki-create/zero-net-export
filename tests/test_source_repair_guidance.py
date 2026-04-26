@@ -813,6 +813,50 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(native_support.DIAGNOSTICS_DEVICE_ACTIONS_PATH, readiness["next_step"])
         self.assertNotIn("support actions", readiness["next_step"])
 
+    def test_operator_readiness_stale_source_fallback_uses_source_roles_wording(self) -> None:
+        native_support = _load_native_support_module()
+        native_support.REQUIRED_SOURCE_KEYS = [native_support.CONF_SOLAR_POWER_ENTITY]
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "validation_details": {
+                "issues": [],
+                "stale_source_summary": "Grid export has not updated recently",
+            },
+            "source_diagnostics": {},
+        }
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        native_support._command_center_candidate_snapshot = lambda *args, **kwargs: ([], "")
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(
+                data={native_support.CONF_SOLAR_POWER_ENTITY: "sensor.solar_power"},
+                options={},
+            ),
+            data=SimpleNamespace(
+                stale_data=True,
+                safe_mode=False,
+                validation_details={"stale_source_summary": "Grid export has not updated recently"},
+                source_diagnostics={},
+                diagnostic_summary="Grid export has not updated recently",
+                health_summary="Source data stale",
+                device_count=0,
+                enabled_device_count=0,
+                usable_device_count=0,
+                device_status_summary="No managed devices configured yet",
+                mode="monitoring",
+            ),
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        readiness = native_support.build_native_operator_readiness(coordinator)
+
+        self.assertEqual(readiness["phase"], "source_remediation")
+        self.assertIn("fix the stale source roles", readiness["next_step"])
+        self.assertNotIn("stale mapped sources", readiness["next_step"])
+        stale_check = next(item for item in readiness["checklist"] if item["key"] == "sources_validated")
+        self.assertNotIn("mapped sources are stale", stale_check["detail"])
+
     def test_command_center_summary_operator_ready_prefers_managed_devices_when_fleet_follow_up_exists(self) -> None:
         native_support = _load_native_support_module(
             parse_device_result=([
