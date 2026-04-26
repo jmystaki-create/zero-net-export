@@ -6327,7 +6327,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
             {
                 "headline_decision": "Source repair needed.",
                 "alert_summary": "Source roles need attention.",
-                "next_action_summary": "Repair the highlighted mapped roles and review mapped sources before relying on control.",
+                "next_action_summary": "Repair mapped-role blockers, then repair the highlighted mapped-roles and review mapped sources before relying on control.",
                 "energy_state_summary": "Solar unavailable.",
                 "control_decision_summary": "Control paused.",
                 "control_outcome_summary": "No action.",
@@ -6341,8 +6341,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
             }
         )
 
-        self.assertIn("Repair the highlighted source roles", text)
+        self.assertIn("Repair source blockers", text)
+        self.assertIn("repair the highlighted source roles", text)
         self.assertIn("review source roles", text)
+        self.assertNotIn("mapped-role", text)
         self.assertNotIn("mapped roles", text)
         self.assertNotIn("mapped sources", text)
 

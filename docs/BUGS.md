@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-249 - Command-center normalizer could still preserve hyphenated mapped-role wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking the remaining Workstream A/D/F source-role normalization after mapped-source and mapped-role phrases had already been normalized in most command-center fields.
+- **current observed behavior:** `_normalize_native_path_text(...)` normalized `mapped roles`, `mapped source roles`, and `mapped-source roles`, but not the adjacent hyphenated `mapped-role` / `mapped-roles` form or `mapped-role blockers`. A stale restored readiness payload or older fixture could therefore still leak `mapped-role` jargon through `next_action_summary`, shared command-center guide text, or device-page handoff text.
+- **expected behavior:** native command-center and device-page handoff text should normalize stale hyphenated mapped-role/source-blocker phrasing to operator-facing `source roles` / `source blockers` before it reaches Home Assistant, while preserving actual mapped-entity detail only in deeper Sensors/Diagnostics evidence rows.
+- **evidence:** repo inspection found `_normalize_native_path_text(...)` covered mapped-source and mapped-role variants but not `mapped-role` hyphenation; focused command-center guide coverage did not reject that form.
+- **repo fix:** this run extends `_normalize_native_path_text(...)` for `mapped-role` / `mapped-roles` and `mapped-role blocker(s)`, records the `0.1.89` changelog highlight, and adds command-center guide regression coverage rejecting `mapped-role` in rendered native next-action text.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream A/D/F command-center normalization cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-248 - Command-center guide setup-check fields could still preserve mapped-source blocker wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

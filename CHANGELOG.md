@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Normalized stale hyphenated mapped-role readiness phrases at the command-center/device-page boundary so older payloads cannot leak `mapped-role` jargon into native next-action text.
 - Normalized command-center guide setup-check source blocker and repair-path text so stale mapped-source inputs cannot leak through the device-page guide after the main command-center summary is already clean.
 - Broadened native command-center text normalization so stale mapped-role or mapped-source readiness inputs render as operator-facing source-role guidance before reaching Home Assistant.
 - Normalized Configure command-center next-action text so stale source-blocker readiness inputs cannot revive mapped-source jargon in the native landing summary.
