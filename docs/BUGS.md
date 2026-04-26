@@ -2569,7 +2569,7 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with focused Diagnostics/source-repair copy tests and translation sync in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Diagnostics wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
-## ZNE-204 - Device-page review notifications redundantly said the Managed Devices path was `in Configure`
+## ZNE-213 - Device-page review notifications redundantly said the Managed Devices path was `in Configure`
 
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
@@ -2591,7 +2591,7 @@ Suggested area labels:
 - **current observed behavior:** repo `HEAD` already contains `c25d022`, which fixes a Workstream A command-center drift where partial runtime summary objects that lacked a `device_count` attribute could collapse the configured fleet count back to `no managed yet`. `docs/BUGS.md` still stopped at the earlier wording/Diagnostics entries and did not record this latest user-visible component fix, so release validation could miss that the exact `0.1.88` component boundary now includes the partial-runtime fleet-preservation patch.
 - **expected behavior:** BUGS.md should record user-visible command-center fixes that change the exact component build needing deploy/restart validation, especially when they affect whether the opening Fleet activity block preserves the configured managed/unmanaged story.
 - **evidence:** `git show --stat c25d022` changes `custom_components/zero_net_export/native_support.py` and `tests/test_command_center_summary.py`; the code now falls back to the configured managed-device count whenever runtime state exists but does not expose `device_count`, instead of only using that fallback when state is `None`. `rg -n "c25d022|partial runtime|configured fleet" docs/BUGS.md docs/UI_IMPLEMENTATION_MAP.md docs/SUPERVISOR.md` had no bug-tracker hit before this entry.
-- **repo fix:** `c25d022` - preserve configured managed-fleet counts in partial command-center runtime summaries and add focused command-center regression coverage. This watchdog run records the missing bug-tracker state so the next exact-build deploy includes that latest Workstream A component fix instead of treating the earlier ZNE-204 copy cleanup as the tail.
+- **repo fix:** `c25d022` - preserve configured managed-fleet counts in partial command-center runtime summaries and add focused command-center regression coverage. This watchdog run records the missing bug-tracker state so the next exact-build deploy includes that latest Workstream A component fix instead of treating the earlier ZNE-213 copy cleanup as the tail.
 - **validation status:** repo-side fix is already covered by the focused command-center regression added in `c25d022`; this bug-tracker correction was validated by direct recent-commit and BUGS.md inspection. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include `c25d022` in the helper-resolved exact-build deploy through ZNE-003/ZNE-022 validation; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval rather than another unchanged fingerprint/bookkeeping refresh.
 
@@ -2628,10 +2628,10 @@ Suggested area labels:
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
 - **area:** `managed_devices`
-- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream B/E handoff wording after ZNE-204 removed the same duplicated Configure label from device-page notifications.
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream B/E handoff wording after ZNE-213 removed the same duplicated Configure label from device-page notifications.
 - **current observed behavior:** `custom_components/zero_net_export/config_flow.py` still rendered managed-device save feedback with `Managed Devices workspace in Configure: Configure -> Managed Devices`. That repeated the Configure label even though the path itself already starts with Configure, leaving the primary Managed Devices success landing one wording pass behind the device-page cleanup.
 - **expected behavior:** save feedback should keep the native path explicit without duplicating `in Configure`, using `Managed Devices workspace: Configure -> Managed Devices` before the secondary review/audit path.
-- **evidence:** `rg -n "Managed Devices workspace in Configure" custom_components/zero_net_export tests` found the active config-flow string and matching regression expectation after ZNE-204 had only fixed the button/device-page path.
+- **evidence:** `rg -n "Managed Devices workspace in Configure" custom_components/zero_net_export tests` found the active config-flow string and matching regression expectation after ZNE-213 had only fixed the button/device-page path.
 - **repo fix:** this run updates the managed-device save feedback in `config_flow.py` to `Managed Devices workspace: {DEVICES_CONFIGURE_PATH}` and refreshes `tests/test_config_flow_device_runtime_overlay.py` with a negative assertion for the duplicated wording.
 - **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Managed Devices save-feedback polish in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
