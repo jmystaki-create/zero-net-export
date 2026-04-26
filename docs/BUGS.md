@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-274 - Sensors and Managed Devices cross-bucket hints still said controller tuning
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `controls`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D four-bucket ownership wording after recent source-role cleanup.
+- **current observed behavior:** primary Sensors and Managed Devices cross-bucket hints still told operators to leave `controller-policy tuning` or `controller tuning` in Controls. That kept the older helper-style tuning bucket in active native Configure copy even though the current `0.1.89` IA defines Controls by target export, reserve, deadband, and live mode.
+- **expected behavior:** cross-bucket hints should name the current Controls ownership explicitly, keeping Sensors on source roles/repair and Managed Devices on fleet work without sending operators back toward older controller-tuning language.
+- **evidence:** direct repo grep found the stale phrases in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and matching bucket-ownership test expectations.
+- **repo fix:** this run changes the Sensors opening, Sensors mapping, and Managed Devices enablement hints to `target export, reserve, deadband, and live mode in Controls`, syncs translations, and adds regression guards rejecting the stale controller-tuning phrases.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D bucket-ownership cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-273 - Source-repair guide test still expected source-mapping command-center wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
