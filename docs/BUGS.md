@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-338 - Setup notification normalization missed singular mapped-role fallback text
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream F setup-notification normalization after ZNE-337.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` normalized plural `mapped-role blockers`, spaced `mapped role blockers`, and plural `mapped roles`, but missed singular/capitalized adjacent forms such as `Mapped-role blocker`, `mapped-role blocker`, `Mapped-role`, `mapped-role`, `Mapped role blocker`, and `mapped role`. A restored setup notification or older readiness payload using singular fallback wording could therefore still leak mapped-role wording into Home Assistant's native setup notification.
+- **expected behavior:** setup notifications should normalize singular and plural mapped-role fallback text to source-role/source-role-blocker wording before Home Assistant renders the persistent native setup notification.
+- **evidence:** direct repo inspection found the setup-notification normalizer had narrower singular mapped-role coverage than `_normalize_native_path_text(...)`; focused setup-notice regression coverage now exercises capitalized hyphenated and spaced singular fallback forms.
+- **repo fix:** this run adds singular mapped-role/setup-notification normalization for hyphenated and spaced forms, including capitalized variants, and updates focused setup-notice coverage.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream F setup-notification normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-337 - Setup notification normalization missed capitalized hyphenated mapped-source fallback text
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
