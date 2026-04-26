@@ -2690,6 +2690,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`, and a follow-up grep confirming the duplicated wording no longer appears. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Stage 4 secondary review/audit polish in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-214 - Latest Fleet activity bucket-label fix was missing from the bug tracker
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `command_center`
+- **where seen:** watchdog recent-commit and bug-tracker audit on 2026-04-26 after `8d9e66c` landed at repo `HEAD`.
+- **current observed behavior:** repo `HEAD` already contains `8d9e66c`, which changes the opening command-center and device-page command-center Fleet activity grouping from shorthand `Managed:` / `unmanaged:` labels to explicit `Managed devices:` / `Unmanaged backlog:` labels. `docs/BUGS.md` still stopped at ZNE-213 and did not record this latest user-visible Workstream A/D component fix, so the bug tracker was one component-changing commit behind the helper-resolved exact `0.1.88` candidate.
+- **expected behavior:** BUGS.md should record component fixes that affect the exact native UI build awaiting deploy/restart validation, especially when they change the top-board Fleet activity grouping that carries the managed/unmanaged operator story.
+- **evidence:** `git show --stat 8d9e66c` changes `custom_components/zero_net_export/native_support.py` plus focused command-center and source-repair guide tests; `rg -n "8d9e66c|bucket-label|Managed devices:.*Unmanaged backlog" docs/BUGS.md` had no active entry before this watchdog correction. The focused suite `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_translation_sync` passes on current `HEAD`.
+- **repo fix:** `8d9e66c` updates `format_fleet_activity_for_operator(...)` so the grouped operator summary says `Managed devices:` and `Unmanaged backlog:` instead of shorthand labels, with focused regression expectations refreshed. This watchdog run records that missing bug-tracker state so the exact-build deploy boundary includes the latest Fleet activity bucket-label component fix.
+- **validation status:** repo-side fixed by `8d9e66c` and re-verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_translation_sync`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include `8d9e66c` in the helper-resolved exact-build deploy through ZNE-003/ZNE-022 validation; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval rather than another unchanged fingerprint/bookkeeping refresh.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
