@@ -155,7 +155,7 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
             text,
         )
         text = re.sub(
-            rf"Configure → {re.escape(section_label)}",
+            rf"(?<!Zero Net Export -> )Configure → {re.escape(section_label)}",
             section_path,
             text,
         )

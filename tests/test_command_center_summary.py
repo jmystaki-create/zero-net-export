@@ -650,6 +650,19 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("Next: Configure ->", normalized)
         self.assertNotIn("Then Configure →", normalized)
 
+    def test_native_path_normalization_preserves_expanded_unicode_arrow_paths(self) -> None:
+        native_support = _load_native_support_module()
+
+        already_expanded = (
+            "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure → Sensors; "
+            "then Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure → Managed Devices."
+        )
+
+        normalized = native_support._normalize_native_path_text(already_expanded)
+
+        self.assertEqual(normalized, already_expanded)
+        self.assertEqual(normalized.count("Settings -> Devices & Services -> Integrations -> Zero Net Export"), 2)
+
     def test_command_center_fleet_activity_grouping_keeps_source_blocker_outside_managed_bucket(self) -> None:
         native_support = _load_native_support_module()
 

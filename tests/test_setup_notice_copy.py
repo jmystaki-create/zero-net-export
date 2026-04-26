@@ -263,6 +263,12 @@ class SetupNoticeCopyTests(unittest.TestCase):
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
+                "Path: Zero Net Export -> Configure → Sensors. Next: Zero Net Export -> Configure → Managed Devices."
+            ),
+            "Path: Zero Net Export -> Configure → Sensors. Next: Zero Net Export -> Configure → Managed Devices.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text(
                 "Open Configure and finish source mapping. Open Configure to finish required source roles."
             ),
             "Open sensors path and finish required source roles. Open sensors path to finish required source roles.",

@@ -176,7 +176,7 @@ def _normalize_native_path_text(text: Any) -> str:
             value,
         )
         value = re.sub(
-            rf"Configure → {re.escape(section_label)}",
+            rf"(?<!Zero Net Export -> )Configure → {re.escape(section_label)}",
             section_path,
             value,
         )
