@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-364 - Archived UI design snapshot still carried stale active-release direction
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking source-of-truth drift against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/SUPERVISOR.md`.
+- **current observed behavior:** `docs/UI_DESIGN-old.md` had an archive warning at the top but still repeated the old snapshot body, including stale `0.1.83` UI-release language and older source-mapping/section wording. That kept a misleading historical document one scroll away from contradicting the current native-only `0.1.89` implementation map.
+- **expected behavior:** archived design material should defer cleanly to the current source-of-truth files and should not preserve stale release-target or section-ownership wording that can be mistaken for current project direction.
+- **evidence:** direct repo inspection found `docs/UI_DESIGN-old.md` still contained `0.1.83` release-gate wording and older `source mapping` UI text despite the current source-of-truth docs naming the `0.1.89` follow-up line.
+- **repo fix:** this run replaces the old snapshot body with a concise archive pointer to `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/BUGS.md`, and `docs/SUPERVISOR.md`.
+- **validation status:** repo-side fixed and verified with `rg -n "0\.1\.83|0\.1\.85|0\.1\.86|0\.1\.87|source mapping|source-mapping|source mappings" docs/UI_DESIGN-old.md` returning no matches. Live Home Assistant validation is not applicable for this docs/process drift.
+- **next action:** keep older design-direction docs as pointers/background only; the next most important project gap is James's direct approval for the `0.1.89` freeze/release/deploy/restart path if no sharper A-D/F repo defect appears.
+
 ## ZNE-363 - Promotion fallback preset copy used generic custom-configuration wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
