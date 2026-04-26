@@ -507,6 +507,43 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Unmanaged backlog: 2 unmanaged backlog | 1 needs review | review Garage relay", summary)
         self.assertNotIn("Unmanaged backlog: 2 unmanaged backlog | source blockers active", summary)
 
+    def test_raw_fleet_activity_keeps_source_blocker_global_for_empty_managed_fleet(self) -> None:
+        native_support = _load_native_support_module()
+
+        state = SimpleNamespace(
+            device_count=0,
+            enabled_device_count=0,
+            usable_device_count=0,
+            device_details={},
+        )
+
+        summary = native_support._build_command_center_fleet_activity_summary(
+            state,
+            candidate_count=2,
+            fixed_candidate_count=1,
+            variable_candidate_count=1,
+            review_needed_count=1,
+            fixed_review_count=1,
+            variable_review_count=0,
+            review_candidate_name="Garage relay",
+            review_candidate_preview="Garage relay (fixed)",
+            ready_candidate_name="EV charger",
+            ready_candidate_preview="EV charger (variable)",
+            top_candidate_name="Garage relay",
+            top_candidate_preview="Garage relay (fixed)",
+            source_blocked=True,
+        )
+
+        self.assertTrue(summary.startswith("source blockers active | no managed yet | 2 unmanaged backlog"))
+        self.assertLess(
+            summary.index("source blockers active"),
+            summary.index("no managed yet"),
+        )
+        self.assertLess(
+            summary.index("source blockers active"),
+            summary.index("2 unmanaged backlog"),
+        )
+
     def test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist(self) -> None:
         native_support = _load_native_support_module()
 
@@ -2247,7 +2284,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertTrue(
             summary["fleet_activity_summary"].startswith(
-                "no managed yet | 1 unmanaged backlog | source blockers active | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2"
+                "source blockers active | no managed yet | 1 unmanaged backlog | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2"
             )
         )
 
@@ -3801,7 +3838,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("Runtime health still needs operator attention.", summary["alert_summary"])
         self.assertEqual(
             summary["fleet_activity_summary"],
-            "no managed yet | no unmanaged candidates | source blockers active",
+            "source blockers active | no managed yet | no unmanaged candidates",
         )
 
     def test_command_center_summary_surfaces_managed_device_attention_in_top_alerts(self) -> None:

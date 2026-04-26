@@ -3516,7 +3516,7 @@ def _build_command_center_fleet_activity_summary(
                 if source_blocker_part:
                     ordered_parts.insert(0, source_blocker_part)
 
-        return ordered_parts
+        return _fleet_activity_global_signals_first(ordered_parts)
 
     if managed_count <= 0:
         summary_parts.append(_managed_count_label(managed_count))
