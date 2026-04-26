@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-281 - Active control and validation gates still used generic source-mapping wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking active project and validation docs against the `0.1.89` four-bucket IA and source-role cleanup.
+- **current observed behavior:** `docs/PRODUCT_SPEC_V1.md` still stated the control principle as `never act without validated source mapping`, and `docs/VALIDATION_CHECKLIST.md` still asked for `native source mapping` prerequisites plus a non-raw `source-mapping form`. These high-level gates could keep pulling release validation and product review back toward generic source-mapping language after the native UI surfaces had moved to Sensors/source roles.
+- **expected behavior:** high-level control and validation gates should use source-role setup and healthy source-binding wording, reserving source-map language for deeper entity-binding evidence.
+- **evidence:** direct repo grep found the stale source-mapping phrases in the active product spec and validation checklist after recent source-role/four-bucket cleanup commits.
+- **repo fix:** this run changes the product principle to `validated source roles and healthy source bindings`, changes the validation checklist to `native source-role setup` and `raw source-role form`, records the `0.1.89` changelog note, and adds regression guards rejecting those stale active-doc phrases.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc wording fix.
+- **next action:** include this Workstream D active-doc cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-280 - Opening console runtime-pending source health still used helper narration
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

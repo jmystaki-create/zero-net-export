@@ -73,7 +73,7 @@ The HA-first direction is correct, and the live install has now crossed the star
 
 ## Control principles
 
-- never act without validated source mapping
+- never act without validated source roles and healthy source bindings
 - prefer variable loads before toggling fixed loads
 - enforce min on and min off durations
 - respect battery reserve / policy limits

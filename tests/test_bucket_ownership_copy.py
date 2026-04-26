@@ -515,9 +515,13 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("previously saved source roles", checklist)
         self.assertIn("Previously saved source roles are still present after restart", checklist)
         self.assertIn("required source roles recover as healthy runtime entities", checklist)
+        self.assertIn("Real solar/grid source entities available for native source-role setup", checklist)
+        self.assertIn("bootstrap-only step rather than a giant raw source-role form", checklist)
         self.assertIn("Controls policy/live mode", checklist)
         self.assertIn("Managed Devices workspace", checklist)
         self.assertIn("Controls flow states whether target export, reserve, deadband, and live mode are actionable", checklist)
+        self.assertNotIn("native source mapping", checklist)
+        self.assertNotIn("raw source-mapping form", checklist)
         self.assertNotIn("previously saved source mappings", checklist)
         self.assertNotIn("previously saved mapped sources", checklist)
         self.assertNotIn("required mapped sources recover", checklist)
@@ -569,6 +573,12 @@ class TestBucketOwnershipCopy(unittest.TestCase):
                 self.assertNotIn("sources, policy, managed devices, and support", text)
                 self.assertNotIn("source mapping, policy, managed devices", text)
                 self.assertNotIn("where to set policy, and where to review health", text)
+
+        self.assertIn(
+            "never act without validated source roles and healthy source bindings",
+            docs["PRODUCT_SPEC_V1.md"],
+        )
+        self.assertNotIn("never act without validated source mapping", docs["PRODUCT_SPEC_V1.md"])
 
 
 if __name__ == "__main__":

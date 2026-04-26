@@ -39,7 +39,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 
 - [ ] Home Assistant version >= 2024.6.0
 - [ ] HACS installed (if using HACS install path)
-- [ ] Real solar/grid source entities available for native source mapping; Energy dashboard setup is optional evidence only and is not required for the supported operator path
+- [ ] Real solar/grid source entities available for native source-role setup; Energy dashboard setup is optional evidence only and is not required for the supported operator path
 - [ ] At least one controllable load available (switch, light, or number entity)
 - [ ] Battery system available (optional but recommended for full validation)
 
@@ -71,7 +71,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 
 - [ ] Config flow opens when adding integration
 - [ ] The config flow shown in the real HA install matches the currently tagged/published package
-- [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-mapping form
+- [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-role form
 - [ ] Bootstrap step clearly explains that Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics continue at `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure`
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
 - [ ] Entry can be created without mapping sources during the initial config flow
