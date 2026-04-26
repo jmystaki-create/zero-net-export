@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-330 - Device-page promotion handoff made shortlist action look detached from Managed Devices
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream C promotion handoffs against the native Managed Devices workspace path.
+- **current observed behavior:** the device-page secondary review/audit handoff anchored the operator in `Configure -> Managed Devices`, but the next bullet said `Open Promotion shortlist for fixed-load candidates` or `Open Promotion shortlist for variable-load candidates`. That could read like a detached action rather than a native Managed Devices workspace step.
+- **expected behavior:** promotion handoffs should keep shortlist/review/promote steps visibly inside the primary Managed Devices workspace, with the device page remaining secondary review/audit only.
+- **evidence:** direct repo inspection found `_managed_devices_workspace_handoff(...)` emitted bare `Open Promotion shortlist ...` bullets immediately after the Managed Devices path bullet; focused button-entity coverage now rejects the bare shortlist bullet.
+- **repo fix:** this run changes the handoff to `In Managed Devices, open Promotion shortlist ...` for fixed and variable candidates, updates regression coverage, and adds the cleanup to the compact Unreleased changelog.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-handoff cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-329 - Bare section modifier handoffs could leak shorthand Configure bucket names
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

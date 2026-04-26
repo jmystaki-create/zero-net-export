@@ -9,7 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
-- Tightened Managed Devices follow-through copy so manual-add and enablement/edit next steps stop repeating `in Managed Devices` after already anchoring the operator in the Managed Devices workspace.
+- Tightened Managed Devices follow-through and device-page promotion handoff copy so manual-add, enablement/edit, and shortlist next steps stay explicitly anchored in the Managed Devices workspace instead of reading like detached secondary actions.
 - Tightened the Managed Devices and Configure -> Sensors opening copy so those native Home Assistant workspaces start as fleet/source-role homes instead of helper-style self-introductions.
 - Reworded the Controls Configure intro and cross-bucket hints so Controls consistently names target export, deadband, reserve, refresh interval, and live mode instead of older tuning-bucket phrasing.
 - Aligned Home Assistant source-role and command-center validation wording across the UI design/spec docs, product user stories, product/validation docs, README setup/restart guidance, entity-model diagnostics notes, optional dashboard setup/support notes, bootstrap and active validation-checklist copy, validation run order, source-validation recommendations, Sensors source-health/progress headings, Controls readiness, setup checklist, setup notifications, and native readiness copy, including the remaining Sensors telemetry/detail spec ownership and current source-bindings wording.

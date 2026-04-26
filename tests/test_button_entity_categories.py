@@ -263,8 +263,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(handoff[0], "Promotion handoff:")
         self.assertIn("- Open devices path for the Managed Devices workspace.", handoff)
-        self.assertIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
+        self.assertIn("- In Managed Devices, open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn("- In Promotion shortlist, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
+        self.assertNotIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn("- Use detailed device path afterward only if you need secondary per-device review/audit.", handoff)
         self.assertNotIn("Choose Promote fixed-load candidate", "\n".join(handoff))
 
@@ -285,7 +286,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             has_managed_devices=False,
         )
 
-        self.assertIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
+        self.assertIn("- In Managed Devices, open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn(
             "- In Promotion shortlist, select Virtual load (fixed) | review first | key warning: Variable power controls need a meaningful unit, sane range, and clear relation to real device power..",
             handoff,
@@ -311,7 +312,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             has_managed_devices=False,
         )
 
-        self.assertIn("- Open Promotion shortlist for variable-load candidates.", handoff)
+        self.assertIn("- In Managed Devices, open Promotion shortlist for variable-load candidates.", handoff)
+        self.assertNotIn("- Open Promotion shortlist for variable-load candidates.", handoff)
         self.assertNotIn("Choose Promote variable-load candidate", "\n".join(handoff))
 
     def test_workspace_handoff_keeps_empty_fleet_on_managed_devices_when_no_candidate_is_surfaced(self) -> None:

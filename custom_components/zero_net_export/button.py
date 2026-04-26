@@ -738,9 +738,9 @@ def _managed_devices_workspace_handoff(
     lines = ["Promotion handoff:"]
     if primary_candidate:
         shortlist_step = (
-            "- Open Promotion shortlist for fixed-load candidates."
+            "- In Managed Devices, open Promotion shortlist for fixed-load candidates."
             if primary_candidate["kind"] == "fixed"
-            else "- Open Promotion shortlist for variable-load candidates."
+            else "- In Managed Devices, open Promotion shortlist for variable-load candidates."
         )
         lines.extend(
             [
