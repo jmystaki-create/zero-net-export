@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-292 - Managed Devices edit picker still opened as a helper-style chooser
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B/C for remaining Managed Devices wording that still made primary fleet actions sound like helper picker screens.
+- **current observed behavior:** Configure -> Managed Devices -> Edit managed device still opened with `Choose which managed device to edit here`, even after the surrounding primary fleet workspace copy had moved to direct Managed Devices workspace language.
+- **expected behavior:** edit should read as a direct Managed Devices workspace action for changing names, priorities, power limits, cooldowns, and enablement, not as a detached chooser prompt.
+- **evidence:** direct repo inspection found the stale sentence in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `tests/test_bucket_ownership_copy.py`, where the regression still required the old helper-style wording.
+- **repo fix:** this run changes the edit-picker opening to `Edit managed-device settings in the Managed Devices workspace...`, syncs translations, updates the regression to reject the old chooser wording, and folds the note into the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream B/C edit-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-291 - Missing-source status labels still omitted source-role wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

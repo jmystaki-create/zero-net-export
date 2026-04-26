@@ -241,8 +241,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         )
 
         edit_pick_description = steps["device_edit_pick"]["description"]
-        self.assertIn("Choose which managed device to edit here, with managed devices on top and the unmanaged promotion backlog below.", edit_pick_description)
+        self.assertIn("Edit managed-device settings in the Managed Devices workspace, with managed devices on top and the unmanaged promotion backlog below.", edit_pick_description)
         self.assertIn("Keep names, priorities, power limits, cooldowns, and enablement changes in this workspace.", edit_pick_description)
+        self.assertNotIn("Choose which managed device to edit here", edit_pick_description)
         self.assertNotIn("Managed Devices owns this fleet-edit workflow.", edit_pick_description)
         self.assertIn("with managed devices on top and the unmanaged promotion backlog below.", edit_pick_description)
         self.assertNotIn("with the managed fleet on top and unmanaged promotion backlog below", edit_pick_description)
