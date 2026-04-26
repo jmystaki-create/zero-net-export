@@ -86,6 +86,7 @@ def _load_sensor_module():
     native_support_module.SOURCES_CONFIGURE_PATH = "sources path"
     native_support_module.build_native_command_center_summary = lambda coordinator: {}
     native_support_module.build_native_operator_readiness = lambda coordinator: {}
+    native_support_module.format_fleet_activity_for_operator = lambda value: value
     native_support_module.build_source_attention_details = lambda state=None: {}
     native_support_module.build_source_attention_brief = lambda state=None: "brief"
     native_support_module.build_source_attention_role_summary = lambda *args, **kwargs: "roles"

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-260 - Full regression suite missed new grouped Fleet activity import in isolated sensor stub
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog full-suite validation on 2026-04-26 after `d703f60` added grouped Fleet activity attribute formatting to `sensor.py` and `button.py`.
+- **current observed behavior:** `python3 -m unittest discover -s tests -q` failed in `tests/test_sensor_issue_count_state_class.py` because that isolated Home Assistant stub did not provide the newly imported `format_fleet_activity_for_operator` helper from `native_support.py`. The focused grouped Fleet activity suites were green, but the full suite was not.
+- **expected behavior:** isolated import/stub tests should track new native-support imports so full regression validation stays green before a release/freeze decision.
+- **evidence:** full-suite failure raised `ImportError: cannot import name 'format_fleet_activity_for_operator' from 'custom_components.zero_net_export.native_support'` while importing `custom_components/zero_net_export/sensor.py`.
+- **repo fix:** this run adds a `format_fleet_activity_for_operator` stub to `tests/test_sensor_issue_count_state_class.py`, preserving the isolated source-issue-count state-class coverage while allowing the current grouped Fleet activity import to load.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_sensor_issue_count_state_class tests.test_sensor_entity_categories tests.test_button_entity_categories`, `python3 -m py_compile tests/test_sensor_issue_count_state_class.py`, and `python3 -m unittest discover -s tests -q`.
+- **next action:** keep full-suite validation green before any `0.1.89` freeze/release/deploy approval ask; the next project gap is still the explicit James approval boundary if no sharper A-D/F implementation defect appears.
+
 ## ZNE-259 - Validation checklist restart checks still used mapped-source wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
