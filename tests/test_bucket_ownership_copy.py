@@ -485,7 +485,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         support_description = steps["support"]["description"]
         self.assertIn("Diagnostics is for blockers, runtime health, and install evidence.", support_description)
         self.assertNotIn("Use this native section only when setup is blocked, runtime health needs explanation, or you need install-validation evidence.", support_description)
-        self.assertIn("Troubleshooting, Repairs, and install validation stay here", support_description)
+        self.assertIn("Troubleshooting, Repairs, and install validation belong in Diagnostics", support_description)
+        self.assertNotIn("Troubleshooting, Repairs, and install validation stay here", support_description)
         self.assertIn("Sensors, Controls, and Managed Devices keep normal operator work.", support_description)
         self.assertIn("Diagnostics now", support_description)
         self.assertIn("- Top alerts: {support_attention_summary}", support_description)

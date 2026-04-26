@@ -530,7 +530,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Zero Net Export diagnostics guide", support_center)
         self.assertNotIn("native support center", support_center)
         self.assertIn("Diagnostics is for blockers, runtime health, and install evidence.", support_center)
-        self.assertIn("Troubleshooting, Repairs, and install validation stay here; Sensors, Controls, and Managed Devices keep normal operator work.", support_center)
+        self.assertIn("Troubleshooting, Repairs, and install validation belong in Diagnostics; Sensors, Controls, and Managed Devices keep normal operator work.", support_center)
         self.assertNotIn("install trust needs proof", support_center)
         self.assertIn("Diagnostics now", support_center)
         self.assertIn(f"Command center path: {native_support.PRIMARY_CONFIGURE_PATH}", support_center)

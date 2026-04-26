@@ -5603,7 +5603,7 @@ def build_native_support_center(coordinator: Any) -> str:
             "Zero Net Export diagnostics guide",
             "",
             "Diagnostics is for blockers, runtime health, and install evidence.",
-            "Troubleshooting, Repairs, and install validation stay here; Sensors, Controls, and Managed Devices keep normal operator work.",
+            "Troubleshooting, Repairs, and install validation belong in Diagnostics; Sensors, Controls, and Managed Devices keep normal operator work.",
             f"Command center path: {PRIMARY_CONFIGURE_PATH}",
             "",
             "Diagnostics now",

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-297 - Diagnostics support intro still used helper-style stay here wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F support-surface ownership after the recent `here` wording cleanup.
+- **current observed behavior:** Configure -> Diagnostics and the device-page diagnostics guide still said `Troubleshooting, Repairs, and install validation stay here`, making Diagnostics sound like a local helper screen rather than the distinct native support bucket.
+- **expected behavior:** Diagnostics support copy should name Diagnostics directly as the owner for troubleshooting, Repairs, runtime health, and install-validation evidence while Sensors, Controls, and Managed Devices keep normal operator work.
+- **evidence:** direct repo inspection found the stale phrase in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, `custom_components/zero_net_export/native_support.py`, and matching test expectations.
+- **repo fix:** this run changes the support intro to `Troubleshooting, Repairs, and install validation belong in Diagnostics; Sensors, Controls, and Managed Devices keep normal operator work.`, syncs translations, updates the device-page guide expectation, folds the wording into the compact `0.1.89` changelog theme, and adds regression coverage rejecting the old `stay here` phrase.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_source_repair_guidance tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_bucket_ownership_copy.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Diagnostics ownership cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-296 - Managed Devices issue-repair next step still said return here
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
