@@ -210,13 +210,13 @@ class SetupNoticeCopyTests(unittest.TestCase):
             module._normalize_native_setup_notice_text(
                 "Missing required source mappings. Source mapping step incomplete. Source mappings stale."
             ),
-            "Missing required source roles. Sensors source roles step incomplete. Source roles stale.",
+            "Missing required source roles. Sensors source roles incomplete. Source roles stale.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
                 "Source-mapping step incomplete. Source-mappings stale. Finish source-mapping before control."
             ),
-            "Sensors source roles step incomplete. Source roles stale. Finish source roles before control.",
+            "Sensors source roles incomplete. Source roles stale. Finish source roles before control.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
@@ -224,7 +224,7 @@ class SetupNoticeCopyTests(unittest.TestCase):
                 "Source Mapping Step incomplete. Source Mappings stale. Finish Source Mapping before control."
             ),
             "Open sensors path before enabling control. Missing required source roles. "
-            "Sensors source roles step incomplete. Source roles stale. Finish source roles before control.",
+            "Sensors source roles incomplete. Source roles stale. Finish source roles before control.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Open Configure and finish Source Mapping."),

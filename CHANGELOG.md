@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Removed the last helper-ish `source roles step` fallback from native setup/support normalization so restored source-role blockers read as Sensors source-role status instead of a pseudo-form step.
 - Added Managed Devices status to the command-center setup check so the opening Configure surface keeps Sensors, Managed Devices, Controls, and Diagnostics visible together instead of hiding fleet readiness behind only the Fleet activity board line.
 - Tightened Managed Devices follow-through and device-page promotion handoff copy so manual-add, enablement/edit, and shortlist next steps stay explicitly anchored in the Managed Devices workspace instead of reading like detached secondary actions.
 - Tightened the Managed Devices and Configure -> Sensors opening copy so those native Home Assistant workspaces start as fleet/source-role homes instead of helper-style self-introductions.

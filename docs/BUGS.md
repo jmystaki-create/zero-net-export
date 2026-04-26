@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-362 - Source-role fallback normalization still produced helper-ish step wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F source-role cleanup against native setup/support fallback normalization.
+- **current observed behavior:** cached or restored source-mapping fallback text such as `Source mapping step incomplete` and `Source-mapping step incomplete` no longer leaked `source mapping`, but normalized to `Sensors source roles step incomplete`. That still read like a helper/form step instead of the Sensors bucket owning source-role status.
+- **expected behavior:** native setup notifications, command-center summaries, device-page support text, and fallback blocker copy should avoid pseudo-step wording and render this state as Sensors source-role status, e.g. `Sensors source roles incomplete`, while `Open source mapping step ...` handoffs still expand to the exact Sensors Configure path.
+- **evidence:** direct repo inspection found both `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` replacing `Source[- ]mapping(s) step` with `Sensors source roles step`, and focused tests were still locking that helper-ish phrase.
+- **repo fix:** this run changes both native-support and setup-notification normalizers to replace legacy non-Open source-mapping step fallbacks with `Sensors source roles`, updates focused command-center/setup-notice regressions to reject `source roles step`, and records the compact changelog note.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup/support wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another source/path variant loop.
+
 ## ZNE-361 - Command-center setup check omitted Managed Devices status
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

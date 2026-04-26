@@ -113,7 +113,7 @@ def _normalize_source_mapping_case_drift(value: str) -> str:
     )
     value = re.sub(
         r"\bSource[- ]Mappings? Step\b",
-        "Sensors source roles step",
+        "Sensors source roles",
         value,
         flags=re.IGNORECASE,
     )
@@ -212,10 +212,10 @@ def _normalize_native_path_text(text: Any) -> str:
         "required source mapping": "required source roles",
         "Finish source mapping": "Finish source roles",
         "finish source mapping": "finish source roles",
-        "Source-mapping step": "Sensors source roles step",
-        "source-mapping step": "Sensors source roles step",
-        "Source-mappings step": "Sensors source roles step",
-        "source-mappings step": "Sensors source roles step",
+        "Source-mapping step": "Sensors source roles",
+        "source-mapping step": "Sensors source roles",
+        "Source-mappings step": "Sensors source roles",
+        "source-mappings step": "Sensors source roles",
         "Source-mappings": "Source roles",
         "Source-mapping": "Source roles",
         "source-mappings": "source roles",

@@ -658,11 +658,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertEqual(
             normalized,
-            "Sensors source roles step incomplete. Source roles stale. Finish source roles before control.",
+            "Sensors source roles incomplete. Source roles stale. Finish source roles before control.",
         )
         self.assertNotIn("Source-mapping", normalized)
         self.assertNotIn("Source-mappings", normalized)
         self.assertNotIn("source-mapping", normalized)
+        self.assertNotIn("source roles step", normalized)
 
     def test_native_path_normalization_cleans_title_case_source_mapping_fallbacks(self) -> None:
         native_support = _load_native_support_module()
@@ -675,11 +676,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(
             normalized,
             f"Open {native_support.SOURCES_CONFIGURE_PATH} before enabling control. Missing required source roles. "
-            "Sensors source roles step incomplete. Source roles stale. Finish source roles before control.",
+            "Sensors source roles incomplete. Source roles stale. Finish source roles before control.",
         )
         self.assertNotIn("Source Mapping", normalized)
         self.assertNotIn("Source Mappings", normalized)
         self.assertNotIn("Source roles Step", normalized)
+        self.assertNotIn("source roles step", normalized)
 
     def test_native_path_normalization_expands_bare_section_handoffs(self) -> None:
         native_support = _load_native_support_module()
