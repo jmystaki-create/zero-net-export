@@ -2246,8 +2246,8 @@ def _build_operator_checklist(
     else:
         phase = "operator_ready"
         next_step = (
-            f"Validate {PRIMARY_CONFIGURE_PATH} plus {DIAGNOSTICS_DEVICE_ACTIONS_PATH} in a real "
-            "Home Assistant install and refine any remaining friction there."
+            f"Review {PRIMARY_CONFIGURE_PATH} plus {DIAGNOSTICS_DEVICE_ACTIONS_PATH} in the exact "
+            "Home Assistant install; keep any follow-up in those native paths."
         )
         summary = "Setup and troubleshooting are available through native Home Assistant surfaces."
 

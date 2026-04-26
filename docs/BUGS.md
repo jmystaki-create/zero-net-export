@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-255 - Operator-ready checklist ended on vague native-path follow-up wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream A/F setup-checklist and Diagnostics handoffs against the native-only operator path.
+- **current observed behavior:** when sources, devices, runtime health, and diagnostics were all ready, `build_native_operator_readiness(...)` returned `Validate Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure plus Zero Net Export device -> Review diagnostics in a real Home Assistant install and refine any remaining friction there.` The final `there` made the last setup-checklist action less explicit than the rest of the native path wording and could sound like a generic live-validation loop instead of bounded review in the named native Home Assistant paths.
+- **expected behavior:** the operator-ready checklist should keep the exact Configure and device Diagnostics paths visible and say that any follow-up stays in those native paths, with no vague `there` fallback.
+- **evidence:** direct repo inspection found the operator-ready branch in `custom_components/zero_net_export/native_support.py` still ending with `refine any remaining friction there`, and `tests/test_source_repair_guidance.py` only checked for Diagnostics wording rather than rejecting the vague tail.
+- **repo fix:** this run changes the operator-ready next step to `Review ... in the exact Home Assistant install; keep any follow-up in those native paths`, updates the `0.1.89` changelog, and adds regression coverage rejecting `friction there` while requiring both exact native paths.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending with the next `0.1.89` exact-build deploy.
+- **next action:** include this Workstream A/F handoff cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval rather than refreshing fingerprint bookkeeping.
+
 ## ZNE-254 - Setup checklist button could preserve stale unmanaged-section wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

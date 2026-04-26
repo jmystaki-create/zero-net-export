@@ -822,8 +822,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         readiness = native_support.build_native_operator_readiness(coordinator)
 
-        self.assertIn("Review diagnostics", readiness["next_step"])
+        self.assertIn("Review", readiness["next_step"])
+        self.assertIn(native_support.PRIMARY_CONFIGURE_PATH, readiness["next_step"])
         self.assertIn(native_support.DIAGNOSTICS_DEVICE_ACTIONS_PATH, readiness["next_step"])
+        self.assertIn("keep any follow-up in those native paths", readiness["next_step"])
+        self.assertNotIn("friction there", readiness["next_step"])
         self.assertNotIn("support actions", readiness["next_step"])
 
     def test_operator_readiness_stale_source_fallback_uses_source_roles_wording(self) -> None:
