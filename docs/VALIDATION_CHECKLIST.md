@@ -93,8 +93,8 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 
 - [ ] Solar power entity shows valid reading
 - [ ] Grid source layout selection matches the real install, combined/net or separate import/export
-- [ ] If combined/net grid energy selection still throws the known HA field-level entity/UUID error, record the exact screenshot or full validation text and then retry using the new native manual fallback field with the same entity ID before continuing broader validation
-- [ ] If battery SOC selection still throws the known HA field-level entity/UUID error, record the exact screenshot or full validation text and then retry using the new native manual fallback field with the same entity ID before continuing broader validation
+- [ ] If Home Assistant selector validation rejects a valid combined/net grid energy entity, record the exact screenshot or full validation text and then retry using the native manual fallback field with the same entity ID before continuing broader validation
+- [ ] If Home Assistant selector validation rejects a valid battery SOC entity, record the exact screenshot or full validation text and then retry using the native manual fallback field with the same entity ID before continuing broader validation
 - [ ] Record whether each fallback path actually saved successfully after the selector failed, so the next debugging pass can separate selector-only bugs from deeper source validation issues
 - [ ] Grid export power reading is valid, whether derived from a combined/net source or mapped from a separate export entity
 - [ ] Grid import power reading is valid, whether derived from a combined/net source or mapped from a separate import entity

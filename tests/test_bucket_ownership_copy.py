@@ -97,6 +97,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Selector fallback validation", validation_checklist)
         self.assertIn("selector validation rejects a valid", validation_checklist)
         self.assertNotIn("Known deferred bug tracked", validation_checklist)
+        self.assertNotIn("known HA field-level entity/UUID error", validation_checklist)
         self.assertNotIn("Entity is neither a valid entity ID nor a valid UUID", validation_checklist)
 
         devices_description = steps["devices"]["description"]
