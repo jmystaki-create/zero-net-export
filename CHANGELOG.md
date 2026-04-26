@@ -17,7 +17,7 @@ Target release: `0.1.89`
 - Tightened the Managed Devices, Configure -> Sensors, and Controls opening copy so native Home Assistant workspaces start as fleet, source-role, and controller homes instead of helper-style self-introductions or older tuning-bucket phrasing.
 - Aligned Home Assistant source-role and command-center validation wording across UI docs, product/validation docs, README setup/restart guidance, entity-model diagnostics notes, optional dashboard support notes, bootstrap copy, validation run order, Sensors headings, Controls readiness, setup checklist, setup notifications, and native readiness copy.
 - Reworded Sensors and Diagnostics selector/fallback/opening copy so native setup/support surfaces describe primary source-role ownership, choices, current selections, Diagnostics ownership, support evidence, install validation, and exact native paths without reviving picker-bug or workaround narration.
-- Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, with troubleshooting/install-validation work explicitly belonging in Diagnostics and final review/follow-up staying inside native Home Assistant paths.
+- Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, and capped installed-release metadata highlights so Home Assistant support surfaces stay compact even when historical changelog sections are long.
 
 ### Planning
 - Kept supervisor steering and the `0.1.89` release plan aligned with current native bucket wording, the clean follow-up line after the already-published `v0.1.88` release, and James's direct approval as an explicit freeze prerequisite.

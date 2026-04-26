@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-368 - Installed release-info metadata exposed overlong current-version highlight lists
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream F support/release metadata after the compact `0.1.89` Unreleased cleanup.
+- **current observed behavior:** `build_release_info("0.1.88")` still exposed every bullet from the long historical `0.1.88` changelog section in the `highlights` payload, so native Home Assistant release-info attributes could become a wall of release/process text even though `changes_preview` only showed the first three items and the new `0.1.89` section was compact.
+- **expected behavior:** installed release-info metadata should stay compact in Home Assistant surfaces while still preserving enough count information to show that the source changelog has more detail.
+- **evidence:** direct repo probe of `release_info.build_release_info("0.1.88")` returned a long highlights list from the current package section, contradicting the Workstream F requirement that support/runtime metadata stay compact and scannable.
+- **repo fix:** this run caps the visible release-info `highlights` list to ten entries and adds `total_highlight_count` so diagnostics can still report the underlying changelog length without rendering the whole section as the primary metadata payload.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/release_info.py tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this release-info compactness fix in the next `0.1.89` exact build; if no sharper A-D/F defect appears, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-367 - Config-flow regression tests could fail after setup-notice tests polluted Home Assistant stubs
 - **status:** `closed`
 - **severity:** `low`

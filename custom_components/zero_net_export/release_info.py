@@ -15,6 +15,7 @@ _CHANGELOG_HEADING_RE = re.compile(r"^## \[(?P<version>[^\]]+)\](?: - (?P<date>.
 _BULLET_RE = re.compile(r"^[-*]\s+(?P<text>.+)$")
 _RELEASE_INFO_CACHE: dict[str, dict[str, Any]] = {}
 _INSTALL_PROVENANCE_SNAPSHOT: dict[str, Any] | None = None
+_MAX_RELEASE_INFO_HIGHLIGHTS = 10
 
 
 def _repo_root() -> Path:
@@ -326,7 +327,8 @@ def build_release_info(current_version: str, *, include_changelog: bool = True) 
     if section is None and include_changelog:
         section = _section_for_version("Unreleased")
 
-    highlights = list(section.get("highlights", [])) if section else []
+    raw_highlights = list(section.get("highlights", [])) if section else []
+    highlights = raw_highlights[:_MAX_RELEASE_INFO_HIGHLIGHTS]
     released_on = section.get("released_on") if section else None
     has_changelog = section is not None
     headline_version = current_version if current_version else "Unknown"
@@ -353,6 +355,7 @@ def build_release_info(current_version: str, *, include_changelog: bool = True) 
         "released_on": released_on,
         "highlights": highlights,
         "highlight_count": len(highlights),
+        "total_highlight_count": len(raw_highlights),
         "headline": f"Version {headline_version}",
         "release_summary": preview,
         "changes_preview": preview,

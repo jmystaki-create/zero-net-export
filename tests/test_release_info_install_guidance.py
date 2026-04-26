@@ -69,6 +69,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertTrue(info["has_changelog"])
         self.assertIsNone(info["released_on"])
         self.assertGreaterEqual(info["highlight_count"], 1)
+        self.assertLessEqual(info["highlight_count"], 10)
+        self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
         self.assertIn("Home Assistant", info["changes_preview"])
 
     def test_unreleased_changelog_carries_0189_post_tag_ui_fixes(self) -> None:
