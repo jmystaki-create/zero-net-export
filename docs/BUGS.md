@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-289 - Full unmanaged list fallback still called manual add a form
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream C item 5, the requirement to remove helper-ish or ambiguous wording from the promotion path.
+- **current observed behavior:** Configure -> Managed Devices -> full unmanaged list told operators to open the manual add path from the dropdown and then `continue in that Managed Devices form`. That reintroduced form-level helper wording in the promotion fallback after adjacent copy had moved to workspace-first manual-add language.
+- **expected behavior:** the full-list fallback should keep operators in the Managed Devices workspace language and describe completing the save in that workspace, not continuing in a separate form.
+- **evidence:** direct repo inspection found the stale phrase in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `tests/test_bucket_ownership_copy.py`, with the test explicitly requiring `continue in that Managed Devices form`.
+- **repo fix:** this run changes the full-list fallback to `then finish the save in that workspace`, syncs translations, updates the regression to reject the old form wording, and folds the change into the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-fallback cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-288 - Quiet Fleet activity put managed inventory after unmanaged backlog
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
