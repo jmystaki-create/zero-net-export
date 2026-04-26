@@ -2665,6 +2665,19 @@ Suggested area labels:
 - **validation status:** validated by direct grep/diff inspection; the old `back into Configure -> Managed Devices` phrase no longer appears in `docs/ENTITY_MODEL.md`. No live Home Assistant validation is required for this supplemental-doc wording correction.
 - **next action:** keep supplemental docs on exact native paths; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-212 - Current 0.1.88 changelog still used fleet-console wording
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-26 while rechecking current candidate highlights against the native Managed Devices workspace wording in `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`.
+- **current observed behavior:** the active `0.1.88` changelog still described the device-page action as the `native fleet-console device-page action`. That preserved an older helper/internal label in current release metadata even though the shipped button label and source-of-truth design now frame this as the secondary device-page handoff into the primary Managed Devices workspace.
+- **expected behavior:** current candidate highlights should use the native operator wording, describing the action as a managed-device workspace action on the device page and keeping the explicit `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices` handoff.
+- **evidence:** `rg -n "fleet-console|fleet console" CHANGELOG.md custom_components tests docs/ENTITY_MODEL.md README.md` found the remaining current-candidate `0.1.88` changelog highlight after the button/entity documentation had already moved to `Review managed devices workspace` and exact native path wording.
+- **repo fix:** this run updates the current `0.1.88` changelog highlight to say `native managed-device workspace action on the device page` and extends the release-info regression so current candidate highlights reject `fleet-console` wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` plus the full `python3 -m unittest discover -s tests -q` suite.
+- **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is a direct James deploy/restart approval ask rather than another unchanged fingerprint/bookkeeping refresh.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
