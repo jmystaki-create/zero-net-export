@@ -49,13 +49,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         native_setup_description = steps["native_setup"]["description"]
         self.assertIn(
-            "Use this Sensors workspace as the source-role and source-health home for the Zero Net Export command center.",
+            "Sensors is the source-role and source-health home for the Zero Net Export command center.",
             native_setup_description,
         )
         self.assertNotIn("source-mapping and source-health home", native_setup_description)
         self.assertNotIn("Use this Sensors screen", native_setup_description)
-        self.assertIn("Keep managed-device promotion in the Managed Devices workspace and target export, reserve, deadband, and live mode in Controls.", native_setup_description)
-        self.assertNotIn("Keep managed-device promotion in Managed Devices and target export, reserve, deadband, and live mode in Controls.", native_setup_description)
+        self.assertNotIn("Use this Sensors workspace", native_setup_description)
+        self.assertIn("Managed-device promotion stays in the Managed Devices workspace; target export, reserve, deadband, and live mode stay in Controls.", native_setup_description)
+        self.assertNotIn("Managed-device promotion stays in Managed Devices; target export, reserve, deadband, and live mode stay in Controls.", native_setup_description)
         self.assertNotIn("This is the source-mapping section of the Zero Net Export command center.", native_setup_description)
         self.assertNotIn("controller-policy tuning", native_setup_description)
         self.assertIn("Source status now", native_setup_description)
@@ -73,12 +74,13 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         source_mapping_step = steps["native_setup_sources"]
         self.assertEqual(source_mapping_step["title"], "Sensors")
         source_mapping_description = source_mapping_step["description"]
-        self.assertIn("Use this Sensors workspace to map the required entities for the current source layout.", source_mapping_description)
+        self.assertIn("Sensors maps the required entities for the current source layout.", source_mapping_description)
         self.assertNotIn("Use this Sensors screen", source_mapping_description)
+        self.assertNotIn("Use this Sensors workspace", source_mapping_description)
         self.assertNotIn("set the refresh interval", source_mapping_description)
         self.assertIn("Sensors owns source repair and source-health work", source_mapping_description)
-        self.assertIn("keep fleet onboarding in the Managed Devices workspace and target export, reserve, deadband, and live mode in Controls", source_mapping_description)
-        self.assertNotIn("keep fleet onboarding in Managed Devices and target export, reserve, deadband, and live mode in Controls", source_mapping_description)
+        self.assertIn("fleet onboarding stays in the Managed Devices workspace, and target export, reserve, deadband, and live mode stay in Controls", source_mapping_description)
+        self.assertNotIn("fleet onboarding stays in Managed Devices, and target export, reserve, deadband, and live mode stay in Controls", source_mapping_description)
         self.assertNotIn("controller tuning in Controls", source_mapping_description)
         self.assertIn("Source mapping progress", source_mapping_description)
         self.assertIn("- Required source roles mapped: {source_mapping_progress}", source_mapping_description)

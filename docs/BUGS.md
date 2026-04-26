@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-285 - Sensors opening copy still started with helper-style workspace narration
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D bucket ownership and remaining helper-style Configure wording against `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`.
+- **current observed behavior:** Configure -> Sensors still opened both Sensors setup steps with `Use this Sensors workspace ...`, even after surrounding bucket copy had moved away from older screen/helper phrasing. The content was directionally correct, but the lead sentence still made Sensors sound like an instructional helper surface rather than one of the four native homes.
+- **expected behavior:** Sensors should present itself directly as the source-role/source-health home and required-entity mapping workspace, with fleet work staying in Managed Devices and controller settings staying in Controls.
+- **evidence:** direct repo inspection found the helper-style lead sentences in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; existing regression coverage rejected `Use this Sensors screen` but still required `Use this Sensors workspace`.
+- **repo fix:** this run rewrites the two Sensors lead sentences to start with `Sensors is...` and `Sensors maps...`, syncs translations, records the `0.1.89` changelog note, and extends bucket-ownership regression coverage to reject `Use this Sensors workspace`.
+- **validation status:** repo-side fix verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D Sensors copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-284 - Controls intro still opened with controller-policy tuning phrasing
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

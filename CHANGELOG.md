@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Tightened the Configure -> Sensors opening copy so the source-role/source-health bucket reads as a native workspace instead of starting with helper-style `Use this Sensors workspace` narration.
 - Reworded the Controls Configure intro and cross-bucket hints so Controls consistently names target export, deadband, reserve, refresh interval, and live mode instead of older tuning-bucket phrasing.
 - Aligned Home Assistant source-role wording across the UI design/spec docs, product/validation docs, README setup/restart guidance, bootstrap copy, source-validation recommendations, Sensors source-health/progress labels, Controls readiness, setup checklist, and native readiness copy.
 - Hardened stale Source blockers and source-role normalization across Managed Devices blocker handoffs, native setup notifications, command-center summaries, device-page guides, setup checks, and next-action handoffs before cached or fallback text reaches Home Assistant.
