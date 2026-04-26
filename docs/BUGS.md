@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-270 - README development checklist still used source-mapping/controller-tuning buckets
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking active README operator guidance against the `0.1.89` four-bucket IA after the setup-path and bootstrap wording had already moved to Sensors/source roles, Managed Devices, Controls, and Diagnostics.
+- **current observed behavior:** the README Development Status checklist still said `Keep source mapping, managed devices, and controller tuning available from native Home Assistant surfaces`, leaving an active operator-facing project status line on the older source-mapping/controller-tuning bucket names.
+- **expected behavior:** active README checklist guidance should use the current native IA labels so docs do not pull future release or validation work back toward the older helper-style buckets.
+- **evidence:** direct repo inspection found the stale checklist line in `README.md` after nearby README setup guidance and tests already expected Sensors/source roles, Managed Devices, Controls, and Diagnostics.
+- **repo fix:** this run changes that checklist line to `Keep Sensors/source roles, Managed Devices, Controls, and Diagnostics available from native Home Assistant surfaces` and adds a regression guard rejecting the stale source-mapping/controller-tuning checklist phrase.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this README-only operator-instruction fix.
+- **next action:** if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint or stale-doc refresh loop.
+
 ## ZNE-269 - Managed Devices bucket ownership still said source mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

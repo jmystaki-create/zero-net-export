@@ -513,11 +513,13 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         self.assertIn("**Native Home Assistant setup path**: Sensors/source roles, Managed Devices, Controls, and Diagnostics live", readme)
         self.assertIn("operators to find Sensors, Controls, Managed Devices, and Diagnostics", readme)
+        self.assertIn("Keep Sensors/source roles, Managed Devices, Controls, and Diagnostics available", readme)
         self.assertIn("Use **Sensors** to map your source entities", readme)
         self.assertIn("Use **Managed Devices** in Configure as the Managed Devices workspace", readme)
         self.assertIn("Treat **Managed Devices** as the home for per-device enablement", readme)
         self.assertIn("Use **Controls** in Configure for target/deadband/reserve defaults", readme)
         self.assertNotIn("**Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning", readme)
+        self.assertNotIn("Keep source mapping, managed devices, and controller tuning available", readme)
         self.assertNotIn("operators to find sources, policy, managed devices, and support", readme)
         self.assertNotIn("Use **Sources and source mapping**", readme)
         self.assertNotIn("**Managed devices**", readme)

@@ -190,7 +190,7 @@ The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md
 - [x] MIT license
 - [ ] Stabilize install/runtime behavior in real Home Assistant environments
 - [x] Reduce add-integration onboarding to a minimal bootstrap step so `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure` is the intended setup surface
-- [x] Keep source mapping, managed devices, and controller tuning available from native Home Assistant surfaces
+- [x] Keep Sensors/source roles, Managed Devices, Controls, and Diagnostics available from native Home Assistant surfaces
 - [x] Reduce normal managed-device onboarding JSON leakage by adding native add/edit/remove device flows while keeping JSON as an advanced recovery path
 - [x] Publish native readiness guidance so operators can see the current setup phase, blockers, and highest-value next step from Home Assistant notifications and diagnostics
 - [x] Publish native diagnostics guide and diagnostics snapshot actions so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
