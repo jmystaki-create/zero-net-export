@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-286 - Managed Devices opening still started as a helper-style self-introduction
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B against `docs/UI_IMPLEMENTATION_MAP.md` item 4, which says Configure -> Managed Devices must not feel like a thin helper layer.
+- **current observed behavior:** the primary Managed Devices Configure step still opened with `This is the Managed Devices workspace.`, which described the screen instead of immediately framing it as the native fleet workspace.
+- **expected behavior:** Managed Devices should open as the unquestionable native fleet workspace, with managed devices on top and unmanaged promotion backlog below.
+- **evidence:** direct repo inspection found the weaker opening sentence in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, with regression coverage preserving it.
+- **repo fix:** this run changes the opening to `Managed Devices is the native fleet workspace. Managed devices stay on top, and the unmanaged promotion backlog stays below.`, syncs translations, records the `0.1.89` changelog note, and updates bucket-ownership coverage to reject the old self-introduction.
+- **validation status:** repo-side fix verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream B Managed Devices workspace cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-285 - Sensors opening copy still started with helper-style workspace narration
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -154,8 +154,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Source roles are complete and", config_flow_source)
 
         devices_description = steps["devices"]["description"]
-        self.assertIn("This is the Managed Devices workspace.", devices_description)
-        self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below.", devices_description)
+        self.assertIn("Managed Devices is the native fleet workspace.", devices_description)
+        self.assertIn("Managed devices stay on top, and the unmanaged promotion backlog stays below.", devices_description)
+        self.assertNotIn("This is the Managed Devices workspace.", devices_description)
         self.assertNotIn("This is the main Managed Devices workspace for review, promotion, edits, enablement, disablement, and removal.", devices_description)
         self.assertNotIn("Use JSON only for recovery or bulk changes.", devices_description)
         self.assertNotIn("Use this native Configure screen as the main managed-device workspace.", devices_description)
