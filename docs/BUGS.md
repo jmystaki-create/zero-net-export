@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-329 - Bare section modifier handoffs could leak shorthand Configure bucket names
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native path normalization against cached/fallback command-center and setup-notification handoffs.
+- **current observed behavior:** `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` expanded `Open Sensors and/to`, `Open Controls and/to`, `Open Managed Devices and/to`, and `Open Diagnostics and/to`, but did not expand adjacent modifier forms such as `Open Sensors first.`, `Open Controls next.`, `Open Managed Devices for review.`, or `Open Diagnostics with install evidence.` Cached or fallback next steps using those forms could still reach Home Assistant with bare section names instead of exact native Configure paths.
+- **expected behavior:** all four Configure bucket handoffs should expand to exact Home Assistant native Configure paths before command-center summaries, Diagnostics guides, or setup notifications render them.
+- **evidence:** direct normalization check showed `Open Sensors first.`, `Open Controls next.`, `Open Managed Devices for review.`, and `Open Diagnostics with install evidence.` returned unchanged; focused regressions now require exact section paths for those modifier forms.
+- **repo fix:** this run adds a generic bare-section handoff expansion pass after existing stale-text replacements in both native command-center/support normalization and setup-notification normalization, covering all four Configure buckets.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-328 - Setup notification normalization missed bare Controls handoffs
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

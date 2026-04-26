@@ -205,6 +205,12 @@ class SetupNoticeCopyTests(unittest.TestCase):
             module._normalize_native_setup_notice_text("Open Managed Devices to review candidates."),
             "Open devices path to review candidates.",
         )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text(
+                "Open Sensors first. Open Controls next. Open Managed Devices for review. Open Diagnostics with install evidence."
+            ),
+            "Open sensors path first. Open controls path next. Open devices path for review. Open diagnostics path with install evidence.",
+        )
 
 
 if __name__ == "__main__":

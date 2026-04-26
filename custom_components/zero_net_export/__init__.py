@@ -1,6 +1,7 @@
 """Zero Net Export integration."""
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from homeassistant.components import persistent_notification
@@ -85,6 +86,18 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
+    section_paths = {
+        "Sensors": SOURCES_CONFIGURE_PATH,
+        "Controls": POLICY_CONFIGURE_PATH,
+        "Managed Devices": DEVICES_CONFIGURE_PATH,
+        "Diagnostics": SUPPORT_CONFIGURE_PATH,
+    }
+    for section_label, section_path in section_paths.items():
+        text = re.sub(
+            rf"\bOpen {re.escape(section_label)}(?=(?:\s|[.,;:]|$))",
+            f"Open {section_path}",
+            text,
+        )
     return text
 
 

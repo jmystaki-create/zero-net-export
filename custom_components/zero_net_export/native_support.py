@@ -153,6 +153,18 @@ def _normalize_native_path_text(text: Any) -> str:
     }
     for old, new in replacements.items():
         value = value.replace(old, new)
+    section_paths = {
+        SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
+        POLICY_SECTION_LABEL: POLICY_CONFIGURE_PATH,
+        DEVICES_SECTION_LABEL: DEVICES_CONFIGURE_PATH,
+        SUPPORT_SECTION_LABEL: SUPPORT_CONFIGURE_PATH,
+    }
+    for section_label, section_path in section_paths.items():
+        value = re.sub(
+            rf"\bOpen {re.escape(section_label)}(?=(?:\s|[.,;:]|$))",
+            f"Open {section_path}",
+            value,
+        )
     return value
 
 
