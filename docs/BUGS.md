@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-280 - Opening console runtime-pending source health still used helper narration
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-26 while advancing Workstream A opening-console compactness after energy, control-outcome, and Fleet activity had already moved to grouped `runtime pending | ... waiting` board signals.
+- **current observed behavior:** the Configure landing source-status field and matching Sensors source-health fallback still rendered `Source health will appear here after the integration loads.` / `Live source health will appear here after the integration loads.`, leaving helper-style narration in the opening operator console when runtime data had not loaded yet.
+- **expected behavior:** runtime-pending command-center fields should stay compact and grouped so the top board reads as an operator console, not explanatory helper text.
+- **evidence:** direct repo inspection found the fallback strings in `custom_components/zero_net_export/native_support.py` and `custom_components/zero_net_export/config_flow.py`; existing command-center tests only rejected `will appear here` for energy/outcome/fleet fields, not source status.
+- **repo fix:** this run changes the source-health and Controls fallback text to `runtime pending | source health waiting`, `runtime pending | control decision waiting`, and `runtime pending | control outcome waiting`, and extends command-center regression coverage to reject helper narration from source status.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_config_flow_device_runtime_overlay tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/config_flow.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A opening-console compactness cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-279 - Active project docs still used sources/policy/support IA wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

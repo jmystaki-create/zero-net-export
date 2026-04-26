@@ -492,10 +492,12 @@ class CommandCenterSummaryTests(unittest.TestCase):
         summary = native_support.build_native_command_center_summary(coordinator)
 
         self.assertEqual(summary["energy_state_summary"], "runtime pending | energy state waiting")
+        self.assertEqual(summary["source_status"], "runtime pending | source health waiting")
         self.assertEqual(summary["control_outcome_summary"], "runtime pending | control outcome waiting")
         self.assertIn("managed", summary["fleet_activity_summary"])
         self.assertIn("no unmanaged candidates", summary["fleet_activity_summary"])
         self.assertNotIn("will appear here", summary["energy_state_summary"])
+        self.assertNotIn("will appear here", summary["source_status"])
         self.assertNotIn("will appear here", summary["control_outcome_summary"])
         self.assertNotIn("will appear here", native_support.format_fleet_activity_for_operator(""))
 

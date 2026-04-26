@@ -2240,7 +2240,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             if blocking_fallback_hint and blocking_fallback_hint not in source_next_step:
                 source_next_step += f" {blocking_fallback_hint}"
         elif state is None:
-            source_health = "Live source health will appear here after the integration loads."
+            source_health = "runtime pending | source health waiting"
             source_next_step = (
                 f"Save the required source roles, reload the integration, then reopen {SOURCES_CONFIGURE_PATH} to confirm live source health."
             )
@@ -3790,8 +3790,8 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 "policy_readiness": policy_readiness,
                 "policy_summary": policy_summary,
                 "policy_next_step": policy_next_step,
-                "control_decision_summary": str(command_center.get("control_decision_summary") or "No live control decision is available yet."),
-                "control_outcome_summary": str(command_center.get("control_outcome_summary") or "Live control outcome will appear here after the integration loads."),
+                "control_decision_summary": str(command_center.get("control_decision_summary") or "runtime pending | control decision waiting"),
+                "control_outcome_summary": str(command_center.get("control_outcome_summary") or "runtime pending | control outcome waiting"),
             },
         )
 

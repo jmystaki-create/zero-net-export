@@ -1723,7 +1723,7 @@ def build_source_repair_step(
 def build_live_source_health_summary(state: Any) -> str:
     """Return source-specific runtime health without leaking device/runtime summaries."""
     if state is None:
-        return "Live source health will appear here after the integration loads."
+        return "runtime pending | source health waiting"
 
     source_attention = build_source_attention_details(state)
     merged_attention = build_source_attention_summary(state, limit=4)
@@ -4926,7 +4926,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         )
         source_status = attention_prefix + validation_suffix
     elif state is None:
-        source_status = "Source health will appear here after the integration loads."
+        source_status = "runtime pending | source health waiting"
     else:
         source_status = build_live_source_health_summary(state)
 
