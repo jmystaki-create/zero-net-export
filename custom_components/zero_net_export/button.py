@@ -25,6 +25,7 @@ from .native_support import (
     PRIMARY_CONFIGURE_PATH,
     SOURCES_CONFIGURE_PATH,
     SUPPORT_CONFIGURE_PATH,
+    _normalize_native_path_text,
     build_native_command_center_guide_text,
     build_native_command_center_summary,
     build_native_operator_readiness,
@@ -631,7 +632,7 @@ def _managed_devices_blocker_first_lines(
 ) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
-    recommended_reason = str(command_center.get("recommended_reason") or "").strip()
+    recommended_reason = _normalize_native_path_text(command_center.get("recommended_reason"))
     next_step = _managed_devices_post_blocker_step(
         command_center,
         candidates,
@@ -689,7 +690,7 @@ def _managed_devices_workspace_handoff(
 ) -> list[str]:
     recommended_section = str(command_center.get("recommended_section") or "").strip()
     recommended_path = str(command_center.get("recommended_path") or "").strip()
-    recommended_reason = str(command_center.get("recommended_reason") or "").strip()
+    recommended_reason = _normalize_native_path_text(command_center.get("recommended_reason"))
     next_step = _managed_devices_post_blocker_step(
         command_center,
         candidates,
@@ -1007,7 +1008,7 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
             "configure_path": PRIMARY_CONFIGURE_PATH,
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
-            "recommended_reason": command_center.get("recommended_reason"),
+            "recommended_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
             "next_step": command_center.get("next_action_summary"),
             "install_status": command_center.get("install_status"),
             "install_consistency": command_center.get("install_consistency"),
@@ -1055,7 +1056,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'detailed_management_path': DETAILED_MANAGEMENT_PATH,
             'recommended_section': command_center.get('recommended_section'),
             'recommended_path': command_center.get('recommended_path'),
-            'recommended_reason': command_center.get('recommended_reason'),
+            'recommended_reason': _normalize_native_path_text(command_center.get('recommended_reason')),
             'blocker_first': "\n".join(
                 _managed_devices_blocker_first_lines(
                     command_center,
@@ -1230,7 +1231,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
-            "recommended_reason": command_center.get("recommended_reason"),
+            "recommended_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
             "blocker_first": "\n".join(
                 _managed_devices_blocker_first_lines(
                     command_center,
@@ -1413,7 +1414,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
-            "recommended_reason": command_center.get("recommended_reason"),
+            "recommended_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
             "blocker_first": "\n".join(
                 _managed_devices_blocker_first_lines(
                     command_center,

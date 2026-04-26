@@ -80,6 +80,7 @@ from .native_support import (
     SOURCES_SECTION_LABEL,
     SUPPORT_CONFIGURE_PATH,
     SUPPORT_SECTION_LABEL,
+    _normalize_native_path_text,
     _source_specs_from_config,
     build_live_source_health_summary,
     build_native_command_center_summary,
@@ -969,7 +970,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
 
         command_center = build_native_command_center_summary(coordinator)
         recommended_section = str(command_center.get("recommended_section") or "").strip()
-        recommended_reason = str(command_center.get("recommended_reason") or "").strip()
+        recommended_reason = _normalize_native_path_text(command_center.get("recommended_reason"))
         recommended_path = str(command_center.get("recommended_path") or "").strip()
         next_action = str(
             command_center.get("next_action_summary")

@@ -149,6 +149,7 @@ def _load_config_flow_module():
     native_support_module.SOURCES_SECTION_LABEL = "Sensors"
     native_support_module.SUPPORT_CONFIGURE_PATH = "support path"
     native_support_module.SUPPORT_SECTION_LABEL = "Diagnostics"
+    native_support_module._normalize_native_path_text = lambda text: str(text or "").replace("Mapped source blockers", "Source blockers").replace("mapped source blockers", "source blockers").strip()
     native_support_module._source_specs_from_config = lambda config, grid_mode=None: []
     native_support_module.build_live_source_health_summary = lambda *args, **kwargs: "healthy"
     native_support_module.build_native_command_center_summary = lambda *args, **kwargs: {}
@@ -721,7 +722,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.SOURCES_SECTION_LABEL,
-            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_reason": "Source blockers remain.",
             "recommended_path": module.SOURCES_CONFIGURE_PATH,
             "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
         }
@@ -737,7 +738,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         blocker_summary = flow._device_blocker_summary()
 
         self.assertIn("Before fleet work: Open sources path and finish source repair before promoting more devices.", blocker_summary)
-        self.assertIn("Why: Mapped source blockers remain.", blocker_summary)
+        self.assertIn("Why: Source blockers remain.", blocker_summary)
 
     def test_device_blocker_summary_confirms_when_fleet_work_can_proceed(self) -> None:
         module = _load_config_flow_module()
@@ -765,7 +766,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.SOURCES_SECTION_LABEL,
-            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_reason": "Source blockers remain.",
             "recommended_path": module.SOURCES_CONFIGURE_PATH,
             "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
         }
@@ -824,7 +825,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         expected_blocker = (
             "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
-            "Why: Mapped source blockers remain."
+            "Why: Source blockers remain."
         )
         self.assertEqual(shortlist["description_placeholders"]["device_blocker_summary"], expected_blocker)
         self.assertEqual(full_list["description_placeholders"]["device_blocker_summary"], expected_blocker)
@@ -1448,7 +1449,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.SOURCES_SECTION_LABEL,
-            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_reason": "Source blockers remain.",
             "recommended_path": module.SOURCES_CONFIGURE_PATH,
             "next_action_summary": "Open sources path and finish source repair before fleet edits.",
         }
@@ -1544,7 +1545,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.SOURCES_SECTION_LABEL,
-            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_reason": "Source blockers remain.",
             "recommended_path": module.SOURCES_CONFIGURE_PATH,
             "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
         }
@@ -1574,7 +1575,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(result["description_placeholders"]["device_blocker_summary"], (
             "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
-            "Why: Mapped source blockers remain."
+            "Why: Source blockers remain."
         ))
         self.assertEqual(
             result["description_placeholders"]["device_next_step"],
@@ -1594,7 +1595,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.SOURCES_SECTION_LABEL,
-            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_reason": "Source blockers remain.",
             "recommended_path": module.SOURCES_CONFIGURE_PATH,
             "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
         }
@@ -1614,7 +1615,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(result["description_placeholders"]["device_blocker_summary"], (
             "Before fleet work: Open sources path and finish source repair before promoting more devices.\n"
-            "Why: Mapped source blockers remain."
+            "Why: Source blockers remain."
         ))
         self.assertEqual(
             result["description_placeholders"]["device_next_step"],
@@ -1629,7 +1630,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": module.SOURCES_SECTION_LABEL,
-            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_reason": "Source blockers remain.",
             "recommended_path": module.SOURCES_CONFIGURE_PATH,
             "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
         }

@@ -101,10 +101,11 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     native_support_module.SOURCES_SECTION_LABEL = "Sensors"
     native_support_module.SUPPORT_CONFIGURE_PATH = "support path"
     native_support_module.SUPPORT_SECTION_LABEL = "Diagnostics"
+    native_support_module._normalize_native_path_text = lambda text: str(text or "").replace("Mapped source blockers", "Source blockers").replace("mapped source blockers", "source blockers").strip()
     native_support_module.build_native_command_center_summary = lambda coordinator: {
         "recommended_section": "Sensors",
         "recommended_path": "sources path",
-        "recommended_reason": "Mapped source blockers remain.",
+        "recommended_reason": "Source blockers remain.",
         "next_action_summary": "Review the next managed device.",
         "install_status": "install summary",
         "install_consistency": "install consistency",
@@ -482,7 +483,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Return after blocker repair:", message)
         self.assertIn("- Open sources path first.", message)
-        self.assertIn("- Why: Mapped source blockers remain.", message)
+        self.assertIn("- Why: Source blockers remain.", message)
         self.assertIn("- Next fleet step after repair: Review the next managed device.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
         self.assertIn("- Use detailed device path only for secondary per-device review/audit after the main fleet step is clear.", message)
@@ -768,7 +769,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Return after blocker repair:", message)
         self.assertIn("- Open sources path first.", message)
-        self.assertIn("- Why: Mapped source blockers remain.", message)
+        self.assertIn("- Why: Source blockers remain.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
         self.assertIn("- Use detailed device path only for secondary per-device review/audit after the main fleet step is clear.", message)
         self.assertIn(
@@ -826,7 +827,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
         self.assertEqual(attrs["recommended_section"], "Sensors")
         self.assertEqual(attrs["recommended_path"], "sources path")
-        self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
+        self.assertEqual(attrs["recommended_reason"], "Source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(
             attrs["workspace_boundary"],
@@ -903,7 +904,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
         self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
-        self.assertIn("- Why: Mapped source blockers remain.", attrs["promotion_handoff"])
+        self.assertIn("- Why: Source blockers remain.", attrs["promotion_handoff"])
 
     def test_device_page_unmanaged_snapshot_names_ready_next_when_top_candidate_needs_review(self) -> None:
         button_module = _load_button_module()
@@ -940,7 +941,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         button_module.build_native_command_center_summary = lambda coordinator: {
             "recommended_section": "Sensors",
             "recommended_path": "sources path",
-            "recommended_reason": "Mapped source blockers remain.",
+            "recommended_reason": "Source blockers remain.",
             "next_action_summary": "Open sources path and finish source repair before promoting more devices.",
             "device_next_step": "Open sources path and finish source repair before promoting more devices.",
         }
@@ -987,7 +988,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             {
                 "recommended_section": "Sensors",
                 "recommended_path": "sources path",
-                "recommended_reason": "Mapped source blockers remain.",
+                "recommended_reason": "Source blockers remain.",
                 "next_action_summary": "Open sources path and finish source repair first.",
                 "device_next_step": "Open sources path and finish source repair first.",
             },
@@ -1030,7 +1031,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             {
                 "recommended_section": "Sensors",
                 "recommended_path": "sources path",
-                "recommended_reason": "Mapped source blockers remain.",
+                "recommended_reason": "Source blockers remain.",
                 "next_action_summary": "Open sources path and finish source repair first.",
                 "device_next_step": "Open sources path and finish source repair first.",
             },
@@ -1050,7 +1051,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             {
                 "recommended_section": "Sensors",
                 "recommended_path": "sources path",
-                "recommended_reason": "Mapped source blockers remain.",
+                "recommended_reason": "Source blockers remain.",
                 "next_action_summary": "Open sources path and finish source repair first.",
                 "device_next_step": "Open sources path and finish source repair first.",
             },
@@ -1634,7 +1635,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(attrs["recommended_section"], "Sensors")
         self.assertEqual(attrs["recommended_path"], "sources path")
-        self.assertEqual(attrs["recommended_reason"], "Mapped source blockers remain.")
+        self.assertEqual(attrs["recommended_reason"], "Source blockers remain.")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 0 W nominal | blocked Pool pump | 0 planned actions")
         self.assertEqual(attrs["unmanaged_snapshot"], "2 candidates | 1 fixed candidate | 1 variable candidate | surfaced Hot water | likely useful | key warning: No immediate warnings")
@@ -1800,7 +1801,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export native command center guide", message)
         self.assertIn("Recommended section right now: Sensors", message)
-        self.assertIn("Why this section is recommended: Mapped source blockers remain.", message)
+        self.assertIn("Why this section is recommended: Source blockers remain.", message)
         self.assertIn("Managed-device audit path: Use the device page for secondary per-device review/audit.", message)
 
 

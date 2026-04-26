@@ -5284,7 +5284,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     readiness_alert = str(readiness.get("summary") or support_status) if readiness_phase == "runtime_readiness" else None
 
-    recommended_reason = status_summary_map.get(recommended_section, support_status)
+    recommended_reason = _normalize_native_path_text(status_summary_map.get(recommended_section, support_status))
     top_alerts = [install_alert, source_alert, device_alert, review_alert or ready_alert, readiness_alert]
     if not any(top_alerts) and recommended_reason:
         top_alerts = [str(recommended_reason)]
