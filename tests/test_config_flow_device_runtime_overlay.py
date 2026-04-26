@@ -149,7 +149,7 @@ def _load_config_flow_module():
     native_support_module.SOURCES_SECTION_LABEL = "Sensors"
     native_support_module.SUPPORT_CONFIGURE_PATH = "support path"
     native_support_module.SUPPORT_SECTION_LABEL = "Diagnostics"
-    native_support_module._normalize_native_path_text = lambda text: str(text or "").replace("Mapped source blockers", "Source blockers").replace("mapped source blockers", "source blockers").strip()
+    native_support_module._normalize_native_path_text = lambda text: str(text or "").replace("Mapped source blockers", "Source blockers").replace("mapped source blockers", "source blockers").replace("source mappings", "source roles").replace("source mapping", "source roles").strip()
     native_support_module._source_specs_from_config = lambda config, grid_mode=None: []
     native_support_module.build_live_source_health_summary = lambda *args, **kwargs: "healthy"
     native_support_module.build_native_command_center_summary = lambda *args, **kwargs: {}
@@ -2770,9 +2770,10 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIsNotNone(feedback)
         assert feedback is not None
         self.assertIn("Blocker-first handoff:", feedback["message"])
-        self.assertIn("- Before fleet work: Open sources path and finish the required source mapping.", feedback["message"])
+        self.assertIn("- Before fleet work: Open sources path and finish the required source roles.", feedback["message"])
         self.assertIn("- Why: Missing required source roles.", feedback["message"])
-        self.assertIn("Next step: Open sources path and finish the required source mapping.", feedback["message"])
+        self.assertIn("Next step: Open sources path and finish the required source roles.", feedback["message"])
+        self.assertNotIn("source mapping", feedback["message"])
 
     def test_build_device_action_feedback_prefers_managed_attention_follow_through_from_command_center(self) -> None:
         module = _load_config_flow_module()

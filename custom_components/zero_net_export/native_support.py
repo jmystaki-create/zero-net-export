@@ -125,6 +125,16 @@ def _normalize_native_path_text(text: Any) -> str:
         "Mapped source": "Source role",
         "mapped sources": "source roles",
         "mapped source": "source role",
+        "Sensors and source mapping": SOURCES_SECTION_LABEL,
+        "Sources and source mapping": SOURCES_SECTION_LABEL,
+        "Required source mapping": "Required source roles",
+        "required source mapping": "required source roles",
+        "Finish source mapping": "Finish source roles",
+        "finish source mapping": "finish source roles",
+        "Source mappings": "Source roles",
+        "Source mapping": "Source roles",
+        "source mappings": "source roles",
+        "source mapping": "source roles",
     }
     for old, new in replacements.items():
         value = value.replace(old, new)

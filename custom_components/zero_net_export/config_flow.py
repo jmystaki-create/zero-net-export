@@ -972,12 +972,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         recommended_section = str(command_center.get("recommended_section") or "").strip()
         recommended_reason = _normalize_native_path_text(command_center.get("recommended_reason"))
         recommended_path = str(command_center.get("recommended_path") or "").strip()
-        next_action = str(
+        next_action = _normalize_native_path_text(
             command_center.get("next_action_summary")
             or command_center.get("device_next_step")
             or ""
-        ).strip()
-        device_blocker_step = str(command_center.get("device_next_step") or "").strip()
+        )
+        device_blocker_step = _normalize_native_path_text(command_center.get("device_next_step"))
 
         blocker_step = ""
         if recommended_section and recommended_section != DEVICES_SECTION_LABEL and next_action:
@@ -1887,7 +1887,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         kind_label = "fixed load" if str((device or previous_device or {}).get("kind")) == DEVICE_KIND_FIXED else "variable load"
         current_name = str((device or {}).get("name") or (previous_device or {}).get("name") or "Managed device")
         blocker_summary = self._device_blocker_summary()
-        blocker_lines = [line.strip() for line in blocker_summary.splitlines() if line.strip()]
+        blocker_lines = [
+            _normalize_native_path_text(line.strip())
+            for line in blocker_summary.splitlines()
+            if line.strip()
+        ]
         blocker_active = any(line.startswith("Before fleet work:") for line in blocker_lines)
 
         managed_ids = {str(item.get("entity_id")) for item in devices if item.get("entity_id")}

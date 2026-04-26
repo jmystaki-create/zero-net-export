@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-278 - Managed Devices blocker handoff could echo stale source-mapping next steps
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking remaining Workstream D/F source-role wording after setup-notification normalization.
+- **current observed behavior:** Managed-device save/promotion feedback normalized the command-center blocker reason but not the blocker next-step text itself. A stale or fallback blocker summary could therefore render `Before fleet work: ... finish the required source mapping` and repeat that same stale phrase as the save notification's `Next step`, pulling the Managed Devices workspace back toward lower-level source-mapping wording.
+- **expected behavior:** Managed Devices blocker handoffs should keep source blockers on operator-facing `source roles` / `required source roles` wording before they reach promotion/save feedback.
+- **evidence:** focused repo inspection found `ZeroNetExportOptionsFlow._device_blocker_summary()` passed raw `next_action_summary` / `device_next_step` text through to the blocker line, and `tests/test_config_flow_device_runtime_overlay.py` still locked a stale `finish the required source mapping` blocker in managed-device action feedback.
+- **repo fix:** this run normalizes blocker next-action text in `_device_blocker_summary()`, normalizes blocker lines again before Managed Devices action feedback renders them, extends native path normalization for stale `source mapping(s)` handoffs, updates the regression to expect `source roles`, and records the fix in the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_bucket_ownership_copy tests.test_setup_notice_copy` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Managed Devices blocker-handoff cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-277 - Native setup notification could echo stale source-mapping readiness payloads
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
