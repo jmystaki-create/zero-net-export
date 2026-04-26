@@ -1754,7 +1754,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         button_module = _load_button_module(notification_calls)
         button_module.build_native_operator_readiness = lambda coordinator: {
             "phase": "setup",
-            "summary": "Finish source mapping first.",
+            "summary": "Finish required source roles first.",
             "checklist": [
                 {"complete": True, "label": "Source map", "detail": "Solar power and grid export mapped."},
                 {"complete": False, "label": "Managed Devices", "detail": "Review the unmanaged section next."},
@@ -1783,7 +1783,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("Primary setup path:", message)
         self.assertIn("Diagnostics path: support path", message)
         self.assertIn("Readiness phase: setup", message)
-        self.assertIn("Summary: Finish source mapping first.", message)
+        self.assertIn("Summary: Finish required source roles first.", message)
         self.assertIn("Next step: Review the Managed Devices workspace next.", message)
         self.assertIn("- [x] Source map: Solar power and grid export mapped.", message)
         self.assertIn("- [ ] Managed Devices: Review the Managed Devices workspace at devices path, starting with unmanaged candidates next.", message)

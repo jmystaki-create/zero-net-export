@@ -4727,7 +4727,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         self.assertEqual(
             summary["status_summary"],
-            f"Open {native_support.SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health.",
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source roles and health.",
         )
         self.assertNotIn("recommended command-center section", summary["status_summary"])
 
@@ -7065,7 +7065,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         native_support.build_native_operator_readiness = lambda coordinator: {
             "phase": "setup_needed",
-            "summary": "Finish source mapping first.",
+            "summary": "Finish required source roles first.",
             "next_step": "Open Sensors and finish the missing source roles.",
         }
         native_support.build_source_attention_details = lambda state: {
@@ -7161,7 +7161,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
 
         native_support.build_native_operator_readiness = lambda coordinator: {
             "phase": "setup_needed",
-            "summary": "Finish source mapping first.",
+            "summary": "Finish required source roles first.",
             "next_step": "Open Sensors and finish the missing source roles.",
         }
         native_support.build_source_attention_details = lambda state: {

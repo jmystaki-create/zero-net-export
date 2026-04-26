@@ -1265,7 +1265,7 @@ def _compact_next_action_fallback(
             f"Open {POLICY_CONFIGURE_PATH} to continue in Controls and tune target export, deadband, reserve, or live mode."
         )
     if recommended_section == SOURCES_SECTION_LABEL:
-        return f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
+        return f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source roles and health."
     return (
         f"Open {SUPPORT_CONFIGURE_PATH} to continue in Diagnostics with blocker triage, repairs, or install validation."
     )
@@ -2081,7 +2081,7 @@ def _build_operator_checklist(
     checklist = [
         {
             "key": "sources_mapped",
-            "label": "Required source mapping complete",
+            "label": "Required source roles complete",
             "complete": not missing_required_sources,
             "detail": (
                 "All required solar and grid sources are configured."
@@ -5136,7 +5136,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
             next_action_summary = device_next_step
         elif recommended_section == SOURCES_SECTION_LABEL:
             next_action_summary = (
-                f"Open {SOURCES_CONFIGURE_PATH} next to confirm the live source mapping and source health."
+                f"Open {SOURCES_CONFIGURE_PATH} next to confirm the live source roles and source health."
             )
         elif recommended_section == POLICY_SECTION_LABEL:
             next_action_summary = (
@@ -5159,7 +5159,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
     )
     if missing_required_sources:
-        policy_readiness = "Finish source mapping first. Policy tuning is not actionable until the required source roles are complete."
+        policy_readiness = "Finish required source roles first. Policy tuning is not actionable until the required source roles are complete."
     elif runtime_source_attention:
         policy_readiness = f"Repair source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
     elif device_parse_issues:
@@ -5167,7 +5167,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     elif not has_managed_devices:
         policy_readiness = "You can tune policy now, but no controllable device can act until at least one managed device is added."
     else:
-        policy_readiness = "Sources are mapped and managed devices exist, so policy changes are actionable now."
+        policy_readiness = "Source roles are complete and managed devices exist, so policy changes are actionable now."
 
     support_status = str(
         readiness.get("summary")
@@ -5384,7 +5384,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
 
     status_summary_fallback = {
         SOURCES_SECTION_LABEL: (
-            f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source mapping and health."
+            f"Open {SOURCES_CONFIGURE_PATH} to continue in Sensors and confirm the live source roles and health."
         ),
         DEVICES_SECTION_LABEL: device_next_step,
         POLICY_SECTION_LABEL: (

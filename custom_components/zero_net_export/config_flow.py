@@ -2238,7 +2238,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         elif state is None:
             source_health = "Live source health will appear here after the integration loads."
             source_next_step = (
-                f"Save source mapping, reload the integration, then reopen {SOURCES_CONFIGURE_PATH} to confirm live source health."
+                f"Save the required source roles, reload the integration, then reopen {SOURCES_CONFIGURE_PATH} to confirm live source health."
             )
         else:
             source_health = build_live_source_health_summary(state)
@@ -3667,7 +3667,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         missing_sources = source_attention["missing_source_keys"]
         runtime_source_attention = source_attention["has_runtime_source_attention"]
         if missing_sources:
-            policy_readiness = "Finish source mapping first: " + self._format_source_role_names(missing_sources)
+            policy_readiness = "Finish required source roles first: " + self._format_source_role_names(missing_sources)
             policy_next_step = f"Open {SOURCES_CONFIGURE_PATH} before changing controller behaviour."
         elif runtime_source_attention:
             policy_readiness = source_placeholders["source_health"] + ". " + source_placeholders["source_next_step"]
@@ -3707,7 +3707,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                     "then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
                 )
         else:
-            policy_readiness = f"Sources are mapped and {self._count_label(len(devices), 'managed device')} configured, so policy changes are actionable now."
+            policy_readiness = f"Source roles are complete and {self._count_label(len(devices), 'managed device')} configured, so policy changes are actionable now."
             policy_next_step = (
                 f"Tune behaviour here, then use {MODE_CONTROL_PATH} or {INTEGRATION_DEVICE_PATH} to verify the current controller outcome."
             )

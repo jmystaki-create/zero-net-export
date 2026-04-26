@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-271 - Controls readiness and setup checklist still said source mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `controls`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role wording after README, bootstrap, Sensors, command-center, readiness, and validation copy had already moved away from source-mapping wording.
+- **current observed behavior:** active Controls readiness and native setup/checklist code still said `Finish source mapping first`, `Save source mapping`, `Sources are mapped`, `Required source mapping complete`, and `confirm the live source mapping and health`, leaving source-mapping terminology in visible policy-gating and setup-checklist paths.
+- **expected behavior:** Controls readiness, setup checklist, and Sensors handoff text should use operator-facing `source roles` / `required source roles` wording, while reserving `source map` wording for deeper cross-check evidence rows where actual entity bindings are being inspected.
+- **evidence:** direct repo grep found the stale phrases in `custom_components/zero_net_export/config_flow.py` and `custom_components/zero_net_export/native_support.py`, with matching focused test expectations still preserving the old wording.
+- **repo fix:** this run changes those Controls/readiness/checklist handoffs to `required source roles`, `source roles are complete`, `Required source roles complete`, and `live source roles and health`, folds the note into the compact `0.1.89` changelog theme, and adds regression guards rejecting the stale primary source-mapping phrases in active component code.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_command_center_summary tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py tests/test_bucket_ownership_copy.py tests/test_command_center_summary.py tests/test_button_entity_categories.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Controls and checklist wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-270 - README development checklist still used source-mapping/controller-tuning buckets
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
