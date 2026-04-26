@@ -192,12 +192,35 @@ def _compact_unmanaged_count_label(count: int) -> str:
 
 def _is_unmanaged_count_part(text: str) -> bool:
     normalized = " ".join(str(text or "").split())
-    return normalized == "no unmanaged candidates" or normalized.endswith(" unmanaged") or normalized.endswith(" unmanaged backlog")
+    return (
+        normalized == "no unmanaged candidates"
+        or normalized.endswith(" unmanaged")
+        or normalized.endswith(" unmanaged backlog")
+        or re.fullmatch(r"\d+ unmanaged candidates?", normalized) is not None
+    )
 
 
 def _is_managed_count_part(text: str) -> bool:
     normalized = " ".join(str(text or "").split())
-    return normalized == "no managed yet" or normalized.endswith(" managed")
+    return (
+        normalized == "no managed yet"
+        or normalized.endswith(" managed")
+        or re.fullmatch(r"\d+ managed devices?", normalized) is not None
+    )
+
+
+def _canonicalize_fleet_activity_count_part(text: str) -> str:
+    normalized = " ".join(str(text or "").split())
+    tokens = normalized.split()
+    if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "managed" and tokens[0] == "0":
+        return "no managed yet"
+    if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
+        return f"{tokens[0]} unmanaged backlog"
+    if len(tokens) == 3 and tokens[0].isdigit() and tokens[1:] in (["managed", "device"], ["managed", "devices"]):
+        return f"{tokens[0]} managed"
+    if len(tokens) == 3 and tokens[0].isdigit() and tokens[1:] in (["unmanaged", "candidate"], ["unmanaged", "candidates"]):
+        return f"{tokens[0]} unmanaged backlog"
+    return normalized
 
 
 def _matches_count_label(text: str, singular: str, plural: str | None = None) -> bool:
@@ -322,7 +345,9 @@ _FLEET_ACTIVITY_COMMA_DELIMITER_RE = re.compile(
     r"no managed yet|"
     r"no unmanaged candidates|"
     r"\d+ managed\b|"
+    r"\d+ managed device(?:s)?\b|"
     r"\d+ unmanaged(?: backlog)?\b|"
+    r"\d+ unmanaged candidate(?:s)?\b|"
     r"enabled \d+|disabled \d+|usable \d+|"
     r"\d+ fixed managed|\d+ variable managed|\d+ W nominal|"
     r"\d+ managed device(?:s)? need(?:s)? attention|"
@@ -359,7 +384,7 @@ def _dedupe_fleet_activity_summary(
 ) -> str:
     return " | ".join(
         _dedupe_attention_overlap_parts(
-            _split_fleet_activity_parts(summary),
+            [_canonicalize_fleet_activity_count_part(part) for part in _split_fleet_activity_parts(summary)],
             suppress_blocked=suppress_blocked,
             suppress_planned=suppress_planned,
         )
@@ -389,14 +414,7 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     if not normalized:
         return "runtime pending | fleet activity waiting"
 
-    parts = []
-    for part in _split_fleet_activity_parts(normalized):
-        tokens = part.split()
-        if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "managed" and tokens[0] == "0":
-            part = "no managed yet"
-        elif len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
-            part = f"{tokens[0]} unmanaged backlog"
-        parts.append(part)
+    parts = [_canonicalize_fleet_activity_count_part(part) for part in _split_fleet_activity_parts(normalized)]
     def _is_managed_inventory_part(part: str) -> bool:
         return bool(
             part.startswith(("enabled ", "disabled ", "usable "))

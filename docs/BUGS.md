@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-322 - Fleet activity fallback missed managed-device/unmanaged-candidate count labels
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** fallback Fleet activity text could split comma-separated `2 managed devices, 1 unmanaged candidate` labels, but the managed/unmanaged formatter did not recognize those older count forms as the canonical managed count and unmanaged backlog. That could leave the top-board fallback story less visibly managed-on-top / unmanaged-below when cached or fallback device-status text used device/candidate nouns.
+- **expected behavior:** Fleet activity fallbacks should canonicalize older managed-device and unmanaged-candidate count labels to `N managed` and `N unmanaged backlog` before rendering the command-center Fleet activity block.
+- **evidence:** focused regression coverage now exercises `Managed Devices: 2 managed devices, 1 unmanaged candidate, review Garage relay` and requires `Managed devices: 2 managed; Unmanaged backlog: 1 unmanaged backlog | review Garage relay`.
+- **repo fix:** this run extends Fleet activity delimiter recognition and count-part canonicalization for managed-device and unmanaged-candidate labels before fallback dedupe/operator grouping.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity fallback cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-321 - Setup notification normalization missed mapped-source fallback text
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
