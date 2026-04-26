@@ -62,12 +62,12 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             ["First shipped fix", "Follow-up detail still counts as a highlight"],
         )
 
-    def test_build_release_info_falls_back_to_unreleased_when_next_version_is_in_progress(self) -> None:
+    def test_build_release_info_uses_current_release_changelog_entry(self) -> None:
         info = release_info.build_release_info(release_info.INTEGRATION_VERSION)
 
         self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
         self.assertTrue(info["has_changelog"])
-        self.assertIsNone(info["released_on"])
+        self.assertEqual(info["released_on"], "2026-04-26")
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertIn("Home Assistant", info["changes_preview"])
 
