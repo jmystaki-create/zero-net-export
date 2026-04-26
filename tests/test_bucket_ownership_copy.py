@@ -184,7 +184,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             steps["device_bulk_enable"]["title"],
             "Review managed devices workspace and enablement",
         )
-        self.assertIn("Review managed-device enablement here, with managed devices on top and the unmanaged promotion backlog below.", bulk_enable_description)
+        self.assertIn("Review managed-device enablement in the Managed Devices workspace, with managed devices on top and the unmanaged promotion backlog below.", bulk_enable_description)
+        self.assertNotIn("Review managed-device enablement here", bulk_enable_description)
         self.assertIn("Keep enablement in the Managed Devices workspace.", bulk_enable_description)
         self.assertNotIn("Configure stays the primary fleet workspace", bulk_enable_description)
         self.assertIn("Keep source repair in Sensors, target export, reserve, deadband, and live mode in Controls, and troubleshooting in Diagnostics.", bulk_enable_description)
@@ -387,7 +388,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Start promotion from the surfaced unmanaged {device_kind} candidates below, with managed devices on top and the unmanaged promotion backlog below.", shortlist_description)
         self.assertNotIn("Use this Managed Devices shortlist to review the currently surfaced unmanaged {device_kind} candidates below.", shortlist_description)
         self.assertNotIn("Start promotion from the surfaced unmanaged {device_kind} shortlist below.", shortlist_description)
-        self.assertIn("open the full unmanaged list or the manual add path in the Managed Devices workspace only if the right entity is still missing", shortlist_description)
+        self.assertIn("Review the current candidates first, then open the full unmanaged list or the manual add path in the Managed Devices workspace only if the right entity is still missing", shortlist_description)
+        self.assertNotIn("Review the current candidates here first", shortlist_description)
         self.assertNotIn("best surfaced unmanaged", shortlist_description)
         self.assertNotIn("short, opinionated promotion shortlist", shortlist_description)
         self.assertIn("Unmanaged candidate devices: {candidate_count}", shortlist_description)
@@ -457,7 +459,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Primary path:", source_mapping_description)
 
         policy_description = steps["policy"]["description"]
-        self.assertIn("Set Controls policy here: target export, deadband, reserve threshold, refresh interval, and live mode.", policy_description)
+        self.assertIn("Set Controls policy for target export, deadband, reserve threshold, refresh interval, and live mode.", policy_description)
+        self.assertNotIn("Set Controls policy here", policy_description)
         self.assertIn("Controls owns controller behaviour and outcome.", policy_description)
         self.assertNotIn("Tune controller policy", policy_description)
         self.assertNotIn("Controls owns controller behaviour once source mapping is healthy and managed devices are ready", policy_description)

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-294 - Primary workspace leads still used helper-style here phrasing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B/C/D for remaining helper-style wording after the latest promotion-copy cleanup.
+- **current observed behavior:** active Configure copy still said `Review managed-device enablement here`, `Review the current candidates here first`, and `Set Controls policy here`, leaving form-local `here` phrasing in primary Managed Devices, promotion shortlist, and Controls leads.
+- **expected behavior:** these native Home Assistant sections should lead with their workspace or bucket ownership directly, without implying a thin helper prompt.
+- **evidence:** direct repo inspection found the stale phrases in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and matching expectations in `tests/test_bucket_ownership_copy.py`.
+- **repo fix:** this run rewrites the affected leads to workspace/bucket-first wording, syncs translations, and adds regression coverage rejecting the old `here` phrasing.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream B/C/D workspace-lead cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-293 - Promotion review and preset leads still used helper-style here phrasing
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
