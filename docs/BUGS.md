@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-336 - Setup notification normalization missed hyphenated mapped-source fallback text
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream F setup-notification normalization against adjacent command-center/source-role normalization.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` normalized spaced `mapped sources` and `mapped-role blockers` fallback text, but not hyphenated `mapped-source blocker(s)` or `mapped-source role(s)`. A restored setup notification or older readiness payload using those adjacent legacy forms could therefore still leak mapped-source wording into Home Assistant's native setup notification.
+- **expected behavior:** setup notifications should normalize hyphenated mapped-source fallback text to source-role/source-role-blocker wording before Home Assistant renders the persistent native setup notification.
+- **evidence:** direct repo inspection found the setup-notification normalizer lacked the hyphenated mapped-source replacements already present in the command-center/native-path normalizer; focused setup-notice regression coverage now exercises `Repair mapped-source blockers, then review mapped-source roles.`.
+- **repo fix:** this run adds setup-notification normalization for `mapped-source blocker(s)` and `mapped-source role(s)`, updates focused setup-notice coverage, and folds the cleanup into the compact Unreleased source-role/path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream F setup-notification normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-335 - Arrow-style Configure bucket handoffs could bypass exact native path normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
