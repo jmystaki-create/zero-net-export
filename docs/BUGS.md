@@ -2611,6 +2611,20 @@ Suggested area labels:
 - **next action:** keep supplemental docs aligned with runtime-aware / secondary review-audit wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
 
+## ZNE-208 - Managed Devices save feedback still duplicated the Configure label
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream B/E handoff wording after ZNE-204 removed the same duplicated Configure label from device-page notifications.
+- **current observed behavior:** `custom_components/zero_net_export/config_flow.py` still rendered managed-device save feedback with `Managed Devices workspace in Configure: Configure -> Managed Devices`. That repeated the Configure label even though the path itself already starts with Configure, leaving the primary Managed Devices success landing one wording pass behind the device-page cleanup.
+- **expected behavior:** save feedback should keep the native path explicit without duplicating `in Configure`, using `Managed Devices workspace: Configure -> Managed Devices` before the secondary review/audit path.
+- **evidence:** `rg -n "Managed Devices workspace in Configure" custom_components/zero_net_export tests` found the active config-flow string and matching regression expectation after ZNE-204 had only fixed the button/device-page path.
+- **repo fix:** this run updates the managed-device save feedback in `config_flow.py` to `Managed Devices workspace: {DEVICES_CONFIGURE_PATH}` and refreshes `tests/test_config_flow_device_runtime_overlay.py` with a negative assertion for the duplicated wording.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Managed Devices save-feedback polish in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
