@@ -2250,8 +2250,9 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
         self.assertEqual(
             placeholders["source_blocker_summary"],
-            "4 missing required roles; 1 unavailable mapped role; 1 stale mapped role; blocking validation errors present",
+            "4 missing required roles; 1 unavailable source role; 1 stale source role; blocking validation errors present",
         )
+        self.assertNotIn("mapped role", placeholders["source_blocker_summary"])
 
     def test_source_placeholders_use_source_role_attention_copy(self) -> None:
         module = _load_config_flow_module()

@@ -2187,15 +2187,15 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             )
         if unavailable_source_keys:
             source_blocker_parts.append(
-                "1 unavailable mapped role"
+                "1 unavailable source role"
                 if len(unavailable_source_keys) == 1
-                else f"{len(unavailable_source_keys)} unavailable mapped roles"
+                else f"{len(unavailable_source_keys)} unavailable source roles"
             )
         if stale_source_keys:
             source_blocker_parts.append(
-                "1 stale mapped role"
+                "1 stale source role"
                 if len(stale_source_keys) == 1
-                else f"{len(stale_source_keys)} stale mapped roles"
+                else f"{len(stale_source_keys)} stale source roles"
             )
         if blocking_validation_details != "None":
             source_blocker_parts.append("blocking validation errors present")

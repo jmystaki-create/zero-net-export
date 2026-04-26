@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-242 - Runtime and Configure source summaries still used mapped-role wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role cleanup after adjacent source-health, Repairs, helper-label, guide, and checklist wording had already moved off primary mapped-source jargon.
+- **current observed behavior:** the coordinator's healthy stale-source summary still said `No required mapped sources currently look stale`, and the Configure Sensors source-blocker summary still counted `unavailable mapped role` / `stale mapped role`. Those strings let lower-level mapping terminology remain in normal native source-health surfaces after the release line had standardized primary operator copy on source roles/source blockers.
+- **expected behavior:** healthy runtime source status and Configure source-blocker summaries should use operator-facing `source roles` wording, while reserving mapped-source detail for repair evidence rows where entity bindings are being diagnosed.
+- **evidence:** repo grep in this run found the remaining strings in `custom_components/zero_net_export/coordinator.py` and `custom_components/zero_net_export/config_flow.py`; focused tests still expected the mapped-role blocker summary.
+- **repo fix:** this run changes the healthy stale-source summary to `No required source roles currently look stale`, changes blocker counts to `unavailable source role(s)` / `stale source role(s)`, records the `0.1.89` changelog highlight, and adds regression coverage rejecting the old primary mapped-role/mapped-source strings.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_bucket_ownership_copy tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/coordinator.py custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py tests/test_bucket_ownership_copy.py`, and focused grep confirming the old mapped-source/mapped-role summary strings are gone from active component code. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream D/F source-summary wording cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-241 - Setup checklist healthy source-validation line still used mapped-source jargon
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

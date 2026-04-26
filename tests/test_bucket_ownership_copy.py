@@ -100,6 +100,13 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("known HA field-level entity/UUID error", validation_checklist)
         self.assertNotIn("Entity is neither a valid entity ID nor a valid UUID", validation_checklist)
 
+        coordinator_source = (integration_root / "coordinator.py").read_text(encoding="utf-8")
+        config_flow_source = (integration_root / "config_flow.py").read_text(encoding="utf-8")
+        self.assertNotIn("No required mapped sources currently look stale", coordinator_source)
+        self.assertIn("No required source roles currently look stale", coordinator_source)
+        self.assertNotIn("unavailable mapped role", config_flow_source)
+        self.assertNotIn("stale mapped role", config_flow_source)
+
         devices_description = steps["devices"]["description"]
         self.assertIn("This is the Managed Devices workspace.", devices_description)
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below.", devices_description)

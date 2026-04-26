@@ -860,7 +860,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
 
     def _stale_source_summary(self, stale_sources: list[dict[str, Any]]) -> str:
         if not stale_sources:
-            return "No required mapped sources currently look stale"
+            return "No required source roles currently look stale"
         parts = []
         for item in stale_sources[:3]:
             label = SOURCE_ROLE_LABELS.get(str(item.get("key")), str(item.get("key")))
