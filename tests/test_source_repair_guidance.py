@@ -424,7 +424,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", guide)
         self.assertIn("Now", guide)
         self.assertIn("- Next action: Repair the source blockers first.", guide)
-        self.assertNotIn("- Recommended section:", guide)
+        self.assertIn(f"- Recommended section: {native_support.SOURCES_SECTION_LABEL}", guide)
         self.assertNotIn("- Recommended path:", guide)
         self.assertIn("Structured control board", guide)
         self.assertIn("- Energy state: solar 0 W | grid import 900 W", guide)
