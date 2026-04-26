@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-377 - Managed Devices promotion copy still used recommended-next wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream B/C copy after the neutral surfaced-candidate and preset wording fixes.
+- **current observed behavior:** Managed Devices and promotion screens still labelled the next fleet/review line as `Recommended next fleet action` or `Recommended next step`. That kept recommendation/ranking language in the managed/unmanaged workspace and promotion review path after adjacent copy had moved to neutral surfaced-review wording.
+- **expected behavior:** next-action labels in the native Managed Devices and promotion path should be directive and review-oriented without implying the integration has ranked a recommendation before operator review.
+- **evidence:** direct repo inspection found the labels in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; existing bucket-copy regression coverage did not reject those phrases.
+- **repo fix:** this run changes the visible labels to `Next fleet action` and `Next review step`, syncs translations, and adds bucket-copy regressions rejecting the old recommended-next promotion/fleet labels.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream B/C wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint/bookkeeping loop.
+
 ## ZNE-376 - Promotion form default-values label still used suggested wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

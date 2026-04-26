@@ -480,11 +480,15 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", full_list_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", full_list_description)
         self.assertNotIn("Current managed fleet:", full_list_description)
+        self.assertIn("Next fleet action: {device_next_step}", full_list_description)
+        self.assertNotIn("Recommended next fleet action", full_list_description)
 
         vetting_description = steps["device_vetting"]["description"]
         self.assertIn("Review this unmanaged candidate before it enters the managed fleet; managed devices stay on top and the unmanaged promotion backlog stays below.", vetting_description)
         self.assertIn("Preset surfaced for review: {suggested_template}", vetting_description)
         self.assertNotIn("Review this unmanaged candidate here", vetting_description)
+        self.assertIn("Next review step: {candidate_next_step}", vetting_description)
+        self.assertNotIn("Recommended next step: {candidate_next_step}", vetting_description)
         self.assertNotIn("Suggested preset", vetting_description)
 
         template_description = steps["device_template"]["description"]
@@ -492,10 +496,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Preset surfaced right now: {suggested_template}", template_description)
         self.assertNotIn("Choose safer starting defaults", template_description)
         self.assertNotIn("here before save", template_description)
+        self.assertIn("Next review step: {candidate_next_step}", template_description)
+        self.assertNotIn("Recommended next step: {candidate_next_step}", template_description)
         self.assertNotIn("Suggested preset", template_description)
 
         add_description = steps["device_add"]["description"]
         self.assertIn("Starting values surfaced for review: {default_guidance}", add_description)
+        self.assertIn("Next fleet action: {device_next_step}", add_description)
+        self.assertNotIn("Recommended next fleet action", add_description)
         self.assertNotIn("Suggested starting values", add_description)
 
         source_description = steps["native_setup"]["description"]
