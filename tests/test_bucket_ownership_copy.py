@@ -260,11 +260,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Bucket ownership and paths", edit_pick_description)
 
         remove_description = steps["device_remove"]["description"]
-        self.assertIn("Choose which managed device should leave the native fleet here, with managed devices on top and the unmanaged promotion backlog below.", remove_description)
-        self.assertNotIn("Choose which managed device should be removed from the native fleet", remove_description)
-        self.assertIn("Use this only when a controllable load should leave Zero Net Export entirely, not just be disabled temporarily.", remove_description)
-        self.assertNotIn("Managed Devices owns this fleet-removal workflow", remove_description)
-        self.assertIn("with managed devices on top and the unmanaged promotion backlog below.", remove_description)
+        self.assertIn("Remove a load from the Managed Devices workspace only when it should leave Zero Net Export entirely", remove_description)
+        self.assertIn("managed devices stay on top and the unmanaged promotion backlog stays below", remove_description)
+        self.assertIn("Disable a load instead when you only need a temporary stop.", remove_description)
+        self.assertNotIn("Choose which managed device should leave the native fleet here", remove_description)
+        self.assertNotIn("Use this only when a controllable load should leave Zero Net Export entirely", remove_description)
         self.assertNotIn("with the current managed fleet on top and the unmanaged promotion backlog still visible below", remove_description)
         self.assertIn("Managed devices (top section)", remove_description)
         self.assertIn("Managed devices review:", remove_description)

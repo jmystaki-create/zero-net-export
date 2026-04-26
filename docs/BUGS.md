@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-287 - Managed Devices removal copy still read like a helper prompt
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B/C against the remaining requirement that Configure -> Managed Devices read as the primary fleet workspace, not a thin helper layer.
+- **current observed behavior:** the Remove managed device step still opened with `Choose which managed device should leave the native fleet here...` and a separate `Use this only...` instruction. The wording was safe but still framed the flow as a local helper prompt rather than a Managed Devices workspace action.
+- **expected behavior:** removal should stay workspace-first and make the operator boundary explicit: remove only when a load should leave Zero Net Export entirely; disable instead for a temporary stop.
+- **evidence:** direct repo inspection found the weaker removal lead in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`, with regression coverage preserving it in `tests/test_bucket_ownership_copy.py`.
+- **repo fix:** this run rewrites the removal lead to `Remove a load from the Managed Devices workspace only when it should leave Zero Net Export entirely...`, keeps the managed-on-top/unmanaged-below split visible, adds the disable-instead boundary, syncs translations, folds the change into the grouped `0.1.89` changelog theme, and updates bucket-ownership coverage to reject the old helper prompt.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream B/C removal-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-286 - Managed Devices opening still started as a helper-style self-introduction
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
