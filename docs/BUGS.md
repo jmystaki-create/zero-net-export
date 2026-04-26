@@ -2652,6 +2652,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Diagnostics guide wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is a direct James deploy/restart approval ask rather than another unchanged fingerprint/bookkeeping refresh.
 
+## ZNE-211 - ENTITY_MODEL kept shorthand Configure handoff wording for the fleet-console button
+
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog source-doc audit on 2026-04-26 while rechecking active supplemental docs against the current exact native path wording and ZNE-209's release-metadata cleanup.
+- **current observed behavior:** `docs/ENTITY_MODEL.md` still described `button.zero_net_export_show_fleet_console` as handing operators back into `Configure -> Managed Devices`. That was only supplemental docs, but it preserved the same shorthand path wording just removed from current release metadata and active product copy.
+- **expected behavior:** active entity documentation should use the exact native Home Assistant path for the primary Managed Devices workspace and keep the device-page button framed as a secondary handoff, not another shorthand Configure lane.
+- **evidence:** direct grep for the phrase `back into Configure -> Managed Devices` found the active supplemental-doc hit after the current changelog had already been corrected.
+- **repo fix:** this run updates `docs/ENTITY_MODEL.md` so the fleet-console button now publishes the primary native handoff to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices`.
+- **validation status:** validated by direct grep/diff inspection; the old `back into Configure -> Managed Devices` phrase no longer appears in `docs/ENTITY_MODEL.md`. No live Home Assistant validation is required for this supplemental-doc wording correction.
+- **next action:** keep supplemental docs on exact native paths; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

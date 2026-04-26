@@ -24,7 +24,7 @@
 - `button.zero_net_export_show_native_command_center`
   - publishes the native command-center guide with the recommended Configure bucket, blocker-first next step, and secondary review/audit handoff
 - `button.zero_net_export_show_fleet_console`
-  - publishes the Managed Devices workspace snapshot with managed devices on top, unmanaged candidates below, and the primary Configure handoff back into `Configure -> Managed Devices`
+  - publishes the Managed Devices workspace snapshot with managed devices on top, unmanaged candidates below, and the primary native handoff to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices`
 - `button.zero_net_export_show_managed_device_review`
   - publishes the secondary managed-devices audit/review with runtime-aware managed rows, currently surfaced unmanaged candidates, and the device-page review/audit handoff
 - `button.zero_net_export_show_native_support_center`
