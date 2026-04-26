@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-375 - Unreleased changelog repeated old promotion suggestion wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-27 while checking the current `0.1.89` Unreleased notes against the neutral surfaced-candidate and surfaced-preset promotion wording in the native Managed Devices flow.
+- **current observed behavior:** the Unreleased changelog entry for the recent promotion-copy cleanup still quoted the old `suggested candidates` and `Suggested preset` phrases while describing the fix. That was historically explanatory, but those highlights feed compact Home Assistant release-info surfaces and could reintroduce recommendation/ranking wording immediately after the product copy moved to neutral surfaced/review wording.
+- **expected behavior:** current release metadata should describe the same fix without repeating old suggestion/ranking phrases in the visible highlight text.
+- **evidence:** direct repo inspection found the stale phrases in the current Unreleased `CHANGELOG.md` highlight, and `tests/test_release_info_install_guidance.py` only rejected mapped-source drift for Unreleased highlights before this run.
+- **repo fix:** this run rewrites the Unreleased promotion-copy highlight to avoid the exact old suggestion/preset terms and extends release-info regression coverage so Unreleased highlights reject `suggested candidates` and `Suggested preset`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for `0.1.89` freeze/release/deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## ZNE-374 - Promotion review preset copy kept suggested-preset wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
