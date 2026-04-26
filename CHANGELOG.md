@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Aligned the concrete UI implementation spec's global-alert examples with the current source-role wording so screen-level guidance no longer pulls Workstream A/D review back toward generic source-mapping language.
 - Removed the last active product-spec and validation-checklist uses of generic source-mapping wording from high-level control and validation gates, keeping normal operator/release guidance on source-role setup and healthy source bindings.
 - Aligned active product, dashboard, reference, and validation docs with the current Sensors/source roles, Controls, Managed Devices, and Diagnostics IA so validation guidance no longer falls back to older sources/policy/support wording.
 - Normalized stale Managed Devices blocker handoffs so cached or fallback `source mapping` next steps now render as source-role guidance before they reach promotion/save feedback.

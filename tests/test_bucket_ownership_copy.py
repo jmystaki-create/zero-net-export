@@ -563,6 +563,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "REFERENCE_MATRIX.md": (project_root / "docs" / "REFERENCE_MATRIX.md").read_text(encoding="utf-8"),
             "VALIDATION_CHECKLIST.md": (project_root / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8"),
         }
+        ui_implementation_spec = (project_root / "docs" / "UI_IMPLEMENTATION_SPEC.md").read_text(encoding="utf-8")
 
         for name, text in docs.items():
             with self.subTest(doc=name):
@@ -579,6 +580,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             docs["PRODUCT_SPEC_V1.md"],
         )
         self.assertNotIn("never act without validated source mapping", docs["PRODUCT_SPEC_V1.md"])
+        self.assertIn("missing source roles", ui_implementation_spec)
+        self.assertNotIn("missing source mapping", ui_implementation_spec)
 
 
 if __name__ == "__main__":

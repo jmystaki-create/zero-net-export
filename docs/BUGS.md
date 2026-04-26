@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-282 - Screen-level UI spec still used source-mapping alert wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the current screen-level UI implementation spec against the `0.1.89` Workstream A/D source-role cleanup.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_SPEC.md` still listed `missing source mapping` as a global alert / health summary example for the Configure landing screen, even though active native surfaces and validation gates now use source-role wording.
+- **expected behavior:** screen-level implementation guidance should keep operator-facing alerts on `source roles`, reserving source-map terminology for deeper entity-binding evidence.
+- **evidence:** direct repo grep found the stale phrase in the active concrete UI implementation spec after recent source-role cleanup commits had already aligned README, product spec, validation, setup, Controls, Sensors, and Managed Devices wording.
+- **repo fix:** this run changes the example to `missing source roles`, records the `0.1.89` changelog note, and extends bucket-ownership regression coverage to include `docs/UI_IMPLEMENTATION_SPEC.md`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this docs-only screen-spec wording fix.
+- **next action:** include this Workstream A/D active-spec cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-281 - Active control and validation gates still used generic source-mapping wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

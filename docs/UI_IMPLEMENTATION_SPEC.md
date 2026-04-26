@@ -178,7 +178,7 @@ Ensure important issues are noticeable immediately without making diagnostics th
 
 Examples:
 - source stale
-- missing source mapping
+- missing source roles
 - battery reserve preventing action
 - no eligible managed device
 - fleet configuration issue
