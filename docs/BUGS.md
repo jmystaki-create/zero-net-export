@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-251 - Active bug tails still used unversioned exact-candidate release wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking active `fixed_pending_validation` entries against the `0.1.89` implementation map and release plan.
+- **current observed behavior:** several still-active bug tails from ZNE-228 through ZNE-220 said live validation was pending on the generic `exact candidate` or described the next boundary as a generic tag/release/deploy decision. That conflicted with the current source of truth: the follow-up line is `0.1.89`, and if no sharper A-D/F implementation defect remains, the boundary must be a direct James approval ask for the `0.1.89` freeze/release/deploy/restart path.
+- **expected behavior:** active bug next actions should point future live proof at the helper-resolved `0.1.89` candidate and should not leave operators inferring approval from generic deploy, tag, or release wording.
+- **evidence:** direct BUGS.md inspection found remaining unversioned active validation tails under ZNE-228, ZNE-227, ZNE-226, ZNE-225, ZNE-223, ZNE-222, ZNE-221, and ZNE-220 after the main source-of-truth docs had already moved the release line to `0.1.89`.
+- **repo fix:** this run updates those active tails to name the `0.1.89` exact-build validation path and the direct James freeze/release/deploy/restart approval boundary, without refreshing hashes or rerunning unchanged live fingerprint checks.
+- **validation status:** repo-side bug-tracker correction verified with focused grep for the stale `exact candidate` and generic `tag/release/deploy decision` tails. Live Home Assistant validation is not required for this process-state correction.
+- **next action:** keep future runs on the ordered A-D/F defect check; if no sharper implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of doing another release-boundary or fingerprint-refresh loop.
+
 ## ZNE-250 - 0.1.89 unreleased changelog repeated source-wording microfix churn
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
@@ -358,8 +370,8 @@ Suggested area labels:
 - **expected behavior:** the opening command center should keep the top-board and setup-check problem signal on `Source blockers` / `source blockers` wording, while deeper Sensors/Diagnostics paths can carry mapped-role detail.
 - **evidence:** repo inspection of `custom_components/zero_net_export/native_support.py` found the runtime-source-attention `source_status` and `policy_readiness` branches still using the older mapped-source wording after the top alert cleanup.
 - **repo fix:** this run changes the command-center source-status branch to `Source blockers: ...`, changes the no-detail fallback to `Source data needs attention.`, and changes Controls readiness to `Repair source blockers...`; focused command-center regressions now reject the older wording in those generated fields.
-- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this Workstream A/D opening-console wording cleanup in the next exact-build deploy/restart validation.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream A/D opening-console wording cleanup in the next `0.1.89` exact-build deploy/restart validation; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of refreshing release/fingerprint bookkeeping.
 
 ## ZNE-227 - Diagnostics fallback copy still named a picker bug
 - **status:** `fixed_pending_validation`
@@ -370,8 +382,8 @@ Suggested area labels:
 - **expected behavior:** Diagnostics should keep only the ranked fallback handoff needed for native selector failures, without naming an old picker bug or adding extra prose beyond the fallback action.
 - **evidence:** repo inspection of `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` found the picker-bug sentence still present in the active Diagnostics step; follow-up repo inspection found `custom_components/zero_net_export/native_support.py` still using the workaround label in the diagnostics guide; `tests/test_bucket_ownership_copy.py` and `tests/test_source_repair_guidance.py` did not reject all stale support-surface wording.
 - **repo fix:** this run changes the Configure-side Diagnostics line to `Selector fallback, only if Home Assistant rejects a valid choice: {support_fallback_hint}`, removes the picker-bug sentence from both translation files, changes the native device-page diagnostics guide to `Selector fallback, only if Home Assistant rejects a valid choice: ...`, and adds regression coverage rejecting the older wording.
-- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`, `python3 -m unittest -q tests.test_source_repair_guidance`, and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_bucket_ownership_copy.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this Workstream F Diagnostics copy cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still James's direct tag/release/deploy decision rather than another fingerprint refresh.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`, `python3 -m unittest -q tests.test_source_repair_guidance`, and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_bucket_ownership_copy.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream F Diagnostics copy cleanup in the next helper-resolved `0.1.89` exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still James's direct `0.1.89` freeze/release/deploy/restart approval rather than another fingerprint refresh.
 
 ## ZNE-226 - Command-center source alert kept mapped-source jargon in the global alert
 - **status:** `fixed_pending_validation`
@@ -382,8 +394,8 @@ Suggested area labels:
 - **expected behavior:** Configure's top alert should use operator-facing `Source blockers` wording while the deeper Sensors and Diagnostics paths keep the mapped-role detail where it belongs.
 - **evidence:** repo inspection of `custom_components/zero_net_export/native_support.py` found `source_alert`, `source_alert_compact`, and the no-blocker display string still using `Mapped-source blockers` / `mapped-source blockers`; focused command-center/source-guidance tests were locking that older wording in place.
 - **repo fix:** this run changes the command-center global source alert and no-blocker display to `Source blockers` / `No source blockers currently highlighted`, and updates the focused command-center/source-guidance regressions.
-- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this Workstream A/D/F top-alert wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still a direct James tag/release/deploy decision, not another unchanged fingerprint refresh.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream A/D/F top-alert wording cleanup in the next helper-resolved `0.1.89` exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still direct James approval for the `0.1.89` freeze/release/deploy/restart path, not another unchanged fingerprint refresh.
 
 ## ZNE-225 - No-candidate Managed Devices selector fell back to generic add-device labels
 - **status:** `fixed_pending_validation`
@@ -394,8 +406,8 @@ Suggested area labels:
 - **expected behavior:** no-candidate fallback labels should keep operators in the native Managed Devices workspace language while still making clear that fixed-load or variable-load manual entry is only the fallback when no surfaced candidate fits.
 - **evidence:** repo inspection of `custom_components/zero_net_export/config_flow.py` found `_device_action_label(...)` still returning the older generic manual labels, and `tests/test_config_flow_device_runtime_overlay.py` was locking those labels in place.
 - **repo fix:** this run changes the no-candidate selector labels to `Manual add path in Managed Devices workspace / fixed load` and `Manual add path in Managed Devices workspace / variable load`, and updates the focused Managed Devices selector regression.
-- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this fallback-label cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still a direct James tag/release/deploy decision, not another unchanged fingerprint refresh.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this fallback-label cleanup in the next helper-resolved `0.1.89` exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still direct James approval for the `0.1.89` freeze/release/deploy/restart path, not another unchanged fingerprint refresh.
 
 ## ZNE-224 - Empty-fleet command-center fallback leaked configured-device wording
 - **status:** `fixed_pending_validation`
@@ -418,8 +430,8 @@ Suggested area labels:
 - **expected behavior:** Sensors should keep source ownership explicit while using the simpler operator label `Source repair path`, preserving source specificity without reintroducing older mapped-source-only repair wording.
 - **evidence:** repo grep found `Mapped-source repair path` still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` after the runtime Repairs notification had already rejected that label.
 - **repo fix:** this run changes the Sensors source-mapping label to `Source repair path` in both translation files and adds bucket-ownership regression coverage rejecting the older label.
-- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this source-repair wording cleanup in the next exact-build deploy/restart validation with the broader Workstream D/F bucket-ownership proof.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this source-repair wording cleanup in the next `0.1.89` exact-build deploy/restart validation with the broader Workstream D/F bucket-ownership proof; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-222 - Managed fleet helper sensors buried source blockers inside fleet backlog copy
 - **status:** `fixed_pending_validation`
@@ -430,8 +442,8 @@ Suggested area labels:
 - **expected behavior:** Managed Devices helper sensors should keep global source blockers ahead of managed/unmanaged fleet and promotion details, while still preserving the managed count and unmanaged backlog count under the 255-character Home Assistant state limit.
 - **evidence:** repo inspection of `custom_components/zero_net_export/sensor.py` found `SOURCE_BLOCKER_ACTIVE_LABEL` appended after candidate/backlog parts for `managed_fleet_ready` and after managed/unmanaged counts for `managed_fleet_overview`; existing tests asserted the weaker ordering.
 - **repo fix:** this run moves `source blockers active` to the front of `managed_fleet_overview` and `managed_fleet_ready`, and adjusts the compact fallback so source-first states still retain the managed and unmanaged backlog counts.
-- **validation status:** repo-side fixed and verified with focused Managed Devices helper sensor tests plus `py_compile` in this run. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this sensor ordering fix in the next exact-build deploy/restart validation with the broader Workstream D bucket-ownership proof.
+- **validation status:** repo-side fixed and verified with focused Managed Devices helper sensor tests plus `py_compile` in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this sensor ordering fix in the next `0.1.89` exact-build deploy/restart validation with the broader Workstream D bucket-ownership proof; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-221 - Device-page managed review snapshots hid disabled fleet count
 - **status:** `fixed_pending_validation`
@@ -442,8 +454,8 @@ Suggested area labels:
 - **expected behavior:** every native Managed Devices review surface, including the secondary device-page buttons, should name disabled managed loads in the top snapshot when they exist so enabled/disabled fleet posture is visible at a glance.
 - **evidence:** repo inspection of `custom_components/zero_net_export/button.py` found `_managed_snapshot_summary(...)` still building `N managed | N enabled | N usable` without a disabled-count fragment, while focused button tests covered disabled rows but not the top snapshot count.
 - **repo fix:** this run adds the disabled-count fragment to `button.py` managed snapshots and updates device-page button regressions so both the managed workspace button and per-device managed review button expect `1 disabled` when disabled loads are present.
-- **validation status:** repo-side fixed and verified with focused button/config-flow/sensor tests plus `py_compile` in this run. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this secondary device-page disabled-fleet visibility fix in the next exact-build deploy/restart validation with the broader Workstream B/E managed-review proof.
+- **validation status:** repo-side fixed and verified with focused button/config-flow/sensor tests plus `py_compile` in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this secondary device-page disabled-fleet visibility fix in the next `0.1.89` exact-build deploy/restart validation with the broader Workstream B/E managed-review proof; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-220 - Runtime Repairs notification framed every blocker as mapped-source repair
 - **status:** `fixed_pending_validation`
@@ -454,8 +466,8 @@ Suggested area labels:
 - **expected behavior:** the native Repairs/runtime notification should stay compact but generic enough for the active blocker class: source details can remain visible, while the primary `Do next` line should be the already-ranked native next step rather than a duplicated source-only repair label.
 - **evidence:** repo inspection of `custom_components/zero_net_export/strings.json`, `translations/en.json`, and `repairs.py` showed the issue description always rendered `Mapped-source blockers` / `Mapped-source repair path` even though `runtime_next_step` may be rewritten to install repair, source repair, or managed-device follow-through depending on blocker state.
 - **repo fix:** this run changes the runtime-attention issue copy to `Active blockers`, renames the source detail rows, and collapses `Do next` to the ranked `{next_step}`. `tests/test_repairs_copy.py` now rejects the old mapped-source-only labels, and `docs/UI_IMPLEMENTATION_MAP.md` records the updated Workstream F state.
-- **validation status:** repo-side fixed and verified with focused Repairs/translation tests plus py_compile in this run. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
-- **next action:** include this Workstream F Repairs notification cleanup in exact-build deploy/restart validation, then confirm live Repairs modals keep source, install, command-failure, and managed-device blockers routed to the correct native path without source-only framing.
+- **validation status:** repo-side fixed and verified with focused Repairs/translation tests plus py_compile in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream F Repairs notification cleanup in `0.1.89` exact-build deploy/restart validation, then confirm live Repairs modals keep source, install, command-failure, and managed-device blockers routed to the correct native path without source-only framing; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-219 - Managed Devices summaries hid disabled fleet count
 - **status:** `fixed_pending_validation`
@@ -467,7 +479,7 @@ Suggested area labels:
 - **evidence:** repo inspection found disabled-count wording in `native_support.py` but not in `_managed_snapshot_text(...)`, `_fleet_summary_lines(...)`, or `managed_fleet_overview`; focused tests now cover the missing Configure and sensor surfaces.
 - **repo fix:** this run adds disabled-count fragments to `custom_components/zero_net_export/config_flow.py` Managed Devices snapshots/fleet summary lines and `custom_components/zero_net_export/sensor.py` managed-fleet overview state/attributes.
 - **validation status:** repo-side fixed and verified with focused Managed Devices tests plus py_compile in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
-- **next action:** include this Workstream B disabled-fleet visibility fix in the next exact-build deploy/restart validation, then confirm the installed Managed Devices workspace names disabled managed loads when present.
+- **next action:** include this Workstream B disabled-fleet visibility fix in the next `0.1.89` exact-build deploy/restart validation, then confirm the installed Managed Devices workspace names disabled managed loads when present; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-218 - Already-pushed `v0.1.88` tag is behind the current local candidate
 - **status:** `validated`
