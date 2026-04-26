@@ -2571,7 +2571,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 source_placeholders = {
                     "missing_sources": self._format_source_role_names(missing_source_keys),
                     "source_health": (
-                        "Source mapping still has blocking validation errors: "
+                        "Source roles still have blocking validation errors: "
                         + _summarize_issue_messages(blocking_issues, severities={"error"}, limit=3)
                     ),
                     "source_next_step": (

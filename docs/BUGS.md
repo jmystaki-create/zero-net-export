@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-307 - Sensors validation error summary still said source mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F source-role wording in Configure -> Sensors validation failures.
+- **current observed behavior:** the source-entity validation failure placeholders still rendered `Source mapping still has blocking validation errors: ...` when Sensors source-role choices failed validation, even though the current native UI release line uses Sensors/source roles for operator-facing source setup.
+- **expected behavior:** source validation failure summaries should name source roles and validation, not the older source-mapping bucket wording, while preserving detailed blocking issue messages.
+- **evidence:** direct repo inspection found the hard-coded validation-error summary in `custom_components/zero_net_export/config_flow.py`; existing source-role regression coverage did not reject this phrase.
+- **repo fix:** this run changes the summary to `Source roles still have blocking validation errors: ...`, folds the wording into the compact `0.1.89` changelog theme, and adds bucket-ownership regression coverage rejecting the stale phrase.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Sensors validation wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-306 - Validation checklist bootstrap item still said mapping sources
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
