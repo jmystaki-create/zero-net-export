@@ -80,7 +80,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
 - [ ] Command-center landing screen shows current source status, managed-device status, policy summary, and a recommended next section that matches the real entry state
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
-- [ ] Known deferred bug tracked: in at least one real HA install, the combined/net grid energy field or the battery SOC picker can still throw `Entity is neither a valid entity ID nor a valid UUID` even when a valid entity is selected; capture the exact validation error or screenshot first, then validate that the native manual fallback field shipped in `0.1.80` lets the same entity ID complete setup for both paths while broader validation continues
+- [ ] Selector fallback validation: if Home Assistant selector validation rejects a valid combined/net grid energy or battery SOC entity, capture the exact validation error or screenshot, then confirm the matching native manual fallback field lets the same entity ID complete setup while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
 - [ ] Managed-device flow makes it obvious where to review, promote unmanaged candidates, edit, enable/disable, and remove devices

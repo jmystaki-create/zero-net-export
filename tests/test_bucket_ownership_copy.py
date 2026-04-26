@@ -91,6 +91,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             source_mapping_data_description["battery_soc_entity"],
         )
 
+        validation_checklist = (
+            Path(__file__).resolve().parents[1] / "docs" / "VALIDATION_CHECKLIST.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Selector fallback validation", validation_checklist)
+        self.assertIn("selector validation rejects a valid", validation_checklist)
+        self.assertNotIn("Known deferred bug tracked", validation_checklist)
+        self.assertNotIn("Entity is neither a valid entity ID nor a valid UUID", validation_checklist)
+
         devices_description = steps["devices"]["description"]
         self.assertIn("This is the Managed Devices workspace.", devices_description)
         self.assertIn("Managed devices stay on top, and unmanaged promotion backlog stays below.", devices_description)
