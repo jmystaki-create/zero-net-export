@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-295 - Controls and command-center handoffs still used helper-style here phrasing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `controls`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F for remaining helper-style `here` wording after the primary workspace lead cleanup.
+- **current observed behavior:** active Home Assistant copy still said `After saving Controls defaults here`, `Set Controls defaults here`, and `Finish source roles and core control checks here`, leaving form-local helper wording in Controls next steps and the command-center setup guide.
+- **expected behavior:** Controls and command-center handoffs should name the native surface or action directly, without implying a thin local helper prompt.
+- **evidence:** direct repo inspection found the stale phrases in `custom_components/zero_net_export/config_flow.py`, `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and matching expectations in focused tests.
+- **repo fix:** this run rewrites those handoffs to direct native wording, syncs translations, updates regression expectations, and adds guards rejecting the stale `here` phrases.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_command_center_modal_copy tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py tests/test_config_flow_device_runtime_overlay.py tests/test_command_center_modal_copy.py tests/test_command_center_setup_focus.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F handoff cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-294 - Primary workspace leads still used helper-style here phrasing
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

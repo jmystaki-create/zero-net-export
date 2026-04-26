@@ -2339,8 +2339,9 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"Set Controls defaults here, then use {module.MODE_CONTROL_PATH} or {module.INTEGRATION_DEVICE_PATH} to verify the current controller outcome.",
+            f"Set Controls defaults, then use {module.MODE_CONTROL_PATH} or {module.INTEGRATION_DEVICE_PATH} to verify the current controller outcome.",
         )
+        self.assertNotIn("Set Controls defaults here", result["description_placeholders"]["policy_next_step"])
         self.assertNotIn(module.DIAGNOSTICS_DEVICE_ACTIONS_PATH, result["description_placeholders"]["policy_next_step"])
 
     def test_policy_step_uses_managed_devices_follow_through_when_fleet_work_remains(self) -> None:
@@ -2423,8 +2424,9 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"After saving Controls defaults here, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
+            f"After saving Controls defaults, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
         )
+        self.assertNotIn("After saving Controls defaults here", result["description_placeholders"]["policy_next_step"])
 
     def test_policy_step_empty_fleet_surfaces_review_first_and_ready_next_candidates(self) -> None:
         module = _load_config_flow_module()
@@ -2476,8 +2478,9 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"After saving Controls defaults here, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: Virtual load (fixed) | likely useful, then promote ready unmanaged candidate: Dishwasher Power (fixed) | likely useful.",
+            f"After saving Controls defaults, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: Virtual load (fixed) | likely useful, then promote ready unmanaged candidate: Dishwasher Power (fixed) | likely useful.",
         )
+        self.assertNotIn("After saving Controls defaults here", result["description_placeholders"]["policy_next_step"])
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:
         module = _load_config_flow_module()

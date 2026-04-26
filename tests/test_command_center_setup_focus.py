@@ -108,9 +108,10 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("Zero Net Export command center\n\nNow", text)
         self.assertIn("Command-center use\n- Live setup and current operating picture.", text)
         self.assertIn(
-            "- Finish source roles and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
+            "- Finish source roles and core control checks in the command center; when fleet work is next, continue in the Managed Devices workspace.",
             text,
         )
+        self.assertNotIn("Finish source roles and core control checks here", text)
         self.assertNotIn("This surface is for the basic setup only.", text)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", text)
         self.assertIn("Now", text)
