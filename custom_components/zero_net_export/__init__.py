@@ -63,13 +63,13 @@ def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
 def _normalize_source_mapping_case_drift(text: str) -> str:
     """Catch title-case source-mapping fallback text before persistent notices render."""
     text = re.sub(
-        r"\bOpen Configure and finish (?:required )?(?:source[- ]mappings?|source roles)\b",
+        r"\bOpen Configure and finish (?:required )?(?:source[- ]mappings?|source roles?)\b",
         f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
         text,
         flags=re.IGNORECASE,
     )
     text = re.sub(
-        r"\bOpen Configure to finish (?:required )?(?:source[- ]mappings?|source roles)\b",
+        r"\bOpen Configure to finish (?:required )?(?:source[- ]mappings?|source roles?)\b",
         f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
         text,
         flags=re.IGNORECASE,
@@ -119,9 +119,11 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
         "Open Configure and finish required source roles": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
         "Open Configure and finish source mapping": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
         "Open Configure and finish source roles": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
+        "Open Configure and finish source role": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
         "Open Configure to finish required source roles": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
         "Open Configure to finish source mapping": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
         "Open Configure to finish source roles": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
+        "Open Configure to finish source role": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
         "Open the Source-mapping step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open the source-mapping step": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open Source-mapping step": f"Open {SOURCES_CONFIGURE_PATH}",

@@ -334,6 +334,12 @@ class SetupNoticeCopyTests(unittest.TestCase):
             ),
             "Open sensors path and finish required source roles. Open sensors path to finish required source roles.",
         )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text(
+                "Open Configure and finish source role. Open Configure to finish Source Role."
+            ),
+            "Open sensors path and finish required source roles. Open sensors path to finish required source roles.",
+        )
 
 
 if __name__ == "__main__":

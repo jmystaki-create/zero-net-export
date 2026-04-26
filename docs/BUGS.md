@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-369 - Singular source-role handoffs could keep bare Configure paths in native guidance
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F jump-off text and setup-notification path normalization against the native Home Assistant UI map.
+- **current observed behavior:** stale cached or fallback text such as `Open Configure to finish source role` or `Open Configure and finish source role` used current source-role wording, but the singular noun variant was not expanded to the exact native `Configure -> Sensors` path. That left a bare Configure instruction in command-center/support handoffs and setup notifications.
+- **expected behavior:** all source-role repair handoffs should point to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors`, regardless of source mapping/source role wording drift or singular/plural wording.
+- **evidence:** direct repo inspection found `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` covered source mapping and plural `source roles` bare-Configure handoffs, but not singular `source role` variants.
+- **repo fix:** this run extends both native path normalizers to catch singular `source role` Configure handoffs and adds regression coverage in `tests/test_command_center_summary.py` and `tests/test_setup_notice_copy.py`.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-368 - Installed release-info metadata exposed overlong current-version highlight lists
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
