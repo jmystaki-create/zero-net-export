@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-264 - README primary configuration steps still used old Configure option names
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking active operator instructions against the `0.1.89` four-bucket IA in `docs/UI_IMPLEMENTATION_MAP.md`.
+- **current observed behavior:** the README's primary configuration path still told operators to use `Sources and source mapping`, `Managed devices`, and `Policy and controller settings` even though the current native Configure buckets are `Sensors`, `Managed Devices`, `Controls`, and `Diagnostics`.
+- **expected behavior:** active README configuration instructions should use the current bucket labels so install/setup guidance reinforces the native IA instead of pulling operators back toward older helper names.
+- **evidence:** direct README inspection found the stale step labels under `Primary operator path: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure` while `strings.json` and `translations/en.json` use `Sensors`, `Managed Devices`, and `Controls` for the current Configure menu.
+- **repo fix:** this run updates those README configuration steps to `Sensors`, `Managed Devices`, and `Controls`, and adds regression coverage rejecting the old step labels.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this README-only operator-instruction fix.
+- **next action:** keep active docs aligned with the current four-bucket labels; if no sharper A-D/F implementation defect remains, the next real boundary is still James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-263 - README upgrade checks still used source-mapping wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -488,6 +488,18 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("previously saved source mappings still appear", readme)
         self.assertNotIn("previously saved mapped sources still appear", readme)
 
+    def test_readme_configuration_steps_use_current_bucket_labels(self):
+        project_root = Path(__file__).resolve().parents[1]
+        readme = (project_root / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("Use **Sensors** to map your source entities", readme)
+        self.assertIn("Use **Managed Devices** in Configure as the Managed Devices workspace", readme)
+        self.assertIn("Treat **Managed Devices** as the home for per-device enablement", readme)
+        self.assertIn("Use **Controls** in Configure for target/deadband/reserve defaults", readme)
+        self.assertNotIn("Use **Sources and source mapping**", readme)
+        self.assertNotIn("**Managed devices**", readme)
+        self.assertNotIn("Use **Policy and controller settings**", readme)
+
 
 if __name__ == "__main__":
     unittest.main()
