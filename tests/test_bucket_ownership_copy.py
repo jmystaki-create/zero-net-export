@@ -110,13 +110,17 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("known entity/UUID validation bug", source_mapping_data_description["grid_energy_entity"])
         self.assertNotIn("entity/UUID validation bug", source_mapping_data_description["battery_soc_entity"])
         self.assertIn(
-            "selector validation rejects a valid entity",
+            "combined-grid energy source role",
             source_mapping_data_description["grid_energy_entity"],
         )
         self.assertIn(
-            "selector validation rejects a valid entity",
+            "battery reserve source health",
             source_mapping_data_description["battery_soc_entity"],
         )
+        self.assertNotIn("native dropdown", source_mapping_data_description["grid_energy_entity"])
+        self.assertNotIn("native dropdown", source_mapping_data_description["battery_soc_entity"])
+        self.assertNotIn("selector validation", source_mapping_data_description["grid_energy_entity"])
+        self.assertNotIn("selector validation", source_mapping_data_description["battery_soc_entity"])
         self.assertIn(
             "paste the same energy entity ID into this fallback field",
             source_mapping_data_description["grid_energy_entity_manual"],
@@ -133,8 +137,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("Selector fallback validation", validation_checklist)
         self.assertIn("selector validation rejects a valid", validation_checklist)
-        self.assertIn("combined-grid energy role selectable", source_mapping_data_description["grid_energy_entity"])
-        self.assertIn("battery reserve setup usable", source_mapping_data_description["battery_soc_entity"])
+        self.assertNotIn("combined-grid energy role selectable", source_mapping_data_description["grid_energy_entity"])
+        self.assertNotIn("battery reserve setup usable", source_mapping_data_description["battery_soc_entity"])
         self.assertNotIn("combined-grid energy mapping still works", source_mapping_data_description["grid_energy_entity"])
         self.assertNotIn("Home Assistant's entity picker", source_mapping_data_description["grid_energy_entity"])
         self.assertNotIn("Home Assistant's entity picker", source_mapping_data_description["battery_soc_entity"])
