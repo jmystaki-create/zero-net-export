@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-378 - Device-page managed review notifications kept recommended-next wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream E secondary device-page review/audit copy after the Managed Devices and promotion next-action wording cleanup.
+- **current observed behavior:** the device-page `Review managed devices workspace`, `Review managed devices`, and per-device `Review {device}` notifications still labelled their handoff line as `Recommended next step`. That left recommendation/ranking wording in the secondary managed-device review path even after the primary Managed Devices and promotion screens had moved to neutral next-action labels.
+- **expected behavior:** device-page managed review/audit notifications should use neutral native workflow wording and reinforce the Managed Devices workspace without implying a ranked recommendation.
+- **evidence:** direct repo inspection found the label in `custom_components/zero_net_export/button.py`; existing button regression coverage still asserted the old `Recommended next step:` text.
+- **repo fix:** this run changes those notification labels to `Next managed-device step:` and adds button-copy regressions rejecting the old label in the affected notification paths.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream E wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint/bookkeeping loop.
+
 ## ZNE-377 - Managed Devices promotion copy still used recommended-next wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -1421,7 +1421,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
         self.assertIn("Managed Devices workspace: devices path", message)
-        self.assertIn("Recommended next step: Review the next managed device.", message)
+        self.assertIn("Next managed-device step: Review the next managed device.", message)
+        self.assertNotIn("Recommended next step:", message)
         self.assertIn("Before fleet work:", message)
         self.assertIn("Managed devices workspace context:", message)
         self.assertIn("- Managed snapshot: 1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | active device Pool pump (fixed | action turn_on | active 1180 W) | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 1200 W nominal | 1 planned action | plan Pool pump", message)
@@ -1483,9 +1484,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         message = notification_calls[0]["args"][1]
         self.assertIn(
-            "Recommended next step: Open devices path to continue in the Managed Devices workspace.",
+            "Next managed-device step: Open devices path to continue in the Managed Devices workspace.",
             message,
         )
+        self.assertNotIn("Recommended next step:", message)
         self.assertNotIn("Review the Managed Devices workspace state.", message)
 
     def test_managed_device_detail_button_surfaces_review_first_candidate_context(self) -> None:
@@ -1705,9 +1707,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         message = notification_calls[0]["args"][1]
         self.assertIn(
-            "Recommended next step: Open devices path to continue in the Managed Devices workspace.",
+            "Next managed-device step: Open devices path to continue in the Managed Devices workspace.",
             message,
         )
+        self.assertNotIn("Recommended next step:", message)
         self.assertNotIn("Review the Managed Devices workspace state.", message)
 
     def test_managed_device_review_attributes_treat_blocked_plans_as_blocked_activity(self) -> None:
