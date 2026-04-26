@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-252 - Command-center Fleet activity labeled an empty unmanaged section as backlog
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while comparing the native command-center Fleet activity copy against the `0.1.89` managed/unmanaged workspace split in `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`.
+- **current observed behavior:** when a managed fleet existed but no unmanaged candidates were surfaced, the formatted command-center Fleet activity line still rendered `Unmanaged backlog: no unmanaged candidates`. That made an empty unmanaged section sound like an actionable backlog, weakening the intended managed-on-top/unmanaged-below distinction.
+- **expected behavior:** an empty unmanaged section should be labeled as empty candidate inventory, while non-empty candidate inventory can still be summarized as unmanaged backlog.
+- **evidence:** direct repo inspection of `_format_fleet_activity_summary(...)` plus focused regression coverage in `tests/test_command_center_summary.py` reproduced and locked the corrected empty-state label.
+- **repo fix:** this run changes the Fleet activity label to `Unmanaged candidates: no unmanaged candidates` for the empty-unmanaged state, keeps `Unmanaged backlog` for non-empty candidate counts, updates the `0.1.89` changelog, and adds regression coverage rejecting the old empty-backlog wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest tests.test_command_center_summary -q`. Live Home Assistant validation remains pending with the next `0.1.89` exact-build deploy.
+- **next action:** include this in the next `0.1.89` exact build, then confirm the live command-center Fleet activity no longer presents an empty unmanaged section as backlog.
+
 ## ZNE-251 - Active bug tails still used unversioned exact-candidate release wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -237,6 +237,20 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("usable 1", unmanaged_bucket)
         self.assertNotIn("1 fixed managed", unmanaged_bucket)
 
+    def test_fleet_activity_operator_format_labels_empty_unmanaged_section_as_candidates(self) -> None:
+        native_support = _load_native_support_module()
+
+        formatted = native_support.format_fleet_activity_for_operator(
+            "1 managed | active load 1200 W | 1 active managed device | no unmanaged candidates"
+        )
+
+        self.assertEqual(
+            formatted,
+            "Managed devices: 1 managed | active load 1200 W | 1 active managed device; "
+            "Unmanaged candidates: no unmanaged candidates",
+        )
+        self.assertNotIn("Unmanaged backlog: no unmanaged candidates", formatted)
+
     def test_fleet_activity_summary_names_disabled_managed_devices_when_inventory_is_visible(self) -> None:
         native_support = _load_native_support_module()
 

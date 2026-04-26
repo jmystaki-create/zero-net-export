@@ -391,7 +391,10 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     if not managed_parts or not unmanaged_parts:
         return normalized
 
-    grouped_summary = f"Managed devices: {' | '.join(managed_parts)}; Unmanaged backlog: {' | '.join(unmanaged_parts)}"
+    unmanaged_label = (
+        "Unmanaged candidates" if unmanaged_parts == ["no unmanaged candidates"] else "Unmanaged backlog"
+    )
+    grouped_summary = f"Managed devices: {' | '.join(managed_parts)}; {unmanaged_label}: {' | '.join(unmanaged_parts)}"
     if prefix_parts:
         return f"{' | '.join(prefix_parts)}; {grouped_summary}"
     return grouped_summary

@@ -12,6 +12,7 @@ Target release: `0.1.89`
 - Hardened Home Assistant command-center and device-page text normalization so stale source-role/source-blocker readiness payloads render as operator-facing guidance across the landing summary, setup check, guide, and next-action handoffs.
 - Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, and runtime source-health summaries on consistent `source roles`, `Source blockers`, and `source map` wording while leaving deeper entity-binding evidence in the right support paths.
 - Kept Configure's Fleet activity, Managed Devices helper sensors, and source-repair next-step surfaces aligned so global source blockers stay separate from managed/unmanaged backlog work.
+- Clarified the command-center Fleet activity empty-unmanaged state as `Unmanaged candidates: no unmanaged candidates` instead of labeling an empty candidate section as backlog.
 - Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
 - Kept no-candidate and empty-fleet Managed Devices handoffs workspace-first, including manual add fallback labels and `no managed yet` summaries when unmanaged promotion backlog exists.
 - Added disabled managed-load counts to native Managed Devices and device-page review snapshots so disabled fleet posture stays visible at a glance.
