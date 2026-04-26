@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Kept the healthy live source-mapping summary on operator-facing `source roles` wording instead of reviving mapped-role jargon in native Sensors/source-health handoffs.
 - Kept runtime-attention, Sensors, and Diagnostics blocker labels on operator-facing `source roles` wording instead of reviving mapped-source/mapped-role labels in native handoffs.
 - Kept remaining Sensors and Controls source-repair readiness copy on operator-facing `source roles` / `source map` wording instead of reviving mapped-role labels in primary native handoffs.
 - Kept source-blocker summaries and healthy stale-source status on operator-facing `source roles` wording instead of reviving mapped-role/mapped-source jargon in Configure and runtime sensors.

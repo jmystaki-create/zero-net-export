@@ -965,7 +965,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 stale_data=False,
                 usable_device_count=0,
                 safe_mode=False,
-                diagnostic_summary="Mapped sources currently look healthy across 6 mapped roles.",
+                diagnostic_summary="Source mapping currently looks healthy across 6 source roles.",
                 health_summary="Healthy.",
                 mode="automatic",
             )
@@ -1011,8 +1011,9 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         summary = native_support.build_live_source_health_summary(state)
 
-        self.assertEqual(summary, "Source mapping currently looks healthy across 2 mapped roles.")
+        self.assertEqual(summary, "Source mapping currently looks healthy across 2 source roles.")
         self.assertNotIn("Mapped sources currently look healthy", summary)
+        self.assertNotIn("mapped roles", summary)
 
     def test_command_center_blocker_copy_ignores_optional_stale_sources(self) -> None:
         native_support = _load_native_support_module()
@@ -1127,7 +1128,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 usable_device_count=1,
                 safe_mode=False,
                 health_summary="Healthy.",
-                diagnostic_summary="Mapped sources currently look healthy across 6 mapped roles.",
+                diagnostic_summary="Source mapping currently looks healthy across 6 source roles.",
                 mode="automatic",
             )
 

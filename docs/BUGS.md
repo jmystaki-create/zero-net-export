@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-245 - Healthy live source summary still counted mapped roles
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role cleanup after adjacent source-health and blocker labels had already moved off mapped-source/mapped-role jargon.
+- **current observed behavior:** `build_live_source_health_summary(...)` had one remaining healthy-state sentence that returned `Source mapping currently looks healthy across N mapped roles.` This left lower-level mapped-role terminology in a normal native Sensors/source-health handoff even when no repair detail was being shown.
+- **expected behavior:** healthy source-health summaries should use operator-facing `source roles` wording, while reserving mapped-source/mapped-role detail for deeper repair evidence where the actual Home Assistant bindings matter.
+- **evidence:** repo grep found the remaining string in `custom_components/zero_net_export/native_support.py`, and `tests/test_source_repair_guidance.py` still expected `Source mapping currently looks healthy across 2 mapped roles.`
+- **repo fix:** this run changes the healthy summary to `source roles`, records the `0.1.89` changelog highlight, and updates focused regression coverage to reject the older `mapped roles` wording in that summary.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this source-health wording cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is still James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-244 - Support and source blocker labels still exposed mapped-source role wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
