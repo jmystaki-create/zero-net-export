@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-341 - Unicode-arrow Configure bucket handoffs could bypass exact native path normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native path normalization after the adjacent `Configure > ...` and `Configure -> ...` fixes.
+- **current observed behavior:** command-center/support and setup-notification normalization covered ASCII arrow `Configure -> ...` handoffs, but not rich-text unicode-arrow forms such as `Open Configure → Sensors` or bare `Configure → Managed Devices`. Cached or pasted native handoff text using the visual arrow could therefore render shorthand Configure bucket labels instead of exact Home Assistant native Configure paths.
+- **expected behavior:** all cached Configure bucket handoffs should normalize to the exact `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> ...` native paths before command-center summaries, device-page support text, or persistent setup notifications reach Home Assistant.
+- **evidence:** focused regressions now exercise unicode-arrow `Open Configure → ...` handoffs in both normalizers and bare `Configure → ...` handoffs in the command-center/support normalizer.
+- **repo fix:** this run adds unicode-arrow Configure bucket replacements to both setup-notification and command-center/support normalizers, adds guarded bare `Configure → ...` normalization for command-center/support text, and folds the cleanup into the compact Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-340 - Bare Configure bucket handoffs could bypass exact native path normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

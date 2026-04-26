@@ -251,7 +251,13 @@ class SetupNoticeCopyTests(unittest.TestCase):
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
-                "Path: Configure > Sensors. Next: Configure -> Managed Devices. Then Configure -> Controls and Configure > Diagnostics."
+                "Open Configure → Sensors. Open Configure → Controls. Open Configure → Managed Devices. Open Configure → Diagnostics."
+            ),
+            "Open sensors path. Open controls path. Open devices path. Open diagnostics path.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text(
+                "Path: Configure > Sensors. Next: Configure -> Managed Devices. Then Configure → Controls and Configure > Diagnostics."
             ),
             "Path: sensors path. Next: devices path. Then controls path and diagnostics path.",
         )
