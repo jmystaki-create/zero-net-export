@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-267 - Bootstrap and README setup path still hid the four-bucket IA
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D jump-off text and active setup instructions against the `0.1.89` four-bucket IA.
+- **current observed behavior:** the initial Home Assistant entry-creation helper still said operators could `finish source mapping, refresh tuning, and device onboarding` after entry creation, the bootstrap description still said runtime stayed safe until operators `map sources and add devices`, and the README feature summary still described the setup path as `source mapping, managed-device configuration, and controller tuning`. Those active entry/setup surfaces bypassed the intended Sensors / Managed Devices / Controls / Diagnostics ownership language.
+- **expected behavior:** bootstrap and active setup guidance should name Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics so operators are sent into the current native IA instead of older helper-style buckets.
+- **evidence:** direct repo grep found the stale bootstrap strings in `custom_components/zero_net_export/strings.json` and `translations/en.json`, plus stale README and validation-checklist setup-path wording, after the Configure menu and current implementation map had already moved to four-bucket wording.
+- **repo fix:** this run rewrites the bootstrap description/helper, README setup-path bullets, and validation checklist bootstrap check to use Sensors/source roles, Managed Devices, Controls, and Diagnostics, folds the note into the compact `0.1.89` changelog theme, and adds regression coverage rejecting the stale bootstrap/README wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D bootstrap/jump-off cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-266 - Source-validation missing-source recommendation still said source mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

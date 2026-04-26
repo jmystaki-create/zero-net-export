@@ -72,7 +72,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] Config flow opens when adding integration
 - [ ] The config flow shown in the real HA install matches the currently tagged/published package
 - [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-mapping form
-- [ ] Bootstrap step clearly explains that source mapping and onboarding continue at `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure`
+- [ ] Bootstrap step clearly explains that Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics continue at `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure`
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`

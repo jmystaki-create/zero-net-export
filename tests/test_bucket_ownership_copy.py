@@ -9,6 +9,20 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         with (integration_root / "strings.json").open(encoding="utf-8") as handle:
             strings = json.load(handle)
 
+        bootstrap = strings["config"]["step"]["user"]
+        self.assertIn(
+            "finish Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics",
+            bootstrap["description"],
+        )
+        self.assertIn("until required source roles and managed devices are ready", bootstrap["description"])
+        self.assertIn(
+            "continue in Configure for Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics",
+            bootstrap["data_description"]["name"],
+        )
+        self.assertNotIn("until you map sources and add devices", bootstrap["description"])
+        self.assertNotIn("finish setup from Settings", bootstrap["description"])
+        self.assertNotIn("finish source mapping, refresh tuning, and device onboarding", bootstrap["data_description"]["name"])
+
         steps = strings["options"]["step"]
 
         init_description = steps["init"]["description"]
@@ -494,10 +508,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         project_root = Path(__file__).resolve().parents[1]
         readme = (project_root / "README.md").read_text(encoding="utf-8")
 
+        self.assertIn("**Native Home Assistant setup path**: Sensors/source roles, Managed Devices, Controls, and Diagnostics live", readme)
+        self.assertIn("operators to find Sensors, Controls, Managed Devices, and Diagnostics", readme)
         self.assertIn("Use **Sensors** to map your source entities", readme)
         self.assertIn("Use **Managed Devices** in Configure as the Managed Devices workspace", readme)
         self.assertIn("Treat **Managed Devices** as the home for per-device enablement", readme)
         self.assertIn("Use **Controls** in Configure for target/deadband/reserve defaults", readme)
+        self.assertNotIn("**Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning", readme)
+        self.assertNotIn("operators to find sources, policy, managed devices, and support", readme)
         self.assertNotIn("Use **Sources and source mapping**", readme)
         self.assertNotIn("**Managed devices**", readme)
         self.assertNotIn("Use **Policy and controller settings**", readme)

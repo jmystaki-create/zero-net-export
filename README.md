@@ -59,8 +59,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
-- **Native Home Assistant setup path**: source mapping, managed-device configuration, and controller tuning live at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
-- **Configure is the intended command center**: the product direction is for operators to find sources, policy, managed devices, and support from one obvious native path.
+- **Native Home Assistant setup path**: Sensors/source roles, Managed Devices, Controls, and Diagnostics live at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
+- **Configure is the intended command center**: the product direction is for operators to find Sensors, Controls, Managed Devices, and Diagnostics from one obvious native path.
 - **Clear native section ownership is now a product goal**: Controls should hold the Zero Net Export brain, Sensors should hold mapped/system telemetry, Managed Devices should hold fleet operations, and Diagnostics should hold troubleshooting/support.
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, unmanaged-candidate discovery plus promotion review, and a Managed Devices enable/disable step for staging larger installs without dropping into raw JSON.
 - **Native Home Assistant operator surfaces**: Configure, the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, entities, notifications, and Repairs are the supported operator path.
