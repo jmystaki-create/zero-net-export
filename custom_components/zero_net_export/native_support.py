@@ -437,6 +437,15 @@ def _focus_state_subject(part: str) -> str:
     return payload.casefold()
 
 
+def _fleet_activity_global_signals_first(parts: list[str]) -> list[str]:
+    """Keep fleet-wide blockers outside the managed/unmanaged buckets."""
+
+    global_parts = [part for part in parts if part == SOURCE_BLOCKER_ACTIVE_LABEL]
+    if not global_parts:
+        return parts
+    return [*global_parts, *(part for part in parts if part != SOURCE_BLOCKER_ACTIVE_LABEL)]
+
+
 def _dedupe_attention_overlap_parts(
     parts: list[str],
     *,
@@ -478,7 +487,7 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     if len(normalized) <= MAX_NATIVE_SENSOR_STATE_CHARS:
         return normalized
 
-    parts = _split_fleet_activity_parts(normalized)
+    parts = _fleet_activity_global_signals_first(_split_fleet_activity_parts(normalized))
 
     managed_part = next((part for part in parts if _is_managed_count_part(part)), "")
     if (
@@ -666,6 +675,8 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     if not prioritized_focus_parts:
         prioritized_focus_parts = focus_parts[:2]
 
+    if source_blocker_part:
+        priority_parts.append(source_blocker_part)
     priority_parts.extend(prioritized_focus_parts[:3])
     if active_count_part and active_count_part not in priority_parts:
         insertion_index = next(
@@ -681,8 +692,6 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         priority_parts.append(managed_part)
     if unmanaged_part:
         priority_parts.append(unmanaged_part)
-    if source_blocker_part:
-        priority_parts.append(source_blocker_part)
     if review_part:
         priority_parts.append(_clip_review_ready_state_part(review_part, max_chars=36))
     if ready_part:

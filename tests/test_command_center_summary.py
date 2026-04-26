@@ -5525,6 +5525,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("active device EV charger", compacted)
         self.assertIn("2 unmanaged backlog", compacted)
         self.assertIn("source blockers active", compacted)
+        self.assertLess(compacted.index("source blockers active"), compacted.index("2 managed"))
         self.assertIn("review Garage", compacted)
         self.assertIn("ready EV", compacted)
 
