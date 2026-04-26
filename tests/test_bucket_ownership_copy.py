@@ -480,6 +480,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("previously saved mapped sources", checklist)
         self.assertNotIn("required mapped sources recover", checklist)
 
+    def test_readme_upgrade_steps_use_source_role_wording(self):
+        project_root = Path(__file__).resolve().parents[1]
+        readme = (project_root / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("previously saved source roles still appear", readme)
+        self.assertNotIn("previously saved source mappings still appear", readme)
+        self.assertNotIn("previously saved mapped sources still appear", readme)
+
 
 if __name__ == "__main__":
     unittest.main()

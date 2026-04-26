@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-263 - README upgrade checks still used source-mapping wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while comparing active install/upgrade instructions against the Workstream D/F source-role wording already fixed in the validation checklist and native Sensors surfaces.
+- **current observed behavior:** README HACS and manual upgrade steps still told operators to confirm `previously saved source mappings` after restart, pulling active install guidance back toward lower-level source-mapping jargon.
+- **expected behavior:** active upgrade/recovery instructions should say `previously saved source roles` so release and restart checks stay aligned with the `0.1.89` native source-role wording.
+- **evidence:** `rg -n "previously saved source mappings" README.md docs/VALIDATION_CHECKLIST.md` found the stale README-only upgrade lines after the validation checklist had already moved to source-role wording.
+- **repo fix:** this run changes both README upgrade/recovery checks to `previously saved source roles`, folds the note into the compact `0.1.89` changelog bullet, and adds regression coverage rejecting the stale README phrase.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_release_info_install_guidance` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this docs-only upgrade-instruction wording fix.
+- **next action:** keep active install and restart guidance aligned with source-role wording; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-262 - Command-center setup check still labelled source-role evidence as Source map
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
