@@ -64,6 +64,12 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
     """Keep setup notifications on the operator-facing source-role wording."""
     text = str(value or "")
     replacements = {
+        "Open Configure and finish required source roles": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
+        "Open Configure and finish source mapping": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
+        "Open Configure and finish source roles": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
+        "Open Configure to finish required source roles": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
+        "Open Configure to finish source mapping": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
+        "Open Configure to finish source roles": f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
         "missing source mappings": "missing source roles",
         "missing required source mappings": "missing required source roles",
         "finish source mapping": "finish source roles",

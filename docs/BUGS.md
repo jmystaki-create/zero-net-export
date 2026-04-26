@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-333 - Setup notification normalization missed bare Configure source-finish prompts
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F setup-notification path normalization against adjacent command-center source-finish normalization.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` normalized stale source-mapping wording and shorthand Configure bucket paths, but did not expand cached bare prompts such as `Open Configure and finish source mapping.` or `Open Configure to finish required source roles.` A restored setup notification could therefore still render a bare Configure instruction instead of the exact Sensors Configure path.
+- **expected behavior:** setup notifications should normalize bare Configure source-finish prompts to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors` before Home Assistant renders them.
+- **evidence:** direct repo inspection found command-center normalization already covered the `Open Configure and/to finish ...` variants while setup-notification normalization did not; focused setup-notice coverage now exercises both `and finish` and `to finish` forms.
+- **repo fix:** this run adds setup-notification normalization for `Open Configure and finish ...` and `Open Configure to finish ...` source-role/source-mapping prompts, updates setup-notice regression coverage, and folds the cleanup into the compact Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup-notification path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-332 - Fleet activity kind inventory could masquerade as the aggregate managed count
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
