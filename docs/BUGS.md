@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-320 - Validation checklist still reduced the command-center landing to helper status fields
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream A validation guidance against the current opening operator-console design.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still asked validators to confirm the command-center landing showed `current source status, managed-device status, policy summary`, which framed the opening screen as a helper-status summary instead of the designed headline decision plus structured control board.
+- **expected behavior:** validation guidance should judge Configure's opening against the screenshot-grade operator console: headline decision, energy state, control decision/outcome, Fleet activity, and the recommended next section.
+- **evidence:** direct repo inspection found the stale checklist line under Configuration Flow Validation; `docs/UI_DESIGN.md` and the Detailed remaining work map require the opening console to carry decision, energy, control outcome, and fleet posture rather than helper-text narration.
+- **repo fix:** this run rewrites the checklist item to require headline decision, energy state, control decision/outcome, Fleet activity, and the recommended next section, folds the cleanup into the compact Unreleased validation wording bullet, and adds regression coverage rejecting the old helper-status phrasing.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc correction; the exact `0.1.89` live acceptance pass still has to use the corrected checklist.
+- **next action:** include this Workstream A validation-guidance cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-319 - Diagnostics blocker triage still labelled Sensors handoff as Source-map evidence
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

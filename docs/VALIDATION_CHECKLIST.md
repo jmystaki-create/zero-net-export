@@ -78,7 +78,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Reopening Configure after restart still shows the previously saved source roles and current command-center guidance
 - [ ] Options flow descriptions clearly explain the native setup, Managed Devices workspace, and Controls policy/live-mode paths
-- [ ] Command-center landing screen shows current source status, managed-device status, policy summary, and a recommended next section that matches the real entry state
+- [ ] Command-center landing screen shows headline decision, energy state, control decision/outcome, Fleet activity, and a recommended next section that matches the real entry state
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
 - [ ] Selector fallback validation: if Home Assistant selector validation rejects a valid combined/net grid energy or battery SOC entity, capture the exact validation error or screenshot, then confirm the matching native manual fallback field lets the same entity ID complete setup while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON

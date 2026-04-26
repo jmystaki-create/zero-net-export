@@ -586,6 +586,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Controls policy/live mode", checklist)
         self.assertIn("Managed Devices workspace", checklist)
         self.assertIn(
+            "Command-center landing screen shows headline decision, energy state, control decision/outcome, Fleet activity, and a recommended next section",
+            checklist,
+        )
+        self.assertIn(
             "where Sensors/source roles live, where Controls policy/live mode lives, where Managed Devices fleet work lives, and where Diagnostics evidence lives",
             checklist,
         )
@@ -602,6 +606,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Policy/settings flow states whether policy tuning", checklist)
         self.assertNotIn("where sources live, where policy/settings live, and where managed-device work lives", checklist)
         self.assertNotIn("map required sources in native setup", checklist)
+        self.assertNotIn("Command-center landing screen shows current source status, managed-device status, policy summary", checklist)
 
     def test_readme_upgrade_steps_use_source_role_wording(self):
         project_root = Path(__file__).resolve().parents[1]
