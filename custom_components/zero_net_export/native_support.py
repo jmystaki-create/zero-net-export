@@ -1732,14 +1732,14 @@ def build_live_source_health_summary(state: Any) -> str:
 
     diagnostic_summary = str(getattr(state, "diagnostic_summary", "") or "").strip()
     if diagnostic_summary and diagnostic_summary != "Source model looks internally consistent; no calibration issues detected right now":
-        return diagnostic_summary
+        return diagnostic_summary.replace("Source mapping currently looks healthy", "Source roles currently look healthy")
 
     source_diagnostics = source_attention.get("source_diagnostics", {})
     if source_diagnostics:
         ok_count = sum(1 for details in source_diagnostics.values() if details.get("status") == "ok")
-        return f"Source mapping currently looks healthy across {_count_label(ok_count, 'source role')}."
+        return f"Source roles currently look healthy across {_count_label(ok_count, 'source role')}."
 
-    return "Source mapping currently looks healthy."
+    return "Source roles currently look healthy."
 
 
 def build_source_mapping_summary(

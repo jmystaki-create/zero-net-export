@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-276 - Sensors source-health success summary still said source mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role wording after bootstrap, validation, command-center, readiness, and cross-bucket Controls wording had moved away from source-mapping language.
+- **current observed behavior:** `build_live_source_health_summary(...)` still returned `Source mapping currently looks healthy...` for healthy live source diagnostics, and an older diagnostic-summary payload with the same phrase could pass through into the active Sensors source-health slot.
+- **expected behavior:** healthy Sensors source-health summaries should use source-role wording, keeping `source map` / mapping language only for deeper entity-binding cross-checks instead of the primary source-health success message.
+- **evidence:** direct repo inspection found `Source mapping currently looks healthy across ... source roles` and `Source mapping currently looks healthy` in `custom_components/zero_net_export/native_support.py`, with focused test expectations preserving the stale phrase in `tests/test_source_repair_guidance.py`.
+- **repo fix:** this run changes the healthy live source-health summaries to `Source roles currently look healthy...`, normalizes stale diagnostic-summary payloads before returning them, updates the focused source-repair regression expectation, and records the fix in the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Sensors source-health wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-275 - Bootstrap and validation checklist still said Controls/controller tuning
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -1018,7 +1018,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 stale_data=False,
                 usable_device_count=0,
                 safe_mode=False,
-                diagnostic_summary="Source mapping currently looks healthy across 6 source roles.",
+                diagnostic_summary="Source roles currently look healthy across 6 source roles.",
                 health_summary="Healthy.",
                 mode="automatic",
             )
@@ -1048,7 +1048,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Source roles need attention", summary)
         self.assertNotIn("Mapped source roles need attention", summary)
 
-    def test_live_source_health_summary_uses_source_mapping_positive_copy(self) -> None:
+    def test_live_source_health_summary_uses_source_role_positive_copy(self) -> None:
         native_support = _load_native_support_module()
 
         state = types.SimpleNamespace(
@@ -1064,7 +1064,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
 
         summary = native_support.build_live_source_health_summary(state)
 
-        self.assertEqual(summary, "Source mapping currently looks healthy across 2 source roles.")
+        self.assertEqual(summary, "Source roles currently look healthy across 2 source roles.")
+        self.assertNotIn("Source mapping currently looks healthy", summary)
         self.assertNotIn("Mapped sources currently look healthy", summary)
         self.assertNotIn("mapped roles", summary)
 
@@ -1181,7 +1182,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 usable_device_count=1,
                 safe_mode=False,
                 health_summary="Healthy.",
-                diagnostic_summary="Source mapping currently looks healthy across 6 source roles.",
+                diagnostic_summary="Source roles currently look healthy across 6 source roles.",
                 mode="automatic",
             )
 
