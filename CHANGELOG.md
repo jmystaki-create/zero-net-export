@@ -20,7 +20,7 @@ Target release: `0.1.89`
 - Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, with troubleshooting/install-validation work explicitly belonging in Diagnostics, diagnostics snapshots using source-role wording, and final review/follow-up staying inside native Home Assistant paths.
 
 ### Planning
-- Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that.
+- Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that, and making James's direct approval an explicit freeze prerequisite.
 
 ## [0.1.88]
 

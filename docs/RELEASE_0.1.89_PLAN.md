@@ -74,14 +74,15 @@ Specifically avoid:
 
 ## Execution checklist
 
-### A. Freeze candidate
+### A. Approval and freeze candidate
 
 - [ ] Confirm repo is clean.
 - [ ] Confirm current helper-resolved component build with `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`.
-- [ ] Bump manifest/version-coupled expectations to `0.1.89`.
+- [ ] If no sharper A-D/F implementation defect remains, ask James directly to approve the end-to-end `0.1.89` freeze/release/deploy/restart path before changing version-coupled release files.
+- [ ] After James approves, bump manifest/version-coupled expectations to `0.1.89`.
 - [ ] Move relevant Unreleased changelog entries under `0.1.89` with release date.
 - [ ] Run full tests: `python3 -m unittest discover -s tests -q`.
-- [ ] Commit the freeze.
+- [ ] Commit the approved freeze.
 
 ### B. Publish
 

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-315 - 0.1.89 release plan did not make direct approval a freeze prerequisite
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the release boundary against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/RELEASE_0.1.89_PLAN.md`.
+- **current observed behavior:** `docs/RELEASE_0.1.89_PLAN.md` said to cut `0.1.89` from the helper-resolved component build once gates pass, but the freeze checklist jumped from confirming the helper-resolved build to bumping manifest/version-coupled release files. It did not make James's direct approval an explicit prerequisite before freeze work, even though the supervisor rules say release approval is the boundary once no sharper A-D/F defect remains.
+- **expected behavior:** the release plan should tell the supervisor to ask James directly for the end-to-end `0.1.89` freeze/release/deploy/restart approval before changing version-coupled release files or entering Workstream G release execution.
+- **evidence:** direct repo inspection found `VALIDATION_CHECKLIST.md` and `SUPERVISOR.md` already requiring a direct approval ask, while `RELEASE_0.1.89_PLAN.md` checklist A omitted that approval gate.
+- **repo fix:** this run renames checklist A to `Approval and freeze candidate`, inserts the direct James approval prerequisite before the version bump, changes the bump step to `After James approves`, folds the release-plan clarification into the compact Unreleased planning note, and adds regression coverage for the ordering.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance` and `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation is not required for this process-plan correction.
+- **next action:** include this release-plan correction in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is asking James directly to approve the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-314 - Fleet activity fallback could preserve comma-joined managed/unmanaged counts
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
