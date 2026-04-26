@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-346 - Command-center support normalization missed spaced mapped-role blocker text
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while comparing the adjacent setup-notification mapped-role normalization fixes against the command-center/device-page native-support normalizer.
+- **current observed behavior:** `_normalize_native_path_text(...)` normalized hyphenated `mapped-role blocker(s)` to `source blocker(s)`, but spaced `mapped role blocker(s)` fell through the generic `mapped role` replacement and could render as `source role blocker(s)` in command-center or device-page support text.
+- **expected behavior:** cached or fallback command-center/support text should normalize both hyphenated and spaced mapped-role blocker wording to the same compact `source blocker(s)` label before Home Assistant renders native support surfaces.
+- **evidence:** focused command-center guide regression coverage now exercises spaced singular and plural `mapped role blocker(s)` fallback text and rejects the misleading `source role blockers` result.
+- **repo fix:** this run adds spaced mapped-role blocker replacements to native-support path normalization before the generic mapped-role fallback replacements.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F command-center/support normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-345 - Spaced mapped-role setup fallback normalized to unhyphenated source-role blocker wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

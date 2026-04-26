@@ -6662,6 +6662,32 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("mapped roles", text)
         self.assertNotIn("mapped sources", text)
 
+    def test_command_center_guide_normalizes_spaced_mapped_role_blockers(self) -> None:
+        native_support = _load_native_support_module()
+
+        text = native_support.build_native_command_center_guide_text(
+            {
+                "headline_decision": "Source repair needed.",
+                "alert_summary": "Source roles need attention.",
+                "next_action_summary": "Repair mapped role blockers, then review mapped role blocker detail before relying on control.",
+                "energy_state_summary": "Solar unavailable.",
+                "control_decision_summary": "Control paused.",
+                "control_outcome_summary": "No action.",
+                "fleet_activity_summary": "1 managed",
+                "source_status": "Source roles need attention.",
+                "policy_readiness": "Control paused until source roles recover.",
+                "device_status": "1 managed",
+                "support_status": "Diagnostics ready.",
+                "recommended_section": native_support.SOURCES_SECTION_LABEL,
+                "recommended_reason": "Source roles need attention.",
+            }
+        )
+
+        self.assertIn("Repair source blockers", text)
+        self.assertIn("review source blocker detail", text)
+        self.assertNotIn("mapped role", text)
+        self.assertNotIn("source role blockers", text)
+
     def test_command_center_summary_drops_nominal_before_single_kind_managed_mix_under_overflow(self) -> None:
         native_support = _load_native_support_module()
 
