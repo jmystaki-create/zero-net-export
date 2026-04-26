@@ -296,6 +296,48 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(best, "sensor.x1_p6k_us_s_solar_power")
 
+    def test_source_entity_options_label_current_choice_as_source_role(self) -> None:
+        module = _load_config_flow_module()
+        current_state = SimpleNamespace(
+            entity_id="sensor.solar_power",
+            state="1030",
+            attributes={
+                "friendly_name": "Solar power",
+                "device_class": "power",
+                "unit_of_measurement": "W",
+                "state_class": "measurement",
+            },
+        )
+        alternate_state = SimpleNamespace(
+            entity_id="sensor.backup_solar_power",
+            state="990",
+            attributes={
+                "friendly_name": "Backup solar power",
+                "device_class": "power",
+                "unit_of_measurement": "W",
+                "state_class": "measurement",
+            },
+        )
+
+        class StateRegistry:
+            def async_all(self):
+                return [current_state, alternate_state]
+
+            def get(self, entity_id):
+                return current_state if entity_id == current_state.entity_id else None
+
+        flow = module.ZeroNetExportOptionsFlow.__new__(module.ZeroNetExportOptionsFlow)
+        flow.hass = SimpleNamespace(states=StateRegistry())
+
+        options = flow._source_entity_options(
+            quantity="power",
+            current_entity_id="sensor.solar_power",
+            role_key=module.CONF_SOLAR_POWER_ENTITY,
+        )
+
+        self.assertTrue(options[0]["label"].startswith("Current source role: Solar power"))
+        self.assertNotIn("Current mapping:", options[0]["label"])
+
     def test_runtime_overlay_adds_usable_and_status_by_key(self) -> None:
         module = _load_config_flow_module()
         devices = [

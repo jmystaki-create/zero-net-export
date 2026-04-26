@@ -157,6 +157,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Source mapping still has blocking validation errors", config_flow_source)
         self.assertIn("Source roles still have blocking validation errors", config_flow_source)
         self.assertIn("Fallback fields are only for valid Combined / net grid energy", config_flow_source)
+        self.assertNotIn("Current mapping:", config_flow_source)
         self.assertNotIn("return here to review enablement", config_flow_source)
         self.assertNotIn("entity not surfaced here", config_flow_source)
         self.assertIn("return to the Managed Devices workspace to review enablement", config_flow_source)

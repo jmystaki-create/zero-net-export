@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-310 - Source selector current option still said Current mapping
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D source-role ownership in Configure -> Sensors selector options.
+- **current observed behavior:** `_source_entity_options(...)` labelled the already-selected source entity as `Current mapping: ...`, so the primary Sensors selector could still surface older mapping language even after the release line moved operator-facing setup to source roles.
+- **expected behavior:** the current source selector option should reinforce Sensors/source-role ownership and label the selected entity as the current source role, while concrete entity details remain in the option text.
+- **evidence:** direct repo inspection found the hard-coded `Current mapping:` label in `custom_components/zero_net_export/config_flow.py`; no focused regression rejected it.
+- **repo fix:** this run changes the label to `Current source role: ...`, adds regression coverage for the rendered option and source guard, and folds the wording into the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D source-selector label cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-309 - Fleet activity grouping could put reversed managed actions under unmanaged backlog
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

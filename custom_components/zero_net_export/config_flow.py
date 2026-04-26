@@ -1637,7 +1637,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if role_key
                 else _format_source_option_label(current_entity_id, state)
             )
-            options.append(selector.SelectOptionDict(value=current_entity_id, label=f"Current mapping: {current_label}"))
+            options.append(selector.SelectOptionDict(value=current_entity_id, label=f"Current source role: {current_label}"))
             seen.add(current_entity_id)
 
         ranked_states = (
