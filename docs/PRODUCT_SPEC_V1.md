@@ -41,12 +41,12 @@ The HA-first direction is correct, and the live install has now crossed the star
 2. As an operator, I want to see current solar, home load, battery, and grid flow.
 3. As an operator, I want the system to soak surplus via flexible loads without flapping devices.
 4. As an operator, I want to know why the controller turned something on or off.
-5. As an operator, I want warnings when the mapped energy sources do not reconcile.
+5. As an operator, I want warnings when source roles or source bindings do not reconcile.
 6. As an operator, I want to disable or override devices manually.
 7. As an operator, I want normal setup to succeed through Home Assistant's built-in Configure path.
 8. As an operator, I want to add common managed devices without hand-authoring raw JSON.
 9. As an operator, I want support/checklist/diagnostics guidance to feel like one coherent native workflow.
-10. As an operator, I want the installed UI to clearly show where device management lives and where policy/settings live.
+10. As an operator, I want the installed UI to clearly show where Sensors/source roles, Controls policy/live mode, Managed Devices fleet work, and Diagnostics evidence live.
 
 ## Primary modes
 

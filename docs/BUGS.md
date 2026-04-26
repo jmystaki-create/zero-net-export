@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-313 - Product spec user stories still used mapped sources and policy/settings wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active project docs against the `0.1.89` four-bucket IA and Sensors/source-role wording.
+- **current observed behavior:** `docs/PRODUCT_SPEC_V1.md` still said operators wanted warnings when `mapped energy sources` do not reconcile and wanted the installed UI to show where `policy/settings` live, even though the current native release line uses Sensors/source roles, Controls policy/live mode, Managed Devices, and Diagnostics as the operator-facing buckets.
+- **expected behavior:** product user stories should reinforce source roles/source bindings and the four native buckets, so active project docs do not pull acceptance review back toward older source-mapping or policy/settings language.
+- **evidence:** direct repo inspection found the stale user-story lines under `Core user stories`; existing active-doc regression coverage did not reject those phrases.
+- **repo fix:** this run changes the user stories to `source roles or source bindings do not reconcile` and to show where `Sensors/source roles, Controls policy/live mode, Managed Devices fleet work, and Diagnostics evidence live`, with regression coverage rejecting the stale phrases.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc wording cleanup; final checklist use remains part of the approved `0.1.89` live-validation pass.
+- **next action:** include this active-doc cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-312 - Validation run order still used old sources/policy wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
