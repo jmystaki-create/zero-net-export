@@ -335,7 +335,7 @@ def format_fleet_activity_for_operator(summary: str) -> str:
 
     def _is_managed_inventory_part(part: str) -> bool:
         return bool(
-            part.startswith(("enabled ", "usable "))
+            part.startswith(("enabled ", "disabled ", "usable "))
             or _matches_count_label(part, "fixed managed")
             or _matches_count_label(part, "variable managed")
             or part.endswith(" W nominal")
@@ -386,6 +386,7 @@ def _is_fleet_activity_top_level_part(text: str) -> bool:
                 "ready ",
                 "surfaced ",
                 "enabled ",
+                "disabled ",
                 "usable ",
                 "fixed backlog ",
                 "variable backlog ",
@@ -538,7 +539,7 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         lambda part: _matches_count_label(part, "fixed candidate") or _matches_count_label(part, "variable candidate"),
         lambda part: part.startswith("fixed backlog ") or part.startswith("variable backlog "),
         lambda part: _matches_count_label(part, "planned action"),
-        lambda part: part.startswith(("enabled ", "usable ")) or part.endswith(" W nominal"),
+        lambda part: part.startswith(("enabled ", "disabled ", "usable ")) or part.endswith(" W nominal"),
     )
     for matcher in signal_first_removable_matchers:
         if len(" | ".join(signal_first_parts)) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -633,7 +634,7 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
         lambda part: _matches_count_label(part, "fixed candidate") or _matches_count_label(part, "variable candidate"),
         lambda part: part.startswith("fixed backlog ") or part.startswith("variable backlog "),
         lambda part: _matches_count_label(part, "planned action"),
-        lambda part: part.startswith(("enabled ", "usable ")) or part.endswith(" W nominal"),
+        lambda part: part.startswith(("enabled ", "disabled ", "usable ")) or part.endswith(" W nominal"),
         lambda part: _matches_count_label(part, "active managed device", "active managed devices"),
     )
     for matcher in removable_matchers:
@@ -3226,7 +3227,7 @@ def _restore_active_device_under_overflow(
         lambda part: _matches_count_label(part, "variable review"),
         lambda part: part.startswith("fixed backlog "),
         lambda part: part.startswith("variable backlog "),
-        lambda part: part.startswith(("enabled ", "usable ")),
+        lambda part: part.startswith(("enabled ", "disabled ", "usable ")),
         lambda part: part.endswith(" W nominal"),
         lambda part: _matches_count_label(part, "fixed managed"),
         lambda part: _matches_count_label(part, "variable managed"),
@@ -3324,6 +3325,7 @@ def _build_command_center_fleet_activity_summary(
             sum(1 for detail in device_details if detail.get("effective_enabled", detail.get("enabled", True))),
         )
         usable_count = max(usable_count, sum(1 for detail in device_details if detail.get("usable") is True))
+    disabled_count = max(managed_count - enabled_count, 0)
     kind_known, fixed_managed_count, variable_managed_count, nominal_power_w = _managed_runtime_mix(state)
     active_managed_count, active_managed_power_w = _managed_runtime_activity(state)
     first_attention_device = _first_runtime_device_detail(
@@ -3436,7 +3438,7 @@ def _build_command_center_fleet_activity_summary(
                         or (
                             candidate_count <= 0
                             and (
-                                part.startswith(("enabled ", "usable "))
+                                part.startswith(("enabled ", "disabled ", "usable "))
                                 or _matches_count_label(part, "fixed managed")
                                 or _matches_count_label(part, "variable managed")
                                 or part.endswith(" W nominal")
@@ -3618,14 +3620,20 @@ def _build_command_center_fleet_activity_summary(
             summary_parts.append(f"surfaced {top_candidate_preview or top_candidate_name}")
 
     if show_inventory_context:
-        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+        summary_parts.append(f"enabled {enabled_count}")
+        if disabled_count:
+            summary_parts.append(f"disabled {disabled_count}")
+        summary_parts.append(f"usable {usable_count}")
         if kind_known:
             summary_parts.append(f"{fixed_managed_count} fixed managed")
             if variable_managed_count:
                 summary_parts.append(f"{variable_managed_count} variable managed")
             summary_parts.append(f"{nominal_power_w} W nominal")
     elif show_quiet_managed_inventory_context:
-        summary_parts.extend([f"enabled {enabled_count}", f"usable {usable_count}"])
+        summary_parts.append(f"enabled {enabled_count}")
+        if disabled_count:
+            summary_parts.append(f"disabled {disabled_count}")
+        summary_parts.append(f"usable {usable_count}")
         if kind_known:
             summary_parts.append(f"{fixed_managed_count} fixed managed")
             if variable_managed_count:
@@ -3651,6 +3659,7 @@ def _build_command_center_fleet_activity_summary(
     optional_part_matchers.extend(
         [
             lambda part: part.startswith("usable "),
+            lambda part: part.startswith("disabled "),
             lambda part: part.startswith("enabled "),
             lambda part: part.startswith("fixed backlog "),
             lambda part: part.startswith("variable backlog "),
@@ -3927,6 +3936,8 @@ def _build_command_center_fleet_activity_summary(
 
     if show_inventory_context:
         minimal_parts.append(f"enabled {enabled_count}")
+        if disabled_count:
+            minimal_parts.append(f"disabled {disabled_count}")
         minimal_parts.append(f"usable {usable_count}")
 
     if show_inventory_context and kind_known and nominal_power_w > 0:
@@ -4589,7 +4600,7 @@ def _build_command_center_fleet_activity_summary(
             or _matches_count_label(part, "active managed device", "active managed devices")
             or part.endswith(" managed device needs attention")
             or part.endswith(" managed devices need attention")
-            or part.startswith(("surfaced ", "enabled ", "usable "))
+            or part.startswith(("surfaced ", "enabled ", "disabled ", "usable "))
             or part.endswith(" W nominal")
         ):
             continue

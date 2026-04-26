@@ -221,18 +221,54 @@ class CommandCenterSummaryTests(unittest.TestCase):
         formatted = native_support.format_fleet_activity_for_operator(
             "1 managed | 2 unmanaged backlog | source blockers active | fixed backlog 1 review | "
             "variable backlog 1 ready | review Garage heater (fixed | review) | "
-            "ready EV charger (variable | ready) | enabled 1 | usable 1 | 1 fixed managed"
+            "ready EV charger (variable | ready) | enabled 1 | disabled 1 | usable 1 | 1 fixed managed"
         )
 
         self.assertTrue(formatted.startswith("source blockers active; Managed devices: "))
         self.assertIn(
-            "Managed devices: 1 managed | enabled 1 | usable 1 | 1 fixed managed; Unmanaged backlog: 2 unmanaged backlog",
+            "Managed devices: 1 managed | enabled 1 | disabled 1 | usable 1 | 1 fixed managed; Unmanaged backlog: 2 unmanaged backlog",
             formatted,
         )
         unmanaged_bucket = formatted.split("; Unmanaged backlog: ", 1)[1]
         self.assertNotIn("enabled 1", unmanaged_bucket)
+        self.assertNotIn("disabled 1", unmanaged_bucket)
         self.assertNotIn("usable 1", unmanaged_bucket)
         self.assertNotIn("1 fixed managed", unmanaged_bucket)
+
+    def test_fleet_activity_summary_names_disabled_managed_devices_when_inventory_is_visible(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support._build_command_center_fleet_activity_summary(
+            SimpleNamespace(
+                device_count=2,
+                enabled_device_count=1,
+                usable_device_count=1,
+                fixed_device_count=2,
+                variable_device_count=0,
+                controllable_nominal_power_w=2400,
+                active_controlled_power_w=0,
+                device_details={},
+            ),
+            candidate_count=0,
+            fixed_candidate_count=0,
+            variable_candidate_count=0,
+            review_needed_count=0,
+            fixed_review_count=0,
+            variable_review_count=0,
+            review_candidate_name="",
+            review_candidate_preview="",
+            ready_candidate_name="",
+            ready_candidate_preview="",
+            top_candidate_name="",
+            top_candidate_preview="",
+            source_blocked=False,
+        )
+
+        self.assertIn("2 managed", summary)
+        self.assertIn("enabled 1", summary)
+        self.assertIn("disabled 1", summary)
+        self.assertIn("usable 1", summary)
+        self.assertIn("2 fixed managed", summary)
 
     def test_command_center_summary_uses_aggregate_active_load_when_runtime_rows_are_missing(self) -> None:
         native_support = _load_native_support_module()
