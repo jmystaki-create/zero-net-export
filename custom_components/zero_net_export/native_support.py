@@ -5511,7 +5511,8 @@ def build_native_support_center(coordinator: Any) -> str:
         [
             "Zero Net Export diagnostics guide",
             "",
-            "Use Diagnostics when setup is blocked, runtime health needs explanation, or install trust needs proof.",
+            "Use Diagnostics when setup is blocked, runtime health needs explanation, or you need install-validation evidence.",
+            "Diagnostics owns troubleshooting, repairs, and install validation; normal source mapping, policy tuning, and managed-device promotion stay in their native buckets.",
             f"Command center path: {PRIMARY_CONFIGURE_PATH}",
             "",
             "Diagnostics now",

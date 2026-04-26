@@ -2639,6 +2639,19 @@ Suggested area labels:
 - **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is a direct James approval ask for deploy/restart of the exact `0.1.88` build, not another fingerprint/bookkeeping refresh.
 
 
+## ZNE-210 - Device-page Diagnostics guide drifted from Configure Diagnostics bucket wording
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while comparing the device-page Diagnostics guide against Configure Diagnostics copy, `docs/UI_DESIGN.md`, and Workstream D/F in `docs/UI_IMPLEMENTATION_MAP.md`.
+- **current observed behavior:** `build_native_support_center(...)` still introduced the device-page Diagnostics guide with `install trust needs proof`, while Configure Diagnostics already used the clearer `you need install-validation evidence` wording and explicitly separated Diagnostics ownership from Sensors, Controls, and Managed Devices. That left the secondary diagnostics/audit path slightly behind the native bucket language used in the primary Configure surface.
+- **expected behavior:** device-page Diagnostics guidance should mirror the same bucket-owned wording as Configure Diagnostics: Diagnostics owns troubleshooting, repairs, and install validation, while normal source mapping, policy tuning, and managed-device promotion stay in their native buckets.
+- **evidence:** repo inspection found the stale phrase in `custom_components/zero_net_export/native_support.py`; focused support-guide tests only checked the shorter prefix and did not reject `install trust needs proof`.
+- **repo fix:** this run updates the device-page Diagnostics guide to say `you need install-validation evidence` and adds an explicit native bucket-ownership sentence, with `tests/test_source_repair_guidance.py` now rejecting the older install-trust shorthand.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Diagnostics guide wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is a direct James deploy/restart approval ask rather than another unchanged fingerprint/bookkeeping refresh.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
