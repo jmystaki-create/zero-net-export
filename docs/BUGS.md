@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-306 - Validation checklist bootstrap item still said mapping sources
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active validation guidance against Workstream D/F source-role wording.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still told validators that an entry can be created `without mapping sources` during initial config flow, even though the current native UI release line names the operator-facing setup as Sensors/source roles and avoids source-mapping verbs outside concrete cross-check detail.
+- **expected behavior:** active validation guidance should say the bootstrap entry can be created without choosing source roles, keeping the bootstrap-only check aligned with the native Sensors/source-role path.
+- **evidence:** direct repo inspection found the stale checklist line; existing bucket-ownership coverage already guarded several adjacent source-role phrases but did not reject `mapping sources`.
+- **repo fix:** this run changes the checklist item to `without choosing source roles`, records the compact `0.1.89` changelog note, and adds regression coverage rejecting the stale `mapping sources` phrase from the active validation checklist.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_release_info_install_guidance` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc wording cleanup; final checklist use remains part of the `0.1.89` freeze/live-validation pass.
+- **next action:** include this validation-guidance cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-305 - Diagnostics snapshot still used mapped-sources heading
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

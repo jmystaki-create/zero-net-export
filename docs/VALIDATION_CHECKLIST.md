@@ -74,7 +74,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-role form
 - [ ] Bootstrap step clearly explains that Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics continue at `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure`
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
-- [ ] Entry can be created without mapping sources during the initial config flow
+- [ ] Entry can be created without choosing source roles during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Reopening Configure after restart still shows the previously saved source roles and current command-center guidance
 - [ ] Options flow descriptions clearly explain the native setup, Managed Devices workspace, and Controls policy/live-mode paths
