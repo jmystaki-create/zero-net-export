@@ -1295,10 +1295,19 @@ class SensorEntityCategoryTests(unittest.TestCase):
         next_step = sensor_module.ZeroNetExportSensor(
             coordinator,
             "mapped_source_blocker_next_step",
-            "Mapped-source blocker next step",
+            "Source blocker next step",
         )
         next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        summary = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "mapped_source_blocker_summary",
+            "Source blocker summary",
+        )
 
+        self.assertEqual(next_step._attr_name, "Source blocker next step")
+        self.assertEqual(summary._attr_name, "Source blocker summary")
+        self.assertNotIn("Mapped-source", next_step._attr_name)
+        self.assertNotIn("Mapped-source", summary._attr_name)
         self.assertEqual(
             next_step.native_value,
             "Open sources path, repair source blockers, then save and reload the integration",
@@ -1318,7 +1327,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         next_step = sensor_module.ZeroNetExportSensor(
             coordinator,
             "mapped_source_blocker_next_step",
-            "Mapped-source blocker next step",
+            "Source blocker next step",
         )
         next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
@@ -1339,7 +1348,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         next_step = sensor_module.ZeroNetExportSensor(
             coordinator,
             "mapped_source_blocker_next_step",
-            "Mapped-source blocker next step",
+            "Source blocker next step",
         )
         next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
@@ -1370,7 +1379,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
         next_step = sensor_module.ZeroNetExportSensor(
             coordinator,
             "mapped_source_blocker_next_step",
-            "Mapped-source blocker next step",
+            "Source blocker next step",
         )
         next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-237 - Source-blocker helper sensor labels still used mapped-source jargon
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-blocker wording after active source-repair values, command-center alerts, and validation checklist wording had moved to operator-facing `source blockers`.
+- **current observed behavior:** the visible helper sensor names in `custom_components/zero_net_export/sensor.py` still rendered as `Mapped-source blocker summary` and `Mapped-source blocker next step`. That left lower-level mapping jargon in the Home Assistant entity list even though the sensor values and adjacent native surfaces now use `Source blockers` / `source blockers`.
+- **expected behavior:** visible Home Assistant helper sensor labels should use operator-facing source-blocker wording while preserving the existing `mapped_source_blocker_*` keys for compatibility.
+- **evidence:** repo grep found the remaining active display labels in `SENSOR_DEFS` after the surrounding UI copy had already been neutralized; focused sensor tests did not assert the visible labels.
+- **repo fix:** this run changes the display names to `Source blocker summary` and `Source blocker next step`, keeps the underlying sensor keys unchanged, records the `0.1.89` changelog highlight, and adds focused regression coverage rejecting the old `Mapped-source` label text.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories tests.test_translation_sync tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream D/F helper-label cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is still James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-236 - Validation checklist still repeated old selector error wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
