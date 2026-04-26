@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Normalized the device-page command-center guide so stale mapped-source alert/status inputs render as operator-facing `Source blockers` wording before reaching Home Assistant.
 - Renamed the visible source-blocker helper sensor labels from mapped-source jargon to operator-facing `Source blocker summary` / `Source blocker next step` while keeping the underlying entity keys stable.
 - Reworded the Sensors selector descriptions for combined-grid energy and battery SOC so native setup no longer names a stale entity/UUID bug, while keeping the same fallback path for valid entities rejected by Home Assistant selector validation.
 - Kept Home Assistant source-blocker repair handoffs on operator-facing `Source blockers` / `source blockers` wording while preserving mapped-role detail where Sensors and Diagnostics need it for actual repair context.

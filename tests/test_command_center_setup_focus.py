@@ -220,7 +220,9 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             }
         )
 
-        self.assertIn("- Alerts: Mapped-source blockers: Solar power stale", text)
+        self.assertIn("- Alerts: Source blockers: Solar power stale", text)
+        self.assertIn("- Sensors: Source blockers are active.", text)
+        self.assertNotIn("Mapped-source blockers", text)
         self.assertIn(
             "- Fleet activity: source blockers active; Managed devices: 1 managed; Unmanaged backlog: 1 unmanaged backlog | review AC Outlet 2 (fixed) | review first",
             text,

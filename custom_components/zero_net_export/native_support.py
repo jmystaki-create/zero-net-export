@@ -85,6 +85,14 @@ def _normalize_native_path_text(text: Any) -> str:
         "Configure > Controls": POLICY_CONFIGURE_PATH,
         "Configure > Managed Devices": DEVICES_CONFIGURE_PATH,
         "Configure > Diagnostics": SUPPORT_CONFIGURE_PATH,
+        "Mapped-source blockers": "Source blockers",
+        "Mapped-source blocker": "Source blocker",
+        "mapped-source blockers": "source blockers",
+        "mapped-source blocker": "source blocker",
+        "Mapped source blockers": "Source blockers",
+        "Mapped source blocker": "Source blocker",
+        "mapped source blockers": "source blockers",
+        "mapped source blocker": "source blocker",
     }
     for old, new in replacements.items():
         value = value.replace(old, new)
@@ -2474,6 +2482,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
     """Return the basic setup focused command-center guide text."""
     alert_summary = _normalize_native_path_text(command_center.get("alert_summary"))
     next_action_summary = _normalize_native_path_text(command_center.get("next_action_summary"))
+    source_status = _normalize_native_path_text(command_center.get("source_status"))
     fleet_activity_summary = _command_center_guide_fleet_activity_summary(command_center)
     now_lines = [
         "Now",
@@ -2494,7 +2503,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Fleet activity: {fleet_activity_summary}",
             "",
             "Setup check",
-            f"- Sensors: {command_center.get('source_status')}",
+            f"- Sensors: {source_status}",
             f"- Source map: {command_center.get('source_mapping_summary')}",
             f"- Controls: {command_center.get('policy_status')}",
             f"- Diagnostics: {command_center.get('support_status')}",

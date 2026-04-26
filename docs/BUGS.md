@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-238 - Device-page command-center guide could preserve mapped-source alert wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream A/D/F source-blocker wording after helper labels and repair handoffs had moved to operator-facing `Source blockers`.
+- **current observed behavior:** `build_native_command_center_guide_text(...)` normalized native Configure paths but preserved stale `Mapped-source blockers` text if an older or test-supplied command-center summary still carried that alert/status wording. The shared device-page command-center guide could therefore reintroduce mapped-source jargon even after the main summary builders had switched to `Source blockers`.
+- **expected behavior:** shared native guide rendering should normalize stale mapped-source blocker alert/status inputs to operator-facing `Source blockers` / `source blockers` wording before showing them in Home Assistant, while preserving deeper mapped-role detail only where it is needed for Sensors/Diagnostics repair context.
+- **evidence:** focused test fixture in `tests/test_command_center_setup_focus.py` passed `alert_summary: Mapped-source blockers: Solar power stale` and expected the rendered guide to include `- Alerts: Mapped-source blockers: Solar power stale`. `custom_components/zero_net_export/native_support.py` only normalized path shorthand for that field and did not normalize the setup-check Sensors line.
+- **repo fix:** this run extends native text normalization to mapped-source blocker alert/status phrases and applies it to the guide's Sensors setup-check line; focused guide coverage now expects `Source blockers` and rejects `Mapped-source blockers` in the rendered guide.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_setup_focus.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream A/D/F guide-normalization cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is still direct James approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-237 - Source-blocker helper sensor labels still used mapped-source jargon
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
