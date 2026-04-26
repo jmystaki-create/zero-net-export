@@ -3497,7 +3497,7 @@ def _build_command_center_fleet_activity_summary(
                         or _matches_count_label(part, "active managed device", "active managed devices")
                         or _matches_count_label(part, "blocked managed action", "blocked managed actions")
                         or (
-                            candidate_count <= 0
+                            (candidate_count <= 0 or show_quiet_managed_inventory_context)
                             and (
                                 part.startswith(("enabled ", "disabled ", "usable "))
                                 or _matches_count_label(part, "fixed managed")
@@ -3570,6 +3570,15 @@ def _build_command_center_fleet_activity_summary(
                         or _matches_count_label(part, "planned action")
                         or _matches_count_label(part, "active managed device", "active managed devices")
                         or _matches_count_label(part, "blocked managed action", "blocked managed actions")
+                        or (
+                            show_quiet_managed_inventory_context
+                            and (
+                                part.startswith(("enabled ", "disabled ", "usable "))
+                                or _matches_count_label(part, "fixed managed")
+                                or _matches_count_label(part, "variable managed")
+                                or part.endswith(" W nominal")
+                            )
+                        )
                     ),
                     default=0,
                 )

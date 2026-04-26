@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-288 - Quiet Fleet activity put managed inventory after unmanaged backlog
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-26 while checking Workstream A item 2, the remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** when the top board had managed devices plus unmanaged candidates but no active/blocked/planned managed action, raw Fleet activity could list `2 unmanaged backlog` before quiet managed inventory such as `enabled 1`, `usable 1`, and `1 fixed managed`. The prose formatter could recover the split later, but the raw command-center summary still weakened the managed-on-top / unmanaged-below story.
+- **expected behavior:** Fleet activity should keep quiet managed inventory grouped with the managed count before the unmanaged backlog whenever the top board carries both managed and unmanaged context.
+- **evidence:** direct repo inspection and the existing `test_fleet_activity_prioritizes_review_ready_story_ahead_of_candidate_inventory_counts` expectation showed unmanaged backlog intentionally preceding managed inventory.
+- **repo fix:** this run changes `_build_command_center_fleet_activity_summary()` so quiet managed inventory is treated as managed-bucket context before the unmanaged backlog, updates the existing ordering regression, adds focused coverage for managed inventory before unmanaged backlog, and folds the wording into the compact `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity grouping cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-287 - Managed Devices removal copy still read like a helper prompt
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

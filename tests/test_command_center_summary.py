@@ -286,6 +286,49 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("usable 1", summary)
         self.assertIn("2 fixed managed", summary)
 
+    def test_fleet_activity_summary_keeps_quiet_managed_inventory_before_unmanaged_backlog(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support._build_command_center_fleet_activity_summary(
+            SimpleNamespace(
+                device_count=2,
+                enabled_device_count=1,
+                usable_device_count=1,
+                fixed_device_count=1,
+                variable_device_count=1,
+                controllable_nominal_power_w=3200,
+                active_controlled_power_w=0,
+                device_details={},
+            ),
+            candidate_count=2,
+            fixed_candidate_count=1,
+            variable_candidate_count=1,
+            review_needed_count=1,
+            fixed_review_count=1,
+            variable_review_count=0,
+            review_candidate_name="Relay",
+            review_candidate_preview="Relay",
+            ready_candidate_name="EV",
+            ready_candidate_preview="EV",
+            top_candidate_name="Relay",
+            top_candidate_preview="Relay",
+            source_blocked=False,
+        )
+
+        managed_index = summary.index("2 managed")
+        enabled_index = summary.index("enabled 1")
+        usable_index = summary.index("usable 1")
+        fixed_index = summary.index("1 fixed managed")
+        variable_index = summary.index("1 variable managed")
+        unmanaged_index = summary.index("2 unmanaged backlog")
+        self.assertLess(managed_index, enabled_index)
+        self.assertLess(enabled_index, usable_index)
+        self.assertLess(usable_index, fixed_index)
+        self.assertLess(fixed_index, variable_index)
+        self.assertLess(variable_index, unmanaged_index)
+        self.assertIn("review Relay", summary)
+        self.assertIn("ready EV", summary)
+
     def test_command_center_summary_uses_aggregate_active_load_when_runtime_rows_are_missing(self) -> None:
         native_support = _load_native_support_module()
 
@@ -7484,9 +7527,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("enabled 1", fleet_activity)
         self.assertIn("usable 1", fleet_activity)
         self.assertIn("1 fixed managed", fleet_activity)
-        self.assertLess(fleet_activity.index("2 unmanaged backlog"), fleet_activity.index("enabled 1"))
-        self.assertLess(fleet_activity.index("2 unmanaged backlog"), fleet_activity.index("usable 1"))
-        self.assertLess(fleet_activity.index("2 unmanaged backlog"), fleet_activity.index("1 fixed managed"))
+        self.assertLess(fleet_activity.index("1 managed"), fleet_activity.index("enabled 1"))
+        self.assertLess(fleet_activity.index("enabled 1"), fleet_activity.index("usable 1"))
+        self.assertLess(fleet_activity.index("usable 1"), fleet_activity.index("1 fixed managed"))
+        self.assertLess(fleet_activity.index("1 fixed managed"), fleet_activity.index("2 unmanaged backlog"))
         self.assertIn("fixed backlog 1 review", fleet_activity)
         self.assertIn("variable backlog 1 ready", fleet_activity)
         if "1 fixed candidate" in fleet_activity:
