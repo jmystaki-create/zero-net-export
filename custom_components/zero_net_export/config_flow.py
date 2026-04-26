@@ -3227,7 +3227,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return await self.async_step_device_template()
 
         next_step = (
-            "Continue to choose the suggested preset and then confirm the final device settings before saving into the managed fleet."
+            "Continue to review the surfaced preset and then confirm the final device settings before saving into the managed fleet."
             if summary.get("fit_confidence") != "low"
             else "Continue only if this entity really drives a controllable device. If not, go back and choose manual selection or a different candidate."
         )

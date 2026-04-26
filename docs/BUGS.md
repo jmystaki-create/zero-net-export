@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-374 - Promotion review preset copy kept suggested-preset wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream C promotion-copy drift after the empty-shortlist wording fix.
+- **current observed behavior:** the candidate review and preset screens still rendered `Suggested preset` / `Suggested preset right now`, and the high-confidence review next step said `choose the suggested preset`. That kept recommendation/ranking wording in the review-first unmanaged promotion flow even though the surrounding candidate language had moved to neutral surfaced/review wording.
+- **expected behavior:** promotion review should describe the preset as surfaced for review, so operators understand it as a native Managed Devices starting point to verify rather than an opaque suggestion/ranking.
+- **evidence:** direct repo inspection found the suggested-preset labels in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and the high-confidence vetting next-step copy in `custom_components/zero_net_export/config_flow.py`.
+- **repo fix:** this run changes the visible labels to `Preset surfaced for review` / `Preset surfaced right now`, changes the vetting next step to `review the surfaced preset`, and adds copy regressions rejecting the old phrase.
+- **validation status:** repo-side fixed and verified in this watchdog run with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_bucket_ownership_copy.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F repo defect appears, the next real boundary remains James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another unchanged fingerprint/bookkeeping loop.
+
 ## ZNE-373 - Empty promotion shortlist used suggested-candidate wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

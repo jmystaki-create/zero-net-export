@@ -1860,6 +1860,11 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(template["description_placeholders"]["candidate_warnings"], "- No immediate warnings detected.")
         self.assertEqual(template["description_placeholders"]["suggested_template"], "Fixed plug")
         self.assertEqual(
+            vetting["description_placeholders"]["candidate_next_step"],
+            "Continue to review the surfaced preset and then confirm the final device settings before saving into the managed fleet.",
+        )
+        self.assertNotIn("suggested preset", vetting["description_placeholders"]["candidate_next_step"])
+        self.assertEqual(
             template["description_placeholders"]["candidate_next_step"],
             "Choose the closest preset, then confirm the final device settings before saving into the Managed Devices workspace.",
         )
