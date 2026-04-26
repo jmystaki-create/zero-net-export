@@ -657,10 +657,15 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "where Sensors/source roles, Controls policy/live mode, Managed Devices fleet work, and Diagnostics evidence live",
             docs["PRODUCT_SPEC_V1.md"],
         )
+        self.assertIn(
+            "where Sensors/source roles, Controls policy/live mode, Managed Devices fleet work, and Diagnostics evidence live after install",
+            docs["PRODUCT_SPEC_V1.md"],
+        )
         self.assertIn("source roles or source bindings do not reconcile", docs["PRODUCT_SPEC_V1.md"])
         self.assertNotIn("never act without validated source mapping", docs["PRODUCT_SPEC_V1.md"])
         self.assertNotIn("mapped energy sources do not reconcile", docs["PRODUCT_SPEC_V1.md"])
         self.assertNotIn("where policy/settings live", docs["PRODUCT_SPEC_V1.md"])
+        self.assertNotIn("where to set policy after install", docs["PRODUCT_SPEC_V1.md"])
         self.assertIn("source-role status and blocker visibility", ui_design)
         self.assertIn("source-map details only where an operator is cross-checking concrete entity bindings", ui_design)
         self.assertNotIn("source mapping status and blocker visibility", ui_design)

@@ -99,5 +99,5 @@ The HA-first direction is correct, and the live install has now crossed the star
 - mode select + target export setting
 - explanation / status sensors
 - native Diagnostics surfaces inside Home Assistant, including a combined diagnostics snapshot, setup-checklist, and repair-guidance path
-- a clearly discoverable native operator path so a user can tell where to manage devices and where to set policy after install
+- a clearly discoverable native operator path so a user can tell where Sensors/source roles, Controls policy/live mode, Managed Devices fleet work, and Diagnostics evidence live after install
 - daily action/reporting skeleton
