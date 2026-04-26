@@ -514,9 +514,11 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("- Recommended path now:", support_center)
         self.assertNotIn("- Why this section is recommended:", support_center)
         self.assertIn(
-            f"- For deeper source-map detail, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
+            f"- For detailed source-map evidence, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
+        self.assertNotIn("For deeper source-map detail", support_center)
+        self.assertNotIn("deeper triage", support_center)
         self.assertIn(
             "- Live candidate cues for blocked roles: Not needed right now.",
             support_center,
@@ -1084,9 +1086,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertIn("Exact-build next step: install repair step", support_center)
         self.assertIn(
-            f"For deeper source-map detail, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
+            f"For detailed source-map evidence, open Sensors: {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
+        self.assertNotIn("For deeper source-map detail", support_center)
         self.assertIn(
             f"Live candidate cues for blocked roles: Open {native_support.SOURCES_CONFIGURE_PATH} to review live source candidates for the blocked roles.",
             support_center,

@@ -2532,6 +2532,19 @@ Suggested area labels:
 - **validation status:** validated by direct source-doc grep: the old active phrases no longer appear in `docs/UI_IMPLEMENTATION_SPEC.md`; no live Home Assistant validation is required for this supplemental-doc correction.
 - **next action:** keep supplemental specs subordinate to `UI_DESIGN.md` / `UI_IMPLEMENTATION_MAP.md`; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-202 - Diagnostics copy still used deeper-path wording for source evidence and triage
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream D/F wording after the secondary review/audit cleanup.
+- **current observed behavior:** active Diagnostics and command-center support copy still said `For deeper source-map detail, open Sensors` and sent operators to device actions or Repairs `if deeper triage is still needed`. That was not an external UI leak, but it preserved the old deeper-path wording in secondary support surfaces after the current hierarchy moved to explicit bucket ownership and secondary review/audit language.
+- **expected behavior:** Diagnostics should stay a compact troubleshooting/install-validation home and point deeper source evidence back to Sensors without describing native bucket handoffs as deeper parallel paths.
+- **evidence:** repo grep found the stale phrases in `custom_components/zero_net_export/strings.json`, `translations/en.json`, `native_support.py`, `config_flow.py`, and focused expectations.
+- **repo fix:** this run changes the source handoff to `For detailed source-map evidence, open Sensors` and changes the remaining support handoff to `if more troubleshooting is still needed`, with focused copy expectations updated.
+- **validation status:** repo-side fixed and verified with focused Diagnostics/source-repair copy tests and translation sync in this run. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this Diagnostics wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

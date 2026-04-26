@@ -5490,7 +5490,7 @@ def build_native_support_center(coordinator: Any) -> str:
     if not support_next_step:
         support_next_step = (
             f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
-            f"{DIAGNOSTICS_DEVICE_ACTIONS_PATH} or Settings -> Repairs if deeper triage is still needed."
+            f"{DIAGNOSTICS_DEVICE_ACTIONS_PATH} or Settings -> Repairs if more troubleshooting is still needed."
         )
     install_next_step = (
         "Exact-build trust currently looks good. Use the device-page diagnostics snapshot only if you need the full install evidence."
@@ -5522,7 +5522,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Blocking mapped roles: {_format_source_role_list(blocking_keys) if blocking_keys else 'None'}",
             f"- Blocking validation details: {command_center.get('blocking_validation_details') or 'None'}",
             f"- If Sensors owns the repair, use: {command_center.get('source_repair_step')}",
-            f"- For deeper source-map detail, open Sensors: {command_center.get('sources_path')}",
+            f"- For detailed source-map evidence, open Sensors: {command_center.get('sources_path')}",
             f"- Live candidate cues for blocked roles: {priority_candidate_hints}",
             f"- Selector workaround, only if Home Assistant rejects a valid choice: {fallback_hint}",
             "",

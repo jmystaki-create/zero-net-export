@@ -2376,7 +2376,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         if not support_next_step:
             support_next_step = (
                 f"Open {SUPPORT_CONFIGURE_PATH} to confirm the current blocker, then use "
-                f"{DIAGNOSTICS_DEVICE_ACTIONS_PATH} or Settings -> Repairs if deeper triage is still needed."
+                f"{DIAGNOSTICS_DEVICE_ACTIONS_PATH} or Settings -> Repairs if more troubleshooting is still needed."
             )
         support_install_consistency = build_install_consistency_summary(install_provenance)
         support_install_fingerprint_summary = build_install_fingerprint_summary(install_provenance)
