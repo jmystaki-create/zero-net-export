@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-326 - Cached command-center source setup handoff could keep bare Configure wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream A/D/F native path and source-role normalization against cached/fallback command-center text.
+- **current observed behavior:** `_normalize_native_path_text(...)` normalized `Open Configure > Sensors` and stale source-mapping terminology, but an older cached readiness handoff such as `Open Configure and finish source mapping.` only became `Open Configure and finish source roles.`, leaving a bare Configure instruction instead of the exact native Sensors path.
+- **expected behavior:** cached or fallback command-center handoffs should expand bare Configure source-setup wording to the exact `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors` path and current source-role language before Home Assistant renders it.
+- **evidence:** direct repo inspection and focused normalization check showed `Open Configure and finish source mapping.` normalized to `Open Configure and finish source roles.` rather than the full Sensors path.
+- **repo fix:** this run adds explicit native-path normalization for `Open Configure and finish source mapping/source roles/required source roles` and regression coverage in `tests/test_command_center_summary.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-325 - Entity model diagnostics note still said mapped source role
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -78,6 +78,9 @@ def _normalize_native_path_text(text: Any) -> str:
     if not value:
         return ""
     replacements = {
+        "Open Configure and finish required source roles": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
+        "Open Configure and finish source mapping": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
+        "Open Configure and finish source roles": f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
         "Open Configure > Sensors": f"Open {SOURCES_CONFIGURE_PATH}",
         "Open Configure > Controls": f"Open {POLICY_CONFIGURE_PATH}",
         "Open Configure > Managed Devices": f"Open {DEVICES_CONFIGURE_PATH}",

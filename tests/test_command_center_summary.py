@@ -544,6 +544,15 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("will appear here", summary["control_outcome_summary"])
         self.assertNotIn("will appear here", native_support.format_fleet_activity_for_operator(""))
 
+    def test_native_path_normalization_expands_bare_configure_source_mapping_handoff(self) -> None:
+        native_support = _load_native_support_module()
+
+        normalized = native_support._normalize_native_path_text("Open Configure and finish source mapping.")
+
+        self.assertIn(native_support.SOURCES_CONFIGURE_PATH, normalized)
+        self.assertIn("finish required source roles", normalized)
+        self.assertNotIn("Open Configure and finish source", normalized)
+
     def test_command_center_fleet_activity_grouping_keeps_source_blocker_outside_managed_bucket(self) -> None:
         native_support = _load_native_support_module()
 
