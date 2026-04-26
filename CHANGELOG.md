@@ -9,17 +9,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
-- Clarified source-validation recommendations so duplicate and unavailable/non-numeric source blockers say `source role(s)` instead of generic logical/required role wording in native support handoffs.
-- Clarified Sensors source-mapping progress so required-role counts explicitly say `required source roles` instead of vague `required roles` in the native setup placeholders.
-- Tightened the operator-ready setup-checklist next step so final review stays anchored to the exact native Configure and device Diagnostics paths instead of ending with vague `friction there` wording.
-- Normalized setup-checklist notification and button attributes so stale readiness details cannot revive `unmanaged section` navigation wording after the Managed Devices handoffs have moved to direct fleet-action language.
-- Tightened Managed Devices handoffs so unmanaged-candidate review and ready-promotion next steps read as direct fleet actions instead of section-navigation or `there` fallback wording.
-- Hardened Home Assistant command-center and device-page text normalization so stale source-role/source-blocker readiness payloads render as operator-facing guidance across the landing summary, setup check, guide, and next-action handoffs.
-- Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, and runtime source-health summaries on consistent `source roles`, `Source blockers`, and `source map` wording while leaving deeper entity-binding evidence in the right support paths.
-- Kept Configure's Fleet activity, Managed Devices helper sensors, and source-repair next-step surfaces aligned so global source blockers stay separate from managed/unmanaged backlog work.
-- Clarified the command-center Fleet activity empty-unmanaged state as `Unmanaged candidates: no unmanaged candidates` instead of labeling an empty candidate section as backlog.
+- Clarified Home Assistant source-validation and Sensors source-mapping copy so source blockers consistently say `source role(s)` / `required source roles` instead of generic logical or required-role wording.
+- Tightened operator-ready and setup-checklist handoffs so final review stays anchored to the exact native Configure and device Diagnostics paths, with stale unmanaged-section wording normalized away.
+- Tightened Managed Devices handoffs so unmanaged-candidate review, ready-promotion, no-candidate, empty-fleet, and manual-add next steps stay workspace-first and read as direct fleet actions.
+- Hardened command-center and device-page normalization so stale source-role/source-blocker payloads render as operator-facing guidance across landing summaries, setup checks, guides, and next-action handoffs.
+- Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, runtime source-health summaries, and source-repair next steps on consistent `Source blockers`, `source roles`, and `source map` wording.
+- Clarified Configure's Fleet activity empty-unmanaged state as `Unmanaged candidates: no unmanaged candidates` and kept global source blockers separate from managed/unmanaged backlog work.
 - Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
-- Kept no-candidate and empty-fleet Managed Devices handoffs workspace-first, including manual add fallback labels and `no managed yet` summaries when unmanaged promotion backlog exists.
 - Added disabled managed-load counts to native Managed Devices and device-page review snapshots so disabled fleet posture stays visible at a glance.
 
 ### Planning

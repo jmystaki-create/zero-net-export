@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-258 - 0.1.89 Unreleased changelog exceeded the compact release-note guard
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo validation on 2026-04-26 while running the release-info regression suite against the current `0.1.89` follow-up candidate.
+- **current observed behavior:** the Unreleased `0.1.89` changelog had grown to 13 parsed highlights after several small source-role and handoff fixes, tripping `test_unreleased_changelog_carries_0189_post_tag_ui_fixes` and reopening the release-note churn that ZNE-250 was meant to prevent.
+- **expected behavior:** the `0.1.89` release notes should stay compact, grouped, and operator-facing while preserving the required Home Assistant, Source blockers, Managed Devices, and Diagnostics themes.
+- **evidence:** `python3 -m unittest discover -s tests -q` failed with `AssertionError: 13 not less than or equal to 10` in `tests/test_release_info_install_guidance.py`.
+- **repo fix:** this run compacts the Unreleased `0.1.89` Fixed bullets into grouped source-role, native-path handoff, Managed Devices, command-center, Fleet activity, selector-fallback, and disabled-count themes without refreshing candidate hashes or changing release approval state.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` and `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation is not required for this release-note compaction; final release-note review remains part of the `0.1.89` freeze.
+- **next action:** keep `0.1.89` release notes grouped during the freeze; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of refreshing fingerprint bookkeeping.
+
 ## ZNE-257 - Source-validation recommendations still used generic role wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
