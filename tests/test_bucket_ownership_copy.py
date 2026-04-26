@@ -494,6 +494,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("here before save", template_description)
         self.assertNotIn("Suggested preset", template_description)
 
+        add_description = steps["device_add"]["description"]
+        self.assertIn("Starting values surfaced for review: {default_guidance}", add_description)
+        self.assertNotIn("Suggested starting values", add_description)
+
         source_description = steps["native_setup"]["description"]
         source_mapping_description = steps["native_setup_sources"]["description"]
         self.assertIn("Sensors path: {configure_path}.", source_description)

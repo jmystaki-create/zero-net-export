@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-376 - Promotion form default-values label still used suggested wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream C promotion-copy drift after the surfaced-preset wording fixes.
+- **current observed behavior:** the final native Managed Devices add form still labelled promotion defaults as `Suggested starting values: {default_guidance}`. That left one visible recommendation/ranking phrase in the shortlist -> review -> preset -> save path after adjacent candidate and preset copy had moved to neutral surfaced-review wording.
+- **expected behavior:** default values carried into promotion should be framed as values surfaced for operator review, not as a suggestion the integration has already ranked as correct.
+- **evidence:** direct repo inspection found the label in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; existing regression coverage did not reject the phrase.
+- **repo fix:** this run changes the label to `Starting values surfaced for review: {default_guidance}`, syncs translations, and adds a bucket-copy regression rejecting `Suggested starting values`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint/bookkeeping loop.
+
 ## ZNE-375 - Unreleased changelog repeated old promotion suggestion wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
