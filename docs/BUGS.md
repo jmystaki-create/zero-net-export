@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-303 - Source selector descriptions still described old entity-picker workaround mechanics
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `source_mapping`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F source-role copy against the current native Home Assistant source of truth.
+- **current observed behavior:** the primary grid-energy and battery-SOC selector descriptions still said the fields used a native dropdown instead of Home Assistant's entity picker so an old mapping/setup workaround would keep working. That kept implementation/workaround narration in the Sensors setup surface after the fallback fields had already been made explicit.
+- **expected behavior:** primary selector descriptions should read like normal Sensors/source-role choices, while fallback fields carry the exceptional validation-rejection path.
+- **evidence:** direct repo inspection found `Home Assistant's entity picker` in `custom_components/zero_net_export/strings.json` and `translations/en.json` for the primary `grid_energy_entity` and `battery_soc_entity` descriptions.
+- **repo fix:** this run rewrites those primary descriptions to say the native dropdown keeps the combined-grid energy role and battery reserve setup selectable/usable when Home Assistant selector validation rejects a valid entity, keeps the manual fallback instructions in the fallback fields, syncs translations, folds the wording into the compact `0.1.89` changelog theme, and adds bucket-ownership regression coverage rejecting the old picker-workaround wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F source-selector wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-302 - Unreleased changelog exceeded the compact release-note guard
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

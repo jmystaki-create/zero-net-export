@@ -16,7 +16,7 @@ Target release: `0.1.89`
 - Hardened stale Source blockers and source-role normalization across Managed Devices blocker handoffs, native setup notifications, command-center summaries, device-page guides, setup checks, and next-action handoffs before cached or fallback text reaches Home Assistant.
 - Tightened Managed Devices workspace handoffs, Controls next-step copy, command-center setup guidance, promotion review/preset/save leads, full-list manual-add fallback copy, edit/remove copy, issue-repair follow-up, and review snapshots so unmanaged review, ready promotion, disabled-load counts, no-candidate, empty-fleet, manual-add, setup-checklist, and policy follow-through next steps stay workspace-first and read as direct native actions.
 - Clarified Configure Fleet activity so managed inventory stays grouped ahead of unmanaged backlog even when fallback parts arrive out of order, empty unmanaged inventory reads as `Unmanaged candidates: no unmanaged candidates`, global source blockers stay separate from managed/unmanaged backlog work, and fleet state remains compact for native Home Assistant surfaces.
-- Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
+- Reworded Sensors and Diagnostics selector/fallback copy so native setup/support surfaces describe source-role choices and fallback actions without reviving old picker-bug or workaround narration.
 - Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, with troubleshooting/install-validation work explicitly belonging in Diagnostics and final review/follow-up staying inside native Home Assistant paths.
 
 ### Planning
