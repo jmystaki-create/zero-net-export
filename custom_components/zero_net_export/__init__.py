@@ -306,6 +306,7 @@ async def _async_update_native_setup_notice(
         + "\n\nOpen\n"
         + f"• Command center: {PRIMARY_CONFIGURE_PATH}\n"
         + f"• Sensors: {SOURCES_CONFIGURE_PATH}\n"
+        + f"• Controls: {POLICY_CONFIGURE_PATH}\n"
         + f"• Managed Devices: {DEVICES_CONFIGURE_PATH}\n"
         + f"• Diagnostics: {SUPPORT_CONFIGURE_PATH}\n"
         + f"• Device-page diagnostics actions: {DIAGNOSTICS_DEVICE_ACTIONS_PATH}"

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-359 - Setup notification Open list omitted the Controls bucket
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F four-bucket IA and support-surface cleanup against the active setup-notification implementation.
+- **current observed behavior:** the generated persistent native setup notification listed Command center, Sensors, Managed Devices, Diagnostics, and device-page diagnostics actions, but omitted the Controls path even though `strings.json`, the four-bucket IA source of truth, and the current native operator map require Controls to remain a distinct home for target export, reserve, deadband, and live mode.
+- **expected behavior:** setup notifications should expose all four primary Configure buckets in the Open list: Sensors, Controls, Managed Devices, and Diagnostics, without shifting operators to any external/custom UI path.
+- **evidence:** direct repo inspection found `_async_update_native_setup_notice(...)` in `custom_components/zero_net_export/__init__.py` did not render `POLICY_CONFIGURE_PATH`; the focused setup-notice regression now requires `• Controls: controls path` in the generated notification.
+- **repo fix:** this run adds the missing Controls row to the persistent setup notification Open list and locks the four-bucket ordering in `tests/test_setup_notice_copy.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F setup-notification IA cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-358 - Fleet activity fallback could preserve case-variant Managed Devices prefixes
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

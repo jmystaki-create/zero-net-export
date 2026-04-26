@@ -170,6 +170,7 @@ class SetupNoticeCopyTests(unittest.TestCase):
         )
         self.assertIn("\n\nOpen\n• Command center: configure path", message)
         self.assertIn("\n• Sensors: sensors path", message)
+        self.assertIn("\n• Controls: controls path", message)
         self.assertIn("\n• Managed Devices: devices path", message)
         self.assertIn("\n• Diagnostics: diagnostics path", message)
         self.assertIn(
