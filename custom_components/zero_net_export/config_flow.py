@@ -2169,21 +2169,21 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         required_source_count = len(required_source_keys)
         mapped_required_source_count = max(required_source_count - len(missing_source_keys), 0)
         source_mapping_progress = (
-            f"{mapped_required_source_count} of {required_source_count} required roles mapped"
+            f"{mapped_required_source_count} of {required_source_count} required source roles mapped"
         )
         if missing_source_keys:
             source_mapping_progress += (
-                f"; {len(missing_source_keys)} missing required role"
+                f"; {len(missing_source_keys)} missing required source role"
                 if len(missing_source_keys) == 1
-                else f"; {len(missing_source_keys)} missing required roles"
+                else f"; {len(missing_source_keys)} missing required source roles"
             )
 
         source_blocker_parts: list[str] = []
         if missing_source_keys:
             source_blocker_parts.append(
-                "1 missing required role"
+                "1 missing required source role"
                 if len(missing_source_keys) == 1
-                else f"{len(missing_source_keys)} missing required roles"
+                else f"{len(missing_source_keys)} missing required source roles"
             )
         if unavailable_source_keys:
             source_blocker_parts.append(

@@ -2133,7 +2133,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             placeholders["source_next_step"],
             "Open devices path to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
         )
-        self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
+        self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required source roles mapped")
         self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
 
     def test_healthy_source_next_step_uses_controls_when_fleet_is_already_stable(self) -> None:
@@ -2159,7 +2159,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             placeholders["source_next_step"],
             f"Open {module.POLICY_CONFIGURE_PATH} to tune target export, reserve, deadband, or live mode.",
         )
-        self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required roles mapped")
+        self.assertEqual(placeholders["source_mapping_progress"], "4 of 4 required source roles mapped")
         self.assertEqual(placeholders["source_blocker_summary"], "No blocking source issues right now.")
 
     def test_healthy_source_next_step_uses_workspace_first_candidate_handoff_when_candidates_remain(self) -> None:
@@ -2246,12 +2246,14 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             placeholders["source_mapping_progress"],
-            "2 of 6 required roles mapped; 4 missing required roles",
+            "2 of 6 required source roles mapped; 4 missing required source roles",
         )
         self.assertEqual(
             placeholders["source_blocker_summary"],
-            "4 missing required roles; 1 unavailable source role; 1 stale source role; blocking validation errors present",
+            "4 missing required source roles; 1 unavailable source role; 1 stale source role; blocking validation errors present",
         )
+        self.assertNotIn("required roles", placeholders["source_mapping_progress"])
+        self.assertNotIn("required roles", placeholders["source_blocker_summary"])
         self.assertNotIn("mapped role", placeholders["source_blocker_summary"])
 
     def test_source_placeholders_use_source_role_attention_copy(self) -> None:

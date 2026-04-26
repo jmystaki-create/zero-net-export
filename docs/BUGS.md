@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-256 - Sensors source-mapping progress used vague required-role wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F source-role wording against the native Sensors setup placeholders.
+- **current observed behavior:** Configure -> Sensors source-mapping placeholders reported progress as `N of N required roles mapped` and blocker counts as `N missing required roles`. After the surrounding source-health copy had moved to explicit `source roles` wording, this remaining generic role wording made the Sensors bucket less explicit about source-map ownership.
+- **expected behavior:** Sensors source-mapping progress and blocker summaries should explicitly say `required source roles` / `missing required source roles`, while still reserving deeper mapped-entity detail for diagnostics evidence.
+- **evidence:** direct repo inspection found `_source_placeholders(...)` in `custom_components/zero_net_export/config_flow.py` still building the generic `required roles mapped` and `missing required roles` strings, with focused tests locking that wording.
+- **repo fix:** this run updates the Sensors source-mapping progress and blocker summaries to `required source roles`, records the `0.1.89` changelog note, and adds regression coverage rejecting the older generic `required roles` text.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next `0.1.89` exact-build deploy.
+- **next action:** include this Workstream D/F Sensors source-role wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval rather than refreshing fingerprint bookkeeping.
+
 ## ZNE-255 - Operator-ready checklist ended on vague native-path follow-up wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

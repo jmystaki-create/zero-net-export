@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Clarified Sensors source-mapping progress so required-role counts explicitly say `required source roles` instead of vague `required roles` in the native setup placeholders.
 - Tightened the operator-ready setup-checklist next step so final review stays anchored to the exact native Configure and device Diagnostics paths instead of ending with vague `friction there` wording.
 - Normalized setup-checklist notification and button attributes so stale readiness details cannot revive `unmanaged section` navigation wording after the Managed Devices handoffs have moved to direct fleet-action language.
 - Tightened Managed Devices handoffs so unmanaged-candidate review and ready-promotion next steps read as direct fleet actions instead of section-navigation or `there` fallback wording.
