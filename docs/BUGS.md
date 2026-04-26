@@ -2570,6 +2570,20 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`, and a follow-up grep confirming the duplicated wording no longer appears. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Stage 4 secondary review/audit polish in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+## ZNE-205 - Bug tracker missed the partial-runtime fleet activity fix
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `command_center`
+- **where seen:** watchdog bug-tracker audit on 2026-04-26 after inspecting recent commits against `docs/BUGS.md` and the Detailed remaining work map.
+- **current observed behavior:** repo `HEAD` already contains `c25d022`, which fixes a Workstream A command-center drift where partial runtime summary objects that lacked a `device_count` attribute could collapse the configured fleet count back to `no managed yet`. `docs/BUGS.md` still stopped at the earlier wording/Diagnostics entries and did not record this latest user-visible component fix, so release validation could miss that the exact `0.1.88` component boundary now includes the partial-runtime fleet-preservation patch.
+- **expected behavior:** BUGS.md should record user-visible command-center fixes that change the exact component build needing deploy/restart validation, especially when they affect whether the opening Fleet activity block preserves the configured managed/unmanaged story.
+- **evidence:** `git show --stat c25d022` changes `custom_components/zero_net_export/native_support.py` and `tests/test_command_center_summary.py`; the code now falls back to the configured managed-device count whenever runtime state exists but does not expose `device_count`, instead of only using that fallback when state is `None`. `rg -n "c25d022|partial runtime|configured fleet" docs/BUGS.md docs/UI_IMPLEMENTATION_MAP.md docs/SUPERVISOR.md` had no bug-tracker hit before this entry.
+- **repo fix:** `c25d022` - preserve configured managed-fleet counts in partial command-center runtime summaries and add focused command-center regression coverage. This watchdog run records the missing bug-tracker state so the next exact-build deploy includes that latest Workstream A component fix instead of treating the earlier ZNE-204 copy cleanup as the tail.
+- **validation status:** repo-side fix is already covered by the focused command-center regression added in `c25d022`; this bug-tracker correction was validated by direct recent-commit and BUGS.md inspection. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include `c25d022` in the helper-resolved exact-build deploy through ZNE-003/ZNE-022 validation; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval rather than another unchanged fingerprint/bookkeeping refresh.
+
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
