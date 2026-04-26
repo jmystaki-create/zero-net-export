@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-223 - Sensors source-repair copy kept older mapped-source repair label
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D/F bucket-ownership wording after the runtime Repairs copy had already moved off mapped-source-only labels
+- **current observed behavior:** the Sensors source-mapping step still labeled the ranked handoff as `Mapped-source repair path` even though the screen already says Sensors owns source repair/source health, and runtime/support copy had been tightened to avoid letting mapped-source jargon carry the main operator action.
+- **expected behavior:** Sensors should keep source ownership explicit while using the simpler operator label `Source repair path`, preserving source specificity without reintroducing older mapped-source-only repair wording.
+- **evidence:** repo grep found `Mapped-source repair path` still present in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` after the runtime Repairs notification had already rejected that label.
+- **repo fix:** this run changes the Sensors source-mapping label to `Source repair path` in both translation files and adds bucket-ownership regression coverage rejecting the older label.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this source-repair wording cleanup in the next exact-build deploy/restart validation with the broader Workstream D/F bucket-ownership proof.
+
 ## ZNE-222 - Managed fleet helper sensors buried source blockers inside fleet backlog copy
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

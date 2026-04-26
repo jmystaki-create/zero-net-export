@@ -66,6 +66,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Source map now", source_mapping_description)
         self.assertNotIn("Sensors now", source_mapping_description)
         self.assertIn("Blocking source repair", source_mapping_description)
+        self.assertIn("- Source repair path: {source_repair_step}", source_mapping_description)
+        self.assertNotIn("Mapped-source repair path", source_mapping_description)
         self.assertIn("Live candidate cues for the current blocker:", source_mapping_description)
         self.assertIn("Current source map, for cross-check only:\n{source_mapping_summary}", source_mapping_description)
         self.assertNotIn("Other live candidates, only if the blocker persists:", source_mapping_description)
