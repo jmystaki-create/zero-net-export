@@ -85,6 +85,19 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-221 - Device-page managed review snapshots hid disabled fleet count
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the latest disabled-fleet Workstream B fix against the secondary native device-page review/audit path
+- **current observed behavior:** Configure -> Managed Devices snapshots and managed-fleet sensors now name disabled managed loads, but the Zero Net Export device-page managed workspace/review buttons still summarized only managed/enabled/usable counts. A disabled managed load could therefore disappear from the secondary review/audit snapshot even though the detailed row below still said `disabled`.
+- **expected behavior:** every native Managed Devices review surface, including the secondary device-page buttons, should name disabled managed loads in the top snapshot when they exist so enabled/disabled fleet posture is visible at a glance.
+- **evidence:** repo inspection of `custom_components/zero_net_export/button.py` found `_managed_snapshot_summary(...)` still building `N managed | N enabled | N usable` without a disabled-count fragment, while focused button tests covered disabled rows but not the top snapshot count.
+- **repo fix:** this run adds the disabled-count fragment to `button.py` managed snapshots and updates device-page button regressions so both the managed workspace button and per-device managed review button expect `1 disabled` when disabled loads are present.
+- **validation status:** repo-side fixed and verified with focused button/config-flow/sensor tests plus `py_compile` in this run. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this secondary device-page disabled-fleet visibility fix in the next exact-build deploy/restart validation with the broader Workstream B/E managed-review proof.
+
+
 ## ZNE-220 - Runtime Repairs notification framed every blocker as mapped-source repair
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

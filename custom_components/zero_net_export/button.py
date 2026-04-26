@@ -396,7 +396,11 @@ def _managed_snapshot_summary(device_details: list[dict], *, include_planned_cou
         (detail for detail in _sorted_review_devices(device_details) if detail.get("observed_active") is True),
         None,
     )
-    parts = [_managed_count_label(managed_count), f"{enabled_count} enabled", f"{usable_count} usable"]
+    disabled_count = max(managed_count - enabled_count, 0)
+    parts = [_managed_count_label(managed_count), f"{enabled_count} enabled"]
+    if disabled_count:
+        parts.append(f"{disabled_count} disabled")
+    parts.append(f"{usable_count} usable")
     if active_count:
         if active_power > 0:
             parts.append(f"active load {active_power:g} W")

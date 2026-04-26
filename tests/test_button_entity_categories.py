@@ -445,7 +445,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Managed devices (top section):", message)
-        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | 2 managed devices need attention | attention first EV charger | blocked EV charger | plan Pool pump", message)
+        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 disabled | 1 usable | 2 managed devices need attention | attention first EV charger | blocked EV charger | plan Pool pump", message)
         self.assertIn("Managed devices needing attention first:", message)
         self.assertIn("Other managed devices:", message)
         self.assertIn("Unmanaged candidates (bottom section):", message)
@@ -725,7 +725,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
-        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | active device Pool pump (action turn_on | active 1180 W) | 2 managed devices need attention | attention first EV charger | blocked EV charger | 1 planned action | plan Pool pump", message)
+        self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 disabled | 1 usable | active load 1180 W | 1 active managed device | active device Pool pump (action turn_on | active 1180 W) | 2 managed devices need attention | attention first EV charger | blocked EV charger | 1 planned action | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | surfaced Hot water | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Currently surfaced candidate usefulness: likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay.", message)
         self.assertIn("Currently surfaced candidate warnings: No immediate warnings.", message)
