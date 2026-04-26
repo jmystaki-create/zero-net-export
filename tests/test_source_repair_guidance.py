@@ -548,9 +548,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("- Recommended path now:", support_center)
         self.assertNotIn("- Why this section is recommended:", support_center)
         self.assertIn(
-            f"- Source-map evidence: {native_support.SOURCES_CONFIGURE_PATH}",
+            f"- Source-role evidence: {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
+        self.assertNotIn("- Source-map evidence:", support_center)
         self.assertNotIn("For deeper source-map detail", support_center)
         self.assertNotIn("deeper triage", support_center)
         self.assertIn(
@@ -1244,9 +1245,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("Selector workaround", support_center)
         self.assertIn("Exact-build step: install repair step", support_center)
         self.assertIn(
-            f"Source-map evidence: {native_support.SOURCES_CONFIGURE_PATH}",
+            f"Source-role evidence: {native_support.SOURCES_CONFIGURE_PATH}",
             support_center,
         )
+        self.assertNotIn("Source-map evidence:", support_center)
         self.assertNotIn("For deeper source-map detail", support_center)
         self.assertIn(
             f"Blocked-role candidate cues: Open {native_support.SOURCES_CONFIGURE_PATH} to review live source candidates for the blocked roles.",
