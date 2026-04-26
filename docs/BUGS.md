@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-296 - Managed Devices issue-repair next step still said return here
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B/C/D for remaining helper-style next-step wording after the latest `here` cleanup.
+- **current observed behavior:** the Managed Devices next-step builder still returned `Repair the managed-device issues first, then return here to review enablement or add another load.` when managed-device issues were present, making the primary fleet workspace sound like a local helper screen.
+- **expected behavior:** issue-repair handoffs should name the Managed Devices workspace directly and keep enablement/add-device follow-up anchored to the native fleet workspace.
+- **evidence:** direct repo inspection found the stale phrase in `custom_components/zero_net_export/config_flow.py`; no existing regression guarded it.
+- **repo fix:** this run rewrites the next step to `Repair managed-device issues, then return to the Managed Devices workspace to review enablement or add another load.` and adds bucket-ownership regression coverage rejecting the old `return here` phrasing.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream B/C Managed Devices handoff cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-295 - Controls and command-center handoffs still used helper-style here phrasing
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

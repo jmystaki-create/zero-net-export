@@ -134,6 +134,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("No required source roles currently look stale", coordinator_source)
         self.assertNotIn("unavailable mapped role", config_flow_source)
         self.assertNotIn("stale mapped role", config_flow_source)
+        self.assertNotIn("return here to review enablement", config_flow_source)
+        self.assertIn("return to the Managed Devices workspace to review enablement", config_flow_source)
         self.assertNotIn("required mapped roles are complete", native_support_source)
         self.assertNotIn("repair these highlighted mapped roles first", native_support_source)
         self.assertNotIn("review the mapped sources", native_support_source)

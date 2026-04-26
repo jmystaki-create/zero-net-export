@@ -2855,7 +2855,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         primary_candidate = review_candidate or top_candidate
         if issues:
-            return "Repair the managed-device issues first, then return here to review enablement or add another load."
+            return "Repair managed-device issues, then return to the Managed Devices workspace to review enablement or add another load."
         if not devices and primary_candidate:
             next_step = (
                 f"Start by reviewing {self._top_candidate_focus_text(primary_candidate)} through the matching promotion action below, then save it into the Managed Devices workspace"
