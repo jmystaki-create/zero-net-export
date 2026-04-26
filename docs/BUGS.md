@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-230 - Validation checklist still directed approval at 0.1.88
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-26 after `docs/UI_IMPLEMENTATION_MAP.md`, `docs/SUPERVISOR.md`, and `docs/RELEASE_0.1.89_PLAN.md` moved the active rollout to `0.1.89`.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still said not to skip the mapped `0.1.88` workstream order, told the supervisor to ask James to approve deploy/restart of the helper-resolved exact `0.1.88` build, and said to package the result as the next release after live install validation.
+- **expected behavior:** the validation ledger should align with the active `0.1.89` release line: finish the final A-D/F repo-side check, ask James directly for the `0.1.89` freeze/release/deploy/restart path, freeze/publish the approved helper-resolved candidate, then validate the installed `0.1.89` build.
+- **evidence:** repo grep found active `0.1.88` release-boundary instructions in `docs/VALIDATION_CHECKLIST.md` while the current implementation map and release plan define `0.1.89` as the follow-up candidate and treat published `v0.1.88` as historical unless James explicitly asks to retag.
+- **repo fix:** this run updates the checklist's recommended validation order onto `0.1.89`, makes the approval boundary explicit as freeze/release/deploy/restart rather than only deploy/restart, and changes the post-install instruction to record `0.1.89` live validation evidence instead of packaging an already-installed build as the next release.
+- **validation status:** repo-side fixed and verified by direct grep/inspection in this run; no live Home Assistant validation is required for this process-doc correction.
+- **next action:** continue the final concrete A-D/F repo-side defect check; if no sharper implementation defect remains, ask James directly to approve the `0.1.89` freeze/release/deploy/restart path instead of refreshing old `0.1.88` release-boundary wording.
+
 ## ZNE-229 - Steering still named 0.1.88 after the map moved the rollout to 0.1.89
 - **status:** `validated`
 - **severity:** `medium`

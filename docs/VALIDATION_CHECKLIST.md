@@ -6,12 +6,12 @@ Supervisor note: this document is the evidence ledger for the release gates defi
 
 ## Recommended next validation run
 
-Supervisor note: this checklist is a validation ledger, not a standing instruction to skip the mapped `0.1.88` workstream order.
+Supervisor note: this checklist is a validation ledger, not a standing instruction to skip the mapped `0.1.89` workstream order.
 
 Current release-boundary order:
 1. Complete one final concrete repo-side A-D/F defect check against `docs/UI_IMPLEMENTATION_MAP.md`.
-2. If that check finds no sharper implementation defect, ask James directly to approve deploy/restart of the helper-resolved exact `0.1.88` build.
-3. Only after approval, use the deploy and fingerprint commands below, then perform the live Home Assistant validation pass.
+2. If that check finds no sharper implementation defect, ask James directly to approve the `0.1.89` freeze/release/deploy/restart path.
+3. Only after approval, freeze the helper-resolved candidate as `0.1.89`, publish it, use the deploy/fingerprint commands below for the approved build, then perform the live Home Assistant validation pass.
 
 Repo-side helper for mixed-build checks:
 - Run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` in this repo before trusting deploy or validation results. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the remote Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the live install path is inspected over SSH without remote Python. For release/deploy boundaries, the helper now keeps `expected_commit`, `expected_component_commit`, and `preferred_validation_commit` aligned on the latest component-changing commit, while exposing full repo HEAD separately as `repo_head_commit`, so doc-only or bug-tracker-only commits do not create false deploy-candidate drift. Compare that component anchor, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or the device-page Review diagnostics / Review diagnostics snapshot actions.
@@ -31,7 +31,7 @@ After James approves deploy/restart and the exact build is installed, validate i
    - confirm readiness moves from installed -> mapped -> operational
 2. Use at least one real controllable device and verify a real control loop decision/action path.
 3. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel, sidebar, or external UI handoff.
-4. If the install is good, package the result as the next release. If not, capture the exact failure surface and fix that before doing more UX expansion.
+4. If the install is good, record the live validation evidence against `0.1.89`. If not, capture the exact failure surface and fix that before doing more UX expansion.
 
 This is the live validation path once the repo-side A-D/F check is clean and James has approved deploy/restart; it must not be used to justify another unchanged fingerprint or release-bookkeeping loop.
 
