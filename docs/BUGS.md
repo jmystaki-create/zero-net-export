@@ -2583,6 +2583,19 @@ Suggested area labels:
 - **validation status:** repo-side fix is already covered by the focused command-center regression added in `c25d022`; this bug-tracker correction was validated by direct recent-commit and BUGS.md inspection. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include `c25d022` in the helper-resolved exact-build deploy through ZNE-003/ZNE-022 validation; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval rather than another unchanged fingerprint/bookkeeping refresh.
 
+## ZNE-206 - Current 0.1.88 changelog still leaked stale ranking/deeper-path wording
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-26 while comparing the `0.1.88` changelog candidate against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the current Workstream B/C/E wording direction.
+- **current observed behavior:** the active `0.1.88` changelog highlights still described `deeper review`, `runtime-ranked managed-device status`, `top candidate fit and warnings`, and a `managed-device deep-review path`. Those phrases were release-facing metadata, not only historical bug text, so the native release/info surfaces could reintroduce ranking and deeper-path language after the product copy and source-of-truth docs had moved to surfaced-candidate and secondary review/audit wording.
+- **expected behavior:** the current candidate changelog should preserve the shipped feature history without implying a pre-ranked best unmanaged candidate or a competing deeper managed-device path.
+- **evidence:** `rg -n "top candidate|top-candidate|runtime-ranked|deeper review|deep-review" CHANGELOG.md` found stale language in the current `0.1.88` section, while `docs/UI_IMPLEMENTATION_MAP.md` now says `first surfaced candidate quality` and `secondary review/audit inspection`.
+- **repo fix:** this run updates the current `0.1.88` changelog highlights to say `surfaced-candidate fit and warnings`, `runtime-aware managed-device status`, and `secondary review/audit path`, and adds release-info regression coverage so the current candidate changelog cannot reintroduce those stale phrases.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync`; live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real next boundary is direct James deploy/restart approval, not another unchanged fingerprint/bookkeeping refresh.
+
 
 ## Closure rule
 

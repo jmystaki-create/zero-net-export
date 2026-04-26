@@ -71,6 +71,19 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertIn("Home Assistant", info["changes_preview"])
 
+    def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
+        sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
+        current_section = next(
+            section for section in sections if section["version"] == release_info.INTEGRATION_VERSION
+        )
+        current_highlights = "\n".join(current_section["highlights"])
+
+        self.assertNotIn("top candidate", current_highlights)
+        self.assertNotIn("top-candidate", current_highlights)
+        self.assertNotIn("runtime-ranked", current_highlights)
+        self.assertNotIn("deeper review", current_highlights)
+        self.assertNotIn("deep-review", current_highlights)
+
     def test_cli_steps_use_parent_custom_components_path_for_component_root(self) -> None:
         steps = release_info.build_install_validation_cli_steps(
             {"component_root": "/tmp/ha config/custom_components/zero_net_export"}
