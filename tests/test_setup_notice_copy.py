@@ -192,6 +192,14 @@ class SetupNoticeCopyTests(unittest.TestCase):
             module._normalize_native_setup_notice_text("Repair mapped-role blockers, then review mapped sources."),
             "Repair source-role blockers, then review source roles.",
         )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Open Sensors and finish the missing source roles."),
+            "Open sensors path and finish the missing source roles.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Open Managed Devices to review candidates."),
+            "Open devices path to review candidates.",
+        )
 
 
 if __name__ == "__main__":

@@ -553,6 +553,18 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("finish required source roles", normalized)
         self.assertNotIn("Open Configure and finish source", normalized)
 
+    def test_native_path_normalization_expands_bare_section_handoffs(self) -> None:
+        native_support = _load_native_support_module()
+
+        normalized = native_support._normalize_native_path_text(
+            "Open Sensors and finish the missing source roles. Open Managed Devices to review candidates."
+        )
+
+        self.assertIn(native_support.SOURCES_CONFIGURE_PATH, normalized)
+        self.assertIn(native_support.DEVICES_CONFIGURE_PATH, normalized)
+        self.assertNotIn("Open Sensors and", normalized)
+        self.assertNotIn("Open Managed Devices to", normalized)
+
     def test_command_center_fleet_activity_grouping_keeps_source_blocker_outside_managed_bucket(self) -> None:
         native_support = _load_native_support_module()
 
