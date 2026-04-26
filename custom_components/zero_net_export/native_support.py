@@ -159,6 +159,18 @@ def _normalize_native_path_text(text: Any) -> str:
     }
     for old, new in replacements.items():
         value = value.replace(old, new)
+    arrow_paths = {
+        "Sensors": SOURCES_CONFIGURE_PATH,
+        "Controls": POLICY_CONFIGURE_PATH,
+        "Managed Devices": DEVICES_CONFIGURE_PATH,
+        "Diagnostics": SUPPORT_CONFIGURE_PATH,
+    }
+    for section_label, section_path in arrow_paths.items():
+        value = re.sub(
+            rf"(?<!Zero Net Export -> )Configure -> {re.escape(section_label)}",
+            section_path,
+            value,
+        )
     section_paths = {
         SOURCES_SECTION_LABEL: SOURCES_CONFIGURE_PATH,
         "Sources": SOURCES_CONFIGURE_PATH,

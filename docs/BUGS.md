@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-340 - Bare Configure bucket handoffs could bypass exact native path normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native path normalization after ZNE-331 and ZNE-335.
+- **current observed behavior:** command-center/support normalization covered bare `Configure > Sensors` style handoffs and both normalizers covered `Open Configure -> ...`, but cached/fallback text using bare arrow bucket labels such as `Configure -> Managed Devices` could either remain shorthand or, when naively normalized, risk rewriting already-expanded exact native paths. Setup-notification normalization also lacked bare `Configure > ...` coverage.
+- **expected behavior:** cached Configure bucket labels should normalize to the exact `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> ...` native paths before command-center summaries, device-page support text, or persistent setup notifications render them, without double-expanding already exact native paths.
+- **evidence:** focused regressions now exercise bare `Configure > ...` and `Configure -> ...` handoffs in both normalizers and keep already-expanded exact paths stable through the surrounding command-center coverage.
+- **repo fix:** this run adds bare Configure bucket normalization for setup notifications, adds guarded bare-arrow `Configure -> ...` normalization in both setup-notification and command-center/support normalizers, and covers both paths with focused regression tests.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-339 - Setup notification normalization could produce doubled source-role wording for spaced mapped-source fallback text
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
