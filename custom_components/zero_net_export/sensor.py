@@ -1103,7 +1103,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     return blocking_details
                 return "None"
             if summary != "None" or summarize_validation_issue_messages(state, severities={"error"}, limit=3) != "None":
-                return f"Open {SOURCES_CONFIGURE_PATH}, repair mapped-source blockers, then save and reload the integration"
+                return f"Open {SOURCES_CONFIGURE_PATH}, repair source blockers, then save and reload the integration"
             recommended_next_step = str(build_native_operator_readiness(self.coordinator).get("next_step") or "").strip()
             if recommended_next_step:
                 return recommended_next_step

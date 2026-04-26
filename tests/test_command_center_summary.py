@@ -2208,7 +2208,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         native_support.build_native_operator_readiness = lambda coordinator: {
             "phase": "operator_ready",
             "summary": "Runtime looks healthy.",
-            "next_step": "Repair the mapped-source blockers first.",
+            "next_step": "Repair the source blockers first.",
         }
         native_support.build_source_attention_details = lambda state: {
             "unavailable_source_keys": [native_support.CONF_GRID_EXPORT_POWER_ENTITY],
@@ -2257,7 +2257,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         native_support.build_native_operator_readiness = lambda coordinator: {
             "phase": "operator_ready",
             "summary": "Runtime looks healthy.",
-            "next_step": "Repair the mapped-source blockers first.",
+            "next_step": "Repair the source blockers first.",
         }
         native_support.build_source_attention_details = lambda state: {
             "unavailable_source_keys": [native_support.CONF_GRID_EXPORT_POWER_ENTITY],
@@ -5529,7 +5529,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         native_support.build_native_operator_readiness = lambda coordinator: {
             "phase": "operator_ready",
             "summary": "Runtime looks healthy.",
-            "next_step": "Repair the mapped-source blockers first.",
+            "next_step": "Repair the source blockers first.",
         }
         native_support.build_source_attention_details = lambda state: {
             "unavailable_source_keys": [native_support.CONF_GRID_EXPORT_POWER_ENTITY],

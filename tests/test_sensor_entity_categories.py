@@ -1284,6 +1284,27 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("sources path", next_step.native_value)
 
+    def test_mapped_source_blocker_next_step_uses_operator_source_blocker_wording(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module.build_source_attention_summary = lambda *args, **kwargs: "Solar power unavailable"
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "mapped_source_blocker_next_step",
+            "Mapped-source blocker next step",
+        )
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            next_step.native_value,
+            "Open sources path, repair source blockers, then save and reload the integration",
+        )
+        self.assertNotIn("repair mapped-source blockers", next_step.native_value)
+
     def test_mapped_source_blocker_next_step_reuses_operator_readiness_when_sources_are_healthy(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module.build_native_operator_readiness = lambda coordinator: {

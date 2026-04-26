@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-233 - Source-repair next steps still used mapped-source blocker jargon
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking remaining Workstream A/D/F source-blocker wording after the command-center top alert, setup check, Repairs, and Sensors source-repair labels had moved to operator-facing source-blocker language.
+- **current observed behavior:** active source-repair handoffs still surfaced `mapped-source blockers` in visible next-step copy. `build_source_repair_step(...)` told operators to repair `these mapped-source blockers`, and the `mapped_source_blocker_next_step` helper sensor said `repair mapped-source blockers`, leaving lower-level mapping jargon in the native Sensors/source-repair path after adjacent surfaces had already switched to `Source blockers` / `source blockers`.
+- **expected behavior:** source-repair next steps should use operator-facing `source blockers` wording while preserving mapped-role detail in the diagnostic explanation where it helps repair the actual entities.
+- **evidence:** repo grep found the remaining active product-code hits in `custom_components/zero_net_export/native_support.py` and `custom_components/zero_net_export/sensor.py`, with focused source-repair and sensor tests still accepting that wording.
+- **repo fix:** this run changes the visible repair handoffs to `source blockers`, keeps the mapped-entity detail sentence for actual repair context, and updates focused tests so the helper sensor rejects the older `repair mapped-source blockers` wording.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_sensor_entity_categories tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/sensor.py tests/test_source_repair_guidance.py tests/test_sensor_entity_categories.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this source-repair wording cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of refreshing unchanged fingerprint bookkeeping.
+
 ## ZNE-232 - Watchdog guidance still named 0.1.88 implementation runway
 - **status:** `validated`
 - **severity:** `medium`

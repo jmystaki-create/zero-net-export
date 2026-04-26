@@ -1633,9 +1633,9 @@ def build_source_repair_step(
         repair_actions.append(f"refresh or replace stale readings for {stale_roles}")
     if attention_parts:
         blocker_text = (
-            f"these mapped-source blockers first: {affected_roles_text}"
+            f"these source blockers first: {affected_roles_text}"
             if affected_roles_text and affected_roles_text != "None"
-            else f"these mapped-source blockers ({'; '.join(attention_parts)})"
+            else f"these source blockers ({'; '.join(attention_parts)})"
         )
         repair_action_text = "; ".join(repair_actions)
         confirm_role_parts = [role for role in (unavailable_roles, stale_roles) if role != "None"]

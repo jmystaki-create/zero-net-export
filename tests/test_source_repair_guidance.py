@@ -137,7 +137,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "Grid export power -> Grid Export (stale 245 s)"
             ),
         )
-        self.assertIn("repair these mapped-source blockers first", guidance)
+        self.assertIn("repair these source blockers first", guidance)
+        self.assertNotIn("mapped-source blockers", guidance)
         self.assertIn("Solar power -> Pv Power (unavailable)", guidance)
         self.assertIn("Grid export power -> Grid Export (stale 245 s)", guidance)
         self.assertIn("make sure the mapped entities still exist and are reporting fresh numeric values", guidance)
@@ -376,7 +377,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "recommended_section": "Sensors",
                 "recommended_path": native_support.SOURCES_CONFIGURE_PATH,
                 "recommended_reason": "Mapped source blockers: Solar power unavailable.",
-                "next_action_summary": "Repair the mapped-source blockers first.",
+                "next_action_summary": "Repair the source blockers first.",
                 "install_status": "install summary",
                 "install_consistency": "install consistency",
                 "headline_decision": "Source data needs attention, control is constrained.",
@@ -394,7 +395,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "device_status": "Managed Devices: no managed yet",
                 "device_next_step": "Add a controllable load.",
                 "policy_status": "Mode Automatic",
-                "policy_readiness": "Repair mapped-source blockers first.",
+                "policy_readiness": "Repair source blockers first.",
                 "support_status": "Runtime attention remains.",
                 "detailed_management_summary": "Use the device page for secondary per-device review.",
                 "sources_path": native_support.SOURCES_CONFIGURE_PATH,
@@ -413,7 +414,7 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("This surface is for the basic setup only.", guide)
         self.assertNotIn("Open Managed Devices only after the current setup blockers are clear.", guide)
         self.assertIn("Now", guide)
-        self.assertIn("- Next action: Repair the mapped-source blockers first.", guide)
+        self.assertIn("- Next action: Repair the source blockers first.", guide)
         self.assertNotIn("- Recommended section:", guide)
         self.assertNotIn("- Recommended path:", guide)
         self.assertIn("Structured control board", guide)
