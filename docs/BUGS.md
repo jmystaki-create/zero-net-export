@@ -2597,6 +2597,20 @@ Suggested area labels:
 - **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real next boundary is direct James deploy/restart approval, not another unchanged fingerprint/bookkeeping refresh.
 
 
+## ZNE-207 - ENTITY_MODEL still described secondary review rows as runtime-ranked
+
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog source-doc audit on 2026-04-26 while rechecking active non-historical docs against the current `0.1.88` secondary review/audit and neutral surfaced-candidate wording.
+- **current observed behavior:** `docs/ENTITY_MODEL.md` still described `button.zero_net_export_show_managed_device_review` as publishing `runtime-ranked managed rows`. That left one active supplemental doc on older ranking language after the release-facing changelog and product copy had moved to runtime-aware / secondary review-audit wording.
+- **expected behavior:** supplemental entity documentation should not imply the device-page managed-device review path ranks managed devices as a primary decision surface; it should describe the rows as runtime-aware and the path as secondary review/audit support for Configure -> Managed Devices.
+- **evidence:** `rg -n "runtime-ranked" docs/ENTITY_MODEL.md CHANGELOG.md custom_components tests -g '!docs/BUGS.md'` found the remaining active hit in `docs/ENTITY_MODEL.md`.
+- **repo fix:** this run updates `docs/ENTITY_MODEL.md` to say `runtime-aware managed rows` and `device-page review/audit handoff` for `button.zero_net_export_show_managed_device_review`.
+- **validation status:** repo-side fixed and validated by grep; `runtime-ranked` no longer appears in active non-historical docs or product code outside this bug-tracker entry and the release-info regression assertion that rejects the old wording.
+- **next action:** keep supplemental docs aligned with runtime-aware / secondary review-audit wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

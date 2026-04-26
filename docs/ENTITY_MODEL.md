@@ -26,7 +26,7 @@
 - `button.zero_net_export_show_fleet_console`
   - publishes the Managed Devices workspace snapshot with managed devices on top, unmanaged candidates below, and the primary Configure handoff back into `Configure -> Managed Devices`
 - `button.zero_net_export_show_managed_device_review`
-  - publishes the secondary managed-devices audit/review with runtime-ranked managed rows, currently surfaced unmanaged candidates, and the device-page review handoff
+  - publishes the secondary managed-devices audit/review with runtime-aware managed rows, currently surfaced unmanaged candidates, and the device-page review/audit handoff
 - `button.zero_net_export_show_native_support_center`
   - publishes the native Diagnostics guide with readiness, blocker-first troubleshooting guidance, and the current Configure / Diagnostics paths
 - `button.zero_net_export_show_native_diagnostics`
