@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-300 - Fallback field descriptions still used local here wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F for remaining helper-style field-level copy after prior `here` wording cleanup.
+- **current observed behavior:** Sensors fallback field descriptions still told operators to `paste the same energy entity ID here` / `paste the same battery SOC entity ID here`, and the Managed Devices advanced JSON recovery field still said `Paste a JSON array of controllable devices here`, leaving local field-level helper wording in otherwise bucket-owned native paths.
+- **expected behavior:** fallback and recovery field descriptions should name the field purpose directly and keep operators anchored in Sensors or Managed Devices without `here` phrasing.
+- **evidence:** direct repo inspection found the stale phrases in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; no existing regression guarded those field descriptions.
+- **repo fix:** this run changes the Sensors selector fallback descriptions to `into this fallback field`, changes the Managed Devices JSON recovery description to `into this recovery field`, syncs translations, and adds regression guards rejecting the old `here` wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F field-description cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-299 - Full-list manual-add fallback still used here-based absence wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

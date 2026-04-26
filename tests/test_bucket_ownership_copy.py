@@ -117,6 +117,16 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "selector validation rejects a valid entity",
             source_mapping_data_description["battery_soc_entity"],
         )
+        self.assertIn(
+            "paste the same energy entity ID into this fallback field",
+            source_mapping_data_description["grid_energy_entity_manual"],
+        )
+        self.assertIn(
+            "paste the same battery SOC entity ID into this fallback field",
+            source_mapping_data_description["battery_soc_entity_manual"],
+        )
+        self.assertNotIn("paste the same energy entity ID here", source_mapping_data_description["grid_energy_entity_manual"])
+        self.assertNotIn("paste the same battery SOC entity ID here", source_mapping_data_description["battery_soc_entity_manual"])
 
         validation_checklist = (
             Path(__file__).resolve().parents[1] / "docs" / "VALIDATION_CHECKLIST.md"
@@ -235,6 +245,14 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn(
             "use the advanced JSON editor only for recovery or bulk managed-device repair",
             steps["devices"]["data_description"]["device_action"],
+        )
+        self.assertIn(
+            "Paste a JSON array of controllable devices into this recovery field",
+            steps["devices_json"]["data_description"]["device_inventory_json"],
+        )
+        self.assertNotIn(
+            "Paste a JSON array of controllable devices here",
+            steps["devices_json"]["data_description"]["device_inventory_json"],
         )
         self.assertNotIn(
             "toggle which devices stay enabled, edit an existing device, remove a device",
