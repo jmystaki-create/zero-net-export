@@ -2703,6 +2703,19 @@ Suggested area labels:
 - **validation status:** repo-side fixed by `8d9e66c` and re-verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_command_center_setup_focus tests.test_source_repair_guidance tests.test_translation_sync`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include `8d9e66c` in the helper-resolved exact-build deploy through ZNE-003/ZNE-022 validation; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval rather than another unchanged fingerprint/bookkeeping refresh.
 
+## ZNE-215 - Current 0.1.88 changelog still described 0.1.86 as the active release line
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-26 while comparing the current `0.1.88` changelog against `docs/UI_DESIGN.md` and the `0.1.88` Detailed remaining work map.
+- **current observed behavior:** the active `0.1.88` changelog still said exact-build tooling followed the active `0.1.86` release line / active UI-correction line. That wording was in the current candidate section, not only old historical release notes, so native release-info surfaces could reintroduce stale target-line language after the source-of-truth docs moved the UI rollout boundary to `0.1.88`.
+- **expected behavior:** the current candidate changelog should preserve the stabilization history without making `0.1.86` sound like the active or future UI release target.
+- **evidence:** `rg -n "active UI-correction line|active .*0\\.1\\.86.*release line" CHANGELOG.md tests/test_release_info_install_guidance.py` found the stale current-candidate wording before this fix.
+- **repo fix:** this run rewrites those current `0.1.88` changelog highlights to say exact-build tooling no longer follows older rollback candidates and that the current `0.1.88` candidate owns the UI rollout boundary. `tests/test_release_info_install_guidance.py` now rejects the stale active-`0.1.86` release-line wording in current candidate highlights.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is a direct James deploy/restart approval ask rather than another stale release-line or fingerprint refresh.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

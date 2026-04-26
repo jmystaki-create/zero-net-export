@@ -28,10 +28,10 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Updated the native command-center blocker logic to treat those non-blocking stale energy totals as visible diagnostics instead of active blockers, so healthy power-path installs are steered toward the real next operator path again.
 - Documented the required Home Assistant SSH fallback path in `TOOLS.md`, including the `/config` check and rerun-discovery step the supervisor should try before declaring live deploy or restart validation blocked.
 - Strengthened the exact-build config-path discovery helper so it now reports Docker and Podman runtime status, inspects running Home Assistant container mounts for host-side `/config` paths, and prints an explicit container-runtime follow-up when discovery still cannot see the live install from the current shell.
-- Realigned the repo working version to `0.1.86` across the manifest, changelog, README, and install-helper regression expectations so the active UI-correction line no longer drifts behind the live release line defined in `docs/SUPERVISOR.md`.
+- Realigned release-line metadata across the manifest, changelog, README, and install-helper regression expectations during stabilization so exact-build tooling no longer followed older rollback candidates; the current `0.1.88` candidate now owns the UI rollout boundary.
 - Replaced the remaining vague `integration/device surfaces` wording in README, product spec, and optional dashboard follow-up docs with the exact native Configure plus device-path guidance, so operator-path docs stop drifting behind the source-of-truth UI design.
 - Corrected the remaining README install/operator-path shorthand plus the bootstrap validation checklist so they now point to the exact `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure` path instead of generic `Configure` wording.
-- Removed the stale `0.1.83` release-target drift from shipped metadata and test expectations, so exact-build tooling now follows the active `0.1.86` release line instead of an older rollback candidate.
+- Removed stale pre-`0.1.88` release-target drift from shipped metadata and test expectations, so exact-build tooling follows the current UI rollout candidate instead of an older rollback line.
 
 ## [0.1.82] - 2026-04-14
 

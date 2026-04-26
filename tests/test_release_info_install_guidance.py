@@ -86,6 +86,9 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("back into the full Settings", current_highlights)
         self.assertNotIn("deeper review", current_highlights)
         self.assertNotIn("deep-review", current_highlights)
+        self.assertNotIn("active `0.1.86` release line", current_highlights)
+        self.assertNotIn("active UI-correction line", current_highlights)
+        self.assertNotIn("0.1.86` release line", current_highlights)
 
     def test_cli_steps_use_parent_custom_components_path_for_component_root(self) -> None:
         steps = release_info.build_install_validation_cli_steps(
