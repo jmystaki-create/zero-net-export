@@ -1453,7 +1453,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if fixed_ready_candidate_count:
                     label += f" / {_ready_count_label(fixed_ready_candidate_count)}"
                 return label
-            return "Add fixed load device manually"
+            return "Manual add path in Managed Devices workspace / fixed load"
         if action == "add_variable":
             if variable_candidate_count:
                 label = (
@@ -1465,7 +1465,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 if variable_ready_candidate_count:
                     label += f" / {_ready_count_label(variable_ready_candidate_count)}"
                 return label
-            return "Add variable load device manually"
+            return "Manual add path in Managed Devices workspace / variable load"
         if action == "bulk_enable":
             label = (
                 "Review managed devices workspace / enable or disable devices"

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-225 - No-candidate Managed Devices selector fell back to generic add-device labels
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream B/C fallback wording after the manual-add guidance had already moved to Managed Devices workspace language
+- **current observed behavior:** when no unmanaged candidates were surfaced, the Configure -> Managed Devices action selector still showed `Add fixed load device manually` and `Add variable load device manually`. That left the no-candidate fallback sounding like a generic helper add form even though the surrounding shortlist/full-list/manual guidance now says manual entry is the manual add path inside the Managed Devices workspace.
+- **expected behavior:** no-candidate fallback labels should keep operators in the native Managed Devices workspace language while still making clear that fixed-load or variable-load manual entry is only the fallback when no surfaced candidate fits.
+- **evidence:** repo inspection of `custom_components/zero_net_export/config_flow.py` found `_device_action_label(...)` still returning the older generic manual labels, and `tests/test_config_flow_device_runtime_overlay.py` was locking those labels in place.
+- **repo fix:** this run changes the no-candidate selector labels to `Manual add path in Managed Devices workspace / fixed load` and `Manual add path in Managed Devices workspace / variable load`, and updates the focused Managed Devices selector regression.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this fallback-label cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still a direct James tag/release/deploy decision, not another unchanged fingerprint refresh.
+
 ## ZNE-224 - Empty-fleet command-center fallback leaked configured-device wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

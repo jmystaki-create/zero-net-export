@@ -1121,8 +1121,12 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         devices = asyncio.run(flow.async_step_devices())
         options = devices["data_schema"]["device_action"]["options"]
 
-        self.assertEqual(options[0]["label"], "Add fixed load device manually")
-        self.assertEqual(options[1]["label"], "Add variable load device manually")
+        self.assertEqual(
+            options[0]["label"], "Manual add path in Managed Devices workspace / fixed load"
+        )
+        self.assertEqual(
+            options[1]["label"], "Manual add path in Managed Devices workspace / variable load"
+        )
         self.assertEqual(options[2]["label"], "Advanced JSON editor / recovery")
 
     def test_detailed_management_summary_falls_back_to_secondary_review_path_wording(self) -> None:
