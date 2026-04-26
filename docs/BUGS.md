@@ -2625,6 +2625,20 @@ Suggested area labels:
 - **next action:** include this Managed Devices save-feedback polish in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
 
+## ZNE-209 - Current 0.1.88 changelog still used shorthand Managed Devices handoff
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-26 while rechecking the current `0.1.88` changelog against the native path wording in `docs/UI_DESIGN.md` and the Workstream B/E hierarchy in `docs/UI_IMPLEMENTATION_MAP.md`.
+- **current observed behavior:** the active `0.1.88` changelog still said the device-page fleet-console action hands promotion `back into Configure -> Managed Devices`. That was release-facing shorthand on the current candidate after the source-of-truth docs and recent product copy fixes moved operator guidance to full native Home Assistant paths.
+- **expected behavior:** current release metadata should use the same explicit native path as the product surfaces: `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices`, while keeping the device page as a secondary review/audit path.
+- **evidence:** this run found the phrase `back into Configure -> Managed Devices` in the current `0.1.88` changelog section; historical changelog text may preserve older wording, but current candidate highlights feed release/install guidance and should not reintroduce shorthand path copy.
+- **repo fix:** this run updates the current `0.1.88` changelog highlight to name the full Managed Devices path and extends the release-info regression so the current candidate highlights reject `back into Configure -> Managed Devices`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
+- **next action:** include this release-metadata cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is a direct James approval ask for deploy/restart of the exact `0.1.88` build, not another fingerprint/bookkeeping refresh.
+
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.
