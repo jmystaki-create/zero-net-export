@@ -76,13 +76,13 @@ DIAGNOSTICS_DEVICE_ACTIONS_PATH = (
 def _normalize_source_mapping_case_drift(value: str) -> str:
     """Catch title-case source-mapping fallback text before it reaches HA."""
     value = re.sub(
-        r"\bOpen Configure and finish (?:required )?(?:source[- ]mappings?|source roles?)\b",
+        r"\bOpen Configure and finish (?:required )?(?:source[- ]mappings?|source[- ]roles?)\b",
         f"Open {SOURCES_CONFIGURE_PATH} and finish required source roles",
         value,
         flags=re.IGNORECASE,
     )
     value = re.sub(
-        r"\bOpen Configure to finish (?:required )?(?:source[- ]mappings?|source roles?)\b",
+        r"\bOpen Configure to finish (?:required )?(?:source[- ]mappings?|source[- ]roles?)\b",
         f"Open {SOURCES_CONFIGURE_PATH} to finish required source roles",
         value,
         flags=re.IGNORECASE,

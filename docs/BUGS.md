@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-371 - Hyphenated source-role handoffs could keep bare Configure paths in native guidance
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking repeated Workstream D/F source-role path-normalization fixes for remaining current-term variants.
+- **current observed behavior:** cached or fallback text using current hyphenated wording such as `Open Configure to finish source-role` or `Open Configure and finish required source-role` was not caught by the bare-Configure handoff normalizers. Those strings could therefore render as a generic Configure instruction instead of the exact native Sensors path, even though spaced `source role` and legacy `source mapping` variants were already normalized.
+- **expected behavior:** all source-role/source-mapping handoffs, including hyphenated `source-role` and `source-roles` variants, should point to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors` before Home Assistant renders command-center or setup-notification copy.
+- **evidence:** direct repo inspection found `_normalize_source_mapping_case_drift(...)` in both `native_support.py` and `__init__.py` matched `source roles?` but not `source[- ]roles?`, leaving hyphenated current source-role variants outside the exact-path rewrite.
+- **repo fix:** this run broadens both normalizers to accept hyphenated source-role handoffs and adds regression coverage in `tests/test_command_center_summary.py` and `tests/test_setup_notice_copy.py`.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization fix in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more unchanged fingerprint bookkeeping.
+
 ## ZNE-370 - Setup checklist button notification bypassed native path normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -614,6 +614,7 @@ class CommandCenterSummaryTests(unittest.TestCase):
         and_normalized = native_support._normalize_native_path_text("Open Configure and finish Source Mapping.")
         to_normalized = native_support._normalize_native_path_text("Open Configure to finish Source Roles.")
         singular_normalized = native_support._normalize_native_path_text("Open Configure to finish Source Role.")
+        hyphen_normalized = native_support._normalize_native_path_text("Open Configure to finish source-role.")
 
         self.assertEqual(
             and_normalized,
@@ -627,9 +628,14 @@ class CommandCenterSummaryTests(unittest.TestCase):
             singular_normalized,
             f"Open {native_support.SOURCES_CONFIGURE_PATH} to finish required source roles.",
         )
+        self.assertEqual(
+            hyphen_normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} to finish required source roles.",
+        )
         self.assertNotIn("Open Configure", and_normalized)
         self.assertNotIn("Open Configure", to_normalized)
         self.assertNotIn("Open Configure", singular_normalized)
+        self.assertNotIn("Open Configure", hyphen_normalized)
 
     def test_native_path_normalization_expands_open_source_mapping_step_handoff(self) -> None:
         native_support = _load_native_support_module()
