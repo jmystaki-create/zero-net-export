@@ -349,6 +349,8 @@ def _canonicalize_fleet_activity_count_part(text: str) -> str:
     if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
         return f"{tokens[0]} unmanaged backlog"
     if len(tokens) == 3 and tokens[0].isdigit() and tokens[1:] in (["managed", "device"], ["managed", "devices"]):
+        if tokens[0] == "0":
+            return "no managed yet"
         return f"{tokens[0]} managed"
     if len(tokens) == 3 and tokens[0].isdigit() and tokens[1:] in (["unmanaged", "candidate"], ["unmanaged", "candidates"]):
         return f"{tokens[0]} unmanaged backlog"

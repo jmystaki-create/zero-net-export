@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-372 - Zero-managed Fleet activity fallback could render as a managed count
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** cached or fallback Fleet activity text such as `0 managed devices, 2 unmanaged candidates, review Garage relay` canonicalized the managed count to `0 managed`. That made the opening operator console show a numeric managed row instead of the clearer empty-managed-fleet state.
+- **expected behavior:** zero managed-device count fallbacks should normalize to `no managed yet` before grouping, so the opening Configure console keeps the managed-on-top / unmanaged-below story obvious even for empty fleets.
+- **evidence:** focused regression coverage now exercises a `Managed Devices: 0 managed devices, 2 unmanaged candidates, review Garage relay` fallback and rejects `0 managed` in the rendered operator Fleet activity string.
+- **repo fix:** this run canonicalizes `0 managed device(s)` to `no managed yet` in Fleet activity count normalization.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity fallback cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-371 - Hyphenated source-role handoffs could keep bare Configure paths in native guidance
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
