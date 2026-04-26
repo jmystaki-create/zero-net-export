@@ -3,12 +3,12 @@
     "step": {
       "user": {
         "title": "Zero Net Export",
-        "description": "Create the Zero Net Export backend entry first, then finish Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics from Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure. Runtime defaults start in a safe bootstrap state until required source roles and managed devices are ready.",
+        "description": "Create the Zero Net Export backend entry first, then finish Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics from Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure. Runtime defaults start in a safe bootstrap state until required source roles and managed devices are ready.",
         "data": {
           "name": "System name"
         },
         "data_description": {
-          "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. After entry creation, continue in Configure for Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics from Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure."
+          "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. After entry creation, continue in Configure for Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics from Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure."
         }
       }
     }

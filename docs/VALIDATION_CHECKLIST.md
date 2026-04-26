@@ -72,20 +72,20 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] Config flow opens when adding integration
 - [ ] The config flow shown in the real HA install matches the currently tagged/published package
 - [ ] Config flow is reduced to the intended bootstrap-only step rather than a giant raw source-mapping form
-- [ ] Bootstrap step clearly explains that Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics continue at `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure`
+- [ ] Bootstrap step clearly explains that Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics continue at `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure`
 - [ ] Any remaining bootstrap field(s) have plain-language in-context help
 - [ ] Entry can be created without mapping sources during the initial config flow
 - [ ] Clicking the integration gear/configure path no longer throws `Config flow could not be loaded: 500 Internal Server Error`
 - [ ] Reopening Configure after restart still shows the previously saved source roles and current command-center guidance
-- [ ] Options flow descriptions clearly explain the native setup, managed-device, and controller-tuning paths
+- [ ] Options flow descriptions clearly explain the native setup, Managed Devices workspace, and Controls policy/live-mode paths
 - [ ] Command-center landing screen shows current source status, managed-device status, policy summary, and a recommended next section that matches the real entry state
 - [ ] Native setup clearly supports both combined/net grid sensors and separate import/export grid entities
 - [ ] Selector fallback validation: if Home Assistant selector validation rejects a valid combined/net grid energy or battery SOC entity, capture the exact validation error or screenshot, then confirm the matching native manual fallback field lets the same entity ID complete setup while broader validation continues
 - [ ] Managed-device flow supports adding a common fixed load without pasting JSON
 - [ ] Managed-device flow supports adding a common variable load without pasting JSON
 - [ ] Managed-device flow makes it obvious where to review, promote unmanaged candidates, edit, enable/disable, and remove devices
-- [ ] Policy/settings flow makes it obvious where to tune mode, target export, deadband, reserve, and related behavior
-- [ ] Policy/settings flow states whether policy tuning is actionable yet, or whether sources/devices need attention first
+- [ ] Controls flow makes it obvious where to set mode, target export, deadband, reserve, and related behavior
+- [ ] Controls flow states whether target export, reserve, deadband, and live mode are actionable yet, or whether sources/devices need attention first
 - [ ] Advanced JSON editor remains available for recovery or bulk edits
 - [ ] Entity normalization creates expected entity IDs
 

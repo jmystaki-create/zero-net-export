@@ -11,14 +11,16 @@ class TestBucketOwnershipCopy(unittest.TestCase):
 
         bootstrap = strings["config"]["step"]["user"]
         self.assertIn(
-            "finish Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics",
+            "finish Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics",
             bootstrap["description"],
         )
         self.assertIn("until required source roles and managed devices are ready", bootstrap["description"])
         self.assertIn(
-            "continue in Configure for Sensors/source roles, Managed Devices onboarding, Controls tuning, and Diagnostics",
+            "continue in Configure for Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics",
             bootstrap["data_description"]["name"],
         )
+        self.assertNotIn("Controls tuning", bootstrap["description"])
+        self.assertNotIn("Controls tuning", bootstrap["data_description"]["name"])
         self.assertNotIn("until you map sources and add devices", bootstrap["description"])
         self.assertNotIn("finish setup from Settings", bootstrap["description"])
         self.assertNotIn("finish source mapping, refresh tuning, and device onboarding", bootstrap["data_description"]["name"])
@@ -513,9 +515,15 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("previously saved source roles", checklist)
         self.assertIn("Previously saved source roles are still present after restart", checklist)
         self.assertIn("required source roles recover as healthy runtime entities", checklist)
+        self.assertIn("Controls policy/live mode", checklist)
+        self.assertIn("Managed Devices workspace", checklist)
+        self.assertIn("Controls flow states whether target export, reserve, deadband, and live mode are actionable", checklist)
         self.assertNotIn("previously saved source mappings", checklist)
         self.assertNotIn("previously saved mapped sources", checklist)
         self.assertNotIn("required mapped sources recover", checklist)
+        self.assertNotIn("Controls tuning", checklist)
+        self.assertNotIn("controller-tuning paths", checklist)
+        self.assertNotIn("Policy/settings flow states whether policy tuning", checklist)
 
     def test_readme_upgrade_steps_use_source_role_wording(self):
         project_root = Path(__file__).resolve().parents[1]

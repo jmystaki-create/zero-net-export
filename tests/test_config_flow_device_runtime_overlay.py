@@ -2339,7 +2339,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"Tune behaviour here, then use {module.MODE_CONTROL_PATH} or {module.INTEGRATION_DEVICE_PATH} to verify the current controller outcome.",
+            f"Set Controls defaults here, then use {module.MODE_CONTROL_PATH} or {module.INTEGRATION_DEVICE_PATH} to verify the current controller outcome.",
         )
         self.assertNotIn(module.DIAGNOSTICS_DEVICE_ACTIONS_PATH, result["description_placeholders"]["policy_next_step"])
 
@@ -2423,7 +2423,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
+            f"After saving Controls defaults here, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available.",
         )
 
     def test_policy_step_empty_fleet_surfaces_review_first_and_ready_next_candidates(self) -> None:
@@ -2476,7 +2476,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
 
         self.assertEqual(
             result["description_placeholders"]["policy_next_step"],
-            f"After tuning defaults here, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: Virtual load (fixed) | likely useful, then promote ready unmanaged candidate: Dishwasher Power (fixed) | likely useful.",
+            f"After saving Controls defaults here, open {module.DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, review unmanaged candidate: Virtual load (fixed) | likely useful, then promote ready unmanaged candidate: Dishwasher Power (fixed) | likely useful.",
         )
 
     def test_build_device_action_feedback_for_promotion_uses_native_paths(self) -> None:

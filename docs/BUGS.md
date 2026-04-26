@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-275 - Bootstrap and validation checklist still said Controls/controller tuning
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D four-bucket wording after ZNE-274 removed controller-tuning phrasing from Sensors and Managed Devices cross-bucket hints.
+- **current observed behavior:** the initial config-entry bootstrap helper still told operators to continue through `Controls tuning`, the active validation checklist still asked validators to check `controller-tuning paths` plus whether `policy tuning` was actionable, and the Controls readiness/follow-through copy still used generic `policy tuning` / `tune policy` wording. That kept older tuning-bucket wording in entry-creation, release-validation guidance, and active Controls surfaces even though the current `0.1.89` IA defines Controls by target export, reserve, deadband, and live mode.
+- **expected behavior:** bootstrap, validation guidance, and active Controls copy should name the current Controls ownership as policy/live mode or target export, reserve, deadband, and live mode, while keeping Sensors/source roles, Managed Devices, Controls, and Diagnostics as the visible native buckets.
+- **evidence:** direct repo grep found `Controls tuning`, `controller-tuning paths`, `Policy/settings flow states whether policy tuning`, and active `policy tuning` / `tune policy` Controls readiness strings in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/config_flow.py`, `docs/VALIDATION_CHECKLIST.md`, and matching test expectations.
+- **repo fix:** this run changes the bootstrap helper, validation checklist, command-center Controls readiness, and Configure Controls follow-through to `Controls policy/live mode`, `Managed Devices workspace`, Controls target export/reserve/deadband/live-mode wording, and `Controls changes/defaults` copy, syncs translations, and adds regression guards rejecting the stale tuning phrases in bootstrap and active validation guidance.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_config_flow_device_runtime_overlay tests.test_command_center_summary` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py custom_components/zero_net_export/native_support.py tests/test_bucket_ownership_copy.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D bootstrap/validation wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-274 - Sensors and Managed Devices cross-bucket hints still said controller tuning
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

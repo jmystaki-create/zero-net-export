@@ -5159,15 +5159,15 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         f"battery reserve {int(merged.get(CONF_BATTERY_RESERVE_SOC, DEFAULT_BATTERY_RESERVE_SOC) or DEFAULT_BATTERY_RESERVE_SOC)}%"
     )
     if missing_required_sources:
-        policy_readiness = "Finish required source roles first. Policy tuning is not actionable until the required source roles are complete."
+        policy_readiness = "Finish required source roles first. Controls changes are not actionable until the required source roles are complete."
     elif runtime_source_attention:
-        policy_readiness = f"Repair source blockers in {SOURCES_CONFIGURE_PATH} before treating policy changes as actionable runtime changes."
+        policy_readiness = f"Repair source blockers in {SOURCES_CONFIGURE_PATH} before treating Controls changes as actionable runtime changes."
     elif device_parse_issues:
-        policy_readiness = "Repair the managed-device configuration first so policy changes apply to a trustworthy fleet."
+        policy_readiness = "Repair the managed-device configuration first so Controls changes apply to a trustworthy fleet."
     elif not has_managed_devices:
-        policy_readiness = "You can tune policy now, but no controllable device can act until at least one managed device is added."
+        policy_readiness = "You can set Controls defaults now, but no controllable device can act until at least one managed device is added."
     else:
-        policy_readiness = "Source roles are complete and managed devices exist, so policy changes are actionable now."
+        policy_readiness = "Source roles are complete and managed devices exist, so Controls changes are actionable now."
 
     support_status = str(
         readiness.get("summary")

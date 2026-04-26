@@ -3674,12 +3674,12 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             policy_next_step = source_placeholders["source_next_step"]
         elif device_issues:
             policy_readiness = (
-                "Managed-device issues still need repair before policy tuning can be trusted "
+                "Managed-device issues still need repair before Controls changes can be trusted "
                 f"({self._count_label(len(device_issues), 'issue')})."
             )
-            policy_next_step = f"Open {DEVICES_CONFIGURE_PATH} and repair the fleet before trusting policy changes."
+            policy_next_step = f"Open {DEVICES_CONFIGURE_PATH} and repair the fleet before trusting Controls changes."
         elif not devices:
-            policy_readiness = "No managed devices are configured yet. You can tune policy now, but control will not act until devices are added."
+            policy_readiness = "No managed devices are configured yet. You can set Controls defaults now, but control will not act until devices are added."
             candidates = self._device_candidates()
             review_candidate = next(
                 (candidate for candidate in candidates if candidate_needs_review(assess_candidate(candidate))),
@@ -3692,7 +3692,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             primary_candidate = review_candidate or (candidates[0] if candidates else None)
             if primary_candidate is not None:
                 policy_next_step = (
-                    f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
+                    f"After saving Controls defaults here, open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
                     f"review unmanaged candidate: {self._top_candidate_focus_text(primary_candidate)}"
                 )
                 if ready_candidate is not None and ready_candidate is not primary_candidate:
@@ -3703,13 +3703,13 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 policy_next_step += "."
             else:
                 policy_next_step = (
-                    f"After tuning defaults here, open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
+                    f"After saving Controls defaults here, open {DEVICES_CONFIGURE_PATH} to continue in the Managed Devices workspace, "
                     "then add the first fixed or variable load in Managed Devices because no surfaced unmanaged candidate is available."
                 )
         else:
-            policy_readiness = f"Source roles are complete and {self._count_label(len(devices), 'managed device')} configured, so policy changes are actionable now."
+            policy_readiness = f"Source roles are complete and {self._count_label(len(devices), 'managed device')} configured, so Controls changes are actionable now."
             policy_next_step = (
-                f"Tune behaviour here, then use {MODE_CONTROL_PATH} or {INTEGRATION_DEVICE_PATH} to verify the current controller outcome."
+                f"Set Controls defaults here, then use {MODE_CONTROL_PATH} or {INTEGRATION_DEVICE_PATH} to verify the current controller outcome."
             )
 
         command_center = build_native_command_center_summary(self._coordinator())
