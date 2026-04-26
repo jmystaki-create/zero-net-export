@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-370 - Setup checklist button notification bypassed native path normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream F setup/support surfaces against the native Home Assistant path-normalization fixes.
+- **current observed behavior:** the setup-checklist button's entity attributes normalized stale readiness summaries and next-step handoffs, but the actual persistent notification built by `async_press()` rendered the raw readiness `summary` / `next_step` fallback when the command-center summary did not provide a next action. Cached fallback text such as `missing source mappings` or `Open the source mapping step` could therefore leak into the native setup checklist notification.
+- **expected behavior:** setup-checklist notifications should apply the same native path/source-role normalization as attributes and checklist rows, so stale source-mapping or helper-step text cannot reappear in the button-press support surface.
+- **evidence:** direct repo inspection found `ZeroNetExportShowSetupChecklistButton.async_press()` normalized checklist rows but interpolated raw readiness summary/next-step fallback values into the persistent notification body.
+- **repo fix:** this run normalizes the setup-checklist notification summary and next-step text before rendering and adds regression coverage for stale readiness fallback copy.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_button_entity_categories tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream F setup/support normalization fix in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-369 - Singular source-role handoffs could keep bare Configure paths in native guidance
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -108,6 +108,9 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         .replace("Start in the unmanaged section", "Review the Managed Devices workspace at devices path, starting with unmanaged candidates")
         .replace("Review the unmanaged section", "Review the Managed Devices workspace at devices path, starting with unmanaged candidates")
         .replace("Promote next from the unmanaged section", "Promote the ready unmanaged candidate in the Managed Devices workspace at devices path")
+        .replace("Open the source mapping step", "Open sources path")
+        .replace("source mappings", "source roles")
+        .replace("source mapping", "source roles")
         .strip()
     )
     native_support_module.build_native_command_center_summary = lambda coordinator: {
@@ -1793,6 +1796,35 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("Review the unmanaged section next.", message)
         self.assertNotIn("Recommended command-center section:", message)
         self.assertNotIn("Recommended command-center path:", message)
+
+    def test_setup_checklist_button_notification_normalizes_stale_readiness_summary_and_next_step(self) -> None:
+        notification_calls: list[dict] = []
+        button_module = _load_button_module(notification_calls)
+        button_module.build_native_operator_readiness = lambda coordinator: {
+            "phase": "setup",
+            "summary": "Setup still blocked by missing source mappings.",
+            "checklist": [],
+            "next_step": "Open the source mapping step before enabling control.",
+        }
+        button_module.build_native_command_center_summary = lambda coordinator: {}
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportShowSetupChecklistButton(coordinator)
+        button.hass = SimpleNamespace()
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        message = notification_calls[0]["args"][1]
+        self.assertIn("Summary: Setup still blocked by missing source roles.", message)
+        self.assertIn(
+            "Next step: Open sources path before enabling control.",
+            message,
+        )
+        self.assertNotIn("source mappings", message)
+        self.assertNotIn("source mapping step", message)
 
     def test_setup_checklist_button_attributes_normalize_stale_section_wording(self) -> None:
         button_module = _load_button_module()

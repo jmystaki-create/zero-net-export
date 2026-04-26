@@ -1582,6 +1582,14 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
             f"- [{'x' if item.get('complete') else ' '}] {item.get('label')}: {item.get('detail')}"
             for item in checklist
         ]
+        summary = _normalize_native_path_text(
+            readiness.get("summary") or (self._state.health_summary if self._state else None)
+        )
+        next_step = _normalize_native_path_text(
+            command_center.get("next_action_summary")
+            or readiness.get("next_step")
+            or (self._state.recommendation if self._state else None)
+        )
         message = "\n".join(
             [
                 "Zero Net Export native setup checklist",
@@ -1590,8 +1598,8 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
                 f"Command center path: {PRIMARY_CONFIGURE_PATH}",
                 f"Diagnostics path: {SUPPORT_CONFIGURE_PATH}",
                 f"Readiness phase: {readiness.get('phase') or 'unknown'}",
-                f"Summary: {readiness.get('summary') or (self._state.health_summary if self._state else None)}",
-                f"Next step: {command_center.get('next_action_summary') or readiness.get('next_step') or (self._state.recommendation if self._state else None)}",
+                f"Summary: {summary}",
+                f"Next step: {next_step}",
                 "",
                 "Checklist",
                 *(checklist_lines or ["- No checklist available yet."]),
