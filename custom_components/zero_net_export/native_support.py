@@ -2171,7 +2171,7 @@ def _build_operator_checklist(
         next_step = (
             f"Open {SOURCES_CONFIGURE_PATH}, finish the missing required source roles, then save and reload the integration."
         )
-        summary = "Native setup is blocked on missing required source mappings."
+        summary = "Native setup is blocked on missing required source roles."
     elif blocking_validation_issues or state_stale_data:
         phase = "source_remediation"
         if unavailable_source_roles:

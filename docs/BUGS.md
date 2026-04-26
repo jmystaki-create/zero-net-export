@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-265 - Native readiness source-setup summary still said source mappings
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking remaining Workstream A/D/F source-role wording after the command-center setup check and active docs had moved to `source roles`.
+- **current observed behavior:** `build_native_operator_readiness(...)` still summarized missing required sources as `Native setup is blocked on missing required source mappings.` even though the adjacent next step and current Sensors/validation copy now use `missing required source roles` / `required source roles`.
+- **expected behavior:** native readiness setup blockers should use operator-facing `source roles` wording, leaving lower-level mapping terminology for deeper Sensors/Diagnostics evidence where actual entity bindings are being inspected.
+- **evidence:** direct repo grep found the stale `missing required source mappings` summary in `custom_components/zero_net_export/native_support.py` after README, checklist, command-center, and Sensors wording had already moved to source-role language.
+- **repo fix:** this run changes the native readiness source-setup summary to `missing required source roles`, folds the wording into the compact `0.1.89` changelog theme, and adds regression coverage rejecting `source mappings` in that readiness summary.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D/F readiness wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-264 - README primary configuration steps still used old Configure option names
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

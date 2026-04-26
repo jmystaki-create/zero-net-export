@@ -9,7 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
-- Clarified Home Assistant source-validation and Sensors source-mapping copy so source blockers and progress labels consistently say `source role(s)` / `required source roles` instead of generic logical or required-role wording.
+- Clarified Home Assistant source-validation, Sensors source-mapping, and native readiness copy so source blockers, setup blockers, and progress labels consistently say `source role(s)` / `required source roles` instead of source-mapping, logical-role, or generic required-role wording.
 - Tightened operator-ready and setup-checklist handoffs so final review stays anchored to the exact native Configure and device Diagnostics paths, with stale unmanaged-section wording normalized away.
 - Hardened stale unmanaged-section normalization so cached or fallback review/promote handoffs now resolve back to the exact Managed Devices workspace path instead of shorter section-navigation copy.
 - Tightened Managed Devices handoffs and review snapshots so unmanaged-candidate review, ready-promotion, disabled-load counts, no-candidate, empty-fleet, and manual-add next steps stay workspace-first and read as direct fleet actions.

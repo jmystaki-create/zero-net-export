@@ -789,6 +789,35 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertNotIn("add the first controllable device", readiness["next_step"])
 
+    def test_operator_readiness_missing_required_sources_uses_source_roles_summary(self) -> None:
+        native_support = _load_native_support_module()
+        native_support._command_center_candidate_snapshot = lambda *args, **kwargs: ([], "")
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(data={}, options={}),
+            data=SimpleNamespace(
+                safe_mode=False,
+                stale_data=False,
+                validation_details={},
+                source_diagnostics={},
+                diagnostic_summary="Missing sources",
+                health_summary="Missing sources",
+                device_count=0,
+                enabled_device_count=0,
+                usable_device_count=0,
+                device_status_summary="No managed devices configured yet",
+                mode="monitoring",
+            ),
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        readiness = native_support.build_native_operator_readiness(coordinator)
+
+        self.assertEqual(readiness["phase"], "source_setup")
+        self.assertIn("missing required source roles", readiness["summary"])
+        self.assertIn("missing required source roles", readiness["next_step"])
+        self.assertNotIn("source mappings", readiness["summary"])
+
     def test_operator_ready_next_step_uses_diagnostics_actions_wording(self) -> None:
         native_support = _load_native_support_module(
             parse_device_result=([
