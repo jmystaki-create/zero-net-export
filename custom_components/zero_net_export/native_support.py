@@ -517,15 +517,16 @@ def format_fleet_activity_for_operator(summary: str) -> str:
             ),
             None,
         )
-        if not inferred_managed_count or first_managed_activity_index is None:
+        if first_managed_activity_index is None:
             return normalized
-        parts = [
-            *parts[:first_managed_activity_index],
-            _managed_count_label(inferred_managed_count),
-            *parts[first_managed_activity_index:],
-        ]
-        if first_managed_activity_index <= unmanaged_index:
-            unmanaged_index += 1
+        if inferred_managed_count:
+            parts = [
+                *parts[:first_managed_activity_index],
+                _managed_count_label(inferred_managed_count),
+                *parts[first_managed_activity_index:],
+            ]
+            if first_managed_activity_index <= unmanaged_index:
+                unmanaged_index += 1
         managed_index = first_managed_activity_index
 
     if managed_index > unmanaged_index:

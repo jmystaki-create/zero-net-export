@@ -770,6 +770,33 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertLess(summary.index("Managed devices:"), summary.index("Unmanaged backlog:"))
 
+    def test_command_center_fleet_activity_groups_managed_actions_without_count(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support.format_fleet_activity_for_operator(
+            "active load 900 W | 1 active managed device | 2 unmanaged backlog | review Garage relay"
+        )
+
+        self.assertEqual(
+            summary,
+            "Managed devices: active load 900 W | 1 active managed device; "
+            "Unmanaged backlog: 2 unmanaged backlog | review Garage relay",
+        )
+
+    def test_command_center_fleet_activity_recovers_reversed_managed_actions_without_count(self) -> None:
+        native_support = _load_native_support_module()
+
+        summary = native_support.format_fleet_activity_for_operator(
+            "2 unmanaged backlog | review Garage relay | active load 900 W | 1 active managed device"
+        )
+
+        self.assertEqual(
+            summary,
+            "Managed devices: active load 900 W | 1 active managed device; "
+            "Unmanaged backlog: 2 unmanaged backlog | review Garage relay",
+        )
+        self.assertLess(summary.index("Managed devices:"), summary.index("Unmanaged backlog:"))
+
     def test_raw_fleet_activity_keeps_source_blocker_global_for_empty_managed_fleet(self) -> None:
         native_support = _load_native_support_module()
 

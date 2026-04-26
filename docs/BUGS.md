@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-342 - Fleet activity managed actions without aggregate count could stay ungrouped
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** `format_fleet_activity_for_operator(...)` could group kind inventory without an aggregate managed count, but cached or fallback fleet text that had managed action signals and an unmanaged backlog without an aggregate managed count, such as `active load 900 W | 1 active managed device | 2 unmanaged backlog`, stayed as a flat list. That weakened the managed-on-top / unmanaged-below story in the opening operator console.
+- **expected behavior:** Fleet activity formatting should still split managed action signals from unmanaged backlog when no aggregate managed count is present, keeping managed actions visibly ahead of unmanaged review work.
+- **evidence:** focused regressions now exercise normal and reversed managed-action/no-count summaries and require `Managed devices: ...; Unmanaged backlog: ...` grouping.
+- **repo fix:** this run allows the Fleet activity formatter to use the first managed action signal as the managed bucket anchor when no aggregate managed count can be inferred, while preserving aggregate-count inference when kind inventory is present.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity grouping cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-341 - Unicode-arrow Configure bucket handoffs could bypass exact native path normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
