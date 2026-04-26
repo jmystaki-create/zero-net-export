@@ -12,13 +12,12 @@ Target release: `0.1.89`
 - Clarified Home Assistant source-validation and Sensors source-mapping copy so source blockers consistently say `source role(s)` / `required source roles` instead of generic logical or required-role wording.
 - Tightened operator-ready and setup-checklist handoffs so final review stays anchored to the exact native Configure and device Diagnostics paths, with stale unmanaged-section wording normalized away.
 - Hardened stale unmanaged-section normalization so cached or fallback review/promote handoffs now resolve back to the exact Managed Devices workspace path instead of shorter section-navigation copy.
-- Tightened Managed Devices handoffs so unmanaged-candidate review, ready-promotion, no-candidate, empty-fleet, and manual-add next steps stay workspace-first and read as direct fleet actions.
+- Tightened Managed Devices handoffs and review snapshots so unmanaged-candidate review, ready-promotion, disabled-load counts, no-candidate, empty-fleet, and manual-add next steps stay workspace-first and read as direct fleet actions.
 - Hardened command-center and device-page normalization so stale source-role/source-blocker payloads render as operator-facing guidance across landing summaries, setup checks, guides, and next-action handoffs.
 - Kept Sensors, Controls, Repairs, Diagnostics, setup checklist, helper sensors, runtime source-health summaries, and source-repair next steps on consistent `Source blockers`, `source roles`, and `source map` wording.
 - Aligned the active validation checklist with the same source-role wording so restart/recovery validation no longer sends operators back to lower-level source-mapping terminology.
 - Clarified Configure's Fleet activity empty-unmanaged state as `Unmanaged candidates: no unmanaged candidates` and kept global source blockers separate from managed/unmanaged backlog work.
 - Reworded Sensors and Diagnostics selector-fallback copy so native setup/support surfaces describe the fallback action without reviving old picker-bug or workaround narration.
-- Added disabled managed-load counts to native Managed Devices and device-page review snapshots so disabled fleet posture stays visible at a glance.
 
 ### Planning
 - Added the `0.1.89` release plan as the clean follow-up line for UI fixes that landed after the already-published `v0.1.88` release, avoiding a retag of the published `0.1.88` artifact unless James explicitly asks for that.
