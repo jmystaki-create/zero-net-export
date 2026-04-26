@@ -5361,7 +5361,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         ),
     )
     next_action_summary = _truncate_state_summary(
-        str(next_action_summary),
+        _normalize_native_path_text(next_action_summary),
         fallback=_compact_next_action_fallback(
             missing_required_sources=missing_required_sources,
             runtime_source_attention=runtime_source_attention,

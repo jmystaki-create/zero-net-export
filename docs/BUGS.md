@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-246 - Command-center next action could preserve stale mapped-source blocker wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream A/D/F source-blocker cleanup after adjacent command-center summaries and support labels had moved to operator-facing source-blocker wording.
+- **current observed behavior:** `build_native_command_center_summary(...)` normalized recommended-section reasons but truncated `next_action_summary` without first running the same native text normalization. A stale readiness provider, older fixture, or restored summary could therefore surface `Repair the mapped source blockers...` in the Configure landing next-action text even though the rest of the native command-center path had moved to `source blockers` wording.
+- **expected behavior:** Configure command-center next-action text should normalize stale mapped-source blocker phrasing at the UI boundary before it reaches Home Assistant, while preserving mapped-role detail only in deeper Sensors/Diagnostics evidence rows.
+- **evidence:** focused tests already injected `Repair the mapped source blockers before relying on control.` into `build_native_operator_readiness(...)`, but only asserted fleet-activity behavior and did not reject the stale wording from `summary["next_action_summary"]`.
+- **repo fix:** this run normalizes `next_action_summary` through `_normalize_native_path_text(...)` before truncation and adds focused command-center regressions that expect `Repair the source blockers` while rejecting `mapped source blockers` in the rendered next action.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream A/D/F command-center normalization cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-245 - Healthy live source summary still counted mapped roles
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -6272,6 +6272,54 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotEqual(summary["fleet_activity_summary"], summary["device_status"])
         self.assertNotIn("configured devices available", summary["fleet_activity_summary"])
 
+    def test_command_center_summary_normalizes_source_blocker_next_action(self) -> None:
+        native_support = _load_native_support_module()
+
+        native_support.build_install_provenance = lambda: {}
+        native_support.build_native_operator_readiness = lambda coordinator: {
+            "phase": "operator_ready",
+            "summary": "Runtime needs source repair before fleet changes.",
+            "next_step": "Repair the mapped source blockers before relying on control.",
+        }
+        native_support.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [native_support.CONF_SOLAR_POWER_ENTITY],
+            "stale_source_keys": [],
+        }
+        native_support.build_source_attention_summary = lambda *args, **kwargs: "Solar power unavailable"
+        native_support.build_source_attention_role_summary = lambda *args, **kwargs: "Solar power unavailable"
+        native_support.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        native_support.build_live_source_health_summary = lambda state: "Source roles need attention: Solar power unavailable"
+        native_support.build_native_setup_recommendation = lambda **kwargs: {
+            "recommended_section": native_support.SOURCES_SECTION_LABEL,
+        }
+        native_support.build_detailed_management_handoff = lambda *args, **kwargs: "Detailed managed fleet review ready."
+        native_support.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar"
+        native_support.REQUIRED_SOURCE_KEYS = []
+        native_support._command_center_candidate_snapshot = lambda coordinator, state: ([], "")
+
+        state = SimpleNamespace(
+            device_status_summary="1 managed device available",
+            device_count=1,
+            enabled_device_count=1,
+            usable_device_count=1,
+            controllable_nominal_power_w=1200.0,
+            blocked_planned_action_count=0,
+            mode="monitoring",
+            health_summary="Source repair needed",
+            diagnostic_summary="Source repair needed",
+            device_details={},
+        )
+        coordinator = SimpleNamespace(
+            data=state,
+            entry=SimpleNamespace(data={}, options={}),
+            hass=SimpleNamespace(states=SimpleNamespace(async_all=lambda: [])),
+        )
+
+        summary = native_support.build_native_command_center_summary(coordinator)
+
+        self.assertIn("Repair the source blockers", summary["next_action_summary"])
+        self.assertNotIn("mapped source blockers", summary["next_action_summary"])
+
     def test_command_center_summary_drops_nominal_before_single_kind_managed_mix_under_overflow(self) -> None:
         native_support = _load_native_support_module()
 
