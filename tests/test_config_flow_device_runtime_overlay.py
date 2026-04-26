@@ -1937,6 +1937,29 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("AC Outlet 2 (fixed) | likely useful | key warning: No immediate warnings", shortlist["description_placeholders"]["top_candidates"])
         self.assertNotIn("switch.ac_outlet_2", shortlist["description_placeholders"]["top_candidates"])
 
+    def test_candidate_shortlist_empty_state_uses_neutral_surfaced_wording(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={module.DOMAIN: {"entry-1": SimpleNamespace(data=SimpleNamespace(), entry=SimpleNamespace(data={}, options={}))}},
+            states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+        flow._load_devices = lambda: ([], [])
+        flow._device_candidates = lambda: [
+            {"entity_id": "switch.variable_only", "name": "Variable only", "kind": module.DEVICE_KIND_VARIABLE}
+        ]
+        flow._candidate_quick_picks = lambda kind: []
+        flow._candidate_options = lambda kind=None: [
+            {"value": "switch.variable_only", "label": "Variable only (variable) | review carefully"}
+        ]
+
+        shortlist = asyncio.run(flow.async_step_device_pick_candidate())
+
+        self.assertEqual(shortlist["description_placeholders"]["top_candidates"], "- No surfaced candidates right now")
+        self.assertNotIn("suggested candidates", shortlist["description_placeholders"]["top_candidates"])
+
     def test_candidate_quick_picks_keep_first_review_first_candidate_visible(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))

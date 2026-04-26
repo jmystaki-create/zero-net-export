@@ -3135,7 +3135,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
                 ready_candidate=ready_candidate,
             )
             for item in quick_picks
-        ) if quick_picks else "- No suggested candidates right now"
+        ) if quick_picks else "- No surfaced candidates right now"
         candidate_path_summary = (
             "1. Pick a candidate from the shortlist.\n"
             "2. Review fit and warnings.\n"
