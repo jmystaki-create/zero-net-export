@@ -1566,6 +1566,7 @@ Suggested area labels:
 - **next action:** include this handoff wording cleanup in the next exact-build deploy, then confirm the device-page Managed Devices promotion handoff no longer drifts back to generic `Add ... device` language in live Home Assistant.
 
 ## ZNE-093 - Historical intermediate bug note stopped one wording pass short of the final empty-fleet handoff copy
+- **status:** `closed`
 - **closed on:** 2026-04-21
 - **severity:** `medium`
 - **area:** `managed_devices`
@@ -1576,6 +1577,7 @@ Suggested area labels:
 - **next action:** keep future watchdog and supervisor audits anchored to ZNE-103 for this empty-fleet handoff so the tracker does not reopen the already-superseded intermediate wording.
 
 ## ZNE-091 - UI implementation map still described promotion completion with stale `ranking helpers` wording
+- **status:** `closed`
 - **closed on:** 2026-04-20
 - **severity:** `low`
 - **area:** `docs`
@@ -1625,6 +1627,7 @@ Suggested area labels:
 ## Recently validated or closed bugs
 
 ## ZNE-036 - Repo working version drifted forward to `0.1.86` without new release-line evidence
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
@@ -1633,6 +1636,7 @@ Suggested area labels:
 - **closure evidence:** later same-day source-of-truth updates superseded the temporary `0.1.85` boundary. `docs/SUPERVISOR.md`, `project_status.md`, `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and live HA fingerprint evidence now all treat `0.1.86` as the active correction line, so this bug should no longer be read as current steering.
 
 ## ZNE-035 - Project status still hid the real `0.1.85` release-approval boundary
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `process`
@@ -1641,6 +1645,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct status-file correction in the same run originally closed this bug. That exact `0.1.85` approval ask is historical only. Current steering has since shifted away from making unchanged `0.1.86` release reconciliation the default headline while unfinished `0.1.87` UI work remains, so `project_status.md` no longer serves as an always-on approval prompt. The durable lesson from this closed bug is narrower: if formal deploy/restart/release execution becomes the real next step again, James must be asked directly instead of being left to infer approval from status wording.
 
 ## ZNE-034 - Repo metadata and bug-tracker steering drifted back to `0.1.83` even though the active live release line is `0.1.85`
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
@@ -1649,6 +1654,7 @@ Suggested area labels:
 - **closure evidence:** later same-day source-of-truth updates superseded the temporary `0.1.85` release line. `docs/SUPERVISOR.md`, `project_status.md`, `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and live HA fingerprint evidence now align on `0.1.86`, so this bug is closed historical context rather than active release guidance.
 
 ## ZNE-032 - Release summary incorrectly reports a rollback as a normal update
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
@@ -1657,6 +1663,7 @@ Suggested area labels:
 - **closure evidence:** this run rechecked the documented HA API path from `TOOLS.md` and the live `sensor.zero_net_export_release_summary` now reports `current_version: 0.1.85`, `previous_installed_version: 0.1.83`, `version_change_direction: 1`, and `summary: Updated from 0.1.83 to 0.1.85. ...`, so the rollback-specific miswording is no longer the live bug state.
 
 ## ZNE-004 - Live install version stamp mismatched the intended `0.1.82` release
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `high`
 - **area:** `release`
@@ -1665,6 +1672,7 @@ Suggested area labels:
 - **closure evidence:** in this run, documented HA SSH access on `root@192.168.86.200:2222` succeeded and `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` reported live manifest `0.1.83`, all tracked files matching the repo candidate from commit `5fe1c93`, and `overall_match=true`. Release-fingerprint drift is no longer the blocker; the remaining live blocker is the missing Zero Net Export config entry tracked in ZNE-002.
 
 ## ZNE-013 - Repo-local `tmp-ha-config/` scratch tree tripped exact-build clean-state guards
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `low`
 - **area:** `process`
@@ -1673,6 +1681,7 @@ Suggested area labels:
 - **closure evidence:** after the ignore rule landed, repo status no longer reports `tmp-ha-config/` as an untracked change, so exact-build flows can use `--require-clean` without local scratch-tree drift
 
 ## ZNE-012 - Native-path docs still used vague `integration/device surfaces` wording after the source-of-truth path tightened
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `low`
 - **area:** `docs`
@@ -1681,6 +1690,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `README.md`, `docs/DASHBOARD_SETUP.md`, and `docs/PRODUCT_SPEC_V1.md` now match the explicit native Home Assistant path language used by `docs/UI_DESIGN.md` and `docs/SUPERVISOR.md`. This run also corrected the remaining README/bootstrap-validation shorthand so the install guide, primary operator-path section, advanced-path note, and `docs/VALIDATION_CHECKLIST.md` now point to the exact `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure` path instead of generic `Configure` wording.
 
 ## ZNE-017 - Source-of-truth UI redesign existed only in a dirty working tree
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `medium`
 - **area:** `docs`
@@ -1689,6 +1699,7 @@ Suggested area labels:
 - **closure evidence:** repo-side audit plus direct doc correction in the same run; `git status` no longer reports the source-of-truth UI docs as modified/untracked once the commit lands, and the design document's referenced research/spec/review trail is now present in the repo
 
 ## ZNE-016 - UI design checklist and 1A execution slice drifted out of the committed source of truth
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `medium`
 - **area:** `docs`
@@ -1697,6 +1708,7 @@ Suggested area labels:
 - **closure evidence:** repo-side audit plus direct doc correction in the same run; after the sync commit, `git diff -- docs/UI_DESIGN.md` is empty and the committed design doc now carries the build checklist, implementation-gap analysis, `1A` priority slice, and `docs/UI_IMPLEMENTATION_SPEC.md` reference.
 
 ## ZNE-010 - Repo release metadata drifted behind the documented `0.1.83` UI target
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `medium`
 - **area:** `release`
@@ -1705,6 +1717,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct metadata correction in the same run; `custom_components/zero_net_export/manifest.json`, `CHANGELOG.md`, and `project_status.md` now all point at the active `0.1.83` candidate, while live HA version drift remains tracked separately under `ZNE-004`
 
 ## ZNE-009 - Repo-wide unit verification drifted from the current button import contract
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `low`
 - **area:** `process`
@@ -1713,6 +1726,7 @@ Suggested area labels:
 - **closure evidence:** `python3 -m unittest tests.test_button_entity_categories` passed after the stub fix, followed by `python3 -m unittest discover -s tests` passing repo-wide on 2026-04-15
 
 ## ZNE-046 - Button entity-category test loader drifted behind the new managed-snapshot import
+- **status:** `closed`
 - **closed on:** 2026-04-18
 - **severity:** `low`
 - **area:** `process`
@@ -1721,6 +1735,7 @@ Suggested area labels:
 - **closure evidence:** `python3 -m unittest -q tests.test_button_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_candidate_utils tests.test_sensor_entity_categories tests.test_command_center_summary tests.test_translation_sync` passed after the loader fix on 2026-04-18
 
 ## ZNE-008 - Source-of-truth UI docs still treated dashboards as a required `0.1.83` deliverable
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `medium`
 - **area:** `docs`
@@ -1729,6 +1744,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_DESIGN.md` now marks dashboards optional and secondary, and `docs/UI_IMPLEMENTATION_MAP.md` now reframes dashboard work as optional cleanup instead of a required release phase
 
 ## ZNE-006 - Deploy helper CLI drift from documented release flow
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `medium`
 - **area:** `release`
@@ -1737,6 +1753,7 @@ Suggested area labels:
 - **closure evidence:** this was closed with repo validation because the bug was a local release-helper CLI contract mismatch, not a live Home Assistant runtime defect; `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance` passed on 2026-04-15 after the flag support and test coverage were added
 
 ## ZNE-007 - Validation workflow awkward against remote HA environment
+- **status:** `closed`
 - **closed on:** 2026-04-15
 - **severity:** `medium`
 - **area:** `release`
@@ -1744,6 +1761,7 @@ Suggested area labels:
 - **closure evidence:** repo-side SSH validation now works against the documented HA path without remote Python, and a live run against `root@192.168.86.200:2222` returned the installed component fingerprint from `/homeassistant/custom_components/zero_net_export`
 
 ## ZNE-021 - Exact-build fingerprint validation skipped critical startup/provenance files
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
@@ -1752,6 +1770,7 @@ Suggested area labels:
 - **closure evidence:** in this run, documented HA SSH access on `root@192.168.86.200:2222` succeeded, fresh `ha core logs` review showed the earlier `release_info.py` startup path was a real validation concern, repo-side verification passed with `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile scripts/print_expected_install_fingerprint.py scripts/compare_install_fingerprint.py scripts/validate_install_fingerprint.py custom_components/zero_net_export/release_info.py`, and a rerun of `python3 scripts/validate_install_fingerprint.py /config/custom_components --ssh-host root@192.168.86.200 --ssh-port 2222` now correctly reports `release_info.py` drift and `overall_match=false` until the latest repo build is redeployed.
 
 ## ZNE-023 - Exact-build fingerprint validation skipped active native-UI Python files
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
@@ -1760,6 +1779,7 @@ Suggested area labels:
 - **closure evidence:** `python3 -m unittest tests.test_install_helper_scripts tests.test_release_info_install_guidance -q`, `python3 -m unittest discover -s tests -q`, and `python3 -m py_compile scripts/print_expected_install_fingerprint.py scripts/compare_install_fingerprint.py custom_components/zero_net_export/release_info.py` all passed in this run. Live SSH hash checks also confirmed the previously untracked drift in `button.py` and `candidate_utils.py`, so the widened fingerprint set now covers the missing UI files instead of silently skipping them.
 
 ## ZNE-024 - UI implementation map drifted behind the current repo-native UI candidate
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `low`
 - **area:** `docs`
@@ -1768,6 +1788,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_IMPLEMENTATION_MAP.md` now reflects the shipped repo candidate's command-center alert/board work, runtime-aware Managed Devices state, balanced candidate review, device-page deep-review handoff, and the explicit formal release-approval boundary.
 
 ## ZNE-025 - Repo release metadata jumped ahead of the source-of-truth UI release gate
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
@@ -1776,6 +1797,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct metadata correction in the same run; `custom_components/zero_net_export/manifest.json` and the changelog target now match the `0.1.83` UI release docs again, and `project_status.md` no longer points release approval at stale commit `f45618c`.
 
 ## ZNE-033 - Repo working version drifted forward again to `0.1.85`
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `medium`
 - **area:** `release`
@@ -1784,6 +1806,7 @@ Suggested area labels:
 - **closure evidence:** historical only. That closure was later superseded by `docs/SUPERVISOR.md` and live fingerprint evidence confirming `0.1.85` as the active correction line; current release-metadata reality is tracked under ZNE-034.
 
 ## ZNE-039 - README and project status still treated `0.1.86` as the future UI target after the implementation map moved the rollout checklist to `0.1.87`
+- **status:** `closed`
 - **closed on:** 2026-04-16
 - **severity:** `low`
 - **area:** `docs`
@@ -1792,6 +1815,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `README.md`, `project_status.md`, and `docs/UI_IMPLEMENTATION_MAP.md` now agree that `0.1.86` is the live correction line while `0.1.87` is the next UI rollout target.
 
 ## ZNE-041 - UI implementation map briefly regressed the Managed Devices workspace back onto the device page
+- **status:** `closed`
 - **closed on:** 2026-04-17
 - **severity:** `low`
 - **area:** `docs`
@@ -1800,6 +1824,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; `docs/UI_IMPLEMENTATION_MAP.md` Stage 4 now matches `docs/UI_DESIGN.md`, `docs/SUPERVISOR.md`, and the map's own `0.1.87` rollout/acceptance sections on Configure -> Managed Devices being primary.
 
 ## ZNE-043 - Fingerprint guidance still anchored release/deploy decisions to repo HEAD instead of the shipped component commit
+- **status:** `closed`
 - **closed on:** 2026-04-18
 - **severity:** `medium`
 - **area:** `process`
@@ -1808,6 +1833,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct tooling/doc correction in the same run; validation guidance now distinguishes repo HEAD from the shipped component commit, and deploy tooling can pin the component commit directly so unchanged live fingerprint mismatch is not re-labeled as a new candidate just because docs moved.
 
 ## ZNE-044 - Release procedure still used retired `Health/support` bucket wording
+- **status:** `closed`
 - **closed on:** 2026-04-18
 - **severity:** `low`
 - **area:** `docs`
@@ -1816,6 +1842,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct doc correction in the same run; the remaining release procedure no longer points operators at retired support-bucket wording during fingerprint validation.
 
 ## ZNE-047 - Repo working version jumped to `0.1.87` before the mapped release freeze
+- **status:** `closed`
 - **closed on:** 2026-04-18
 - **severity:** `medium`
 - **area:** `release`
@@ -1824,6 +1851,7 @@ Suggested area labels:
 - **closure evidence:** repo-side source-of-truth audit plus direct metadata correction in the same run; `manifest.json`, `docs/SUPERVISOR.md`, `README.md`, and `docs/UI_IMPLEMENTATION_MAP.md` are aligned again on `0.1.86` as the live correction line and `0.1.87` as the not-yet-frozen rollout target.
 
 ## ZNE-048 - Firmware/version display shows 0.1.86 after installing 0.1.87
+- **status:** `closed`
 - **closed on:** 2026-04-19
 - **severity:** `high`
 - **area:** `release`
@@ -1832,6 +1860,7 @@ Suggested area labels:
 - **closure evidence:** this entry stays closed because the original bug was a stale `0.1.87` release claim rather than a current version-surface defect in the repo candidate itself. The broader source of truth still says `0.1.87` remains the not-yet-frozen rollout target rather than the active shipped line. Do not reuse this closed entry as proof of current exact-build match; current repo-versus-live fingerprint drift is tracked separately under the active `0.1.87` blocker in ZNE-003.
 
 ## ZNE-049 - Managed Devices UI absence report was stale; live HA already exposes the workspace entities
+- **status:** `closed`
 - **closed on:** 2026-04-18
 - **severity:** `high`
 - **area:** `managed_devices`
