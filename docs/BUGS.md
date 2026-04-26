@@ -2518,6 +2518,20 @@ Suggested area labels:
 - **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_source_repair_guidance tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.88` candidate.
 - **next action:** include this Workstream D/F copy cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
+
+## ZNE-201 - Supplemental UI implementation spec still used old deeper/support path wording
+
+- **status:** `validated`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog source-doc audit on 2026-04-26 while comparing supplemental UI specs against `docs/UI_DESIGN.md` and the `0.1.88` Detailed remaining work map.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_SPEC.md` still described `deeper/detail/support paths`, `Diagnostics / health / support path`, and generic `deeper device` / `deeper telemetry/support` navigation even after the active source-of-truth wording moved to native Sensors, Diagnostics, and a secondary device-page review/audit hierarchy.
+- **expected behavior:** supplemental implementation specs should remain subordinate to the current native-HA source-of-truth wording, with Configure -> Managed Devices as the primary workspace, Sensors owning telemetry/source health, Diagnostics owning troubleshooting, and the device page described as secondary review/audit rather than a generic deeper/support lane.
+- **evidence:** `rg -n "deeper/detail/support|Diagnostics / health / support path|deeper device detail|deeper telemetry/support" docs/UI_IMPLEMENTATION_SPEC.md` found the stale active wording while the current source docs and product copy use `secondary review/audit`, `Sensors`, and `Diagnostics`.
+- **repo fix:** this run updates `docs/UI_IMPLEMENTATION_SPEC.md` to replace the stale deeper/support phrasing with `secondary review/audit`, `Sensors telemetry/source-health`, and `Diagnostics troubleshooting` wording.
+- **validation status:** validated by direct source-doc grep: the old active phrases no longer appear in `docs/UI_IMPLEMENTATION_SPEC.md`; no live Home Assistant validation is required for this supplemental-doc correction.
+- **next action:** keep supplemental specs subordinate to `UI_DESIGN.md` / `UI_IMPLEMENTATION_MAP.md`; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
+
 ## Closure rule
 
 Do not mark a bug `closed` just because a commit exists.

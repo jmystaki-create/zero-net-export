@@ -8,7 +8,7 @@ It is intended to answer:
 - what belongs at a glance versus one level deeper
 - what the main Configure landing flow should contain
 - what the Managed Devices workspace should contain
-- what deeper/detail/support paths should contain
+- what secondary review, telemetry, and Diagnostics paths should contain
 
 This is an implementation-facing UI spec, not the higher-level design rationale.
 
@@ -33,7 +33,7 @@ The operator should understand, in order:
 3. the current control result
 4. the current fleet state
 5. whether there are any important health/blocker signals
-6. where to go next for deeper work
+6. where to go next for secondary review, telemetry, or Diagnostics work
 
 ### Visual posture
 
@@ -187,7 +187,7 @@ Examples:
 
 - must be visible on the landing screen when relevant
 - must be concise
-- must point toward the relevant local section or deeper path
+- must point toward the relevant local section, secondary review path, or Diagnostics path
 - must not become a long explanatory essay
 
 ### Problem signal rule
@@ -247,15 +247,15 @@ It should not feel like:
 - a deep diagnostics page
 - a text-heavy settings list
 
-### Deeper action path
+### Secondary review/audit path
 
-From each managed device, the operator should be able to reach deeper management detail, such as:
+From each managed device, the operator should be able to reach secondary review/audit detail, such as:
 - overrides
 - more detailed state
 - richer per-device review
 - other advanced per-device operations
 
-Those deeper details do not all belong in the main row.
+Those secondary audit details do not all belong in the main row.
 
 ---
 
@@ -351,9 +351,9 @@ The product should give a clean landing, not a contextless bounce.
 
 ---
 
-## Screen 6. Deeper telemetry / sensor detail
+## Screen 6. Sensors telemetry/source-health detail
 
-This is the deeper sensor/telemetry path beyond the top control board.
+This is the Sensors-owned telemetry/source-health path beyond the top control board.
 
 ### Purpose
 
@@ -369,15 +369,15 @@ Expose more telemetry and source detail without overcrowding the primary landing
 ### Design rule
 
 Critical telemetry belongs in the control board.
-Additional telemetry belongs here or in nearby deeper supporting paths.
+Additional telemetry belongs here or in nearby secondary native paths.
 
 This should not become the dominant primary experience.
 
 ---
 
-## Screen 7. Diagnostics / health / support path
+## Screen 7. Diagnostics / health / troubleshooting path
 
-This is the deeper diagnostics and troubleshooting path.
+This is the Diagnostics-owned troubleshooting path.
 
 ### Purpose
 
@@ -395,7 +395,7 @@ Diagnostics investigation, diagnostics capture, and explicit troubleshooting wit
 
 ### Design rule
 
-Diagnostics should remain visible in the overall product posture, but this deeper path should be where richer troubleshooting lives.
+Diagnostics should remain visible in the overall product posture, but this secondary native path should be where richer troubleshooting lives.
 
 It should not become the place where ordinary control or fleet work is primarily performed.
 
@@ -415,8 +415,8 @@ The user should be able to:
 - land on the main console
 - understand live state immediately
 - scroll naturally into Managed Devices
-- jump into candidate review or deeper device detail
-- jump into deeper telemetry/support when needed
+- jump into candidate review or secondary device-page review/audit detail
+- jump into Sensors telemetry or Diagnostics troubleshooting when needed
 
 ### Avoid
 
@@ -428,9 +428,9 @@ The user should be able to:
 ## What should remain one level deeper
 
 The following should generally remain one level deeper rather than crowd the main landing console:
-- deep per-device overrides
-- richer per-device audit detail
-- full troubleshooting and support capture detail
+- advanced per-device overrides
+- richer secondary per-device audit detail
+- full troubleshooting and diagnostics capture detail
 - full sensor/source detail beyond the critical operating subset
 - advanced provenance / install validation detail
 
