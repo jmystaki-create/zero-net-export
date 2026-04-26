@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-261 - Sensors source-mapping headings still used generic required-role wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while rechecking Workstream D/F Sensors source-role wording after placeholder values had moved to `required source roles`.
+- **current observed behavior:** the Sensors native setup and source-mapping screens still labelled the progress row `Required roles mapped` even though the rendered value now says `N of N required source roles mapped`. That kept a generic role label in the visible Sensors bucket and weakened the intended source-role wording.
+- **expected behavior:** visible Sensors progress labels should say `Required source roles mapped` so the heading and value carry the same operator-facing source-role language.
+- **evidence:** repo grep found `- Required roles mapped: {source_mapping_progress}` in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and the bucket-ownership regression expectations.
+- **repo fix:** this run changes the native Sensors progress label to `Required source roles mapped`, syncs translations, updates the `0.1.89` changelog wording, and adds regression coverage rejecting the stale label.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`.
+- **next action:** include this Workstream D/F Sensors label cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next boundary is still a direct James approval ask for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint refresh.
+
 ## ZNE-260 - Full regression suite missed new grouped Fleet activity import in isolated sensor stub
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
