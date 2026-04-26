@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-284 - Controls intro still opened with controller-policy tuning phrasing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `controls`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream D bucket-ownership wording after the source-role and Controls ownership cleanup.
+- **current observed behavior:** Configure -> Controls still opened with `Tune controller policy here`, even though adjacent bootstrap, validation, Sensors, and Managed Devices copy had moved away from older tuning-bucket phrasing and now defines Controls by target export, reserve, deadband, refresh interval, and live mode.
+- **expected behavior:** the Controls intro should lead with the current Controls ownership language and not make the section feel like the older generic controller-tuning bucket.
+- **evidence:** direct repo inspection found the stale opening sentence in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; existing bucket-ownership regression coverage rejected older `policy tuning` phrases but did not guard this exact intro.
+- **repo fix:** this run changes the Controls intro to `Set Controls policy here: target export, deadband, reserve threshold, refresh interval, and live mode`, syncs translations, records the `0.1.89` changelog note, and extends bucket-ownership regression coverage to reject `Tune controller policy`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D Controls wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-283 - UI design Sensors ownership still said source mapping status
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

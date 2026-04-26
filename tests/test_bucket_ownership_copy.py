@@ -437,7 +437,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Primary path:", source_mapping_description)
 
         policy_description = steps["policy"]["description"]
+        self.assertIn("Set Controls policy here: target export, deadband, reserve threshold, refresh interval, and live mode.", policy_description)
         self.assertIn("Controls owns controller behaviour and outcome.", policy_description)
+        self.assertNotIn("Tune controller policy", policy_description)
         self.assertNotIn("Controls owns controller behaviour once source mapping is healthy and managed devices are ready", policy_description)
         self.assertIn("Keep source repair in Sensors, fleet work in the Managed Devices workspace, and troubleshooting in Diagnostics instead of shifting those jobs into Controls.", policy_description)
         self.assertNotIn("Keep source repair in Sensors, fleet work in Managed Devices, and troubleshooting in Diagnostics instead of shifting those jobs into Controls.", policy_description)
