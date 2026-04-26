@@ -102,8 +102,8 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     native_support_module.SUPPORT_CONFIGURE_PATH = "diagnostics path"
     native_support_module.DIAGNOSTICS_DEVICE_ACTIONS_PATH = "device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot"
     native_support_module.build_native_operator_readiness = lambda coordinator: {
-        "summary": "Setup still blocked by missing source mappings.",
-        "next_step": "Open configure path -> Sensors and map Solar power first.",
+        "summary": "Setup still blocked by missing source mappings; mapped sources are stale.",
+        "next_step": "Repair mapped-role blockers, then review mapped sources before relying on control.",
     }
     native_support_module.build_source_attention_role_summary = lambda state, merged, limit=4: "Solar power"
     native_support_module.build_source_selector_fallback_hint = lambda role_keys=None: "Capture the validation error, then paste the same entity id into the matching fallback field."
@@ -154,13 +154,15 @@ class SetupNoticeCopyTests(unittest.TestCase):
         self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: finish native Zero Net Export setup")
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export still needs a few native setup steps.", message)
-        self.assertIn("\n\nStatus\n• Summary: Setup still blocked by missing source roles.", message)
+        self.assertIn("\n\nStatus\n• Summary: Setup still blocked by missing source roles; source roles are stale.", message)
         self.assertNotIn("source mappings", message)
+        self.assertNotIn("mapped sources", message)
+        self.assertNotIn("mapped-role blockers", message)
         self.assertIn("\n• Missing required source roles: Solar power, Home load power", message)
         self.assertIn("\n• Managed Devices: 0", message)
         self.assertIn("\n• Managed-device issues: No controllable devices have been added yet.", message)
         self.assertIn("\n• Active blockers: Solar power", message)
-        self.assertIn("\n\nDo next\n• Open configure path -> Sensors and map Solar power first.", message)
+        self.assertIn("\n\nDo next\n• Repair source-role blockers, then review source roles before relying on control.", message)
         self.assertIn(
             "\n\nFallback, only if Home Assistant rejects a valid choice\n• Capture the validation error, then paste the same entity id into the matching fallback field.",
             message,
@@ -185,6 +187,10 @@ class SetupNoticeCopyTests(unittest.TestCase):
         self.assertEqual(
             module._normalize_native_setup_notice_text("Open the source mapping step before enabling control."),
             "Open the Sensors source roles step before enabling control.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Repair mapped-role blockers, then review mapped sources."),
+            "Repair source-role blockers, then review source roles.",
         )
 
 

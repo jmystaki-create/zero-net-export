@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-321 - Setup notification normalization missed mapped-source fallback text
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream F setup/support notifications against the current Sensors/source-role wording.
+- **current observed behavior:** `_normalize_native_setup_notice_text(...)` normalized stale `source mapping(s)` readiness text before rendering the persistent native setup notification, but did not normalize cached or fallback `mapped sources` / `mapped-role blockers` wording. A readiness payload with those older labels could still leak mapping terminology into the Home Assistant setup notification.
+- **expected behavior:** native setup notifications should normalize stale mapped-source fallback text to source-role wording before it reaches Home Assistant, matching the current Sensors/source-role and Diagnostics support IA.
+- **evidence:** direct repo inspection found `custom_components/zero_net_export/__init__.py` only covered `source mapping(s)` variants, while adjacent native support normalization already covered mapped-source wording; focused setup-notice coverage did not reject `mapped sources` or `mapped-role blockers` in the rendered notification.
+- **repo fix:** this run extends setup-notification normalization for `mapped sources`, `mapped roles`, and mapped-role blocker wording, updates the setup-notice regression to cover summary and next-step leakage, and folds the fix into the compact Unreleased source-role normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_setup_notice_copy tests.test_bucket_ownership_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/__init__.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream F setup-notification cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-320 - Validation checklist still reduced the command-center landing to helper status fields
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
