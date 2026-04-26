@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-344 - Already-expanded angle Configure paths could double-expand
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F path normalization after the adjacent unicode-arrow Configure guard.
+- **current observed behavior:** `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` expanded bare `Configure > ...` bucket labels with direct string replacements, but did not guard already-expanded exact native paths that used the older angle separator before the bucket, such as `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure > Sensors`. Cached or pasted support text in that shape could be rewritten into a duplicated native path prefix.
+- **expected behavior:** bare angle Configure bucket labels should still expand to exact native Home Assistant paths, while already-expanded Zero Net Export Configure paths should remain stable and not double-expand.
+- **evidence:** focused regressions now preserve already-expanded angle Configure paths in both command-center/support and setup-notification normalization.
+- **repo fix:** this run removes the unguarded `Configure > ...` replacements and routes bare angle Configure bucket normalization through the same `Zero Net Export -> ` guard used for ASCII and unicode-arrow paths, covering both native support text and setup notifications.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-343 - Already-expanded unicode-arrow Configure paths could double-expand
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

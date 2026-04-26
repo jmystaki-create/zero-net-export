@@ -96,10 +96,6 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
         "Open Configure → Controls": f"Open {POLICY_CONFIGURE_PATH}",
         "Open Configure → Managed Devices": f"Open {DEVICES_CONFIGURE_PATH}",
         "Open Configure → Diagnostics": f"Open {SUPPORT_CONFIGURE_PATH}",
-        "Configure > Sensors": SOURCES_CONFIGURE_PATH,
-        "Configure > Controls": POLICY_CONFIGURE_PATH,
-        "Configure > Managed Devices": DEVICES_CONFIGURE_PATH,
-        "Configure > Diagnostics": SUPPORT_CONFIGURE_PATH,
         "Mapped-source blockers": "Source-role blockers",
         "Mapped-source blocker": "Source-role blocker",
         "mapped-source blockers": "source-role blockers",
@@ -156,6 +152,11 @@ def _normalize_native_setup_notice_text(value: Any) -> str:
         )
         text = re.sub(
             rf"(?<!Zero Net Export -> )Configure → {re.escape(section_label)}",
+            section_path,
+            text,
+        )
+        text = re.sub(
+            rf"(?<!Zero Net Export -> )Configure > {re.escape(section_label)}",
             section_path,
             text,
         )

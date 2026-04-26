@@ -106,10 +106,6 @@ def _normalize_native_path_text(text: Any) -> str:
         "Open Configure → Controls": f"Open {POLICY_CONFIGURE_PATH}",
         "Open Configure → Managed Devices": f"Open {DEVICES_CONFIGURE_PATH}",
         "Open Configure → Diagnostics": f"Open {SUPPORT_CONFIGURE_PATH}",
-        "Configure > Sensors": SOURCES_CONFIGURE_PATH,
-        "Configure > Controls": POLICY_CONFIGURE_PATH,
-        "Configure > Managed Devices": DEVICES_CONFIGURE_PATH,
-        "Configure > Diagnostics": SUPPORT_CONFIGURE_PATH,
         "Start in the unmanaged section": f"Review the Managed Devices workspace at {DEVICES_CONFIGURE_PATH}, starting with unmanaged candidates",
         "start in the unmanaged section": f"review the Managed Devices workspace at {DEVICES_CONFIGURE_PATH}, starting with unmanaged candidates",
         "Review the unmanaged section": f"Review the Managed Devices workspace at {DEVICES_CONFIGURE_PATH}, starting with unmanaged candidates",
@@ -177,6 +173,11 @@ def _normalize_native_path_text(text: Any) -> str:
         )
         value = re.sub(
             rf"(?<!Zero Net Export -> )Configure → {re.escape(section_label)}",
+            section_path,
+            value,
+        )
+        value = re.sub(
+            rf"(?<!Zero Net Export -> )Configure > {re.escape(section_label)}",
             section_path,
             value,
         )
