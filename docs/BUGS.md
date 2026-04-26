@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-232 - Watchdog guidance still named 0.1.88 implementation runway
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-26 after `docs/UI_IMPLEMENTATION_MAP.md`, `docs/SUPERVISOR.md`, `docs/RELEASE_0.1.89_PLAN.md`, `project_status.md`, and active release-boundary bug tails moved the future UI rollout to `0.1.89`.
+- **current observed behavior:** `docs/WATCHDOG.md` still told watchdog runs that if meaningful `0.1.88` implementation runway exists, unchanged live validation should not be restated as the main next step. That left the durable watchdog guidance one release line behind the active map and could cause future watchdog runs to audit supervisor ordering against the superseded published `v0.1.88` line instead of the current `0.1.89` follow-up line.
+- **expected behavior:** watchdog guidance should apply the unchanged-live-validation ranking rule to the current `0.1.89` implementation runway, while still avoiding candidate-hash or release-boundary refresh churn.
+- **evidence:** `grep -n "0\\.1\\.8[0-8]" docs/WATCHDOG.md` found the remaining stale `0.1.88` runway reference after the current source-of-truth map had moved the active UI checklist to `0.1.89`.
+- **repo fix:** this run changes the watchdog runway guard to `0.1.89` without changing release hashes, approval state, or live-validation evidence.
+- **validation status:** validated repo-side by focused grep of `docs/WATCHDOG.md`; no live Home Assistant validation is required for this process-guidance correction.
+- **next action:** keep watchdog/supervisor runs on the `0.1.89` remaining-work map; if no sharper A-D/F repo defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of refreshing old `0.1.88` bookkeeping.
+
 ## ZNE-231 - Active bug-tracker validation tails still pointed live proof at 0.1.88
 - **status:** `validated`
 - **severity:** `medium`
