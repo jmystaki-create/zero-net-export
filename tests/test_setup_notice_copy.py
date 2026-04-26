@@ -198,6 +198,14 @@ class SetupNoticeCopyTests(unittest.TestCase):
             "Open sensors path before enabling control.",
         )
         self.assertEqual(
+            module._normalize_native_setup_notice_text("Open source-mapping step before enabling control."),
+            "Open sensors path before enabling control.",
+        )
+        self.assertEqual(
+            module._normalize_native_setup_notice_text("Open source-mappings step before enabling control."),
+            "Open sensors path before enabling control.",
+        )
+        self.assertEqual(
             module._normalize_native_setup_notice_text(
                 "Missing required source mappings. Source mapping step incomplete. Source mappings stale."
             ),

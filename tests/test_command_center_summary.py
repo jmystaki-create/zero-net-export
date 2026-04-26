@@ -587,6 +587,28 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertNotIn("source mappings step", plural_normalized)
         self.assertNotIn("source roles step", plural_normalized)
 
+        hyphen_normalized = native_support._normalize_native_path_text(
+            "Open source-mapping step before enabling control."
+        )
+
+        self.assertEqual(
+            hyphen_normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} before enabling control.",
+        )
+        self.assertNotIn("source-mapping step", hyphen_normalized)
+        self.assertNotIn("source roles step", hyphen_normalized)
+
+        hyphen_plural_normalized = native_support._normalize_native_path_text(
+            "Open source-mappings step before enabling control."
+        )
+
+        self.assertEqual(
+            hyphen_plural_normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} before enabling control.",
+        )
+        self.assertNotIn("source-mappings step", hyphen_plural_normalized)
+        self.assertNotIn("source roles step", hyphen_plural_normalized)
+
     def test_native_path_normalization_expands_bare_section_handoffs(self) -> None:
         native_support = _load_native_support_module()
 

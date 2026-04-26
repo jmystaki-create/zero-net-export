@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-351 - Hyphenated source-mapping-step handoffs bypassed exact Configure path normalization
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native-path normalization after the adjacent spaced singular/plural source-mapping-step fixes.
+- **current observed behavior:** `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` handled spaced `Open source mapping(s) step` handoffs, but cached or restored hyphenated prompts such as `Open source-mapping step before enabling control.` and `Open source-mappings step before enabling control.` could still render without the exact Home Assistant Configure path.
+- **expected behavior:** restored setup notifications, command-center summaries, device-page support text, and setup/support fallback handoffs should point operators directly to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors` before Home Assistant renders them.
+- **evidence:** focused regressions now exercise hyphenated singular and plural `Open source-mapping(s) step before enabling control.` forms in both native-support and setup-notification normalization and reject the helper-ish or stale step wording.
+- **repo fix:** this run adds explicit hyphenated `Open Source/source-mapping(s) step` replacements before the generic source-mapping fallback replacements in both normalizers and folds the cleanup into the compact `0.1.89` Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-350 - Plural source-mappings-step handoffs normalized to helper-ish step wording instead of exact Configure path
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
