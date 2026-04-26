@@ -304,7 +304,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Managed Devices still owns this full-list step.", full_list_description)
 
         vetting_description = steps["device_vetting"]["description"]
-        self.assertIn("Review this unmanaged candidate here before it enters the managed fleet, with managed devices on top and the unmanaged promotion backlog below.", vetting_description)
+        self.assertIn("Review this unmanaged candidate before it enters the managed fleet; managed devices stay on top and the unmanaged promotion backlog stays below.", vetting_description)
+        self.assertNotIn("Review this unmanaged candidate here", vetting_description)
         self.assertNotIn("Stay in the Managed Devices workspace while you vet the candidate.", vetting_description)
         self.assertNotIn("Managed Devices owns this promotion workflow.", vetting_description)
         self.assertNotIn("Managed devices stay on top, and unmanaged promotion backlog stays below while you vet the candidate.", vetting_description)
@@ -327,7 +328,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         template_description = steps["device_template"]["description"]
         self.assertIn("Promotion path:", template_description)
         self.assertIn("{promotion_path_summary}", template_description)
-        self.assertIn("Choose safer starting defaults for this {device_kind} here before save, with managed devices on top and the unmanaged promotion backlog below.", template_description)
+        self.assertIn("Set safer starting defaults for this {device_kind} before save; managed devices stay on top and the unmanaged promotion backlog stays below.", template_description)
+        self.assertNotIn("Choose safer starting defaults", template_description)
+        self.assertNotIn("here before save", template_description)
         self.assertNotIn("Start this {device_kind} from a preset", template_description)
         self.assertNotIn("Stay in the Managed Devices workspace while you choose the preset.", template_description)
         self.assertNotIn("Managed Devices owns this promotion preset workflow.", template_description)
@@ -352,7 +355,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Promotion path:", add_description)
         self.assertIn("{promotion_path_summary}", add_description)
         self.assertIn("Confirm this {device_kind} in the Managed Devices workspace through native Home Assistant selectors.", add_description)
-        self.assertIn("Finish the save here with managed devices on top and the unmanaged promotion backlog below.", add_description)
+        self.assertIn("Finish the save with managed devices on top and the unmanaged promotion backlog below.", add_description)
+        self.assertNotIn("Finish the save here", add_description)
         self.assertNotIn("Keep day-to-day promotion and save work here without dropping into raw JSON or any custom panel.", add_description)
         self.assertNotIn("Stay in the Managed Devices workspace while you confirm the final settings.", add_description)
         self.assertNotIn("Managed Devices owns this save workflow.", add_description)
@@ -435,6 +439,15 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Top unmanaged candidate right now", full_list_description)
         self.assertIn("Ready-next unmanaged candidate: {ready_candidate}", full_list_description)
         self.assertNotIn("Current managed fleet:", full_list_description)
+
+        vetting_description = steps["device_vetting"]["description"]
+        self.assertIn("Review this unmanaged candidate before it enters the managed fleet; managed devices stay on top and the unmanaged promotion backlog stays below.", vetting_description)
+        self.assertNotIn("Review this unmanaged candidate here", vetting_description)
+
+        template_description = steps["device_template"]["description"]
+        self.assertIn("Set safer starting defaults for this {device_kind} before save; managed devices stay on top and the unmanaged promotion backlog stays below.", template_description)
+        self.assertNotIn("Choose safer starting defaults", template_description)
+        self.assertNotIn("here before save", template_description)
 
         source_description = steps["native_setup"]["description"]
         source_mapping_description = steps["native_setup_sources"]["description"]

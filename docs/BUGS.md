@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-293 - Promotion review and preset leads still used helper-style here phrasing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream C item 5 for remaining helper-ish wording in the promotion path.
+- **current observed behavior:** Configure -> Managed Devices -> Promotion review still opened with `Review this unmanaged candidate here...`, the preset step still said `Choose safer starting defaults ... here before save`, and the final save step still said `Finish the save here...`. Those leads kept small form-level cues in the otherwise workspace-first promotion flow.
+- **expected behavior:** shortlist -> review -> preset -> save should read as one Managed Devices promotion workflow, with the managed-on-top / unmanaged-below split stated directly and without helper-style `here` framing.
+- **evidence:** direct repo inspection found the stale leads in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and matching expectations in `tests/test_bucket_ownership_copy.py`.
+- **repo fix:** this run rewrites those promotion-step leads to direct workspace-first language, syncs translations, and adds regression coverage rejecting the old `here` phrasing.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-292 - Managed Devices edit picker still opened as a helper-style chooser
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
