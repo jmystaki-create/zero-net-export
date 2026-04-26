@@ -954,12 +954,16 @@ class SensorEntityCategoryTests(unittest.TestCase):
             data=SimpleNamespace(device_details={}),
         )
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
-        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        ready = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_ready", "Managed devices ready next")
+        hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+        overview.hass = hass
+        ready.hass = hass
 
         self.assertEqual(
             overview.native_value,
-            "no managed yet | 1 unmanaged backlog | source blockers active | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
+            "source blockers active | no managed yet | 1 unmanaged backlog | 1 fixed candidate | fixed backlog 1 review | 1 needs review | 1 fixed review | review AC Outlet 2 (fixed) | review carefully | warn generic outlet label",
         )
+        self.assertTrue(ready.native_value.startswith("source blockers active | 1 fixed candidate"))
         self.assertTrue(overview.extra_state_attributes["source_blocked"])
         self.assertEqual(
             overview.extra_state_attributes["source_blocker_summary"],
@@ -998,12 +1002,11 @@ class SensorEntityCategoryTests(unittest.TestCase):
         overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
         overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
-        self.assertIn("1 managed | 2 unmanaged backlog", overview.native_value)
+        self.assertTrue(overview.native_value.startswith("source blockers active | 1 managed | 2 unmanaged backlog"))
         self.assertNotIn("top AC Outlet 2", overview.native_value)
         self.assertIn("1 needs review", overview.native_value)
         self.assertIn("review AC Outlet 2 (fixed)", overview.native_value)
         self.assertIn("1 ready to promote", overview.native_value)
-        self.assertIn("source blockers active", overview.native_value)
         self.assertLessEqual(len(overview.native_value), 255)
 
     def test_fleet_console_next_step_prioritizes_named_blocked_devices_before_more_promotions(self) -> None:

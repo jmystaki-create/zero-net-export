@@ -85,6 +85,19 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-222 - Managed fleet helper sensors buried source blockers inside fleet backlog copy
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-26 while following up the Workstream A/D source-blocker grouping fix against the Managed Devices helper sensors
+- **current observed behavior:** the opening command-center Fleet activity copy had been fixed to keep `source blockers active` as a global first signal, but `sensor.py` still placed the same global blocker after the managed/unmanaged backlog counts in `managed_fleet_overview`, and at the end of `managed_fleet_ready`. Under compacted output this could make a source-mapping blocker read like part of the Managed Devices promotion backlog instead of a cross-bucket blocker owned by Sensors/Diagnostics.
+- **expected behavior:** Managed Devices helper sensors should keep global source blockers ahead of managed/unmanaged fleet and promotion details, while still preserving the managed count and unmanaged backlog count under the 255-character Home Assistant state limit.
+- **evidence:** repo inspection of `custom_components/zero_net_export/sensor.py` found `SOURCE_BLOCKER_ACTIVE_LABEL` appended after candidate/backlog parts for `managed_fleet_ready` and after managed/unmanaged counts for `managed_fleet_overview`; existing tests asserted the weaker ordering.
+- **repo fix:** this run moves `source blockers active` to the front of `managed_fleet_overview` and `managed_fleet_ready`, and adjusts the compact fallback so source-first states still retain the managed and unmanaged backlog counts.
+- **validation status:** repo-side fixed and verified with focused Managed Devices helper sensor tests plus `py_compile` in this run. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this sensor ordering fix in the next exact-build deploy/restart validation with the broader Workstream D bucket-ownership proof.
+
+
 ## ZNE-221 - Device-page managed review snapshots hid disabled fleet count
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
