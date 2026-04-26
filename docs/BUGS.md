@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-366 - Release-info changelog preview still leaked mapped-source wording and overlong 0.1.89 notes
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking release-info metadata against the native Home Assistant source-of-truth docs and the current `0.1.89` follow-up line.
+- **current observed behavior:** the current package changelog section still included `mapped-source blocker detail`, so Home Assistant release-info surfaces for the installed `0.1.88` package could echo stale source-mapping/internal blocker language. The `0.1.89` Unreleased section had also grown to 14 highlights, causing the existing compact-release-info regression to fail and making the follow-up candidate read like churn instead of a concise native UI release summary.
+- **expected behavior:** release-info changelog previews should use current source-role language and keep the `0.1.89` follow-up summary compact enough for Home Assistant metadata surfaces.
+- **evidence:** `python3 -m unittest -q tests.test_release_info_install_guidance` failed because the Unreleased highlight count was 14 instead of the tested limit of 10, and direct changelog inspection found `mapped-source blocker detail` in the current `0.1.88` section.
+- **repo fix:** this run changes the current package changelog wording to `source-role blocker detail`, compacts the `0.1.89` Unreleased fix list to nine release-info-friendly highlights, and extends the release-info regression to reject `mapped-source` and `source mapping` in the current package changelog preview.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/release_info.py tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this release-info metadata cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next important gap is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-365 - Fleet activity unmanaged-device count labels stayed ungrouped
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
