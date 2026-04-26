@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-355 - Case-variant bare Configure source-role finish prompts stayed off exact Sensors path
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking repeated Workstream D/F source-role and native-path normalization fixes for remaining cached setup/support wording drift.
+- **current observed behavior:** `_normalize_native_path_text(...)` and `_normalize_native_setup_notice_text(...)` expanded lower-case `Open Configure and/to finish source mapping/source roles` handoffs, but mixed/title-case cached forms such as `Open Configure and finish Source Mapping.` and `Open Configure to finish Source Roles.` could normalize only to a bare Configure/source-role prompt instead of the exact Sensors Configure path.
+- **expected behavior:** cached or fallback setup notifications, command-center summaries, device-page support text, and Managed Devices blocker handoffs should always point source-role completion to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors` before Home Assistant renders native support surfaces.
+- **evidence:** focused regressions now exercise the mixed/title-case bare Configure finish prompts in both native-support and setup-notification normalization and reject the remaining bare `Open Configure` result.
+- **repo fix:** this run adds case-insensitive bare Configure finish-prompt normalization in both normalizers before the generic source-mapping/source-role cleanup pass, and folds the coverage into the compact `0.1.89` Unreleased path-normalization changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_setup_notice_copy tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py custom_components/zero_net_export/__init__.py tests/test_command_center_summary.py tests/test_setup_notice_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F path-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the stronger process gap is to stop source-mapping variant churn and ask James directly for the `0.1.89` freeze/release/deploy/restart approval.
+
 ## ZNE-354 - Title-case source-mapping fallback text bypassed setup/support normalization
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

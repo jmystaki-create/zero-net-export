@@ -562,6 +562,23 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertIn("to finish required source roles", normalized)
         self.assertNotIn("Open Configure to finish source", normalized)
 
+    def test_native_path_normalization_expands_case_variant_configure_source_handoffs(self) -> None:
+        native_support = _load_native_support_module()
+
+        and_normalized = native_support._normalize_native_path_text("Open Configure and finish Source Mapping.")
+        to_normalized = native_support._normalize_native_path_text("Open Configure to finish Source Roles.")
+
+        self.assertEqual(
+            and_normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} and finish required source roles.",
+        )
+        self.assertEqual(
+            to_normalized,
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} to finish required source roles.",
+        )
+        self.assertNotIn("Open Configure", and_normalized)
+        self.assertNotIn("Open Configure", to_normalized)
+
     def test_native_path_normalization_expands_open_source_mapping_step_handoff(self) -> None:
         native_support = _load_native_support_module()
 
