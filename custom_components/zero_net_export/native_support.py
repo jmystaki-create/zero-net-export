@@ -5547,7 +5547,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- If Sensors owns the repair, use: {command_center.get('source_repair_step')}",
             f"- Source-map evidence: {command_center.get('sources_path')}",
             f"- Blocked-role candidate cues: {priority_candidate_hints}",
-            f"- Selector workaround, only if Home Assistant rejects a valid choice: {fallback_hint}",
+            f"- Selector fallback, only if Home Assistant rejects a valid choice: {fallback_hint}",
             "",
             "Install validation",
             f"- Installed package: {command_center.get('install_status')}",

@@ -525,7 +525,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             "- Blocked-role candidate cues: Not needed right now.",
             support_center,
         )
-        self.assertIn("- Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.", support_center)
+        self.assertIn("- Selector fallback, only if Home Assistant rejects a valid choice: Not needed right now.", support_center)
+        self.assertNotIn("Selector workaround", support_center)
         self.assertIn("- Exact-build step: install repair step", support_center)
         self.assertIn(
             f"- Install evidence: {native_support.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
@@ -1083,9 +1084,10 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertNotIn("Diagnostics follow-through:", support_center)
         self.assertIn(
-            "Selector workaround, only if Home Assistant rejects a valid choice: Not needed right now.",
+            "Selector fallback, only if Home Assistant rejects a valid choice: Not needed right now.",
             support_center,
         )
+        self.assertNotIn("Selector workaround", support_center)
         self.assertIn("Exact-build step: install repair step", support_center)
         self.assertIn(
             f"Source-map evidence: {native_support.SOURCES_CONFIGURE_PATH}",
