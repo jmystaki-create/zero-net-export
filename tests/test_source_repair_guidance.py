@@ -399,7 +399,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
                 "source_mapping_summary": "Solar power -> sensor.pv_power",
                 "unavailable_sources": "Solar power",
                 "stale_sources": "Grid export power",
-                "source_attention_summary": "Solar power (Pv Power, unavailable)",
+                "source_attention_summary": "Mapped source blockers: Solar power (Pv Power, unavailable)",
+                "source_repair_step": "Repair mapped-source blockers before relying on control.",
                 "source_attention_roles": "Solar power -> Pv Power (unavailable)",
                 "device_status": "Managed Devices: no managed yet",
                 "device_next_step": "Add a controllable load.",
@@ -438,6 +439,9 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("- Diagnostics: Runtime attention remains.", guide)
         self.assertNotIn("- Runtime health:", guide)
         self.assertIn("- Source blockers: Solar power (Pv Power, unavailable)", guide)
+        self.assertIn("- Repair path: Repair source blockers before relying on control.", guide)
+        self.assertNotIn("Mapped source blockers", guide)
+        self.assertNotIn("mapped-source blockers", guide)
         self.assertIn("Native paths", guide)
         self.assertIn(f"- Sensors: {native_support.SOURCES_CONFIGURE_PATH}", guide)
         self.assertIn(

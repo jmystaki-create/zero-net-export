@@ -2499,6 +2499,12 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
     alert_summary = _normalize_native_path_text(command_center.get("alert_summary"))
     next_action_summary = _normalize_native_path_text(command_center.get("next_action_summary"))
     source_status = _normalize_native_path_text(command_center.get("source_status"))
+    source_attention_summary = _normalize_native_path_text(
+        command_center.get("source_attention_summary")
+    )
+    if source_attention_summary.lower().startswith("source blockers:"):
+        source_attention_summary = source_attention_summary.split(":", 1)[1].strip()
+    source_repair_step = _normalize_native_path_text(command_center.get("source_repair_step"))
     fleet_activity_summary = _command_center_guide_fleet_activity_summary(command_center)
     now_lines = [
         "Now",
@@ -2523,8 +2529,8 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Source map: {command_center.get('source_mapping_summary')}",
             f"- Controls: {command_center.get('policy_status')}",
             f"- Diagnostics: {command_center.get('support_status')}",
-            f"- Source blockers: {command_center.get('source_attention_summary')}",
-            f"- Repair path: {command_center.get('source_repair_step')}",
+            f"- Source blockers: {source_attention_summary}",
+            f"- Repair path: {source_repair_step}",
             f"- Recommended section: {command_center.get('recommended_section')}",
             "",
             "Command-center use",
