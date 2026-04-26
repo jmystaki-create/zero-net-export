@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-318 - UI implementation spec Sensors detail still used generic mapping/here wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the active UI source-of-truth chain against the `0.1.89` four-bucket IA and Sensors/source-role wording.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_SPEC.md` still listed the Sensors telemetry/source-health detail contents as `mapping status` and said `Additional telemetry belongs here or in nearby secondary native paths`, leaving a generic mapping label plus local `here` phrasing in an active implementation spec after the current native UI line moved Sensors wording to source roles/source health.
+- **expected behavior:** the supplemental screen spec should name `source-role status` and state that additional telemetry belongs in Sensors or nearby secondary native paths, so it reinforces the same Sensors bucket ownership used by the design, implementation map, validation checklist, and active Home Assistant copy.
+- **evidence:** direct repo inspection found the stale lines in `docs/UI_IMPLEMENTATION_SPEC.md`; existing bucket-ownership coverage only rejected `missing source mapping` in that spec and did not guard the Sensors detail ownership line.
+- **repo fix:** this run changes the Sensors detail contents to `source-role status`, rewrites the design rule to `Additional telemetry belongs in Sensors or nearby secondary native paths`, folds the correction into the compact Unreleased source-role changelog bullet, and adds regression coverage in `tests/test_bucket_ownership_copy.py`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this supplemental-doc correction.
+- **next action:** include this spec cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-317 - Unreleased 0.1.89 changelog exceeded compact highlight guard again
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

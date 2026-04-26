@@ -362,14 +362,14 @@ Expose more telemetry and source detail without overcrowding the primary landing
 ### Contains
 
 - richer source-health detail
-- mapping status
+- source-role status
 - freshness detail
 - additional sensor detail beyond the top-level operating subset
 
 ### Design rule
 
 Critical telemetry belongs in the control board.
-Additional telemetry belongs here or in nearby secondary native paths.
+Additional telemetry belongs in Sensors or nearby secondary native paths.
 
 This should not become the dominant primary experience.
 

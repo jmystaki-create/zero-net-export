@@ -674,7 +674,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("review health evidence", supervisor)
         self.assertNotIn("set policy, and review health", supervisor)
         self.assertIn("missing source roles", ui_implementation_spec)
+        self.assertIn("source-role status", ui_implementation_spec)
+        self.assertIn("Additional telemetry belongs in Sensors", ui_implementation_spec)
         self.assertNotIn("missing source mapping", ui_implementation_spec)
+        self.assertNotIn("mapping status", ui_implementation_spec)
+        self.assertNotIn("Additional telemetry belongs here", ui_implementation_spec)
 
 
 if __name__ == "__main__":
