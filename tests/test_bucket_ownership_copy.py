@@ -472,7 +472,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         checklist = (project_root / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
 
         self.assertIn("previously saved source roles", checklist)
+        self.assertIn("Previously saved source roles are still present after restart", checklist)
         self.assertIn("required source roles recover as healthy runtime entities", checklist)
+        self.assertNotIn("previously saved source mappings", checklist)
         self.assertNotIn("previously saved mapped sources", checklist)
         self.assertNotIn("required mapped sources recover", checklist)
 

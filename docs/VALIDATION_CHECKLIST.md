@@ -62,7 +62,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 
 ### Restart / Reload Regression Check
 - [ ] After a full Home Assistant core restart, the Zero Net Export config entry returns to a healthy loaded state instead of `failed_setup` / retrying setup
-- [ ] Previously saved source mappings are still present after restart
+- [ ] Previously saved source roles are still present after restart
 - [ ] Runtime source entities come back as normal Zero Net Export entities instead of disappearing behind a setup failure
 - [ ] A config-entry reload after saving sources still succeeds when no code change is pending
 - [ ] If a code fix was just installed, note whether only a full core restart, not a config-entry reload, was required to clear the failure
