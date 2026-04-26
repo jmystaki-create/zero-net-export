@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-220 - Runtime Repairs notification framed every blocker as mapped-source repair
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream F notification/support cleanup against the current Repairs copy
+- **current observed behavior:** the runtime-attention Repairs notification had been compacted, but it still used `Mapped-source blockers` and `Mapped-source repair path` as the central section labels for every runtime issue. That made install/package trust blockers, command failures, and no-usable-device states read like source-only repairs even when `repairs.py` correctly routed the next step to Diagnostics, Sensors, or Managed Devices.
+- **expected behavior:** the native Repairs/runtime notification should stay compact but generic enough for the active blocker class: source details can remain visible, while the primary `Do next` line should be the already-ranked native next step rather than a duplicated source-only repair label.
+- **evidence:** repo inspection of `custom_components/zero_net_export/strings.json`, `translations/en.json`, and `repairs.py` showed the issue description always rendered `Mapped-source blockers` / `Mapped-source repair path` even though `runtime_next_step` may be rewritten to install repair, source repair, or managed-device follow-through depending on blocker state.
+- **repo fix:** this run changes the runtime-attention issue copy to `Active blockers`, renames the source detail rows, and collapses `Do next` to the ranked `{next_step}`. `tests/test_repairs_copy.py` now rejects the old mapped-source-only labels, and `docs/UI_IMPLEMENTATION_MAP.md` records the updated Workstream F state.
+- **validation status:** repo-side fixed and verified with focused Repairs/translation tests plus py_compile in this run. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this Workstream F Repairs notification cleanup in exact-build deploy/restart validation, then confirm live Repairs modals keep source, install, command-failure, and managed-device blockers routed to the correct native path without source-only framing.
+
 ## ZNE-219 - Managed Devices summaries hid disabled fleet count
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

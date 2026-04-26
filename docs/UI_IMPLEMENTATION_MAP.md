@@ -344,7 +344,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - make warnings, setup prompts, and runtime-attention surfaces compact and scannable
 
 **Completed**
-- the runtime-attention notification copy has been tightened repo-side into shorter `Now`, `Mapped-source blockers`, `Do next`, and `Open` sections instead of the earlier wall of text
+- the runtime-attention notification copy has been tightened repo-side into shorter `Now`, `Active blockers`, `Do next`, and `Open` sections instead of the earlier wall of text, so non-source runtime/install blockers no longer read like source-only repairs
 - the setup-finished/setup-warning notification copy has been tightened repo-side into shorter `Status`, `Do next`, `Fallback`, and `Open` sections instead of the earlier prose dump
 - translation sync and repairs-copy regression coverage now keep those notification surfaces aligned between `strings.json` and `translations/en.json`
 

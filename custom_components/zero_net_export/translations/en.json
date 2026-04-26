@@ -24,7 +24,7 @@
     },
     "runtime_attention": {
       "title": "Zero Net Export runtime blockers",
-      "description": "Zero Net Export is running, but control is still constrained by one or more active blockers.\n\nNow\n\u2022 Health: {health_summary}\n\u2022 Reasons: {reason_summary}\n\nMapped-source blockers\n\u2022 Unavailable roles: {unavailable_sources}\n\u2022 Stale roles: {stale_sources}\n\u2022 Affected mapped sources: {source_attention_roles}\n\u2022 Blocking validation details: {blocking_validation_details}\n\nDo next\n\u2022 Mapped-source repair path: {source_repair_step}\n\u2022 Next step: {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n\u2022 {fallback_hint}\n\nOpen\n\u2022 Command center: {configure_path}\n\u2022 Sensors: {sources_path}\n\u2022 Managed Devices: {devices_path}\n\u2022 Diagnostics: {support_path}"
+      "description": "Zero Net Export is running, but control is still constrained by one or more active blockers.\n\nNow\n\u2022 Health: {health_summary}\n\u2022 Reasons: {reason_summary}\n\nActive blockers\n\u2022 Unavailable source roles: {unavailable_sources}\n\u2022 Stale source roles: {stale_sources}\n\u2022 Affected mapped sources: {source_attention_roles}\n\u2022 Blocking validation details: {blocking_validation_details}\n\nDo next\n\u2022 {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n\u2022 {fallback_hint}\n\nOpen\n\u2022 Command center: {configure_path}\n\u2022 Sensors: {sources_path}\n\u2022 Managed Devices: {devices_path}\n\u2022 Diagnostics: {support_path}"
     }
   },
   "options": {
