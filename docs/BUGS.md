@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-312 - Validation run order still used old sources/policy wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active validation guidance against the `0.1.89` four-bucket IA and source-role wording.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still told validators to confirm where `sources` and `policy/settings` live, then to `map required sources in native setup`, even though the current native UI line uses Sensors/source roles, Controls policy/live mode, Managed Devices, and Diagnostics as the operator-facing buckets.
+- **expected behavior:** active validation guidance should name the same four native buckets and source-role setup language that the Configure UI and implementation map use, so validators do not pull acceptance review back toward older sources/policy wording.
+- **evidence:** direct repo inspection found the stale validation-run bullets under `After James approves deploy/restart and the exact build is installed, validate in this order:`; existing bucket-ownership coverage did not guard those bullets.
+- **repo fix:** this run changes the validation-run bullets to require obvious Sensors/source roles, Controls policy/live mode, Managed Devices fleet work, and Diagnostics evidence ownership, and changes source setup to `map required source roles in native Sensors setup`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc wording cleanup; final checklist use remains part of the approved `0.1.89` live-validation pass.
+- **next action:** include this validation-guidance cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-311 - Sensors opening still described source setup as entity mapping
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

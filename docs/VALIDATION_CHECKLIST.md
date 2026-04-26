@@ -24,8 +24,8 @@ After James approves deploy/restart and the exact build is installed, validate i
    - add integration if needed, or reopen the existing integration
    - complete bootstrap-only config flow if setup is not already complete
    - open Configure from the integration card
-   - confirm it is obvious where sources live, where policy/settings live, and where managed-device work lives
-   - map required sources in native setup, including the correct combined-versus-separate grid sensor layout
+   - confirm it is obvious where Sensors/source roles live, where Controls policy/live mode lives, where Managed Devices fleet work lives, and where Diagnostics evidence lives
+   - map required source roles in native Sensors setup, including the correct combined-versus-separate grid sensor layout
    - add at least one managed device through the native add/edit/remove flow in Configure, preferably by promoting a discovered unmanaged candidate when one is offered, then edit it in place once
    - verify the JSON editor is no longer required for a normal single-device onboarding path
    - confirm readiness moves from installed -> mapped -> operational

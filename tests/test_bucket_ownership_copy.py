@@ -584,6 +584,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Entry can be created without choosing source roles", checklist)
         self.assertIn("Controls policy/live mode", checklist)
         self.assertIn("Managed Devices workspace", checklist)
+        self.assertIn(
+            "where Sensors/source roles live, where Controls policy/live mode lives, where Managed Devices fleet work lives, and where Diagnostics evidence lives",
+            checklist,
+        )
+        self.assertIn("map required source roles in native Sensors setup", checklist)
         self.assertIn("Controls flow states whether target export, reserve, deadband, and live mode are actionable", checklist)
         self.assertNotIn("native source mapping", checklist)
         self.assertNotIn("raw source-mapping form", checklist)
@@ -594,6 +599,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Controls tuning", checklist)
         self.assertNotIn("controller-tuning paths", checklist)
         self.assertNotIn("Policy/settings flow states whether policy tuning", checklist)
+        self.assertNotIn("where sources live, where policy/settings live, and where managed-device work lives", checklist)
+        self.assertNotIn("map required sources in native setup", checklist)
 
     def test_readme_upgrade_steps_use_source_role_wording(self):
         project_root = Path(__file__).resolve().parents[1]
