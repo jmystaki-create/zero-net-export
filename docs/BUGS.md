@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-268 - Command-center guide still used source-mapping wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-26 while advancing Workstream A/D command-center compactness and four-bucket ownership wording.
+- **current observed behavior:** the opening command-center guide still told operators to `Finish source mapping and core control checks here` and said `Sensors owns source mapping and source health`, even though the setup-check row and current Sensors wording use source-role language.
+- **expected behavior:** the opening command-center modal should keep the structured control board and setup guidance aligned to Sensors/source roles, Controls, Managed Devices, and Diagnostics without reintroducing older source-mapping jargon on the primary operator console.
+- **evidence:** direct repo inspection found the stale strings in `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and `build_native_command_center_guide_text(...)`.
+- **repo fix:** this run changes the command-center use and bucket-ownership lines to `source roles`, syncs translations, and adds regression guards rejecting the stale command-center source-mapping phrases.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_setup_focus tests.test_bucket_ownership_copy tests.test_translation_sync` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_setup_focus.py tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D command-center source-role cleanup in the next `0.1.89` exact build, then continue to the first remaining ordered validation/release boundary if no sharper A-D/F defect remains.
+
 ## ZNE-267 - Bootstrap and README setup path still hid the four-bucket IA
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -108,7 +108,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertIn("Zero Net Export command center\n\nNow", text)
         self.assertIn("Command-center use\n- Live setup and current operating picture.", text)
         self.assertIn(
-            "- Finish source mapping and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
+            "- Finish source roles and core control checks here; when fleet work is next, continue in the Managed Devices workspace.",
             text,
         )
         self.assertNotIn("This surface is for the basic setup only.", text)
@@ -129,6 +129,8 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
         self.assertNotIn("| 3 unmanaged |", text)
         self.assertIn("Setup check", text)
         self.assertIn("- Source roles: Solar power -> sensor.pv_power", text)
+        self.assertNotIn("Finish source mapping and core control checks", text)
+        self.assertNotIn("- Sensors owns source mapping and source health.", text)
         self.assertNotIn("- Source map: Solar power -> sensor.pv_power", text)
         self.assertLess(text.index("Now"), text.index("Structured control board"))
         self.assertLess(text.index("Structured control board"), text.index("Command-center use"))

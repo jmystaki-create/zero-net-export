@@ -39,8 +39,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("- Recommended section: {recommended_section}", init_description)
         self.assertNotIn("{recommended_menu_hint}", init_description)
         self.assertNotIn("The first menu item below", init_description)
-        self.assertIn("\n\nBucket ownership\n- Sensors owns source mapping and source health.", init_description)
-        self.assertIn("Sensors owns source mapping and source health.", init_description)
+        self.assertIn("\n\nBucket ownership\n- Sensors owns source roles and source health.", init_description)
+        self.assertIn("Sensors owns source roles and source health.", init_description)
+        self.assertNotIn("Finish source mapping and core control checks", init_description)
+        self.assertNotIn("Sensors owns source mapping and source health.", init_description)
         self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {devices_path}", init_description)
 
         native_setup_description = steps["native_setup"]["description"]
