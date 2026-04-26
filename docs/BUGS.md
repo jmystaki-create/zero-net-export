@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-204 - Candidate release preview test failed after changelog compaction
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-26 while running release-info and install-helper regressions against the frozen `0.1.88` candidate
+- **current observed behavior:** `tests.test_release_info_install_guidance.ReleaseInfoInstallGuidanceTests.test_build_release_info_uses_current_candidate_changelog_entry_without_release_date` failed because the generated `changes_preview` no longer included `Home Assistant` after the latest changelog top entries were compacted. That meant the native release-info preview could pass candidate highlights through without the expected Home Assistant context.
+- **expected behavior:** the undated `0.1.88` candidate changelog should remain usable by release-info helpers and keep Home Assistant context visible in the generated preview while still not claiming a release date before approval.
+- **evidence:** `python3 -m unittest -q tests.test_install_helper_scripts tests.test_release_info_install_guidance tests.test_translation_sync` failed with `AssertionError: 'Home Assistant' not found in ...changes_preview...`.
+- **repo fix:** this run updates the first `0.1.88` changelog highlight to say `Home Assistant Configure`, restoring the release-info preview context without changing the approval-gated release state.
+- **validation status:** validated repo-side with `python3 -m unittest -q tests.test_install_helper_scripts tests.test_release_info_install_guidance tests.test_translation_sync` and the focused native UI regressions from this run.
+- **next action:** keep the candidate undated until James approves release/deploy/restart; if no sharper A-D/F defect remains, ask for that approval instead of refreshing release bookkeeping again.
+
 ## ZNE-203 - 0.1.88 changelog was finalized as released before approval
 - **status:** `validated`
 - **severity:** `medium`
