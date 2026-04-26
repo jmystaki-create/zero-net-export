@@ -551,6 +551,25 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("**Managed devices**", readme)
         self.assertNotIn("Use **Policy and controller settings**", readme)
 
+    def test_active_project_docs_use_current_bucket_labels(self):
+        project_root = Path(__file__).resolve().parents[1]
+        docs = {
+            "PRODUCT_SPEC_V1.md": (project_root / "docs" / "PRODUCT_SPEC_V1.md").read_text(encoding="utf-8"),
+            "DASHBOARD_SETUP.md": (project_root / "docs" / "DASHBOARD_SETUP.md").read_text(encoding="utf-8"),
+            "REFERENCE_MATRIX.md": (project_root / "docs" / "REFERENCE_MATRIX.md").read_text(encoding="utf-8"),
+            "VALIDATION_CHECKLIST.md": (project_root / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8"),
+        }
+
+        for name, text in docs.items():
+            with self.subTest(doc=name):
+                self.assertIn("Sensors/source roles", text)
+                self.assertIn("Controls", text)
+                self.assertIn("Managed Devices", text)
+                self.assertIn("Diagnostics", text)
+                self.assertNotIn("sources, policy, managed devices, and support", text)
+                self.assertNotIn("source mapping, policy, managed devices", text)
+                self.assertNotIn("where to set policy, and where to review health", text)
+
 
 if __name__ == "__main__":
     unittest.main()

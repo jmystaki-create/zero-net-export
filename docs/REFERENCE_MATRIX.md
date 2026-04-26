@@ -25,7 +25,7 @@ A mature Home Assistant integration focused on maximizing solar self-consumption
 ### What it does not appear to solve fully
 - strict zero-export / export-target control as the product identity
 - operator-grade source validation and reconciliation
-- a clear native Configure-driven command center for sources, policy, managed devices, and support
+- a clear native Configure-driven command center for Sensors/source roles, Controls, Managed Devices, and Diagnostics
 - explicit confidence and mismatch reporting
 - grid-boundary-first modeling
 

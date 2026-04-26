@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 Target release: `0.1.89`
 
 ### Fixed
+- Aligned active product, dashboard, reference, and validation docs with the current Sensors/source roles, Controls, Managed Devices, and Diagnostics IA so validation guidance no longer falls back to older sources/policy/support wording.
 - Normalized stale Managed Devices blocker handoffs so cached or fallback `source mapping` next steps now render as source-role guidance before they reach promotion/save feedback.
 - Normalized stale native setup-notification readiness payloads so cached or fallback summaries no longer reintroduce `source mappings` wording after the active Sensors/source-role cleanup.
 - Replaced the remaining live Sensors source-health success summary that still said `Source mapping currently looks healthy` with source-role wording, including stale diagnostic-summary normalization before it reaches Configure.

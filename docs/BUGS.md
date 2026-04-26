@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-279 - Active project docs still used sources/policy/support IA wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D four-bucket IA cleanup after active README and Configure copy had moved to Sensors/source roles, Controls, Managed Devices, and Diagnostics.
+- **current observed behavior:** `docs/PRODUCT_SPEC_V1.md`, `docs/DASHBOARD_SETUP.md`, `docs/REFERENCE_MATRIX.md`, and `docs/VALIDATION_CHECKLIST.md` still described the native command center as `sources, policy, managed devices, and support` or `source mapping, policy, and managed devices`. That could pull validation and supervisor decisions back toward the older helper-style IA even though `docs/UI_IMPLEMENTATION_MAP.md` defines the current four-bucket split.
+- **expected behavior:** active project and validation docs should name the current native IA as Sensors/source roles, Controls, Managed Devices, and Diagnostics; source-mapping language should remain only where actual entity-role binding is being described.
+- **evidence:** direct repo grep found stale `sources, policy, managed devices, and support`, `source mapping, policy, managed devices`, and `where to set policy, and where to review health` wording outside the UI source-of-truth docs.
+- **repo fix:** this run aligns those active docs to the current four-bucket IA and adds regression coverage that rejects the stale wording in the product spec, dashboard setup note, reference matrix, and validation checklist.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` and `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this docs-only IA drift fix.
+- **next action:** include this Workstream D active-doc cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-278 - Managed Devices blocker handoff could echo stale source-mapping next steps
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

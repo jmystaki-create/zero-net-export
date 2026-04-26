@@ -12,8 +12,8 @@ Zero Net Export is a Home Assistant custom integration that keeps grid export ne
 - validate source entities before acting
 - explain every control decision
 - make native Home Assistant Configure plus the integration device path (`Settings -> Devices & Services -> Integrations -> Zero Net Export -> Devices -> open the Zero Net Export device`) sufficient for setup and troubleshooting, with no supported UI outside Home Assistant
-- make Configure the obvious native command center for source mapping, policy, managed devices, and support
-- make it obvious to a normal operator where to tag/manage devices, where to set policy, and where to review health without requiring support guidance
+- make Configure the obvious native command center for Sensors/source roles, Controls, Managed Devices, and Diagnostics
+- make it obvious to a normal operator where to manage devices, where to set Controls policy/live mode, and where to review Sensors/source health and Diagnostics without requiring support guidance
 - reduce operator exposure to raw inventory JSON, even if JSON-backed persistence still exists internally for now
 - keep installation stable so the integration does not negatively affect the wider Home Assistant UI
 - stay honest that real-world validation is still in progress and treat confirmed install/operator friction as the main release driver
@@ -92,7 +92,7 @@ The HA-first direction is correct, and the live install has now crossed the star
 ## MVP deliverables
 
 - bootstrap-only config flow for fast entry creation
-- native Configure workflow for source mapping, policy, and managed devices
+- native Configure workflow for Sensors/source roles, Controls, and Managed Devices
 - native add/edit/remove managed-device flow for common fixed and variable devices, with JSON reserved for recovery/bulk edits
 - source validation and confidence model
 - controller with fixed + variable loads

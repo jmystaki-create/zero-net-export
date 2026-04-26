@@ -218,7 +218,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 ## Optional Lovelace / Native Surface Validation
 
 - [ ] Configure opens and saves without any custom panel, sidebar, or external UI handoff
-- [ ] Configure clearly communicates where sources, policy, managed devices, and diagnostics actions live
+- [ ] Configure clearly communicates where Sensors/source roles, Controls, Managed Devices, and Diagnostics actions live
 - [ ] Device-page diagnostic buttons create the expected native notifications
 - [ ] Lovelace YAML imports without errors
 - [ ] All entity IDs resolve to real entities
