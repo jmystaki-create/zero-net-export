@@ -29,6 +29,7 @@ from .native_support import (
     build_source_attention_brief,
     build_source_attention_role_summary,
     build_source_attention_summary,
+    format_fleet_activity_for_operator,
     summarize_validation_issue_messages,
 )
 from .release_info import build_release_info
@@ -1288,6 +1289,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             return {
                 "source_status": command_center.get("source_status"),
                 "source_attention_roles": command_center.get("source_attention_roles"),
+                "fleet_activity_summary": format_fleet_activity_for_operator(command_center.get("fleet_activity_summary")),
                 "device_status": command_center.get("device_status"),
                 "device_next_step": command_center.get("device_next_step"),
                 "policy_status": command_center.get("policy_status"),

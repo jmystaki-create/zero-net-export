@@ -31,6 +31,7 @@ from .native_support import (
     build_native_operator_readiness,
     build_native_support_center,
     build_native_support_snapshot,
+    format_fleet_activity_for_operator,
 )
 
 
@@ -1030,6 +1031,7 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
             "source_mapping_summary": command_center.get("source_mapping_summary"),
             "unavailable_sources": command_center.get("unavailable_sources"),
             "stale_sources": command_center.get("stale_sources"),
+            "fleet_activity_summary": format_fleet_activity_for_operator(command_center.get("fleet_activity_summary")),
             "device_status": command_center.get("device_status"),
             "device_next_step": command_center.get("device_next_step"),
             "policy_status": command_center.get("policy_status"),

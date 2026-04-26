@@ -128,6 +128,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         "policy_readiness": "Ready after source repair.",
         "support_status": "Diagnostics available.",
         "detailed_management_summary": "Use the device page for secondary per-device review/audit.",
+        "fleet_activity_summary": "1 managed | 2 unmanaged backlog",
         "sources_path": "sources path",
         "devices_path": "devices path",
         "policy_path": "policy path",
@@ -139,6 +140,10 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         f"Recommended section right now: {command_center.get('recommended_section')}\n"
         f"Why this section is recommended: {command_center.get('recommended_reason')}\n"
         f"Managed-device audit path: {command_center.get('detailed_management_summary')}"
+    )
+    native_support_module.format_fleet_activity_for_operator = lambda summary: str(summary or "").replace(
+        "1 managed | 2 unmanaged backlog",
+        "Managed devices: 1 managed; Unmanaged backlog: 2 unmanaged backlog",
     )
     native_support_module.build_native_operator_readiness = lambda coordinator: {}
     native_support_module.build_native_support_center = lambda coordinator: "support center"
@@ -370,6 +375,20 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIsNone(getattr(fleet_console, "_attr_entity_category", None))
         self.assertIsNone(getattr(managed_review, "_attr_entity_category", None))
         self.assertEqual(diagnostics._attr_entity_category, button_module.EntityCategory.DIAGNOSTIC)
+
+    def test_command_center_button_attributes_expose_grouped_fleet_activity(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+
+        command_center = button_module.ZeroNetExportShowNativeCommandCenterButton(coordinator)
+
+        self.assertEqual(
+            command_center.extra_state_attributes["fleet_activity_summary"],
+            "Managed devices: 1 managed; Unmanaged backlog: 2 unmanaged backlog",
+        )
 
     def test_diagnostics_buttons_use_diagnostics_first_labels(self) -> None:
         button_module = _load_button_module()

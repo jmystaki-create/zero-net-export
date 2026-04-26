@@ -71,6 +71,10 @@ def _load_sensor_module():
     native_support_module.SOURCES_CONFIGURE_PATH = "sources path"
     native_support_module.build_native_command_center_summary = lambda coordinator: {}
     native_support_module.build_native_operator_readiness = lambda coordinator: {}
+    native_support_module.format_fleet_activity_for_operator = lambda summary: str(summary or "").replace(
+        "1 managed | 2 unmanaged backlog",
+        "Managed devices: 1 managed; Unmanaged backlog: 2 unmanaged backlog",
+    )
     native_support_module.build_source_attention_details = lambda state: {}
     native_support_module.build_source_attention_brief = lambda state, merged, limit=3, blocking_only=False: "None"
     native_support_module.build_source_attention_role_summary = lambda state, merged, limit=6, blocking_only=False: "None"
@@ -169,6 +173,37 @@ def _load_sensor_module():
 
 
 class SensorEntityCategoryTests(unittest.TestCase):
+    def test_command_center_sensor_attributes_expose_grouped_fleet_activity(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module.build_native_command_center_summary = lambda coordinator: {
+            "status_summary": "Command center ready.",
+            "recommended_path": "devices path",
+            "next_action_summary": "Review Managed Devices.",
+            "source_status": "Sources ready.",
+            "source_attention_roles": "None",
+            "fleet_activity_summary": "1 managed | 2 unmanaged backlog",
+            "device_status": "Managed Devices: 1 managed, 2 unmanaged backlog.",
+            "device_next_step": "Review unmanaged candidates.",
+            "policy_status": "Controls ready.",
+            "policy_readiness": "Ready.",
+            "support_status": "Diagnostics ready.",
+            "recommended_section": "Managed Devices",
+            "sources_path": "sources path",
+            "devices_path": "devices path",
+            "policy_path": "policy path",
+            "support_path": "support path",
+        }
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(validation_details={}),
+        )
+        sensor = sensor_module.ZeroNetExportSensor(coordinator, "command_center_status", "Command center status")
+
+        self.assertEqual(
+            sensor.extra_state_attributes["fleet_activity_summary"],
+            "Managed devices: 1 managed; Unmanaged backlog: 2 unmanaged backlog",
+        )
+
     def test_fleet_next_step_sensor_uses_managed_devices_label(self) -> None:
         sensor_module = _load_sensor_module()
 
