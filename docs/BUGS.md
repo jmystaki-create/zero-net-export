@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-373 - Empty promotion shortlist used suggested-candidate wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while reconciling the latest Workstream C promotion-copy fix with the bug tracker.
+- **current observed behavior:** when the fixed/variable promotion shortlist had no quick-pick candidates for the selected device kind, the fallback still said `No suggested candidates right now`. That kept a mild ranking/suggestion posture in the review-first promotion path even after adjacent candidate copy had moved to neutral `surfaced` wording.
+- **expected behavior:** empty shortlist fallback copy should stay neutral and native-workflow aligned, using `No surfaced candidates right now` rather than implying the integration has a best suggested candidate.
+- **evidence:** latest repo commit `b572445` changes the fallback in `custom_components/zero_net_export/config_flow.py` and adds `test_candidate_shortlist_empty_state_uses_neutral_surfaced_wording` to reject the old phrase.
+- **repo fix:** commit `b572445` replaces the empty shortlist fallback with `No surfaced candidates right now` and locks it in focused config-flow regression coverage.
+- **validation status:** repo-side fixed and re-verified in this watchdog run with `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` and `python3 -m py_compile custom_components/zero_net_export/config_flow.py tests/test_config_flow_device_runtime_overlay.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F repo defect appears, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another source/path or fingerprint bookkeeping loop.
+
 ## ZNE-372 - Zero-managed Fleet activity fallback could render as a managed count
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

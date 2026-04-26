@@ -10,7 +10,7 @@ Target release: `0.1.89`
 
 ### Fixed
 - Replaced the stale archived `docs/UI_DESIGN-old.md` snapshot body with a source-of-truth pointer so old `0.1.83` release-target and source-mapping wording can no longer masquerade as current UI direction.
-- Reworded promotion fallback preset copy from generic `Custom` / `custom configuration` language to `Manual native settings`, keeping the unmanaged-to-managed review path explicitly inside Home Assistant's native Managed Devices workflow.
+- Reworded promotion fallback preset copy from generic `Custom` / `custom configuration` language to `Manual native settings` and replaced empty shortlist `suggested candidates` fallback copy with neutral `surfaced candidates`, keeping unmanaged-to-managed review/promotion wording explicitly inside Home Assistant's native Managed Devices workflow.
 - Removed helper-ish source-role-step fallback wording and hardened legacy Source blockers, source-role/path normalization, Configure bucket paths, setup notifications, runtime Repairs open lists, command-center summaries, device-page guides, and setup-check handoffs before cached or fallback text reaches Home Assistant.
 - Added Managed Devices status to the command-center setup check and clarified Configure Fleet activity so managed inventory/action signals stay grouped ahead of unmanaged backlog across older count labels, zero-managed fallbacks, delimiter variants, and compact native Home Assistant surfaces.
 - Tightened Managed Devices workspace handoffs, device-page promotion handoff copy, manual-add/edit/enablement/remove next steps, review snapshots, and promotion review/preset/save leads so unmanaged review and ready promotion stay workspace-first instead of reading like detached secondary actions.
