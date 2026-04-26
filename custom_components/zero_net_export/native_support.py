@@ -2475,7 +2475,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- last_action_summary: {getattr(state, 'last_action_summary', None)}",
         f"- recent_failure_summary: {getattr(state, 'recent_failure_summary', None)}",
         "",
-        "Mapped sources",
+        "Source roles",
         *mapped_sources,
         "",
         "Source health",

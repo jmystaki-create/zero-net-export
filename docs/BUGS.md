@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-305 - Diagnostics snapshot still used mapped-sources heading
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F source-role wording in the device-page Diagnostics snapshot.
+- **current observed behavior:** `build_native_support_snapshot(...)` still rendered the mapped entity section with the heading `Mapped sources`, even though the current `0.1.89` native IA uses Sensors/source roles for operator-facing source setup and reserves mapping detail for cross-check context.
+- **expected behavior:** Diagnostics snapshots should keep troubleshooting detail but label the configured source entities as `Source roles` so support surfaces reinforce the same four-bucket/source-role language as Configure.
+- **evidence:** direct repo inspection found the hard-coded `Mapped sources` heading in `custom_components/zero_net_export/native_support.py`, and existing support-snapshot regression coverage did not reject it.
+- **repo fix:** this run renames the Diagnostics snapshot heading to `Source roles`, folds the note into the grouped `0.1.89` Diagnostics changelog theme, and adds support-snapshot regression coverage rejecting the stale heading.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_translation_sync tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F Diagnostics wording cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another fingerprint-refresh loop.
+
 ## ZNE-304 - Default Sensors fallback guidance still described dropdown workaround mechanics
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

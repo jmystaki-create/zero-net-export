@@ -649,6 +649,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Zero Net Export diagnostics snapshot", snapshot)
         self.assertNotIn("Zero Net Export support snapshot", snapshot)
         self.assertIn("Native paths", snapshot)
+        self.assertIn("Source roles", snapshot)
+        self.assertNotIn("Mapped sources", snapshot)
         self.assertNotIn("Recommended command-center section:", snapshot)
         self.assertNotIn("Recommended command-center path:", snapshot)
         self.assertNotIn("Why this section is recommended:", snapshot)
