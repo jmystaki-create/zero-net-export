@@ -107,8 +107,10 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )["checklist"]
         details = {item["key"]: item["detail"] for item in checklist}
 
+        self.assertEqual(details["sources_validated"], "Source roles currently validate cleanly enough for runtime control.")
         self.assertEqual(details["devices_configured"], "2 devices configured.")
         self.assertEqual(details["devices_usable"], "1 usable device available right now.")
+        self.assertNotIn("Mapped sources currently validate", "\n".join(details.values()))
         self.assertNotIn("device(s)", "\n".join(details.values()))
 
     def test_compact_top_alert_summary_drops_literal_none_placeholders(self) -> None:

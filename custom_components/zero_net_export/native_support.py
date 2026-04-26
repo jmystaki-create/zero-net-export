@@ -2060,7 +2060,7 @@ def _build_operator_checklist(
             "label": "Source validation healthy",
             "complete": not blocking_validation_issues and not state_stale_data,
             "detail": (
-                "Mapped sources currently validate cleanly enough for runtime control."
+                "Source roles currently validate cleanly enough for runtime control."
                 if not blocking_validation_issues and not state_stale_data
                 else (
                     f"Blocking validation issues: {len(blocking_validation_issues)}"

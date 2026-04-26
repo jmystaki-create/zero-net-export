@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-241 - Setup checklist healthy source-validation line still used mapped-source jargon
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role cleanup after runtime, Sensors, Repairs, helper-label, and guide wording had already moved off primary mapped-source jargon.
+- **current observed behavior:** the device-page setup checklist's healthy validation detail still said `Mapped sources currently validate cleanly enough for runtime control.` That let lower-level mapped-source wording reappear in a native support/checklist surface after adjacent operator-facing source-health surfaces had moved to `Source roles` / `Source mapping` language.
+- **expected behavior:** setup checklist health lines should use operator-facing source-role wording, while keeping mapped-role/mapped-source detail only where it helps operators repair the actual entity bindings.
+- **evidence:** repo grep in this run found the remaining healthy validation string in `_build_operator_checklist(...)` in `custom_components/zero_net_export/native_support.py`; focused checklist coverage did not reject the old wording.
+- **repo fix:** this run changes the checklist detail to `Source roles currently validate cleanly enough for runtime control.`, records the `0.1.89` changelog highlight, and adds focused regression coverage rejecting the older healthy mapped-source checklist line.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`, and focused grep confirming the old healthy checklist string is gone from active component code. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream D/F checklist wording cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-240 - Runtime source-blocker reasons still used mapped-source jargon
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
