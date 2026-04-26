@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-244 - Support and source blocker labels still exposed mapped-source role wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream D/F source-role cleanup after adjacent source-health, Repairs, helper-label, and guide wording had already moved off mapped-source jargon.
+- **current observed behavior:** the runtime-attention notification and Sensors setup description still labeled the active blocker row as `Affected mapped sources`, and the Diagnostics blocker triage still said `Blocking mapped roles`. Those strings let lower-level mapping terminology carry visible native support/source handoffs after the release line had standardized primary copy on source roles/source map wording.
+- **expected behavior:** native blocker labels should use operator-facing `source roles` wording, while preserving mapped-source/entity details only inside repair evidence values where operators need the actual Home Assistant bindings.
+- **evidence:** repo grep in this run found the remaining active labels in `custom_components/zero_net_export/native_support.py`, `custom_components/zero_net_export/strings.json`, and `custom_components/zero_net_export/translations/en.json`, with tests still expecting `Blocking mapped roles` in the support center.
+- **repo fix:** this run changes those labels to `Affected source roles` and `Blocking source roles`, records the `0.1.89` changelog highlight, and adds regression coverage rejecting the older mapped-source/mapped-role labels.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_source_repair_guidance tests.test_bucket_ownership_copy tests.test_translation_sync`, `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_source_repair_guidance.py tests/test_bucket_ownership_copy.py`, and focused grep confirming the old active labels are gone from component translation files and the support-center builder. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream D/F blocker-label cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-243 - Sensors and Controls source-repair readiness copy still leaked mapped-role labels
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

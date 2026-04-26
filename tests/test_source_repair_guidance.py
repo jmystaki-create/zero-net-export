@@ -1171,7 +1171,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             support_center,
         )
         self.assertIn("Top alerts:", support_center)
-        self.assertIn("Blocking mapped roles: Solar power", support_center)
+        self.assertIn("Blocking source roles: Solar power", support_center)
+        self.assertNotIn("Blocking mapped roles", support_center)
         self.assertIn("Blocking validation details:", support_center)
         self.assertIn(
             f"If Sensors owns the repair, use: Open {native_support.SOURCES_CONFIGURE_PATH}",
@@ -1205,8 +1206,12 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         for surface_text in (strings_text, translations_text):
             self.assertIn("Unavailable source roles: {unavailable_sources}", surface_text)
             self.assertIn("Stale source roles: {stale_sources}", surface_text)
+            self.assertIn("Affected source roles: {source_attention_roles}", surface_text)
+            self.assertIn("Blocking source roles: {support_source_attention_roles}", surface_text)
             self.assertNotIn("Unavailable mapped roles", surface_text)
             self.assertNotIn("Stale mapped roles", surface_text)
+            self.assertNotIn("Affected mapped sources", surface_text)
+            self.assertNotIn("Blocking mapped roles", surface_text)
 
 
 if __name__ == "__main__":

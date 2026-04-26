@@ -5552,7 +5552,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Top alerts: {command_center.get('alert_summary')}",
             "",
             "Blocker triage",
-            f"- Blocking mapped roles: {_format_source_role_list(blocking_keys) if blocking_keys else 'None'}",
+            f"- Blocking source roles: {_format_source_role_list(blocking_keys) if blocking_keys else 'None'}",
             f"- Blocking validation details: {command_center.get('blocking_validation_details') or 'None'}",
             f"- If Sensors owns the repair, use: {command_center.get('source_repair_step')}",
             f"- Source-map evidence: {command_center.get('sources_path')}",
