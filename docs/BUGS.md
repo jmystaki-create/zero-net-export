@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-227 - Diagnostics fallback copy still named a picker bug
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking Workstream F support-surface copy after the Repairs and Sensors fallback wording had already been compacted
+- **current observed behavior:** the Configure-side Diagnostics step still said `Selector workaround, only if Home Assistant rejects a valid choice` and then added `If the picker bug still appears, capture the exact validation error or a screenshot before retrying with the matching fallback field.` That made the support surface carry stale bug/workaround narration even when Diagnostics should stay compact and blocker-first.
+- **expected behavior:** Diagnostics should keep only the ranked fallback handoff needed for native selector failures, without naming an old picker bug or adding extra prose beyond the fallback action.
+- **evidence:** repo inspection of `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json` found the picker-bug sentence still present in the active Diagnostics step; `tests/test_bucket_ownership_copy.py` did not reject it.
+- **repo fix:** this run changes the Configure-side Diagnostics line to `Selector fallback, only if Home Assistant rejects a valid choice: {support_fallback_hint}`, removes the picker-bug sentence from both translation files, and adds regression coverage rejecting the older wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync`, `python3 -m py_compile tests/test_bucket_ownership_copy.py`, and the full `python3 -m unittest -q` suite. Live Home Assistant validation remains pending on deploy/restart of the exact candidate.
+- **next action:** include this Workstream F Diagnostics copy cleanup in the next helper-resolved exact-build deploy; if no sharper A-D/F repo defect remains, the real boundary is still James's direct tag/release/deploy decision rather than another fingerprint refresh.
+
 ## ZNE-226 - Command-center source alert kept mapped-source jargon in the global alert
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
