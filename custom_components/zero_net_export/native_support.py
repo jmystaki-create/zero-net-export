@@ -93,6 +93,22 @@ def _normalize_native_path_text(text: Any) -> str:
         "Mapped source blocker": "Source blocker",
         "mapped source blockers": "source blockers",
         "mapped source blocker": "source blocker",
+        "Mapped-source roles": "Source roles",
+        "Mapped-source role": "Source role",
+        "mapped-source roles": "source roles",
+        "mapped-source role": "source role",
+        "Mapped source roles": "Source roles",
+        "Mapped source role": "Source role",
+        "mapped source roles": "source roles",
+        "mapped source role": "source role",
+        "Mapped roles": "Source roles",
+        "Mapped role": "Source role",
+        "mapped roles": "source roles",
+        "mapped role": "source role",
+        "Mapped sources": "Source roles",
+        "Mapped source": "Source role",
+        "mapped sources": "source roles",
+        "mapped source": "source role",
     }
     for old, new in replacements.items():
         value = value.replace(old, new)

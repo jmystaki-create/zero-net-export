@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-247 - Command-center normalizer could still preserve stale mapped-role/source wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-26 while checking the remaining Workstream A/D/F source-role cleanup after the command-center next-action path had only been normalized for mapped-source blocker phrases.
+- **current observed behavior:** `_normalize_native_path_text(...)` normalized stale `mapped source blockers` wording at the command-center/device-page UI boundary, but it did not normalize adjacent stale `mapped roles`, `mapped source roles`, or `mapped sources` phrases. A stale readiness provider, restored summary, or older fixture could therefore still surface mapped-role/source jargon in `next_action_summary`, `recommended_reason`, or shared guide text even after the surrounding native surfaces had moved to `source roles` wording.
+- **expected behavior:** native command-center and device-page handoff text should normalize stale mapped-role/source phrasing to operator-facing `source roles` before it reaches Home Assistant, while preserving mapped-role/entity detail only in deeper Sensors/Diagnostics evidence rows.
+- **evidence:** repo inspection found `_normalize_native_path_text(...)` only covered Configure path shorthand plus mapped-source blocker variants. Existing focused coverage injected `Repair the mapped source blockers...` but did not reject `Repair the highlighted mapped roles and review mapped sources...` from the rendered next action.
+- **repo fix:** this run broadens `_normalize_native_path_text(...)` to normalize mapped-role, mapped-source-role, and mapped-source plural/singular phrases to source-role wording, records the `0.1.89` changelog highlight, and adds a focused command-center regression rejecting `mapped roles` / `mapped sources` from `next_action_summary`.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_command_center_summary tests.test_source_repair_guidance tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending on deploy/restart of the exact `0.1.89` candidate.
+- **next action:** include this Workstream A/D/F command-center normalization cleanup in the next `0.1.89` exact-build deploy; if no sharper A-D/F implementation defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path, not another fingerprint-refresh loop.
+
 ## ZNE-246 - Command-center next action could preserve stale mapped-source blocker wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
