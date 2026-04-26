@@ -566,30 +566,35 @@ class CommandCenterSummaryTests(unittest.TestCase):
         native_support = _load_native_support_module()
 
         normalized = native_support._normalize_native_path_text(
-            "Open Sources and finish the missing source roles. Open Managed Devices to review candidates."
+            "Open Sensors and finish the missing source roles. Open Sources to review source health. "
+            "Open Managed Devices to review candidates."
         )
 
         self.assertIn(native_support.SOURCES_CONFIGURE_PATH, normalized)
         self.assertIn(native_support.DEVICES_CONFIGURE_PATH, normalized)
-        self.assertNotIn("Open Sources and", normalized)
+        self.assertNotIn("Open Sensors and", normalized)
+        self.assertNotIn("Open Sources to", normalized)
         self.assertNotIn("Open Managed Devices to", normalized)
 
     def test_native_path_normalization_expands_bare_section_modifier_handoffs(self) -> None:
         native_support = _load_native_support_module()
 
         normalized = native_support._normalize_native_path_text(
-            "Open Sources first. Open Controls next. Open Managed Devices for review. Open Diagnostics with install evidence."
+            "Open Sensors first. Open Sources next. Open Controls after that. "
+            "Open Managed Devices for review. Open Diagnostics with install evidence."
         )
 
         self.assertEqual(
             normalized,
             f"Open {native_support.SOURCES_CONFIGURE_PATH} first. "
-            f"Open {native_support.POLICY_CONFIGURE_PATH} next. "
+            f"Open {native_support.SOURCES_CONFIGURE_PATH} next. "
+            f"Open {native_support.POLICY_CONFIGURE_PATH} after that. "
             f"Open {native_support.DEVICES_CONFIGURE_PATH} for review. "
             f"Open {native_support.SUPPORT_CONFIGURE_PATH} with install evidence.",
         )
-        self.assertNotIn("Open Sources first", normalized)
-        self.assertNotIn("Open Controls next", normalized)
+        self.assertNotIn("Open Sensors first", normalized)
+        self.assertNotIn("Open Sources next", normalized)
+        self.assertNotIn("Open Controls after", normalized)
         self.assertNotIn("Open Managed Devices for", normalized)
         self.assertNotIn("Open Diagnostics with", normalized)
 

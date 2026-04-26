@@ -194,8 +194,10 @@ class SetupNoticeCopyTests(unittest.TestCase):
             "Repair source-role blockers, then review source roles.",
         )
         self.assertEqual(
-            module._normalize_native_setup_notice_text("Open Sources and finish the missing source roles."),
-            "Open sensors path and finish the missing source roles.",
+            module._normalize_native_setup_notice_text(
+                "Open Sensors and finish the missing source roles. Open Sources to review source health."
+            ),
+            "Open sensors path and finish the missing source roles. Open sensors path to review source health.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text("Open Controls to adjust live mode."),
@@ -207,9 +209,9 @@ class SetupNoticeCopyTests(unittest.TestCase):
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
-                "Open Sources first. Open Controls next. Open Managed Devices for review. Open Diagnostics with install evidence."
+                "Open Sensors first. Open Sources next. Open Controls after that. Open Managed Devices for review. Open Diagnostics with install evidence."
             ),
-            "Open sensors path first. Open controls path next. Open devices path for review. Open diagnostics path with install evidence.",
+            "Open sensors path first. Open sensors path next. Open controls path after that. Open devices path for review. Open diagnostics path with install evidence.",
         )
         self.assertEqual(
             module._normalize_native_setup_notice_text(
