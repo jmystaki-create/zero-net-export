@@ -224,9 +224,9 @@ Suggested area labels:
 - **where seen:** watchdog source-of-truth audit on 2026-04-26 after `docs/UI_IMPLEMENTATION_MAP.md`, `docs/SUPERVISOR.md`, `docs/RELEASE_0.1.89_PLAN.md`, and `project_status.md` moved the active release boundary to `0.1.89`.
 - **current observed behavior:** multiple still-active bug entries had repo-fixed validation tails or next actions that still told the next runner to include fixes in an exact `0.1.88` deploy/restart validation, or to ask for approval of a helper-resolved `0.1.88` build, even though `v0.1.88` is now a published historical artifact and `0.1.89` is the clean follow-up candidate. A follow-up watchdog pass found the open ZNE-022 release blocker itself was still partly describing the future deploy target as the old `0.1.88` candidate, even while its next action already pointed at `0.1.89`.
 - **expected behavior:** active bug-tracker next actions should send all remaining live proof through the `0.1.89` freeze/release/deploy/restart path, while keeping historical `0.1.88` evidence intact and not creating another candidate-hash refresh loop. The open exact-build blocker should distinguish the pre-freeze repo manifest still reporting `0.1.88` from the future `0.1.89` release line.
-- **evidence:** repo grep found active `fixed_pending_validation` / `open` validation tails under ZNE-224, ZNE-219, ZNE-216, ZNE-003, ZNE-045, ZNE-164, and later process/support entries still naming exact `0.1.88` deploy validation after the source-of-truth docs had moved the future rollout to `0.1.89`; a later focused audit found the same stale release-line language still embedded in ZNE-022's evidence/repo-fix text.
-- **repo fix:** active bug next-action and validation-tail wording now points at the `0.1.89` validation path, ZNE-218 is validated for the default decision to leave published `v0.1.88` immutable, and ZNE-022 now describes the unchanged live mismatch as the pre-freeze `0.1.89` follow-up boundary instead of a `0.1.88` release target.
-- **validation status:** repo-side fixed and verified by a focused BUGS.md audit that active validation/next-action lines no longer direct future release proof at the superseded release line. No live Home Assistant validation is required for this process-doc correction.
+- **evidence:** repo grep found active `fixed_pending_validation` / `open` validation tails under ZNE-224, ZNE-219, ZNE-216, ZNE-003, ZNE-045, ZNE-164, and later process/support entries still naming exact `0.1.88` deploy validation after the source-of-truth docs had moved the future rollout to `0.1.89`; a later focused audit found the same stale release-line language still embedded in ZNE-022's evidence/repo-fix text. This watchdog run found remaining process/support next-action tails under ZNE-050, ZNE-051, ZNE-104, ZNE-150, ZNE-190, ZNE-193, ZNE-198, ZNE-199, ZNE-203, ZNE-206, ZNE-210, ZNE-211, and ZNE-212 still pointing future approval, changelog, or workstream-order action at the superseded `0.1.88` build/header.
+- **repo fix:** active bug next-action and validation-tail wording now points at the `0.1.89` validation path, ZNE-218 is validated for the default decision to leave published `v0.1.88` immutable, and ZNE-022 now describes the unchanged live mismatch as the pre-freeze `0.1.89` follow-up boundary instead of a `0.1.88` release target. This watchdog run also moves the remaining process/support next-action tails to the `0.1.89` freeze/release/deploy/restart approval path without refreshing any candidate hash.
+- **validation status:** repo-side fixed and verified by focused BUGS.md audits that active validation/next-action lines no longer direct future release proof at the superseded release line. No live Home Assistant validation is required for this process-doc correction.
 - **next action:** continue the final concrete A-D/F repo-side defect check; if no sharper implementation defect remains, ask James directly to approve the `0.1.89` freeze/release/deploy/restart path instead of refreshing old `0.1.88` release-boundary wording.
 
 ## ZNE-230 - Validation checklist still directed approval at 0.1.88
@@ -432,7 +432,7 @@ Suggested area labels:
 - **evidence:** current repo inspection showed `project_status.md` still requiring James approval while `CHANGELOG.md` had a dated `0.1.88` release header and `tests/test_release_info_install_guidance.py` expected `released_on == 2026-04-26`.
 - **repo fix:** this run changes the `0.1.88` changelog header back to an undated candidate header and updates release-info regression coverage so the current candidate still exposes changelog highlights but does not claim a release date before approval.
 - **validation status:** validated repo-side with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` and the full `python3 -m unittest discover -s tests -q` suite.
-- **next action:** when James explicitly approves and the release is actually tagged/published/deployed, date the `0.1.88` changelog header as part of that Workstream G release step.
+- **next action:** keep the already-published `v0.1.88` changelog state historical; when James explicitly approves and the follow-up release is actually tagged/published/deployed, date the `0.1.89` changelog header as part of that Workstream G release step.
 
 ## ZNE-001 - Repairs platform contract breaks integration recovery
 - **status:** `validated`
@@ -782,7 +782,7 @@ Suggested area labels:
 - **suspected cause:** the latest release-line bookkeeping regressed into a premature manifest bump even though the source-of-truth docs still treat `0.1.87` as the not-yet-frozen rollout target rather than the active shipped line.
 - **repo fix:** this run reverts `custom_components/zero_net_export/manifest.json` to `0.1.86`, realigns `tests/test_install_helper_scripts.py` to the same live correction line, and keeps `CHANGELOG.md` as the future `0.1.87` target instead of falsely advertising it as the current packaged build.
 - **validation status:** repo-side fix verified in this run with `python3 -m unittest -q tests.test_install_helper_scripts`. This is enough evidence for this repo-only release-metadata drift.
-- **next action:** keep building the highest remaining mapped `0.1.88` UI step, and do not bump versioned metadata again until the Workstream G freeze boundary is actually reached.
+- **next action:** keep building the highest remaining mapped `0.1.89` UI step, and do not bump versioned metadata again until the Workstream G freeze boundary is actually reached.
 
 ## ZNE-051 - `project_status.md` incorrectly treated divergent live `0.1.87` as a steering change
 - **status:** `closed`
@@ -794,7 +794,7 @@ Suggested area labels:
 - **evidence:** the original run rechecked the documented HA SSH path with `python3 scripts/validate_install_fingerprint.py --ssh-host root@192.168.86.200 --ssh-port 2222 /config`, which still reported `overall_match=false`, live `manifest_version=0.1.87`, and the same tracked-file mismatch class. This watchdog audit confirmed the stale part is now only this entry's old next-action wording: current `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and ZNE-104/ZNE-150 all point at the `0.1.88` A-D/F defect check, then direct James deploy/restart approval if no sharper defect remains.
 - **repo fix:** the original run updated `project_status.md` so the divergent live `0.1.87` install was release drift rather than a steering change. This watchdog run closes the stale bug-tracker tail so ZNE-051 no longer requeues outdated `0.1.87` repo work.
 - **closure evidence:** repo-side source-of-truth audit plus direct bug-tracker correction. No live Home Assistant validation is required for this historical process-entry cleanup.
-- **next action:** no further action for this historical `0.1.87` steering bug; use the current `0.1.88` source-of-truth map and ZNE-104/ZNE-150 for the final A-D/F check versus explicit deploy/restart approval boundary.
+- **next action:** no further action for this historical `0.1.87` steering bug; use the current `0.1.89` source-of-truth map and ZNE-231 for the final A-D/F check versus explicit freeze/release/deploy/restart approval boundary.
 
 ## ZNE-052 - Device-page review copy still described the device path as the primary Managed Devices workspace
 - **status:** `fixed_pending_validation`
@@ -1635,7 +1635,7 @@ Suggested area labels:
 - **suspected cause:** the project corrected the release target to `0.1.88`, but watchdog bookkeeping and this bug entry itself were still carrying older `0.1.87` / pre-freeze ranking language, which made unchanged release-boundary narration easier to repeat than either reporting no project change or explicitly asking James for deploy approval when Workstream G is truly next.
 - **repo fix:** this run corrects ZNE-104 so the source-of-truth no longer points future watchdog/supervisor passes at stale `0.1.87` runway language and instead names the real active drift: repeated post-freeze bookkeeping on the unchanged `0.1.88` release boundary. It also fixes `docs/UI_IMPLEMENTATION_MAP.md` so the summary no longer overstates Workstream G as the default next action while the same map still keeps remaining A-D/F work ahead of deploy/restart unless real repo inspection finds no sharper gap.
 - **validation status:** validated by current repo commit audit plus the documented HA SSH fingerprint recheck in this run. This is a process/source-of-truth correction, so repo evidence and the unchanged live mismatch proof are sufficient.
-- **next action:** stop spending runs on more frozen-candidate bookkeeping. First check for one concrete remaining mapped A-D/F defect; only if real repo inspection comes up empty should James be asked directly for deploy/restart approval against the frozen `0.1.88` candidate.
+- **next action:** stop spending runs on more frozen-candidate bookkeeping. First check for one concrete remaining mapped A-D/F defect; only if real repo inspection comes up empty should James be asked directly for `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-105 - Opening command-center copy still stopped short of naming the Managed Devices workspace explicitly
 - **status:** `fixed_pending_validation`
@@ -2241,12 +2241,12 @@ Suggested area labels:
 - **area:** `process`
 - **where seen:** watchdog repo/commit audit on 2026-04-22, then re-audited on 2026-04-25 after the implementation map moved the active rollout target to `0.1.88`
 - **current observed behavior:** this drift was real when secondary steering still baked in obsolete `live 0.1.87` narration. That older wording is no longer the active release target, and leaving this entry on `0.1.87` would itself mislead future watchdog runs. Current steering should treat the unchanged live mismatch as subordinate to the mapped `0.1.88` A-D/F audit unless repo inspection finds no sharper gap and the project is truly at the Workstream G approval boundary.
-- **expected behavior:** once the repo falls into an unchanged release-boundary loop on the same undeployed candidate, the next run should call out that ranking drift instead of turning another status file or doc into an always-on approval prompt. Secondary steering should stay hash-agnostic until the audit truly confirms the project is back at the James approval boundary, at which point the helper-resolved exact `0.1.88` build can be named in the explicit approval ask.
+- **expected behavior:** once the repo falls into an unchanged release-boundary loop on the same undeployed candidate, the next run should call out that ranking drift instead of turning another status file or doc into an always-on approval prompt. Secondary steering should stay hash-agnostic until the audit truly confirms the project is back at the James approval boundary, at which point the helper-resolved exact `0.1.89` candidate can be named in the explicit approval ask.
 - **evidence:** the earlier churn evidence remains valid, but the current source-of-truth map and ZNE-104 now name `0.1.88` as the frozen UI release line. This run rechecked the repo helper locally and confirmed it reports `manifest_version=0.1.88` while deriving `preferred_validation_commit` dynamically from the latest component-changing commit and exposing docs-only movement separately as `repo_head_commit`, so any remaining `0.1.87` wording in this active process entry is stale tracker state rather than current release guidance.
 - **suspected cause:** the watchdog/process lesson originally landed during the `0.1.87` steering phase and was not fully rewritten when the project advanced to the frozen `0.1.88` candidate, leaving this validated process bug with an obsolete ranking label.
 - **repo fix:** `project_status.md` had already been corrected to remove the stale divergent-live-`0.1.87` note. This run corrects the remaining stale `0.1.87` language in ZNE-150 itself so the bug tracker no longer points future runs at the wrong implementation runway.
 - **validation status:** validated by current repo inspection and helper output. This is a bug-tracker/source-of-truth correction; no live HA validation is required.
-- **next action:** do not reopen release-boundary bookkeeping by default. Either identify one specific remaining A-D/F repo-side defect that materially changes the native HA screenshots, or, if no such defect remains after that audit, ask James directly once for deploy/restart approval against the helper-resolved exact `0.1.88` build current at that time.
+- **next action:** do not reopen release-boundary bookkeeping by default. Either identify one specific remaining A-D/F repo-side defect that materially changes the native HA screenshots, or, if no such defect remains after that audit, ask James directly once for the `0.1.89` freeze/release/deploy/restart approval against the helper-resolved exact candidate current at that time.
 
 ## ZNE-153 - Managed Devices handoffs still narrated a `primary` workspace instead of naming the workspace directly
 - **status:** `fixed_pending_validation`
@@ -2399,7 +2399,7 @@ Suggested area labels:
 - **severity:** `medium`
 - **area:** `process`
 - **where seen:** watchdog repo audit on 2026-04-25 after `project_status.md` surfaced the frozen-`0.1.88` approval boundary
-- **current observed behavior:** `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and ZNE-104 now agree that if one final A-D/F defect check finds no sharper repo-side implementation gap, the next real boundary is to ask James directly for deploy/restart approval of the helper-resolved exact `0.1.88` build. `README.md` still said the next pass should avoid a `deploy-approval loop` and that Workstream G should not displace implementation runway before the cut line is coherent, but it did not say what to do after the final A-D/F check is clean. That made the public status text softer than the current approval-boundary source of truth.
+- **current observed behavior:** `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and ZNE-104 now agree that if one final A-D/F defect check finds no sharper repo-side implementation gap, the next real boundary is to ask James directly for `0.1.89` freeze/release/deploy/restart approval of the helper-resolved exact candidate. `README.md` still said the next pass should avoid a `deploy-approval loop` and that Workstream G should not displace implementation runway before the cut line is coherent, but it did not say what to do after the final A-D/F check is clean. That made the public status text softer than the current approval-boundary source of truth.
 - **expected behavior:** secondary status/docs should preserve the anti-churn rule while making the edge-triggered approval step explicit once repo inspection finds no remaining concrete A-D/F defect.
 - **evidence:** this run compared `project_status.md`, `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, ZNE-104, and `README.md`; only the README status paragraph still lacked the explicit `ask James directly` handoff after a clean final A-D/F check. The local helper still reports `manifest_version=0.1.88`, `preferred_validation_commit=b6df6c5`, and docs-only `repo_head_commit=c6530d1`, so this is not a candidate-hash refresh.
 - **suspected cause:** the latest approval-boundary correction landed in `project_status.md` but did not carry the same edge-triggered wording into the README development-status paragraph.
@@ -2520,7 +2520,7 @@ Suggested area labels:
 - **evidence:** this run inspected `docs/UI_DESIGN-old.md` and found the stale `single source of truth` header plus `0.1.83` release-gate language, while the current source docs define `0.1.88`, native-only Configure / device-page / entities / Repairs surfaces, and optional dashboards outside the release gate.
 - **repo fix:** this run rewrites the archived file header so it explicitly says the file is historical only, not a source of truth, and names `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/BUGS.md` as the current authorities.
 - **validation status:** validated by direct doc inspection after the edit; no Home Assistant live validation is required for this archive/source-of-truth correction.
-- **next action:** keep older docs clearly subordinate to the current source-of-truth set; do not let archived dashboard or stale release-target wording displace the `0.1.88` native-HA workstream order.
+- **next action:** keep older docs clearly subordinate to the current source-of-truth set; do not let archived dashboard or stale release-target wording displace the `0.1.89` native-HA workstream order.
 
 ## ZNE-173 - Secondary fleet handoffs still dropped `workspace` wording
 - **status:** `fixed_pending_validation`
@@ -2617,7 +2617,7 @@ Suggested area labels:
 - **evidence:** this run's grep found the stale `return to Managed Devices` example in `docs/UI_IMPLEMENTATION_SPEC.md` after the product code and focused tests had already been tightened to workspace-first wording.
 - **repo fix:** this run updates the success-landing example to `return to the Managed Devices workspace`, keeping the older spec subordinate to the current `0.1.88` native-HA implementation map and Workstream B/C language.
 - **validation status:** validated by direct doc inspection and grep; no Home Assistant live validation is required for this supplemental-doc wording fix.
-- **next action:** keep supplemental planning docs aligned with the current source-of-truth set; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+- **next action:** keep supplemental planning docs aligned with the current source-of-truth set; if no sharper A-D/F repo defect remains, the next real boundary is direct James `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-181 - Device-page review handoffs still used `deeper` wording after secondary-path cleanup
 - **status:** `fixed_pending_validation`
@@ -2677,7 +2677,7 @@ Suggested area labels:
 - **evidence:** this run grepped `docs/UI_IMPLEMENTATION_MAP.md` and `docs/SUPERVISOR.md` after reading `docs/UI_DESIGN.md`, the detailed remaining-work map, and the latest managed-device bug entries; the current steering docs still used `deeper review path` / `deeper fleet review` for the managed-device device-page hierarchy.
 - **repo fix:** this run updates `docs/UI_IMPLEMENTATION_MAP.md` and `docs/SUPERVISOR.md` to call Workstream E / Stage 8 the secondary device-page review/audit path, keeps the `0.1.88` rollout/acceptance text aligned with Configure -> Managed Devices as the primary workspace, and closes superseded ZNE-154/ZNE-156/ZNE-157 bug-state entries so old anti-`secondary` wording does not requeue stale work.
 - **validation status:** validated by direct grep and diff inspection of the current steering docs; no live Home Assistant validation is required for this source-of-truth wording correction.
-- **next action:** keep future product and source-doc wording on `secondary review/audit`; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+- **next action:** keep future product and source-doc wording on `secondary review/audit`; if no sharper A-D/F repo defect remains, the next real boundary is direct James `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-186 - Entity model still described device-page review as `deeper`
 - **status:** `validated`
@@ -2689,7 +2689,7 @@ Suggested area labels:
 - **evidence:** this run grepped repo docs and product copy after reading `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and recent bug entries; `docs/ENTITY_MODEL.md` was the remaining non-historical doc with active `deeper` review wording outside negative tests and historical bug text.
 - **repo fix:** this run updates `docs/ENTITY_MODEL.md` so the command-center handoff says `secondary review/audit`, `button.zero_net_export_show_managed_device_review` publishes a `secondary managed-devices audit/review`, and per-device review buttons publish `secondary per-device managed audit/review`.
 - **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
-- **next action:** keep entity documentation aligned with the secondary review/audit hierarchy; if no sharper A-D/F repo defect remains, the next real boundary is direct James deploy/restart approval for the helper-resolved `0.1.88` build.
+- **next action:** keep entity documentation aligned with the secondary review/audit hierarchy; if no sharper A-D/F repo defect remains, the next real boundary is direct James `0.1.89` freeze/release/deploy/restart approval.
 
 ## ZNE-187 - Product copy still leaked `Deeper device-page` hierarchy wording
 - **status:** `fixed_pending_validation`
@@ -2737,7 +2737,7 @@ Suggested area labels:
 - **evidence:** this run's grep found `deep-review` still present in `docs/UI_IMPLEMENTATION_MAP.md` lines describing native success summaries, Stage 5 completion, and Stage 8 completion.
 - **repo fix:** this run changes those map bullets to `secondary review/audit path` / `secondary review/audit handoff` so the remaining-work map matches the current native Configure-first hierarchy.
 - **validation status:** validated by direct grep/diff inspection; no live Home Assistant validation is required for this source-doc wording correction.
-- **next action:** keep the map on secondary review/audit wording; the next real boundary remains either a sharper A-D/F implementation defect or direct James deploy/restart approval for the helper-resolved exact `0.1.88` build.
+- **next action:** keep the map on secondary review/audit wording; the next real boundary remains either a sharper A-D/F implementation defect or direct James freeze/release/deploy/restart approval for the helper-resolved exact `0.1.89` candidate.
 
 ## ZNE-191 - Command-center setup check hid the recommended section behind menu-position prose
 - **status:** `fixed_pending_validation`
@@ -2773,7 +2773,7 @@ Suggested area labels:
 - **evidence:** this run's grep found `deeper device-management entry points` in `docs/UI_DESIGN.md` while `docs/UI_IMPLEMENTATION_MAP.md` Workstream E says the device page should be a `secondary review/audit path` that does not compete with Configure -> Managed Devices.
 - **repo fix:** this run updates `docs/UI_DESIGN.md` so the Managed Devices bullet now says `secondary device-page review/audit entry points`.
 - **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
-- **next action:** keep source-of-truth design wording aligned with the secondary review/audit hierarchy; if no sharper A-D/F product defect remains, ask James directly to approve deploy/restart of the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
+- **next action:** keep source-of-truth design wording aligned with the secondary review/audit hierarchy; if no sharper A-D/F product defect remains, ask James directly to approve the `0.1.89` freeze/release/deploy/restart path instead of refreshing release/fingerprint bookkeeping again.
 
 ## ZNE-194 - Managed Devices fleet summary still exposed developer plural placeholders
 - **status:** `fixed_pending_validation`
@@ -2837,7 +2837,7 @@ Suggested area labels:
 - **evidence:** `rg -n "top-candidate|top candidate|top unmanaged|best-fit|best fit" docs/UI_IMPLEMENTATION_MAP.md custom_components/zero_net_export README.md` found the active `top-candidate quality` wording only in `docs/UI_IMPLEMENTATION_MAP.md`, while product tests already reject older `Top unmanaged candidate` copy on active surfaces.
 - **repo fix:** this run changes Workstream B validation wording from `top-candidate quality` to `first surfaced candidate quality`, preserving the at-a-glance validation requirement without implying the product has pre-ranked one best candidate.
 - **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only source-of-truth wording correction.
-- **next action:** keep the remaining-work map on neutral surfaced-candidate wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval for the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
+- **next action:** keep the remaining-work map on neutral surfaced-candidate wording; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
 ## ZNE-199 - Remaining-work map still described the secondary device-page path as `deeper inspection`
 
@@ -2850,7 +2850,7 @@ Suggested area labels:
 - **evidence:** this run's grep found the active `deeper inspection` wording in `docs/UI_IMPLEMENTATION_MAP.md` while nearby Workstream E and the current product-copy bugs already require `secondary review/audit` wording for the device-page path.
 - **repo fix:** this run changes both map bullets to `secondary review/audit inspection`, keeping Workstream E aligned with the current Configure-first hierarchy.
 - **validation status:** validated by direct source-doc grep/diff inspection; no live Home Assistant validation is required for this docs-only hierarchy correction.
-- **next action:** keep the remaining-work map on secondary review/audit wording; if no sharper A-D/F implementation defect remains, ask James directly for deploy/restart approval for the helper-resolved exact `0.1.88` build instead of refreshing release/fingerprint bookkeeping again.
+- **next action:** keep the remaining-work map on secondary review/audit wording; if no sharper A-D/F implementation defect remains, ask James directly for the `0.1.89` freeze/release/deploy/restart approval instead of refreshing release/fingerprint bookkeeping again.
 
 ## ZNE-200 - Sensors and Diagnostics source-candidate copy still used `Best live` ranking language
 
