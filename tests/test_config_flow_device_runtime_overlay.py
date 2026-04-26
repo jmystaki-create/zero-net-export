@@ -2028,7 +2028,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             shortlist["description_placeholders"]["top_candidates"],
         )
 
-    def test_manual_promotion_labels_point_to_manual_managed_devices_form(self) -> None:
+    def test_manual_promotion_labels_point_to_manual_managed_devices_workspace(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
         flow.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None), data={})
