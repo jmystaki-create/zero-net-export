@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-309 - Fleet activity grouping could put reversed managed actions under unmanaged backlog
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** `format_fleet_activity_for_operator(...)` recovered reversed managed/unmanaged fallback ordering for managed counts and inventory, but if a cached or fallback summary carried unmanaged backlog before managed action signals, entries such as managed attention, blocked action, active load, or active managed-device count could stay in the `Unmanaged backlog` group.
+- **expected behavior:** Fleet activity grouping should recover the managed-on-top story for both managed inventory and managed action signals, while keeping review/ready candidate details in the unmanaged backlog group and source blockers global.
+- **evidence:** direct repo inspection found the reversed-order classifier only treated managed counts and quiet inventory as managed bucket parts; new regression coverage demonstrates reversed unmanaged-first text with blocked/active managed signals.
+- **repo fix:** this run teaches Fleet activity operator formatting to classify managed action signals with managed counts/inventory when rebuilding reversed fallback summaries, updates the focused command-center regression, and folds the change into the grouped `0.1.89` changelog theme.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary tests.test_release_info_install_guidance` and `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity grouping cleanup in the next `0.1.89` exact build; if no sharper A-D/F defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-308 - Setup checklist notification could preserve stale Source map labels
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

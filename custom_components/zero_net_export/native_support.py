@@ -377,6 +377,17 @@ def format_fleet_activity_for_operator(summary: str) -> str:
             or part.endswith(" W nominal")
         )
 
+    def _is_managed_activity_part(part: str) -> bool:
+        return bool(
+            _is_managed_count_part(part)
+            or _is_managed_inventory_part(part)
+            or part.startswith(("attention first ", "blocked ", "plan ", "active load ", "active device "))
+            or _matches_count_label(part, "managed device needs attention", "managed devices need attention")
+            or _matches_count_label(part, "blocked managed action")
+            or _matches_count_label(part, "planned action")
+            or _matches_count_label(part, "active managed device", "active managed devices")
+        )
+
     unmanaged_index = next(
         (index for index, part in enumerate(parts) if _is_unmanaged_count_part(part)),
         None,
@@ -404,16 +415,8 @@ def format_fleet_activity_for_operator(summary: str) -> str:
             for part in parts[grouping_start:]
             if part and part not in global_problem_parts
         ]
-        managed_parts = [
-            part
-            for part in candidate_parts
-            if _is_managed_count_part(part) or _is_managed_inventory_part(part)
-        ]
-        unmanaged_parts = [
-            part
-            for part in candidate_parts
-            if not (_is_managed_count_part(part) or _is_managed_inventory_part(part))
-        ]
+        managed_parts = [part for part in candidate_parts if _is_managed_activity_part(part)]
+        unmanaged_parts = [part for part in candidate_parts if not _is_managed_activity_part(part)]
         prefix_parts = [*global_problem_parts, *prefix_parts]
         if not managed_parts or not unmanaged_parts:
             return normalized
@@ -432,12 +435,12 @@ def format_fleet_activity_for_operator(summary: str) -> str:
         part for part in parts[managed_index:unmanaged_index] if part and part not in global_problem_parts
     ]
     trailing_managed_parts = [
-        part for part in parts[unmanaged_index:] if part and part not in global_problem_parts and _is_managed_inventory_part(part)
+        part for part in parts[unmanaged_index:] if part and part not in global_problem_parts and _is_managed_activity_part(part)
     ]
     unmanaged_parts = [
         part
         for part in parts[unmanaged_index:]
-        if part and part not in global_problem_parts and not _is_managed_inventory_part(part)
+        if part and part not in global_problem_parts and not _is_managed_activity_part(part)
     ]
     managed_parts.extend(part for part in trailing_managed_parts if part not in managed_parts)
     prefix_parts = [*global_problem_parts, *prefix_parts]
