@@ -89,6 +89,8 @@ The active release scope is `0.1.91` / release `1.91` only: implement the Zero N
 
 Older bug entries that mention continuing `0.1.90` device-page validation, post-`0.1.90` label polish, or another `0.1.89`/`0.1.90` release loop are historical unless they are strictly required to support ZNE-429. Do not use them to broaden the approved scope.
 
+## Current active bugs
+
 ## ZNE-429 - 0.1.91 main integration page lacks Managed Devices and Un Managed device lists
 
 - **status:** `fixed_pending_validation`
@@ -104,8 +106,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
 - **next action:** review whether the closest native device-info representation is acceptable for the requested group/list outcome; if accepted, freeze/version `0.1.91`, ask James directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
-## Current active bugs
+## ZNE-432 - Current active bugs heading excluded the active 0.1.91 blocker
 
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after ZNE-429 became the only active approved `0.1.91` release blocker.
+- **current observed behavior:** `docs/BUGS.md` listed ZNE-429 above the `Current active bugs` heading, leaving the active-bugs section visually empty while the real active tracker entry sat outside it.
+- **expected behavior:** the active-bugs heading should include ZNE-429 so runners do not conclude there are no active bugs or drift back into historical closed 0.1.89/0.1.90 tracker entries.
+- **evidence:** direct inspection found `## Current active bugs` immediately after ZNE-429's next action and before only closed process entries.
+- **repo fix:** this run moves the `Current active bugs` heading above ZNE-429 and adds regression coverage requiring the active heading to precede ZNE-429.
+- **validation status:** closed with repo-side tracker/test validation; no Home Assistant live validation is required for this bug-tracker section correction.
+- **next action:** continue the ZNE-429 boundary: James needs to accept or reject the closest native child-device representation; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
 
 ## ZNE-431 - Detailed map still described 0.1.91 implementation as future after repo candidate existed
