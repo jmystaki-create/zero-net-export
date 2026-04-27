@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-467 - sparse managed details could drop integration-page managed device rows
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while tracing the `0.1.91` native integration-page device-list setup path in `custom_components/zero_net_export/sensor.py` against ZNE-429.
+- **current observed behavior:** `async_setup_entry()` used `details["name"]` and `details["kind"]` directly while creating per-managed-load entities. If a managed-load runtime detail was sparse or temporarily missing either optional field, setup could raise before registering that load's `Managed Devices — ...` child-device row, weakening the required main integration-page device list even though the lower device-info helper already had name/kind fallbacks.
+- **expected behavior:** every configured managed load should still register a native Home Assistant child device row for the Zero Net Export integration page, using the device key and managed-load defaults when runtime detail fields are incomplete.
+- **repo fix:** this run normalizes each managed detail in `async_setup_entry()`, falls back to the device key for the display name, only adds the variable target-power sensor when `kind` is explicitly `variable`, and leaves the native `Managed Devices — ...` child-device representation intact without adding any custom/external UI path.
+- **validation status:** closed with focused integration-page device-list coverage for sparse managed details; no Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-466 - closed managed-device code fixes sat under a process-only heading
 
 - **status:** `closed`

@@ -273,17 +273,19 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     if state is not None:
         for device_key, details in state.device_details.items():
+            detail = dict(details or {})
+            device_name = str(detail.get("name") or device_key or "Managed device")
             entities.extend(
                 [
-                    ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, details["name"]),
-                    ZeroNetExportDeviceStatusSensor(coordinator, device_key, details["name"]),
-                    ZeroNetExportDevicePowerSensor(coordinator, device_key, details["name"], "current_power_w", "Current power"),
-                    ZeroNetExportDevicePlanSensor(coordinator, device_key, details["name"]),
-                    ZeroNetExportDeviceGuardSensor(coordinator, device_key, details["name"]),
+                    ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, device_name),
+                    ZeroNetExportDeviceStatusSensor(coordinator, device_key, device_name),
+                    ZeroNetExportDevicePowerSensor(coordinator, device_key, device_name, "current_power_w", "Current power"),
+                    ZeroNetExportDevicePlanSensor(coordinator, device_key, device_name),
+                    ZeroNetExportDeviceGuardSensor(coordinator, device_key, device_name),
                     ZeroNetExportDevicePowerSensor(
                         coordinator,
                         device_key,
-                        details["name"],
+                        device_name,
                         "planned_power_delta_w",
                         "Planned power delta",
                         entity_category=EntityCategory.DIAGNOSTIC,
@@ -291,7 +293,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     ZeroNetExportDevicePowerSensor(
                         coordinator,
                         device_key,
-                        details["name"],
+                        device_name,
                         "last_requested_power_w",
                         "Last requested power",
                         entity_category=EntityCategory.DIAGNOSTIC,
@@ -299,25 +301,25 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     ZeroNetExportDevicePowerSensor(
                         coordinator,
                         device_key,
-                        details["name"],
+                        device_name,
                         "last_applied_power_w",
                         "Last applied power",
                         entity_category=EntityCategory.DIAGNOSTIC,
                     ),
-                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "current_active_seconds", "Current active runtime"),
-                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, details["name"], "active_runtime_today_seconds", "Active runtime today"),
-                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_action_at", "Last action at"),
-                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, details["name"], "last_applied_at", "Last applied at"),
-                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, details["name"], "last_action_status", "Last action status"),
-                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, details["name"], "last_action_result_message", "Last action result"),
+                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "current_active_seconds", "Current active runtime"),
+                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "active_runtime_today_seconds", "Active runtime today"),
+                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_action_at", "Last action at"),
+                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_applied_at", "Last applied at"),
+                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_status", "Last action status"),
+                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_result_message", "Last action result"),
                 ]
             )
-            if details["kind"] == "variable":
+            if detail.get("kind") == "variable":
                 entities.append(
                     ZeroNetExportDevicePowerSensor(
                         coordinator,
                         device_key,
-                        details["name"],
+                        device_name,
                         "current_target_power_w",
                         "Target power",
                     )

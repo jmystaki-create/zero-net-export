@@ -196,6 +196,36 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("Managed Devices — Pool Pump", device_names)
         self.assertIn("Un Managed — Hot Water", device_names)
 
+    def test_setup_entry_keeps_managed_device_row_when_detail_is_sparse(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data.device_details = {
+            "pool": {
+                "entity_id": "switch.pool_pump",
+                "status": "ready",
+                "usable": True,
+            }
+        }
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(entry_id="entry-1")
+        added = []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        device_names = [
+            entity._attr_device_info.get("name")
+            for entity in added
+            if getattr(entity, "_attr_device_info", None)
+        ]
+        self.assertIn("Managed Devices — pool", device_names)
+
 
 if __name__ == "__main__":
     unittest.main()
