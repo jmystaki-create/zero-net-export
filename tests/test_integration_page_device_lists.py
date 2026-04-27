@@ -511,6 +511,28 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(status.native_value, "configured")
         self.assertEqual(status.extra_state_attributes["entity_id"], "switch.pool_pump")
 
+    def test_config_fallback_managed_rows_are_excluded_from_later_unmanaged_discovery(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        captured_managed_ids = []
+
+        def discover_candidates(states, managed_entity_ids):
+            captured_managed_ids.append(managed_entity_ids)
+            return []
+
+        sensor_module.discover_candidate_devices = discover_candidates
+        hass = SimpleNamespace(
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        coordinator._zne_integration_page_managed_details = {
+            "pool": {"name": "Pool Pump", "kind": "fixed", "entity_id": "switch.pool_pump"}
+        }
+
+        sensor_module._candidate_devices_for_state(coordinator, hass, coordinator.data)
+
+        self.assertEqual(captured_managed_ids, [{"switch.pool_pump"}])
+
 
 if __name__ == "__main__":
     unittest.main()

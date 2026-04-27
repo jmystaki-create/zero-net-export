@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-495 - config-fallback managed rows could reappear as unmanaged candidates after setup
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while tracing the ZNE-429 config-inventory fallback path after integration-page Managed Devices rows were created from configured inventory before runtime `device_details` existed.
+- **current observed behavior:** `async_setup_entry()` correctly excluded config-defined managed entity IDs when first creating `Un Managed — ...` child-device rows, but later unmanaged-candidate discovery calls without an explicit configured-detail argument fell back to runtime-only managed IDs. In the no-runtime-details window, a configured managed entity could therefore be rediscovered in native unmanaged backlog summaries even though its `Managed Devices — ...` row already existed.
+- **expected behavior:** once the integration-page setup resolves config-fallback managed details, every native unmanaged-candidate discovery path should keep those configured managed entity IDs excluded until runtime details catch up.
+- **repo fix:** this run makes `_candidate_devices_for_state()` reuse the coordinator's resolved integration-page managed-detail fallback when callers do not pass an explicit managed-detail set, keeping config-defined managed loads out of later unmanaged discovery.
+- **validation status:** closed with focused integration-page device-list regression coverage and Python compile for `sensor.py`. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-494 - supervisor Rule 1 still referenced historical A-D workstream order
 
 - **status:** `closed`

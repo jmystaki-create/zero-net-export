@@ -431,12 +431,16 @@ def _candidate_devices_for_state(
     configured_managed_details: dict[str, dict[str, object]] | None = None,
 ) -> list[dict[str, str]]:
     managed_entity_ids = _managed_entity_ids(state)
-    if configured_managed_details:
-        managed_entity_ids.update(
-            str(detail.get("entity_id"))
-            for detail in configured_managed_details.values()
-            if detail.get("entity_id")
-        )
+    managed_detail_sources = [configured_managed_details]
+    if configured_managed_details is None:
+        managed_detail_sources.append(getattr(coordinator, "_zne_integration_page_managed_details", None))
+    for managed_details in managed_detail_sources:
+        if managed_details:
+            managed_entity_ids.update(
+                str(detail.get("entity_id"))
+                for detail in managed_details.values()
+                if detail.get("entity_id")
+            )
     cache_key = (id(state), tuple(sorted(managed_entity_ids)))
     cached = getattr(coordinator, "_zne_candidate_sensor_cache", None)
     if cached and cached.get("key") == cache_key:
