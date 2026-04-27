@@ -1027,9 +1027,9 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": PRIMARY_CONFIGURE_PATH,
-            "recommended_section": command_center.get("recommended_section"),
-            "recommended_path": command_center.get("recommended_path"),
-            "recommended_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
+            "current_focus_section": command_center.get("recommended_section"),
+            "current_focus_path": command_center.get("recommended_path"),
+            "current_focus_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
             "next_step": command_center.get("next_action_summary"),
             "install_status": command_center.get("install_status"),
             "install_consistency": command_center.get("install_consistency"),
@@ -1076,9 +1076,9 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         return {
             'configure_path': DEVICES_CONFIGURE_PATH,
             'detailed_management_path': DETAILED_MANAGEMENT_PATH,
-            'recommended_section': command_center.get('recommended_section'),
-            'recommended_path': command_center.get('recommended_path'),
-            'recommended_reason': _normalize_native_path_text(command_center.get('recommended_reason')),
+            'current_focus_section': command_center.get('recommended_section'),
+            'current_focus_path': command_center.get('recommended_path'),
+            'current_focus_reason': _normalize_native_path_text(command_center.get('recommended_reason')),
             'blocker_first': "\n".join(
                 _managed_devices_blocker_first_lines(
                     command_center,
@@ -1251,9 +1251,9 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
-            "recommended_section": command_center.get("recommended_section"),
-            "recommended_path": command_center.get("recommended_path"),
-            "recommended_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
+            "current_focus_section": command_center.get("recommended_section"),
+            "current_focus_path": command_center.get("recommended_path"),
+            "current_focus_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
             "blocker_first": "\n".join(
                 _managed_devices_blocker_first_lines(
                     command_center,
@@ -1434,9 +1434,9 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         return {
             "configure_path": DEVICES_CONFIGURE_PATH,
             "detailed_management_path": DETAILED_MANAGEMENT_PATH,
-            "recommended_section": command_center.get("recommended_section"),
-            "recommended_path": command_center.get("recommended_path"),
-            "recommended_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
+            "current_focus_section": command_center.get("recommended_section"),
+            "current_focus_path": command_center.get("recommended_path"),
+            "current_focus_reason": _normalize_native_path_text(command_center.get("recommended_reason")),
             "blocker_first": "\n".join(
                 _managed_devices_blocker_first_lines(
                     command_center,
@@ -1500,8 +1500,8 @@ class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEnti
             "configure_path": SUPPORT_CONFIGURE_PATH,
             "phase": readiness.get("phase"),
             "next_step": command_center.get("next_action_summary") or readiness.get("next_step"),
-            "recommended_section": command_center.get("recommended_section"),
-            "recommended_path": command_center.get("recommended_path"),
+            "current_focus_section": command_center.get("recommended_section"),
+            "current_focus_path": command_center.get("recommended_path"),
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "health_summary": self._state.health_summary if self._state else None,
         }
@@ -1527,8 +1527,8 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": SUPPORT_CONFIGURE_PATH,
-            "recommended_section": command_center.get("recommended_section"),
-            "recommended_path": command_center.get("recommended_path"),
+            "current_focus_section": command_center.get("recommended_section"),
+            "current_focus_path": command_center.get("recommended_path"),
             "next_step": command_center.get("next_action_summary"),
             "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
             "health_summary": self._state.health_summary if self._state else None,
@@ -1563,8 +1563,8 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
         command_center = build_native_command_center_summary(self.coordinator)
         return {
             "configure_path": PRIMARY_CONFIGURE_PATH,
-            "recommended_section": command_center.get("recommended_section"),
-            "recommended_path": command_center.get("recommended_path"),
+            "current_focus_section": command_center.get("recommended_section"),
+            "current_focus_path": command_center.get("recommended_path"),
             "next_step": _normalize_native_path_text(
                 command_center.get("next_action_summary") or readiness.get("next_step")
             ),

@@ -86,6 +86,19 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-406 - Device-page action attributes exposed retired recommended focus keys
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F native device-page actions after sensor attributes and diagnostics payloads had moved to current-focus/current-action wording.
+- **current observed behavior:** the native command-center, Managed Devices review/workspace, per-device review, setup checklist, and Diagnostics buttons still exposed Home Assistant attributes named `recommended_section`, `recommended_path`, and sometimes `recommended_reason`. The button labels and notification bodies had moved to current-focus wording, but the visible action metadata on the Zero Net Export device page could still revive retired recommendation/ranking language.
+- **expected behavior:** device-page action metadata should expose the same current-focus values under `current_focus_section`, `current_focus_path`, and `current_focus_reason` where the reason exists, matching the supported native Home Assistant wording while leaving internal command-center summary keys untouched.
+- **evidence:** direct repo inspection found the stale `recommended_*` attribute keys in `custom_components/zero_net_export/button.py`; focused button coverage previously asserted those stale attributes instead of rejecting them.
+- **repo fix:** this run changes the visible button `extra_state_attributes` keys to `current_focus_*`, keeps the internal command-center summary contract unchanged, records the cleanup in the `0.1.89` changelog, and updates focused regression coverage to reject the stale button attributes.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D/F device-page action metadata cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the real boundary remains James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another unchanged fingerprint/bookkeeping loop.
+
+
 ## ZNE-405 - Controller diagnostics payload exposed retired recommendation key
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

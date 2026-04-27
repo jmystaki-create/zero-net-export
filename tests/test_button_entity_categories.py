@@ -250,6 +250,23 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
 
 class ButtonEntityCategoryTests(unittest.TestCase):
+    def test_command_center_button_attributes_use_current_focus_keys(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportShowNativeCommandCenterButton(coordinator)
+
+        attrs = button.extra_state_attributes
+
+        self.assertEqual(attrs["current_focus_section"], "Sensors")
+        self.assertEqual(attrs["current_focus_path"], "sources path")
+        self.assertEqual(attrs["current_focus_reason"], "Source blockers remain.")
+        self.assertNotIn("recommended_section", attrs)
+        self.assertNotIn("recommended_path", attrs)
+        self.assertNotIn("recommended_reason", attrs)
+
     def test_workspace_handoff_returns_promotion_steps_when_managed_devices_is_the_active_section(self) -> None:
         button_module = _load_button_module()
 
@@ -857,9 +874,12 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["first_attention_device"], "Pool pump")
         self.assertEqual(attrs["first_blocked_device"], "")
         self.assertEqual(attrs["first_planned_device"], "Pool pump")
-        self.assertEqual(attrs["recommended_section"], "Sensors")
-        self.assertEqual(attrs["recommended_path"], "sources path")
-        self.assertEqual(attrs["recommended_reason"], "Source blockers remain.")
+        self.assertEqual(attrs["current_focus_section"], "Sensors")
+        self.assertEqual(attrs["current_focus_path"], "sources path")
+        self.assertEqual(attrs["current_focus_reason"], "Source blockers remain.")
+        self.assertNotIn("recommended_section", attrs)
+        self.assertNotIn("recommended_path", attrs)
+        self.assertNotIn("recommended_reason", attrs)
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(
             attrs["workspace_boundary"],
@@ -922,7 +942,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         attrs = button.extra_state_attributes
 
-        self.assertEqual(attrs["recommended_section"], "Sensors")
+        self.assertEqual(attrs["current_focus_section"], "Sensors")
+        self.assertNotIn("recommended_section", attrs)
+        self.assertNotIn("recommended_path", attrs)
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 1 usable | active load 1180 W | 1 active managed device | active device Pool pump (action turn_on | active 1180 W) | 1 managed device needs attention | attention first Pool pump | plan Pool pump")
         self.assertEqual(attrs["unmanaged_snapshot"], "1 candidate | 1 fixed candidate | surfaced Hot water | likely useful | key warning: No immediate warnings")
         self.assertEqual(attrs["attention_count"], 1)
@@ -1667,9 +1689,12 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         attrs = button.extra_state_attributes
 
-        self.assertEqual(attrs["recommended_section"], "Sensors")
-        self.assertEqual(attrs["recommended_path"], "sources path")
-        self.assertEqual(attrs["recommended_reason"], "Source blockers remain.")
+        self.assertEqual(attrs["current_focus_section"], "Sensors")
+        self.assertEqual(attrs["current_focus_path"], "sources path")
+        self.assertEqual(attrs["current_focus_reason"], "Source blockers remain.")
+        self.assertNotIn("recommended_section", attrs)
+        self.assertNotIn("recommended_path", attrs)
+        self.assertNotIn("recommended_reason", attrs)
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(attrs["managed_snapshot"], "1 managed | 1 enabled | 0 usable | 1 managed device needs attention | attention first Pool pump | 1 fixed managed | 0 W nominal | blocked Pool pump | 0 planned actions")
         self.assertEqual(attrs["unmanaged_snapshot"], "2 candidates | 1 fixed candidate | 1 variable candidate | surfaced Hot water | likely useful | key warning: No immediate warnings")
@@ -1754,8 +1779,27 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         attrs = button.extra_state_attributes
 
         self.assertEqual(attrs["configure_path"], "primary path")
-        self.assertEqual(attrs["recommended_section"], "Sensors")
-        self.assertEqual(attrs["recommended_path"], "sources path")
+        self.assertEqual(attrs["current_focus_section"], "Sensors")
+        self.assertEqual(attrs["current_focus_path"], "sources path")
+        self.assertNotIn("recommended_section", attrs)
+        self.assertNotIn("recommended_path", attrs)
+
+    def test_diagnostics_buttons_attributes_use_current_focus_keys(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(diagnostic_summary="diagnostics", health_summary="health"),
+        )
+
+        for button in (
+            button_module.ZeroNetExportShowNativeSupportCenterButton(coordinator),
+            button_module.ZeroNetExportShowNativeDiagnosticsButton(coordinator),
+        ):
+            attrs = button.extra_state_attributes
+            self.assertEqual(attrs["current_focus_section"], "Sensors")
+            self.assertEqual(attrs["current_focus_path"], "sources path")
+            self.assertNotIn("recommended_section", attrs)
+            self.assertNotIn("recommended_path", attrs)
 
     def test_setup_checklist_button_keeps_notification_checklist_focused(self) -> None:
         notification_calls: list[dict] = []
