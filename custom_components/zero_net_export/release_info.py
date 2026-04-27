@@ -217,8 +217,10 @@ def build_install_repair_step(install_provenance: dict[str, Any] | None = None) 
             f"Wait for the async install-provenance refresh to complete for {component_root}, then rerun the exact-build fingerprint check against {compare_target} before treating install provenance as a blocker."
         )
     approval_boundary = (
-        "Ask James directly to decide the release target first, then accept or reject the closest native "
-        "Managed Devices / Un Managed child-device representation and approve deploy/restart for that exact target"
+        "Ask James directly whether current 0b4f420 / manifest 0.1.94 replaces the documented "
+        "0.1.91 release target or whether release execution returns to the approved 0.1.91 boundary, "
+        "then accept or reject the closest native Managed Devices / Un Managed child-device representation "
+        "and approve exact release/deploy/restart validation for that accepted target"
     )
     if provenance.get("manifest_matches_code_version") is False:
         return (

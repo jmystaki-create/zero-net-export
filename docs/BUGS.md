@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-455 - install repair guidance did not name the current release-target decision
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog install-guidance audit on 2026-04-28 while comparing `custom_components/zero_net_export/release_info.py` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, and ZNE-429.
+- **current observed behavior:** `build_install_repair_step()` correctly kept deploy commands behind a human decision, but the operator-facing text only said to decide the release target first and approve deploy/restart for that exact target. Unlike the governing docs, it did not name the actual open decision: whether current `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` release target or release execution returns to the approved `0.1.91` boundary. It also said `deploy/restart` instead of the full exact release/deploy/restart validation approval gate.
+- **expected behavior:** install repair guidance should preserve the same three approval gates as the source-of-truth release hold and make the first gate concrete: release-target decision for `0b4f420` / manifest `0.1.94` versus the documented `0.1.91` boundary, closest native child-device representation acceptance, then exact release/deploy/restart validation approval for the accepted target.
+- **repo fix:** this run updates `build_install_repair_step()` so manifest-mismatch and manifest-error repair guidance names the concrete `0b4f420` / manifest `0.1.94` versus `0.1.91` release-target decision, then native-row acceptance, then exact release/deploy/restart validation approval before deploy or fingerprint commands.
+- **validation status:** closed with focused release-info install-guidance regression coverage and Python compile; no Home Assistant live validation is required for this operator-guidance correction.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-454 - project status blocker omitted native-row acceptance from the approval chain
 
 - **status:** `closed`

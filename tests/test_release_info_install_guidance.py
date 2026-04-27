@@ -502,9 +502,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
 
         self.assertIn("/srv/homeassistant/config/custom_components", message)
-        self.assertIn("Ask James directly to decide the release target first", message)
+        self.assertIn("Ask James directly whether current 0b4f420 / manifest 0.1.94 replaces the documented 0.1.91 release target", message)
+        self.assertIn("release execution returns to the approved 0.1.91 boundary", message)
         self.assertIn("accept or reject the closest native Managed Devices / Un Managed child-device representation", message)
-        self.assertIn("approve deploy/restart for that exact target", message)
+        self.assertIn("approve exact release/deploy/restart validation for that accepted target", message)
         self.assertIn("--dry-run", message)
         self.assertIn("deploy_exact_repo_build.py", message)
         self.assertIn("validate_install_fingerprint.py", message)
@@ -519,9 +520,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
 
         self.assertIn("Confirm the exact live Zero Net Export install path", message)
-        self.assertIn("ask james directly to decide the release target first", message.lower())
+        self.assertIn("ask james directly whether current 0b4f420 / manifest 0.1.94 replaces the documented 0.1.91 release target", message.lower())
+        self.assertIn("release execution returns to the approved 0.1.91 boundary", message)
         self.assertIn("accept or reject the closest native Managed Devices / Un Managed child-device representation", message)
-        self.assertIn("approve deploy/restart for that exact target", message)
+        self.assertIn("approve exact release/deploy/restart validation for that accepted target", message)
         self.assertIn("/srv/homeassistant/config/custom_components", message)
         self.assertIn("that same live install path", message)
 
