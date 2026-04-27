@@ -98,6 +98,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
     def test_0189_release_plan_tracks_post_freeze_and_superseded_state(self) -> None:
         plan = (REPO_ROOT / "docs" / "RELEASE_0.1.89_PLAN.md").read_text(encoding="utf-8")
         freeze_section = plan.split("### B. Publish", 1)[0]
+        install_section = plan.split("### C. James install/test path", 1)[1].split("## Acceptance outcomes", 1)[0]
+        failure_section = plan.split("## Validation failure outcome", 1)[1]
 
         self.assertIn("## Superseded status", freeze_section)
         self.assertIn("This plan is historical", freeze_section)
@@ -112,6 +114,14 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("ask James directly to approve the end-to-end `0.1.89` freeze/release/deploy/restart path", freeze_section)
         self.assertNotIn("After James approves, bump manifest/version-coupled expectations to `0.1.89`", freeze_section)
         self.assertNotIn("The next release-execution gap is James's install/restart/live-validation path", freeze_section)
+        self.assertIn("historical, completed and failed", install_section)
+        self.assertIn("James's live screenshot showed the device page did not visibly deliver the requested Managed Devices surface", install_section)
+        self.assertIn("Do not use this historical checklist to ask James to repeat the `0.1.89` install/restart/live-validation loop", install_section)
+        self.assertIn("The next release-execution gap is the `0.1.90` approval", install_section)
+        self.assertNotIn("- [ ] James refreshes HACS metadata", install_section)
+        self.assertNotIn("- [ ] James installs/updates to `v0.1.89`", install_section)
+        self.assertIn("Validation did fail on the device-page Managed Devices outcome", failure_section)
+        self.assertIn("Do not fix or republish another `0.1.89` candidate", failure_section)
 
 
 

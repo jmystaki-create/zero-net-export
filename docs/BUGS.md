@@ -87,6 +87,19 @@ Suggested area labels:
 
 
 
+## ZNE-421 - Historical 0.1.89 release plan still showed install validation as unchecked
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `0.1.89` had already been installed, restarted, fingerprint-verified, and live-failed on James's device-page Managed Devices screenshot.
+- **current observed behavior:** `docs/RELEASE_0.1.89_PLAN.md` correctly warned at the top that the plan was historical and superseded, but its lower `James install/test path` checklist still left refresh/install/restart/fingerprint/log/screenshot validation unchecked and its failure section still described fixing a credible `0.1.89` candidate. That could pull a runner back into the exact completed-and-failed `0.1.89` validation loop.
+- **expected behavior:** the historical `0.1.89` plan should mark the install/restart/fingerprint/live screenshot path as completed and failed, and direct all future release execution to the corrective `0.1.90` approval/release/deploy/restart validation path.
+- **evidence:** direct repo inspection found unchecked `0.1.89` install/test checklist items below the superseded-state warning, despite `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.90_PLAN.md`, and `ZNE-411` all saying `0.1.89` is installed/fingerprint-verified but live-failed.
+- **repo fix:** this run marks the historical `0.1.89` install/test checklist completed-and-failed, rewrites the acceptance/failure sections to stop another `0.1.89` candidate loop, and adds regression coverage so the plan cannot leave the old unchecked install path active-looking again.
+- **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** ask James directly for `0.1.90` release/deploy/restart validation approval, then freeze/publish/deploy the exact approved build and capture screenshot-grade device-page Managed Devices evidence.
+
+
 ## ZNE-420 - Implementation map still had an active-looking 0.1.89 success gate
 - **status:** `closed`
 - **severity:** `medium`

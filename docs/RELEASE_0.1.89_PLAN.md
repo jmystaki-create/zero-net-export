@@ -108,18 +108,20 @@ Specifically avoid:
 - [x] Publish GitHub release `Zero Net Export v0.1.89` from changelog notes.
 - [x] Verify GitHub latest release API returns `v0.1.89`, non-draft, non-prerelease.
 
-### C. James install/test path
+### C. James install/test path (historical, completed and failed)
 
-- [ ] James refreshes HACS metadata with **Update information**.
-- [ ] James installs/updates to `v0.1.89`.
-- [ ] James restarts Home Assistant.
-- [ ] OpenClaw validates the live install fingerprint over the documented HA SSH path.
-- [ ] OpenClaw checks Home Assistant logs for Zero Net Export-specific warnings/errors.
-- [ ] James/OpenClaw inspect screenshots or live UI for the six `docs/UI_IMPLEMENTATION_MAP.md` acceptance outcomes.
+- [x] James refreshed HACS metadata / installed or updated to `v0.1.89`.
+- [x] James restarted Home Assistant.
+- [x] OpenClaw validated the live install fingerprint over the documented HA SSH path; the deployed `0.1.89` build matched.
+- [x] James inspected the live Zero Net Export device page.
+- [x] James's live screenshot showed the device page did not visibly deliver the requested Managed Devices surface.
+- [x] The failed device-page evidence is now tracked by `ZNE-411` and superseded by `docs/RELEASE_0.1.90_PLAN.md`.
 
-## Acceptance outcomes
+Do not use this historical checklist to ask James to repeat the `0.1.89` install/restart/live-validation loop. The next release-execution gap is the `0.1.90` approval, freeze, deploy, restart, fingerprint, and screenshot-grade validation path.
 
-`0.1.89` is successful only if the live Home Assistant install shows:
+## Acceptance outcomes (historical, failed on device-page evidence)
+
+`0.1.89` would have been successful only if the live Home Assistant install showed:
 
 1. Configure command center reads as a setup-first operator console with current operating picture visible.
 2. Managed vs unmanaged devices are visually obvious in Configure -> Managed Devices.
@@ -130,13 +132,11 @@ Specifically avoid:
 7. Live fingerprint matches the intended `0.1.89` build.
 8. Zero Net Export logs do not reveal a new release-blocking regression.
 
-## If validation fails
+## Validation failure outcome
 
-- Record exact evidence in `docs/BUGS.md`.
-- Decide whether the issue is:
-  - install drift / stale HACS cache,
-  - live HA rendering mismatch,
-  - runtime/load regression,
-  - or genuine repo defect.
-- Fix only the smallest release-blocking issue needed for a credible `0.1.89` candidate.
-- Re-run the freeze gates before publishing any replacement build.
+Validation did fail on the device-page Managed Devices outcome after the installed package was fingerprint-verified. That failure is no longer an open `0.1.89` release loop.
+
+- Exact evidence is recorded in `docs/BUGS.md` under `ZNE-411`.
+- The issue is a genuine native device-page product/UI gap, not install drift or stale HACS cache.
+- Do not fix or republish another `0.1.89` candidate.
+- Continue through `docs/RELEASE_0.1.90_PLAN.md` and ask James directly for `0.1.90` release/deploy/restart validation approval when the corrective candidate is ready.
