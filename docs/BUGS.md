@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-403 - Watchdog/supervisor loop kept finding microcopy after the release approval boundary was already explicit
+- **status:** `open`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after inspecting recent commits through `84c26fd` and re-reading `docs/SUPERVISOR.md`, the `Detailed remaining work map` in `docs/UI_IMPLEMENTATION_MAP.md`, and the current bug tracker state.
+- **current observed behavior:** the recent history is dominated by repeated native-copy, release-note, optional-dashboard, and recommendation-wording cleanup commits, while the source-of-truth docs and many existing bug next actions already say that, if no sharper Workstream A-D/F defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path. In this run the full test suite was green, the working tree was clean, and no stronger shippable repo defect surfaced, so continuing to search for another wording/fingerprint/bookkeeping variant would be loop behavior rather than ordered product progress.
+- **expected behavior:** once the mapped A-D/F repo defects are not producing a sharper safe fix, the supervisor should stop refreshing unchanged wording/fingerprint bookkeeping and ask James directly for explicit `0.1.89` freeze/release/deploy/restart approval before Workstream G execution.
+- **evidence:** `git log --oneline -12` showed only microcopy/release-metadata/fleet-formatting cleanup commits ending at `84c26fd`; `python3 -m unittest discover -s tests -q` passed 476 tests; `git status --short` was clean; `docs/SUPERVISOR.md` Rule 7 and `docs/UI_IMPLEMENTATION_MAP.md` Workstream G both make the direct approval boundary explicit.
+- **repo fix:** not a product-code fix; this bug-tracker entry records the confirmed process drift so future watchdog/supervisor runs do not treat another unchanged microcopy/fingerprint search as the default next action.
+- **validation status:** confirmed by repo inspection in this watchdog run; no Home Assistant live validation is required for this process-state correction.
+- **next action:** ask James directly to approve the `0.1.89` freeze/release/deploy/restart path unless a materially sharper Workstream A-D/F defect appears before release execution.
+
 ## ZNE-402 - Optional Lovelace scaffold kept retired recommendation wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
