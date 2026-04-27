@@ -85,11 +85,17 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
     def test_supervisor_release_behavior_names_exact_release_approval_gate(self) -> None:
         content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        human_rules = content[
+            content.index("## Human interaction rules"):
+            content.index("## Acceptance stance")
+        ]
         release_behavior = content[
             content.index("## Release behavior"):
             content.index("## Delta-only reporting rules")
         ]
 
+        self.assertIn("explicit exact release/deploy/restart approval is required", human_rules)
+        self.assertNotIn("explicit release/deploy/restart approval is required", human_rules)
         self.assertIn("exact release/deploy/restart approval", release_behavior)
         self.assertIn("already-decided target", release_behavior)
         self.assertIn("already-accepted native child-device representation", release_behavior)

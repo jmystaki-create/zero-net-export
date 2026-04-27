@@ -206,7 +206,7 @@ Do not treat vague “partial progress” as completion.
 
 Only require James when one of these is true:
 1. a real design ambiguity cannot be resolved from source docs
-2. explicit release/deploy/restart approval is required
+2. explicit exact release/deploy/restart approval is required
 3. required evidence is human-only and cannot be gathered through documented access
 4. the next ordered item is genuinely blocked by a user action
 
