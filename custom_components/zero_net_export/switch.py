@@ -26,7 +26,7 @@ class ZeroNetExportEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
         state = self._state
         if state is None:
             return None
-        return state.enabled
+        return getattr(state, "enabled", None)
 
     @property
     def extra_state_attributes(self):

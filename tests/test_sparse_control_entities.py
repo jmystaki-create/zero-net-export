@@ -14,6 +14,7 @@ CONST_PATH = PACKAGE_ROOT / "const.py"
 ENTITY_PATH = PACKAGE_ROOT / "entity.py"
 NUMBER_PATH = PACKAGE_ROOT / "number.py"
 SELECT_PATH = PACKAGE_ROOT / "select.py"
+SWITCH_PATH = PACKAGE_ROOT / "switch.py"
 
 
 def _load_module(module_name: str, path: Path):
@@ -40,6 +41,10 @@ def _load_module(module_name: str, path: Path):
     select_component_module = types.ModuleType("homeassistant.components.select")
     select_component_module.SelectEntity = type("SelectEntity", (), {})
     sys.modules[select_component_module.__name__] = select_component_module
+
+    switch_component_module = types.ModuleType("homeassistant.components.switch")
+    switch_component_module.SwitchEntity = type("SwitchEntity", (), {})
+    sys.modules[switch_component_module.__name__] = switch_component_module
 
     entity_helper_module = types.ModuleType("homeassistant.helpers.entity")
     entity_helper_module.EntityCategory = types.SimpleNamespace(CONFIG="config", DIAGNOSTIC="diagnostic")
@@ -88,6 +93,13 @@ class SparseControlEntityTests(unittest.TestCase):
         mode = select_module.ZeroNetExportModeSelect(self._coordinator(), "mode", "Mode")
 
         self.assertIsNone(mode.current_option)
+
+    def test_switch_tolerates_missing_enabled_attribute(self) -> None:
+        switch_module = _load_module("custom_components.zero_net_export.switch", SWITCH_PATH)
+
+        enabled = switch_module.ZeroNetExportEnabledSwitch(self._coordinator(), "enabled", "Enabled")
+
+        self.assertIsNone(enabled.is_on)
 
 
 if __name__ == "__main__":

@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-478 - enabled switch could crash on sparse runtime enabled field
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `runtime`
+- **where seen:** watchdog repo audit on 2026-04-28 after sparse-runtime hardening covered base sensors, binary sensors, numbers, mode select, buttons, diagnostics, Repairs, and Configure support while `custom_components/zero_net_export/switch.py` still directly read `state.enabled` for the main native enabled switch.
+- **current observed behavior:** if coordinator runtime data existed in a sparse transitional shape without the top-level `enabled` field, the native Home Assistant enabled switch could raise instead of rendering an unknown value.
+- **expected behavior:** the native enabled switch should tolerate missing runtime value attributes like the sibling control entities and return `None` when its backing runtime value is absent.
+- **repo fix:** this run changes `ZeroNetExportEnabledSwitch.is_on` to use a safe `getattr(state, "enabled", None)` fallback, preserving the native Home Assistant controls path without adding any custom/external UI.
+- **validation status:** closed with focused sparse-control regression coverage plus Python compile. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-477 - Configure support path could crash on sparse runtime summary fields
 
 - **status:** `closed`
