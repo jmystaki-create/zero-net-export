@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-448 - install repair guidance skipped the release-target and native-row acceptance boundary
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-28 while comparing the operator-facing install repair guidance in `custom_components/zero_net_export/release_info.py` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, and ZNE-439.
+- **current observed behavior:** when install provenance reported a manifest/version mismatch or manifest read error, `build_install_repair_step()` told the operator to ask James directly to approve deploy/restart of the exact build. That skipped the current first two approval boundaries: James must first decide whether `4c0d071` / `v0.1.94` replaces the documented `0.1.91` target or execution returns to the approved `0.1.91` boundary, then accept or reject the closest native `Managed Devices` / `Un Managed` child-device representation before any deploy/restart approval.
+- **expected behavior:** operator-facing install repair guidance must not make deploy/restart sound like the first action while the release-target and native-row acceptance decisions remain open.
+- **repo fix:** this run updates `build_install_repair_step()` so both manifest-mismatch and manifest-error guidance first asks James directly for the release-target decision, then closest-native-row acceptance, then deploy/restart approval for that exact target before running release commands.
+- **validation status:** closed with focused release-info guidance regression coverage plus Python compile; no Home Assistant live validation is required for this wording/order correction.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-447 - ordered map release-target step skipped the 0.1.93 freeze
 
 - **status:** `closed`

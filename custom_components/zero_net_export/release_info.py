@@ -216,14 +216,18 @@ def build_install_repair_step(install_provenance: dict[str, Any] | None = None) 
         return (
             f"Wait for the async install-provenance refresh to complete for {component_root}, then rerun the exact-build fingerprint check against {compare_target} before treating install provenance as a blocker."
         )
+    approval_boundary = (
+        "Ask James directly to decide the release target first, then accept or reject the closest native "
+        "Managed Devices / Un Managed child-device representation and approve deploy/restart for that exact target"
+    )
     if provenance.get("manifest_matches_code_version") is False:
         return (
-            f"Ask James directly to approve deploy/restart of the exact build for {compare_target} before running release steps. "
+            f"{approval_boundary} before running release steps for {compare_target}. "
             f"After approval, preview the exact repo deploy target with `{cli_steps['deploy_dry_run_command']}` first, then run `{cli_steps['deploy_command']}` and `{cli_steps['combined_command']}` from the repo against that live install path so {component_root} is replaced by one synchronized build before restarting Home Assistant core or trusting live validation."
         )
     if provenance.get("manifest_error"):
         return (
-            f"Confirm the exact live Zero Net Export install path at {component_root}, then ask James directly to approve deploy/restart of the exact build for {compare_target} before using release commands. "
+            f"Confirm the exact live Zero Net Export install path at {component_root}, then {approval_boundary} before using release commands for {compare_target}. "
             f"After approval, preview the resolved deploy target with `{cli_steps['deploy_dry_run_command']}` before using `{cli_steps['deploy_command']}` if you need to recopy the repo build, and run `{cli_steps['combined_command']}` from the repo against that same live install path before restarting Home Assistant core or trusting live validation."
         )
     return "Installed package provenance looks consistent."
