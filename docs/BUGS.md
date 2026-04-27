@@ -108,6 +108,20 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 
 
+## ZNE-431 - Detailed map still described 0.1.91 implementation as future after repo candidate existed
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `90da5cd` added the native child-device candidate for ZNE-429 and `379838f` moved the current `0.1.91` ordered map ahead of historical A-F runway.
+- **current observed behavior:** the lower `Order of execution from here` section in `docs/UI_IMPLEMENTATION_MAP.md` still said to confirm the device-registry mechanism before coding substitutions and that only after a repo implementation exists should the project enter `0.1.91` release/fingerprint/live-screenshot execution. That was stale because the repo implementation now exists and the current boundary is James accepting the closest native representation, then explicit release/deploy/restart approval.
+- **expected behavior:** the detailed map should treat the native `Managed Devices — ...` / `Un Managed — ...` child-device implementation as present, preserve the HA platform constraint, and direct the next run to ask James whether that closest native representation is acceptable before freezing/releasing `0.1.91`.
+- **evidence:** direct inspection found the stale future-implementation wording below a status summary that already says `Repo now contains a 0.1.91 native entity/device-info candidate`, plus regression tests that still asserted the stale future-implementation line.
+- **repo fix:** this run updates the lower order-of-execution list to say the repo candidate is present, makes the acceptability question the next explicit human boundary, and updates regression coverage to reject the old future-implementation wording.
+- **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-order correction.
+- **next action:** James needs to accept or reject the closest native child-device representation; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+
+
 ## ZNE-430 - Detailed remaining map still ranked historical A-F work before 0.1.91 gate
 
 - **status:** `closed`

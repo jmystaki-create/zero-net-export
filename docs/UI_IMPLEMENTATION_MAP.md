@@ -227,9 +227,9 @@ The following A-F workstreams describe earlier native-UI runway and historical p
 ### Order of execution from here
 1. Do not reopen completed `0.1.90` repo implementation, version bump, tag, push, GitHub publication, install, fingerprint, screenshot, or action-drill-down work unless new evidence proves the published artifact is wrong.
 2. Treat ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope: main integration page device lists, not another device-info-page row/button pass.
-3. Before coding substitutions, confirm the Home Assistant-native device-registry/integration-page mechanism for representing managed loads and unmanaged candidates as device rows.
-4. If literal `Managed Devices` / `Un Managed` group headings are not possible in HA's native integration page, report that platform constraint and propose the closest native representation before implementation.
-5. Only after a repo implementation exists should the project enter `0.1.91` release/fingerprint/live-screenshot execution.
+3. Treat the repo-side native child-device implementation as present: managed loads and unmanaged candidates are now represented as Home Assistant device rows named/modelled `Managed Devices — ...` and `Un Managed — ...` under the Zero Net Export config entry.
+4. Because literal nested `Managed Devices` / `Un Managed` headings are not exposed by HA's native integration page APIs, ask James directly whether this closest native representation is acceptable before release execution.
+5. If James accepts that representation, freeze version-coupled files for `0.1.91` / release `1.91`, ask directly for release/deploy/restart approval, then proceed to exact-build fingerprint and screenshot validation.
 
 ### Stage 0. Baseline and source-of-truth consolidation
 **Purpose**
