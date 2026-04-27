@@ -470,6 +470,47 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [{"switch.pool_pump"}])
 
+    def test_config_fallback_managed_rows_keep_status_and_summary_detail(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "device_inventory_json": '[{"key":"pool","name":"Pool Pump","kind":"fixed","entity_id":"switch.pool_pump","nominal_power_w":1200,"min_power_w":1200,"max_power_w":1200,"step_w":1200}]'
+            },
+            options={},
+        )
+        added = []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        summary = next(
+            entity
+            for entity in added
+            if isinstance(entity, sensor_module.ZeroNetExportDeviceManagedSummarySensor)
+            and entity._device_key == "pool"
+        )
+        status = next(
+            entity
+            for entity in added
+            if isinstance(entity, sensor_module.ZeroNetExportDeviceStatusSensor)
+            and entity._device_key == "pool"
+        )
+
+        self.assertIn("fixed load", summary.native_value)
+        self.assertIn("configured", summary.native_value)
+        self.assertEqual(status.native_value, "configured")
+        self.assertEqual(status.extra_state_attributes["entity_id"], "switch.pool_pump")
+
 
 if __name__ == "__main__":
     unittest.main()

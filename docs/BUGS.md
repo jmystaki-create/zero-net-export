@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-493 - config-fallback managed rows exposed unknown per-device status
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing the ZNE-429 integration-page Managed Devices row fallback path after configured inventory rows were kept before runtime details existed.
+- **current observed behavior:** the setup path created `Managed Devices — ...` child device rows from config-entry inventory before runtime `device_details` populated, but the per-device summary/status entities attached to those rows still read only runtime detail. In the no-runtime-details window, the native integration-page row could show fallback device-info metadata while its summary/status entities degraded to `unknown kind`, `status unknown`, or `None` instead of the configured inventory state.
+- **expected behavior:** config-fallback Managed Devices rows should carry configured inventory detail through their attached native entities too, so the row remains legible as a configured fixed/variable managed load before runtime detail arrives.
+- **repo fix:** this run routes per-device managed summary/status/plan/guard/power/detail entity reads through the same runtime-plus-config-fallback detail resolver used for child-device metadata.
+- **validation status:** closed with focused integration-page device-list regression coverage and Python compile for `sensor.py` and `entity.py`.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-492 - partial runtime details skipped configured managed rows on the integration page
 
 - **status:** `closed`
