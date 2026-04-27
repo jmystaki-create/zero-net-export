@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-463 - active map and project status softened the exact release approval gate
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-28 while comparing the current ordered `0.1.91` map, `project_status.md`, `docs/SUPERVISOR.md`, and the release approval hardening tests.
+- **current observed behavior:** the supervisor and release plan already required exact release/deploy/restart approval, but the active numbered implementation-map step still said to ask James for `release/deploy/restart approval` without `exact`, and `project_status.md` repeated the softer blocker wording. That left two active runner-facing paths weaker than the formal approval boundary.
+- **expected behavior:** active runner guidance should consistently require James's release-target decision first, closest native child-device representation acceptance second, and exact release/deploy/restart approval third before any Home Assistant install, restart, fingerprint validation, or success claim.
+- **repo fix:** this run updates the active ordered map, lower order-of-execution summary, and project status blocker to say exact release/deploy/restart approval, and tightens operator-doc regression coverage so the active map/status cannot regress to the softer wording.
+- **validation status:** closed with focused operator-doc regression coverage; no Home Assistant live validation is required while ZNE-439 remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: ask James directly for the release-target decision first, then native-row acceptance/rejection, then exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-462 - supervisor release behavior hid the exact release/deploy/restart approval ask
 
 - **status:** `closed`

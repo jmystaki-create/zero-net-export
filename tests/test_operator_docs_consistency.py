@@ -25,7 +25,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertLess(native_acceptance, deploy_gate)
         self.assertIn("`v0.1.94` at `4c0d071`", current_map)
         self.assertIn("helper must resolve the current manifest `0.1.94` component boundary at decision/deploy time", current_map)
-        self.assertIn("ask James directly for release/deploy/restart approval", current_map)
+        self.assertIn("ask James directly for exact release/deploy/restart approval", current_map)
         self.assertIn("Settings -> Devices & Services -> Integrations -> Zero Net Export", current_map)
 
     def test_historical_workstreams_cannot_outrank_091_device_list_scope(self) -> None:
@@ -111,11 +111,11 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         live_evidence = next_action.index("before integration-main-page screenshot evidence")
         blocker_target = blocker.index("release-target decision")
         blocker_native = blocker.index("closest native child-device representation acceptance")
-        blocker_deploy = blocker.index("release/deploy/restart approval")
+        blocker_deploy = blocker.index("exact release/deploy/restart approval")
 
         self.assertIn("`0.1.91`", content)
         self.assertIn("ask James directly", content)
-        self.assertIn("release/deploy/restart approval", content)
+        self.assertIn("exact release/deploy/restart approval", content)
         self.assertIn("release target for release/deploy/restart validation", content)
         self.assertIn("native child-device representation", content)
         self.assertIn("`4c0d071` / `v0.1.94` freezes", content)
