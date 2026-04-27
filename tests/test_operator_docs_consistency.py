@@ -69,7 +69,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("next_action:"):
             content.index("\n\n# Current blocker or none")
         ]
-        target_decision = next_action.index("whether `db5c246` / `v0.1.92` should replace")
+        target_decision = next_action.index("whether `026f189` / `v0.1.93` should replace")
         native_acceptance = next_action.index("only after that target decision")
         live_evidence = next_action.index("before integration-main-page screenshot evidence")
 
@@ -90,7 +90,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("main integration page", status)
         self.assertIn("`Managed Devices — ...`", status)
         self.assertIn("`Un Managed — ...`", status)
-        self.assertIn("`db5c246` / `v0.1.92`", status)
+        self.assertIn("`026f189` / `v0.1.93`", status)
         self.assertIn("documented `0.1.91` release target", status)
         self.assertIn("ask James directly", status)
         self.assertNotIn("0.1.89", status)
@@ -126,11 +126,11 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("## Pre-Installation Checks")
         ]
 
-        target_decision = boundary.index("whether `v0.1.92` replaces the documented `0.1.91` release target")
+        target_decision = boundary.index("whether `v0.1.93` replaces the documented `0.1.91` release target")
         native_acceptance = boundary.index("Only after that release-target decision")
         validation_steps = boundary.index("For `0.1.91`, validation is only about the main integration page device lists")
 
-        self.assertIn("`db5c246` / `v0.1.92`", boundary)
+        self.assertIn("`026f189` / `v0.1.93`", boundary)
         self.assertIn("before any Home Assistant install, restart, fingerprint validation, or screenshot claim", boundary)
         self.assertIn("exact release/deploy/restart validation", boundary)
         self.assertLess(target_decision, native_acceptance)
