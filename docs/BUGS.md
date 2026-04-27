@@ -91,6 +91,20 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Current active bugs
 
+## ZNE-439 - repo froze 0.1.92 while source-of-truth still limits approval to 0.1.91
+
+- **status:** `open`
+- **severity:** `high`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 after `3b722ff` added per-load configuration card entities and `db5c246` froze/tagged `v0.1.92`, while `docs/SUPERVISOR.md`, `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, `docs/BUGS.md`, and `project_status.md` still define the approved release scope as `0.1.91` / release `1.91` only.
+- **current observed behavior:** repo HEAD and the fingerprint helper now resolve the install candidate to `db5c246` with `manifest_version: 0.1.92`, but the source-of-truth release map still tells runners that the active approved scope is `0.1.91` and that the current helper-resolved `0.1.91` boundary is `c4802a3`. This creates a real release-decision mismatch: a runner could either deploy an unapproved `0.1.92` candidate or keep asking for an obsolete `c4802a3` `0.1.91` boundary.
+- **expected behavior:** before any Home Assistant install, restart, fingerprint validation, or success claim, James must explicitly approve whether the post-`0.1.91` `0.1.92` candidate is the new release target or whether the project should return to the documented `0.1.91` boundary. The supervisor must not silently substitute the `0.1.92` tag for the approved `0.1.91` scope.
+- **evidence:** `git log --oneline -3` shows `db5c246 release: freeze 0.1.92`, `3b722ff feat: add per-load configuration card entities`, and `493f487 docs: align 0.1.91 deploy boundary after post-tag fix`; `scripts/print_expected_install_fingerprint.py` reports `manifest_version: 0.1.92`, `expected_commit: db5c246`, and `preferred_validation_commit: db5c246` while the detailed remaining map still names `0.1.91` and `c4802a3`.
+- **suspected cause:** release/version bookkeeping advanced after the approved `0.1.91` native child-device candidate without updating or re-approving the governing source-of-truth docs and human approval boundary.
+- **repo fix:** this run records the mismatch as an active release blocker and updates secondary project status so the next runner does not deploy/restart or validate Home Assistant against either `c4802a3` or `db5c246` without an explicit James decision.
+- **validation status:** process-state fix verified with bug-tracker/project-status regression coverage; no Home Assistant live validation is required or appropriate until James resolves the release-target mismatch.
+- **next action:** ask James directly: should `db5c246` / `v0.1.92` replace the documented `0.1.91` release target for deploy/restart validation, or should release execution return to the approved `0.1.91` boundary?
+
 ## ZNE-429 - 0.1.91 main integration page lacks Managed Devices and Un Managed device lists
 
 - **status:** `fixed_pending_validation`
