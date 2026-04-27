@@ -252,6 +252,46 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         ]
         self.assertIn("Managed Devices — pool", device_names)
 
+    def test_setup_entry_keeps_managed_row_and_candidates_when_detail_is_none(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data.device_details = {"pool": None}
+        captured_managed_ids = []
+
+        def discover_candidates(states, managed_entity_ids):
+            captured_managed_ids.append(managed_entity_ids)
+            return [
+                {
+                    "entity_id": "switch.hot_water",
+                    "name": "Hot Water",
+                    "domain": "switch",
+                    "kind": "fixed",
+                    "state": "off",
+                }
+            ]
+
+        sensor_module.discover_candidate_devices = discover_candidates
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(entry_id="entry-1")
+        added = []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        device_names = [
+            entity._attr_device_info.get("name")
+            for entity in added
+            if getattr(entity, "_attr_device_info", None)
+        ]
+        self.assertIn("Managed Devices — pool", device_names)
+        self.assertIn("Un Managed — Hot Water", device_names)
+        self.assertEqual(captured_managed_ids, [set()])
+
     def test_setup_entry_tolerates_missing_runtime_device_details(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

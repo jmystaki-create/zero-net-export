@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-479 - null managed-device detail could crash integration-page candidate rows
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while tracing the ZNE-429 main integration-page child-device setup path after the recent sparse-runtime hardening fixes.
+- **current observed behavior:** `sensor.py` already tolerated missing `device_details` and sparse managed detail dictionaries while creating `Managed Devices — ...` child-device rows, but `_managed_entity_ids()` still called `detail.get(...)` directly while preparing unmanaged candidate discovery. If a managed-device runtime detail value was temporarily `None`, setup could create the managed child row and then crash before adding `Un Managed — ...` candidate rows.
+- **expected behavior:** the native integration-page device-list setup should tolerate null/sparse managed detail values, keep the managed child-device row registered with the device key fallback, and continue unmanaged candidate discovery with an empty managed-entity exclusion for that null detail.
+- **repo fix:** this run makes `_managed_entity_ids()` normalize each raw managed detail with an empty-dict fallback before reading `entity_id`, preserving the native Home Assistant integration-page `Managed Devices` / `Un Managed` child-device path without adding any custom/external UI.
+- **validation status:** closed with focused integration-page device-list regression coverage for a null managed detail plus Python compile. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-478 - enabled switch could crash on sparse runtime enabled field
 
 - **status:** `closed`

@@ -353,7 +353,8 @@ def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[st
 def _managed_entity_ids(state) -> set[str]:
     return {
         str(detail.get("entity_id"))
-        for detail in (getattr(state, "device_details", {}) or {}).values()
+        for raw_detail in (getattr(state, "device_details", {}) or {}).values()
+        for detail in (raw_detail or {},)
         if detail.get("entity_id")
     }
 
