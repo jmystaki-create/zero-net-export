@@ -146,6 +146,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** fixed in repo with focused integration-page device-list regression coverage for HA-state-triggered unmanaged-row addition, the existing add/remove row lifecycle coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest discover -s tests -q`, and Python compile for `sensor.py` plus the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
 - **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that `Un Managed — ...` rows update promptly when candidate entities appear/disappear or are promoted.
 
+## ZNE-500 - existing Un Managed rows kept stale candidate details after HA state changes
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while following the ZNE-499 state-change sync path against the ZNE-429 main integration-page `Un Managed — ...` child-device row requirement.
+- **current observed behavior:** after an unmanaged candidate row already existed, later candidate metadata changes with the same entity ID refreshed the candidate discovery list but did not update the existing `ZeroNetExportUnmanagedCandidateSensor`. The row entity could keep the old display name, device-info label, native value, and attributes until an integration/platform reload.
+- **expected behavior:** existing native `Un Managed — ...` row entities should refresh their candidate snapshot when Home Assistant state or metadata changes, so the integration-page child-device representation and attached diagnostic entity do not go stale just because the candidate key stayed the same.
+- **evidence:** `_register_unmanaged_candidate_sync()` skipped candidates whose `_candidate_unique_key(...)` was already present in `known_candidate_entities`, so the new candidate dict was ignored unless the row was newly added or removed.
+- **repo fix:** this run adds `ZeroNetExportUnmanagedCandidateSensor.update_candidate(...)` and routes existing candidate keys through it during unmanaged-row reconciliation. The refresh updates the entity name, native device-info metadata, candidate attributes, and writes state without adding any custom UI path.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage for existing-row detail refresh, the existing add/remove/state-change sync coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `sensor.py` plus the touched test file, and the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that existing `Un Managed — ...` rows refresh promptly when candidate names/states/metadata change.
+
 ## Closed bugs and process corrections
 
 ## ZNE-497 - unmanaged candidate cache could keep stale integration-page rows after HA state changes

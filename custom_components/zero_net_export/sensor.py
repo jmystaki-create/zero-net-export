@@ -374,7 +374,9 @@ def _register_unmanaged_candidate_sync(
         new_entities = []
         for candidate in candidates:
             candidate_key = _candidate_unique_key(candidate)
-            if candidate_key in known_candidate_entities:
+            existing_entity = known_candidate_entities.get(candidate_key)
+            if existing_entity is not None:
+                existing_entity.update_candidate(candidate)
                 continue
             entity = ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
             known_candidate_entities[candidate_key] = entity
@@ -1999,6 +2001,16 @@ class ZeroNetExportUnmanagedCandidateSensor(ZeroNetExportEntity, SensorEntity):
             f"{candidate_name} unmanaged candidate",
         )
         self._attr_device_info = unmanaged_candidate_device_info(coordinator, self._candidate)
+
+    def update_candidate(self, candidate: dict[str, Any]) -> None:
+        """Refresh candidate state without requiring a platform reload."""
+        self._candidate = dict(candidate or {})
+        candidate_name = str(self._candidate.get("name") or self._candidate.get("entity_id") or "candidate")
+        self._attr_name = f"{candidate_name} unmanaged candidate"
+        self._attr_device_info = unmanaged_candidate_device_info(self.coordinator, self._candidate)
+        write_state = getattr(self, "async_write_ha_state", None)
+        if write_state is not None:
+            write_state()
 
     @property
     def native_value(self):
