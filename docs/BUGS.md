@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-497 - unmanaged candidate cache could keep stale integration-page rows after HA state changes
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while tracing the ZNE-429 native integration-page unmanaged-candidate discovery path used by fleet summary sensors and `Un Managed — ...` child-device rows.
+- **current observed behavior:** `_candidate_devices_for_state()` cached unmanaged-candidate discovery only by coordinator state object and managed-entity exclusions. If Home Assistant entity states/friendly names changed while the coordinator state object and managed IDs were unchanged, later native Managed Devices summaries could reuse an old unmanaged candidate list and keep stale `Un Managed — ...` guidance/rows until the coordinator state identity changed.
+- **expected behavior:** the native HA unmanaged backlog should refresh when candidate-relevant HA state changes, so integration-page `Un Managed — ...` rows and Managed Devices summaries do not lag behind entity discovery.
+- **repo fix:** this run adds a candidate-relevant Home Assistant state signature to the cache key and reuses the same state snapshot for discovery, invalidating the cache when candidate entity IDs, states, friendly names, units, or device classes change.
+- **validation status:** closed with focused integration-page device-list regression coverage and Python compile for `sensor.py`.
+- **next action:** keep the active release boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-496 - managed child-device settings links rewrote device keys with separators
 
 - **status:** `closed`

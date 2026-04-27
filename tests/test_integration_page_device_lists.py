@@ -548,6 +548,47 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(captured_managed_ids, [{"switch.pool_pump"}])
 
+    def test_candidate_cache_invalidates_when_ha_candidate_states_change(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        current_states = [
+            SimpleNamespace(
+                entity_id="switch.hot_water",
+                state="off",
+                attributes={"friendly_name": "Hot Water"},
+            )
+        ]
+        hass = SimpleNamespace(
+            states=SimpleNamespace(async_all=lambda: list(current_states)),
+        )
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: [
+            {
+                "entity_id": state.entity_id,
+                "name": state.attributes.get("friendly_name", state.entity_id),
+                "domain": state.entity_id.split(".", 1)[0],
+                "kind": "fixed",
+                "state": state.state,
+                "unit": "",
+                "device_class": "",
+            }
+            for state in states
+            if state.entity_id not in managed_entity_ids
+        ]
+
+        first = sensor_module._candidate_devices_for_state(coordinator, hass, coordinator.data)
+        current_states[:] = [
+            SimpleNamespace(
+                entity_id="switch.ev_charger",
+                state="off",
+                attributes={"friendly_name": "EV Charger"},
+            )
+        ]
+        second = sensor_module._candidate_devices_for_state(coordinator, hass, coordinator.data)
+
+        self.assertEqual([candidate["entity_id"] for candidate in first], ["switch.hot_water"])
+        self.assertEqual([candidate["entity_id"] for candidate in second], ["switch.ev_charger"])
+
 
 if __name__ == "__main__":
     unittest.main()

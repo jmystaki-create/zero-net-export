@@ -1,6 +1,8 @@
 """Sensors for Zero Net Export."""
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
 from homeassistant.helpers.entity import EntityCategory
@@ -18,7 +20,7 @@ from .candidate_utils import (
     discover_candidate_devices,
     first_review_candidate,
 )
-from .const import CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON, DOMAIN, INTEGRATION_VERSION
+from .const import CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON, DEVICE_CANDIDATE_DOMAINS, DOMAIN, INTEGRATION_VERSION
 from .device_model import parse_device_configs
 from .entity import (
     ZeroNetExportEntity,
@@ -420,6 +422,41 @@ def _managed_entity_ids(state) -> set[str]:
     }
 
 
+def _candidate_state_signature(states: list[object]) -> tuple[tuple[str, str, str, str, str], ...]:
+    """Return the candidate-relevant HA state signature used for cache invalidation."""
+    signature: list[tuple[str, str, str, str, str]] = []
+    for state in states:
+        entity_id = str(getattr(state, "entity_id", "") or "")
+        domain, _, object_id = entity_id.partition(".")
+        if domain not in DEVICE_CANDIDATE_DOMAINS or object_id.startswith(f"{DOMAIN}_"):
+            continue
+        state_value = str(getattr(state, "state", "") or "")
+        attributes = getattr(state, "attributes", {}) or {}
+        if not isinstance(attributes, Mapping):
+            attributes = {}
+        signature.append(
+            (
+                entity_id,
+                state_value,
+                str(attributes.get("friendly_name") or ""),
+                str(attributes.get("unit_of_measurement") or ""),
+                str(attributes.get("device_class") or ""),
+            )
+        )
+    return tuple(sorted(signature))
+
+
+class _CandidateStateSnapshot:
+    """Small HA-state facade so candidate discovery and cache keys share one snapshot."""
+
+    def __init__(self, states: list[object]) -> None:
+        self.states = self
+        self._states = states
+
+    def async_all(self) -> list[object]:
+        return self._states
+
+
 def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict[str, str]]:
     return discover_candidate_devices(hass.states.async_all(), managed_entity_ids)
 
@@ -441,11 +478,12 @@ def _candidate_devices_for_state(
                 for detail in managed_details.values()
                 if detail.get("entity_id")
             )
-    cache_key = (id(state), tuple(sorted(managed_entity_ids)))
+    hass_states = list(hass.states.async_all())
+    cache_key = (id(state), tuple(sorted(managed_entity_ids)), _candidate_state_signature(hass_states))
     cached = getattr(coordinator, "_zne_candidate_sensor_cache", None)
     if cached and cached.get("key") == cache_key:
         return cached["candidates"]
-    candidates = _candidate_devices_for_hass(hass, managed_entity_ids)
+    candidates = _candidate_devices_for_hass(_CandidateStateSnapshot(hass_states), managed_entity_ids)
     setattr(
         coordinator,
         "_zne_candidate_sensor_cache",
