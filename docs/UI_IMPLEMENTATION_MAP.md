@@ -119,6 +119,20 @@ This section is now the explicit staged delivery map. Each phase should be imple
 This is the detailed remaining-step map for finishing only the approved `0.1.91` / release `1.91` scope: managed and unmanaged device lists on the Zero Net Export main integration page. The `0.1.90` device-info-page work is historical and insufficient for this requirement.
 Use this list to decide what still has to be built, what has to be proven live, and what order the remaining work should happen in.
 
+### Current ordered 0.1.91 map
+
+1. Keep ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope: main integration page device lists, not another Configure or device-info-page row/button pass.
+2. Confirm the closest Home Assistant-native device-registry representation is acceptable: managed loads and unmanaged candidates appear as child device rows tied to the Zero Net Export config entry, using `Managed Devices — ...` and `Un Managed — ...` row/model language because native HA does not expose arbitrary nested group-heading APIs for one integration.
+3. If accepted, freeze version-coupled files for `0.1.91` / release `1.91` and ask James directly for release/deploy/restart approval.
+4. Deploy/install the exact approved `0.1.91` build to Home Assistant or verify HACS installs it.
+5. Restart/reload Home Assistant and confirm the installed package matches the helper-resolved `0.1.91` component boundary with the fingerprint helper.
+6. Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export` showing managed and unmanaged individual device rows on the Zero Net Export main integration page.
+7. If live evidence fails, log the exact integration-main-page UI gap before doing more wording or release-bookkeeping work.
+
+### Historical broad UI workstreams - not the current 0.1.91 ordered map
+
+The following A-F workstreams describe earlier native-UI runway and historical polish context. They are not eligible work ahead of the approved `0.1.91` integration-main-page device-list scope unless James explicitly expands scope or a regression directly blocks ZNE-429. Do not let them outrank the current ordered `0.1.91` map above.
+
 ### Workstream A. Finish the opening operator console
 **Goal**
 - make Configure open as a dense, screenshot-grade operator console that clearly explains what the optimizer is doing now, what energy state it is reacting to, and what fleet state matters next
@@ -200,17 +214,12 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Done when**
 - runtime and setup problems feel crisp, not noisy, and they point to the correct local/native path.
 
-### Workstream G. Exact-build validation and release execution
+### Workstream G. Exact-build validation and release execution (current 0.1.91 release gate)
 **Goal**
-- convert the future `0.1.91` / release `1.91` integration-main-page device-list implementation into a real installed and validated Home Assistant build, without reopening the completed `0.1.90` device-info-page release loop
+- convert the repo `0.1.91` / release `1.91` integration-main-page device-list candidate into a real installed and validated Home Assistant build, without reopening the completed `0.1.90` device-info-page release loop
 
 **Still to do**
-1. Repo candidate exists for the approved `0.1.91` integration-main-page managed/unmanaged device-list mechanism: managed-load entities and unmanaged-candidate diagnostic entities now carry child-device metadata tied to the Zero Net Export config entry. Literal custom nested headings are not exposed by HA's native device APIs, so the closest native representation uses `Managed Devices — ...` and `Un Managed — ...` device rows/models.
-2. If that closest native representation is accepted, freeze version-coupled files for `0.1.91` / release `1.91` and ask James directly for release/deploy/restart approval.
-3. Deploy/install the exact approved `0.1.91` build to Home Assistant or verify HACS installs it.
-4. Restart/reload Home Assistant and confirm the installed package matches the helper-resolved `0.1.91` component boundary with the fingerprint helper.
-5. Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export` showing the Managed Devices list and the Un Managed list with individual device rows.
-6. If live evidence fails, log the exact integration-main-page UI gap before doing more wording or release-bookkeeping work.
+- Follow the `Current ordered 0.1.91 map` above. Do not use historical Workstreams A-F as earlier eligible work for this release line.
 
 **Done when**
 - the approved `0.1.91` build is deployed, fingerprint-verified, and live-validated with screenshot-grade integration-main-page Managed Devices and Un Managed device-list evidence.

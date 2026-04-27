@@ -108,6 +108,20 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 
 
+## ZNE-430 - Detailed remaining map still ranked historical A-F work before 0.1.91 gate
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `ZNE-429` and `docs/RELEASE_0.1.91_PLAN.md` made the main integration page Managed Devices / Un Managed device-list outcome the only approved `0.1.91` scope.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_MAP.md` correctly opened with the `0.1.91` integration-page scope, but its `Detailed remaining work map` still put historical broad Workstreams A-F (Configure console, Managed Devices workspace, promotion flow, IA, device-page review, notifications) before the `0.1.91` exact-build gate. Because `docs/SUPERVISOR.md` tells runners to follow the detailed map in strict order, that ordering could make the supervisor skip the approved ZNE-429 release gate and drift back into broad UI polish.
+- **expected behavior:** the detailed map should make the current ordered work for `0.1.91` explicit first: accept or resolve the native child-device representation constraint, then freeze/version, ask James directly for release/deploy/restart approval, install, fingerprint, and capture integration-main-page screenshot evidence. Historical A-F runway must not outrank that scope.
+- **evidence:** direct inspection found `Workstream A. Finish the opening operator console` through `Workstream F. Finish notification and support-surface cleanup` still listed as the first detailed-map work even though the active scope says `Do nothing else for this release line` and `Do not use ... 0.1.90 wording as the active target`.
+- **repo fix:** this run adds a `Current ordered 0.1.91 map` at the top of the detailed remaining map, demotes Workstreams A-F under `Historical broad UI workstreams - not the current 0.1.91 ordered map`, and narrows Workstream G to point back to that current map instead of duplicating release-gate wording.
+- **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-order correction.
+- **next action:** follow the current ordered `0.1.91` map: decide whether the closest native child-device representation is acceptable; if yes, ask James directly for release/deploy/restart approval before freezing/deploying `0.1.91`.
+
+
 ## ZNE-428 - Active tracker tails still reopened closed ZNE-411 screenshot validation
 - **status:** `closed`
 - **severity:** `medium`
