@@ -49,7 +49,7 @@ If a change does not materially improve one of those visible outcomes, it should
 
 ### Still blocked or incomplete
 - Live install drift is no longer the explanation for the current failure: `0.1.89` was deployed, restarted, and fingerprint-verified, and the device page still lacked the requested Managed Devices surface. Treat this as a product/UI gap, not an install-cache gap.
-- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.89` tag, and do not reopen the completed `v0.1.90` freeze/tag/GitHub publication boundary. The remaining `0.1.90` gate is Home Assistant install/update, restart, exact-build fingerprint validation against `d94436a`, and screenshot-grade device-page evidence.
+- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.89` tag, and do not reopen the completed `v0.1.90` freeze/tag/GitHub publication/install/fingerprint boundary. The installed Home Assistant package now reports `0.1.90` and matches `d94436a`; the remaining `0.1.90` gate is screenshot-grade device-page evidence and Managed Devices action drill-down validation.
 - Treat the exact deploy boundary as the current component-changing build reported by `scripts/print_expected_install_fingerprint.py`, not as a hash that needs to be recopied into source-of-truth docs every time another UI commit lands.
 - Repeated doc-only release-boundary refresh commits are process drift, not product progress. The helper-resolved component boundary must come from `scripts/print_expected_install_fingerprint.py` at deploy/validation time; later docs-only commits still do not create a new release target and should not displace the mapped Workstream A-D/F gap or a plain no-change report.
 - Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the mapped visible UI gap. For `0.1.90`, do not spend watchdog or supervisor runs rephrasing release-boundary state unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a repo inspection does not produce a device-page Managed Devices surface that can be proven in live HA, the work is not done.
@@ -201,18 +201,19 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - convert the published `v0.1.90` corrective release into a real installed and validated Home Assistant build for the device-page Managed Devices surface
 
 **Still to do**
-1. Deploy/install the exact published `v0.1.90` build at `d94436a` to Home Assistant or verify HACS installs it.
-2. Restart/reload Home Assistant and confirm the installed package matches `d94436a` with the fingerprint helper.
+1. ~~Deploy/install the exact published `v0.1.90` build at `d94436a` to Home Assistant or verify HACS installs it.~~ Done: Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`.
+2. ~~Restart/reload Home Assistant and confirm the installed package matches `d94436a` with the fingerprint helper.~~ Done: documented SSH fingerprint validation reported `overall_match: true`.
 3. Capture screenshot-grade live evidence that the device page visibly shows the Managed Devices surface.
-4. If live evidence fails, log the exact installed UI gap before doing more wording or release-bookkeeping work.
+4. Verify pressing the Managed Devices action opens the expected notification/review/window with current state.
+5. If live evidence fails, log the exact installed UI gap before doing more wording or release-bookkeeping work.
 
 **Done when**
 - the published `v0.1.90` build is deployed, fingerprint-verified, and live-validated with screenshot-grade device-page Managed Devices evidence.
 
 ### Order of execution from here
 1. Do not reopen completed `0.1.90` repo implementation, version bump, tag, push, or GitHub publication work unless new evidence proves the published artifact is wrong.
-2. Install/update Home Assistant to `v0.1.90`, restart/reload, and verify the installed package fingerprint against `d94436a`.
-3. Perform live screenshot-grade acceptance review on the installed `0.1.90` build.
+2. Do not repeat the now-completed `v0.1.90` install/update/restart/fingerprint loop unless new evidence changes the installed package state.
+3. Perform live screenshot-grade acceptance review on the installed and fingerprint-matched `0.1.90` build.
 4. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.90` work instead of silently rolling the cut line forever.
 5. Only resume earlier A-D/F polish if live validation identifies a concrete native-HA UI gap or if installation/runtime blockers prevent judging the UI honestly.
 

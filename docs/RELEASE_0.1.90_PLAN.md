@@ -141,7 +141,7 @@ Do not use `0.1.90` for:
 
 ## Candidate implementation checklist
 
-Current release state on 2026-04-27: the corrective repo candidate has been frozen, tagged, pushed, and published as `v0.1.90` at `d94436a`. Do not keep treating the repo implementation or GitHub publication checklist below as unstarted; the remaining unchecked work is the Home Assistant install/update, restart, fingerprint, and screenshot-grade live validation path.
+Current release state on 2026-04-27: the corrective repo candidate has been frozen, tagged, pushed, published as `v0.1.90` at `d94436a`, installed in Home Assistant, loaded as `sensor.zero_net_export_installed_version = 0.1.90`, and fingerprint-verified over the documented SSH path with `overall_match: true`. Do not keep treating the repo implementation, GitHub publication, install/update, restart/reload, or fingerprint checklist below as unstarted; the remaining unchecked work is screenshot-grade device-page validation plus the Managed Devices action drill-down check.
 
 Before coding:
 
@@ -168,10 +168,10 @@ Release:
 
 Deploy/validate:
 
-- [ ] Deploy exact `0.1.90` build to Home Assistant or verify HACS installs it.
-- [ ] Restart Home Assistant Core.
-- [ ] Validate install fingerprint `overall_match: true`.
-- [ ] Verify `sensor.zero_net_export_installed_version = 0.1.90`.
+- [x] Deploy exact `0.1.90` build to Home Assistant or verify HACS installs it.
+- [x] Restart/reload Home Assistant so the installed integration reports `sensor.zero_net_export_installed_version = 0.1.90`.
+- [x] Validate install fingerprint `overall_match: true` against `d94436a` over the documented SSH path.
+- [x] Verify `sensor.zero_net_export_installed_version = 0.1.90` via the Home Assistant API.
 - [ ] Capture screenshot-grade proof of the device page showing the Managed Devices surface.
 - [ ] Verify pressing the Managed Devices action opens the expected notification/review/window with current state.
 
