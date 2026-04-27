@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-468 - sparse managed details could drop child-device controls/settings rows
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after ZNE-467 fixed sparse managed detail handling for sensor rows but the sibling switch, number, binary-sensor, and button platforms still built per-managed-load entities with `details["name"]` during platform setup.
+- **current observed behavior:** if a managed load's runtime detail was temporarily sparse or missing `name`, the non-sensor managed child-device platforms could raise during setup instead of registering the `Managed Devices — ...` enable/priority/usable/review/reset rows that support the main integration-page child-device representation.
+- **expected behavior:** every managed-load platform should keep registering native Home Assistant child-device rows with the device key as the display fallback when runtime details are incomplete, preserving the native integration-page path without custom UI.
+- **repo fix:** this run makes switch, number, binary-sensor, and button platform setup iterate over a safe `device_details` mapping and fall back to the device key for per-device entity names; per-device state/attribute reads now also tolerate missing `device_details`.
+- **validation status:** closed with focused sparse-managed-detail setup coverage across switch, number, binary-sensor, and button platforms, full unittest discovery, and Python compile. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-467 - sparse managed details could drop integration-page managed device rows
 
 - **status:** `closed`

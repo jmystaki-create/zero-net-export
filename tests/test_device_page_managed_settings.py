@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import importlib.util
 import sys
 import types
@@ -86,6 +87,42 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(reset._attr_entity_category, button_module.EntityCategory.CONFIG)
         self.assertEqual(review._attr_device_info["name"], "Managed Devices — Pool Pump")
         self.assertEqual(reset._attr_device_info["name"], "Managed Devices — Pool Pump")
+
+    def test_managed_device_setup_platforms_keep_sparse_rows_registered(self) -> None:
+        coordinator = _coordinator()
+        coordinator.data.device_details = {
+            "pool": {
+                "kind": "fixed",
+                "entity_id": "switch.pool_pump",
+                "effective_enabled": True,
+                "effective_priority": 120,
+                "usable": True,
+            }
+        }
+        hass = SimpleNamespace(data={"zero_net_export": {"entry-1": coordinator}})
+        entry = SimpleNamespace(entry_id="entry-1")
+
+        platform_specs = [
+            (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "switch"),
+            (_load_simple_platform_module("number", "number", "NumberEntity"), "number"),
+            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "binary_sensor"),
+            (_load_button_module(), "button"),
+        ]
+
+        for module, platform_name in platform_specs:
+            with self.subTest(platform=platform_name):
+                added = []
+
+                async def run_setup() -> None:
+                    await module.async_setup_entry(hass, entry, added.extend)
+
+                asyncio.run(run_setup())
+                device_names = [
+                    entity._attr_device_info.get("name")
+                    for entity in added
+                    if getattr(entity, "_attr_device_info", None)
+                ]
+                self.assertIn("Managed Devices — pool", device_names)
 
 
 if __name__ == "__main__":

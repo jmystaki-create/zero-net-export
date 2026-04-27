@@ -16,7 +16,7 @@ from .candidate_utils import (
 )
 from .const import DOMAIN
 from .device_model import DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE
-from .entity import ZeroNetExportEntity, attach_managed_load_device
+from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_display_name
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
@@ -49,12 +49,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     if state is not None:
         entities.extend(
-            ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, details["name"])
-            for device_key, details in state.device_details.items()
+            ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details))
+            for device_key, details in (getattr(state, "device_details", {}) or {}).items()
         )
         entities.extend(
-            ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, details["name"])
-            for device_key, details in state.device_details.items()
+            ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details))
+            for device_key, details in (getattr(state, "device_details", {}) or {}).items()
         )
     async_add_entities(entities)
 
@@ -1629,7 +1629,7 @@ class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity)
         state = self._state
         if state is None:
             return {}
-        return state.device_details.get(self._device_key, {})
+        return (getattr(state, "device_details", {}) or {}).get(self._device_key, {})
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_device_overrides(self._device_key)

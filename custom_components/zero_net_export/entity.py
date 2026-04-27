@@ -25,6 +25,11 @@ def zero_net_export_device_info(coordinator) -> dict:
     }
 
 
+def managed_load_display_name(device_key: str, details: dict | None = None) -> str:
+    """Return a stable display name for sparse managed-load details."""
+    return str((details or {}).get("name") or device_key or "Managed device")
+
+
 def managed_load_detail(coordinator, device_key: str, device_name: str | None = None) -> dict:
     """Return the latest coordinator detail for a managed load."""
     state = getattr(coordinator, "data", None)

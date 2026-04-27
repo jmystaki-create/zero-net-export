@@ -5,7 +5,7 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
-from .entity import ZeroNetExportEntity, attach_managed_load_device
+from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_display_name
 
 
 SOURCE_LABELS = {
@@ -51,8 +51,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     if state is not None:
         entities.extend(
-            ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, details["name"])
-            for device_key, details in state.device_details.items()
+            ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, managed_load_display_name(device_key, details))
+            for device_key, details in (getattr(state, "device_details", {}) or {}).items()
         )
     entities.extend(
         ZeroNetExportSourceStaleBinarySensor(coordinator, source_key, label)
@@ -109,11 +109,11 @@ class ZeroNetExportDeviceUsableBinarySensor(ZeroNetExportEntity, BinarySensorEnt
         state = self._state
         if state is None:
             return None
-        return bool(state.device_details.get(self._device_key, {}).get("usable"))
+        return bool((getattr(state, "device_details", {}) or {}).get(self._device_key, {}).get("usable"))
 
     @property
     def extra_state_attributes(self):
         state = self._state
         if state is None:
             return {}
-        return state.device_details.get(self._device_key, {})
+        return (getattr(state, "device_details", {}) or {}).get(self._device_key, {})
