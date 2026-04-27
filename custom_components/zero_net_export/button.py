@@ -1149,9 +1149,9 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             f"Next managed-device step: {_managed_devices_recommended_next_step(command_center)}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),
             '',
-            'Managed devices (top section):',
+            'Managed Devices (top section):',
             f"- Snapshot: {_managed_snapshot_summary(ordered)}",
-            'Managed devices needing attention first:',
+            'Managed Devices needing attention first:',
             *(
                 [_format_device_review_line(detail) for detail in attention_devices[:12]]
                 or ['- No blocked, active-plan, or recent-failure managed devices right now.']
@@ -1326,7 +1326,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             f"Next managed-device step: {_managed_devices_recommended_next_step(command_center)}",
             *(["", *blocker_first_lines] if blocker_first_lines else []),
             "",
-            "Managed devices (top section):",
+            "Managed Devices (top section):",
             f"- Snapshot: {_managed_snapshot_summary(ordered, include_planned_count=True)}",
             f"Unmanaged candidates (bottom section): {_unmanaged_snapshot_summary(candidates)}",
             (
@@ -1371,7 +1371,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 else []
             ),
             "",
-            "Managed devices needing attention first:",
+            "Managed Devices needing attention first:",
             *(
                 [_format_device_review_line(detail, audit=True) for detail in attention_devices[:12]]
                 or ["- No blocked, active-plan, or recent-failure managed devices right now."]

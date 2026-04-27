@@ -87,6 +87,19 @@ Suggested area labels:
 
 
 
+## ZNE-426 - Native workspace headings still used lower-case Managed devices labels
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the remaining `0.1.90` Managed Devices acceptance path after the fleet metric labels were corrected.
+- **current observed behavior:** Configure Managed Devices descriptions and device-page Managed Devices review/workspace notifications still rendered section headings as `Managed devices (top section)` and `Managed devices needing attention first`. Those headings sat inside the native Managed Devices workspace/review surfaces but fell back to lower-case generic wording, weakening the same visible bucket-name consistency that `0.1.90` is trying to prove.
+- **expected behavior:** section headings inside Configure and device-page Managed Devices review/workspace surfaces should keep the product bucket name as `Managed Devices`, while ordinary sentence text may still say managed devices naturally.
+- **evidence:** direct grep found the lower-case headings in `button.py`, `config_flow.py`, `strings.json`, `translations/en.json`, and tests after recent commits had already fixed metric labels, notification titles, and review headings.
+- **repo fix:** this run renames those visible headings to `Managed Devices (top section)` and `Managed Devices needing attention first`, updates translations/tests, and adds focused regression assertions rejecting the old lower-case heading strings.
+- **validation status:** repo-side fixed and verified with focused button/config-flow/bucket-copy tests plus Python compile; live validation remains pending as part of the installed-build/browser evidence pass because current HA is still running the pre-fix `0.1.90` package.
+- **next action:** include these heading labels in the next browser-visible Managed Devices acceptance pass; do not reopen completed `0.1.90` install/restart/fingerprint or API-only validation loops.
+
+
 ## ZNE-425 - Legacy fleet metric labels still hid the Managed Devices bucket on the device page
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

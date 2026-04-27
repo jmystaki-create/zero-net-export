@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Capitalized the remaining native workspace headings to `Managed Devices (top section)` and `Managed Devices needing attention first`, so Configure and device-page review notifications keep the Managed Devices bucket name instead of falling back to lower-case generic section labels.
 - Renamed the remaining legacy Managed Devices fleet metric labels to start with `Managed Devices`, so the device page can show the count, enablement, usability, power, and status rows as part of the same native Managed Devices surface instead of blending into the old lower-case entity list.
 
 ## [0.1.90] - 2026-04-27

@@ -950,7 +950,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         )
         lines = [
             "- Fleet summary: " + ", ".join(fleet_summary_parts),
-            "- Managed devices needing attention first:",
+            "- Managed Devices needing attention first:",
         ]
         if attention_devices:
             lines.extend(f"- {self._device_status_label(device)}" for device in attention_devices)
