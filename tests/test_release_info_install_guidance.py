@@ -95,17 +95,18 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("recommendation", unreleased_highlights.lower())
         self.assertNotIn("0.1.88 candidate", unreleased_highlights)
 
-    def test_0189_release_plan_requires_direct_james_approval_before_freeze(self) -> None:
+    def test_0189_release_plan_tracks_post_freeze_state(self) -> None:
         plan = (REPO_ROOT / "docs" / "RELEASE_0.1.89_PLAN.md").read_text(encoding="utf-8")
         freeze_section = plan.split("### B. Publish", 1)[0]
 
-        self.assertIn("### A. Approval and freeze candidate", freeze_section)
-        self.assertIn("ask James directly to approve the end-to-end `0.1.89` freeze/release/deploy/restart path", freeze_section)
-        self.assertLess(
-            freeze_section.index("ask James directly to approve"),
-            freeze_section.index("bump manifest/version-coupled expectations to `0.1.89`"),
-        )
-        self.assertIn("After James approves, bump manifest/version-coupled expectations to `0.1.89`", freeze_section)
+        self.assertIn("## Current execution state", freeze_section)
+        self.assertIn("`v0.1.89` is now frozen and tagged at `844502b`", freeze_section)
+        self.assertIn("The repo manifest now reports `0.1.89`", freeze_section)
+        self.assertIn("do not ask James for permission to perform the already-completed version freeze again", freeze_section)
+        self.assertIn("- [x] Freeze the `0.1.89` version-coupled release files.", freeze_section)
+        self.assertIn("- [x] Commit the approved freeze: `844502b`.", freeze_section)
+        self.assertNotIn("ask James directly to approve the end-to-end `0.1.89` freeze/release/deploy/restart path", freeze_section)
+        self.assertNotIn("After James approves, bump manifest/version-coupled expectations to `0.1.89`", freeze_section)
 
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())

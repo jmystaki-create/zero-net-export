@@ -4,7 +4,7 @@
 
 `0.1.89` is the clean follow-up release line for the UI fixes that landed after the already-published `v0.1.88` GitHub release.
 
-Do **not** move or rewrite the published `v0.1.88` tag unless James explicitly asks for a retag. The safer path is to cut `v0.1.89` from the current helper-resolved component build once final gates pass.
+Do **not** move or rewrite the published `v0.1.88` tag unless James explicitly asks for a retag. The safer path is the already-started `v0.1.89` follow-up release line.
 
 ## Current baseline at plan creation
 
@@ -15,6 +15,16 @@ Do **not** move or rewrite the published `v0.1.88` tag unless James explicitly a
 - Repo tests at the prior UI-completion check passed with `408` tests.
 
 Always re-run `scripts/print_expected_install_fingerprint.py` immediately before release; the helper output is the source of truth for the final component-changing commit.
+
+## Current execution state
+
+- `v0.1.89` is now frozen and tagged at `844502b` (`release: freeze 0.1.89`).
+- `origin/main` and the pushed `v0.1.89` tag currently resolve to `844502b`.
+- The repo manifest now reports `0.1.89`; the old pre-freeze instruction that the manifest still reports `0.1.88` is historical baseline only.
+- Current helper output reports `manifest_version=0.1.89`, `preferred_validation_commit=844502b`, and `repo_head_commit=844502b`.
+- Repo tests at the freeze audit passed with `480` tests.
+
+From here, do not ask James for permission to perform the already-completed version freeze again. The next release-execution gap is publication/visibility plus James's install/restart/live-validation path, unless a materially new release-blocking defect appears.
 
 ## Why 0.1.89 exists
 
@@ -37,9 +47,9 @@ It should include:
    - command-center source setup wording using operator-facing `Source blockers` language instead of mapped-source jargon
 
 2. **0.1.89 version freeze**
-   - bump `custom_components/zero_net_export/manifest.json` to `0.1.89`
-   - align version-coupled tests/fixtures
-   - add a dated `0.1.89` changelog section
+   - `custom_components/zero_net_export/manifest.json` is bumped to `0.1.89`
+   - version-coupled tests/fixtures are aligned
+   - the dated `0.1.89` changelog section exists
    - keep `0.1.88` history intact
 
 3. **Release validation gates**
@@ -76,19 +86,18 @@ Specifically avoid:
 
 ### A. Approval and freeze candidate
 
-- [ ] Confirm repo is clean.
-- [ ] Confirm current helper-resolved component build with `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`.
-- [ ] If no sharper A-D/F implementation defect remains, ask James directly to approve the end-to-end `0.1.89` freeze/release/deploy/restart path before changing version-coupled release files.
-- [ ] After James approves, bump manifest/version-coupled expectations to `0.1.89`.
-- [ ] Move relevant Unreleased changelog entries under `0.1.89` with release date.
-- [ ] Run full tests: `python3 -m unittest discover -s tests -q`.
-- [ ] Commit the approved freeze.
+- [x] Confirm repo is clean.
+- [x] Confirm current helper-resolved component build with `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`.
+- [x] Freeze the `0.1.89` version-coupled release files.
+- [x] Move relevant Unreleased changelog entries under `0.1.89` with release date.
+- [x] Run full tests: `python3 -m unittest discover -s tests -q`.
+- [x] Commit the approved freeze: `844502b`.
 
 ### B. Publish
 
-- [ ] Push `main`.
-- [ ] Create annotated tag `v0.1.89` at the approved freeze commit.
-- [ ] Push `v0.1.89`.
+- [x] Push `main`.
+- [x] Create annotated tag `v0.1.89` at the approved freeze commit.
+- [x] Push `v0.1.89`.
 - [ ] Publish GitHub release `Zero Net Export v0.1.89` from changelog notes.
 - [ ] Verify GitHub latest release API returns `v0.1.89`, non-draft, non-prerelease.
 
