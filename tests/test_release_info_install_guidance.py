@@ -116,9 +116,20 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertIn("- **status:** `closed`", zne_403)
         self.assertIn("already-completed `0.1.89` freeze or GitHub publication", zne_403)
-        self.assertIn("James installs/updates to `v0.1.89`", zne_403)
+        self.assertIn("Do not ask James to reinstall `v0.1.89`", zne_403)
+        self.assertIn("ask James directly for `0.1.90` release/deploy/restart validation approval", zne_403)
         self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
         self.assertNotIn("ask James to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
+
+    def test_bug_tracker_no_longer_points_active_next_actions_at_0189_install_loop(self) -> None:
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        active_entries = bugs.split("## ZNE-416", 1)[1].split("## ZNE-415", 1)[1]
+
+        self.assertNotIn("next exact `0.1.89` deploy", active_entries)
+        self.assertNotIn("already-published `v0.1.89` install/restart/live-validation pass", active_entries)
+        self.assertNotIn("James installs/updates to `v0.1.89`", active_entries)
+        self.assertIn("recheck this fix opportunistically during the `0.1.90` acceptance pass", bugs)
+        self.assertIn("Do not ask James to reinstall `v0.1.89`", bugs)
 
     def test_validation_checklist_tracks_0190_device_page_correction_boundary(self) -> None:
         checklist = (REPO_ROOT / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
