@@ -13,7 +13,7 @@ Current release-boundary order:
 2. James's latest screenshots clarified the target surface: the Zero Net Export **main integration page**, like the HomeKit integration examples, not the individual Zero Net Export device-info page.
 3. The next approved scope is `0.1.91` / release `1.91`: show a `Managed Devices` list under Zero Net Export and an `Un Managed` list underneath it.
 4. Managed loads and unmanaged candidates must appear as individual Home Assistant device rows in those lists.
-5. The repo later froze `026f189` / `v0.1.93` after the earlier `db5c246` / `v0.1.92` freeze while this checklist still belongs to the documented `0.1.91` scope; before any Home Assistant install, restart, fingerprint validation, or screenshot claim, ask James directly whether `v0.1.93` replaces the documented `0.1.91` release target or whether release execution returns to the approved `0.1.91` boundary.
+5. The repo later froze `4c0d071` / `v0.1.94` after the earlier `db5c246` / `v0.1.92` and `026f189` / `v0.1.93` freezes while this checklist still belongs to the documented `0.1.91` scope; before any Home Assistant install, restart, fingerprint validation, or screenshot claim, ask James directly whether `v0.1.94` replaces the documented `0.1.91` release target or whether release execution returns to the approved `0.1.91` boundary.
 6. Only after that release-target decision should the project ask James to accept or reject the closest native child-device representation, then approve exact release/deploy/restart validation for the chosen target.
 7. No release/deploy validation is approved by this documentation update alone; implementation and later release work must stay inside this exact scope.
 
