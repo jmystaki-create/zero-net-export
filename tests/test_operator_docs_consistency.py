@@ -58,11 +58,17 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("## Active release-target hold"):
             content.index("\n\nThis file is the steering guide")
         ]
+        current_position = content[
+            content.index("## Current position"):
+            content.index("## Core operating model")
+        ]
 
         self.assertIn("earlier `v0.1.92` and `v0.1.93` freezes", hold)
         self.assertIn("`v0.1.94` at `4c0d071`", hold)
         self.assertIn("`7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or the current helper-resolved component boundary", hold)
+        self.assertIn("exact release/deploy/restart approval", current_position)
         self.assertNotIn("earlier `v0.1.92` and `v0.1.94` freezes", hold)
+        self.assertNotIn("gated by release drift and deploy/restart approval", current_position)
 
     def test_supervisor_churn_rules_do_not_reopen_historical_a_to_f_workstreams(self) -> None:
         content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")

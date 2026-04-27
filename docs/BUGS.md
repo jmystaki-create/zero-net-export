@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-459 - supervisor current-position still softened the release approval gate
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog source-of-truth audit on 2026-04-28 while comparing `docs/SUPERVISOR.md` against the active release hold, `docs/UI_IMPLEMENTATION_MAP.md`, ZNE-439, ZNE-429, and the recent release-approval hardening commits.
+- **current observed behavior:** the supervisor release hold correctly required James's release-target decision, closest native-row acceptance, and exact release/deploy/restart approval, but the nearby `Current position` summary still said exact-build live proof was gated by release drift and `deploy/restart approval`. That softer summary could make release authorization sound implicit when the supervisor is describing formal release/deploy/restart validation.
+- **expected behavior:** active supervisor steering should consistently name exact release/deploy/restart approval before any Home Assistant install, restart, fingerprint validation, or success claim.
+- **repo fix:** this run updates the supervisor current-position line to say exact release/deploy/restart approval and extends operator-doc regression coverage so the softer deploy/restart-only gate cannot return there.
+- **validation status:** closed with focused supervisor/operator-doc regression coverage; no Home Assistant live validation is required while ZNE-439 remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-458 - 0.1.91 release plan still said deploy/restart validation instead of release/deploy/restart validation
 
 - **status:** `closed`
