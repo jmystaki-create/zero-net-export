@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-387 - Current release highlights kept retired recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking current release-info/changelog surfaces after the native Configure copy moved to neutral current-focus wording.
+- **current observed behavior:** the current `0.1.88` changelog highlights still said `recommended section reason`, `recommended next device action`, and `recommended next section`. Because the repo manifest remains on `0.1.88` until the formal `0.1.89` freeze, those highlights can still feed current Home Assistant release-info/support surfaces and revive retired recommendation/ranking language.
+- **expected behavior:** current release metadata should describe the same native Home Assistant improvements using neutral current-focus and managed-device-action wording, without reintroducing recommendation-style labels.
+- **evidence:** direct repo inspection found those phrases in the current `CHANGELOG.md` release section, while recent Workstream A-D fixes had moved visible Configure and device-page copy to `Current focus section` and bucket-owned next-step labels.
+- **repo fix:** this run rewrites the affected current-release highlights to `current focus section reason`, `current managed-device action`, and `current focus section`, and extends release-info regression coverage to reject the retired recommendation phrases in current candidate highlights.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this release-metadata cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F defect remains, ask James directly for freeze/release/deploy/restart approval rather than refreshing unchanged fingerprint bookkeeping.
+
 ## ZNE-386 - Device-page Managed Devices blocker handoffs used generic open-first phrasing
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

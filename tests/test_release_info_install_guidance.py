@@ -124,6 +124,9 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("active `0.1.86` release line", current_highlights)
         self.assertNotIn("active UI-correction line", current_highlights)
         self.assertNotIn("0.1.86` release line", current_highlights)
+        self.assertNotIn("recommended section reason", current_highlights.lower())
+        self.assertNotIn("recommended next section", current_highlights.lower())
+        self.assertNotIn("recommended next device action", current_highlights.lower())
         self.assertNotIn("mapped-source", current_highlights.lower())
         self.assertNotIn("source mapping", current_highlights.lower())
 
