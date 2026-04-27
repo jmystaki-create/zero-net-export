@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-397 - Native entity list still showed legacy Recommendation label
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the current-focus wording cleanup after active docs and release metadata had moved away from suggestion/ranking language.
+- **current observed behavior:** `custom_components/zero_net_export/sensor.py` still exposed the visible Home Assistant sensor name `Recommendation` for the existing `recommendation` key. That left legacy ranking-style wording in the native entity list even though the validation checklist now describes the same entity as reporting the current native next action.
+- **expected behavior:** the established entity key/id can stay compatible, but the visible helper label should match the native current-focus workflow and read as a direct next-action signal rather than a ranked suggestion.
+- **evidence:** direct repo inspection found `"recommendation": "Recommendation"` in `SENSOR_DEFS`; focused sensor label tests covered adjacent Managed Devices labels but not this visible next-action label.
+- **repo fix:** this run changes the visible label to `Current native next action`, preserves the underlying `recommendation` key for compatibility, records the `0.1.89` changelog highlight, and adds focused sensor regression coverage rejecting the old display label.
+- **validation status:** repo-side fixed and verified in this run with `python3 -m unittest -q tests.test_sensor_entity_categories tests.test_release_info_install_guidance tests.test_bucket_ownership_copy` and `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy/restart.
+- **next action:** include this native helper-label cleanup in the next `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another wording or fingerprint-bookkeeping pass.
+
 ## ZNE-396 - Unreleased changelog still described fixed copy as recommendation wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

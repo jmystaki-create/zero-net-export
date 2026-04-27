@@ -43,7 +43,7 @@ SENSOR_DEFS = {
     "update_summary": "Update summary",
     "status": "Status",
     "reason": "Reason",
-    "recommendation": "Recommendation",
+    "recommendation": "Current native next action",
     "diagnostic_summary": "Diagnostic summary",
     "confidence": "Confidence",
     "stale_source_count": "Stale source count",

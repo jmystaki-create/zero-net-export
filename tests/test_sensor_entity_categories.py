@@ -212,6 +212,15 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Managed devices next step",
         )
 
+    def test_recommendation_sensor_display_name_reports_native_next_action(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["recommendation"],
+            "Current native next action",
+        )
+        self.assertNotEqual(sensor_module.SENSOR_DEFS["recommendation"], "Recommendation")
+
     def test_managed_fleet_attention_names_managed_devices_when_sources_block_review(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module.build_source_attention_summary = lambda *args, **kwargs: "Missing solar source"
