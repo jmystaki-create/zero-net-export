@@ -27,7 +27,7 @@ from .const import (
     DOMAIN,
     INTEGRATION_VERSION,
 )
-from .entity import managed_load_details_mapping
+from .entity import managed_load_details_mapping, validation_details_mapping
 from .native_support import PRIMARY_CONFIGURE_PATH, build_native_operator_readiness
 from .release_info import (
     build_install_consistency_summary,
@@ -69,7 +69,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     coordinator = hass.data[DOMAIN][entry.entry_id]
     data = coordinator.data
 
-    safe_validation_details = (getattr(data, "validation_details", {}) or {}) if data is not None else {}
+    safe_validation_details = validation_details_mapping(getattr(data, "validation_details", {}) if data is not None else {})
     validation_details = async_redact_data(deepcopy(safe_validation_details), REDACT_NESTED_KEYS)
 
     device_details = []

@@ -161,6 +161,30 @@ class TestDiagnosticsPayloadCopy(unittest.TestCase):
         self.assertEqual(payload["validation_details"]["source_diagnostics"], {})
         self.assertEqual(payload["validation_details"]["source_freshness"], {})
 
+    def test_diagnostics_snapshot_tolerates_malformed_validation_details(self) -> None:
+        diagnostics = _load_diagnostics_module()
+        entry = SimpleNamespace(
+            entry_id="entry-1",
+            title="Zero Net Export",
+            domain="zero_net_export",
+            version=1,
+            data={},
+            options={},
+        )
+        coordinator = SimpleNamespace(entry=entry, data=SimpleNamespace(validation_details=["temporarily malformed"]))
+        hass = SimpleNamespace(data={"zero_net_export": {"entry-1": coordinator}})
+
+        payload = diagnostics.async_get_config_entry_diagnostics(hass, entry)
+        if hasattr(payload, "__await__"):
+            import asyncio
+
+            payload = asyncio.run(payload)
+
+        self.assertEqual(payload["validation_details"]["action_history"], [])
+        self.assertEqual(payload["validation_details"]["source_diagnostics"], {})
+        self.assertEqual(payload["validation_details"]["source_freshness"], {})
+        self.assertIsNone(payload["entry"]["release_update_summary"])
+
 
 if __name__ == "__main__":
     unittest.main()

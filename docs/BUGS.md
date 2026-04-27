@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-487 - malformed validation_details container could crash native diagnostics/source rows
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-28 after the sparse-runtime and malformed-device-detail hardening series, while the base entity validation-details helper and diagnostics payload path still assumed runtime `validation_details` was mapping-like.
+- **current observed behavior:** if coordinator runtime data exposed a malformed non-mapping `validation_details` container, native source-stale binary sensors and the diagnostics snapshot path could call `.get(...)` on that malformed value before rendering native Home Assistant support evidence.
+- **expected behavior:** native source-health rows and diagnostics should tolerate malformed validation-details containers, render empty fallback evidence, and preserve the native Home Assistant operator path without adding any custom/external UI.
+- **repo fix:** this run adds a shared validation-details mapping normalizer and routes base entity validation attributes plus diagnostics snapshots through it.
+- **validation status:** closed with focused source-stale binary and diagnostics payload regression coverage plus Python compile for the touched component modules. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-486 - malformed runtime device_details container could crash Configure Managed Devices overlay
 
 - **status:** `closed`

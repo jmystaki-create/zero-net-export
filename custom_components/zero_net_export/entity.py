@@ -27,6 +27,11 @@ def managed_load_details_mapping(value: object) -> dict[str, dict]:
     return {str(device_key): managed_load_detail_mapping(detail) for device_key, detail in value.items()}
 
 
+def validation_details_mapping(value: object) -> dict:
+    """Return validation details, tolerating malformed runtime containers."""
+    return dict(value) if isinstance(value, Mapping) else {}
+
+
 def zero_net_export_device_info(coordinator) -> dict:
     """Return the integration's primary Home Assistant device info."""
     return {
@@ -156,7 +161,7 @@ class ZeroNetExportEntity(CoordinatorEntity):
         state = self._state
         if state is None:
             return {}
-        return getattr(state, "validation_details", {}) or {}
+        return validation_details_mapping(getattr(state, "validation_details", {}) or {})
 
     @property
     def available(self) -> bool:

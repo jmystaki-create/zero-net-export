@@ -103,6 +103,22 @@ class BinarySensorEntityCategoryTests(unittest.TestCase):
 
         self.assertIsNone(active.is_on)
 
+    def test_source_stale_binary_tolerates_malformed_validation_details(self) -> None:
+        binary_sensor_module = _load_binary_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(validation_details=["temporarily malformed"]),
+        )
+
+        source_stale = binary_sensor_module.ZeroNetExportSourceStaleBinarySensor(
+            coordinator,
+            "solar_power",
+            "Solar power",
+        )
+
+        self.assertFalse(source_stale.is_on)
+        self.assertEqual(source_stale.extra_state_attributes, {"freshness": {}})
+
     def test_device_usable_binary_becomes_diagnostic_because_summary_already_carries_readiness(self) -> None:
         binary_sensor_module = _load_binary_sensor_module()
         coordinator = SimpleNamespace(
