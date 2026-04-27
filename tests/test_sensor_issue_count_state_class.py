@@ -52,7 +52,7 @@ def _load_sensor_module():
     homeassistant_pkg.const = const_module
 
     entity_helper_module = types.ModuleType("homeassistant.helpers.entity")
-    entity_helper_module.EntityCategory = types.SimpleNamespace(DIAGNOSTIC="diagnostic")
+    entity_helper_module.EntityCategory = types.SimpleNamespace(CONFIG="config", DIAGNOSTIC="diagnostic")
     sys.modules[entity_helper_module.__name__] = entity_helper_module
     helpers_pkg.entity = entity_helper_module
 

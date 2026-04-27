@@ -1415,6 +1415,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         super().__init__(coordinator, f"device_{device_key}_review", f"Managed Devices review: {device_name}")
         self._device_key = device_key
         self._attr_icon = "mdi:text-box-search-outline"
+        self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)
 
     def _detail(self) -> dict:
@@ -1620,6 +1621,7 @@ class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity)
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_reset_overrides", f"{device_name} reset overrides")
         self._device_key = device_key
+        self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property

@@ -32,7 +32,7 @@ def _load_binary_sensor_module():
     sys.modules[binary_sensor_component_module.__name__] = binary_sensor_component_module
 
     entity_helper_module = types.ModuleType("homeassistant.helpers.entity")
-    entity_helper_module.EntityCategory = types.SimpleNamespace(DIAGNOSTIC="diagnostic")
+    entity_helper_module.EntityCategory = types.SimpleNamespace(CONFIG="config", DIAGNOSTIC="diagnostic")
     sys.modules[entity_helper_module.__name__] = entity_helper_module
 
     update_coordinator_module = types.ModuleType("homeassistant.helpers.update_coordinator")

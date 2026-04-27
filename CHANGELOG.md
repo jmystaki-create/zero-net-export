@@ -7,7 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Changed
-- Removed managed/unmanaged workspace controls and activity sources from the primary Zero Net Export device-info page: managed-load controls now attach to each `Managed Devices — <name>` child device, and global managed/unmanaged summary actions/sensors no longer attach to the controller device.
+- Removed managed/unmanaged workspace controls and activity sources from the primary Zero Net Export device-info page: managed-load controls now attach to each `Managed Devices — <name>` child device, global managed/unmanaged summary actions/sensors no longer attach to the controller device, and per-load settings/actions are categorized as child-device Configuration entries.
 
 ## [0.1.91] - 2026-04-27
 

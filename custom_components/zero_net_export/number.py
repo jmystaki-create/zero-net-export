@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.number import NumberEntity
 from homeassistant.const import UnitOfPower
+from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
 from .entity import ZeroNetExportEntity, attach_managed_load_device
@@ -65,6 +66,7 @@ class ZeroNetExportDevicePriorityNumber(ZeroNetExportEntity, NumberEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_priority", f"{device_name} priority")
         self._device_key = device_key
+        self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)
         self._attr_native_min_value = 0
         self._attr_native_max_value = 1000
