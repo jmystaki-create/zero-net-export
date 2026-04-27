@@ -126,7 +126,9 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("after that target decision, ask whether the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation is acceptable", install)
         self.assertIn("then ask for exact release/deploy/restart approval for that accepted target", install)
         self.assertIn("Only after those approvals, run `python3 scripts/deploy_exact_repo_build.py", install)
+        self.assertIn("only after James has made the current release-target decision, accepted the closest native child-device representation, and approved exact deploy/restart", content)
         self.assertNotIn("ask James directly to approve deploy/restart first", install)
+        self.assertNotIn("after James approves deploy/restart, can pin", content)
 
     def test_watchdog_tracks_current_091_scope_not_historical_runway(self) -> None:
         content = (ROOT / "docs" / "WATCHDOG.md").read_text(encoding="utf-8")
