@@ -311,7 +311,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 |-------|----------|------------|----------|
 |       |          |            |          |
 
-### Final Recommendation
+### Final validation outcome
 
 - [ ] Project ready for HACS community release
 - [ ] Project needs additional validation

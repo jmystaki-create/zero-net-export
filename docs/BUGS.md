@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-393 - Validation checklist final gate kept recommendation heading
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active validation guidance after the command-center and release-boundary docs moved away from recommendation/ranking wording.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still ended the sign-off section with `Final Recommendation`, leaving one active validation heading that could revive recommendation-style language at the release gate even though the checklist already uses `Next validation boundary` and current-focus wording elsewhere.
+- **expected behavior:** active validation guidance should frame the final release gate as an outcome decision, not a recommendation label, while preserving the explicit James approval boundary before freeze/release/deploy/restart.
+- **evidence:** direct repo inspection found `### Final Recommendation` in `docs/VALIDATION_CHECKLIST.md`; existing bucket-ownership coverage rejected `Recommended next validation run` and `recommended next section` but did not cover this final-gate heading.
+- **repo fix:** this run renames the heading to `Final validation outcome`, records the cleanup in the Unreleased changelog, and extends active-doc regression coverage to reject the stale heading.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc correction.
+- **next action:** use the corrected checklist for the next `0.1.89` approval/freeze/release/deploy/restart path; if no sharper A-D/F implementation defect remains, James's direct approval is the next real boundary rather than another recommendation-wording or fingerprint-bookkeeping pass.
+
 ## ZNE-392 - Current release highlights kept recommended Configure section wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

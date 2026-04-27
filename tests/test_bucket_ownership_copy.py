@@ -612,7 +612,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             checklist,
         )
         self.assertIn("## Next validation boundary", checklist)
+        self.assertIn("### Final validation outcome", checklist)
         self.assertNotIn("## Recommended next validation run", checklist)
+        self.assertNotIn("### Final Recommendation", checklist)
         self.assertNotIn("recommended next section", checklist)
         self.assertIn(
             "where Sensors/source roles live, where Controls policy/live mode lives, where Managed Devices fleet work lives, and where Diagnostics evidence lives",
