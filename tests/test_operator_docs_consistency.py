@@ -30,6 +30,17 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("not eligible work ahead of the approved `0.1.91`", historical_note)
         self.assertIn("Do not let them outrank the current ordered `0.1.91` map", historical_note)
 
+    def test_project_status_tracks_current_091_approval_boundary(self) -> None:
+        content = (ROOT / "project_status.md").read_text(encoding="utf-8")
+
+        self.assertIn("`0.1.91`", content)
+        self.assertIn("ask James directly", content)
+        self.assertIn("release/deploy/restart approval", content)
+        self.assertIn("native child-device representation", content)
+        self.assertNotIn("`0.1.89`", content)
+        self.assertNotIn("published `v0.1.88`", content)
+        self.assertNotIn("A-D/F", content)
+
 
 if __name__ == "__main__":
     unittest.main()

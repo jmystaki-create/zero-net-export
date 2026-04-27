@@ -108,6 +108,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-437 - project_status.md still pointed the next action at the historical 0.1.89 line
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after the source-of-truth docs and ZNE-429 moved the active release boundary to `0.1.91` and `v0.1.91` was already frozen/tagged at `7217f3b`.
+- **current observed behavior:** `project_status.md` still said the next action was the old `0.1.89` follow-up line, a final A-D/F defect check, and approval for the `0.1.89` freeze/release/deploy/restart path. That contradicted the current `0.1.91` map and could make runners drift back into historical broad-polish or stale release-boundary work instead of the ZNE-429 native child-device acceptance boundary.
+- **expected behavior:** secondary status should match the current source of truth: the repo-side `0.1.91` implementation is present and frozen/tagged, but James still needs to accept or reject the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation and explicitly approve release/deploy/restart before Home Assistant install/restart and screenshot validation.
+- **repo fix:** this run updates `project_status.md` to the current `0.1.91` approval boundary and adds regression coverage rejecting stale `0.1.89`, `v0.1.88`, or A-D/F status wording there.
+- **validation status:** closed with repo-side status/test validation; no Home Assistant live validation is required for this secondary-status correction.
+- **next action:** ask James directly for native-representation acceptance and `0.1.91` release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+
 ## ZNE-436 - 0.1.91 freeze/tag happened while source-of-truth still described freeze as future
 
 - **status:** `closed`
