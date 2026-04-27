@@ -1957,5 +1957,24 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Managed-device audit path: Use the device page for secondary per-device review/audit.", message)
 
 
+    def test_managed_device_workspace_buttons_tolerate_missing_device_details(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(validation_details={}),
+        )
+
+        fleet = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        fleet.hass = None
+        review = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        review.hass = None
+        detail = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool pump")
+        detail.hass = None
+
+        self.assertEqual(fleet.extra_state_attributes["managed_count"], 0)
+        self.assertEqual(review.extra_state_attributes["managed_count"], 0)
+        self.assertEqual(detail._detail(), {})
+        self.assertEqual(detail.extra_state_attributes["managed_snapshot"], "no managed yet")
+
 if __name__ == "__main__":
     unittest.main()

@@ -59,6 +59,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(entities)
 
 
+def _managed_device_details_for_state(state) -> list[dict]:
+    """Return managed device runtime details, tolerating sparse coordinator state."""
+    if state is None:
+        return []
+    return list((getattr(state, "device_details", {}) or {}).values())
+
+
+def _managed_device_detail_for_state(state, device_key: str) -> dict:
+    """Return one managed device detail, tolerating sparse coordinator state."""
+    if state is None:
+        return {}
+    return dict((getattr(state, "device_details", {}) or {}).get(device_key, {}) or {})
+
+
 def _support_notification_id(entry_id: str) -> str:
     return f"{DOMAIN}_{entry_id}_native_support"
 
@@ -1066,7 +1080,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     @property
     def extra_state_attributes(self):
         state = self._state
-        managed = list((state.device_details or {}).values()) if state is not None else []
+        managed = _managed_device_details_for_state(state)
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
@@ -1128,7 +1142,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         state = self._state
-        managed = list((state.device_details or {}).values()) if state is not None else []
+        managed = _managed_device_details_for_state(state)
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
@@ -1242,7 +1256,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
     @property
     def extra_state_attributes(self):
         state = self._state
-        device_details = list((state.device_details or {}).values()) if state is not None else []
+        device_details = _managed_device_details_for_state(state)
         ordered = sorted(device_details, key=_device_runtime_sort_key)
         candidates = self._unmanaged_candidates()
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
@@ -1306,7 +1320,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
 
     async def async_press(self) -> None:
         state = self._state
-        device_details = list((state.device_details or {}).values()) if state is not None else []
+        device_details = _managed_device_details_for_state(state)
         ordered = sorted(device_details, key=_device_runtime_sort_key)
         candidates = self._unmanaged_candidates()
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
@@ -1422,13 +1436,13 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         state = self._state
         if state is None:
             return {}
-        return dict((state.device_details or {}).get(self._device_key, {}) or {})
+        return _managed_device_detail_for_state(state, self._device_key)
 
     @property
     def extra_state_attributes(self):
         detail = self._detail()
         state = self._state
-        managed = list((state.device_details or {}).values()) if state is not None else []
+        managed = _managed_device_details_for_state(state)
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)
@@ -1462,7 +1476,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
     async def async_press(self) -> None:
         detail = self._detail()
         state = self._state
-        managed = list((state.device_details or {}).values()) if state is not None else []
+        managed = _managed_device_details_for_state(state)
         ordered = sorted(managed, key=_device_runtime_sort_key)
         candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
         top_candidate, _top_candidate_fit, review_candidate, review_candidate_fit = _managed_devices_review_focus(candidates)

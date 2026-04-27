@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-470 - Managed Devices workspace buttons could crash on missing runtime device_details
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after recent sparse-detail fixes covered setup paths and per-device entities, while the Managed Devices workspace/review/detail button attributes still directly accessed `state.device_details`.
+- **current observed behavior:** if coordinator data existed but did not yet expose a `device_details` mapping, the Managed Devices workspace, Managed Devices review, and per-device review button attributes or notifications could raise instead of showing an empty managed fleet summary. That weakened the native Home Assistant managed/unmanaged workflow without adding any custom UI path.
+- **expected behavior:** Managed Devices workspace and review buttons should treat missing runtime `device_details` as an empty mapping and continue to render the native fleet/review surfaces.
+- **repo fix:** this run adds shared safe managed-device detail helpers in `button.py` and routes the workspace/review/detail buttons through them so sparse coordinator state returns empty managed snapshots instead of raising.
+- **validation status:** closed with focused button coverage for missing runtime `device_details` plus Python compile. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-469 - missing runtime device_details could abort sensor platform setup
 
 - **status:** `closed`
