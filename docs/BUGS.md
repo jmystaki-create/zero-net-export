@@ -122,6 +122,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-446 - validation checklist skipped the 0.1.92 release-target hold
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog validation-ledger audit on 2026-04-27 after ZNE-439 made the `db5c246` / `v0.1.92` release-target decision the first Home Assistant action boundary.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` correctly scoped live validation to the `0.1.91` main integration page device lists, but its `Current release-boundary order` still jumped from the `0.1.91` scope to generic release/deploy validation wording without naming the open `db5c246` / `v0.1.92` target hold. That could make an operator treat the checklist as permission to run install/restart/fingerprint/screenshot validation for `0.1.91` before James decides whether `v0.1.92` replaces the documented target.
+- **expected behavior:** the validation ledger should carry the same first boundary as `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, and ZNE-429: ask James directly for the release-target decision before any Home Assistant install, restart, fingerprint validation, or screenshot success claim; only then ask for closest-native-row acceptance and exact release/deploy/restart approval.
+- **evidence:** direct inspection found the checklist's release-boundary order naming only historical `0.1.89`/`0.1.90`, the `0.1.91` integration-main-page scope, individual device rows, and a generic no-approval note, with no `db5c246` / `v0.1.92` hold despite the current active bugs and source-of-truth docs requiring that decision first.
+- **repo fix:** this run updates `docs/VALIDATION_CHECKLIST.md` to put the `db5c246` / `v0.1.92` release-target decision before any Home Assistant validation and adds regression coverage so the checklist cannot skip straight from `0.1.91` scope to validation steps.
+- **validation status:** closed with repo-side validation-ledger/source-of-truth regression coverage; no Home Assistant live validation is required for this process-guidance correction.
+- **next action:** keep the next real boundary on James deciding whether `db5c246` / `v0.1.92` replaces the documented `0.1.91` release target, then closest-native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-445 - watchdog guide still pointed unchanged-validation checks at historical runway
 
 - **status:** `closed`

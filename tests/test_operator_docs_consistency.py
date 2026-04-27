@@ -119,6 +119,23 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("0.1.88 implementation runway", rule_6)
         self.assertNotIn("0.1.87 implementation runway", rule_6)
 
+    def test_validation_checklist_keeps_release_target_decision_before_live_validation(self) -> None:
+        content = (ROOT / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
+        boundary = content[
+            content.index("## Next validation boundary"):
+            content.index("## Pre-Installation Checks")
+        ]
+
+        target_decision = boundary.index("whether `v0.1.92` replaces the documented `0.1.91` release target")
+        native_acceptance = boundary.index("Only after that release-target decision")
+        validation_steps = boundary.index("For `0.1.91`, validation is only about the main integration page device lists")
+
+        self.assertIn("`db5c246` / `v0.1.92`", boundary)
+        self.assertIn("before any Home Assistant install, restart, fingerprint validation, or screenshot claim", boundary)
+        self.assertIn("exact release/deploy/restart validation", boundary)
+        self.assertLess(target_decision, native_acceptance)
+        self.assertLess(native_acceptance, validation_steps)
+
 
 if __name__ == "__main__":
     unittest.main()
