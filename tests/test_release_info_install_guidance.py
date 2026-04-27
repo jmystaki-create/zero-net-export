@@ -208,9 +208,22 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`", stage9)
         self.assertIn("`overall_match: true`", stage9)
         self.assertIn("live API state exposes the `Managed Devices surface` row", stage9)
+        self.assertIn("pressed `button.zero_net_export_show_fleet_console` and `button.zero_net_export_show_managed_device_review`", stage9)
         self.assertIn("capture screenshot-grade proof from the actual Zero Net Export device page", stage9)
-        self.assertIn("verify the Managed Devices action drill-down opens the expected native review/notification", stage9)
+        self.assertIn("browser-visible proof that the Managed Devices action drill-down opens", stage9)
+        self.assertIn("do not keep repeating API-only button.press checks", stage9)
         self.assertNotIn("install/update Home Assistant to the published `v0.1.90` build", stage9)
+
+    def test_zne_424_closes_api_only_action_drilldown_loop(self) -> None:
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_424 = bugs.split("## ZNE-424", 1)[1].split("\n## ZNE-423", 1)[0]
+
+        self.assertIn("- **status:** `closed`", zne_424)
+        self.assertIn("button.zero_net_export_show_fleet_console", zne_424)
+        self.assertIn("button.zero_net_export_show_managed_device_review", zne_424)
+        self.assertIn("no `persistent_notification.*` state", zne_424)
+        self.assertIn("browser-visible native notification/review proof", zne_424)
+        self.assertIn("do not repeat the completed `0.1.90` install/restart/fingerprint or API-only button-press loops", zne_424)
 
     def test_zne_423_closes_stale_stage9_install_loop(self) -> None:
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")

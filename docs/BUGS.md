@@ -89,6 +89,19 @@ Suggested area labels:
 
 
 
+## ZNE-424 - Stage 9 action-drill-down evidence was still too generic after API button checks
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog live/repo audit on 2026-04-27 after `v0.1.90` was already installed and fingerprint-matched, while Stage 9 still listed a generic Managed Devices action drill-down verification item.
+- **current observed behavior:** the remaining Stage 9 action item did not distinguish API-level button evidence from browser-visible native review/notification proof. That could make future watchdog runs repeat the same `button.press` bookkeeping instead of getting the actual screenshot-grade UI evidence that remains open.
+- **expected behavior:** Stage 9 should record that the documented HA API path can press the Managed Devices workspace/review buttons on installed `0.1.90`, while keeping the remaining blocker on browser-visible device-page screenshot/drill-down proof.
+- **evidence:** this run loaded `/root/.openclaw/workspace/TOOLS.md`, used the documented Home Assistant API credentials, confirmed `sensor.zero_net_export_installed_version = 0.1.90`, confirmed `sensor.zero_net_export_managed_devices_surface` exposes the visible Managed Devices surface row, and pressed `button.zero_net_export_show_fleet_console` plus `button.zero_net_export_show_managed_device_review`; both service calls succeeded and returned updated current managed/unmanaged state attributes. The API state list still exposed no `persistent_notification.*` state, so this does not replace browser/screenshot proof.
+- **repo fix:** this run updates Stage 9 to mark the API button-press evidence as completed and narrows the remaining action-drill-down gap to browser-visible native notification/review proof, avoiding another API-only validation loop.
+- **validation status:** closed with documented live API validation plus repo-side doc/test validation; no release/deploy/restart approval is required for this process-state correction.
+- **next action:** capture screenshot-grade browser evidence from the actual Zero Net Export device page showing the Managed Devices surface and opened native review/notification; do not repeat the completed `0.1.90` install/restart/fingerprint or API-only button-press loops.
+
+
 ## ZNE-423 - Stage 9 still listed completed 0.1.90 install/update as remaining
 - **status:** `closed`
 - **severity:** `medium`

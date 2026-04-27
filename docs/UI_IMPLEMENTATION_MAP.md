@@ -415,10 +415,11 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`
 - documented SSH fingerprint validation matched the installed package to `d94436a` with `overall_match: true`
 - live API state exposes the `Managed Devices surface` row plus the Managed Devices device-page entity/action cluster
+- documented API validation in this run pressed `button.zero_net_export_show_fleet_console` and `button.zero_net_export_show_managed_device_review`; both accepted `button.press` and updated current managed/unmanaged state attributes on installed `0.1.90`
 
 **Remaining**
 - capture screenshot-grade proof from the actual Zero Net Export device page showing the visible Managed Devices surface
-- verify the Managed Devices action drill-down opens the expected native review/notification with current managed/unmanaged state
+- capture browser-visible proof that the Managed Devices action drill-down opens the expected native review/notification with current managed/unmanaged state; do not keep repeating API-only button.press checks as a substitute for screenshot-grade UI proof
 - if the screenshot or drill-down fails, log the exact installed UI gap before doing more wording or release-bookkeeping work
 
 **Features in this stage**
