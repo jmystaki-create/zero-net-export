@@ -6,7 +6,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-Target release: `0.1.89`
+## [0.1.89] - 2026-04-27
 
 ### Fixed
 - Replaced the stale archived `docs/UI_DESIGN-old.md` snapshot body with a source-of-truth pointer, moved the active entity-model command-center button description to current-focus wording, renamed the visible legacy next-action helper sensor to `Current native next action`, and aligned the optional Lovelace scaffold with that same current-action wording, so retired release-target, ranking, and source terminology can no longer masquerade as current UI direction.

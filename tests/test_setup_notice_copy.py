@@ -78,7 +78,7 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     const_module.DEFAULT_REFRESH_SECONDS = 30
     const_module.DEFAULT_TARGET_EXPORT_W = 0
     const_module.DOMAIN = "zero_net_export"
-    const_module.INTEGRATION_VERSION = "0.1.88"
+    const_module.INTEGRATION_VERSION = "0.1.89"
     const_module.PLATFORMS = []
     const_module.REQUIRED_SOURCE_KEYS = ["solar_power_entity", "home_load_power_entity"]
     const_module.SOURCE_ROLE_LABELS = {

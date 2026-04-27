@@ -62,20 +62,20 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             ["First shipped fix", "Follow-up detail still counts as a highlight"],
         )
 
-    def test_build_release_info_uses_current_candidate_changelog_entry_without_release_date(self) -> None:
+    def test_build_release_info_uses_current_release_changelog_entry_with_release_date(self) -> None:
         info = release_info.build_release_info(release_info.INTEGRATION_VERSION)
 
         self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
         self.assertTrue(info["has_changelog"])
-        self.assertIsNone(info["released_on"])
+        self.assertEqual(info["released_on"], "2026-04-27")
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
         self.assertIn("Home Assistant", info["changes_preview"])
 
-    def test_unreleased_changelog_carries_0189_post_tag_ui_fixes(self) -> None:
+    def test_0189_changelog_carries_post_tag_ui_fixes(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
-        unreleased_section = next(section for section in sections if section["version"] == "Unreleased")
+        unreleased_section = next(section for section in sections if section["version"] == "0.1.89")
         unreleased_highlights = "\n".join(unreleased_section["highlights"])
 
         self.assertIn("0.1.89", unreleased_highlights)
