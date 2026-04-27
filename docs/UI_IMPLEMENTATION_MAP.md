@@ -86,7 +86,7 @@ If Home Assistant cannot natively render literal custom group headings for this 
 
 ## What counts as success for 0.1.91 / release 1.91
 
-`0.1.91` is successful only if the actual Zero Net Export main integration page visibly shows the requested device lists. A generic button row, Activity history, individual device-info page, or Configure-only explanation is not enough.
+`0.1.91` is successful only if the actual Zero Net Export main integration page visibly shows the requested device lists or the accepted native child-device representation for them. A generic button row, Activity history, individual device-info page, or Configure-only explanation is not enough. If James rejects the closest native representation because literal collapsible headings are required, this candidate must not be called successful.
 
 Required live evidence:
 
@@ -94,12 +94,12 @@ Required live evidence:
    - evidence must show `Settings -> Devices & Services -> Integrations -> Zero Net Export`
    - screenshots of the individual Zero Net Export device info page do not count
 
-2. **Managed Devices list is visible**
-   - a visible `Managed Devices` group/list appears under Zero Net Export
+2. **Managed Devices list/grouping is visible**
+   - a visible `Managed Devices` group/list appears under Zero Net Export, or James-accepted native `Managed Devices — ...` row/model grouping appears there
    - each managed load appears as its own Home Assistant device row
 
-3. **Un Managed list is visible underneath**
-   - a visible `Un Managed` group/list appears below Managed Devices
+3. **Un Managed list/grouping is visible underneath**
+   - a visible `Un Managed` group/list appears below Managed Devices, or James-accepted native `Un Managed — ...` row/model grouping appears underneath the managed rows
    - unmanaged candidate devices appear as individual Home Assistant device rows
 
 4. **No substitution by labels/buttons**

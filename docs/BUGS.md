@@ -106,6 +106,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
 - **next action:** ask James directly whether the closest native device-info representation is acceptable for the requested group/list outcome; if accepted, freeze/version `0.1.91`, ask James directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
+## ZNE-433 - 0.1.91 acceptance text still required literal headings after platform constraint
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `90da5cd` implemented the closest native child-device representation and `8d3b41a` made the James acceptance boundary explicit.
+- **current observed behavior:** `docs/RELEASE_0.1.91_PLAN.md` and the implementation-map success criteria still read as if literal `Managed Devices` and `Un Managed` collapsible group/list headings were the only possible pass condition, even though the same source-of-truth set says Home Assistant does not expose arbitrary nested group-heading APIs and requires James to accept or reject the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation before release.
+- **expected behavior:** acceptance wording should be conditional: if James rejects the native child-device representation, do not release it as successful; if James accepts the platform constraint, screenshot evidence of visible `Managed Devices — ...` and `Un Managed — ...` device row/model grouping on the main integration page can satisfy the 0.1.91 target without substituting sensors/buttons/custom UI.
+- **repo fix:** this run updates the 0.1.91 release plan and implementation-map success criteria to make that conditional acceptance explicit while preserving the direct James decision boundary and the ban on non-device-list substitutes.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** ask James directly whether the closest native child-device representation is acceptable; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+
 ## ZNE-432 - Current active bugs heading excluded the active 0.1.91 blocker
 
 - **status:** `closed`

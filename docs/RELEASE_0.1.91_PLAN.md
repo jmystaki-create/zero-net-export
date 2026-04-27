@@ -53,13 +53,13 @@ Home Assistant's native device APIs can create the integration-page device rows,
 
 ## Acceptance criteria
 
-`0.1.91` can be called successful only when live Home Assistant screenshot evidence shows:
+`0.1.91` can be called successful only when live Home Assistant screenshot evidence shows the accepted native representation on the main integration page. If James rejects the closest native child-device representation because literal collapsible headings are required, do not release this candidate as successful. If James accepts the native constraint, visible `Managed Devices — ...` and `Un Managed — ...` device row/model grouping language is the acceptance target instead of silent substitution by sensors/buttons/custom UI.
 
 1. The Zero Net Export main integration page is open.
-2. A visible **Managed Devices** group/list appears under Zero Net Export.
-3. Managed devices appear as individual device rows inside that list.
-4. A visible **Un Managed** group/list appears below it.
-5. Unmanaged candidate devices appear as individual device rows inside that list.
+2. A visible **Managed Devices** group/list or accepted native `Managed Devices — ...` row/model grouping appears under Zero Net Export.
+3. Managed devices appear as individual device rows inside that list/grouping.
+4. A visible **Un Managed** group/list or accepted native `Un Managed — ...` row/model grouping appears below it.
+5. Unmanaged candidate devices appear as individual device rows inside that list/grouping.
 6. The evidence is from the live installed build, not repo assumptions or API-only state.
 
 ## Required documentation/validation state

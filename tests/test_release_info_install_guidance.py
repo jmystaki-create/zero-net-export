@@ -279,8 +279,24 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             "ask James directly whether the closest native device-info representation is acceptable",
             zne_429,
         )
+        self.assertIn("If James rejects the closest native child-device representation", release_plan)
+        self.assertIn("visible `Managed Devices — ...` and `Un Managed — ...` device row/model grouping", release_plan)
         self.assertIn("ask James directly for release/deploy/restart approval", zne_429)
         self.assertNotIn("review whether the closest native device-info representation is acceptable", zne_429)
+
+    def test_0191_success_criteria_respect_accepted_native_grouping_constraint(self) -> None:
+        plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
+        success = plan.split("## What counts as success for 0.1.91 / release 1.91", 1)[1].split(
+            "See `docs/RELEASE_0.1.91_PLAN.md`", 1
+        )[0]
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_433 = bugs.split("## ZNE-433", 1)[1].split("\n## ZNE-432", 1)[0]
+
+        self.assertIn("accepted native child-device representation", success)
+        self.assertIn("James-accepted native `Managed Devices — ...` row/model grouping", success)
+        self.assertIn("James-accepted native `Un Managed — ...` row/model grouping", success)
+        self.assertIn("if James rejects the native child-device representation", zne_433)
+        self.assertIn("closed with repo-side source-of-truth/test validation", zne_433)
 
     def test_ui_implementation_map_stage9_does_not_reopen_0190_install_loop(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
