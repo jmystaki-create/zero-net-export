@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-454 - project status blocker omitted native-row acceptance from the approval chain
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog project-status audit on 2026-04-28 while comparing `project_status.md` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, and ZNE-429.
+- **current observed behavior:** `project_status.md` correctly put James's release-target decision first in `next_action`, but the blocker line compressed the remaining gate to release-target acceptance plus release/deploy/restart approval. That omitted the required closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation acceptance before exact deploy/restart validation.
+- **expected behavior:** secondary status should preserve the same three ordered approval gates as the source-of-truth release hold: release-target decision first, closest native child-device representation acceptance second, exact release/deploy/restart approval third.
+- **repo fix:** this run updates the project-status blocker to name all three gates and extends operator-docs regression coverage so the blocker cannot skip native-row acceptance while describing exact-build live validation.
+- **validation status:** closed with focused project-status/operator-docs regression coverage; no Home Assistant live validation is required for this process/order correction.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-453 - README helper table still made deploy/restart sound like the first approval boundary
 
 - **status:** `closed`

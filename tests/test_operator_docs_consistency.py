@@ -83,9 +83,16 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("next_action:"):
             content.index("\n\n# Current blocker or none")
         ]
+        blocker = content[
+            content.index("blocker:"):
+            content.index("\n\n# Exact user action needed or none")
+        ]
         target_decision = next_action.index("whether current `0b4f420` / manifest `0.1.94` should replace")
         native_acceptance = next_action.index("only after that target decision")
         live_evidence = next_action.index("before integration-main-page screenshot evidence")
+        blocker_target = blocker.index("release-target decision")
+        blocker_native = blocker.index("closest native child-device representation acceptance")
+        blocker_deploy = blocker.index("release/deploy/restart approval")
 
         self.assertIn("`0.1.91`", content)
         self.assertIn("ask James directly", content)
@@ -94,6 +101,9 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("`4c0d071` / `v0.1.94` freezes", content)
         self.assertLess(target_decision, native_acceptance)
         self.assertLess(native_acceptance, live_evidence)
+        self.assertLess(blocker_target, blocker_native)
+        self.assertLess(blocker_native, blocker_deploy)
+        self.assertNotIn("release-target acceptance plus release/deploy/restart approval", blocker)
         self.assertNotIn("`0.1.89`", content)
         self.assertNotIn("published `v0.1.88`", content)
         self.assertNotIn("A-D/F", content)
