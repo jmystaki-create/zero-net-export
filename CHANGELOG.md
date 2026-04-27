@@ -6,6 +6,8 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.91] - 2026-04-27
+
 ### Changed
 - Documented `0.1.91` / release `1.91` as the only approved next scope: the Zero Net Export main integration page must show `Managed Devices` and `Un Managed` device lists with individual Home Assistant device rows; prior `0.1.90` device-info-page rows/actions do not satisfy this requirement.
 - Added native device-registry support for `0.1.91`: managed-load entities now register under their own `Managed Devices — <name>` child device, and unmanaged candidates get minimal `Un Managed — <name>` diagnostic entities so Home Assistant can render them as integration-page device rows.
