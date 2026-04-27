@@ -1814,6 +1814,30 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             self.assertNotIn("recommended_section", attrs)
             self.assertNotIn("recommended_path", attrs)
 
+    def test_support_and_setup_buttons_tolerate_sparse_runtime_state(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(),
+        )
+
+        for button in (
+            button_module.ZeroNetExportShowNativeSupportCenterButton(coordinator),
+            button_module.ZeroNetExportShowNativeDiagnosticsButton(coordinator),
+            button_module.ZeroNetExportShowSetupChecklistButton(coordinator),
+        ):
+            attrs = button.extra_state_attributes
+            self.assertIn("current_focus_section", attrs)
+
+        self.assertIsNone(
+            button_module.ZeroNetExportShowNativeSupportCenterButton(coordinator).extra_state_attributes[
+                "diagnostic_summary"
+            ]
+        )
+        self.assertIsNone(
+            button_module.ZeroNetExportShowSetupChecklistButton(coordinator).extra_state_attributes["source_mismatch"]
+        )
+
     def test_setup_checklist_button_keeps_notification_checklist_focused(self) -> None:
         notification_calls: list[dict] = []
         button_module = _load_button_module(notification_calls)

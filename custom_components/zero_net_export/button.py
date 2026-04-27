@@ -73,6 +73,11 @@ def _managed_device_detail_for_state(state, device_key: str) -> dict:
     return dict((getattr(state, "device_details", {}) or {}).get(device_key, {}) or {})
 
 
+def _runtime_state_attr(state, name: str):
+    """Return a runtime-state attribute without assuming a full coordinator payload."""
+    return getattr(state, name, None) if state is not None else None
+
+
 def _support_notification_id(entry_id: str) -> str:
     return f"{DOMAIN}_{entry_id}_native_support"
 
@@ -1520,8 +1525,8 @@ class ZeroNetExportShowNativeSupportCenterButton(ZeroNetExportEntity, ButtonEnti
             "next_step": command_center.get("next_action_summary") or readiness.get("next_step"),
             "current_focus_section": command_center.get("recommended_section"),
             "current_focus_path": command_center.get("recommended_path"),
-            "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
-            "health_summary": self._state.health_summary if self._state else None,
+            "diagnostic_summary": _runtime_state_attr(self._state, "diagnostic_summary"),
+            "health_summary": _runtime_state_attr(self._state, "health_summary"),
         }
 
     async def async_press(self) -> None:
@@ -1548,8 +1553,8 @@ class ZeroNetExportShowNativeDiagnosticsButton(ZeroNetExportEntity, ButtonEntity
             "current_focus_section": command_center.get("recommended_section"),
             "current_focus_path": command_center.get("recommended_path"),
             "next_step": command_center.get("next_action_summary"),
-            "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
-            "health_summary": self._state.health_summary if self._state else None,
+            "diagnostic_summary": _runtime_state_attr(self._state, "diagnostic_summary"),
+            "health_summary": _runtime_state_attr(self._state, "health_summary"),
         }
 
     async def async_press(self) -> None:
@@ -1586,9 +1591,9 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
             "next_step": _normalize_native_path_text(
                 command_center.get("next_action_summary") or readiness.get("next_step")
             ),
-            "diagnostic_summary": self._state.diagnostic_summary if self._state else None,
-            "source_mismatch": self._state.source_mismatch if self._state else None,
-            "stale_data": self._state.stale_data if self._state else None,
+            "diagnostic_summary": _runtime_state_attr(self._state, "diagnostic_summary"),
+            "source_mismatch": _runtime_state_attr(self._state, "source_mismatch"),
+            "stale_data": _runtime_state_attr(self._state, "stale_data"),
             "checklist": _normalized_setup_checklist(readiness.get("checklist")),
         }
 
@@ -1601,12 +1606,12 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
             for item in checklist
         ]
         summary = _normalize_native_path_text(
-            readiness.get("summary") or (self._state.health_summary if self._state else None)
+            readiness.get("summary") or _runtime_state_attr(self._state, "health_summary")
         )
         next_step = _normalize_native_path_text(
             command_center.get("next_action_summary")
             or readiness.get("next_step")
-            or (self._state.recommendation if self._state else None)
+            or _runtime_state_attr(self._state, "recommendation")
         )
         message = "\n".join(
             [

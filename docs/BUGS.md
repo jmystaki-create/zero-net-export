@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-474 - support and setup buttons could crash on sparse runtime summaries
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-28 after sparse runtime hardening covered base entities, while native diagnostics/support/setup button attributes still directly dereferenced runtime summary fields such as `diagnostic_summary`, `health_summary`, `source_mismatch`, `stale_data`, and `recommendation`.
+- **current observed behavior:** if coordinator runtime data existed in a sparse transitional shape, the native diagnostics guide, diagnostics snapshot, or setup checklist button attributes could raise before rendering the support path.
+- **expected behavior:** native support and setup button surfaces should tolerate missing runtime summary fields and render empty attributes rather than failing.
+- **repo fix:** this run adds a shared sparse runtime-attribute helper for button surfaces and routes diagnostics/support/setup button attributes and setup checklist fallback text through it, preserving the native Home Assistant support path without adding any custom/external UI.
+- **validation status:** closed with focused support/setup button sparse-runtime regression coverage plus the targeted unittest suite. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-473 - sparse runtime state could break base control entities
 
 - **status:** `closed`
