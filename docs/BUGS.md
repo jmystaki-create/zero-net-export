@@ -122,6 +122,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-445 - watchdog guide still pointed unchanged-validation checks at historical runway
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-27 after the active scope narrowed to the `0.1.91` / release `1.91` integration-main-page Managed Devices and Un Managed device-list outcome, with ZNE-439 making the release-target decision the first live-action boundary.
+- **current observed behavior:** `docs/WATCHDOG.md` still said unchanged live validation should be secondary only while meaningful `0.1.89` implementation runway exists, and its source-document list pointed to `SUPERVISOR.md` instead of the actual `docs/SUPERVISOR.md`. That could make watchdog runs audit supervisor ordering against a historical release line or look for the steering file at the wrong path.
+- **expected behavior:** watchdog guidance should name the current ordered `0.1.91` map, ZNE-429/ZNE-439, and the integration-main-page device-list/release-target decision order; it should also point at `docs/SUPERVISOR.md` as the steering file.
+- **evidence:** direct inspection of `docs/WATCHDOG.md` found Rule 6 still naming `0.1.89` implementation runway while `docs/UI_IMPLEMENTATION_MAP.md`, `docs/SUPERVISOR.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-429, and ZNE-439 all define the current approved work as the `0.1.91` integration-page device-list release boundary with the `db5c246` / `v0.1.92` target decision first.
+- **repo fix:** this run updates `docs/WATCHDOG.md` Rule 6 to the current ordered `0.1.91` map and ZNE-429/ZNE-439 decision boundary, fixes the supervisor path to `docs/SUPERVISOR.md`, and adds regression coverage so the watchdog guide cannot silently revive `0.1.87`/`0.1.88`/`0.1.89` runway wording.
+- **validation status:** closed with repo-side watchdog/source-of-truth regression coverage; no Home Assistant live validation is required for this process-guidance correction.
+- **next action:** keep the next real boundary on James deciding whether `db5c246` / `v0.1.92` replaces the documented `0.1.91` release target, then closest-native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-444 - closed ZNE-438 remained inside Current active bugs
 
 - **status:** `closed`

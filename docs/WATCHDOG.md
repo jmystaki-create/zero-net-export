@@ -38,7 +38,7 @@ Audit against sources in this order:
 1. `docs/UI_IMPLEMENTATION_MAP.md`
 2. `docs/BUGS.md`
 3. `docs/UI_DESIGN.md`
-4. `SUPERVISOR.md`
+4. `docs/SUPERVISOR.md`
 5. `/root/.openclaw/workspace/TOOLS.md` when live access or validation is relevant
 
 Do not invent a new project priority order.
@@ -110,8 +110,8 @@ Do not make a second doc-only `docs/BUGS.md` or watchdog-guidance refresh just t
 
 ### Rule 6: Treat repeated unchanged live validation as secondary while ordered repo work remains
 
-If meaningful `0.1.89` implementation runway still exists, and live validation is unchanged, do not restate unchanged live mismatch as the main next step.
-Instead audit whether supervisor correctly stayed on the next ordered build-stage item.
+If current ordered `0.1.91` map work or an active ZNE-429/ZNE-439 decision boundary still exists, and live validation is unchanged, do not restate unchanged live mismatch as the main next step.
+Instead audit whether supervisor correctly stayed on the current integration-main-page device-list scope and the release-target decision-first order.
 
 ### Rule 7: Use available access before escalating
 
@@ -218,5 +218,5 @@ Primary sources:
 - `docs/UI_IMPLEMENTATION_MAP.md`
 - `docs/BUGS.md`
 - `docs/UI_DESIGN.md`
-- `SUPERVISOR.md`
+- `docs/SUPERVISOR.md`
 - `/root/.openclaw/workspace/TOOLS.md`

@@ -97,6 +97,28 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("0.1.88", status)
         self.assertNotIn("A-D/F", status)
 
+    def test_watchdog_tracks_current_091_scope_not_historical_runway(self) -> None:
+        content = (ROOT / "docs" / "WATCHDOG.md").read_text(encoding="utf-8")
+        source_order = content[
+            content.index("## Source-of-truth order"):
+            content.index("## Core watchdog rules")
+        ]
+        rule_6 = content[
+            content.index("### Rule 6: Treat repeated unchanged live validation as secondary while ordered repo work remains"):
+            content.index("### Rule 7: Use available access before escalating")
+        ]
+        source_docs = content[content.index("## Source documents"):]
+
+        self.assertIn("`docs/SUPERVISOR.md`", source_order)
+        self.assertIn("current ordered `0.1.91` map work", rule_6)
+        self.assertIn("ZNE-429/ZNE-439 decision boundary", rule_6)
+        self.assertIn("integration-main-page device-list scope", rule_6)
+        self.assertIn("`docs/SUPERVISOR.md`", source_docs)
+        self.assertNotIn("`SUPERVISOR.md`", source_order)
+        self.assertNotIn("0.1.89 implementation runway", rule_6)
+        self.assertNotIn("0.1.88 implementation runway", rule_6)
+        self.assertNotIn("0.1.87 implementation runway", rule_6)
+
 
 if __name__ == "__main__":
     unittest.main()
