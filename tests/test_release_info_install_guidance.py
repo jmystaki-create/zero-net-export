@@ -117,7 +117,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("historical, completed and failed", install_section)
         self.assertIn("James's live screenshot showed the device page did not visibly deliver the requested Managed Devices surface", install_section)
         self.assertIn("Do not use this historical checklist to ask James to repeat the `0.1.89` install/restart/live-validation loop", install_section)
-        self.assertIn("The next release-execution gap is the `0.1.90` approval", install_section)
+        self.assertIn("The `0.1.90` approval, freeze, deploy, restart, and fingerprint path is now complete", install_section)
+        self.assertIn("remaining release-execution gap is screenshot-grade device-page validation", install_section)
         self.assertNotIn("- [ ] James refreshes HACS metadata", install_section)
         self.assertNotIn("- [ ] James installs/updates to `v0.1.89`", install_section)
         self.assertIn("Validation did fail on the device-page Managed Devices outcome", failure_section)
@@ -132,7 +133,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("- **status:** `closed`", zne_403)
         self.assertIn("already-completed `0.1.89` freeze or GitHub publication", zne_403)
         self.assertIn("Do not ask James to reinstall `v0.1.89`", zne_403)
-        self.assertIn("ask James directly for `0.1.90` release/deploy/restart validation approval", zne_403)
+        self.assertIn("Do not ask James to reinstall `v0.1.89` or reopen completed `0.1.90` release/deploy/restart approval", zne_403)
+        self.assertIn("capturing screenshot-grade device-page Managed Devices evidence", zne_403)
         self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
         self.assertNotIn("ask James to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
 
@@ -159,6 +161,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("James installs/updates to `v0.1.89`", active_entries)
         self.assertIn("recheck this fix opportunistically during the `0.1.90` acceptance pass", bugs)
         self.assertIn("Do not ask James to reinstall `v0.1.89`", bugs)
+        self.assertNotIn("ask James directly for `0.1.90` release/deploy/restart validation approval", bugs)
+        self.assertNotIn("release/deploy/restart validation approval once the corrective repo candidate is ready", bugs)
+        self.assertNotIn("release approval once the repo candidate is ready", bugs)
+        self.assertIn("do not reopen the completed release/deploy/restart approval boundary", bugs)
 
     def test_validation_checklist_tracks_0190_device_page_correction_boundary(self) -> None:
         checklist = (REPO_ROOT / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
