@@ -510,6 +510,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         source_mapping_description = steps["native_setup_sources"]["description"]
         self.assertIn("Sensors path: {configure_path}.", source_description)
         self.assertIn("Sensors path: {configure_path}.", source_mapping_description)
+        self.assertIn("Next Sensors step: {source_next_step}", source_description)
+        self.assertIn("Next Sensors step: {source_next_step}", source_mapping_description)
+        self.assertNotIn("Recommended next step: {source_next_step}", source_description)
+        self.assertNotIn("Recommended next step: {source_next_step}", source_mapping_description)
         self.assertNotIn("Primary path:", source_description)
         self.assertNotIn("Primary path:", source_mapping_description)
 
@@ -524,7 +528,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Controls now", policy_description)
         self.assertIn("Current controller decision: {control_decision_summary}", policy_description)
         self.assertIn("Current control outcome: {control_outcome_summary}", policy_description)
-        self.assertIn("Recommended next step from Controls: {policy_next_step}", policy_description)
+        self.assertIn("Next Controls step: {policy_next_step}", policy_description)
+        self.assertNotIn("Recommended next step from Controls", policy_description)
         self.assertNotIn("shifting those jobs into this screen", policy_description)
         self.assertNotIn("Recommended next step after this screen", policy_description)
         self.assertIn("Bucket ownership and paths", policy_description)

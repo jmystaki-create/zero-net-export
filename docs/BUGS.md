@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-381 - Sensors and Controls setup copy kept generic recommended-next labels
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D bucket ownership copy after the Managed Devices and promotion paths moved away from recommendation-style next-step labels.
+- **current observed behavior:** the native Sensors setup screens still labelled source handoffs as `Recommended next step`, and the Controls policy screen still labelled controller handoffs as `Recommended next step from Controls`. That left generic recommendation wording in the four-bucket Configure IA after adjacent Managed Devices and promotion surfaces had been neutralized.
+- **expected behavior:** Sensors and Controls should use bucket-owned next-step labels, so operators see the handoff as a local native workflow cue rather than a ranked recommendation.
+- **evidence:** direct repo inspection found the labels in `custom_components/zero_net_export/strings.json` and `custom_components/zero_net_export/translations/en.json`; bucket ownership tests previously asserted the Controls recommendation label and did not reject the Sensors one.
+- **repo fix:** this run changes the visible labels to `Next Sensors step` and `Next Controls step`, syncs translations, and adds bucket-copy regression coverage rejecting the retired recommendation labels.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D copy cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more unchanged fingerprint bookkeeping.
+
 ## ZNE-380 - Fleet activity review-first/ready-next cues without aggregate count stayed ungrouped
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
