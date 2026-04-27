@@ -9,7 +9,7 @@ Use `docs/RELEASE_0.1.91_PLAN.md` as the current release scope. Treat `0.1.90` d
 
 ## Active release-target hold
 
-The repo later froze `v0.1.94` at `4c0d071` after the earlier `v0.1.92` and `v0.1.93` freezes, then component code moved again at `0b4f420` while this steering file and the release plan still approve only the `0.1.91` / release `1.91` integration-page device-list scope. Until James explicitly decides whether current `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` target or the project returns to the approved `0.1.91` boundary, do not deploy, restart, fingerprint-validate, or call successful `7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or `0b4f420`. Ask James directly for that release-target decision, then for native-row acceptance and exact deploy/restart approval before Home Assistant actions.
+The repo later froze `v0.1.94` at `4c0d071` after the earlier `v0.1.92` and `v0.1.93` freezes, then component code moved again after `4c0d071` while this steering file and the release plan still approve only the `0.1.91` / release `1.91` integration-page device-list scope. Until James explicitly decides whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` target or the project returns to the approved `0.1.91` boundary, do not deploy, restart, fingerprint-validate, or call successful `7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or the current helper-resolved component boundary. Ask James directly for that release-target decision, then for native-row acceptance and exact deploy/restart approval before Home Assistant actions.
 
 
 This file is the steering guide for this project.

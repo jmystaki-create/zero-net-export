@@ -24,7 +24,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertLess(release_target, native_acceptance)
         self.assertLess(native_acceptance, deploy_gate)
         self.assertIn("`v0.1.94` at `4c0d071`", current_map)
-        self.assertIn("helper now resolves the current component boundary to `0b4f420` / manifest `0.1.94`", current_map)
+        self.assertIn("helper must resolve the current manifest `0.1.94` component boundary at decision/deploy time", current_map)
         self.assertIn("ask James directly for release/deploy/restart approval", current_map)
         self.assertIn("Settings -> Devices & Services -> Integrations -> Zero Net Export", current_map)
 
@@ -61,7 +61,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
         self.assertIn("earlier `v0.1.92` and `v0.1.93` freezes", hold)
         self.assertIn("`v0.1.94` at `4c0d071`", hold)
-        self.assertIn("`7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or `0b4f420`", hold)
+        self.assertIn("`7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or the current helper-resolved component boundary", hold)
         self.assertNotIn("earlier `v0.1.92` and `v0.1.94` freezes", hold)
 
     def test_supervisor_churn_rules_do_not_reopen_historical_a_to_f_workstreams(self) -> None:
@@ -87,7 +87,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("blocker:"):
             content.index("\n\n# Exact user action needed or none")
         ]
-        target_decision = next_action.index("whether current `0b4f420` / manifest `0.1.94` should replace")
+        target_decision = next_action.index("whether the current helper-resolved manifest `0.1.94` component boundary should replace")
         native_acceptance = next_action.index("only after that target decision")
         live_evidence = next_action.index("before integration-main-page screenshot evidence")
         blocker_target = blocker.index("release-target decision")
@@ -115,7 +115,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("main integration page", status)
         self.assertIn("`Managed Devices — ...`", status)
         self.assertIn("`Un Managed — ...`", status)
-        self.assertIn("`0b4f420` / manifest `0.1.94`", status)
+        self.assertIn("the current helper-resolved manifest `0.1.94` component boundary", status)
         self.assertIn("`v0.1.94` at `4c0d071`", status)
         self.assertIn("documented `0.1.91` release target", status)
         self.assertIn("ask James directly", status)
@@ -132,7 +132,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
         self.assertIn("do not make deploy/restart the first approval ask", install)
         self.assertIn("do not skip the current release-target and native-row acceptance boundaries", install)
-        self.assertIn("whether current `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` release target", install)
+        self.assertIn("whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` release target", install)
         self.assertIn("after that target decision, ask whether the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation is acceptable", install)
         self.assertIn("then ask for exact release/deploy/restart approval for that accepted target", install)
         self.assertIn("Only after those approvals, run `python3 scripts/deploy_exact_repo_build.py", install)
@@ -169,11 +169,11 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("## Pre-Installation Checks")
         ]
 
-        target_decision = boundary.index("whether current `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` release target")
+        target_decision = boundary.index("whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` release target")
         native_acceptance = boundary.index("Only after that release-target decision")
         validation_steps = boundary.index("For `0.1.91`, validation is only about the main integration page device lists")
 
-        self.assertIn("`0b4f420` / manifest `0.1.94`", boundary)
+        self.assertIn("the current helper-resolved manifest `0.1.94` component boundary", boundary)
         self.assertIn("before any Home Assistant install, restart, fingerprint validation, or screenshot claim", boundary)
         self.assertIn("exact release/deploy/restart validation", boundary)
         self.assertIn("do not make deploy/restart the first approval ask", boundary)

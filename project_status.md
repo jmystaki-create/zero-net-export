@@ -7,10 +7,10 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: ask James directly whether current `0b4f420` / manifest `0.1.94` should replace the documented `0.1.91` release target for deploy/restart validation, or whether release execution should return to the approved `0.1.91` boundary before any Home Assistant install/restart; only after that target decision, ask James to accept or reject the closest native child-device representation and to approve exact release/deploy/restart validation before integration-main-page screenshot evidence
+next_action: ask James directly whether the current helper-resolved manifest `0.1.94` component boundary should replace the documented `0.1.91` release target for deploy/restart validation, or whether release execution should return to the approved `0.1.91` boundary before any Home Assistant install/restart; only after that target decision, ask James to accept or reject the closest native child-device representation and to approve exact release/deploy/restart validation before integration-main-page screenshot evidence
 
 # Current blocker or none
-blocker: the helper-resolved component install candidate is `0b4f420` / manifest `0.1.94` after the earlier `db5c246` / `v0.1.92`, `026f189` / `v0.1.93`, and `4c0d071` / `v0.1.94` freezes while the source-of-truth docs still approve only `0.1.91` / release `1.91`; explicit James release-target decision, closest native child-device representation acceptance, and release/deploy/restart approval are required before exact-build live validation
+blocker: the helper-resolved component install candidate is the current helper-resolved manifest `0.1.94` component boundary after the earlier `db5c246` / `v0.1.92`, `026f189` / `v0.1.93`, and `4c0d071` / `v0.1.94` freezes while the source-of-truth docs still approve only `0.1.91` / release `1.91`; explicit James release-target decision, closest native child-device representation acceptance, and release/deploy/restart approval are required before exact-build live validation
 
 # Exact user action needed or none
 user_action: James should decide whether the `0.1.94` candidate is the new approved release target or whether the project should return to the documented `0.1.91` boundary, accept or reject the closest native child-device representation, then approve or decline release/deploy/restart validation for that exact target
