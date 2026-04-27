@@ -162,6 +162,10 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("`0b4f420` / manifest `0.1.94`", boundary)
         self.assertIn("before any Home Assistant install, restart, fingerprint validation, or screenshot claim", boundary)
         self.assertIn("exact release/deploy/restart validation", boundary)
+        self.assertIn("do not make deploy/restart the first approval ask", boundary)
+        self.assertIn("after that target decision, ask whether the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation is acceptable", boundary)
+        self.assertIn("Only after those approvals, run `python3 scripts/deploy_exact_repo_build.py", boundary)
+        self.assertNotIn("ask James directly to approve deploy/restart before using deploy commands", boundary)
         self.assertLess(target_decision, native_acceptance)
         self.assertLess(native_acceptance, validation_steps)
 

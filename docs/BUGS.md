@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-451 - validation checklist manual deploy guidance skipped the release-target and native-row acceptance boundary
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog validation-checklist audit on 2026-04-28 while comparing `docs/VALIDATION_CHECKLIST.md` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, ZNE-429, and the README manual deploy guidance.
+- **current observed behavior:** the validation checklist's mixed-manual-install helper still told operators to ask James directly to approve deploy/restart before using deploy commands. That skipped the current first two approval boundaries: James must decide whether `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` target or execution returns to the approved `0.1.91` boundary, then accept or reject the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation before any exact deploy/restart approval.
+- **expected behavior:** validation-ledger deploy helper guidance should not make deploy/restart sound like the first action while the release-target and native-row acceptance decisions remain open.
+- **repo fix:** this run updates the validation checklist's mixed-manual-install helper so it asks James first for the release-target decision, then closest-native-row acceptance, then exact release/deploy/restart approval for that accepted target before running deploy commands.
+- **validation status:** closed with focused operator-docs regression coverage; no Home Assistant live validation is required for this process/order correction.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-450 - README manual deploy guidance skipped the release-target and native-row acceptance boundary
 
 - **status:** `closed`
