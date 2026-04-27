@@ -365,9 +365,17 @@ def _configured_managed_details(entry) -> dict[str, dict[str, object]]:
 
 
 def _integration_page_managed_details(entry, state) -> dict[str, dict[str, object]]:
-    """Return managed rows for the integration page, falling back to config inventory."""
+    """Return managed rows for the integration page, merging config inventory with runtime details."""
+    configured_details = _configured_managed_details(entry)
     runtime_details = _managed_device_details(state)
-    return runtime_details or _configured_managed_details(entry)
+    if not runtime_details:
+        return configured_details
+    merged_details = {device_key: dict(detail) for device_key, detail in configured_details.items()}
+    for device_key, detail in runtime_details.items():
+        merged_detail = dict(merged_details.get(device_key, {}))
+        merged_detail.update(detail)
+        merged_details[device_key] = merged_detail
+    return merged_details
 
 
 def _build_source_entities(coordinator):
@@ -415,12 +423,12 @@ def _candidate_devices_for_state(
     configured_managed_details: dict[str, dict[str, object]] | None = None,
 ) -> list[dict[str, str]]:
     managed_entity_ids = _managed_entity_ids(state)
-    if not managed_entity_ids and configured_managed_details:
-        managed_entity_ids = {
+    if configured_managed_details:
+        managed_entity_ids.update(
             str(detail.get("entity_id"))
             for detail in configured_managed_details.values()
             if detail.get("entity_id")
-        }
+        )
     cache_key = (id(state), tuple(sorted(managed_entity_ids)))
     cached = getattr(coordinator, "_zne_candidate_sensor_cache", None)
     if cached and cached.get("key") == cache_key:

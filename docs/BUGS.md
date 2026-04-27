@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-492 - partial runtime details skipped configured managed rows on the integration page
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing the ZNE-429 integration-page Managed Devices row setup path after the config-inventory fallback fixes.
+- **current observed behavior:** when runtime `device_details` existed but contained only a subset of the configured managed fleet, `sensor.async_setup_entry()` used the partial runtime map as complete. Configured managed loads missing from runtime were not registered as `Managed Devices — ...` child device rows, and their entity IDs were not excluded from unmanaged candidate discovery.
+- **expected behavior:** integration-page Managed Devices rows should include every configured managed load, with runtime details overlaid where available, so startup/transitional runtime gaps do not hide configured fleet rows or misclassify managed entities as `Un Managed` candidates.
+- **repo fix:** this run changes the integration-page managed-detail resolver to merge configured inventory with runtime details instead of choosing one or the other; runtime fields still override config fields for rows that have live detail.
+- **validation status:** closed with focused integration-page device-list regression coverage, targeted unittest coverage, and Python compile for `sensor.py`.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-491 - config-inventory fallback managed rows lost device kind/model text
 
 - **status:** `closed`
