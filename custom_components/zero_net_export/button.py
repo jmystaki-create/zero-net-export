@@ -16,7 +16,7 @@ from .candidate_utils import (
 )
 from .const import DOMAIN
 from .device_model import DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE
-from .entity import ZeroNetExportEntity
+from .entity import ZeroNetExportEntity, attach_managed_load_device
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
@@ -1061,6 +1061,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_fleet_console", "Open Managed Devices workspace")
         self._attr_icon = "mdi:format-list-group"
+        self._attr_device_info = None
 
     @property
     def extra_state_attributes(self):
@@ -1233,6 +1234,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_managed_device_review", "Open Managed Devices review")
         self._attr_icon = "mdi:clipboard-list-outline"
+        self._attr_device_info = None
 
     def _unmanaged_candidates(self) -> list[dict[str, str]]:
         return _candidate_devices_for_state(self.coordinator, self.hass, self._state)
@@ -1413,6 +1415,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
         super().__init__(coordinator, f"device_{device_key}_review", f"Managed Devices review: {device_name}")
         self._device_key = device_key
         self._attr_icon = "mdi:text-box-search-outline"
+        attach_managed_load_device(self, coordinator, device_key, device_name)
 
     def _detail(self) -> dict:
         state = self._state
@@ -1617,6 +1620,7 @@ class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity)
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_reset_overrides", f"{device_name} reset overrides")
         self._device_key = device_key
+        attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def extra_state_attributes(self):

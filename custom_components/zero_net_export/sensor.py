@@ -19,7 +19,7 @@ from .candidate_utils import (
     first_review_candidate,
 )
 from .const import DOMAIN, INTEGRATION_VERSION
-from .entity import ZeroNetExportEntity, managed_load_device_info, unmanaged_candidate_device_info
+from .entity import ZeroNetExportEntity, attach_managed_load_device, unmanaged_candidate_device_info
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
     POLICY_CONFIGURE_PATH,
@@ -765,6 +765,13 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
 
 
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
+    def __init__(self, coordinator, key: str, name: str) -> None:
+        super().__init__(coordinator, key, name)
+        if key in FLEET_WORKSPACE_SENSOR_KEYS:
+            # Managed/unmanaged workspace summaries should not pollute the primary
+            # Zero Net Export device-info page Controls/Activity surface.
+            self._attr_device_info = None
+
     @property
     def native_value(self):
         if self._key == "installed_version":
@@ -1496,20 +1503,8 @@ def _managed_snapshot_focus_label(detail: dict[str, Any] | None) -> str:
     return f"{name} ({' | '.join(parts)})" if parts else name
 
 
-def _managed_load_detail(coordinator, device_key: str, device_name: str) -> dict[str, Any]:
-    state = getattr(coordinator, "data", None)
-    details = getattr(state, "device_details", {}) or {}
-    detail = dict(details.get(device_key, {}) or {})
-    detail.setdefault("name", device_name)
-    return detail
-
-
 def _attach_managed_load_device(entity, coordinator, device_key: str, device_name: str) -> None:
-    entity._attr_device_info = managed_load_device_info(
-        coordinator,
-        device_key,
-        _managed_load_detail(coordinator, device_key, device_name),
-    )
+    attach_managed_load_device(entity, coordinator, device_key, device_name)
 
 
 def _candidate_unique_key(candidate: dict[str, Any]) -> str:

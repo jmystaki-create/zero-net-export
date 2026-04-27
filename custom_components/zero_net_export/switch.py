@@ -4,7 +4,7 @@ from __future__ import annotations
 from homeassistant.components.switch import SwitchEntity
 
 from .const import DOMAIN
-from .entity import ZeroNetExportEntity
+from .entity import ZeroNetExportEntity, attach_managed_load_device
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -42,6 +42,7 @@ class ZeroNetExportDeviceEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_enabled", f"{device_name} enabled")
         self._device_key = device_key
+        attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def is_on(self):

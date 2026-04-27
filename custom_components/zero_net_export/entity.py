@@ -23,9 +23,19 @@ def zero_net_export_device_info(coordinator) -> dict:
     }
 
 
+def managed_load_detail(coordinator, device_key: str, device_name: str | None = None) -> dict:
+    """Return the latest coordinator detail for a managed load."""
+    state = getattr(coordinator, "data", None)
+    details = getattr(state, "device_details", {}) or {}
+    detail = dict(details.get(device_key, {}) or {})
+    if device_name:
+        detail.setdefault("name", device_name)
+    return detail
+
+
 def managed_load_device_info(coordinator, device_key: str, detail: dict | None = None) -> dict:
     """Return device info that makes a managed load appear as its own HA device row."""
-    detail = detail or {}
+    detail = detail or managed_load_detail(coordinator, device_key)
     name = str(detail.get("name") or device_key or "Managed device").strip()
     kind = str(detail.get("kind") or "managed").strip()
     entity_id = str(detail.get("entity_id") or "").strip()
@@ -38,6 +48,15 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
         "via_device": (DOMAIN, coordinator.entry.entry_id),
         **({"configuration_url": f"homeassistant://navigate/config/integrations/integration/{DOMAIN}"} if not entity_id else {}),
     }
+
+
+def attach_managed_load_device(entity, coordinator, device_key: str, device_name: str | None = None) -> None:
+    """Attach an entity to its managed-load child device instead of the controller device."""
+    entity._attr_device_info = managed_load_device_info(
+        coordinator,
+        device_key,
+        managed_load_detail(coordinator, device_key, device_name),
+    )
 
 
 def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:

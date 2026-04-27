@@ -5,7 +5,7 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
-from .entity import ZeroNetExportEntity
+from .entity import ZeroNetExportEntity, attach_managed_load_device
 
 
 SOURCE_LABELS = {
@@ -102,6 +102,7 @@ class ZeroNetExportDeviceUsableBinarySensor(ZeroNetExportEntity, BinarySensorEnt
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_usable", f"{device_name} usable")
         self._device_key = device_key
+        attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def is_on(self):

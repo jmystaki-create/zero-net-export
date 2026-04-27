@@ -58,6 +58,18 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Un Managed")
 
+    def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "candidate_shortlist",
+            "Managed Devices candidate shortlist",
+        )
+
+        self.assertIsNone(sensor._attr_device_info)
+
     def test_setup_entry_adds_unmanaged_candidate_entities_for_integration_page_rows(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
@@ -82,7 +94,11 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         asyncio.run(run_setup())
 
-        device_names = [entity._attr_device_info.get("name") for entity in added]
+        device_names = [
+            entity._attr_device_info.get("name")
+            for entity in added
+            if getattr(entity, "_attr_device_info", None)
+        ]
         self.assertIn("Managed Devices — Pool Pump", device_names)
         self.assertIn("Un Managed — Hot Water", device_names)
 
