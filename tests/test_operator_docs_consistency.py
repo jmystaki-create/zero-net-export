@@ -59,7 +59,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
         self.assertIn("earlier `v0.1.92` and `v0.1.93` freezes", hold)
         self.assertIn("`v0.1.94` at `4c0d071`", hold)
-        self.assertIn("`7217f3b`, `c4802a3`, `db5c246`, `026f189`, or `4c0d071`", hold)
+        self.assertIn("`7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or `0b4f420`", hold)
         self.assertNotIn("earlier `v0.1.92` and `v0.1.94` freezes", hold)
 
     def test_supervisor_churn_rules_do_not_reopen_historical_a_to_f_workstreams(self) -> None:
@@ -81,7 +81,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("next_action:"):
             content.index("\n\n# Current blocker or none")
         ]
-        target_decision = next_action.index("whether `4c0d071` / `v0.1.94` should replace")
+        target_decision = next_action.index("whether current `0b4f420` / manifest `0.1.94` should replace")
         native_acceptance = next_action.index("only after that target decision")
         live_evidence = next_action.index("before integration-main-page screenshot evidence")
 
@@ -102,7 +102,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("main integration page", status)
         self.assertIn("`Managed Devices — ...`", status)
         self.assertIn("`Un Managed — ...`", status)
-        self.assertIn("`4c0d071` / `v0.1.94`", status)
+        self.assertIn("`0b4f420` / manifest `0.1.94`", status)
         self.assertIn("documented `0.1.91` release target", status)
         self.assertIn("ask James directly", status)
         self.assertNotIn("0.1.89", status)
@@ -138,11 +138,11 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
             content.index("## Pre-Installation Checks")
         ]
 
-        target_decision = boundary.index("whether `v0.1.94` replaces the documented `0.1.91` release target")
+        target_decision = boundary.index("whether current `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` release target")
         native_acceptance = boundary.index("Only after that release-target decision")
         validation_steps = boundary.index("For `0.1.91`, validation is only about the main integration page device lists")
 
-        self.assertIn("`4c0d071` / `v0.1.94`", boundary)
+        self.assertIn("`0b4f420` / manifest `0.1.94`", boundary)
         self.assertIn("before any Home Assistant install, restart, fingerprint validation, or screenshot claim", boundary)
         self.assertIn("exact release/deploy/restart validation", boundary)
         self.assertLess(target_decision, native_acceptance)
