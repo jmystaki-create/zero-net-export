@@ -716,7 +716,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("mapping status", ui_implementation_spec)
         self.assertNotIn("Additional telemetry belongs here", ui_implementation_spec)
         self.assertIn("diagnostic entities now also exist for each source role", entity_model)
+        self.assertIn("current focus Configure bucket", entity_model)
         self.assertNotIn("diagnostic entities now also exist for each mapped source role", entity_model)
+        self.assertNotIn("recommended Configure bucket", entity_model)
 
 
 if __name__ == "__main__":

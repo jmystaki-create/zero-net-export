@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-388 - Entity model command-center button kept retired recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active reference docs after the command-center visible label moved to `Current focus section`.
+- **current observed behavior:** `docs/ENTITY_MODEL.md` still described `button.zero_net_export_show_native_command_center` as publishing the guide with the `recommended Configure bucket`, reviving the retired recommendation/ranking language in an active native-entity reference doc.
+- **expected behavior:** active docs should describe the command-center guide as exposing the current focus Configure bucket, matching the shipped native Configure label and avoiding recommendation-style wording outside internal compatibility keys.
+- **evidence:** direct repo inspection found `recommended Configure bucket` in `docs/ENTITY_MODEL.md`; bucket-ownership doc tests only guarded the adjacent mapped-source wording and did not reject this phrase.
+- **repo fix:** this run changes the entity-model wording to `current focus Configure bucket`, records the cleanup in the Unreleased changelog, and extends active-doc regression coverage to reject `recommended Configure bucket`.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this docs/reference correction; the next exact `0.1.89` deploy should still validate the real command-center guide rendering.
+- **next action:** include this reference-doc cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more recommendation-wording churn.
+
 ## ZNE-387 - Current release highlights kept retired recommendation wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

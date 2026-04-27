@@ -22,7 +22,7 @@
 - `button.zero_net_export_reset_controller_overrides`
   - clears persisted target-export and deadband runtime overrides so the controller falls back to the options-flow defaults
 - `button.zero_net_export_show_native_command_center`
-  - publishes the native command-center guide with the recommended Configure bucket, blocker-first next step, and secondary review/audit handoff
+  - publishes the native command-center guide with the current focus Configure bucket, blocker-first next step, and secondary review/audit handoff
 - `button.zero_net_export_show_fleet_console`
   - publishes the Managed Devices workspace snapshot with managed devices on top, unmanaged candidates below, and the primary native handoff to `Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices`
 - `button.zero_net_export_show_managed_device_review`
