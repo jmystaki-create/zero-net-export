@@ -130,7 +130,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **expected behavior:** the current-active section should contain only the current approved `0.1.91` blocker. Closed process corrections and historical fixed-pending validation backlog entries should be visibly outside the current-active section unless a fresh regression makes one relevant to ZNE-429.
 - **repo fix:** this run adds explicit section breaks after ZNE-429 so the current active section no longer visually swallows closed process corrections or the historical fixed-pending validation backlog, and adds regression coverage for that boundary.
 - **validation status:** closed with repo-side tracker/test validation; no Home Assistant live validation is required for this bug-tracker section correction.
-- **next action:** continue the ZNE-429 boundary: ask James directly whether the closest native child-device representation is acceptable; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+- **next action:** continue the ZNE-429 boundary: do not repeat the completed `v0.1.91` freeze/tag; ask James directly whether the closest native child-device representation is acceptable and for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
 ## ZNE-434 - Source docs still said the 0.1.91 platform constraint must be escalated before implementation
 
@@ -142,7 +142,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **expected behavior:** source-of-truth wording should not make future runners think implementation is still forbidden or unstarted. It should say the constraint must be documented before release execution and accepted before the candidate is called successful, while preserving the ban on silent sensor/button/custom-UI substitution.
 - **repo fix:** this run updates those source-of-truth passages from a stale pre-implementation boundary to the current pre-release/pre-success acceptance boundary.
 - **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
-- **next action:** ask James directly whether the closest native child-device representation is acceptable; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+- **next action:** do not repeat the completed `v0.1.91` freeze/tag; ask James directly whether the closest native child-device representation is acceptable and for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
 ## ZNE-433 - 0.1.91 acceptance text still required literal headings after platform constraint
 
@@ -154,7 +154,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **expected behavior:** acceptance wording should be conditional: if James rejects the native child-device representation, do not release it as successful; if James accepts the platform constraint, screenshot evidence of visible `Managed Devices — ...` and `Un Managed — ...` device row/model grouping on the main integration page can satisfy the 0.1.91 target without substituting sensors/buttons/custom UI.
 - **repo fix:** this run updates the 0.1.91 release plan and implementation-map success criteria to make that conditional acceptance explicit while preserving the direct James decision boundary and the ban on non-device-list substitutes.
 - **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
-- **next action:** ask James directly whether the closest native child-device representation is acceptable; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+- **next action:** do not repeat the completed `v0.1.91` freeze/tag; ask James directly whether the closest native child-device representation is acceptable and for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
 ## ZNE-432 - Current active bugs heading excluded the active 0.1.91 blocker
 
@@ -167,7 +167,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **evidence:** direct inspection found `## Current active bugs` immediately after ZNE-429's next action and before only closed process entries.
 - **repo fix:** this run moves the `Current active bugs` heading above ZNE-429 and adds regression coverage requiring the active heading to precede ZNE-429.
 - **validation status:** closed with repo-side tracker/test validation; no Home Assistant live validation is required for this bug-tracker section correction.
-- **next action:** continue the ZNE-429 boundary: James needs to accept or reject the closest native child-device representation; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+- **next action:** continue the ZNE-429 boundary: do not repeat the completed `v0.1.91` freeze/tag; James needs to accept or reject the closest native child-device representation and approve release/deploy/restart before exact-build integration-main-page screenshot validation.
 
 
 ## ZNE-431 - Detailed map still described 0.1.91 implementation as future after repo candidate existed
@@ -181,7 +181,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **evidence:** direct inspection found the stale future-implementation wording below a status summary that already says `Repo now contains a 0.1.91 native entity/device-info candidate`, plus regression tests that still asserted the stale future-implementation line.
 - **repo fix:** this run updates the lower order-of-execution list to say the repo candidate is present, makes the acceptability question the next explicit human boundary, and updates regression coverage to reject the old future-implementation wording.
 - **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-order correction.
-- **next action:** James needs to accept or reject the closest native child-device representation; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+- **next action:** do not repeat the completed `v0.1.91` freeze/tag; James needs to accept or reject the closest native child-device representation and approve release/deploy/restart before exact-build integration-main-page screenshot validation.
 
 
 ## ZNE-430 - Detailed remaining map still ranked historical A-F work before 0.1.91 gate
@@ -195,7 +195,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **evidence:** direct inspection found `Workstream A. Finish the opening operator console` through `Workstream F. Finish notification and support-surface cleanup` still listed as the first detailed-map work even though the active scope says `Do nothing else for this release line` and `Do not use ... 0.1.90 wording as the active target`.
 - **repo fix:** this run adds a `Current ordered 0.1.91 map` at the top of the detailed remaining map, demotes Workstreams A-F under `Historical broad UI workstreams - not the current 0.1.91 ordered map`, and narrows Workstream G to point back to that current map instead of duplicating release-gate wording.
 - **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-order correction.
-- **next action:** follow the current ordered `0.1.91` map: decide whether the closest native child-device representation is acceptable; if yes, ask James directly for release/deploy/restart approval before freezing/deploying `0.1.91`.
+- **next action:** follow the current ordered `0.1.91` map: do not repeat the completed `v0.1.91` freeze/tag; decide whether the closest native child-device representation is acceptable and ask James directly for release/deploy/restart approval before Home Assistant install/restart.
 
 
 ## ZNE-428 - Active tracker tails still reopened closed ZNE-411 screenshot validation

@@ -280,6 +280,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("visible `Managed Devices — ...` and `Un Managed — ...` device row/model grouping", release_plan)
         self.assertIn("release/deploy/restart approval were not explicitly recorded", zne_429)
         self.assertNotIn("review whether the closest native device-info representation is acceptable", zne_429)
+        self.assertNotIn("if accepted, freeze `0.1.91`", zne_429)
+        self.assertNotIn("before freezing/deploying `0.1.91`", zne_429)
 
     def test_0191_success_criteria_respect_accepted_native_grouping_constraint(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
