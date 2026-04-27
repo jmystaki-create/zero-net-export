@@ -235,7 +235,7 @@ The project is in good shape for this phase when:
 When all meaningful repo-side items for the current release target are complete enough and the project newly reaches a real release boundary:
 
 1. explicitly say the current candidate is ready for formal release
-2. ask James directly whether he approves the end-to-end release flow
+2. ask James directly for exact release/deploy/restart approval for the already-decided target and already-accepted native child-device representation
 3. if approval is given, follow `RELEASE_MANAGEMENT.md`
 4. do not stop at local repo completion if release execution is the real next step
 

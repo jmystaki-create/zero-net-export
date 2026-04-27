@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-462 - supervisor release behavior hid the exact release/deploy/restart approval ask
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-28 while comparing `docs/SUPERVISOR.md` release behavior against the active release hold, `docs/UI_IMPLEMENTATION_MAP.md`, ZNE-439, and ZNE-429.
+- **current observed behavior:** the active hold and ordered map correctly require James's release-target decision, closest native child-device representation acceptance, and exact release/deploy/restart approval, but the generic supervisor release-behavior section still said to ask James whether he approves the `end-to-end release flow`. That could bury the exact approval boundary after the project reaches a future release edge.
+- **expected behavior:** supervisor release behavior should name the exact final approval ask and make clear it applies only after the target is already decided and the native child-device representation is already accepted.
+- **repo fix:** this run updates `docs/SUPERVISOR.md` release behavior to ask James directly for exact release/deploy/restart approval for the already-decided target and already-accepted native child-device representation, and adds operator-doc regression coverage so the vague `end-to-end release flow` wording cannot return there.
+- **validation status:** closed with focused supervisor/operator-doc regression coverage; no Home Assistant live validation is required while ZNE-439 remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then James's native-row acceptance/rejection, then exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-461 - 0.1.94 changelog omitted the post-freeze install guidance fix
 
 - **status:** `closed`

@@ -82,6 +82,19 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("higher ordered A-D/F", churn_rules)
         self.assertNotIn("earlier mapped A-D/F", churn_rules)
 
+
+    def test_supervisor_release_behavior_names_exact_release_approval_gate(self) -> None:
+        content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        release_behavior = content[
+            content.index("## Release behavior"):
+            content.index("## Delta-only reporting rules")
+        ]
+
+        self.assertIn("exact release/deploy/restart approval", release_behavior)
+        self.assertIn("already-decided target", release_behavior)
+        self.assertIn("already-accepted native child-device representation", release_behavior)
+        self.assertNotIn("approves the end-to-end release flow", release_behavior)
+
     def test_project_status_tracks_current_091_approval_boundary(self) -> None:
         content = (ROOT / "project_status.md").read_text(encoding="utf-8")
 
