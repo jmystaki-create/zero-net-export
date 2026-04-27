@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-380 - Fleet activity review-first/ready-next cues without aggregate count stayed ungrouped
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** fallback Fleet activity text with managed runtime signals plus `review-first unmanaged candidate` or `ready-next unmanaged candidate` cues, but no aggregate unmanaged count, stayed as a flat pipe-separated list. That weakened the opening operator console's managed-on-top / unmanaged-below story for cached or shortened fleet summaries.
+- **expected behavior:** review-first and ready-next unmanaged cues should anchor the unmanaged backlog bucket even when no aggregate unmanaged count is available, so the opening Configure console keeps managed activity visibly separate from unmanaged review/promote work.
+- **evidence:** focused regression coverage now exercises `active load 900 W | 1 active managed device | review-first unmanaged candidate: EV limit | ready-next unmanaged candidate: Hot water` and requires `Managed devices: ...; Unmanaged backlog: ...` grouping.
+- **repo fix:** this run teaches Fleet activity splitting and unmanaged-action detection to treat `review-first ...` and `ready-next ...` as top-level unmanaged backlog signals.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity grouping cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-379 - Unreleased changelog repeated old recommended-next wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

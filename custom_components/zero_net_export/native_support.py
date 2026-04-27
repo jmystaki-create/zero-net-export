@@ -580,7 +580,7 @@ def format_fleet_activity_for_operator(summary: str) -> str:
     def _is_unmanaged_activity_part(part: str) -> bool:
         return bool(
             _is_unmanaged_count_part(part)
-            or part.startswith(("review ", "ready ", "surfaced ", "fixed backlog ", "variable backlog "))
+            or part.startswith(("review ", "review-first ", "ready ", "ready-next ", "surfaced ", "fixed backlog ", "variable backlog "))
             or _matches_count_label(part, "needs review", "need review")
             or _matches_count_label(part, "ready to promote")
             or _matches_count_label(part, "fixed candidate")
@@ -709,7 +709,9 @@ def _is_fleet_activity_top_level_part(text: str) -> bool:
                 "active load ",
                 "active device ",
                 "review ",
+                "review-first ",
                 "ready ",
+                "ready-next ",
                 "surfaced ",
                 "enabled ",
                 "disabled ",
