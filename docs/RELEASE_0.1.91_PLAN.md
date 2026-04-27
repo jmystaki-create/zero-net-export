@@ -64,4 +64,4 @@ Home Assistant's native device APIs can create the integration-page device rows,
 
 ## Required documentation/validation state
 
-The repo implementation exists inside the approved scope and `v0.1.91` is already frozen/tagged at `7217f3b`. Do not treat that freeze/tag as Home Assistant deploy approval. If James acceptance of the closest native entity/device-info representation and explicit release/deploy/restart approval were not recorded before the freeze, ask James directly for both before any Home Assistant install/restart or success claim.
+The repo implementation exists inside the approved scope, but component code changed after the historical `v0.1.91` tag at `7217f3b`; the helper-resolved exact `0.1.91` component boundary is now `c4802a3`. Do not treat the old tag or the post-tag helper boundary as Home Assistant deploy approval. Ask James directly to accept the closest native entity/device-info representation and approve the exact `c4802a3` release/deploy/restart path before any Home Assistant install/restart or success claim.

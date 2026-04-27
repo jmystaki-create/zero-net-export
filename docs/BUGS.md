@@ -103,8 +103,20 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **suspected cause:** prior work translated the requirement into sensors/buttons on the Zero Net Export device-info page instead of targeting Home Assistant's integration detail page device list/device registry representation.
 - **repo fix:** repo now adds native device-info support for the approved `0.1.91` scope. Managed-load entities register under their own `Managed Devices — <name>` child devices, and unmanaged candidates get minimal `Un Managed — <name>` diagnostic entities so Home Assistant can render them as integration-page device rows associated with the Zero Net Export config entry. This stays on the native Home Assistant integration-page path and does not add a custom panel/sidebar/external UI.
 - **platform constraint noted:** Home Assistant's device model supports child devices via `via_device`, but the public integration/device APIs do not expose an arbitrary custom heading/folder API for literal nested groups inside one integration. The repo candidate therefore implements the closest native representation: real integration-page device rows named/modelled as `Managed Devices — ...` and `Un Managed — ...`.
-- **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite; version-coupled files are now frozen/tagged as `v0.1.91` at `7217f3b`. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
+- **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Component code changed after the historical `v0.1.91` tag at `7217f3b`; the helper-resolved exact `0.1.91` component boundary is now `c4802a3`. Live validation is still pending; success still requires James acceptance/approval, exact-build install verification, and screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
 - **next action:** do not treat the `v0.1.91` freeze/tag as Home Assistant deploy approval. If James acceptance of the closest native device-info representation and release/deploy/restart approval were not explicitly recorded before the freeze, ask James directly for both before any install/restart, then validate the exact installed build with integration-main-page screenshots.
+
+## ZNE-438 - 0.1.91 docs still treated the pre-fix tag as the exact deploy boundary
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `c4802a3` changed component files following the historical `v0.1.91` tag at `7217f3b`.
+- **current observed behavior:** the release plan, implementation map, project status, and ZNE-429 validation text still said `v0.1.91` was frozen/tagged at `7217f3b` as though that tag remained the exact component boundary. The fingerprint helper now resolves the component boundary to `c4802a3`, so leaving `7217f3b` as the deploy anchor could make a runner validate or ask approval for the wrong build.
+- **expected behavior:** source-of-truth docs should distinguish the historical tag from the current helper-resolved exact component boundary and require James's native-row acceptance plus explicit release/deploy/restart approval for that exact boundary before any Home Assistant install/restart.
+- **repo fix:** this run updates the release plan, implementation map, project status, and ZNE-429 validation text to name `c4802a3` as the current helper-resolved boundary after post-tag component changes while preserving the direct James approval requirement.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** ask James directly for native-representation acceptance and exact `c4802a3` release/deploy/restart approval, then install/restart and capture integration-main-page screenshot-grade evidence.
 
 ## Closed process corrections
 
