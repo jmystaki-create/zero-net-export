@@ -120,7 +120,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Component code changed after the historical `v0.1.91` tag at `7217f3b`, later froze as `v0.1.92` at `db5c246`, and now resolves as manifest `0.1.94` / the helper-resolved preferred validation commit after the managed-device-row settings-link, install-guidance, child-device model-grouping, and suggested-area/grouping fixes. Live validation is still pending and intentionally held; success still requires James to resolve the release-target mismatch, accept the closest native child-device representation, approve exact release/deploy/restart validation, and provide screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the approved installed build.
 - **next action:** do not treat the `v0.1.91` freeze/tag, the unapproved `v0.1.92` freeze/tag, the unapproved `v0.1.93` freeze/tag, the unapproved `v0.1.94` freeze/tag, or the post-freeze helper-resolved component boundary as Home Assistant deploy approval. Ask James directly whether the current helper-resolved manifest `0.1.94` component boundary should replace the documented `0.1.91` release target or whether release execution should return to the approved `0.1.91` boundary; only after that decision, ask for native-row acceptance and exact release/deploy/restart approval before any install/restart or integration-main-page screenshot validation.
 
-## Closed process corrections
+## Closed bugs and process corrections
+
+## ZNE-466 - closed managed-device code fixes sat under a process-only heading
+
+- **status:** `closed`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog bug-tracker audit on 2026-04-28 while comparing `docs/BUGS.md` current-active boundaries against the closed entries immediately below them.
+- **current observed behavior:** the section after ZNE-429 was titled `Closed process corrections`, but it now contained closed managed-device implementation fixes ZNE-465 and ZNE-464 as well as process corrections. That made the tracker taxonomy misleading even though the active ZNE-439/ZNE-429 section boundary itself was correct.
+- **expected behavior:** closed code fixes and closed process corrections should sit under a section title that accurately covers both, so future runners do not mistake product fixes for process-only bookkeeping or create another active-bug section reshuffle.
+- **repo fix:** this run renames the section to `Closed bugs and process corrections` and updates bug-tracker regression coverage to keep the active-bug boundary anchored to that broader closed-entry section.
+- **validation status:** closed with focused bug-tracker regression coverage; no Home Assistant live validation is required for this tracker-taxonomy correction.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
 
 ## ZNE-465 - integration-page row settings links did not encode query values
 
