@@ -33,12 +33,18 @@ def managed_load_detail(coordinator, device_key: str, device_name: str | None = 
     return detail
 
 
+def managed_load_configuration_url(coordinator, device_key: str) -> str:
+    """Return the native HA configuration URL exposed as the row settings/gear action."""
+    entry_id = _device_identifier_part(getattr(coordinator.entry, "entry_id", "entry"))
+    key = _device_identifier_part(device_key)
+    return f"homeassistant://navigate/config/integrations/integration/{DOMAIN}?managed_device={entry_id}:{key}"
+
+
 def managed_load_device_info(coordinator, device_key: str, detail: dict | None = None) -> dict:
     """Return device info that makes a managed load appear as its own HA device row."""
     detail = detail or managed_load_detail(coordinator, device_key)
     name = str(detail.get("name") or device_key or "Managed device").strip()
     kind = str(detail.get("kind") or "managed").strip()
-    entity_id = str(detail.get("entity_id") or "").strip()
     return {
         "identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:managed-device:{device_key}")},
         "name": f"Managed Devices — {name}",
@@ -46,7 +52,7 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
         "model": f"{kind.title()} managed load" if kind else "Managed load",
         "sw_version": INTEGRATION_VERSION,
         "via_device": (DOMAIN, coordinator.entry.entry_id),
-        **({"configuration_url": f"homeassistant://navigate/config/integrations/integration/{DOMAIN}"} if not entity_id else {}),
+        "configuration_url": managed_load_configuration_url(coordinator, device_key),
     }
 
 

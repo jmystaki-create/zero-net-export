@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.93] - 2026-04-28
+
+### Fixed
+- Added a native Home Assistant `configuration_url` to every `Managed Devices — <name>` child device, so the integration/device list can show a per-row settings/gear action instead of only the generic row affordances.
+
 ## [0.1.92] - 2026-04-27
 
 ### Changed

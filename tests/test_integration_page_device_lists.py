@@ -35,6 +35,10 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["model"], "Fixed managed load")
         self.assertIn(("zero_net_export", "entry-1:managed-device:pool"), sensor._attr_device_info["identifiers"])
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
+        self.assertEqual(
+            sensor._attr_device_info["configuration_url"],
+            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1:pool",
+        )
 
     def test_unmanaged_candidate_sensor_registers_candidate_as_own_ha_device(self) -> None:
         sensor_module = _load_sensor_module()
