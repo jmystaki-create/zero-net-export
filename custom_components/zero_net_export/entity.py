@@ -54,6 +54,13 @@ def managed_load_detail(coordinator, device_key: str, device_name: str | None = 
     state = getattr(coordinator, "data", None)
     details = getattr(state, "device_details", {}) or {}
     detail = managed_load_detail_mapping(details.get(device_key, {}) if isinstance(details, Mapping) else {})
+    fallback_details = getattr(coordinator, "_zne_integration_page_managed_details", {}) or {}
+    fallback_detail = managed_load_detail_mapping(
+        fallback_details.get(device_key, {}) if isinstance(fallback_details, Mapping) else {}
+    )
+    for key, value in fallback_detail.items():
+        if detail.get(key) in (None, ""):
+            detail[key] = value
     if device_name:
         detail.setdefault("name", device_name)
     return detail

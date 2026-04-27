@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-491 - config-inventory fallback managed rows lost device kind/model text
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while tracing the ZNE-490 fallback path for integration-page Managed Devices rows before runtime `device_details` exists.
+- **current observed behavior:** the setup path correctly created `Managed Devices — ...` child device rows from the config-entry inventory before runtime details populated, but per-device entity attachment re-read only the coordinator runtime detail. In the no-runtime-details window, the row kept the configured display name but lost the configured kind/model metadata, falling back to generic `Managed Devices — Managed managed load` model text instead of the stronger fixed/variable native row summary.
+- **expected behavior:** fallback-created Managed Devices rows should carry the same configured inventory detail into their native HA device-info metadata, including fixed/variable model text, so the integration-main-page row remains a useful native device summary before runtime detail arrives.
+- **repo fix:** this run stores the resolved integration-page managed-detail set on the coordinator during sensor setup and lets managed child-device attachment merge those fallback fields when runtime detail is missing or sparse.
+- **validation status:** closed with focused integration-page device-list regression coverage and Python compile for `entity.py` and `sensor.py`.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-490 - integration-page managed rows could be skipped before runtime details existed
 
 - **status:** `closed`

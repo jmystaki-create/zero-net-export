@@ -412,7 +412,16 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             for entity in added
             if getattr(entity, "_attr_device_info", None)
         ]
-        self.assertIn("Managed Devices — Pool Pump", device_names)
+        managed_infos = [
+            entity._attr_device_info
+            for entity in added
+            if getattr(entity, "_attr_device_info", None)
+            and entity._attr_device_info.get("name") == "Managed Devices — Pool Pump"
+        ]
+        self.assertTrue(managed_infos)
+        self.assertTrue(
+            all(info.get("model") == "Managed Devices — Fixed managed load" for info in managed_infos)
+        )
         self.assertIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [{"switch.pool_pump"}])
 

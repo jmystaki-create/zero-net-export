@@ -279,6 +279,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     state = coordinator.data
     managed_details = _integration_page_managed_details(entry, state)
+    coordinator._zne_integration_page_managed_details = managed_details
     for device_key, detail in managed_details.items():
         device_name = str(detail.get("name") or device_key or "Managed device")
         entities.extend(
