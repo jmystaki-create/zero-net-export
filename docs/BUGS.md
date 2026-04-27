@@ -91,6 +91,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Current active bugs
 
+## ZNE-510 - uncommitted worktree drift suppressed Un Managed integration-page rows
+
+- **status:** `closed`
+- **severity:** `high`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 found a dirty worktree on top of `5a57154` that changed `sensor.py` to remove `ZeroNetExportUnmanagedCandidateSensor` row creation and clean up newly discovered candidates instead of adding them, while focused tests were locally edited to expect the wrong suppression behavior. The same drift also prefixed managed child-device names with a gear glyph, diverging from the documented `Managed Devices — ...` native-row representation.
+- **current observed behavior:** before cleanup, `python3 -m unittest tests.test_integration_page_device_lists -q` failed with missing `Un Managed — ...` rows and mismatched managed-row names. If shipped, the dirty worktree would have directly broken ZNE-429 by hiding the required unmanaged candidate device rows from the Zero Net Export main integration page.
+- **expected behavior:** the repo must keep the native Home Assistant child-device representation required by ZNE-429: managed loads appear as `Managed Devices — ...` rows and unmanaged candidates appear as `Un Managed — ...` rows under the Zero Net Export config entry. Local test edits must not redefine success as suppressing unmanaged rows.
+- **evidence:** dirty diffs in `custom_components/zero_net_export/sensor.py`, `custom_components/zero_net_export/entity.py`, `custom_components/zero_net_export/button.py`, and focused tests replaced unmanaged-row sync with cleanup/removal and changed expected managed row names to `⚙ Managed Devices — ...`.
+- **repo fix:** this run discarded the uncommitted drift and restored the tracked repo candidate at `5a57154`, keeping the native integration-page Managed Devices and Un Managed row path intact with no custom/external UI.
+- **validation status:** validated after cleanup with `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest tests.test_operator_docs_consistency -q`, and `git status --short` showing only this bug-tracker update. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** keep ZNE-439/ZNE-429 as the active boundary: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-509 - unmanaged candidate lifecycle keys could still collapse sanitized row variants
 
 - **status:** `fixed_pending_validation`
