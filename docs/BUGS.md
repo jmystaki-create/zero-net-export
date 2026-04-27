@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-461 - 0.1.94 changelog omitted the post-freeze install guidance fix
+
+- **status:** `closed`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-28 after `f46d83d` changed `custom_components/zero_net_export/release_info.py` while `CHANGELOG.md` still listed only the earlier `0.1.94` managed-device settings-link fix.
+- **current observed behavior:** Home Assistant release metadata for manifest version `0.1.94` would not mention the new install repair guidance that explicitly asks James for the release-target decision, closest native child-device acceptance, and exact release/deploy/restart approval before release action.
+- **expected behavior:** the changelog section used by shipped release metadata should include post-freeze component-facing guidance fixes that are part of the helper-resolved manifest `0.1.94` component boundary, without creating a new release target or refreshing candidate hashes.
+- **repo fix:** this run adds the missing `0.1.94` changelog bullet and locks release-info coverage so the current release preview includes James and the exact release/deploy/restart gate.
+- **validation status:** closed with focused release-info changelog coverage; no Home Assistant live validation is required while ZNE-439 remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then James's native-row acceptance/rejection, then exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-460 - install repair guidance did not make James the native-row acceptance actor
 
 - **status:** `closed`

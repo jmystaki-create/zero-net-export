@@ -72,6 +72,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
         self.assertIn("Home Assistant", info["changes_preview"])
+        self.assertIn("James", info["changes_preview"])
+        self.assertIn("release/deploy/restart", info["changes_preview"])
 
     def test_0189_changelog_carries_post_tag_ui_fixes(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
