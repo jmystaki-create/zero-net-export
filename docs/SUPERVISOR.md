@@ -7,6 +7,10 @@ Do nothing else for this release line. Do not work on button renames, Activity w
 
 Use `docs/RELEASE_0.1.91_PLAN.md` as the current release scope. Treat `0.1.90` device-info-page work as historical and insufficient for the requested main integration page device lists.
 
+## Active release-target hold
+
+The repo later froze `v0.1.92` at `db5c246` while this steering file and the release plan still approve only the `0.1.91` / release `1.91` integration-page device-list scope. Until James explicitly decides whether `v0.1.92` replaces the documented `0.1.91` target or the project returns to the approved `0.1.91` boundary, do not deploy, restart, fingerprint-validate, or call successful `7217f3b`, `c4802a3`, or `db5c246`. Ask James directly for that release-target decision, then for native-row acceptance and exact deploy/restart approval before Home Assistant actions.
+
 
 This file is the steering guide for this project.
 

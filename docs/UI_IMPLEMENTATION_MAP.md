@@ -51,7 +51,7 @@ If Home Assistant cannot natively render literal custom group headings for this 
 
 ### Still blocked or incomplete
 - The live user screenshots show the requested UI is still missing: the Zero Net Export main integration page does **not** show a Managed Devices device list and a separate Un Managed device list underneath it.
-- Repo now contains a `0.1.91` native entity/device-info candidate that makes managed loads and unmanaged candidates appear as child Home Assistant device rows under the Zero Net Export config entry, using `Managed Devices — ...` and `Un Managed — ...` row names/models as the closest native representation. The exact component boundary is helper-resolved from current component files; after post-tag component changes in `c4802a3`, do not use the older `7217f3b` tag as the install target.
+- Repo contains a native entity/device-info candidate that makes managed loads and unmanaged candidates appear as child Home Assistant device rows under the Zero Net Export config entry, using `Managed Devices — ...` and `Un Managed — ...` row names/models as the closest native representation. However, repo versioning later froze `v0.1.92` at `db5c246` while the governing source-of-truth scope still approves only `0.1.91`; do not deploy or validate `7217f3b`, `c4802a3`, or `db5c246` until James explicitly decides the release target.
 - Home Assistant's integration page can render device rows from entity device-info metadata, but it does not expose a custom API for arbitrary literal nested headings inside one integration; if James needs exact collapsible headings rather than grouped row naming/model text, that is a platform/product-decision constraint to resolve before release.
 - `0.1.90` is historical and insufficient for this requirement. It exposed Managed Devices-labelled rows/actions on the individual device-info surface, but it did not create the requested integration-main-page managed/unmanaged device lists.
 - The next release line is `0.1.91` / `1.91`, limited to the `docs/RELEASE_0.1.91_PLAN.md` scope. Do not reopen or defend `0.1.90` as complete for this requirement.
@@ -123,9 +123,9 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 1. Keep ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope: main integration page device lists, not another Configure or device-info-page row/button pass.
 2. Ask James directly whether the closest Home Assistant-native device-registry representation is acceptable: managed loads and unmanaged candidates appear as child device rows tied to the Zero Net Export config entry, using `Managed Devices — ...` and `Un Managed — ...` row/model language because native HA does not expose arbitrary nested group-heading APIs for one integration.
-3. Component code changed after the historical `v0.1.91` tag at `7217f3b`; ask James directly for release/deploy/restart approval against the fingerprint helper's current exact `0.1.91` component boundary (`c4802a3` in this audit) instead of treating the old tag as the deploy target.
-4. Deploy/install the exact approved `0.1.91` build to Home Assistant or verify HACS installs it only after that explicit approval boundary is satisfied.
-5. Restart/reload Home Assistant and confirm the installed package matches the helper-resolved `0.1.91` component boundary with the fingerprint helper.
+3. Resolve the release-target mismatch before any Home Assistant action: the historical `v0.1.91` tag is `7217f3b`, post-tag component changes reached `c4802a3`, and the helper now resolves the frozen candidate to `db5c246` / `v0.1.92`; ask James directly whether `v0.1.92` replaces the documented `0.1.91` target or whether release execution should return to the approved `0.1.91` boundary, then ask James directly for release/deploy/restart approval for that exact target.
+4. Only after that release-target decision and explicit release/deploy/restart approval, deploy/install the exact approved build to Home Assistant or verify HACS installs it.
+5. Restart/reload Home Assistant and confirm the installed package matches the approved exact target with the fingerprint helper.
 6. Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export` showing managed and unmanaged individual device rows on the Zero Net Export main integration page.
 7. If live evidence fails, log the exact integration-main-page UI gap before doing more wording or release-bookkeeping work.
 
@@ -229,7 +229,7 @@ The following A-F workstreams describe earlier native-UI runway and historical p
 2. Treat ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope: main integration page device lists, not another device-info-page row/button pass.
 3. Treat the repo-side native child-device implementation as present: managed loads and unmanaged candidates are now represented as Home Assistant device rows named/modelled `Managed Devices — ...` and `Un Managed — ...` under the Zero Net Export config entry.
 4. Because literal nested `Managed Devices` / `Un Managed` headings are not exposed by HA's native integration page APIs, ask James directly whether this closest native representation is acceptable before release execution.
-5. The historical `v0.1.91` tag at `7217f3b` is no longer the exact component boundary after post-tag component changes; do not treat it as deploy approval or the install target. If explicit James native-row acceptance and exact helper-resolved release/deploy/restart approval are not recorded, ask directly before proceeding to Home Assistant install/restart, exact-build fingerprint, and screenshot validation.
+5. The historical `v0.1.91` tag at `7217f3b`, the post-tag `c4802a3` component boundary, and the newer `db5c246` / `v0.1.92` freeze are not deploy approval. If explicit James release-target decision, native-row acceptance, and exact release/deploy/restart approval are not recorded, ask directly before proceeding to Home Assistant install/restart, exact-build fingerprint, and screenshot validation.
 
 ### Stage 0. Baseline and source-of-truth consolidation
 **Purpose**
