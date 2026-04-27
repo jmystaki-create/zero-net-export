@@ -14,8 +14,10 @@ class TestDiagnosticsPayloadCopy(unittest.TestCase):
 
         self.assertIn('"Open Managed Devices workspace"', source)
         self.assertIn('"Open Managed Devices review"', source)
+        self.assertIn('"Per-device Managed Devices review buttons"', source)
         self.assertNotIn('"Review managed devices",', source)
         self.assertNotIn('"Review managed devices workspace",', source)
+        self.assertNotIn('"Review each managed device",', source)
 
 
 if __name__ == "__main__":
