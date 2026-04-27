@@ -19,7 +19,12 @@ from .candidate_utils import (
     first_review_candidate,
 )
 from .const import DOMAIN, INTEGRATION_VERSION
-from .entity import ZeroNetExportEntity, attach_managed_load_device, unmanaged_candidate_device_info
+from .entity import (
+    ZeroNetExportEntity,
+    attach_managed_load_device,
+    managed_load_detail_mapping,
+    unmanaged_candidate_device_info,
+)
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
     POLICY_CONFIGURE_PATH,
@@ -273,7 +278,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     if state is not None:
         for device_key, details in (getattr(state, "device_details", {}) or {}).items():
-            detail = dict(details or {})
+            detail = managed_load_detail_mapping(details)
             device_name = str(detail.get("name") or device_key or "Managed device")
             entities.extend(
                 [
@@ -352,7 +357,7 @@ def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[st
 
 def _managed_device_details(state) -> dict[str, dict[str, object]]:
     return {
-        str(device_key): dict(raw_detail or {})
+        str(device_key): managed_load_detail_mapping(raw_detail)
         for device_key, raw_detail in (getattr(state, "device_details", {}) or {}).items()
     }
 
@@ -392,7 +397,7 @@ def _candidate_devices_for_state(coordinator, hass, state) -> list[dict[str, str
 
 
 def _managed_fleet_counts(device_details: dict[str, dict[str, object]] | None) -> dict[str, int]:
-    devices = [dict(detail or {}) for detail in (device_details or {}).values()]
+    devices = [managed_load_detail_mapping(detail) for detail in (device_details or {}).values()]
     return {
         "managed_count": len(devices),
         "enabled_count": sum(1 for detail in devices if detail.get("effective_enabled", detail.get("enabled", True))),
@@ -436,7 +441,7 @@ def _first_matching_device_name(
     *,
     predicate,
 ) -> str:
-    ordered = sorted((dict(detail or {}) for detail in (device_details or {}).values()), key=_device_sort_key)
+    ordered = sorted((managed_load_detail_mapping(detail) for detail in (device_details or {}).values()), key=_device_sort_key)
     for detail in ordered:
         if predicate(detail):
             return str(detail.get("name") or detail.get("entity_id") or "").strip()

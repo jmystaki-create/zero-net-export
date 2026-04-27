@@ -122,6 +122,30 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-484 - compact fleet activity could drop unmanaged review warning detail
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while running the full unittest suite; `test_command_center_summary_includes_unmanaged_backlog_in_fleet_activity_when_hass_candidates_exist` failed because the compact command-center fleet activity state kept `review AC Outlet 2 (fixed)` but dropped the `review first` and warning detail.
+- **current observed behavior:** when the fleet activity summary overflow path had to prioritize managed attention, active-load, managed-count, unmanaged-count, and review-candidate context, it clipped review/ready candidate previews to 36 characters even when the full warning-bearing preview would still fit under Home Assistant's 255-character native state limit.
+- **expected behavior:** compact native fleet activity should preserve unmanaged review-first and warning text whenever it fits, because that detail is the operator's cue that the unmanaged candidate needs review before promotion.
+- **repo fix:** this run raises the priority overflow review/ready preview budget so `review ... | review first | warn ...` survives when it fits within the native state limit.
+- **validation status:** closed with the existing command-center unmanaged-backlog regression test, Python compile, targeted unittest coverage, and the full unittest suite.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
+## ZNE-483 - malformed managed-device detail could crash native device-list setup
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after the null/sparse managed-detail hardening series, while the integration-page child-device setup and related native support helpers still assumed each runtime `device_details` value was mapping-like.
+- **current observed behavior:** if a transitional or corrupted runtime `device_details` value was a non-mapping object, native setup paths could call `dict(...)` or `.get(...)` on that value before registering or rendering the `Managed Devices — ...` child-device rows.
+- **expected behavior:** native Home Assistant managed-device rows and support summaries should treat non-mapping managed detail values like empty sparse details, keep the child-device fallback row renderable, and preserve the native integration-page device-list path.
+- **repo fix:** this run adds a shared managed-detail mapping normalizer for entity/device-info helpers and routes sensor setup, fleet helpers, button managed-detail helpers, and native support runtime detail normalization through it.
+- **validation status:** closed with focused integration-page regression coverage for a malformed managed detail plus Python compile and targeted unittest coverage. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-482 - null managed-device detail could crash command-center native summaries
 
 - **status:** `closed`

@@ -16,7 +16,12 @@ from .candidate_utils import (
 )
 from .const import DOMAIN
 from .device_model import DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE
-from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_display_name
+from .entity import (
+    ZeroNetExportEntity,
+    attach_managed_load_device,
+    managed_load_detail_mapping,
+    managed_load_display_name,
+)
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
     DEVICES_CONFIGURE_PATH,
@@ -63,14 +68,14 @@ def _managed_device_details_for_state(state) -> list[dict]:
     """Return managed device runtime details, tolerating sparse coordinator state."""
     if state is None:
         return []
-    return [dict(detail or {}) for detail in (getattr(state, "device_details", {}) or {}).values()]
+    return [managed_load_detail_mapping(detail) for detail in (getattr(state, "device_details", {}) or {}).values()]
 
 
 def _managed_device_detail_for_state(state, device_key: str) -> dict:
     """Return one managed device detail, tolerating sparse coordinator state."""
     if state is None:
         return {}
-    return dict((getattr(state, "device_details", {}) or {}).get(device_key, {}) or {})
+    return managed_load_detail_mapping((getattr(state, "device_details", {}) or {}).get(device_key, {}))
 
 
 def _runtime_state_attr(state, name: str):
@@ -349,7 +354,7 @@ def _next_bucket_device_name(device_details: list[dict], target: dict) -> str:
 def _managed_entity_ids(state) -> set[str]:
     return {
         str(detail.get("entity_id"))
-        for detail in (dict(raw_detail or {}) for raw_detail in (getattr(state, "device_details", None) or {}).values())
+        for detail in (managed_load_detail_mapping(raw_detail) for raw_detail in (getattr(state, "device_details", None) or {}).values())
         if detail.get("entity_id")
     }
 

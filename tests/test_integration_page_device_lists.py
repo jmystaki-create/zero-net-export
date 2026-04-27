@@ -292,6 +292,30 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [set()])
 
+    def test_setup_entry_tolerates_malformed_managed_detail(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data.device_details = {"pool": "temporarily malformed runtime detail"}
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(entry_id="entry-1")
+        added = []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        device_names = [
+            entity._attr_device_info.get("name")
+            for entity in added
+            if getattr(entity, "_attr_device_info", None)
+        ]
+        self.assertIn("Managed Devices — pool", device_names)
+
     def test_fleet_workspace_summaries_tolerate_null_managed_detail(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

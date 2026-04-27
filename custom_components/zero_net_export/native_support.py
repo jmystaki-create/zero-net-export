@@ -1,6 +1,7 @@
 """Native Home Assistant operator support helpers for Zero Net Export."""
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import datetime
 import json
 import re
@@ -1034,9 +1035,9 @@ def _compact_fleet_activity_overflow_summary(summary: str) -> str:
     if unmanaged_part:
         priority_parts.append(unmanaged_part)
     if review_part:
-        priority_parts.append(_clip_review_ready_state_part(review_part, max_chars=36))
+        priority_parts.append(_clip_review_ready_state_part(review_part, max_chars=72))
     if ready_part:
-        priority_parts.append(_clip_review_ready_state_part(ready_part, max_chars=36))
+        priority_parts.append(_clip_review_ready_state_part(ready_part, max_chars=72))
 
     priority_summary = " | ".join(priority_parts)
     if priority_summary and len(priority_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
@@ -2108,7 +2109,7 @@ def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[
 def _runtime_device_details(state: Any) -> list[dict[str, Any]]:
     if state is None:
         return []
-    return [detail if isinstance(detail, dict) else {} for detail in (getattr(state, "device_details", {}) or {}).values()]
+    return [dict(detail) if isinstance(detail, Mapping) else {} for detail in (getattr(state, "device_details", {}) or {}).values()]
 
 def _ordered_runtime_device_details(state: Any) -> list[dict[str, Any]]:
     return sorted(_runtime_device_details(state), key=_runtime_device_sort_key)
@@ -5793,6 +5794,29 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         fleet_activity_summary_raw,
         fallback=_fleet_activity_fallback_from_device_status(device_status),
     )
+    if review_candidate_name and review_candidate_preview and review_candidate_preview not in fleet_activity_summary:
+        compact_review_label = review_candidate_preview.split(" | ", 1)[0] or review_candidate_name
+        compact_review_part = f"review {compact_review_label}"
+        full_review_part = f"review {review_candidate_preview}"
+        expanded_fleet_activity_summary = fleet_activity_summary.replace(compact_review_part, full_review_part, 1)
+        if len(expanded_fleet_activity_summary) > MAX_NATIVE_SENSOR_STATE_CHARS:
+            without_active_focus = " | ".join(
+                part
+                for part in _split_fleet_activity_parts(fleet_activity_summary)
+                if not part.startswith("active device ")
+            )
+            expanded_fleet_activity_summary = without_active_focus.replace(compact_review_part, full_review_part, 1)
+        if fixed_candidate_count == 1 and _count_label(fixed_candidate_count, "fixed candidate") not in expanded_fleet_activity_summary:
+            fixed_candidate_part = _count_label(fixed_candidate_count, "fixed candidate")
+            with_fixed_candidate = expanded_fleet_activity_summary.replace(
+                _unmanaged_count_label(candidate_count),
+                f"{_unmanaged_count_label(candidate_count)} | {fixed_candidate_part}",
+                1,
+            )
+            if len(with_fixed_candidate) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+                expanded_fleet_activity_summary = with_fixed_candidate
+        if len(expanded_fleet_activity_summary) <= MAX_NATIVE_SENSOR_STATE_CHARS:
+            fleet_activity_summary = expanded_fleet_activity_summary
 
     return {
         "headline_decision": _clip_state_part(headline_decision, max_chars=MAX_NATIVE_SENSOR_STATE_CHARS)

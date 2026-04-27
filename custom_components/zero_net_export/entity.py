@@ -1,6 +1,7 @@
 """Base entity helpers."""
 from __future__ import annotations
 
+from collections.abc import Mapping
 from urllib.parse import urlencode
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -12,6 +13,11 @@ def _device_identifier_part(value: object) -> str:
     """Return a stable device-registry-safe identifier fragment."""
     text = str(value or "unknown").strip()
     return text.replace(".", "_").replace(":", "_").replace("/", "_") or "unknown"
+
+
+def managed_load_detail_mapping(value: object) -> dict:
+    """Return a managed-load detail mapping, tolerating malformed runtime entries."""
+    return dict(value) if isinstance(value, Mapping) else {}
 
 
 def zero_net_export_device_info(coordinator) -> dict:
@@ -27,14 +33,15 @@ def zero_net_export_device_info(coordinator) -> dict:
 
 def managed_load_display_name(device_key: str, details: dict | None = None) -> str:
     """Return a stable display name for sparse managed-load details."""
-    return str((details or {}).get("name") or device_key or "Managed device")
+    detail = managed_load_detail_mapping(details)
+    return str(detail.get("name") or device_key or "Managed device")
 
 
 def managed_load_detail(coordinator, device_key: str, device_name: str | None = None) -> dict:
     """Return the latest coordinator detail for a managed load."""
     state = getattr(coordinator, "data", None)
     details = getattr(state, "device_details", {}) or {}
-    detail = dict(details.get(device_key, {}) or {})
+    detail = managed_load_detail_mapping(details.get(device_key, {}) if isinstance(details, Mapping) else {})
     if device_name:
         detail.setdefault("name", device_name)
     return detail
