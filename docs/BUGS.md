@@ -87,6 +87,19 @@ Suggested area labels:
 
 
 
+## ZNE-425 - Legacy fleet metric labels still hid the Managed Devices bucket on the device page
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog live/repo audit on 2026-04-27 after `v0.1.90` was already installed and fingerprint-matched, while checking the remaining screenshot-grade Managed Devices device-page gap.
+- **current observed behavior:** the live Home Assistant API showed the dedicated `sensor.zero_net_export_managed_devices_surface` row is present, but the legacy core fleet metric still appears as `Zero Net Export Managed devices`. That lowercase/generic device-count row can blend into the old entity list and weaken the visible Managed Devices bucket that `0.1.90` is meant to prove on the native device page.
+- **expected behavior:** device-page fleet metric rows should consistently carry the `Managed Devices` bucket name so the native device page visibly groups the fleet count, enablement, usability, power, and status metrics with the same operator language as the Managed Devices surface and Configure workspace.
+- **evidence:** using the documented Home Assistant API path from `/root/.openclaw/workspace/TOOLS.md`, this run confirmed `sensor.zero_net_export_installed_version = 0.1.90`, `sensor.zero_net_export_managed_devices_surface` friendly name `Zero Net Export Managed Devices surface`, and the legacy `sensor.zero_net_export_managed_devices` friendly name `Zero Net Export Managed devices`.
+- **repo fix:** this run renames the existing fleet metric sensor display labels to `Managed Devices count`, `Managed Devices enabled count`, `Managed Devices usable count`, `Managed Devices fixed-load count`, `Managed Devices variable-load count`, `Managed Devices controllable power`, `Managed Devices usable power`, and `Managed Devices status summary`, without changing entity IDs or adding any custom/external UI path.
+- **validation status:** repo-side fixed and verified with focused sensor label coverage plus Python compile; live validation still needs the next installed-build/browser evidence pass because current HA is still running the pre-fix `0.1.90` package.
+- **next action:** include these labels in the next exact-build acceptance pass and capture browser-visible device-page evidence; do not reopen the completed `0.1.90` install/restart/fingerprint/API-only validation loops.
+
+
 
 
 ## ZNE-424 - Stage 9 action-drill-down evidence was still too generic after API button checks

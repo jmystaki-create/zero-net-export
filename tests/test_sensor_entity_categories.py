@@ -323,6 +323,26 @@ class SensorEntityCategoryTests(unittest.TestCase):
         sensor_module = _load_sensor_module()
 
         self.assertEqual(
+            sensor_module.SENSOR_DEFS["device_count"],
+            "Managed Devices count",
+        )
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["enabled_device_count"],
+            "Managed Devices enabled count",
+        )
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["usable_device_count"],
+            "Managed Devices usable count",
+        )
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["controllable_nominal_power_w"],
+            "Managed Devices controllable power",
+        )
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["device_status_summary"],
+            "Managed Devices status summary",
+        )
+        self.assertEqual(
             sensor_module.SENSOR_DEFS["managed_devices_surface"],
             "Managed Devices surface",
         )
