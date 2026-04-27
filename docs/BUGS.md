@@ -86,6 +86,19 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-413 - Supervisor still named 0.1.89 as the ordered UI rollout
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `docs/SUPERVISOR.md` top matter, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.90_PLAN.md`, and `ZNE-411` had made `0.1.90` the active corrective target for the device-page Managed Devices failure.
+- **current observed behavior:** the supervisor optimization target still told runners to finish the remaining `0.1.89` UI rollout in strict order, and the acceptance stance still said the project was good when the ordered `0.1.89` UI work had been completed. Those stale lines sat below the corrected top warning and could make future runs treat the already-failed `0.1.89` line as the active ordered rollout instead of finishing the `0.1.90` corrective device-page work.
+- **expected behavior:** all active supervisor steering should name the `0.1.90` corrective UI rollout while preserving `0.1.89` only as historical failed live evidence.
+- **evidence:** direct inspection found the stale `0.1.89` rollout wording in `docs/SUPERVISOR.md` under Project optimization target and Acceptance stance while the implementation map and release plan now make `0.1.90` the active release target.
+- **repo fix:** this run changes those supervisor steering lines to the `0.1.90` corrective device-page Managed Devices UI rollout and adds regression coverage so the active supervisor target and acceptance stance cannot silently fall back to `0.1.89` wording.
+- **validation status:** tracker/source-of-truth correction verified with `python3 -m unittest -q tests.test_release_info_install_guidance` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. No Home Assistant live validation is required for this process-state closure.
+- **next action:** continue `ZNE-411`: prove the repo-side device-page Managed Devices surface, then ask James directly for `0.1.90` release approval once the candidate is ready.
+
+
 ## ZNE-412 - Detailed remaining work map still pointed release execution at 0.1.89
 - **status:** `closed`
 - **severity:** `medium`

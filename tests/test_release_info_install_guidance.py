@@ -144,6 +144,16 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("Publish/deploy the approved `v0.1.89` candidate", detailed_map)
         self.assertNotIn("treat them as post-`0.1.89` work", detailed_map)
 
+    def test_supervisor_steering_uses_0190_corrective_ui_rollout(self) -> None:
+        supervisor = (REPO_ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        optimization_target = supervisor.split("## Project optimization target", 1)[1].split("## What counts as real progress", 1)[0]
+        acceptance_stance = supervisor.split("## Acceptance stance", 1)[1].split("## Release behavior", 1)[0]
+
+        self.assertIn("remaining `0.1.90` corrective device-page Managed Devices UI rollout", optimization_target)
+        self.assertIn("ordered `0.1.90` corrective UI work", acceptance_stance)
+        self.assertNotIn("remaining `0.1.89` UI rollout", optimization_target)
+        self.assertNotIn("ordered `0.1.89` UI work", acceptance_stance)
+
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(
