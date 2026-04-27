@@ -198,11 +198,16 @@ class SensorEntityCategoryTests(unittest.TestCase):
             data=SimpleNamespace(validation_details={}),
         )
         sensor = sensor_module.ZeroNetExportSensor(coordinator, "command_center_status", "Command center status")
+        attrs = sensor.extra_state_attributes
 
         self.assertEqual(
-            sensor.extra_state_attributes["fleet_activity_summary"],
+            attrs["fleet_activity_summary"],
             "Managed devices: 1 managed; Unmanaged backlog: 2 unmanaged backlog",
         )
+        self.assertEqual(attrs["current_focus_section"], "Managed Devices")
+        self.assertEqual(attrs["current_focus_path"], "devices path")
+        self.assertNotIn("recommended_section", attrs)
+        self.assertNotIn("recommended_path", attrs)
 
     def test_fleet_next_step_sensor_uses_managed_devices_label(self) -> None:
         sensor_module = _load_sensor_module()
@@ -220,6 +225,28 @@ class SensorEntityCategoryTests(unittest.TestCase):
             "Current native next action",
         )
         self.assertNotEqual(sensor_module.SENSOR_DEFS["recommendation"], "Recommendation")
+
+    def test_source_attention_sensor_attributes_use_current_next_step_wording(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module.build_native_operator_readiness = lambda coordinator: {"next_step": "Open Sensors."}
+        sensor_module.build_source_attention_summary = lambda *args, **kwargs: "Missing solar source"
+        sensor_module.summarize_validation_issue_messages = lambda *args, **kwargs: "Missing solar source"
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                validation_details={},
+                source_diagnostics={},
+            ),
+        )
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "mapped_source_blocker_next_step",
+            "Mapped source blocker next step",
+        )
+        attrs = sensor.extra_state_attributes
+
+        self.assertEqual(attrs["current_native_next_step"], "Open Sensors.")
+        self.assertNotIn("recommended_next_step", attrs)
 
     def test_managed_fleet_attention_names_managed_devices_when_sources_block_review(self) -> None:
         sensor_module = _load_sensor_module()

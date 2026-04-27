@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-400 - Command-center sensor attributes exposed retired recommendation keys
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `sensors`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D bucket/current-focus wording after the visible sensor name moved to `Current native next action`.
+- **current observed behavior:** the command-center and mapped-source blocker sensors still exposed Home Assistant attributes named `recommended_section`, `recommended_path`, and `recommended_next_step`. Those visible entity attributes kept recommendation/ranking wording alive in the native Sensors surface even though the UI copy now frames the same values as current focus/current native next step.
+- **expected behavior:** native sensor attributes should use current-focus/current-next-step wording while internal compatibility keys may remain implementation details.
+- **evidence:** direct repo inspection found the stale attribute keys in `custom_components/zero_net_export/sensor.py`; focused sensor coverage now rejects the retired keys on the visible sensor attributes.
+- **repo fix:** this run changes those visible sensor attributes to `current_focus_section`, `current_focus_path`, and `current_native_next_step`, while leaving the established internal command-center summary keys untouched.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_sensor_entity_categories` plus `python3 -m py_compile custom_components/zero_net_export/sensor.py tests/test_sensor_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream D sensor-attribute cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another recommendation-wording or fingerprint-bookkeeping pass.
+
 ## ZNE-399 - Safe-mode planner reason used recommendation wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

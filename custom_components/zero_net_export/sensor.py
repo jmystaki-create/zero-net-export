@@ -1282,7 +1282,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "blocking_validation_details": summarize_validation_issue_messages(state, severities={"error"}, limit=3),
                 "unavailable_source_keys": attention.get("unavailable_source_keys"),
                 "stale_source_keys": attention.get("stale_source_keys"),
-                "recommended_next_step": readiness.get("next_step"),
+                "current_native_next_step": readiness.get("next_step"),
             }
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
@@ -1296,8 +1296,8 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "policy_readiness": command_center.get("policy_readiness"),
                 "support_status": command_center.get("support_status"),
                 "status_summary": command_center.get("status_summary"),
-                "recommended_section": command_center.get("recommended_section"),
-                "recommended_path": command_center.get("recommended_path"),
+                "current_focus_section": command_center.get("recommended_section"),
+                "current_focus_path": command_center.get("recommended_path"),
                 "sources_path": command_center.get("sources_path"),
                 "devices_path": command_center.get("devices_path"),
                 "policy_path": command_center.get("policy_path"),
