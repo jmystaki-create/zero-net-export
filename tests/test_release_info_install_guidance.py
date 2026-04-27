@@ -255,6 +255,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("Treat the repo-side native child-device implementation as present", detailed_map)
         self.assertIn("Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export`", detailed_map)
         self.assertIn("ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope", detailed_map)
+        self.assertIn("Ask James directly whether the closest Home Assistant-native device-registry representation is acceptable", detailed_map)
         self.assertIn("ask James directly whether this closest native representation is acceptable before release execution", detailed_map)
         self.assertIn("If James accepts that representation, freeze version-coupled files for `0.1.91` / release `1.91`", detailed_map)
         self.assertNotIn("Only after a repo implementation exists should the project enter `0.1.91` release/fingerprint/live-screenshot execution", detailed_map)
@@ -264,6 +265,22 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("freeze version-coupled metadata as `0.1.90`", detailed_map)
         self.assertNotIn("convert the repo candidate into a real shipped and validated `0.1.89` release", detailed_map)
         self.assertNotIn("Publish/deploy the approved `v0.1.89` candidate", detailed_map)
+
+    def test_0191_release_plan_and_bug_tracker_make_human_boundary_explicit(self) -> None:
+        release_plan = (REPO_ROOT / "docs" / "RELEASE_0.1.91_PLAN.md").read_text(encoding="utf-8")
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_429 = bugs.split("## ZNE-429", 1)[1].split("\n## ZNE-432", 1)[0]
+
+        self.assertIn(
+            "ask James directly whether the closest native entity/device-info representation is acceptable",
+            release_plan,
+        )
+        self.assertIn(
+            "ask James directly whether the closest native device-info representation is acceptable",
+            zne_429,
+        )
+        self.assertIn("ask James directly for release/deploy/restart approval", zne_429)
+        self.assertNotIn("review whether the closest native device-info representation is acceptable", zne_429)
 
     def test_ui_implementation_map_stage9_does_not_reopen_0190_install_loop(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
