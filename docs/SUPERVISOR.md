@@ -220,7 +220,7 @@ If blocked on James, continue only with safe adjacent work that does not violate
 The project is in good shape for this phase when:
 - the approved `0.1.91` / release `1.91` integration-main-page device-list scope has been completed without broadening into unrelated polish
 - the Zero Net Export main integration page visibly shows a Managed Devices device list and an Un Managed device list in native Home Assistant
-- managed loads and unmanaged candidates appear as individual Home Assistant device rows under the Zero Net Export integration, or a documented HA platform constraint has been escalated before implementation substitutes another representation
+- managed loads and unmanaged candidates appear as individual Home Assistant device rows under the Zero Net Export integration, or a documented HA platform constraint has been escalated before release execution and accepted before the candidate is called successful
 - the tested live install is known to be serving the intended package/build
 - release confidence is based on real proof, not repo confidence alone
 

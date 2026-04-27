@@ -186,7 +186,7 @@ On `Settings -> Devices & Services -> Integrations -> Zero Net Export`, the prod
 
 This is different from the previous `0.1.90` device-info-page entity/button work. A `Managed Devices overview` sensor, `Open Managed Devices workspace` button, Activity entry, or persistent notification does not satisfy this design target.
 
-The likely implementation model is to register managed loads and unmanaged candidates as HA device-registry devices associated with the Zero Net Export config entry, so Home Assistant renders them in the integration detail page's Devices area. If HA cannot natively render literal custom group headings for `Managed Devices` and `Un Managed`, that constraint must be reported before implementation and the closest native representation must be agreed; do not silently substitute renamed entities/buttons.
+The implementation model is to register managed loads and unmanaged candidates as HA device-registry devices associated with the Zero Net Export config entry, so Home Assistant renders them in the integration detail page's Devices area. If HA cannot natively render literal custom group headings for `Managed Devices` and `Un Managed`, that constraint must be documented before release execution and the closest native representation must be agreed before the candidate is called successful; do not silently substitute renamed entities/buttons.
 
 ## Managed Devices workspace
 
@@ -407,7 +407,7 @@ The page must show an `Un Managed` group/list underneath Managed Devices.
 That list must contain unmanaged candidate devices as individual Home Assistant device rows so candidates are visible before promotion.
 
 ### 4. Platform limits must be stated before substitutions
-If Home Assistant's native integration page cannot render literal `Managed Devices` and `Un Managed` group headings, that must be documented and escalated before implementation.
+If Home Assistant's native integration page cannot render literal `Managed Devices` and `Un Managed` group headings, that must be documented before release execution and escalated for James's acceptance before the candidate is called successful.
 
 Do not silently substitute renamed sensors, buttons, notifications, or Configure screens for the requested integration-page device lists.
 

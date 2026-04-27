@@ -20,7 +20,7 @@ Do not treat `0.1.90` device-info-page entity rows, Controls buttons, Activity r
 
 Do not use stale `0.1.83`, `0.1.85`, `0.1.86`, `0.1.88`, `0.1.89`, or `0.1.90` wording as the active target. The active target is the integration-main-page device-list outcome in `docs/RELEASE_0.1.91_PLAN.md`.
 
-If Home Assistant cannot natively render literal custom group headings for this page, report that as a platform constraint before implementation and propose the closest native device-registry representation. Do not substitute renamed sensors/buttons for the requested lists.
+If Home Assistant cannot natively render literal custom group headings for this page, document that as a platform constraint before release execution and ask James whether the closest native device-registry representation is acceptable before the candidate is called successful. Do not substitute renamed sensors/buttons for the requested lists.
 
 ## Status summary
 

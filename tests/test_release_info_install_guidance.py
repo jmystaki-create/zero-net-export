@@ -298,6 +298,23 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("if James rejects the native child-device representation", zne_433)
         self.assertIn("closed with repo-side source-of-truth/test validation", zne_433)
 
+    def test_0191_platform_constraint_boundary_is_pre_release_not_pre_implementation(self) -> None:
+        ui_design = (REPO_ROOT / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
+        plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
+        supervisor = (REPO_ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_434 = bugs.split("## ZNE-434", 1)[1].split("\n## ZNE-433", 1)[0]
+
+        for text in (ui_design, plan, supervisor):
+            self.assertNotIn("before implementation and the closest native representation", text)
+            self.assertNotIn("before implementation substitutes another representation", text)
+            self.assertIn("before release execution", text)
+
+        self.assertIn("agreed before the candidate is called successful", ui_design)
+        self.assertIn("ask James whether the closest native device-registry representation is acceptable", plan)
+        self.assertIn("- **status:** `closed`", zne_434)
+        self.assertIn("pre-release/pre-success acceptance boundary", zne_434)
+
     def test_ui_implementation_map_stage9_does_not_reopen_0190_install_loop(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
         stage9 = plan.split("### Stage 9. Live validation and release gate", 1)[1].split(

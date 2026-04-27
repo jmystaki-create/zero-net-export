@@ -106,6 +106,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
 - **next action:** ask James directly whether the closest native device-info representation is acceptable for the requested group/list outcome; if accepted, freeze/version `0.1.91`, ask James directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
+## ZNE-434 - Source docs still said the 0.1.91 platform constraint must be escalated before implementation
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-27 after `90da5cd` implemented the closest native child-device representation and `3dfac82` clarified conditional acceptance.
+- **current observed behavior:** `docs/UI_DESIGN.md`, the top of `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/SUPERVISOR.md` still said the literal-heading platform constraint had to be reported or escalated before implementation, even though the repo candidate already exists and the real boundary is James accepting or rejecting that closest native representation before release/success.
+- **expected behavior:** source-of-truth wording should not make future runners think implementation is still forbidden or unstarted. It should say the constraint must be documented before release execution and accepted before the candidate is called successful, while preserving the ban on silent sensor/button/custom-UI substitution.
+- **repo fix:** this run updates those source-of-truth passages from a stale pre-implementation boundary to the current pre-release/pre-success acceptance boundary.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** ask James directly whether the closest native child-device representation is acceptable; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+
 ## ZNE-433 - 0.1.91 acceptance text still required literal headings after platform constraint
 
 - **status:** `closed`
