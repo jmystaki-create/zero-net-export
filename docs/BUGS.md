@@ -88,6 +88,19 @@ Suggested area labels:
 
 
 
+## ZNE-418 - Secondary device-page path still named generic per-device Review buttons
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking `ZNE-411` and the `0.1.90` device-page Managed Devices surface against Workstream E secondary review/audit wording.
+- **current observed behavior:** `custom_components/zero_net_export/native_support.py` still described the detailed management path as `per-device Review buttons`, and the workspace/review notification guidance in `button.py` told operators to use `per-device Review buttons`. That left a generic review-control phrase inside the same secondary device-page path that now otherwise uses `Open Managed Devices workspace`, `Open Managed Devices review`, and `Managed Devices review: <device>`.
+- **expected behavior:** secondary device-page handoff copy should keep per-device audit controls visibly attached to the Managed Devices surface by naming them as per-device `Managed Devices review` buttons, not generic Review buttons.
+- **evidence:** direct grep found `per-device Review buttons` in `native_support.py`, `button.py`, and focused tests while `ZNE-411` requires the device page to visibly expose a Managed Devices surface instead of generic review controls.
+- **repo fix:** this run renames the detailed management path and notification guidance to `per-device Managed Devices review buttons`, updates regression tests to reject the generic phrase, adds archive-pointer coverage that prevents `docs/UI_DESIGN-old.md` from reviving the active `0.1.89` line, and records the fix in the changelog.
+- **validation status:** repo-side fixed and verified with focused source-repair, button, release-guidance tests plus py_compile. Live HA validation remains pending as part of the installed `0.1.90` acceptance pass.
+- **next action:** continue `ZNE-411`: ask James directly for `0.1.90` release/deploy/restart validation approval once the corrective repo candidate is ready, then capture screenshot-grade device-page Managed Devices evidence.
+
+
 ## ZNE-417 - Validation checklist revived mapped 0.1.89 workstream order
 - **status:** `closed`
 - **severity:** `medium`
@@ -742,11 +755,11 @@ Suggested area labels:
 - **severity:** `low`
 - **area:** `docs`
 - **where seen:** watchdog repo audit on 2026-04-27 while checking source-of-truth drift against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/SUPERVISOR.md`.
-- **current observed behavior:** `docs/UI_DESIGN-old.md` had an archive warning at the top but still repeated the old snapshot body, including stale `0.1.83` UI-release language and older source-mapping/section wording. That kept a misleading historical document one scroll away from contradicting the current native-only `0.1.89` implementation map.
+- **current observed behavior:** `docs/UI_DESIGN-old.md` had an archive warning at the top but still repeated the old snapshot body, including stale `0.1.83` UI-release language and older source-mapping/section wording. That kept a misleading historical document one scroll away from contradicting the then-current native-only `0.1.89` implementation map; the archive pointer is now also aligned with the active `0.1.90` corrective line.
 - **expected behavior:** archived design material should defer cleanly to the current source-of-truth files and should not preserve stale release-target or section-ownership wording that can be mistaken for current project direction.
-- **evidence:** direct repo inspection found `docs/UI_DESIGN-old.md` still contained `0.1.83` release-gate wording and older `source mapping` UI text despite the current source-of-truth docs naming the `0.1.89` follow-up line.
+- **evidence:** direct repo inspection found `docs/UI_DESIGN-old.md` still contained `0.1.83` release-gate wording and older `source mapping` UI text despite the then-current source-of-truth docs naming the `0.1.89` follow-up line; a later watchdog pass also removed the archived pointer's stale `0.1.89` active-line wording after `0.1.90` became the corrective target.
 - **repo fix:** this run replaces the old snapshot body with a concise archive pointer to `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/BUGS.md`, and `docs/SUPERVISOR.md`.
-- **validation status:** repo-side fixed and verified with `rg -n "0\.1\.83|0\.1\.85|0\.1\.86|0\.1\.87|source mapping|source-mapping|source mappings" docs/UI_DESIGN-old.md` returning no matches. Live Home Assistant validation is not applicable for this docs/process drift.
+- **validation status:** repo-side fixed and verified with focused archive-pointer coverage plus grep checks rejecting stale older release targets, source-mapping wording, and the archived pointer's stale active `0.1.89` follow-up phrase. Live Home Assistant validation is not applicable for this docs/process drift.
 - **next action:** recheck this fix opportunistically during the `0.1.90` acceptance pass; do not request another `0.1.89` install/restart or re-open the completed `v0.1.89` freeze/publication boundary.
 
 ## ZNE-363 - Promotion fallback preset copy used generic custom-configuration wording

@@ -167,6 +167,13 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("remaining `0.1.89` UI rollout", optimization_target)
         self.assertNotIn("ordered `0.1.89` UI work", acceptance_stance)
 
+    def test_archived_ui_design_pointer_does_not_revive_0189_active_line(self) -> None:
+        archived = (REPO_ROOT / "docs" / "UI_DESIGN-old.md").read_text(encoding="utf-8")
+
+        self.assertIn("historical only", archived)
+        self.assertIn("`0.1.90` corrective device-page Managed Devices release", archived)
+        self.assertNotIn("native-only `0.1.89` follow-up", archived)
+
     def test_ui_design_current_visible_outcomes_use_0190_device_page_boundary(self) -> None:
         design = (REPO_ROOT / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
         visible_outcomes = design.split(

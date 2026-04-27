@@ -635,7 +635,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn("Open Managed Devices workspace", native_support.DETAILED_MANAGEMENT_PATH)
         self.assertIn("Open Managed Devices review", native_support.DETAILED_MANAGEMENT_PATH)
         self.assertNotIn("Review managed devices workspace", native_support.DETAILED_MANAGEMENT_PATH)
-        self.assertIn("per-device Review buttons", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertIn("per-device Managed Devices review buttons", native_support.DETAILED_MANAGEMENT_PATH)
+        self.assertNotIn("per-device Review buttons", native_support.DETAILED_MANAGEMENT_PATH)
 
     def test_support_snapshot_uses_diagnostics_snapshot_wording(self) -> None:
         native_support = _load_native_support_module()

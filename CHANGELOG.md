@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Reworded the secondary device-page handoff path and notification guidance from generic per-device `Review` buttons to per-device `Managed Devices review` buttons, keeping the audit path visibly attached to the `0.1.90` Managed Devices surface.
 - Renamed the Configure Managed Devices enable/edit/remove action labels and enablement title away from generic `Review managed devices workspace` wording, so the fleet workspace starts with `Managed Devices workspace` consistently with the `0.1.90` device-page surface.
 - Renamed the per-device device-page audit buttons and notification titles from generic `Review <device>` wording to `Managed Devices review: <device>`, so managed-load rows stay attached to the visible Managed Devices surface instead of reading as unrelated review controls.
 - Made the Home Assistant device-page fleet rows and actions visibly start with `Managed Devices`, including a new `Managed Devices surface` at-a-glance sensor plus the overview, backlog, surfaced candidate, candidate usefulness, next-step sensors, and review/workspace buttons, so the existing native entity cluster reads as a current Managed Devices surface instead of generic lower-case review controls.
