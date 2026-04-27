@@ -2716,7 +2716,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         f"- source_mismatch: {getattr(state, 'source_mismatch', None)}",
         f"- battery_below_reserve: {getattr(state, 'battery_below_reserve', None)}",
         f"- confidence: {getattr(state, 'confidence', None)}",
-        f"- recommendation: {getattr(state, 'recommendation', None)}",
+        f"- current_native_next_action: {getattr(state, 'recommendation', None)}",
         f"- last_action_status: {getattr(state, 'last_action_status', None)}",
         f"- last_action_summary: {getattr(state, 'last_action_summary', None)}",
         f"- recent_failure_summary: {getattr(state, 'recent_failure_summary', None)}",
