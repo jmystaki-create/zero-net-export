@@ -103,7 +103,7 @@ def build_control_plan(context: PlannerContext, devices: list[DeviceRuntime]) ->
         return ControlPlan(
             status="blocked",
             summary="Safe mode is blocking control actions",
-            reason="Source validation is degraded or blocked, so the planner will not recommend device actions.",
+            reason="Source validation is degraded or blocked, so the planner will not surface device actions.",
             export_error_w=None,
             action_count=0,
             planned_power_delta_w=0.0,

@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-399 - Safe-mode planner reason used recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `controls`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream A/D current-focus wording after the visible next-action entity and release metadata moved away from recommendation/ranking language.
+- **current observed behavior:** the safe-mode `ControlPlan.reason` still said `the planner will not recommend device actions`. That reason can feed native status/support attributes and kept retired recommendation wording in the controller outcome path.
+- **expected behavior:** safe-mode planner copy should describe concrete action planning/surfacing without implying ranked recommendations, while preserving the blocked-control meaning.
+- **evidence:** direct repo inspection found the stale phrase in `custom_components/zero_net_export/planner.py`; new focused coverage exercises the safe-mode plan reason and rejects `recommend` in that visible planner copy.
+- **repo fix:** this run changes the safe-mode reason to `the planner will not surface device actions` and adds focused planner-copy regression coverage.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_planner_copy` plus `python3 -m py_compile custom_components/zero_net_export/planner.py tests/test_planner_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D planner-copy cleanup in the next `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another recommendation-wording or fingerprint-bookkeeping pass.
+
 ## ZNE-398 - Grouped Fleet activity labels were not idempotent
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
