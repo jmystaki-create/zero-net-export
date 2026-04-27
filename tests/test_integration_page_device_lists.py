@@ -292,6 +292,33 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [set()])
 
+    def test_fleet_workspace_summaries_tolerate_null_managed_detail(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data.device_details = {"pool": None}
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "managed_fleet_overview",
+            "Managed Devices overview",
+        )
+        sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertIn("1 managed", sensor.native_value)
+        self.assertEqual(sensor.extra_state_attributes["managed_devices"], [{}])
+
+    def test_per_device_sensors_tolerate_null_managed_detail(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data.device_details = {"pool": None}
+
+        status = sensor_module.ZeroNetExportDeviceStatusSensor(coordinator, "pool", "Pool")
+        summary = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool")
+
+        self.assertIsNone(status.native_value)
+        self.assertEqual(status.extra_state_attributes, {})
+        self.assertIn("status unknown", summary.native_value)
+
     def test_setup_entry_tolerates_missing_runtime_device_details(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

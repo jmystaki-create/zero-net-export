@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-480 - null managed-device detail could crash fleet workspace and per-device row sensors
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after ZNE-479 fixed null managed details for integration-page setup/candidate discovery but the native Managed Devices fleet workspace sensors and per-device row sensors still read managed detail values directly.
+- **current observed behavior:** if a managed-device runtime detail value was temporarily `None`, integration-page setup could keep the child row, but `managed_fleet_overview`/related workspace summaries and per-device status/power/plan/detail sensors could call `.get(...)` on `None` while rendering native Home Assistant rows.
+- **expected behavior:** all native Managed Devices workspace summaries and per-device row sensors should normalize null managed detail values to an empty detail mapping, render unknown/default state where needed, and keep the native HA device-list path intact.
+- **repo fix:** this run adds shared managed-device detail normalization in `sensor.py` and routes fleet summary counts, first-device selection, workspace attributes, and per-device row sensors through it.
+- **validation status:** closed with focused regression coverage for null managed details in fleet workspace summaries and per-device sensors, plus the existing integration-page setup null-detail coverage and Python compile.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-479 - null managed-device detail could crash integration-page candidate rows
 
 - **status:** `closed`
