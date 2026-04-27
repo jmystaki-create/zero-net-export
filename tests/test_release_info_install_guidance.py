@@ -263,6 +263,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertLess(release_target, native_acceptance)
         self.assertLess(order_summary_target, order_summary_acceptance)
         self.assertIn("ask James directly whether this closest native representation is acceptable for the chosen target", detailed_map)
+        self.assertIn("froze `v0.1.92` at `db5c246` and `v0.1.93` at `026f189`", detailed_map)
         self.assertIn("helper now resolves the frozen candidate to `4c0d071` / `v0.1.94`", detailed_map)
         self.assertIn("ask James directly whether `v0.1.94` replaces the documented `0.1.91` target", detailed_map)
         self.assertIn("`7217f3b`, the post-tag `c4802a3` component boundary, the unapproved `db5c246` / `v0.1.92` freeze, the unapproved `026f189` / `v0.1.93` freeze, and the newer `4c0d071` / `v0.1.94` freeze are not deploy approval", detailed_map)

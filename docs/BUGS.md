@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-447 - ordered map release-target step skipped the 0.1.93 freeze
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog detailed-map audit on 2026-04-28 after the source-of-truth release hold moved to `4c0d071` / `v0.1.94` while the current ordered `0.1.91` map's release-target step still jumped from `db5c246` / `v0.1.92` directly to `4c0d071` / `v0.1.94`.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_MAP.md` correctly named `026f189` / `v0.1.93` in the status summary and lower order-of-execution summary, but the numbered current ordered map item 2 omitted that intermediate freeze. Because the supervisor must follow the numbered map strictly, that gap could make future release-target asks misstate the actual unapproved candidate chain.
+- **expected behavior:** the ordered map's first release-target decision step should name `v0.1.92`, `v0.1.93`, and `v0.1.94` consistently before any Home Assistant install, restart, fingerprint validation, or screenshot claim.
+- **repo fix:** this run updates current ordered map item 2 to include `v0.1.93` at `026f189` between the `v0.1.92` freeze and the `v0.1.94` helper-resolved candidate, and adds regression coverage for that chain.
+- **validation status:** closed with focused source-of-truth regression coverage; no Home Assistant live validation is required for this process-order correction.
+- **next action:** keep the next real boundary on James deciding whether `4c0d071` / `v0.1.94` replaces the documented `0.1.91` release target, then closest-native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-446 - validation checklist skipped the 0.1.92 release-target hold
 
 - **status:** `closed`
