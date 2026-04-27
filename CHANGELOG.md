@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Renamed the per-device device-page audit buttons and notification titles from generic `Review <device>` wording to `Managed Devices review: <device>`, so managed-load rows stay attached to the visible Managed Devices surface instead of reading as unrelated review controls.
 - Made the Home Assistant device-page fleet rows and actions visibly start with `Managed Devices`, including the overview, backlog, surfaced candidate, candidate usefulness, next-step sensors, and review/workspace buttons, so the existing native entity cluster reads as a current Managed Devices surface instead of generic lower-case review controls.
 - Aligned Diagnostics support metadata and the detailed management path with the new `Open Managed Devices workspace` / `Open Managed Devices review` device-page action names, so validation/support evidence no longer points operators back to the generic failed `Review managed devices` controls from `0.1.89`.
 

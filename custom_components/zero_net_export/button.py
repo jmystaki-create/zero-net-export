@@ -1410,7 +1410,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_review", f"Review {device_name}")
+        super().__init__(coordinator, f"device_{device_key}_review", f"Managed Devices review: {device_name}")
         self._device_key = device_key
         self._attr_icon = "mdi:text-box-search-outline"
 
@@ -1481,7 +1481,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
                     ready_candidate_fit=ready_candidate_fit,
                 )
             ),
-            title=f"{self.coordinator.entry.title}: review {detail.get('name') or self._device_key}",
+            title=f"{self.coordinator.entry.title}: managed devices review: {detail.get('name') or self._device_key}",
             notification_id=_managed_device_detail_notification_id(self.coordinator.entry.entry_id, self._device_key),
         )
 

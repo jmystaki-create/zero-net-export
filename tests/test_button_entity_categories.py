@@ -1438,8 +1438,12 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         import asyncio
         asyncio.run(button.async_press())
 
-        self.assertEqual(button._attr_name, "Review Pool pump")
+        self.assertEqual(button._attr_name, "Managed Devices review: Pool pump")
         self.assertEqual(len(notification_calls), 1)
+        self.assertEqual(
+            notification_calls[0]["kwargs"]["title"],
+            "Test Entry: managed devices review: Pool pump",
+        )
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
         self.assertIn("Managed Devices workspace: devices path", message)
