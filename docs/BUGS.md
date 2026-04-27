@@ -106,6 +106,20 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
 - **next action:** ask James directly whether the closest native device-info representation is acceptable for the requested group/list outcome; if accepted, freeze/version `0.1.91`, ask James directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
+## Closed process corrections
+
+## ZNE-435 - Current active bugs section still visually included historical closed and fixed-pending backlog
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog bug-tracker audit on 2026-04-27 after ZNE-429 became the only active approved `0.1.91` scope item.
+- **current observed behavior:** `docs/BUGS.md` put ZNE-429 under `Current active bugs`, but the section continued through closed process entries and many historical `fixed_pending_validation` `0.1.89`/`0.1.90` backlog entries because there was no next level-two heading. That could still make runners treat stale validation tails as active work ahead of the required ZNE-429 James acceptance boundary.
+- **expected behavior:** the current-active section should contain only the current approved `0.1.91` blocker. Closed process corrections and historical fixed-pending validation backlog entries should be visibly outside the current-active section unless a fresh regression makes one relevant to ZNE-429.
+- **repo fix:** this run adds explicit section breaks after ZNE-429 so the current active section no longer visually swallows closed process corrections or the historical fixed-pending validation backlog, and adds regression coverage for that boundary.
+- **validation status:** closed with repo-side tracker/test validation; no Home Assistant live validation is required for this bug-tracker section correction.
+- **next action:** continue the ZNE-429 boundary: ask James directly whether the closest native child-device representation is acceptable; if accepted, freeze `0.1.91`, ask directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+
 ## ZNE-434 - Source docs still said the 0.1.91 platform constraint must be escalated before implementation
 
 - **status:** `closed`
@@ -197,6 +211,10 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
 - **next action:** continue with the next mapped UI polish or active fixed-pending-validation bugs, currently the post-`0.1.90` Managed Devices label fixes such as ZNE-425/ZNE-426, without reopening the completed `0.1.90` validation loop.
 
+
+## Historical fixed-pending validation backlog
+
+These entries remain tracked for future installed-build/browser validation, but they are not the current approved `0.1.91` scope unless a fresh regression or direct dependency affects ZNE-429.
 
 ## ZNE-426 - Native workspace headings still used lower-case Managed devices labels
 - **status:** `fixed_pending_validation`
