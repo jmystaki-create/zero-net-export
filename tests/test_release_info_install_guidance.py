@@ -103,7 +103,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertIn("## Superseded status", freeze_section)
         self.assertIn("This plan is historical", freeze_section)
-        self.assertIn("The active corrective release plan is `docs/RELEASE_0.1.90_PLAN.md`, tracked by `ZNE-411`.", freeze_section)
+        self.assertIn("The corrective `0.1.90` release plan and `ZNE-411` validation loop are now complete", freeze_section)
         self.assertIn("## Current execution state", freeze_section)
         self.assertIn("`v0.1.89` is now frozen and tagged at `844502b`", freeze_section)
         self.assertIn("The repo manifest now reports `0.1.89`", freeze_section)
@@ -117,12 +117,14 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("historical, completed and failed", install_section)
         self.assertIn("James's live screenshot showed the device page did not visibly deliver the requested Managed Devices surface", install_section)
         self.assertIn("Do not use this historical checklist to ask James to repeat the `0.1.89` install/restart/live-validation loop", install_section)
-        self.assertIn("The `0.1.90` approval, freeze, deploy, restart, and fingerprint path is now complete", install_section)
-        self.assertIn("remaining release-execution gap is screenshot-grade device-page validation", install_section)
+        self.assertIn("The `0.1.90` approval, freeze, deploy, restart, fingerprint, screenshot, and Managed Devices action-drill-down path is now complete", install_section)
+        self.assertIn("screenshot, and Managed Devices action-drill-down path is now complete", install_section)
+        self.assertNotIn("remaining release-execution gap is screenshot-grade", install_section)
         self.assertNotIn("- [ ] James refreshes HACS metadata", install_section)
         self.assertNotIn("- [ ] James installs/updates to `v0.1.89`", install_section)
         self.assertIn("Validation did fail on the device-page Managed Devices outcome", failure_section)
         self.assertIn("Do not fix or republish another `0.1.89` candidate", failure_section)
+        self.assertIn("Do not continue through the completed `docs/RELEASE_0.1.90_PLAN.md` / `ZNE-411` screenshot loop", failure_section)
 
 
 
@@ -168,6 +170,29 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("- **status:** `closed`", zne_427)
         self.assertIn("Supervisor still treated closed ZNE-411 as the current delivery target", zne_427)
         self.assertIn("no Home Assistant live validation is required for this process-state correction", zne_427)
+
+    def test_active_bug_next_actions_do_not_reopen_closed_zne_411_screenshot_loop(self) -> None:
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        entries = ["## ZNE-" + entry for entry in bugs.split("\n## ZNE-")[1:]]
+        active_fixed_pending = [
+            entry
+            for entry in entries
+            if "- **status:** `fixed_pending_validation`" in entry
+        ]
+        active_next_actions = "\n".join(
+            line
+            for entry in active_fixed_pending
+            for line in entry.splitlines()
+            if line.startswith("- **next action:**")
+        )
+
+        self.assertIn("## ZNE-428 - Active tracker tails still reopened closed ZNE-411 screenshot validation", bugs)
+        self.assertIn("- **status:** `closed`", bugs.split("## ZNE-428", 1)[1].split("\n## ZNE-427", 1)[0])
+        self.assertIn("include these Configure Managed Devices workspace labels in the next installed-build/browser acceptance pass", active_next_actions)
+        self.assertIn("include this Managed Devices review/workspace capitalization", active_next_actions)
+        self.assertNotIn("continue `ZNE-411`", active_next_actions)
+        self.assertNotIn("capturing screenshot-grade device-page Managed Devices evidence", active_next_actions)
+        self.assertNotIn("capture screenshot-grade device-page Managed Devices evidence", active_next_actions)
 
     def test_bug_tracker_no_longer_points_active_next_actions_at_0189_install_loop(self) -> None:
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")

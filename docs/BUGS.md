@@ -87,6 +87,19 @@ Suggested area labels:
 
 
 
+## ZNE-428 - Active tracker tails still reopened closed ZNE-411 screenshot validation
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `c5abc2b` closed the installed `0.1.90` screenshot/action-drill-down loop and `30725f2` stopped supervisor from treating `ZNE-411` as the current delivery target.
+- **current observed behavior:** active bug next-action tails and the historical `0.1.89` release plan still told runners to continue `ZNE-411` by capturing screenshot-grade device-page Managed Devices evidence and action-drill-down proof, even though `ZNE-411`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.90_PLAN.md`, and `docs/evidence/` now record that evidence as complete.
+- **expected behavior:** active tracker and historical release-plan tails should not reopen the completed `0.1.90` release/deploy/restart/fingerprint/screenshot/action-drill-down loop unless new live evidence regresses; remaining fixed-pending-validation Managed Devices label/copy bugs should point to the next installed-build/browser acceptance pass for those post-`0.1.90` fixes.
+- **evidence:** direct grep found stale `continue ZNE-411` / screenshot-grade next actions in active `fixed_pending_validation` entries ZNE-418 and ZNE-415, stale fixed-pending release/process entries ZNE-409 and ZNE-408, and stale `remaining release-execution gap is screenshot-grade...` wording in `docs/RELEASE_0.1.89_PLAN.md`.
+- **repo fix:** this run closes ZNE-408 and ZNE-409 as process/doc corrections, retargets ZNE-418 and ZNE-415 next actions to the next installed-build/browser acceptance pass for their own fixed-pending labels/copy, updates the historical `0.1.89` plan to say the `0.1.90` screenshot/action-drill-down loop is complete, and adds regression coverage rejecting active bug next actions that keep routing through closed `ZNE-411`.
+- **validation status:** closed with repo-side tracker/doc/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** continue with later ordered UI polish or active fixed-pending-validation bugs such as ZNE-425/ZNE-426/ZNE-418/ZNE-415; do not reopen the completed `0.1.90` screenshot/action-drill-down loop unless new live evidence regresses.
+
+
 ## ZNE-427 - Supervisor still treated closed ZNE-411 as the current delivery target
 - **status:** `closed`
 - **severity:** `medium`
@@ -216,8 +229,8 @@ Suggested area labels:
 - **expected behavior:** primary and secondary Managed Devices handoff copy should keep review/audit controls visibly attached to the Managed Devices surface by naming them as `Managed Devices review` buttons, notification titles, notification headings, and Configure section headings, not generic or lower-case review controls.
 - **evidence:** direct grep found `per-device Review buttons` in `native_support.py`, `button.py`, and focused tests while `ZNE-411` requires the device page to visibly expose a Managed Devices surface instead of generic review controls; follow-up audits found stale lowercase main/per-device notification titles and heading text in `button.py` and `tests/test_button_entity_categories.py`; a later pass found `Managed devices review:` locked into `strings.json`, `translations/en.json`, and `tests/test_bucket_ownership_copy.py` across nine Configure fleet/promotion screens; a follow-up found `Review each managed device` in `custom_components/zero_net_export/diagnostics.py` under `native_surfaces.device_page_buttons`; this run found `managed devices workspace` notification title/heading expectations in `button.py` and `tests/test_button_entity_categories.py`.
 - **repo fix:** this run renames the detailed management path and notification guidance to `per-device Managed Devices review buttons`, updates regression tests to reject the generic phrase, adds archive-pointer coverage that prevents `docs/UI_DESIGN-old.md` from reviving the active `0.1.89` line, corrects the per-device persistent-notification title to `Managed Devices review: <device>`, corrects the main review title/heading to `Managed Devices review`, capitalizes the Configure `Managed Devices review:` section heading across fleet and promotion descriptions, changes the diagnostics payload button metadata to `Per-device Managed Devices review buttons`, capitalizes the device-page `Managed Devices workspace` persistent-notification title and heading, capitalizes the per-device `Managed Devices workspace context` heading, and records the fixes in the changelog.
-- **validation status:** repo-side fixed and verified with focused source-repair, button, release-guidance tests plus py_compile; follow-up passes re-verified the main/per-device notification titles with focused button tests and py_compile, and verified the Configure heading capitalization with focused bucket-copy tests plus JSON parsing/py_compile. Follow-up diagnostics metadata wording was verified with `python3 -m unittest -q tests.test_diagnostics_payload_copy` and `python3 -m py_compile custom_components/zero_net_export/diagnostics.py tests/test_diagnostics_payload_copy.py`. This run verified the workspace title/heading capitalization with `python3 -m unittest -q tests.test_button_entity_categories.ButtonEntityCategoryTests.test_fleet_console_button_renders_managed_vs_unmanaged_workspace` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. A follow-up watchdog pass verified the per-device workspace-context heading with `python3 -m unittest -q tests.test_button_entity_categories.ButtonEntityCategoryTests.test_managed_device_detail_button_renders_per_device_review` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live HA validation remains pending as part of the installed `0.1.90` acceptance pass.
-- **next action:** continue `ZNE-411`: capture screenshot-grade device-page Managed Devices evidence and verify the Managed Devices action drill-down on the installed, fingerprint-matched `0.1.90` build; do not reopen the completed release/deploy/restart approval boundary.
+- **validation status:** repo-side fixed and verified with focused source-repair, button, release-guidance tests plus py_compile; follow-up passes re-verified the main/per-device notification titles with focused button tests and py_compile, and verified the Configure heading capitalization with focused bucket-copy tests plus JSON parsing/py_compile. Follow-up diagnostics metadata wording was verified with `python3 -m unittest -q tests.test_diagnostics_payload_copy` and `python3 -m py_compile custom_components/zero_net_export/diagnostics.py tests/test_diagnostics_payload_copy.py`. This run verified the workspace title/heading capitalization with `python3 -m unittest -q tests.test_button_entity_categories.ButtonEntityCategoryTests.test_fleet_console_button_renders_managed_vs_unmanaged_workspace` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. A follow-up watchdog pass verified the per-device workspace-context heading with `python3 -m unittest -q tests.test_button_entity_categories.ButtonEntityCategoryTests.test_managed_device_detail_button_renders_per_device_review` and `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live HA validation remains pending for the next installed-build/browser acceptance pass for post-`0.1.90` fixes.
+- **next action:** include this Managed Devices review/workspace capitalization and handoff copy in the next installed-build/browser acceptance pass for post-`0.1.90` fixes; do not reopen the completed `ZNE-411` screenshot/action-drill-down loop unless new live evidence regresses.
 
 
 ## ZNE-417 - Validation checklist revived mapped 0.1.89 workstream order
@@ -230,7 +243,7 @@ Suggested area labels:
 - **evidence:** direct repo inspection found the stale line in the checklist's `Next validation boundary` section while adjacent bullets already said `0.1.89` was installed, restarted, fingerprint-verified, and failed James's screenshot expectation.
 - **repo fix:** this run updates the checklist note to the `0.1.90` corrective device-page Managed Devices workstream order and adds regression coverage rejecting the stale mapped `0.1.89` workstream wording in that boundary.
 - **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-state correction.
-- **next action:** continue `ZNE-411`: capture screenshot-grade device-page Managed Devices evidence and verify the Managed Devices action drill-down on the installed, fingerprint-matched `0.1.90` build; do not reopen the completed release/deploy/restart approval boundary.
+- **next action:** no further action for this validation-checklist process correction unless new evidence revives the old `0.1.89` workstream-order loop.
 
 
 ## ZNE-416 - Bug tracker still pointed validation at another 0.1.89 install loop
@@ -254,8 +267,8 @@ Suggested area labels:
 - **expected behavior:** Configure Managed Devices labels should lead with `Managed Devices workspace` so the primary fleet workspace and the corrective device-page surface use one obvious native HA product name instead of generic review-control wording.
 - **evidence:** direct repo inspection found the stale labels in `custom_components/zero_net_export/config_flow.py`, `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and tests that locked the old wording in place.
 - **repo fix:** this run renames the managed-device enable/edit/remove menu labels to `Managed Devices workspace / ...`, renames the enablement title to `Managed Devices workspace enablement review`, syncs translations, records the fix in the changelog, and adds regression coverage rejecting `Review managed devices workspace` for those Configure labels.
-- **validation status:** repo-side fixed and verified with focused config-flow/bucket-copy/translation tests plus py_compile. Live HA validation remains pending as part of the installed `0.1.90` acceptance pass.
-- **next action:** continue `ZNE-411`: capture screenshot-grade device-page Managed Devices evidence and verify the Managed Devices action drill-down on the installed, fingerprint-matched `0.1.90` build; do not reopen the completed release/deploy/restart approval boundary.
+- **validation status:** repo-side fixed and verified with focused config-flow/bucket-copy/translation tests plus py_compile. Live HA validation remains pending for the next installed-build/browser acceptance pass for post-`0.1.90` fixes.
+- **next action:** include these Configure Managed Devices workspace labels in the next installed-build/browser acceptance pass for post-`0.1.90` fixes; do not reopen the completed `ZNE-411` screenshot/action-drill-down loop unless new live evidence regresses.
 
 
 ## ZNE-414 - UI design visible-outcomes section still named 0.1.89
@@ -326,7 +339,7 @@ Suggested area labels:
 
 
 ## ZNE-409 - Validation checklist still told runners to ask for the already-completed 0.1.89 freeze
-- **status:** `fixed_pending_validation`
+- **status:** `closed`
 - **severity:** `medium`
 - **area:** `release`
 - **where seen:** watchdog repo audit on 2026-04-27 after `844502b` froze/tagged `v0.1.89` and `a2de3da` marked the GitHub release published.
@@ -339,7 +352,7 @@ Suggested area labels:
 
 
 ## ZNE-408 - Release plan still described the already-frozen `0.1.89` candidate as pre-freeze
-- **status:** `fixed_pending_validation`
+- **status:** `closed`
 - **severity:** `medium`
 - **area:** `release`
 - **where seen:** watchdog repo audit on 2026-04-27 after `844502b` froze and tagged `v0.1.89` while `docs/RELEASE_0.1.89_PLAN.md` still presented the version bump/tag work as pending.
@@ -347,8 +360,8 @@ Suggested area labels:
 - **expected behavior:** release execution guidance should distinguish historical pre-freeze baseline from the current post-freeze state so the next runner does not re-ask for an already-completed freeze or loop on stale approval bookkeeping.
 - **evidence:** `git show --stat --oneline HEAD` showed `844502b release: freeze 0.1.89`; `git ls-remote --tags origin 'v0.1.89*'` and `git ls-remote --heads origin main` both resolved the release commit; `scripts/print_expected_install_fingerprint.py` reported `manifest_version=0.1.89`, `preferred_validation_commit=844502b`, and `repo_head_commit=844502b`; the full repo test suite passed 480 tests.
 - **repo fix:** this run updates `docs/RELEASE_0.1.89_PLAN.md` with the current frozen/tagged/published execution state, marks the completed freeze/tag/push/publication checklist items done, and makes the next gap James install/restart/live validation unless a materially new release blocker appears.
-- **validation status:** repo-side fixed and verified with `python3 -m unittest discover -s tests -q`, `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, remote tag/head inspection, and `gh release view` confirming `v0.1.89` is the latest non-draft, non-prerelease GitHub release. Live Home Assistant validation was overtaken by the installed-and-failed `0.1.89` device-page evidence; use the `0.1.90` acceptance pass for any remaining live rechecks.
-- **next action:** Do not ask James to reinstall `v0.1.89` or reopen completed `0.1.90` release/deploy/restart approval; continue `ZNE-411` by capturing screenshot-grade device-page Managed Devices evidence and verifying the Managed Devices action drill-down on the installed, fingerprint-matched `0.1.90` build.
+- **validation status:** closed with repo-side release-plan/test validation; no Home Assistant live validation is required for this historical release-plan correction.
+- **next action:** no further action for this historical release-plan bug unless new evidence revives the old `0.1.89` pre-freeze/publication loop.
 
 
 ## ZNE-407 - Case-variant Fleet activity count labels could stay ungrouped

@@ -4,7 +4,7 @@
 
 This plan is historical. `v0.1.89` was frozen, published, installed, restarted, and fingerprint-verified, but James's live device-page screenshot showed it did not deliver the required Managed Devices device-page surface.
 
-Do not use this file as the active release plan or ask James to repeat the `0.1.89` install/restart/live-validation loop. The active corrective release plan is `docs/RELEASE_0.1.90_PLAN.md`, tracked by `ZNE-411`.
+Do not use this file as the active release plan or ask James to repeat the `0.1.89` install/restart/live-validation loop. The corrective `0.1.90` release plan and `ZNE-411` validation loop are now complete unless new live evidence regresses.
 
 ## Purpose
 
@@ -31,7 +31,7 @@ Always re-run `scripts/print_expected_install_fingerprint.py` immediately before
 - Current helper output reports `manifest_version=0.1.89` and `preferred_validation_commit=844502b`; the preferred component validation boundary remains the frozen tag even when later repo `HEAD` commits are docs-only.
 - Repo tests at the freeze audit passed with `480` tests.
 
-From here, do not ask James for permission to perform the already-completed version freeze again, repeat the already-completed GitHub publication check, or rerun the now-failed `0.1.89` install/restart/live-validation loop. The corrective `0.1.90` release/deploy/restart and fingerprint boundary is now complete; the remaining release-execution gap is screenshot-grade device-page Managed Devices evidence and action drill-down validation, unless a materially new release-blocking defect appears.
+From here, do not ask James for permission to perform the already-completed version freeze again, repeat the already-completed GitHub publication check, rerun the now-failed `0.1.89` install/restart/live-validation loop, or reopen the completed `0.1.90` release/deploy/restart/fingerprint/screenshot/action-drill-down loop unless new live evidence regresses. Continue only with later ordered UI polish or active fixed-pending-validation bugs.
 
 ## Why 0.1.89 exists
 
@@ -117,7 +117,7 @@ Specifically avoid:
 - [x] James's live screenshot showed the device page did not visibly deliver the requested Managed Devices surface.
 - [x] The failed device-page evidence is now tracked by `ZNE-411` and superseded by `docs/RELEASE_0.1.90_PLAN.md`.
 
-Do not use this historical checklist to ask James to repeat the `0.1.89` install/restart/live-validation loop. The `0.1.90` approval, freeze, deploy, restart, and fingerprint path is now complete; the remaining release-execution gap is screenshot-grade device-page validation and Managed Devices action drill-down proof.
+Do not use this historical checklist to ask James to repeat the `0.1.89` install/restart/live-validation loop. The `0.1.90` approval, freeze, deploy, restart, fingerprint, screenshot, and Managed Devices action-drill-down path is now complete unless new live evidence regresses.
 
 ## Acceptance outcomes (historical, failed on device-page evidence)
 
@@ -139,4 +139,4 @@ Validation did fail on the device-page Managed Devices outcome after the install
 - Exact evidence is recorded in `docs/BUGS.md` under `ZNE-411`.
 - The issue is a genuine native device-page product/UI gap, not install drift or stale HACS cache.
 - Do not fix or republish another `0.1.89` candidate.
-- Continue through `docs/RELEASE_0.1.90_PLAN.md` by capturing screenshot-grade device-page Managed Devices evidence and validating the Managed Devices action drill-down on the installed, fingerprint-matched `0.1.90` build.
+- Do not continue through the completed `docs/RELEASE_0.1.90_PLAN.md` / `ZNE-411` screenshot loop unless new live evidence regresses; continue with later ordered UI polish or active fixed-pending-validation bugs instead.
