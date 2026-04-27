@@ -86,6 +86,19 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-407 - Case-variant Fleet activity count labels could stay ungrouped
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** fallback Fleet activity text with title-case or otherwise case-variant count labels such as `No Managed Yet` and `2 Unmanaged Devices` could bypass count recognition and comma delimiter normalization. That kept managed/unmanaged fleet state as a flat fallback string instead of the clearer `Managed devices: ...; Unmanaged backlog: ...` operator grouping.
+- **expected behavior:** Fleet activity fallback/count normalization should be case-insensitive for known count labels while preserving entity/device name casing, so cached or restored status text still tells the same managed-on-top / unmanaged-below story.
+- **evidence:** focused regression coverage now exercises `No Managed Yet, 2 Unmanaged Devices, review Garage relay` and requires canonical managed/unmanaged grouping without preserving the case-variant count labels.
+- **repo fix:** this run makes Fleet activity count recognition and comma delimiter normalization case-insensitive for known count patterns, while canonicalization only rewrites matched count labels and leaves non-count detail casing intact.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity case-normalization cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
+
 ## ZNE-406 - Device-page action attributes exposed retired recommended focus keys
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

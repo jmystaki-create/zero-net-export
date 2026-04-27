@@ -322,7 +322,7 @@ def _compact_unmanaged_count_label(count: int) -> str:
 
 
 def _is_unmanaged_count_part(text: str) -> bool:
-    normalized = " ".join(str(text or "").split())
+    normalized = " ".join(str(text or "").split()).casefold()
     return (
         normalized == "no unmanaged candidates"
         or normalized.endswith(" unmanaged")
@@ -333,7 +333,7 @@ def _is_unmanaged_count_part(text: str) -> bool:
 
 
 def _is_managed_count_part(text: str) -> bool:
-    normalized = " ".join(str(text or "").split())
+    normalized = " ".join(str(text or "").split()).casefold()
     return (
         normalized == "no managed yet"
         or re.fullmatch(r"\d+ managed", normalized) is not None
@@ -343,7 +343,12 @@ def _is_managed_count_part(text: str) -> bool:
 
 def _canonicalize_fleet_activity_count_part(text: str) -> str:
     normalized = " ".join(str(text or "").split())
-    tokens = normalized.split()
+    normalized_casefold = normalized.casefold()
+    if normalized_casefold == "no managed yet":
+        return "no managed yet"
+    if normalized_casefold == "no unmanaged candidates":
+        return "no unmanaged candidates"
+    tokens = normalized_casefold.split()
     if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "managed" and tokens[0] == "0":
         return "no managed yet"
     if len(tokens) == 2 and tokens[0].isdigit() and tokens[1] == "unmanaged":
@@ -495,7 +500,8 @@ _FLEET_ACTIVITY_COMMA_DELIMITER_RE = re.compile(
     r"\d+ ready to promote|"
     r"attention first |blocked |plan |active load |active device |"
     r"review-first |ready-next |review |ready |surfaced |fixed backlog |variable backlog "
-    r"))"
+    r"))",
+    re.IGNORECASE,
 )
 
 

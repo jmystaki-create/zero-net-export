@@ -251,6 +251,20 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertNotIn("Unmanaged backlog: no unmanaged candidates", formatted)
 
+    def test_fleet_activity_operator_format_normalizes_case_variant_count_labels(self) -> None:
+        native_support = _load_native_support_module()
+
+        formatted = native_support.format_fleet_activity_for_operator(
+            "No Managed Yet, 2 Unmanaged Devices, review Garage relay"
+        )
+
+        self.assertEqual(
+            formatted,
+            "Managed devices: no managed yet; Unmanaged backlog: 2 unmanaged backlog | review Garage relay",
+        )
+        self.assertNotIn("No Managed Yet", formatted)
+        self.assertNotIn("Unmanaged Devices", formatted)
+
     def test_fleet_activity_operator_format_strips_case_variant_managed_devices_prefix(self) -> None:
         native_support = _load_native_support_module()
 
