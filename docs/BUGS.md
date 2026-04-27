@@ -87,6 +87,19 @@ Suggested area labels:
 
 
 
+## ZNE-420 - Implementation map still had an active-looking 0.1.89 success gate
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after the active source-of-truth docs had moved the corrective device-page Managed Devices target to `0.1.90`.
+- **current observed behavior:** near the top of `docs/UI_IMPLEMENTATION_MAP.md`, the section heading `What counts as success for 0.1.89` and the line ``0.1.89` should not be called a successful UI release unless...` still read like an active release gate, even though adjacent source-of-truth text says `0.1.89` is installed, fingerprint-verified, and live-failed on device-page evidence.
+- **expected behavior:** the implementation map should preserve the old `0.1.89` criteria only as historical failed evidence and keep `0.1.90` as the active success gate/release target.
+- **evidence:** direct repo inspection found the active-looking `0.1.89` success heading before the current `0.1.90` success criteria, creating a loop-risk contradiction with `docs/SUPERVISOR.md`, `docs/RELEASE_0.1.90_PLAN.md`, and `ZNE-411`.
+- **repo fix:** this run renames the section to historical failed `0.1.89` success criteria, changes the lead sentence to past tense, and adds regression coverage so the active implementation map cannot silently revive `0.1.89` as the current success gate.
+- **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** ask James directly for `0.1.90` release/deploy/restart validation approval, then freeze/publish/deploy the exact approved build and capture screenshot-grade device-page Managed Devices evidence.
+
+
 
 ## ZNE-419 - 0.1.90 release plan still showed repo implementation as unstarted
 - **status:** `closed`

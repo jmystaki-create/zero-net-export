@@ -173,6 +173,17 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("Publish/deploy the approved `v0.1.89` candidate", detailed_map)
         self.assertNotIn("treat them as post-`0.1.89` work", detailed_map)
 
+    def test_ui_implementation_map_keeps_0189_success_gate_historical(self) -> None:
+        plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
+        current_success = plan.split("### Still blocked or incomplete", 1)[1].split(
+            "## What counts as success for 0.1.90", 1
+        )[0]
+
+        self.assertIn("## Historical 0.1.89 success criteria (failed on device-page evidence)", current_success)
+        self.assertIn("Keep this section as historical evidence for why `0.1.90` exists", current_success)
+        self.assertNotIn("## What counts as success for 0.1.89", current_success)
+        self.assertNotIn("`0.1.89` should not be called a successful UI release", current_success)
+
     def test_supervisor_steering_uses_0190_corrective_ui_rollout(self) -> None:
         supervisor = (REPO_ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
         optimization_target = supervisor.split("## Project optimization target", 1)[1].split("## What counts as real progress", 1)[0]

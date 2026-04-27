@@ -57,9 +57,9 @@ If a change does not materially improve one of those visible outcomes, it should
 - The native Managed Devices path, promotion flow, and four-bucket IA still do not feel proven until the exact current helper-resolved build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
 
-## What counts as success for 0.1.89
+## Historical 0.1.89 success criteria (failed on device-page evidence)
 
-`0.1.89` should not be called a successful UI release unless all of the following are true:
+`0.1.89` was intended to count as a successful UI release only if all of the following were true, but James's live installed screenshot proved the device-page Managed Devices outcome was still missing. Keep this section as historical evidence for why `0.1.90` exists; do not use it as the active success gate or next release target.
 
 1. **Managed vs unmanaged is visually obvious**
    - the Managed Devices path clearly shows the current managed fleet
