@@ -285,6 +285,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("later `v0.1.94` at `4c0d071`", release_plan)
         self.assertIn("Do not deploy, restart, fingerprint-validate, or call successful either the old `7217f3b` tag", release_plan)
         self.assertIn("until James explicitly decides whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` release target", release_plan)
+        self.assertIn("after post-freeze component fixes", release_plan)
+        self.assertNotIn("after the post-freeze component guidance fix", release_plan)
         self.assertIn("do not treat the `v0.1.91` freeze/tag, the unapproved `v0.1.92` freeze/tag, the unapproved `v0.1.93` freeze/tag, the unapproved `v0.1.94` freeze/tag, or the post-freeze helper-resolved component boundary", zne_429)
         self.assertIn("Ask James directly whether the current helper-resolved manifest `0.1.94` component boundary should replace", zne_429)
         self.assertIn("only after that decision, ask for native-row acceptance and exact release/deploy/restart approval", zne_429)
