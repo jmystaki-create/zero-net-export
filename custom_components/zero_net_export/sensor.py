@@ -98,6 +98,7 @@ SENSOR_DEFS = {
     "planned_power_delta_w": "Planned power delta",
     "variable_planned_power_delta_w": "Variable planned power delta",
     "fixed_planned_power_delta_w": "Fixed planned power delta",
+    "managed_devices_surface": "Managed Devices surface",
     "managed_fleet_overview": "Managed Devices overview",
     "managed_fleet_attention": "Managed Devices attention",
     "managed_fleet_ready": "Managed Devices ready next",
@@ -148,6 +149,7 @@ def _candidate_usefulness_summary(candidate: dict) -> str:
 
 
 FLEET_WORKSPACE_SENSOR_KEYS = {
+    "managed_devices_surface",
     "managed_fleet_overview",
     "managed_fleet_attention",
     "managed_fleet_ready",
@@ -778,7 +780,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         candidates = None
         if self._key in FLEET_WORKSPACE_SENSOR_KEYS:
             candidates = _candidate_devices_for_state(self.coordinator, self.hass, state)
-        if self._key in {"managed_fleet_overview", "managed_fleet_attention", "managed_fleet_ready"}:
+        if self._key in {"managed_devices_surface", "managed_fleet_overview", "managed_fleet_attention", "managed_fleet_ready"}:
             counts = _managed_fleet_counts(state.device_details)
             blocked_activity_count = counts["blocked_count"] or int(getattr(state, "blocked_planned_action_count", 0) or 0)
             candidate_count = len(candidates)
@@ -838,6 +840,43 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             blocking_source_summary = build_source_attention_summary(state, merged, limit=2, blocking_only=True)
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=1)
             source_blocked = blocking_source_summary != "None" or blocking_validation_details != "None"
+
+            if self._key == "managed_devices_surface":
+                surface_parts = ["Managed Devices surface"]
+                surface_parts.append(
+                    "no managed yet" if counts["managed_count"] == 0 else f"{counts['managed_count']} managed"
+                )
+                if counts["attention_count"]:
+                    surface_parts.append(
+                        "1 needs attention"
+                        if counts["attention_count"] == 1
+                        else f"{counts['attention_count']} need attention"
+                    )
+                elif counts["managed_count"]:
+                    surface_parts.append("managed clear")
+                if blocked_activity_count:
+                    surface_parts.append(
+                        f"blocked {first_blocked_name}" if first_blocked_name else f"blocked {blocked_activity_count}"
+                    )
+                elif counts["planned_count"]:
+                    surface_parts.append(
+                        f"plan {first_planned_name}" if first_planned_name else f"{counts['planned_count']} active plan"
+                    )
+                if counts["active_count"]:
+                    surface_parts.append(
+                        "1 active" if counts["active_count"] == 1 else f"{counts['active_count']} active"
+                    )
+                surface_parts.append(_unmanaged_count_label(candidate_count))
+                if source_blocked:
+                    surface_parts.append(SOURCE_BLOCKER_ACTIVE_LABEL)
+                elif review_candidate_name:
+                    surface_parts.append(f"review {review_candidate_preview or review_candidate_name}")
+                elif ready_candidate_name:
+                    surface_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
+                elif candidate_count:
+                    surface_parts.append("candidate review available")
+                surface_parts.append("open Managed Devices workspace")
+                return _fleet_overview_state(surface_parts)
 
             if self._key == "managed_fleet_attention":
                 if counts["managed_count"] == 0:
@@ -1196,7 +1235,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
-        if self._key in {"managed_fleet_overview", "managed_fleet_attention", "managed_fleet_ready", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "candidate_shortlist", "candidate_shortlist_fit", "fleet_console_next_step"}:
+        if self._key in {"managed_devices_surface", "managed_fleet_overview", "managed_fleet_attention", "managed_fleet_ready", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "candidate_shortlist", "candidate_shortlist_fit", "fleet_console_next_step"}:
             state = self._state
             if state is None:
                 return None

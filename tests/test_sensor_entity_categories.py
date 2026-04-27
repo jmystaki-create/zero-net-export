@@ -323,6 +323,10 @@ class SensorEntityCategoryTests(unittest.TestCase):
         sensor_module = _load_sensor_module()
 
         self.assertEqual(
+            sensor_module.SENSOR_DEFS["managed_devices_surface"],
+            "Managed Devices surface",
+        )
+        self.assertEqual(
             sensor_module.SENSOR_DEFS["managed_fleet_overview"],
             "Managed Devices overview",
         )
@@ -334,6 +338,42 @@ class SensorEntityCategoryTests(unittest.TestCase):
             sensor_module.SENSOR_DEFS["top_unmanaged_candidate"],
             "Managed Devices surfaced unmanaged candidate",
         )
+
+    def test_managed_devices_surface_sensor_shows_current_device_page_fleet_state(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {"name": "AC outlet", "entity_id": "switch.ac_outlet", "kind": "fixed"},
+            {"name": "Dishwasher", "entity_id": "switch.dishwasher", "kind": "fixed"},
+        ]
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(
+                device_details={
+                    "pool": {
+                        "name": "Pool pump",
+                        "kind": "fixed",
+                        "usable": False,
+                        "effective_enabled": True,
+                        "planned_action": "blocked",
+                        "guard_status": "source_blocked",
+                    },
+                }
+            ),
+        )
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "managed_devices_surface",
+            "Managed Devices surface",
+        )
+        sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(
+            sensor.native_value,
+            "Managed Devices surface | 1 managed | 1 needs attention | blocked Pool pump | 2 unmanaged backlog | review AC outlet (fixed) | review carefully | warn generic outlet label | open Managed Devices workspace",
+        )
+        self.assertIsNone(sensor.entity_category)
+        self.assertEqual(sensor.extra_state_attributes["configure_path"], "devices path")
+        self.assertEqual(sensor.extra_state_attributes["candidate_count"], 2)
 
     def test_fleet_workspace_sensors_are_primary_entities(self) -> None:
         sensor_module = _load_sensor_module()
