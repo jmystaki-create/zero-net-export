@@ -92,6 +92,17 @@ class BinarySensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(safe_mode._attr_entity_category, binary_sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(source_stale._attr_entity_category, binary_sensor_module.EntityCategory.DIAGNOSTIC)
 
+    def test_base_binary_sensor_tolerates_missing_runtime_value_attributes(self) -> None:
+        binary_sensor_module = _load_binary_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(validation_details={}),
+        )
+
+        active = binary_sensor_module.ZeroNetExportBinarySensor(coordinator, "active", "Active")
+
+        self.assertIsNone(active.is_on)
+
     def test_device_usable_binary_becomes_diagnostic_because_summary_already_carries_readiness(self) -> None:
         binary_sensor_module = _load_binary_sensor_module()
         coordinator = SimpleNamespace(

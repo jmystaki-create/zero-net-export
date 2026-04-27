@@ -39,7 +39,7 @@ class ZeroNetExportNumber(ZeroNetExportEntity, NumberEntity):
         state = self._state
         if state is None:
             return None
-        return getattr(state, self._key)
+        return getattr(state, self._key, None)
 
     @property
     def extra_state_attributes(self):

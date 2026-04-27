@@ -22,7 +22,10 @@ class ZeroNetExportModeSelect(ZeroNetExportEntity, SelectEntity):
         state = self._state
         if state is None:
             return None
-        return MODE_LABELS.get(state.mode, state.mode)
+        mode = getattr(state, "mode", None)
+        if mode is None:
+            return None
+        return MODE_LABELS.get(mode, mode)
 
     @property
     def extra_state_attributes(self):

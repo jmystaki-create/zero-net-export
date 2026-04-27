@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-473 - sparse runtime state could break base control entities
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `runtime`
+- **where seen:** watchdog repo audit on 2026-04-28 after sparse `validation_details` and `device_details` hardening, while base sensor, binary-sensor, number, and mode-select entities still directly dereferenced ordinary runtime attributes such as `grid_power_w`, `active`, `target_export_w`, and `mode`.
+- **current observed behavior:** if coordinator runtime data existed in a sparse transitional shape, these base entities could raise while rendering native Home Assistant entity rows instead of showing an unknown/empty value.
+- **expected behavior:** native Home Assistant entities should tolerate missing runtime value attributes the same way recent sparse-state fixes tolerate missing `validation_details` and `device_details`.
+- **repo fix:** this run changes the base sensor, binary sensor, number, and mode select accessors to use safe fallbacks and return `None` when their backing runtime value is absent, without adding any custom/external UI.
+- **validation status:** closed with focused sparse-state regression coverage for base sensor, binary sensor, number, and mode select entities, plus the full unittest suite. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-472 - missing runtime validation_details could break native entity and source-attention surfaces
 
 - **status:** `closed`

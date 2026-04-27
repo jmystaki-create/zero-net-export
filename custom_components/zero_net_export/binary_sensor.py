@@ -71,7 +71,7 @@ class ZeroNetExportBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
         state = self._state
         if state is None:
             return None
-        return getattr(state, self._key)
+        return getattr(state, self._key, None)
 
 
 class ZeroNetExportSourceStaleBinarySensor(ZeroNetExportEntity, BinarySensorEntity):

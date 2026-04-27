@@ -1170,7 +1170,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "command_center_next_step": command_center.get("next_action_summary"),
             }
             return mapping.get(self._key)
-        return getattr(state, self._key)
+        return getattr(state, self._key, None)
 
     @property
     def entity_category(self):

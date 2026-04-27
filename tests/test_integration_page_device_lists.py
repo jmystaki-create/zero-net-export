@@ -177,6 +177,19 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertIsNone(sensor.native_value)
 
+    def test_base_sensor_tolerates_missing_runtime_value_attributes(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "grid_power_w",
+            "Grid power",
+        )
+
+        self.assertIsNone(sensor.native_value)
+
     def test_setup_entry_adds_unmanaged_candidate_entities_for_integration_page_rows(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
