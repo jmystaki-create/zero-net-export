@@ -514,7 +514,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Currently surfaced unmanaged candidates:", message)
         self.assertIn("- Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
         self.assertIn("Return after blocker repair:", message)
-        self.assertIn("- Open sources path first.", message)
+        self.assertIn("- Resolve current focus in sources path before fleet work.", message)
         self.assertIn("- Why: Source blockers remain.", message)
         self.assertIn("- Next fleet step after repair: Review the next managed device.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
@@ -800,7 +800,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed devices (top section):"))
         self.assertIn("Return after blocker repair:", message)
-        self.assertIn("- Open sources path first.", message)
+        self.assertIn("- Resolve current focus in sources path before fleet work.", message)
         self.assertIn("- Why: Source blockers remain.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
         self.assertIn("- Use detailed device path only for secondary per-device review/audit after the main fleet step is clear.", message)
@@ -875,7 +875,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertTrue(any("meaningful unit" in warning for warning in attrs["top_candidate_fit"]["warnings"]))
         self.assertEqual(attrs["candidate_devices"][0]["name"], "EV limit")
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
-        self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
+        self.assertIn("- Resolve current focus in sources path before fleet work.", attrs["promotion_handoff"])
         self.assertIn(
             "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
             attrs["promotion_handoff"],
@@ -935,7 +935,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(attrs["ready_next_candidate_fit"]["confidence"], "high")
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
-        self.assertIn("- Open sources path first.", attrs["promotion_handoff"])
+        self.assertIn("- Resolve current focus in sources path before fleet work.", attrs["promotion_handoff"])
         self.assertIn("- Why: Source blockers remain.", attrs["promotion_handoff"])
 
     def test_device_page_unmanaged_snapshot_names_ready_next_when_top_candidate_needs_review(self) -> None:

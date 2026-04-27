@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-386 - Device-page Managed Devices blocker handoffs used generic open-first phrasing
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream E secondary device-page review/audit handoffs after adjacent recommendation-wording cleanups.
+- **current observed behavior:** device-page Managed Devices review/audit notifications could still render blocker handoff lines such as `Open sources path first.` before returning to fleet work. That was not a custom UI leak, but it kept a generic ordering phrase in the secondary fleet path instead of making the current native focus/blocker relationship explicit.
+- **expected behavior:** secondary device-page handoffs should say to resolve the current native focus before fleet work, while keeping Configure -> Managed Devices as the primary workspace and the device page as secondary review/audit.
+- **evidence:** direct repo inspection found `_managed_devices_blocker_first_lines(...)` and `_managed_devices_workspace_handoff(...)` in `custom_components/zero_net_export/button.py` appending `Open {recommended_path} first.`; focused button-copy tests asserted that wording.
+- **repo fix:** this run changes those handoff lines to `Resolve current focus in {recommended_path} before fleet work.` and updates focused button regression coverage.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_translation_sync` plus `python3 -m py_compile custom_components/zero_net_export/button.py tests/test_button_entity_categories.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream E handoff cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another unchanged fingerprint/bookkeeping loop.
+
 ## ZNE-385 - Command-center guide button regression stub preserved recommendation wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -665,7 +665,7 @@ def _managed_devices_blocker_first_lines(
 
     lines = ["Before fleet work:"]
     if recommended_path:
-        lines.append(f"- Open {recommended_path} first.")
+        lines.append(f"- Resolve current focus in {recommended_path} before fleet work.")
     if recommended_reason:
         lines.append(f"- Why: {recommended_reason}")
     if next_step:
@@ -721,7 +721,7 @@ def _managed_devices_workspace_handoff(
     if recommended_section and recommended_section != DEVICES_SECTION_LABEL:
         lines = ["Return after blocker repair:"]
         if recommended_path:
-            lines.append(f"- Open {recommended_path} first.")
+            lines.append(f"- Resolve current focus in {recommended_path} before fleet work.")
         if recommended_reason:
             lines.append(f"- Why: {recommended_reason}")
         if next_step:
