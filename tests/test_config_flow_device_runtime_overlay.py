@@ -393,6 +393,15 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertFalse(enriched[0]["effective_enabled"])
         self.assertEqual(enriched[0]["status"], "Blocked by guard")
 
+    def test_runtime_overlay_tolerates_malformed_device_details_container(self) -> None:
+        module = _load_config_flow_module()
+        devices = [{"key": "pool_pump", "entity_id": "switch.pool_pump", "enabled": True}]
+        coordinator = SimpleNamespace(data=SimpleNamespace(device_details=[{"usable": False}]))
+
+        enriched = module._overlay_runtime_device_details(devices, coordinator)
+
+        self.assertEqual(enriched, devices)
+
     def test_device_status_label_and_summary_show_runtime_state(self) -> None:
         module = _load_config_flow_module()
         flow = module.ZeroNetExportOptionsFlow(SimpleNamespace())

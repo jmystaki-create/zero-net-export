@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 import voluptuous as vol
@@ -170,7 +171,8 @@ def _overlay_runtime_device_details(
 ) -> list[dict[str, Any]]:
     """Merge runtime-only device visibility into parsed config-flow devices."""
     state = getattr(coordinator, "data", None) if coordinator is not None else None
-    runtime_details = getattr(state, "device_details", {}) or {}
+    raw_runtime_details = getattr(state, "device_details", {}) or {}
+    runtime_details = raw_runtime_details if isinstance(raw_runtime_details, Mapping) else {}
     if not runtime_details:
         return [dict(device) for device in devices]
 

@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-486 - malformed runtime device_details container could crash Configure Managed Devices overlay
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-28 after the native runtime-detail hardening series, while `config_flow.py` still assumed the top-level runtime `device_details` value exposed `.items()` / `.values()` in the Configure Managed Devices runtime overlay.
+- **current observed behavior:** if coordinator runtime data exposed a malformed non-mapping `device_details` container, Configure Managed Devices overlay rendering could raise before showing the native managed fleet workspace.
+- **expected behavior:** Configure's native Managed Devices surfaces should tolerate malformed runtime detail containers, fall back to config-defined device rows, and preserve the native Home Assistant operator path without adding any custom/external UI.
+- **repo fix:** this run makes `_overlay_runtime_device_details()` ignore non-mapping runtime detail containers before key/entity-id overlay lookup.
+- **validation status:** closed with focused config-flow regression coverage and Python compile for `config_flow.py`. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-485 - malformed runtime device_details could crash native support summaries
 
 - **status:** `closed`
