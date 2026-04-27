@@ -100,6 +100,29 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["suggested_area"], "Zero Net Export Un Managed")
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Un Managed")
 
+    def test_unmanaged_candidate_async_added_updates_existing_registry_configuration_url(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        candidate = {
+            "entity_id": "switch.hot_water",
+            "name": "Hot Water",
+            "domain": "switch",
+            "kind": "fixed",
+            "state": "off",
+        }
+        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water")
+        device = SimpleNamespace(id="device-2", identifier=identifier, configuration_url=None)
+        registry = _FakeDeviceRegistry(device)
+        sensor.hass = SimpleNamespace(device_registry=registry)
+
+        asyncio.run(sensor.async_added_to_hass())
+
+        self.assertEqual(
+            registry.updated,
+            ("device-2", {"configuration_url": "homeassistant://navigate/config/entities?entity_id=switch.hot_water"}),
+        )
+
     def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

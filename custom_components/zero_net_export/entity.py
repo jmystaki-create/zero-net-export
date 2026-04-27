@@ -67,14 +67,14 @@ def attach_managed_load_device(entity, coordinator, device_key: str, device_name
     entity._zero_net_export_managed_device_key = device_key
 
 
-def _managed_device_identifier(device_info: dict | None) -> tuple[str, str] | None:
-    """Return the managed-device identifier from DeviceInfo, if present."""
+def _integration_page_child_device_identifier(device_info: dict | None) -> tuple[str, str] | None:
+    """Return the managed/unmanaged integration-page child-device identifier, if present."""
     for identifier in (device_info or {}).get("identifiers", set()) or set():
         if len(identifier) != 2:
             continue
         domain, value = identifier
         value = str(value)
-        if domain == DOMAIN and ":managed-device:" in value:
+        if domain == DOMAIN and (":managed-device:" in value or ":unmanaged-candidate:" in value):
             return (domain, value)
     return None
 
@@ -107,14 +107,14 @@ class ZeroNetExportEntity(CoordinatorEntity):
         self._attr_device_info = zero_net_export_device_info(coordinator)
 
     async def async_added_to_hass(self) -> None:
-        """Keep existing managed child devices updated with their settings/gear URL."""
+        """Keep existing integration-page child devices updated with their settings/gear URL."""
         parent = getattr(super(), "async_added_to_hass", None)
         if parent is not None:
             await parent()
 
         device_info = getattr(self, "_attr_device_info", None)
         config_url = (device_info or {}).get("configuration_url")
-        identifier = _managed_device_identifier(device_info)
+        identifier = _integration_page_child_device_identifier(device_info)
         if not config_url or identifier is None:
             return
 

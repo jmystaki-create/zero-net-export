@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-464 - unmanaged integration-page rows did not backfill existing settings links
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while comparing the current native child-device implementation against ZNE-429's main integration-page device-row requirement.
+- **current observed behavior:** unmanaged candidate device rows now carry `configuration_url` metadata when newly registered, but the existing registry backfill path only recognized `:managed-device:` child-device identifiers. An already-created `Un Managed — ...` device row could therefore keep a missing settings/gear URL after upgrading from an earlier candidate.
+- **expected behavior:** both `Managed Devices — ...` and `Un Managed — ...` child-device rows should keep their native settings/configuration URLs aligned when entities are added, so existing device-registry rows are not left behind after an upgrade.
+- **repo fix:** this run generalizes the child-device identifier backfill to cover both `:managed-device:` and `:unmanaged-candidate:` identifiers, preserving the native Home Assistant integration-page path without adding any custom/external UI.
+- **validation status:** closed with focused integration-page device-list coverage for managed and unmanaged configuration-url backfill plus full unittest coverage; no Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active ZNE-439/ZNE-429 boundary: ask James for the release-target decision, then native-row acceptance, then exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-463 - active map and project status softened the exact release approval gate
 
 - **status:** `closed`
