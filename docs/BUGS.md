@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-469 - missing runtime device_details could abort sensor platform setup
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after ZNE-467/ZNE-468 hardened sparse per-device details while `custom_components/zero_net_export/sensor.py` still directly dereferenced `state.device_details` in setup and managed-device sensor properties.
+- **current observed behavior:** if coordinator runtime data was present but did not yet expose a `device_details` mapping, the sensor platform could raise during setup before adding the base native sensors, and existing managed-device sensor properties could raise instead of returning empty state/attributes. That made the native integration-page child-device path less tolerant than the sibling switch/number/binary-sensor/button platforms.
+- **expected behavior:** sensor setup and managed-device sensor properties should treat missing runtime `device_details` as an empty mapping, while still registering `Managed Devices — ...` rows whenever details are present.
+- **repo fix:** this run changes sensor setup and managed-device sensor state/attribute reads to use safe `getattr(state, "device_details", {})` fallbacks, preserving the native Home Assistant integration-page path without adding any custom/external UI.
+- **validation status:** closed with focused integration-page device-list coverage for missing runtime `device_details`, existing sparse-detail coverage, and Python compile. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-468 - sparse managed details could drop child-device controls/settings rows
 
 - **status:** `closed`

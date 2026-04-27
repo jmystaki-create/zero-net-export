@@ -226,6 +226,33 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         ]
         self.assertIn("Managed Devices — pool", device_names)
 
+    def test_setup_entry_tolerates_missing_runtime_device_details(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(entry_id="entry-1")
+        added = []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        self.assertTrue(added)
+        self.assertNotIn(
+            "Managed Devices — pool",
+            [
+                entity._attr_device_info.get("name")
+                for entity in added
+                if getattr(entity, "_attr_device_info", None)
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
