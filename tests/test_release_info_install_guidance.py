@@ -92,6 +92,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("suggested candidates", unreleased_highlights.lower())
         self.assertNotIn("Suggested preset", unreleased_highlights)
         self.assertNotIn("Recommended next step", unreleased_highlights)
+        self.assertNotIn("recommendation", unreleased_highlights.lower())
         self.assertNotIn("0.1.88 candidate", unreleased_highlights)
 
     def test_0189_release_plan_requires_direct_james_approval_before_freeze(self) -> None:

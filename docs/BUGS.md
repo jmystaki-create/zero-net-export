@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-396 - Unreleased changelog still described fixed copy as recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the current `0.1.89` Unreleased release-info highlights after repeated recommendation/ranking cleanup commits.
+- **current observed behavior:** the current candidate changelog still said retired `recommendation` terminology and `empty-shortlist recommendation wording` inside visible Unreleased highlights. Even though those lines described cleanup, they can still feed Home Assistant release-info/support metadata and keep recommendation/ranking language alive at the release gate.
+- **expected behavior:** current candidate release metadata should describe the cleanup with neutral ranking/current-focus language and should not include `recommendation` wording in the Unreleased highlights.
+- **evidence:** direct repo inspection found `recommendation` in the `CHANGELOG.md` Unreleased highlights, while `tests/test_release_info_install_guidance.py` only rejected narrower `Recommended next step` wording for the Unreleased section.
+- **repo fix:** this run changes those Unreleased highlights to `ranking` wording and extends release-info regression coverage to reject `recommendation` anywhere in the Unreleased candidate highlights.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this release-metadata cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another recommendation-wording or fingerprint-bookkeeping pass.
+
 ## ZNE-395 - Validation checklist next-action entity used suggestion wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
