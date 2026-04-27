@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-382 - Unreleased changelog repeated archived source-mapping/release-target wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking current `0.1.89` release-info highlights after the archived UI design snapshot was replaced.
+- **current observed behavior:** the top Unreleased changelog highlight still quoted the old `0.1.83` release target and `source-mapping` wording while describing the archive cleanup. Because Unreleased highlights feed Home Assistant release-info metadata, the current `0.1.89` support surface could repeat retired release/source terminology even though the underlying archived doc now points to the source-of-truth files.
+- **expected behavior:** current release metadata should describe the archive cleanup without repeating stale release-target or source-mapping terms in visible highlights.
+- **evidence:** direct repo inspection found the stale terms in the first Unreleased `CHANGELOG.md` highlight; release-info regression coverage did not reject `source-mapping`, `source mapping`, or `0.1.83` in Unreleased highlights.
+- **repo fix:** this run rewrites the Unreleased archive-cleanup highlight to use `retired release-target and source terminology` and extends release-info regression coverage to reject `source-mapping`, `source mapping`, and `0.1.83` in Unreleased highlights.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance tests.test_translation_sync` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this release-metadata cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F defect remains, the next real gap is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more unchanged fingerprint or stale-wording bookkeeping.
+
 ## ZNE-381 - Sensors and Controls setup copy kept generic recommended-next labels
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
