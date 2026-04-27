@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-452 - project status blocker skipped the 0.1.94 freeze
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog project-status audit on 2026-04-28 while comparing `project_status.md` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, and the current fingerprint helper output.
+- **current observed behavior:** `project_status.md` correctly made James's `0b4f420` / manifest `0.1.94` release-target decision the next action, but its blocker line described that candidate as coming after only the `db5c246` / `v0.1.92` and `026f189` / `v0.1.93` freezes. It skipped the intervening `4c0d071` / `v0.1.94` freeze that the governing release hold explicitly names.
+- **expected behavior:** secondary status should preserve the same unapproved candidate chain as the source-of-truth release hold before any Home Assistant deploy, restart, fingerprint validation, or success claim: `v0.1.92`, `v0.1.93`, `v0.1.94`, then the post-freeze `0b4f420` / manifest `0.1.94` component boundary.
+- **repo fix:** this run updates `project_status.md` blocker text to include `4c0d071` / `v0.1.94` and extends operator-docs regression coverage so project status cannot omit that freeze while naming the current `0b4f420` candidate.
+- **validation status:** closed with focused project-status/source-of-truth regression coverage; no Home Assistant live validation is required for this process-order correction.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-451 - validation checklist manual deploy guidance skipped the release-target and native-row acceptance boundary
 
 - **status:** `closed`
