@@ -5,7 +5,7 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
-from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_display_name
+from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_detail, managed_load_display_name
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -51,14 +51,11 @@ class ZeroNetExportDeviceEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
         state = self._state
         if state is None:
             return None
-        return bool((getattr(state, "device_details", {}) or {}).get(self._device_key, {}).get("effective_enabled"))
+        return managed_load_detail(self.coordinator, self._device_key).get("effective_enabled")
 
     @property
     def extra_state_attributes(self):
-        state = self._state
-        if state is None:
-            return {}
-        return (getattr(state, "device_details", {}) or {}).get(self._device_key, {})
+        return managed_load_detail(self.coordinator, self._device_key)
 
     async def async_turn_on(self, **kwargs):
         await self.coordinator.async_set_device_enabled_override(self._device_key, True)

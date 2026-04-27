@@ -63,7 +63,7 @@ def _managed_device_details_for_state(state) -> list[dict]:
     """Return managed device runtime details, tolerating sparse coordinator state."""
     if state is None:
         return []
-    return list((getattr(state, "device_details", {}) or {}).values())
+    return [dict(detail or {}) for detail in (getattr(state, "device_details", {}) or {}).values()]
 
 
 def _managed_device_detail_for_state(state, device_key: str) -> dict:
@@ -349,7 +349,7 @@ def _next_bucket_device_name(device_details: list[dict], target: dict) -> str:
 def _managed_entity_ids(state) -> set[str]:
     return {
         str(detail.get("entity_id"))
-        for detail in (getattr(state, "device_details", None) or {}).values()
+        for detail in (dict(raw_detail or {}) for raw_detail in (getattr(state, "device_details", None) or {}).values())
         if detail.get("entity_id")
     }
 
@@ -1645,10 +1645,7 @@ class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity)
 
     @property
     def extra_state_attributes(self):
-        state = self._state
-        if state is None:
-            return {}
-        return (getattr(state, "device_details", {}) or {}).get(self._device_key, {})
+        return _managed_device_detail_for_state(self._state, self._device_key)
 
     async def async_press(self) -> None:
         await self.coordinator.async_reset_device_overrides(self._device_key)

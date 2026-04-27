@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-481 - null managed-device detail could crash per-device control rows and review buttons
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after ZNE-480 normalized null managed details for fleet summary sensors and per-device row sensors, while the native per-device control rows still read managed detail mappings directly.
+- **current observed behavior:** if a managed-device runtime detail value was temporarily `None`, the `Managed Devices — ...` child device could remain registered, but its per-device enabled switch, priority number, usable binary sensor, reset-overrides button attributes, and review button candidate filtering/snapshot path could call `.get(...)` or sort on `None` while Home Assistant rendered the native child-device rows.
+- **expected behavior:** all native per-device controls and review buttons on managed child devices should normalize null managed detail values to an empty detail mapping, render unknown/default values, and keep the native Home Assistant integration-page/device-list path intact.
+- **repo fix:** this run routes per-device switch, number, and binary-sensor control rows through the shared managed-load detail normalizer, normalizes button managed-detail lists and managed-entity exclusion sets, and makes reset-overrides attributes use the same safe detail fallback.
+- **validation status:** closed with focused regression coverage for null managed details across the per-device enabled switch, priority number, usable binary sensor, review button, and reset-overrides button, plus Python compile and the full unittest suite.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-480 - null managed-device detail could crash fleet workspace and per-device row sensors
 
 - **status:** `closed`

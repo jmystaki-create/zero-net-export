@@ -124,6 +124,31 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                 ]
                 self.assertIn("Managed Devices — pool", device_names)
 
+    def test_managed_device_control_rows_tolerate_null_runtime_detail(self) -> None:
+        coordinator = _coordinator()
+        coordinator.data.device_details = {"pool": None}
+
+        switch_module = _load_simple_platform_module("switch", "switch", "SwitchEntity")
+        number_module = _load_simple_platform_module("number", "number", "NumberEntity")
+        binary_sensor_module = _load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity")
+        button_module = _load_button_module()
+
+        enabled = switch_module.ZeroNetExportDeviceEnabledSwitch(coordinator, "pool", "Pool")
+        priority = number_module.ZeroNetExportDevicePriorityNumber(coordinator, "pool", "Pool")
+        usable = binary_sensor_module.ZeroNetExportDeviceUsableBinarySensor(coordinator, "pool", "Pool")
+        review = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool")
+        reset = button_module.ZeroNetExportResetDeviceOverridesButton(coordinator, "pool", "Pool")
+        review.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertIsNone(enabled.is_on)
+        self.assertEqual(enabled.extra_state_attributes, {})
+        self.assertIsNone(priority.native_value)
+        self.assertEqual(priority.extra_state_attributes, {})
+        self.assertIsNone(usable.is_on)
+        self.assertEqual(usable.extra_state_attributes, {})
+        self.assertIn("1 managed", review.extra_state_attributes["managed_snapshot"])
+        self.assertEqual(reset.extra_state_attributes, {})
+
 
 if __name__ == "__main__":
     unittest.main()

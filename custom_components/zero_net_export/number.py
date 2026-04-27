@@ -6,7 +6,7 @@ from homeassistant.const import UnitOfPower
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
-from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_display_name
+from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_detail, managed_load_display_name
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -78,14 +78,11 @@ class ZeroNetExportDevicePriorityNumber(ZeroNetExportEntity, NumberEntity):
         state = self._state
         if state is None:
             return None
-        return (getattr(state, "device_details", {}) or {}).get(self._device_key, {}).get("effective_priority")
+        return managed_load_detail(self.coordinator, self._device_key).get("effective_priority")
 
     @property
     def extra_state_attributes(self):
-        state = self._state
-        if state is None:
-            return {}
-        return (getattr(state, "device_details", {}) or {}).get(self._device_key, {})
+        return managed_load_detail(self.coordinator, self._device_key)
 
     async def async_set_native_value(self, value: float):
         await self.coordinator.async_set_device_priority_override(self._device_key, int(value))

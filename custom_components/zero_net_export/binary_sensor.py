@@ -5,7 +5,7 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
-from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_display_name
+from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_detail, managed_load_display_name
 
 
 SOURCE_LABELS = {
@@ -109,11 +109,8 @@ class ZeroNetExportDeviceUsableBinarySensor(ZeroNetExportEntity, BinarySensorEnt
         state = self._state
         if state is None:
             return None
-        return bool((getattr(state, "device_details", {}) or {}).get(self._device_key, {}).get("usable"))
+        return managed_load_detail(self.coordinator, self._device_key).get("usable")
 
     @property
     def extra_state_attributes(self):
-        state = self._state
-        if state is None:
-            return {}
-        return (getattr(state, "device_details", {}) or {}).get(self._device_key, {})
+        return managed_load_detail(self.coordinator, self._device_key)
