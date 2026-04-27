@@ -192,7 +192,7 @@ Suggested area labels:
 
 
 ## ZNE-411 - 0.1.89 device page lacks obvious Managed Devices surface
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
 - **area:** `managed_devices`
 - **where seen:** James live Home Assistant screenshot on 2026-04-27 after `0.1.89` was installed, deployed, restarted, and fingerprint-verified.

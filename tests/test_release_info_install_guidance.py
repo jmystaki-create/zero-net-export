@@ -130,6 +130,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
         zne_411 = bugs.split("## ZNE-411", 1)[1].split("\n## ZNE-410", 1)[0]
 
+        self.assertIn("- **status:** `fixed_pending_validation`", zne_411)
         self.assertIn("repo-side corrective candidate is ready for release approval", zne_411)
         self.assertIn("ask James directly for `0.1.90` release/deploy/restart validation approval", zne_411)
         self.assertIn("Live screenshot-grade proof on an installed `0.1.90` build remains required", zne_411)
