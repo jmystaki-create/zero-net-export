@@ -1059,7 +1059,7 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_fleet_console", "Review managed devices workspace")
+        super().__init__(coordinator, "show_fleet_console", "Open Managed Devices workspace")
         self._attr_icon = "mdi:format-list-group"
 
     @property
@@ -1231,7 +1231,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
 
 class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
-        super().__init__(coordinator, "show_managed_device_review", "Review managed devices")
+        super().__init__(coordinator, "show_managed_device_review", "Open Managed Devices review")
         self._attr_icon = "mdi:clipboard-list-outline"
 
     def _unmanaged_candidates(self) -> list[dict[str, str]]:

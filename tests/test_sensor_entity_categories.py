@@ -214,7 +214,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             sensor_module.SENSOR_DEFS["fleet_console_next_step"],
-            "Managed devices next step",
+            "Managed Devices next step",
         )
 
     def test_recommendation_sensor_display_name_reports_native_next_action(self) -> None:
@@ -324,7 +324,15 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             sensor_module.SENSOR_DEFS["managed_fleet_overview"],
-            "Managed devices overview",
+            "Managed Devices overview",
+        )
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["unmanaged_candidate_overview"],
+            "Managed Devices unmanaged backlog",
+        )
+        self.assertEqual(
+            sensor_module.SENSOR_DEFS["top_unmanaged_candidate"],
+            "Managed Devices surfaced unmanaged candidate",
         )
 
     def test_fleet_workspace_sensors_are_primary_entities(self) -> None:

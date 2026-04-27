@@ -96,8 +96,9 @@ Suggested area labels:
 - **evidence:** live screenshot supplied by James showed the installed device page with Device info firmware `0.1.89`, Controls rows, and Activity rows, but no clearly named Managed Devices surface or at-a-glance managed/unmanaged fleet summary. Earlier validation evidence confirmed the deployed package itself matched `0.1.89`, so this is not merely install drift.
 - **suspected cause:** repo work exposed config-flow workspace screens, sensors, persistent-notification review buttons, and candidate Activity events, but treated native entity/button exposure as sufficient for the device page. HA device pages are auto-generated; vague button rows and Activity entries do not amount to the visible Managed Devices surface the user requested.
 - **repo fix target:** `0.1.90`; see `docs/RELEASE_0.1.90_PLAN.md`. The fix must be more than a label rename unless live screenshot evidence proves the device page visibly carries the Managed Devices surface.
-- **validation status:** open; no repo fix or live screenshot-grade proof exists yet.
-- **next action:** implement the smallest HA-native device-page surface that makes Managed Devices visible, update tests for names/categories/attributes, release as `0.1.90`, deploy/restart, validate fingerprint, and capture screenshot-grade evidence from the actual Home Assistant device page.
+- **repo fix:** this run makes the existing primary Managed Devices device-page sensor cluster and review/workspace actions visibly start with `Managed Devices`, including overview, unmanaged backlog, surfaced candidate, usefulness/warnings, shortlist, next-step, and action button names, so the native HA device page has a named fleet surface instead of lower-case generic review controls.
+- **validation status:** repo-side partial fix pending validation; focused tests verify the device-page entity/action names and primary entity category placement. Live screenshot-grade proof on an installed `0.1.90` build remains required before closure.
+- **next action:** finish any remaining native device-page surface implementation needed beyond the named entity/action cluster, release as `0.1.90`, deploy/restart, validate fingerprint, and capture screenshot-grade evidence from the actual Home Assistant device page.
 
 
 ## ZNE-410 - Bug tracker next-action lines still revived completed freeze/release approval

@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Made the Home Assistant device-page fleet rows and actions visibly start with `Managed Devices`, including the overview, backlog, surfaced candidate, candidate usefulness, next-step sensors, and review/workspace buttons, so the existing native entity cluster reads as a current Managed Devices surface instead of generic lower-case review controls.
+
 ## [0.1.89] - 2026-04-27
 
 ### Fixed
