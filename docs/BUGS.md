@@ -86,6 +86,19 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-415 - Configure Managed Devices action labels revived generic review-workspace wording
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the `0.1.90` device-page Managed Devices correction line against the detailed remaining work map.
+- **current observed behavior:** the Configure -> Managed Devices action menu still labelled enablement/edit/remove entries as `Review managed devices workspace / ...`, and the enablement form title still said `Review managed devices workspace and enablement`. That wording echoed the generic `Review managed devices` pattern that James's `0.1.89` screenshot proved was not visible enough as a Managed Devices surface.
+- **expected behavior:** Configure Managed Devices labels should lead with `Managed Devices workspace` so the primary fleet workspace and the corrective device-page surface use one obvious native HA product name instead of generic review-control wording.
+- **evidence:** direct repo inspection found the stale labels in `custom_components/zero_net_export/config_flow.py`, `custom_components/zero_net_export/strings.json`, `custom_components/zero_net_export/translations/en.json`, and tests that locked the old wording in place.
+- **repo fix:** this run renames the managed-device enable/edit/remove menu labels to `Managed Devices workspace / ...`, renames the enablement title to `Managed Devices workspace enablement review`, syncs translations, records the fix in the changelog, and adds regression coverage rejecting `Review managed devices workspace` for those Configure labels.
+- **validation status:** repo-side fixed and verified with focused config-flow/bucket-copy/translation tests plus py_compile. Live HA validation remains pending as part of the installed `0.1.90` acceptance pass.
+- **next action:** continue `ZNE-411`: finish/prove the device-page Managed Devices surface, then ask James directly for `0.1.90` release approval once the repo candidate is ready.
+
+
 ## ZNE-414 - UI design visible-outcomes section still named 0.1.89
 - **status:** `closed`
 - **severity:** `medium`

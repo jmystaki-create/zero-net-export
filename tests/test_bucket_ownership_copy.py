@@ -212,9 +212,11 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         bulk_enable_description = steps["device_bulk_enable"]["description"]
         self.assertEqual(
             steps["device_bulk_enable"]["title"],
-            "Review managed devices workspace and enablement",
+            "Managed Devices workspace enablement review",
         )
-        self.assertIn("Review managed-device enablement in the Managed Devices workspace, with managed devices on top and the unmanaged promotion backlog below.", bulk_enable_description)
+        self.assertNotIn("Review managed devices workspace", steps["device_bulk_enable"]["title"])
+        self.assertIn("Managed Devices enablement review keeps managed devices on top and the unmanaged promotion backlog below.", bulk_enable_description)
+        self.assertNotIn("Review managed-device enablement in the Managed Devices workspace", bulk_enable_description)
         self.assertNotIn("Review managed-device enablement here", bulk_enable_description)
         self.assertIn("Keep enablement in the Managed Devices workspace.", bulk_enable_description)
         self.assertNotIn("Configure stays the primary fleet workspace", bulk_enable_description)

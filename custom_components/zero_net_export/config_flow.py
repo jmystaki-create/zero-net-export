@@ -1469,7 +1469,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return "Manual add path in Managed Devices workspace / variable load"
         if action == "bulk_enable":
             label = (
-                "Review managed devices workspace / enable or disable devices"
+                "Managed Devices workspace / enable or disable devices"
                 f" / {cls._count_label(managed_count, 'managed device')}"
             )
             if attention_count:
@@ -1477,7 +1477,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return label
         if action == "edit":
             label = (
-                "Review managed devices workspace / edit managed device"
+                "Managed Devices workspace / edit managed device"
                 f" / {cls._count_label(managed_count, 'managed device')}"
             )
             if attention_count:
@@ -1485,7 +1485,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             return label
         if action == "remove":
             label = (
-                "Review managed devices workspace / remove managed device"
+                "Managed Devices workspace / remove managed device"
                 f" / {cls._count_label(managed_count, 'managed device')}"
             )
             if attention_count:
