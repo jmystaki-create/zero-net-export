@@ -608,9 +608,12 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("Controls policy/live mode", checklist)
         self.assertIn("Managed Devices workspace", checklist)
         self.assertIn(
-            "Command-center landing screen shows headline decision, energy state, control decision/outcome, Fleet activity, and a recommended next section",
+            "Command-center landing screen shows headline decision, energy state, control decision/outcome, Fleet activity, and a current focus section",
             checklist,
         )
+        self.assertIn("## Next validation boundary", checklist)
+        self.assertNotIn("## Recommended next validation run", checklist)
+        self.assertNotIn("recommended next section", checklist)
         self.assertIn(
             "where Sensors/source roles live, where Controls policy/live mode lives, where Managed Devices fleet work lives, and where Diagnostics evidence lives",
             checklist,

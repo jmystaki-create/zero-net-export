@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-384 - Validation checklist kept retired recommended-next-section wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream A/D validation guidance after the command-center focus labels moved to neutral current-focus wording.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still used the heading `Recommended next validation run` and asked validators to confirm the command-center landing showed `a recommended next section`. That could make the `0.1.89` live acceptance gate revive retired recommendation/ranking language immediately after the Configure command-center and device-page guide were neutralized.
+- **expected behavior:** validation guidance should use neutral release-boundary and current-focus wording, matching the shipped `Current focus section` command-center label and avoiding recommendation-style labels in the active validation checklist.
+- **evidence:** direct repo inspection found the stale heading and checklist line in `docs/VALIDATION_CHECKLIST.md`; `tests/test_bucket_ownership_copy.py` still asserted the stale `recommended next section` wording.
+- **repo fix:** this run renames the validation heading to `Next validation boundary`, changes the command-center checklist item to require `a current focus section`, adds regression coverage rejecting the retired heading and phrase, and records the cleanup in the Unreleased changelog.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_release_info_install_guidance` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc correction; the corrected checklist should be used for the next exact `0.1.89` deploy validation.
+- **next action:** include this Workstream A/D validation-guidance cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more unchanged fingerprint bookkeeping.
+
 ## ZNE-383 - Command-center focus labels still used recommendation wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
