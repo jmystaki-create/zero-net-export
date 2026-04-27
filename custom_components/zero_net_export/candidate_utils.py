@@ -455,14 +455,14 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
     if positive_name_signal:
         if confidence == "medium":
             confidence = "high"
-        operational_value_summary = "The entity name suggests a real discretionary load, so it looks more likely to matter operationally once promoted."
+        operational_value_summary = "The entity name looks like a real discretionary load, so it looks more likely to matter operationally once promoted."
 
     if negative_name_signal:
         warnings.append(
             "The entity name looks more like a service, media feature, or software toggle than a discretionary power load. Confirm it really controls a real appliance before promotion."
         )
         confidence = _degrade_confidence(confidence)
-        suitability_summary = "The native control shape may still work, but the entity name suggests this could be a feature toggle or service control instead of a real appliance."
+        suitability_summary = "The native control shape may still work, but the entity name looks more like a feature toggle or service control than a real appliance."
         safety_summary = "Confidence is lower because the entity name does not clearly look like a physical discretionary load yet."
         operational_value_summary = "Operational value is doubtful until you confirm this entity maps to a real export-absorbing device rather than software behaviour."
 

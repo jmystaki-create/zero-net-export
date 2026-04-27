@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-401 - Candidate-fit summaries used suggestion wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking the Workstream C promotion review path after adjacent next-action/recommendation wording cleanups.
+- **current observed behavior:** candidate-fit review summaries still said the entity name `suggests` a real load or `suggests` a feature toggle/service control. These summaries are visible in the native unmanaged-candidate review flow and kept suggestion-style wording in the promote/vet/review path.
+- **expected behavior:** candidate review copy should state the observed fit signal directly without suggestion/recommendation phrasing, while preserving the same safety and operational caution.
+- **evidence:** direct repo inspection found the stale wording in `custom_components/zero_net_export/candidate_utils.py`; focused candidate utility coverage now rejects `suggest` in the affected summaries.
+- **repo fix:** this run changes the positive-name summary to `looks like a real discretionary load` and the negative-name summary to `looks more like a feature toggle or service control than a real appliance`, plus records the cleanup in the current `0.1.89` changelog bullet.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_candidate_utils tests.test_release_info_install_guidance` plus `python3 -m py_compile custom_components/zero_net_export/candidate_utils.py tests/test_candidate_utils.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream C promotion-review copy cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another wording or fingerprint-bookkeeping pass.
+
 ## ZNE-400 - Command-center sensor attributes exposed retired recommendation keys
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

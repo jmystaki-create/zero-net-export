@@ -159,6 +159,7 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("clean native fit", fit["suitability_summary"])
         self.assertIn("safe enough", fit["safety_summary"])
         self.assertIn("more likely to matter operationally", fit["operational_value_summary"])
+        self.assertNotIn("suggest", fit["operational_value_summary"].lower())
 
     def test_build_candidate_usefulness_summary_uses_operator_facing_labels(self) -> None:
         module = _load_candidate_utils_module()
@@ -198,6 +199,7 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertEqual(fit["confidence"], "medium")
         self.assertTrue(any("service, media feature, or software toggle" in warning for warning in fit["warnings"]))
         self.assertIn("feature toggle or service control", fit["suitability_summary"])
+        self.assertNotIn("suggest", fit["suitability_summary"].lower())
         self.assertIn("does not clearly look like a physical discretionary load", fit["safety_summary"])
 
     def test_assess_candidate_penalizes_generic_power_labels(self) -> None:
