@@ -180,7 +180,7 @@ The backend control engine is substantially built, and the project is now in a l
 
 The active steering layer now lives in [`docs/SUPERVISOR.md`](docs/SUPERVISOR.md). For UI work, the intended design now lives in [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md), and the implementation status / phase plan now lives in [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md). Those two files are the UI source of truth.
 
-**Current highest-value next step:** ask James directly whether the current helper-resolved manifest `0.1.94` component boundary should replace the documented `0.1.91` release target for deploy/restart validation, or whether release execution should return to the approved `0.1.91` boundary. Only after that decision should the project ask for closest-native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+**Current highest-value next step:** ask James directly whether the current helper-resolved manifest `0.1.94` component boundary should replace the documented `0.1.91` release target for release/deploy/restart validation, or whether release execution should return to the approved `0.1.91` boundary. Only after that decision should the project ask for closest-native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
 
 - [x] Config flow & source validation
 - [x] Device model & guards

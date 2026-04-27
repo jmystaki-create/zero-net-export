@@ -103,7 +103,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **suspected cause:** release/version bookkeeping advanced after the approved `0.1.91` native child-device candidate without updating or re-approving the governing source-of-truth docs and human approval boundary.
 - **repo fix:** follow-up source-of-truth hardening now puts the same hold into the supervisor, release plan, and implementation map so the next runner does not deploy/restart or validate Home Assistant against `7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or the current helper-resolved component boundary without an explicit James release-target decision. This run corrected the supervisor hold line itself so it names the earlier `v0.1.93` freeze, not a duplicate `v0.1.94`, and explicitly includes `4c0d071` plus the post-freeze helper-resolved component boundary in the do-not-deploy/call-successful list.
 - **validation status:** process-state fix verified with bug-tracker/project-status and source-of-truth regression coverage; this run added supervisor release-hold regression coverage. No Home Assistant live validation is required or appropriate until James resolves the release-target mismatch.
-- **next action:** ask James directly: should the current helper-resolved manifest `0.1.94` component boundary replace the documented `0.1.91` release target for deploy/restart validation, or should release execution return to the approved `0.1.91` boundary?
+- **next action:** ask James directly: should the current helper-resolved manifest `0.1.94` component boundary replace the documented `0.1.91` release target for release/deploy/restart validation, or should release execution return to the approved `0.1.91` boundary?
 
 ## ZNE-429 - 0.1.91 main integration page lacks Managed Devices and Un Managed device lists
 
@@ -121,6 +121,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **next action:** do not treat the `v0.1.91` freeze/tag, the unapproved `v0.1.92` freeze/tag, the unapproved `v0.1.93` freeze/tag, the unapproved `v0.1.94` freeze/tag, or the post-freeze helper-resolved component boundary as Home Assistant deploy approval. Ask James directly whether the current helper-resolved manifest `0.1.94` component boundary should replace the documented `0.1.91` release target or whether release execution should return to the approved `0.1.91` boundary; only after that decision, ask for native-row acceptance and exact release/deploy/restart approval before any install/restart or integration-main-page screenshot validation.
 
 ## Closed process corrections
+
+## ZNE-458 - 0.1.91 release plan still said deploy/restart validation instead of release/deploy/restart validation
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog source-of-truth audit on 2026-04-28 while comparing `docs/RELEASE_0.1.91_PLAN.md` against `docs/SUPERVISOR.md`, the current ordered `0.1.91` map, ZNE-439, and the explicit release-approval gate fixed by ZNE-457.
+- **current observed behavior:** the 0.1.91 release plan correctly required James's release-target decision and closest native child-device representation acceptance, but its final gate still said James should approve `deploy/restart validation` for the exact target. That left one active formal release plan path softer than the required exact `release/deploy/restart` approval wording.
+- **expected behavior:** every active release/deploy/restart instruction for the held 0.1.91 line should preserve the three ordered gates: release-target decision, closest native representation acceptance, and exact release/deploy/restart validation approval before any Home Assistant action or success claim.
+- **repo fix:** this run updates `docs/RELEASE_0.1.91_PLAN.md` to require exact `release/deploy/restart` validation approval and adds operator-doc regression coverage for the release plan gate.
+- **validation status:** closed with focused operator-docs regression coverage; no Home Assistant live validation is required while ZNE-439 remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
 
 ## ZNE-457 - active helper guidance omitted explicit release approval from the final gate
 

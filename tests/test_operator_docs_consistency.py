@@ -97,6 +97,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("`0.1.91`", content)
         self.assertIn("ask James directly", content)
         self.assertIn("release/deploy/restart approval", content)
+        self.assertIn("release target for release/deploy/restart validation", content)
         self.assertIn("native child-device representation", content)
         self.assertIn("`4c0d071` / `v0.1.94` freezes", content)
         self.assertLess(target_decision, native_acceptance)
@@ -119,6 +120,8 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("`v0.1.94` at `4c0d071`", status)
         self.assertIn("documented `0.1.91` release target", status)
         self.assertIn("ask James directly", status)
+        self.assertIn("release target for release/deploy/restart validation", status)
+        self.assertNotIn("release target for deploy/restart validation", status)
         self.assertNotIn("0.1.89", status)
         self.assertNotIn("0.1.88", status)
         self.assertNotIn("A-D/F", status)
@@ -161,6 +164,22 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("0.1.89 implementation runway", rule_6)
         self.assertNotIn("0.1.88 implementation runway", rule_6)
         self.assertNotIn("0.1.87 implementation runway", rule_6)
+
+    def test_release_091_plan_keeps_explicit_release_approval_gate(self) -> None:
+        content = (ROOT / "docs" / "RELEASE_0.1.91_PLAN.md").read_text(encoding="utf-8")
+        validation_state = content[
+            content.index("## Required documentation/validation state"):
+        ]
+
+        target_decision = validation_state.index("until James explicitly decides whether the current helper-resolved manifest `0.1.94` component boundary")
+        native_acceptance = validation_state.index("James still needs to accept the closest native entity/device-info representation")
+        release_approval = validation_state.index("approve exact release/deploy/restart validation for the exact target")
+
+        self.assertIn("`4c0d071` / `v0.1.94` freeze", validation_state)
+        self.assertIn("post-freeze helper-resolved component boundary", validation_state)
+        self.assertLess(target_decision, native_acceptance)
+        self.assertLess(native_acceptance, release_approval)
+        self.assertNotIn("approve deploy/restart validation for the exact target", validation_state)
 
     def test_validation_checklist_keeps_release_target_decision_before_live_validation(self) -> None:
         content = (ROOT / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
