@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-392 - Current release highlights kept recommended Configure section wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking current `0.1.88` release-info/changelog highlights after the Configure and command-center copy moved to neutral current-focus wording.
+- **current observed behavior:** the current `0.1.88` changelog still said the Diagnostics surfaces were wired back to the command-center's `recommended Configure section`. Because the repo manifest remains on `0.1.88` until the formal `0.1.89` freeze, that current-release highlight can still feed Home Assistant release-info/support surfaces and revive retired recommendation/ranking language.
+- **expected behavior:** current release metadata should describe the same native Home Assistant routing as the command-center's current-focus Configure section, without reintroducing recommendation-style labels.
+- **evidence:** direct repo inspection found `recommended Configure section` in the current `CHANGELOG.md` release section, while existing release-info regression coverage rejected adjacent recommendation phrases but not this one.
+- **repo fix:** this run rewrites the current-release highlight to `current-focus Configure section` and extends release-info regression coverage to reject `recommended configure section` in current candidate highlights.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this release-metadata cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more recommendation-wording or fingerprint bookkeeping.
+
 ## ZNE-391 - Unreleased changelog exceeded compact release-info highlight cap
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
