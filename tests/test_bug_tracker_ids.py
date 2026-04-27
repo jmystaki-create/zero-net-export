@@ -28,6 +28,10 @@ class TestBugTrackerIds(unittest.TestCase):
         self.assertLess(current_blocker, closed_process_section)
         self.assertLess(closed_process_section, historical_backlog_section)
         self.assertIn("should `db5c246` / `v0.1.92` replace the documented `0.1.91` release target", active_section)
+        self.assertIn("repo HEAD has moved past the frozen candidate", active_section)
+        self.assertIn("a newer docs-only `repo_head_commit`", active_section)
+        self.assertNotIn("repo HEAD and the fingerprint helper now resolve the install candidate to `db5c246`", active_section)
+        self.assertNotIn("`git log --oneline -3` shows `db5c246", active_section)
         self.assertNotIn("0.1.90 acceptance pass", active_section)
         self.assertNotIn("post-`0.1.90`", active_section)
 
