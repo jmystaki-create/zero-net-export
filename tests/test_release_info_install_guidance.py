@@ -126,6 +126,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("0.1.86` release line", current_highlights)
         self.assertNotIn("recommended section reason", current_highlights.lower())
         self.assertNotIn("recommended configure section", current_highlights.lower())
+        self.assertNotIn("recommended native section", current_highlights.lower())
         self.assertNotIn("recommended next section", current_highlights.lower())
         self.assertNotIn("recommended next device action", current_highlights.lower())
         self.assertNotIn("mapped-source", current_highlights.lower())
