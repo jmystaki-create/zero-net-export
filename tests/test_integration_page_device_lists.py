@@ -49,7 +49,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["model"], "Managed Devices — Fixed managed load")
         self.assertIn(("zero_net_export", "entry-1:managed-device:pool"), sensor._attr_device_info["identifiers"])
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
-        self.assertEqual(sensor._attr_device_info["suggested_area"], "Zero Net Export Managed Devices")
+        self.assertNotIn("suggested_area", sensor._attr_device_info)
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Managed Devices")
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
@@ -139,7 +139,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             sensor._attr_device_info["identifiers"],
         )
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
-        self.assertEqual(sensor._attr_device_info["suggested_area"], "Zero Net Export Un Managed")
+        self.assertNotIn("suggested_area", sensor._attr_device_info)
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Un Managed")
 
     def test_unmanaged_candidate_async_added_updates_existing_registry_configuration_url(self) -> None:
