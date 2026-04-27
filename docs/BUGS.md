@@ -159,6 +159,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** fixed in repo with focused integration-page device-list regression coverage for existing-row detail refresh, the existing add/remove/state-change sync coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `sensor.py` plus the touched test file, and the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
 - **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that existing `Un Managed — ...` rows refresh promptly when candidate names/states/metadata change.
 
+## ZNE-501 - existing Un Managed device-registry rows kept stale row metadata after candidate detail refresh
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing ZNE-500's existing-row refresh fix against the actual Home Assistant integration-page device-row registry path.
+- **current observed behavior:** ZNE-500 refreshed the existing `ZeroNetExportUnmanagedCandidateSensor` name, device-info dict, native value, and attributes when a candidate with the same entity ID changed, but it only wrote entity state. Home Assistant device-registry metadata for the existing child device row could keep the old `Un Managed — ...` row name/model until reload because the registry was not updated after `_attr_device_info` changed.
+- **expected behavior:** when an existing unmanaged candidate row changes name/kind metadata, the native integration-page child device row should refresh its device-registry default name/model/configuration metadata without requiring a platform reload.
+- **evidence:** `ZeroNetExportUnmanagedCandidateSensor.update_candidate(...)` rebuilt `_attr_device_info` and called `async_write_ha_state()`, while only `async_added_to_hass()` updated the existing device registry, and that previous helper covered only `configuration_url`.
+- **repo fix:** this run adds a shared child-device registry sync helper and calls it both when entities are added and when existing unmanaged candidates refresh. The helper keeps native Managed Devices / Un Managed child-device registry metadata aligned with the current device-info defaults without adding any custom UI path.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage for existing unmanaged registry metadata refresh plus the existing row lifecycle/detail-refresh tests. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that existing `Un Managed — ...` rows update their visible row name/model when candidate names/kinds change.
+
 ## Closed bugs and process corrections
 
 ## ZNE-497 - unmanaged candidate cache could keep stale integration-page rows after HA state changes

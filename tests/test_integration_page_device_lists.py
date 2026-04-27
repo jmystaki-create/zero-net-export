@@ -67,15 +67,13 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         asyncio.run(sensor.async_added_to_hass())
 
+        self.assertEqual(registry.updated[0], "device-1")
         self.assertEqual(
-            registry.updated,
-            (
-                "device-1",
-                {
-                    "configuration_url": "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool"
-                },
-            ),
+            registry.updated[1]["configuration_url"],
+            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool",
         )
+        self.assertEqual(registry.updated[1]["name"], "Managed Devices — Pool Pump")
+        self.assertEqual(registry.updated[1]["model"], "Managed Devices — Fixed managed load")
 
     def test_managed_device_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
@@ -162,10 +160,13 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         asyncio.run(sensor.async_added_to_hass())
 
+        self.assertEqual(registry.updated[0], "device-2")
         self.assertEqual(
-            registry.updated,
-            ("device-2", {"configuration_url": "homeassistant://navigate/config/entities?entity_id=switch.hot_water"}),
+            registry.updated[1]["configuration_url"],
+            "homeassistant://navigate/config/entities?entity_id=switch.hot_water",
         )
+        self.assertEqual(registry.updated[1]["name"], "Un Managed — Hot Water")
+        self.assertEqual(registry.updated[1]["model"], "Un Managed — Fixed unmanaged candidate")
 
     def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:
         sensor_module = _load_sensor_module()
@@ -765,6 +766,40 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(candidate._attr_device_info["name"], "Un Managed — Hot Water Boost")
         self.assertEqual(candidate.extra_state_attributes["state"], "on")
         self.assertTrue(writes)
+
+    def test_unmanaged_candidate_update_refreshes_existing_registry_metadata(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        candidate = {
+            "entity_id": "switch.hot_water",
+            "name": "Hot Water",
+            "domain": "switch",
+            "kind": "fixed",
+            "state": "off",
+        }
+        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water")
+        device = SimpleNamespace(
+            id="device-2",
+            identifier=identifier,
+            configuration_url="homeassistant://navigate/config/entities?entity_id=switch.hot_water",
+            name="Un Managed — Hot Water",
+            model="Un Managed — Fixed unmanaged candidate",
+        )
+        registry = _FakeDeviceRegistry(device)
+        sensor.hass = SimpleNamespace(device_registry=registry)
+
+        sensor.update_candidate({
+            "entity_id": "switch.hot_water",
+            "name": "Hot Water Boost",
+            "domain": "switch",
+            "kind": "variable",
+            "state": "on",
+        })
+
+        self.assertEqual(registry.updated[0], "device-2")
+        self.assertEqual(registry.updated[1]["name"], "Un Managed — Hot Water Boost")
+        self.assertEqual(registry.updated[1]["model"], "Un Managed — Variable unmanaged candidate")
 
     def test_setup_entry_syncs_unmanaged_candidate_rows_on_ha_state_change(self) -> None:
         sensor_module = _load_sensor_module()

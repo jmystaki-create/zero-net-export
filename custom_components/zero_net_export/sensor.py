@@ -28,6 +28,7 @@ from .entity import (
     managed_load_detail,
     managed_load_detail_mapping,
     managed_load_details_mapping,
+    sync_integration_page_child_device_registry,
     unmanaged_candidate_device_info,
 )
 from .native_support import (
@@ -2008,6 +2009,9 @@ class ZeroNetExportUnmanagedCandidateSensor(ZeroNetExportEntity, SensorEntity):
         candidate_name = str(self._candidate.get("name") or self._candidate.get("entity_id") or "candidate")
         self._attr_name = f"{candidate_name} unmanaged candidate"
         self._attr_device_info = unmanaged_candidate_device_info(self.coordinator, self._candidate)
+        hass = getattr(self, "hass", None)
+        if hass is not None:
+            sync_integration_page_child_device_registry(hass, self._attr_device_info)
         write_state = getattr(self, "async_write_ha_state", None)
         if write_state is not None:
             write_state()

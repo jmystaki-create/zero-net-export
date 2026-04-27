@@ -113,6 +113,43 @@ def _integration_page_child_device_identifier(device_info: dict | None) -> tuple
     return None
 
 
+
+def sync_integration_page_child_device_registry(hass, device_info: dict | None) -> None:
+    """Refresh device-registry metadata for managed/unmanaged integration-page rows."""
+    identifier = _integration_page_child_device_identifier(device_info)
+    if identifier is None:
+        return
+
+    try:
+        from homeassistant.helpers import device_registry as dr
+    except Exception:
+        return
+
+    device_registry = dr.async_get(hass)
+    device = device_registry.async_get_device({identifier})
+    if device is None:
+        return
+
+    updates = {}
+    field_map = {
+        "configuration_url": "configuration_url",
+        "name": "name",
+        "manufacturer": "manufacturer",
+        "model": "model",
+        "sw_version": "sw_version",
+    }
+    for info_key, update_key in field_map.items():
+        value = (device_info or {}).get(info_key)
+        if value in (None, ""):
+            continue
+        device_value = getattr(device, info_key, None)
+        update_value = getattr(device, update_key, None)
+        if device_value != value and update_value != value:
+            updates[update_key] = value
+
+    if updates:
+        device_registry.async_update_device(device.id, **updates)
+
 def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
     """Return device info that makes an unmanaged candidate appear as its own HA device row."""
     entity_id = str(candidate.get("entity_id") or "candidate").strip()
@@ -146,18 +183,7 @@ class ZeroNetExportEntity(CoordinatorEntity):
         if parent is not None:
             await parent()
 
-        device_info = getattr(self, "_attr_device_info", None)
-        config_url = (device_info or {}).get("configuration_url")
-        identifier = _integration_page_child_device_identifier(device_info)
-        if not config_url or identifier is None:
-            return
-
-        from homeassistant.helpers import device_registry as dr
-
-        device_registry = dr.async_get(self.hass)
-        device = device_registry.async_get_device({identifier})
-        if device is not None and getattr(device, "configuration_url", None) != config_url:
-            device_registry.async_update_device(device.id, configuration_url=config_url)
+        sync_integration_page_child_device_registry(self.hass, getattr(self, "_attr_device_info", None))
 
     @property
     def _state(self):
