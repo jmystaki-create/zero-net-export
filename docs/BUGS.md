@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-395 - Validation checklist next-action entity used suggestion wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking active validation-gate wording after recent recommendation/ranking cleanup.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still said `sensor.zero_net_export_recommendation` `suggests next action`, leaving an active release-validation checklist line framed as a suggestion even though the rest of the current-focus gate had moved to direct native next-action wording.
+- **expected behavior:** active validation guidance may keep the existing entity id, but should describe the sensor as reporting the current native next action, not as a recommendation/suggestion label that can revive ranking-style language at the release gate.
+- **evidence:** direct repo inspection found `sensor.zero_net_export_recommendation` `suggests next action` in `docs/VALIDATION_CHECKLIST.md`; existing bucket-ownership coverage rejected adjacent recommendation headings but did not cover this checklist line.
+- **repo fix:** this run rewrites the checklist line to `reports the current native next action`, records the cleanup in the Unreleased changelog, and extends active-doc regression coverage to reject the stale suggestion wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this active-doc correction.
+- **next action:** use the corrected checklist for the next `0.1.89` approval/freeze/release/deploy/restart path; if no sharper A-D/F implementation defect remains, James's direct approval is the next real boundary rather than another recommendation-wording or fingerprint-bookkeeping pass.
+
 ## ZNE-394 - Current release highlights kept recommended native section wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

@@ -176,7 +176,7 @@ This is the live validation path once the repo-side A-D/F check is clean and Jam
 - [ ] `number.zero_net_export_battery_reserve_soc` sets reserve
 - [ ] `sensor.zero_net_export_status` shows current status
 - [ ] `sensor.zero_net_export_reason` explains current state
-- [ ] `sensor.zero_net_export_recommendation` suggests next action
+- [ ] `sensor.zero_net_export_recommendation` reports the current native next action
 - [ ] `sensor.zero_net_export_confidence` shows validation confidence
 - [ ] `binary_sensor.zero_net_export_safe_mode` indicates safe mode
 - [ ] `binary_sensor.zero_net_export_source_mismatch` indicates mismatch
