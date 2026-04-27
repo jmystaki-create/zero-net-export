@@ -1,6 +1,8 @@
 """Base entity helpers."""
 from __future__ import annotations
 
+from urllib.parse import urlencode
+
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, INTEGRATION_VERSION
@@ -37,7 +39,8 @@ def managed_load_configuration_url(coordinator, device_key: str) -> str:
     """Return the native HA configuration URL exposed as the row settings/gear action."""
     entry_id = _device_identifier_part(getattr(coordinator.entry, "entry_id", "entry"))
     key = _device_identifier_part(device_key)
-    return f"homeassistant://navigate/config/integrations/integration/{DOMAIN}?managed_device={entry_id}:{key}"
+    query = urlencode({"managed_device": f"{entry_id}:{key}"})
+    return f"homeassistant://navigate/config/integrations/integration/{DOMAIN}?{query}"
 
 
 def managed_load_device_info(coordinator, device_key: str, detail: dict | None = None) -> dict:
@@ -91,7 +94,7 @@ def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
         "model": f"Un Managed — {kind.title()} unmanaged candidate" if kind else "Un Managed — Unmanaged candidate",
         "sw_version": INTEGRATION_VERSION,
         "via_device": (DOMAIN, coordinator.entry.entry_id),
-        "configuration_url": f"homeassistant://navigate/config/entities?entity_id={entity_id}",
+        "configuration_url": f"homeassistant://navigate/config/entities?{urlencode({'entity_id': entity_id})}",
         "suggested_area": "Zero Net Export Un Managed",
     }
 

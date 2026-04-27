@@ -53,7 +53,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Managed Devices")
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
-            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1:pool",
+            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool",
         )
 
     def test_managed_device_async_added_updates_existing_registry_configuration_url(self) -> None:
@@ -72,9 +72,38 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             (
                 "device-1",
                 {
-                    "configuration_url": "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1:pool"
+                    "configuration_url": "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool"
                 },
             ),
+        )
+
+    def test_managed_device_configuration_url_encodes_query_value(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+
+        sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool pump&main", "Pool Pump")
+
+        self.assertEqual(
+            sensor._attr_device_info["configuration_url"],
+            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool+pump%26main",
+        )
+
+    def test_unmanaged_candidate_configuration_url_encodes_query_value(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        candidate = {
+            "entity_id": "switch.hot_water&boost",
+            "name": "Hot Water Boost",
+            "domain": "switch",
+            "kind": "fixed",
+            "state": "off",
+        }
+
+        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+
+        self.assertEqual(
+            sensor._attr_device_info["configuration_url"],
+            "homeassistant://navigate/config/entities?entity_id=switch.hot_water%26boost",
         )
 
     def test_unmanaged_candidate_sensor_registers_candidate_as_own_ha_device(self) -> None:

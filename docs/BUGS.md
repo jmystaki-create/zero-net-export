@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-465 - integration-page row settings links did not encode query values
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing the native `Managed Devices — ...` and `Un Managed — ...` child-device settings-link implementation against the integration-main-page device-row requirement.
+- **current observed behavior:** managed child-device settings URLs and unmanaged candidate entity URLs were built with raw query values. Normal keys such as `pool` worked, but a managed-device key containing query-sensitive characters such as spaces or `&` could split or corrupt the Home Assistant navigation query instead of keeping one intact row settings target.
+- **expected behavior:** native integration-page device-row gear/settings links should URL-encode their query values so managed and unmanaged row navigation stays valid for every registry-safe identifier the integration can create.
+- **repo fix:** this run switched Managed Devices and Un Managed child-device configuration URLs to use encoded query strings while preserving the native Home Assistant child-device path and without adding any custom/external UI.
+- **validation status:** closed with focused integration-page device-list tests covering encoded managed and unmanaged row settings URLs; no Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active ZNE-439/ZNE-429 boundary: ask James for the release-target decision, then native-row acceptance, then exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-464 - unmanaged integration-page rows did not backfill existing settings links
 
 - **status:** `closed`
