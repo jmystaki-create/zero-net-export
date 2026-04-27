@@ -141,7 +141,7 @@ Do not use `0.1.90` for:
 
 ## Candidate implementation checklist
 
-Current repo-side state on 2026-04-27: the corrective repo candidate is ready for James's explicit `0.1.90` release/deploy/restart validation approval. Do not keep treating the repo implementation checklist below as unstarted; the remaining unchecked work is the approval-bound freeze, release, deploy, restart, fingerprint, and screenshot-grade live validation path.
+Current release state on 2026-04-27: the corrective repo candidate has been frozen, tagged, pushed, and published as `v0.1.90` at `d94436a`. Do not keep treating the repo implementation or GitHub publication checklist below as unstarted; the remaining unchecked work is the Home Assistant install/update, restart, fingerprint, and screenshot-grade live validation path.
 
 Before coding:
 
@@ -159,12 +159,12 @@ Repo implementation:
 
 Release:
 
-- [ ] Ask James directly for `0.1.90` release/deploy/restart validation approval.
-- [ ] Bump manifest and version-coupled tests to `0.1.90` only after approval.
-- [ ] Add `0.1.90` changelog section describing the device-page Managed Devices visibility fix.
+- [x] Ask James directly for `0.1.90` release/deploy/restart validation approval.
+- [x] Bump manifest and version-coupled tests to `0.1.90` only after approval.
+- [x] Add `0.1.90` changelog section describing the device-page Managed Devices visibility fix.
 - [x] Run full tests for the repo candidate.
-- [ ] Capture expected install fingerprint immediately before release.
-- [ ] Commit, tag `v0.1.90`, push, and publish GitHub release only after approval/release readiness.
+- [x] Capture expected install fingerprint immediately before release.
+- [x] Commit, tag `v0.1.90`, push, and publish GitHub release only after approval/release readiness.
 
 Deploy/validate:
 
