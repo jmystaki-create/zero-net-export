@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-390 - UI implementation map kept retired recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while comparing the active Detailed remaining work map against the neutral current-focus wording already shipped in Configure, Managed Devices, and device-page handoffs.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_MAP.md` still told supervisors to confirm the `next recommended fleet action` and said the shared command-center/device-path guide carried `recommended-section` handoff text. That kept the source-of-truth roadmap pointing back at retired recommendation labels after visible UI copy had moved to current-focus/current-action wording.
+- **expected behavior:** the implementation map should steer remaining Workstreams A-D/F with neutral current-focus and current-fleet-action language, while internal compatibility keys can remain implementation details.
+- **evidence:** direct repo inspection found both stale phrases in the active Stage 4 and Stage 6 portions of `docs/UI_IMPLEMENTATION_MAP.md`; the existing active-doc regression test did not cover the implementation map.
+- **repo fix:** this run changes the roadmap wording to `current fleet action` and `current-focus and section-ownership handoff text`, records the planning cleanup in the Unreleased changelog, and extends active-doc regression coverage to reject the stale phrases.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this roadmap/source-of-truth correction.
+- **next action:** use the corrected workstream map to stop recommendation-wording churn; if no sharper A-D/F implementation defect remains, the next real gap is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-389 - Comma-separated Fleet activity review-first/ready-next cues stayed ungrouped
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

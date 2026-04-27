@@ -669,6 +669,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         }
         ui_design = (project_root / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
         ui_implementation_spec = (project_root / "docs" / "UI_IMPLEMENTATION_SPEC.md").read_text(encoding="utf-8")
+        ui_implementation_map = (project_root / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
         entity_model = (project_root / "docs" / "ENTITY_MODEL.md").read_text(encoding="utf-8")
         supervisor = (project_root / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
 
@@ -715,6 +716,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("missing source mapping", ui_implementation_spec)
         self.assertNotIn("mapping status", ui_implementation_spec)
         self.assertNotIn("Additional telemetry belongs here", ui_implementation_spec)
+        self.assertIn("current fleet action is obvious", ui_implementation_map)
+        self.assertIn("explicit current-focus and section-ownership handoff text", ui_implementation_map)
+        self.assertNotIn("next recommended fleet action", ui_implementation_map)
+        self.assertNotIn("explicit recommended-section and section-ownership handoff text", ui_implementation_map)
         self.assertIn("diagnostic entities now also exist for each source role", entity_model)
         self.assertIn("current focus Configure bucket", entity_model)
         self.assertNotIn("diagnostic entities now also exist for each mapped source role", entity_model)

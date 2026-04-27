@@ -20,6 +20,7 @@ Target release: `0.1.89`
 - Kept Diagnostics and operator-ready handoffs anchored to the exact native Configure and device Diagnostics paths, and capped installed-release metadata highlights so Home Assistant support surfaces stay compact even when historical changelog sections are long.
 
 ### Planning
+- Kept the detailed UI implementation map on neutral current-focus / current-fleet-action wording so the roadmap no longer tells supervisors to chase retired recommendation labels while Workstreams A-D/F remain the ordered source of truth.
 - Kept supervisor steering and the `0.1.89` release plan aligned with current native bucket wording, the clean follow-up line after the already-published `v0.1.88` release, and James's direct approval as an explicit freeze prerequisite.
 
 ## [0.1.88]

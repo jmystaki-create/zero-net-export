@@ -285,7 +285,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Remaining**
 - make the managed-on-top / unmanaged-below structure visually obvious in live HA
 - confirm on the exact deployed build that the device-page review/audit path reads clearly as secondary to Configure -> Managed Devices, rather than relying on repo copy alone
-- confirm the next recommended fleet action is obvious at a glance in the installed UI, not just in repo copy
+- confirm the current fleet action is obvious at a glance in the installed UI, not just in repo copy
 
 **Features in this stage**
 - managed fleet summary block
@@ -325,7 +325,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Completed**
 - section labels and path language already exist
 - high-level ownership direction already exists
-- the shared command-center/device-path guide now carries explicit recommended-section and section-ownership handoff text
+- the shared command-center/device-path guide now carries explicit current-focus and section-ownership handoff text
 
 **Remaining**
 - keep moving any leaking content so each area has one clear purpose
