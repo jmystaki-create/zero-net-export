@@ -876,7 +876,7 @@ def _build_managed_device_detail_lines(
         f"Next managed-device step: {_managed_devices_recommended_next_step(command_center)}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
         "",
-        "Managed devices workspace context:",
+        "Managed Devices workspace context:",
         f"- Managed snapshot: {managed_snapshot}",
         f"- Unmanaged snapshot: {unmanaged_snapshot}",
         (
