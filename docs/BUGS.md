@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-475 - diagnostics snapshot could crash on sparse runtime controller fields
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-28 after recent sparse-runtime hardening covered entities, Managed Devices buttons, support/setup buttons, validation details, and diagnostics `device_details`, while `custom_components/zero_net_export/diagnostics.py` still directly dereferenced many ordinary runtime fields such as `active`, `recommendation`, `grid_export_power_w`, and `device_count`.
+- **current observed behavior:** if the coordinator had a sparse transitional runtime object with `validation_details` present but some controller, telemetry, source, or device count attributes absent, the native Diagnostics snapshot path could raise before returning support evidence.
+- **expected behavior:** Diagnostics snapshots should tolerate missing runtime fields and return `None`/empty diagnostic values rather than failing, preserving the native Home Assistant support path without adding any custom/external UI.
+- **repo fix:** this run adds a shared diagnostics runtime-attribute fallback and routes controller, telemetry, source, and device-count snapshot fields through it.
+- **validation status:** closed with focused diagnostics sparse-runtime regression coverage. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-474 - support and setup buttons could crash on sparse runtime summaries
 
 - **status:** `closed`

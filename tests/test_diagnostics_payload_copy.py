@@ -98,7 +98,7 @@ class TestDiagnosticsPayloadCopy(unittest.TestCase):
     def test_controller_diagnostics_use_current_next_action_key(self) -> None:
         source = (Path(__file__).resolve().parents[1] / "custom_components" / "zero_net_export" / "diagnostics.py").read_text(encoding="utf-8")
 
-        self.assertIn('"current_native_next_action": data.recommendation', source)
+        self.assertIn('"current_native_next_action": _runtime_attr(data, "recommendation")', source)
         self.assertNotIn('"recommendation": data.recommendation', source)
 
     def test_native_surface_button_metadata_matches_managed_devices_actions(self) -> None:
@@ -110,6 +110,32 @@ class TestDiagnosticsPayloadCopy(unittest.TestCase):
         self.assertNotIn('"Review managed devices",', source)
         self.assertNotIn('"Review managed devices workspace",', source)
         self.assertNotIn('"Review each managed device",', source)
+
+    def test_diagnostics_snapshot_tolerates_missing_runtime_controller_fields(self) -> None:
+        diagnostics = _load_diagnostics_module()
+        entry = SimpleNamespace(
+            entry_id="entry-1",
+            title="Zero Net Export",
+            domain="zero_net_export",
+            version=1,
+            data={},
+            options={},
+        )
+        coordinator = SimpleNamespace(entry=entry, data=SimpleNamespace(validation_details={}))
+        hass = SimpleNamespace(data={"zero_net_export": {"entry-1": coordinator}})
+
+        payload = diagnostics.async_get_config_entry_diagnostics(hass, entry)
+        if hasattr(payload, "__await__"):
+            import asyncio
+
+            payload = asyncio.run(payload)
+
+        self.assertIsNone(payload["controller"]["current_native_next_action"])
+        self.assertIsNone(payload["controller"]["active"])
+        self.assertIsNone(payload["telemetry"]["actions_today"])
+        self.assertIsNone(payload["sources"]["grid_export_power_w"])
+        self.assertIsNone(payload["devices"]["device_count"])
+        self.assertEqual(payload["devices"]["details"], [])
 
     def test_diagnostics_snapshot_tolerates_missing_runtime_device_details(self) -> None:
         diagnostics = _load_diagnostics_module()
