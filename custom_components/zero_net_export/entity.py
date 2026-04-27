@@ -16,7 +16,7 @@ def _device_identifier_part(value: object) -> str:
     original = str(value or "unknown").strip() or "unknown"
     normalized = original.lower()
     safe = re.sub(r"[^a-z0-9_]+", "_", normalized.replace(".", "_").replace(":", "_").replace("/", "_")).strip("_") or "unknown"
-    if normalized == safe:
+    if original == safe:
         return safe
     digest = hashlib.sha1(original.encode("utf-8")).hexdigest()[:8]
     return f"{safe}_{digest}"

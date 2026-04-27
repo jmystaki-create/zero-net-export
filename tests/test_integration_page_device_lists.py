@@ -150,6 +150,31 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             suffix = identifier.rsplit(":", 1)[-1]
             self.assertRegex(suffix, r"^[a-z0-9_]+_[a-f0-9]{8}$")
 
+    def test_child_device_identifiers_remain_unique_after_case_normalizing(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+
+        managed_upper = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "Pool", "Pool")
+        managed_lower = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "pool")
+        unmanaged_upper = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+            coordinator,
+            {"entity_id": "switch.Load", "name": "Load", "domain": "switch", "kind": "fixed", "state": "off"},
+        )
+        unmanaged_lower = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+            coordinator,
+            {"entity_id": "switch.load", "name": "load", "domain": "switch", "kind": "fixed", "state": "off"},
+        )
+
+        managed_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (managed_upper, managed_lower)]
+        unmanaged_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (unmanaged_upper, unmanaged_lower)]
+
+        self.assertNotEqual(managed_identifiers[0], managed_identifiers[1])
+        self.assertNotEqual(unmanaged_identifiers[0], unmanaged_identifiers[1])
+        self.assertRegex(managed_identifiers[0][1].rsplit(":", 1)[-1], r"^pool_[a-f0-9]{8}$")
+        self.assertEqual(managed_identifiers[1][1].rsplit(":", 1)[-1], "pool")
+        self.assertRegex(unmanaged_identifiers[0][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
+        self.assertRegex(unmanaged_identifiers[1][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
+
     def test_unmanaged_candidate_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
