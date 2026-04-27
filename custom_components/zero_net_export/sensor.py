@@ -12,13 +12,14 @@ from .candidate_utils import (
     build_candidate_name_summary,
     build_candidate_overview_summary,
     build_candidate_preview,
+    build_candidate_review_hint,
     candidate_needs_review,
     candidate_review_kind_counts,
     discover_candidate_devices,
     first_review_candidate,
 )
 from .const import DOMAIN, INTEGRATION_VERSION
-from .entity import ZeroNetExportEntity
+from .entity import ZeroNetExportEntity, managed_load_device_info, unmanaged_candidate_device_info
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
     POLICY_CONFIGURE_PATH,
@@ -321,6 +322,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
                         "Target power",
                     )
                 )
+
+        candidates = _candidate_devices_for_state(coordinator, hass, state)
+        for candidate in candidates:
+            entities.append(ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate))
 
     async_add_entities(entities)
 
@@ -1491,10 +1496,33 @@ def _managed_snapshot_focus_label(detail: dict[str, Any] | None) -> str:
     return f"{name} ({' | '.join(parts)})" if parts else name
 
 
+def _managed_load_detail(coordinator, device_key: str, device_name: str) -> dict[str, Any]:
+    state = getattr(coordinator, "data", None)
+    details = getattr(state, "device_details", {}) or {}
+    detail = dict(details.get(device_key, {}) or {})
+    detail.setdefault("name", device_name)
+    return detail
+
+
+def _attach_managed_load_device(entity, coordinator, device_key: str, device_name: str) -> None:
+    entity._attr_device_info = managed_load_device_info(
+        coordinator,
+        device_key,
+        _managed_load_detail(coordinator, device_key, device_name),
+    )
+
+
+def _candidate_unique_key(candidate: dict[str, Any]) -> str:
+    entity_id = str(candidate.get("entity_id") or candidate.get("name") or "candidate").strip().lower()
+    normalized = "_".join(part for part in entity_id.replace(".", "_").replace(":", "_").split() if part)
+    return normalized or "candidate"
+
+
 class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_managed_summary", f"{device_name} managed summary")
         self._device_key = device_key
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @staticmethod
     def _active_planned_action(detail: dict[str, Any]) -> str:
@@ -1576,6 +1604,7 @@ class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_status", f"{device_name} status")
         self._device_key = device_key
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def native_value(self):
@@ -1598,6 +1627,7 @@ class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_planned_action", f"{device_name} planned action")
         self._device_key = device_key
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def native_value(self):
@@ -1620,6 +1650,7 @@ class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_guard_status", f"{device_name} guard status")
         self._device_key = device_key
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def native_value(self):
@@ -1651,6 +1682,7 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
         self._device_key = device_key
         self._value_key = value_key
         self._attr_entity_category = entity_category
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def native_value(self):
@@ -1678,6 +1710,7 @@ class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def native_value(self):
@@ -1706,6 +1739,7 @@ class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def native_value(self):
@@ -1729,6 +1763,7 @@ class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
     def native_value(self):
@@ -1743,3 +1778,36 @@ class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
         if state is None:
             return {}
         return state.device_details.get(self._device_key, {})
+
+
+class ZeroNetExportUnmanagedCandidateSensor(ZeroNetExportEntity, SensorEntity):
+    """Minimal native entity used to register an unmanaged candidate as a HA device row."""
+
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+
+    def __init__(self, coordinator, candidate: dict[str, Any]):
+        self._candidate = dict(candidate or {})
+        candidate_key = _candidate_unique_key(self._candidate)
+        candidate_name = str(self._candidate.get("name") or self._candidate.get("entity_id") or "candidate")
+        super().__init__(
+            coordinator,
+            f"unmanaged_candidate_{candidate_key}",
+            f"{candidate_name} unmanaged candidate",
+        )
+        self._attr_device_info = unmanaged_candidate_device_info(coordinator, self._candidate)
+
+    @property
+    def native_value(self):
+        return build_candidate_review_hint(self._candidate, include_warning=False)
+
+    @property
+    def extra_state_attributes(self):
+        fit = assess_candidate(self._candidate)
+        return {
+            **self._candidate,
+            "bucket": "Un Managed",
+            "integration_page_group": "Un Managed",
+            "candidate_usefulness": build_candidate_review_hint(self._candidate, include_warning=False),
+            "candidate_warnings": fit.get("warnings") or [],
+            "candidate_summary": fit.get("summary"),
+        }

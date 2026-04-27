@@ -47,9 +47,9 @@ The following do **not** satisfy `0.1.91`:
 
 ## Technical direction
 
-The likely implementation direction is to expose managed loads and unmanaged candidates as real Home Assistant device-registry devices associated with the Zero Net Export config entry, so Home Assistant renders them under the integration detail page's Devices area.
+The repo candidate exposes managed loads and unmanaged candidates as child Home Assistant devices associated with the Zero Net Export config entry through native entity device-info metadata, so Home Assistant can render them under the integration detail page's Devices area.
 
-The design must target the integration detail page device list, not arbitrary custom cards. If Home Assistant cannot render two literal custom group headings for devices from one integration, the project must report that as a hard platform constraint before implementation and propose the closest native representation, instead of substituting renamed entities/buttons.
+Home Assistant's native device APIs can create the integration-page device rows, but they do not expose a custom API for arbitrary literal nested headings inside one integration. The closest native representation now implemented in repo is one device row per load/candidate, with row names/models carrying the group language: `Managed Devices — ...` and `Un Managed — ...`. This must be accepted as the native constraint before release; do not substitute sensors/buttons/custom UI for this outcome.
 
 ## Acceptance criteria
 
@@ -64,6 +64,4 @@ The design must target the integration detail page device list, not arbitrary cu
 
 ## Required documentation/validation state
 
-Before implementation resumes, all source-of-truth docs must agree that `0.1.91` is the active target and that its scope is limited to the integration-main-page managed/unmanaged device lists described above.
-
-Before release/deploy, update version/release files only after the implementation exists and only within this approved scope.
+The repo implementation now exists inside the approved scope. Before release/deploy, confirm the closest native entity/device-info representation is acceptable, then update version/release files only within this approved scope and ask James directly for release/deploy/restart approval.

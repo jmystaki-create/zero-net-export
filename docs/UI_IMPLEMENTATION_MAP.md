@@ -51,6 +51,8 @@ If Home Assistant cannot natively render literal custom group headings for this 
 
 ### Still blocked or incomplete
 - The live user screenshots show the requested UI is still missing: the Zero Net Export main integration page does **not** show a Managed Devices device list and a separate Un Managed device list underneath it.
+- Repo now contains a `0.1.91` native entity/device-info candidate that makes managed loads and unmanaged candidates appear as child Home Assistant device rows under the Zero Net Export config entry, using `Managed Devices — ...` and `Un Managed — ...` row names/models as the closest native representation.
+- Home Assistant's integration page can render device rows from entity device-info metadata, but it does not expose a custom API for arbitrary literal nested headings inside one integration; if James needs exact collapsible headings rather than grouped row naming/model text, that is a platform/product-decision constraint to resolve before release.
 - `0.1.90` is historical and insufficient for this requirement. It exposed Managed Devices-labelled rows/actions on the individual device-info surface, but it did not create the requested integration-main-page managed/unmanaged device lists.
 - The next release line is `0.1.91` / `1.91`, limited to the `docs/RELEASE_0.1.91_PLAN.md` scope. Do not reopen or defend `0.1.90` as complete for this requirement.
 - Treat the exact deploy boundary as the current component-changing build reported by `scripts/print_expected_install_fingerprint.py`, not as a hash that needs to be recopied into source-of-truth docs every time another UI commit lands.
@@ -203,8 +205,8 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - convert the future `0.1.91` / release `1.91` integration-main-page device-list implementation into a real installed and validated Home Assistant build, without reopening the completed `0.1.90` device-info-page release loop
 
 **Still to do**
-1. Implement the approved `0.1.91` integration-main-page managed/unmanaged device-list mechanism, or document the exact Home Assistant platform constraint if literal `Managed Devices` / `Un Managed` grouped device lists cannot be rendered natively.
-2. Only after that implementation exists, freeze version-coupled files for `0.1.91` / release `1.91` and ask James directly for release/deploy/restart approval.
+1. Repo candidate exists for the approved `0.1.91` integration-main-page managed/unmanaged device-list mechanism: managed-load entities and unmanaged-candidate diagnostic entities now carry child-device metadata tied to the Zero Net Export config entry. Literal custom nested headings are not exposed by HA's native device APIs, so the closest native representation uses `Managed Devices — ...` and `Un Managed — ...` device rows/models.
+2. If that closest native representation is accepted, freeze version-coupled files for `0.1.91` / release `1.91` and ask James directly for release/deploy/restart approval.
 3. Deploy/install the exact approved `0.1.91` build to Home Assistant or verify HACS installs it.
 4. Restart/reload Home Assistant and confirm the installed package matches the helper-resolved `0.1.91` component boundary with the fingerprint helper.
 5. Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export` showing the Managed Devices list and the Un Managed list with individual device rows.

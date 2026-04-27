@@ -91,7 +91,7 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## ZNE-429 - 0.1.91 main integration page lacks Managed Devices and Un Managed device lists
 
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
 - **area:** `managed_devices`
 - **where seen:** James supplied Home Assistant integration-page examples and clarified that the requested surface is the Zero Net Export main integration page, not the individual Zero Net Export device-info page.
@@ -99,9 +99,10 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **expected behavior:** release `0.1.91` / `1.91` must make the Zero Net Export main integration page show a `Managed Devices` group/list containing managed loads as individual Home Assistant device rows, and an `Un Managed` group/list underneath containing unmanaged candidate devices as individual Home Assistant device rows.
 - **evidence:** James supplied HomeKit-style screenshots showing integration-detail-page grouped device rows and explicitly requested the same pattern under Zero Net Export, first for managed devices and then for an `Un Managed` list underneath.
 - **suspected cause:** prior work translated the requirement into sensors/buttons on the Zero Net Export device-info page instead of targeting Home Assistant's integration detail page device list/device registry representation.
-- **repo fix:** this documentation-only run aligns the project source-of-truth docs so the active Workstream G/release path is `0.1.91` integration-main-page device lists, not the completed `0.1.90` device-info-page install/fingerprint/screenshot loop.
-- **validation status:** documentation now agrees that `0.1.91` is the active approved scope and that release/fingerprint/live-screenshot execution must wait until the integration-main-page device-list implementation exists.
-- **next action:** update implementation only within the approved `0.1.91` scope. Before any implementation/release work, confirm the Home Assistant-native mechanism for representing managed and unmanaged candidates as devices under the integration page; if literal custom group headings are not supported, report that constraint instead of substituting renamed entities/buttons.
+- **repo fix:** repo now adds native device-info support for the approved `0.1.91` scope. Managed-load entities register under their own `Managed Devices — <name>` child devices, and unmanaged candidates get minimal `Un Managed — <name>` diagnostic entities so Home Assistant can render them as integration-page device rows associated with the Zero Net Export config entry. This stays on the native Home Assistant integration-page path and does not add a custom panel/sidebar/external UI.
+- **platform constraint noted:** Home Assistant's device model supports child devices via `via_device`, but the public integration/device APIs do not expose an arbitrary custom heading/folder API for literal nested groups inside one integration. The repo candidate therefore implements the closest native representation: real integration-page device rows named/modelled as `Managed Devices — ...` and `Un Managed — ...`.
+- **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
+- **next action:** review whether the closest native device-info representation is acceptable for the requested group/list outcome; if accepted, freeze/version `0.1.91`, ask James directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
 
 ## Current active bugs
 
