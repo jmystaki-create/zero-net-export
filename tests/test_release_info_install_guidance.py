@@ -257,7 +257,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope", detailed_map)
         self.assertIn("Ask James directly whether the closest Home Assistant-native device-registry representation is acceptable", detailed_map)
         self.assertIn("ask James directly whether this closest native representation is acceptable before release execution", detailed_map)
-        self.assertIn("If James accepts that representation, freeze version-coupled files for `0.1.91` / release `1.91`", detailed_map)
+        self.assertIn("already frozen/tagged as `v0.1.91` at `7217f3b`", detailed_map)
+        self.assertIn("do not treat that as deploy approval", detailed_map)
         self.assertNotIn("Only after a repo implementation exists should the project enter `0.1.91` release/fingerprint/live-screenshot execution", detailed_map)
         self.assertNotIn("future `0.1.91` / release `1.91` integration-main-page device-list implementation", detailed_map)
         self.assertNotIn("published `v0.1.90` corrective release", detailed_map)
@@ -271,17 +272,13 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
         zne_429 = bugs.split("## ZNE-429", 1)[1].split("\n## ZNE-432", 1)[0]
 
-        self.assertIn(
-            "ask James directly whether the closest native entity/device-info representation is acceptable",
-            release_plan,
-        )
-        self.assertIn(
-            "ask James directly whether the closest native device-info representation is acceptable",
-            zne_429,
-        )
+        self.assertIn("`v0.1.91` is already frozen/tagged at `7217f3b`", release_plan)
+        self.assertIn("ask James directly for both before any Home Assistant install/restart", release_plan)
+        self.assertIn("do not treat the `v0.1.91` freeze/tag as Home Assistant deploy approval", zne_429)
+        self.assertIn("ask James directly for both before any install/restart", zne_429)
         self.assertIn("If James rejects the closest native child-device representation", release_plan)
         self.assertIn("visible `Managed Devices — ...` and `Un Managed — ...` device row/model grouping", release_plan)
-        self.assertIn("ask James directly for release/deploy/restart approval", zne_429)
+        self.assertIn("release/deploy/restart approval were not explicitly recorded", zne_429)
         self.assertNotIn("review whether the closest native device-info representation is acceptable", zne_429)
 
     def test_0191_success_criteria_respect_accepted_native_grouping_constraint(self) -> None:

@@ -64,4 +64,4 @@ Home Assistant's native device APIs can create the integration-page device rows,
 
 ## Required documentation/validation state
 
-The repo implementation now exists inside the approved scope. Before release/deploy, ask James directly whether the closest native entity/device-info representation is acceptable. If James accepts it, update version/release files only within this approved scope and ask James directly for release/deploy/restart approval.
+The repo implementation exists inside the approved scope and `v0.1.91` is already frozen/tagged at `7217f3b`. Do not treat that freeze/tag as Home Assistant deploy approval. If James acceptance of the closest native entity/device-info representation and explicit release/deploy/restart approval were not recorded before the freeze, ask James directly for both before any Home Assistant install/restart or success claim.

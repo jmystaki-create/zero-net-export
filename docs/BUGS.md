@@ -103,10 +103,22 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **suspected cause:** prior work translated the requirement into sensors/buttons on the Zero Net Export device-info page instead of targeting Home Assistant's integration detail page device list/device registry representation.
 - **repo fix:** repo now adds native device-info support for the approved `0.1.91` scope. Managed-load entities register under their own `Managed Devices — <name>` child devices, and unmanaged candidates get minimal `Un Managed — <name>` diagnostic entities so Home Assistant can render them as integration-page device rows associated with the Zero Net Export config entry. This stays on the native Home Assistant integration-page path and does not add a custom panel/sidebar/external UI.
 - **platform constraint noted:** Home Assistant's device model supports child devices via `via_device`, but the public integration/device APIs do not expose an arbitrary custom heading/folder API for literal nested groups inside one integration. The repo candidate therefore implements the closest native representation: real integration-page device rows named/modelled as `Managed Devices — ...` and `Un Managed — ...`.
-- **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
-- **next action:** ask James directly whether the closest native device-info representation is acceptable for the requested group/list outcome; if accepted, freeze/version `0.1.91`, ask James directly for release/deploy/restart approval, then validate the exact installed build with integration-main-page screenshots.
+- **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite; version-coupled files are now frozen/tagged as `v0.1.91` at `7217f3b`. Live validation is still pending; success still requires screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the installed `0.1.91` build.
+- **next action:** do not treat the `v0.1.91` freeze/tag as Home Assistant deploy approval. If James acceptance of the closest native device-info representation and release/deploy/restart approval were not explicitly recorded before the freeze, ask James directly for both before any install/restart, then validate the exact installed build with integration-main-page screenshots.
 
 ## Closed process corrections
+
+## ZNE-436 - 0.1.91 freeze/tag happened while source-of-truth still described freeze as future
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `7217f3b` froze/tagged `v0.1.91`.
+- **current observed behavior:** the active map, release plan, and ZNE-429 next action still said to ask James about the native child-device representation and then freeze/version `0.1.91`, even though the repo had already been frozen/tagged as `v0.1.91`. That stale future-freeze wording could make runners either repeat release bookkeeping or mistake the tag for Home Assistant deploy/restart approval.
+- **expected behavior:** source-of-truth should reflect the actual frozen/tagged repo state while preserving the direct James acceptance and release/deploy/restart approval boundary before any Home Assistant install/restart or success claim.
+- **repo fix:** this run updates ZNE-429, the `0.1.91` release plan, and the ordered implementation map to say `v0.1.91` is already frozen/tagged at `7217f3b`, but deploy/restart approval still must be explicit if not recorded.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** ask James directly for native-representation acceptance and release/deploy/restart approval if that approval was not already explicitly recorded, then install/restart and capture integration-main-page screenshot-grade evidence.
 
 ## ZNE-435 - Current active bugs section still visually included historical closed and fixed-pending backlog
 
