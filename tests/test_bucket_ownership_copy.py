@@ -623,10 +623,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("recommended next section", checklist)
         self.assertNotIn("`sensor.zero_net_export_recommendation` suggests next action", checklist)
         self.assertIn(
-            "where Sensors/source roles live, where Controls policy/live mode lives, where Managed Devices fleet work lives, and where Diagnostics evidence lives",
+            "Configure clearly communicates where Sensors/source roles, Controls, Managed Devices, and Diagnostics actions live",
             checklist,
         )
-        self.assertIn("map required source roles in native Sensors setup", checklist)
+        self.assertIn("For `0.1.91`, validation is only about the main integration page device lists", checklist)
         self.assertIn("Controls flow states whether target export, reserve, deadband, and live mode are actionable", checklist)
         self.assertNotIn("native source mapping", checklist)
         self.assertNotIn("raw source-mapping form", checklist)

@@ -8,17 +8,19 @@ The intended product design now lives in `docs/UI_DESIGN.md`.
 
 ## Scope
 
-The current live/UI correction history includes published `v0.1.88`, `v0.1.89`, and `v0.1.90` releases. `0.1.89` installed successfully and matched the deployed fingerprint, but live Home Assistant evidence showed it did **not** satisfy James's device-page Managed Devices expectation. The active UI validation target is therefore the published `v0.1.90` build at `d94436a`, not another attempt to defend or reword `0.1.89` or to reopen the completed `0.1.90` freeze/publication boundary.
+The current approved UI target is `0.1.91` / release `1.91`: the Zero Net Export **main integration page** must show managed and unmanaged device lists under the Zero Net Export integration, like the HomeKit integration examples James supplied.
 
-Treat this document as the UI-shaping checklist for `0.1.90`, and do not use stale `0.1.83`, `0.1.85`, `0.1.86`, published-but-superseded `0.1.88`, or already-failed `0.1.89` wording as if those were still the future UI target.
+This is the only approved scope for the next work line:
+1. show a **Managed Devices** group/list under Zero Net Export on the integration detail page
+2. show each managed load as its own Home Assistant device row inside that group/list
+3. show an **Un Managed** group/list underneath it
+4. show each unmanaged candidate as its own Home Assistant device row inside that group/list
 
-`0.1.90` should focus on the concrete native-UI outcome James's screenshot proved missing:
-1. a clear **Managed Devices surface on the Zero Net Export device page**
-2. a clear **managed vs unmanaged** device experience visible without relying on Activity history
-3. a clear **promote / vet / review** native flow for bringing unmanaged devices into the managed fleet
-4. a clear native information architecture split between **Controls**, **Sensors**, **Managed Devices**, and **Diagnostics**
+Do not treat `0.1.90` device-info-page entity rows, Controls buttons, Activity rows, persistent notifications, or Configure-only screens as satisfying this requirement. They do not.
 
-If a change does not materially improve one of those visible outcomes, it should not displace this work unless it is required to keep the integration loading or to unblock live UI validation.
+Do not use stale `0.1.83`, `0.1.85`, `0.1.86`, `0.1.88`, `0.1.89`, or `0.1.90` wording as the active target. The active target is the integration-main-page device-list outcome in `docs/RELEASE_0.1.91_PLAN.md`.
+
+If Home Assistant cannot natively render literal custom group headings for this page, report that as a platform constraint before implementation and propose the closest native device-registry representation. Do not substitute renamed sensors/buttons for the requested lists.
 
 ## Status summary
 
@@ -48,18 +50,19 @@ If a change does not materially improve one of those visible outcomes, it should
 - Diagnostics text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
-- Live install drift is no longer the explanation for the current failure: `0.1.89` was deployed, restarted, and fingerprint-verified, and the device page still lacked the requested Managed Devices surface. Treat this as a product/UI gap, not an install-cache gap.
-- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.89` tag, and do not reopen the completed `v0.1.90` freeze/tag/GitHub publication/install/fingerprint/screenshot boundary. The installed Home Assistant package reports `0.1.90`, matches `d94436a`, and has screenshot-grade browser proof of the device-page Managed Devices surface plus the Managed Devices workspace notification drill-down.
+- The live user screenshots show the requested UI is still missing: the Zero Net Export main integration page does **not** show a Managed Devices device list and a separate Un Managed device list underneath it.
+- `0.1.90` is historical and insufficient for this requirement. It exposed Managed Devices-labelled rows/actions on the individual device-info surface, but it did not create the requested integration-main-page managed/unmanaged device lists.
+- The next release line is `0.1.91` / `1.91`, limited to the `docs/RELEASE_0.1.91_PLAN.md` scope. Do not reopen or defend `0.1.90` as complete for this requirement.
 - Treat the exact deploy boundary as the current component-changing build reported by `scripts/print_expected_install_fingerprint.py`, not as a hash that needs to be recopied into source-of-truth docs every time another UI commit lands.
 - Repeated doc-only release-boundary refresh commits are process drift, not product progress. The helper-resolved component boundary must come from `scripts/print_expected_install_fingerprint.py` at deploy/validation time; later docs-only commits still do not create a new release target and should not displace the mapped Workstream A-D/F gap or a plain no-change report.
-- Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the mapped visible UI gap. For `0.1.90`, do not spend watchdog or supervisor runs rephrasing release-boundary state unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a repo inspection does not produce a device-page Managed Devices surface that can be proven in live HA, the work is not done.
-- Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
-- The native Managed Devices path, promotion flow, and four-bucket IA still do not feel proven until the exact current helper-resolved build is reviewed in live Home Assistant.
-- Screenshot-grade proof of the requested `0.1.90` device-page Managed Devices outcome now exists in `docs/evidence/0.1.90-device-page-managed-devices-surface.png` and `docs/evidence/0.1.90-managed-devices-workspace-notification.png`.
+- Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the mapped visible UI gap. For `0.1.91`, do not spend watchdog or supervisor runs rephrasing release-boundary state unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If repo work does not target integration-main-page device lists, it is outside the approved scope.
+- Live runtime stability still needs to be strong enough that the integration page UI can be judged honestly in Home Assistant.
+- The native Managed Devices and Un Managed integration-page device lists are not proven until an exact approved `0.1.91` build is reviewed in live Home Assistant.
+- Screenshot-grade proof of the requested `0.1.91` integration-main-page Managed Devices and Un Managed device-list outcome does not exist yet.
 
 ## Historical 0.1.89 success criteria (failed on device-page evidence)
 
-`0.1.89` was intended to count as a successful UI release only if all of the following were true, but James's live installed screenshot proved the device-page Managed Devices outcome was still missing. Keep this section as historical evidence for why `0.1.90` exists; do not use it as the active success gate or next release target.
+`0.1.89` was intended to count as a successful UI release only if all of the following were true, but James's live installed screenshot proved the device-page Managed Devices outcome was still missing. Keep this section as historical evidence only. The clarified active target is now `0.1.91` integration-main-page device lists, not another `0.1.90` device-info-page pass.
 
 1. **Managed vs unmanaged is visually obvious**
    - the Managed Devices path clearly shows the current managed fleet
@@ -79,32 +82,31 @@ If a change does not materially improve one of those visible outcomes, it should
    - James can inspect the live UI and see the intended outcome directly
    - repo code, docs, or wording alone do not count as UI completion
 
-## What counts as success for 0.1.90
+## What counts as success for 0.1.91 / release 1.91
 
-`0.1.90` is successful only if the actual Zero Net Export device info page visibly shows Managed Devices state. A generic button row, Activity history, or a Configure-only explanation is not enough.
+`0.1.91` is successful only if the actual Zero Net Export main integration page visibly shows the requested device lists. A generic button row, Activity history, individual device-info page, or Configure-only explanation is not enough.
 
 Required live evidence:
 
-1. **Device-page Managed Devices surface is obvious**
-   - the page visibly names Managed Devices as a current surface/cluster
-   - the operator does not need to infer it from candidate Activity rows
+1. **Main integration page is the tested surface**
+   - evidence must show `Settings -> Devices & Services -> Integrations -> Zero Net Export`
+   - screenshots of the individual Zero Net Export device info page do not count
 
-2. **Managed/unmanaged state appears at a glance**
-   - current managed fleet count/status is visible
-   - unmanaged backlog/candidate state is visible
-   - review-first or ready-next state is visible when candidates exist
+2. **Managed Devices list is visible**
+   - a visible `Managed Devices` group/list appears under Zero Net Export
+   - each managed load appears as its own Home Assistant device row
 
-3. **Current fleet action is visible before pressing a button**
-   - blocker or next fleet action appears as current state, not only inside a persistent notification opened after pressing a button
+3. **Un Managed list is visible underneath**
+   - a visible `Un Managed` group/list appears below Managed Devices
+   - unmanaged candidate devices appear as individual Home Assistant device rows
 
-4. **Deep workflow handoff is clear**
-   - Configure -> Managed Devices remains the edit/promote workspace
-   - the device page explains that handoff from current state rather than hiding the feature elsewhere
+4. **No substitution by labels/buttons**
+   - sensors, buttons, notifications, and Activity rows may support the feature, but they do not satisfy the acceptance criterion by themselves
 
 5. **Screenshot-grade proof exists**
-   - a live HA screenshot/browser capture shows the above on the installed `0.1.90` build
+   - a live HA screenshot/browser capture shows the above on the installed `0.1.91` build
 
-See `docs/RELEASE_0.1.90_PLAN.md` for the detailed gap analysis and release plan.
+See `docs/RELEASE_0.1.91_PLAN.md` for the detailed release scope.
 
 ## Phase plan
 
@@ -112,7 +114,7 @@ This section is now the explicit staged delivery map. Each phase should be imple
 
 ## Detailed remaining work map
 
-This is the detailed remaining-step map for finishing the full `docs/UI_DESIGN.md` scope and getting the corrective `0.1.90` device-page Managed Devices release out. The already-published and live-failed `0.1.89` line is historical evidence, not the active release target.
+This is the detailed remaining-step map for finishing only the approved `0.1.91` / release `1.91` scope: managed and unmanaged device lists on the Zero Net Export main integration page. The `0.1.90` device-info-page work is historical and insufficient for this requirement.
 Use this list to decide what still has to be built, what has to be proven live, and what order the remaining work should happen in.
 
 ### Workstream A. Finish the opening operator console
@@ -198,24 +200,25 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 ### Workstream G. Exact-build validation and release execution
 **Goal**
-- convert the published `v0.1.90` corrective release into a real installed and validated Home Assistant build for the device-page Managed Devices surface
+- convert the future `0.1.91` / release `1.91` integration-main-page device-list implementation into a real installed and validated Home Assistant build, without reopening the completed `0.1.90` device-info-page release loop
 
 **Still to do**
-1. ~~Deploy/install the exact published `v0.1.90` build at `d94436a` to Home Assistant or verify HACS installs it.~~ Done: Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`.
-2. ~~Restart/reload Home Assistant and confirm the installed package matches `d94436a` with the fingerprint helper.~~ Done: documented SSH fingerprint validation reported `overall_match: true`.
-3. ~~Capture screenshot-grade live evidence that the device page visibly shows the Managed Devices surface.~~ Done: browser/CDP capture saved `docs/evidence/0.1.90-device-page-managed-devices-surface.png` from the installed device page.
-4. ~~Verify pressing the Managed Devices action opens the expected notification/review/window with current state.~~ Done: browser-visible native notification evidence saved `docs/evidence/0.1.90-managed-devices-workspace-notification.png`.
-5. If future live evidence fails, log the exact installed UI gap before doing more wording or release-bookkeeping work.
+1. Implement the approved `0.1.91` integration-main-page managed/unmanaged device-list mechanism, or document the exact Home Assistant platform constraint if literal `Managed Devices` / `Un Managed` grouped device lists cannot be rendered natively.
+2. Only after that implementation exists, freeze version-coupled files for `0.1.91` / release `1.91` and ask James directly for release/deploy/restart approval.
+3. Deploy/install the exact approved `0.1.91` build to Home Assistant or verify HACS installs it.
+4. Restart/reload Home Assistant and confirm the installed package matches the helper-resolved `0.1.91` component boundary with the fingerprint helper.
+5. Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export` showing the Managed Devices list and the Un Managed list with individual device rows.
+6. If live evidence fails, log the exact integration-main-page UI gap before doing more wording or release-bookkeeping work.
 
 **Done when**
-- the published `v0.1.90` build is deployed, fingerprint-verified, and live-validated with screenshot-grade device-page Managed Devices evidence. This is now complete for the `d94436a` installed build unless new live evidence regresses.
+- the approved `0.1.91` build is deployed, fingerprint-verified, and live-validated with screenshot-grade integration-main-page Managed Devices and Un Managed device-list evidence.
 
 ### Order of execution from here
-1. Do not reopen completed `0.1.90` repo implementation, version bump, tag, push, or GitHub publication work unless new evidence proves the published artifact is wrong.
-2. Do not repeat the now-completed `v0.1.90` install/update/restart/fingerprint/screenshot loop unless new evidence changes the installed package state.
-3. ~~Perform live screenshot-grade acceptance review on the installed and fingerprint-matched `0.1.90` build.~~ Done with browser/CDP evidence in `docs/evidence/`.
-4. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.90` work instead of silently rolling the cut line forever.
-5. Only resume earlier A-D/F polish if live validation identifies a concrete native-HA UI gap or if installation/runtime blockers prevent judging the UI honestly.
+1. Do not reopen completed `0.1.90` repo implementation, version bump, tag, push, GitHub publication, install, fingerprint, screenshot, or action-drill-down work unless new evidence proves the published artifact is wrong.
+2. Treat ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope: main integration page device lists, not another device-info-page row/button pass.
+3. Before coding substitutions, confirm the Home Assistant-native device-registry/integration-page mechanism for representing managed loads and unmanaged candidates as device rows.
+4. If literal `Managed Devices` / `Un Managed` group headings are not possible in HA's native integration page, report that platform constraint and propose the closest native representation before implementation.
+5. Only after a repo implementation exists should the project enter `0.1.91` release/fingerprint/live-screenshot execution.
 
 ### Stage 0. Baseline and source-of-truth consolidation
 **Purpose**
@@ -430,7 +433,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 ## Historical 0.1.89 release rollout view
 
-This section records the already-published `0.1.89` rollout target after the earlier `v0.1.88` tag drifted behind later UI fixes. It is no longer the active release target: `0.1.89` was installed, restarted, fingerprint-verified, and then failed James's device-page Managed Devices screenshot expectation. Use it only as historical scope evidence; use the `0.1.90` sections above and `docs/RELEASE_0.1.90_PLAN.md` for current execution.
+This section records the already-published `0.1.89` rollout target after the earlier `v0.1.88` tag drifted behind later UI fixes. It is no longer the active release target: `0.1.89` was installed, restarted, fingerprint-verified, and then failed James's device-page Managed Devices screenshot expectation. Use it only as historical scope evidence; use `docs/RELEASE_0.1.91_PLAN.md` and ZNE-429 for current execution.
 
 See `docs/RELEASE_0.1.89_PLAN.md` for the historical release execution record.
 

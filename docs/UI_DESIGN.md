@@ -168,27 +168,31 @@ The intended top-board operating picture includes:
 
 These fields do not all need equal visual weight, but they should remain visible in the opening operator console.
 
-## Device-page Managed Devices surface
+## Integration-page Managed Devices device lists
 
-The Zero Net Export device info page is now a required operator surface for Managed Devices visibility. It does not replace `Configure -> Managed Devices`, but it must make the managed fleet visible enough that an operator can tell the feature exists and understand current fleet state from the device page itself.
+The approved `0.1.91` / release `1.91` design target is the Zero Net Export **main integration page**, not the individual Zero Net Export device-info page.
 
-Home Assistant device pages are auto-generated from native entities, controls, and activity; they are not arbitrary custom panels. The design therefore must use HA-native rows/entities/buttons carefully:
+On `Settings -> Devices & Services -> Integrations -> Zero Net Export`, the product must show two native Home Assistant device-list groups under the Zero Net Export integration, matching the HomeKit-style examples supplied by James:
 
-- expose a clearly named Managed Devices surface or cluster
-- show current managed fleet count/status
-- show unmanaged backlog/candidate state
-- show the current blocker or next fleet action before a button is pressed
-- provide an obvious drill-down action to the detailed Managed Devices workflow
-- keep promotion/edit/save operations in `Configure -> Managed Devices` while making the device-page handoff obvious
+1. **Managed Devices**
+   - appears as a visible group/list under Zero Net Export
+   - contains each managed load as its own Home Assistant device row
+   - lets the operator see the managed fleet from the integration page without opening Configure or pressing a button
 
-A generic `Review managed devices` button plus Activity history is not enough. The `0.1.89` live screenshot proved that pattern looks like zero meaningful change to the operator. `0.1.90` must be validated with screenshot-grade evidence from the actual device page.
+2. **Un Managed**
+   - appears underneath Managed Devices
+   - contains each unmanaged candidate as its own Home Assistant device row
+   - lets the operator see candidate devices before promotion
+
+This is different from the previous `0.1.90` device-info-page entity/button work. A `Managed Devices overview` sensor, `Open Managed Devices workspace` button, Activity entry, or persistent notification does not satisfy this design target.
+
+The likely implementation model is to register managed loads and unmanaged candidates as HA device-registry devices associated with the Zero Net Export config entry, so Home Assistant renders them in the integration detail page's Devices area. If HA cannot natively render literal custom group headings for `Managed Devices` and `Un Managed`, that constraint must be reported before implementation and the closest native representation must be agreed; do not silently substitute renamed entities/buttons.
 
 ## Managed Devices workspace
 
-Managed Devices should appear directly below the top control board.
+Managed Devices should appear directly below the top control board in Configure, but for `0.1.91` the approved work is narrower: the main integration page must list managed devices under a visible `Managed Devices` group/list and unmanaged candidates under a visible `Un Managed` group/list.
 
-This section is the main fleet workspace, but it is intentionally secondary to live operational state.
-The product should first show how the optimizer is behaving, then show the fleet that behavior depends on.
+The Configure workspace remains the editing/promoting surface. The integration page must become the fleet-discovery surface.
 
 ### Managed Devices layout
 
@@ -379,46 +383,33 @@ The product should avoid both extremes:
 
 ## The four required visible outcomes for the current UI correction line
 
-The current UI correction target is `0.1.90`. Do not treat stale `0.1.83`, `0.1.85`, `0.1.86`, published-but-superseded `0.1.88`, or live-failed `0.1.89` wording as the active future release target.
+The current UI correction target is `0.1.91` / release `1.91`. Do not treat stale `0.1.83`, `0.1.85`, `0.1.86`, `0.1.88`, `0.1.89`, or `0.1.90` wording as the active future release target.
 
 It must focus on these four visible outcomes:
 
-### 1. Device-page Managed Devices must be obvious
-The Zero Net Export device page must visibly expose Managed Devices state, not just generic review buttons or Activity history.
+### 1. The main integration page is the required surface
+The Zero Net Export main integration page must visibly expose the fleet device lists. The individual Zero Net Export device-info page, generic Controls rows, Activity history, and Configure-only paths are not the requested surface.
 
-An operator should immediately be able to tell from the device page:
-- that Managed Devices exists as a current surface or cluster
-- how many devices are managed or need attention
-- whether unmanaged candidates/backlog exist
-- what the current blocker or next fleet action is before pressing a button
-- where to open the deeper `Configure -> Managed Devices` workflow
+An operator should immediately be able to tell from the integration page:
+- that Zero Net Export owns a managed fleet
+- which devices are already managed
+- which devices are unmanaged candidates
+- that the lists belong under the Zero Net Export integration
 
-### 2. Managed vs unmanaged must be visually obvious
-An operator should immediately be able to tell:
-- what is already managed
-- what is still unmanaged
-- where to review candidates next
+### 2. Managed Devices must be a visible device list
+The page must show a `Managed Devices` group/list under Zero Net Export.
 
-The vertical split of Managed Devices is part of making this obvious.
+That list must contain managed loads as individual Home Assistant device rows, not just one summary sensor or button.
 
-### 3. Promote / vet / review must feel first-class
-The promotion flow must feel like a coherent workflow inside the native product.
+### 3. Un Managed must be a visible device list underneath
+The page must show an `Un Managed` group/list underneath Managed Devices.
 
-It must clearly support:
-- choose a candidate
-- review that candidate
-- understand fit and warnings
-- promote the candidate into the managed fleet
-- receive a meaningful success landing
+That list must contain unmanaged candidate devices as individual Home Assistant device rows so candidates are visible before promotion.
 
-### 4. The product structure must be clearly felt
-The operator should not have to guess where something lives.
+### 4. Platform limits must be stated before substitutions
+If Home Assistant's native integration page cannot render literal `Managed Devices` and `Un Managed` group headings, that must be documented and escalated before implementation.
 
-The landing flow should make it obvious:
-- where the system’s current decision is shown
-- where live energy context is shown
-- where the fleet is managed
-- where health and troubleshooting live
+Do not silently substitute renamed sensors, buttons, notifications, or Configure screens for the requested integration-page device lists.
 
 ## UX principles
 

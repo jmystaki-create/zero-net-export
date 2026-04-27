@@ -1,8 +1,14 @@
 # Zero Net Export 0.1.90 Release Plan
 
+## Superseded status
+
+This plan is historical. `0.1.90` addressed the earlier device-info-page Managed Devices visibility failure, but it does not satisfy the newly clarified requirement for the Zero Net Export main integration page to show `Managed Devices` and `Un Managed` device lists.
+
+Do not use this file as the active release plan. The active approved scope is `0.1.91` / release `1.91` in `docs/RELEASE_0.1.91_PLAN.md` and ZNE-429.
+
 ## Purpose
 
-`0.1.90` is the corrective release for the live `0.1.89` device-page Managed Devices visibility failure.
+`0.1.90` was the corrective release for the live `0.1.89` device-page Managed Devices visibility failure.
 
 `0.1.89` was successfully published, deployed, restarted, and fingerprint-verified, but James's live Home Assistant screenshot showed the Zero Net Export device page still looked effectively unchanged for the requested Managed Devices outcome: firmware `0.1.89` was visible, a Controls card exposed vague review buttons, and Activity showed candidate events, but there was no obvious Managed Devices window/panel/surface on the device info page.
 

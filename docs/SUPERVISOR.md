@@ -1,7 +1,11 @@
 # SUPERVISOR.md
-## 0.1.90 device-page Managed Devices validation is closed
+## 0.1.91 / release 1.91 approved scope
 
-James's live `0.1.89` screenshot remains the historical reason the corrective `0.1.90` line existed, but `ZNE-411` is now closed: the installed `0.1.90` build was fingerprint-matched and browser-validated with screenshot-grade device-page Managed Devices evidence. Do not reopen the completed `0.1.90` release, deploy, restart, fingerprint, screenshot, or action-drill-down loop unless new live evidence regresses. From here, follow the `Detailed remaining work map` and active `fixed_pending_validation` bugs instead of treating `docs/RELEASE_0.1.90_PLAN.md` or `ZNE-411` as the current delivery target.
+James has limited the next approved scope to one UI outcome: on the Zero Net Export main integration page, show a `Managed Devices` device list under Zero Net Export and an `Un Managed` device list underneath it, with managed loads and unmanaged candidates appearing as individual Home Assistant device rows like the HomeKit examples.
+
+Do nothing else for this release line. Do not work on button renames, Activity wording, device-info-page Controls rows, Configure-only explanations, source roles, diagnostics, controls, release/deploy execution, or unrelated polish unless it is strictly required to support this exact integration-page device-list outcome.
+
+Use `docs/RELEASE_0.1.91_PLAN.md` as the current release scope. Treat `0.1.90` device-info-page work as historical and insufficient for the requested main integration page device lists.
 
 
 This file is the steering guide for this project.
@@ -64,7 +68,7 @@ Optimize for:
 - real operator success in native Home Assistant
 - clearer operator workflow through existing native surfaces
 - visible product improvement over abstract internal cleanup
-- finishing the remaining `0.1.90` corrective device-page Managed Devices UI rollout in strict order
+- finishing only the approved `0.1.91` / release `1.91` integration-page Managed Devices and Un Managed device-list scope
 - producing evidence that moves checklist items forward
 
 Do not drift into:
@@ -214,12 +218,9 @@ If blocked on James, continue only with safe adjacent work that does not violate
 ## Acceptance stance
 
 The project is in good shape for this phase when:
-- the ordered `0.1.90` corrective UI work has been completed in sequence
-- the native operator path is clearly understandable in Home Assistant
-- Configure is clearly the command center
-- Managed Devices is clearly the fleet workspace
-- Controls, Sensors, Managed Devices, and Diagnostics are obviously distinct
-- the secondary device-page review/audit path is coherent without competing with Configure
+- the approved `0.1.91` / release `1.91` integration-main-page device-list scope has been completed without broadening into unrelated polish
+- the Zero Net Export main integration page visibly shows a Managed Devices device list and an Un Managed device list in native Home Assistant
+- managed loads and unmanaged candidates appear as individual Home Assistant device rows under the Zero Net Export integration, or a documented HA platform constraint has been escalated before implementation substitutes another representation
 - the tested live install is known to be serving the intended package/build
 - release confidence is based on real proof, not repo confidence alone
 

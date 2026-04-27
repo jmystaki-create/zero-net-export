@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Changed
+- Documented `0.1.91` / release `1.91` as the only approved next scope: the Zero Net Export main integration page must show `Managed Devices` and `Un Managed` device lists with individual Home Assistant device rows; prior `0.1.90` device-info-page rows/actions do not satisfy this requirement.
+
 ### Fixed
 - Capitalized the remaining native workspace headings to `Managed Devices (top section)` and `Managed Devices needing attention first`, so Configure and device-page review notifications keep the Managed Devices bucket name instead of falling back to lower-case generic section labels.
 - Renamed the remaining legacy Managed Devices fleet metric labels to start with `Managed Devices`, so the device page can show the count, enablement, usability, power, and status rows as part of the same native Managed Devices surface instead of blending into the old lower-case entity list.
