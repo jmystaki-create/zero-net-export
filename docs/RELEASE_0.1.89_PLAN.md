@@ -19,12 +19,13 @@ Always re-run `scripts/print_expected_install_fingerprint.py` immediately before
 ## Current execution state
 
 - `v0.1.89` is now frozen and tagged at `844502b` (`release: freeze 0.1.89`).
-- `origin/main` and the pushed `v0.1.89` tag currently resolve to `844502b`.
+- The pushed `v0.1.89` tag resolves to `844502b`; `origin/main` may include later docs-only state updates that do not change the component validation boundary.
+- The GitHub release `Zero Net Export v0.1.89` is published, non-draft, non-prerelease, and currently reported as the latest release.
 - The repo manifest now reports `0.1.89`; the old pre-freeze instruction that the manifest still reports `0.1.88` is historical baseline only.
-- Current helper output reports `manifest_version=0.1.89`, `preferred_validation_commit=844502b`, and `repo_head_commit=844502b`.
+- Current helper output reports `manifest_version=0.1.89` and `preferred_validation_commit=844502b`; the preferred component validation boundary remains the frozen tag even when later repo `HEAD` commits are docs-only.
 - Repo tests at the freeze audit passed with `480` tests.
 
-From here, do not ask James for permission to perform the already-completed version freeze again. The next release-execution gap is publication/visibility plus James's install/restart/live-validation path, unless a materially new release-blocking defect appears.
+From here, do not ask James for permission to perform the already-completed version freeze again or repeat the already-completed GitHub publication check. The next release-execution gap is James's install/restart/live-validation path, unless a materially new release-blocking defect appears.
 
 ## Why 0.1.89 exists
 
@@ -98,8 +99,8 @@ Specifically avoid:
 - [x] Push `main`.
 - [x] Create annotated tag `v0.1.89` at the approved freeze commit.
 - [x] Push `v0.1.89`.
-- [ ] Publish GitHub release `Zero Net Export v0.1.89` from changelog notes.
-- [ ] Verify GitHub latest release API returns `v0.1.89`, non-draft, non-prerelease.
+- [x] Publish GitHub release `Zero Net Export v0.1.89` from changelog notes.
+- [x] Verify GitHub latest release API returns `v0.1.89`, non-draft, non-prerelease.
 
 ### C. James install/test path
 
