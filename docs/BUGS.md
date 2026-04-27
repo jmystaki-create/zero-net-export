@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-494 - supervisor Rule 1 still referenced historical A-D workstream order
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-28 while comparing `docs/SUPERVISOR.md` against the current ordered `0.1.91` map in `docs/UI_IMPLEMENTATION_MAP.md`.
+- **current observed behavior:** the supervisor's progress and Rule 1 side-work guard still described skipping Workstream E/F while any earlier eligible A-D item remained. That wording came from the historical broad UI runway even though the active approved scope is now only the `0.1.91` integration-main-page Managed Devices / Un Managed device-list map.
+- **expected behavior:** supervisor execution rules should not make historical Workstreams A-F look like the active ordering. They should keep runners on the current ordered `0.1.91` integration-main-page device-list map unless James explicitly expands scope or a regression directly blocks that map.
+- **repo fix:** this run replaces the stale A-D/E-F side-work language with current-map wording and adds regression coverage so Rule 1 cannot revive historical workstream ordering ahead of the approved `0.1.91` scope.
+- **validation status:** closed with focused supervisor/operator-doc regression coverage; no Home Assistant live validation is required for this process-order correction.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-493 - config-fallback managed rows exposed unknown per-device status
 
 - **status:** `closed`

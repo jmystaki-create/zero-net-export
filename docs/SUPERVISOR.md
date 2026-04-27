@@ -100,8 +100,8 @@ This does not count as enough:
 - broad project summaries
 - repeated rewording of unchanged blockers
 - refreshing candidate hashes, release-boundary notes, or doc heads when no real decision changed
-- polishing a different workstream while an earlier unfinished workstream item still remains
-- reopening Workstream E device-page polish or Workstream F support-surface polish while any earlier eligible A-D item still remains
+- polishing outside the current ordered `0.1.91` map while an earlier eligible current-map step still remains
+- reopening historical Workstreams A-F while the approved integration-main-page device-list map remains the active scope
 - treating unchanged live mismatch as the main next step when safe repo-side work still exists
 
 ---
@@ -122,7 +122,7 @@ Do not skip ahead unless:
 - the map explicitly allows parallel work
 - a higher-priority active bug in `docs/BUGS.md` materially overrides it
 
-Do not treat device-page or diagnostics/support copy cleanup as implicitly safe side work. Workstream E or F follow-ons are still skips if any earlier eligible A-D item remains.
+Do not treat Configure, device-page, diagnostics, or support-copy cleanup as implicitly safe side work. Historical Workstreams A-F are not eligible ahead of the current ordered `0.1.91` integration-main-page device-list map unless James explicitly expands scope or a regression directly blocks that map.
 
 If you skip an item, say exactly why.
 

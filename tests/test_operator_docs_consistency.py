@@ -82,6 +82,18 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("higher ordered A-D/F", churn_rules)
         self.assertNotIn("earlier mapped A-D/F", churn_rules)
 
+    def test_supervisor_rule_one_does_not_reopen_historical_workstream_order(self) -> None:
+        content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        progress_rules = content[
+            content.index("## What counts as real progress"):
+            content.index("### Rule 2: Advance the item")
+        ]
+
+        self.assertIn("current ordered `0.1.91` map", progress_rules)
+        self.assertIn("current ordered `0.1.91` integration-main-page device-list map", progress_rules)
+        self.assertIn("Historical Workstreams A-F are not eligible", progress_rules)
+        self.assertNotIn("earlier eligible A-D item", progress_rules)
+        self.assertNotIn("earlier unfinished workstream item", progress_rules)
 
     def test_supervisor_release_behavior_names_exact_release_approval_gate(self) -> None:
         content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
