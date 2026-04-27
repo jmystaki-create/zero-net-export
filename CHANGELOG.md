@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [0.1.94] - 2026-04-28
 
 ### Fixed
+- Added `Managed Devices — ...` and `Un Managed — ...` group language to child-device model metadata as well as row names, strengthening the closest native integration-page representation when Home Assistant shows device model text.
 - Backfilled the managed child-device settings URL into existing Home Assistant device-registry entries when entities are added, so already-created Managed Devices rows gain the per-row settings action after upgrade.
 - Made the install repair guidance explicitly ask James for the release-target decision, closest native child-device acceptance, and exact release/deploy/restart approval before any Home Assistant release action.
 

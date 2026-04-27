@@ -28,7 +28,7 @@ class TestBugTrackerIds(unittest.TestCase):
         self.assertLess(current_blocker, closed_process_section)
         self.assertLess(closed_process_section, historical_backlog_section)
         self.assertIn("should the current helper-resolved manifest `0.1.94` component boundary replace the documented `0.1.91` release target", active_section)
-        self.assertIn("resolves the component install candidate to the current helper-resolved manifest `0.1.94` component boundary after the post-freeze component guidance fix", active_section)
+        self.assertIn("resolves the component install candidate to the current helper-resolved manifest `0.1.94` component boundary after post-freeze component fixes", active_section)
         self.assertIn("the helper-resolved preferred validation commit", active_section)
         self.assertIn("unapproved `v0.1.94` freeze/tag, or the post-freeze helper-resolved component boundary", active_section)
         self.assertIn("only after that decision, ask for native-row acceptance", active_section)

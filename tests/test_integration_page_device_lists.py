@@ -46,7 +46,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool Pump")
 
         self.assertEqual(sensor._attr_device_info["name"], "Managed Devices — Pool Pump")
-        self.assertEqual(sensor._attr_device_info["model"], "Fixed managed load")
+        self.assertEqual(sensor._attr_device_info["model"], "Managed Devices — Fixed managed load")
         self.assertIn(("zero_net_export", "entry-1:managed-device:pool"), sensor._attr_device_info["identifiers"])
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
         self.assertEqual(
@@ -89,7 +89,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
 
         self.assertEqual(sensor._attr_device_info["name"], "Un Managed — Hot Water")
-        self.assertEqual(sensor._attr_device_info["model"], "Fixed unmanaged candidate")
+        self.assertEqual(sensor._attr_device_info["model"], "Un Managed — Fixed unmanaged candidate")
         self.assertIn(
             ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water"),
             sensor._attr_device_info["identifiers"],
