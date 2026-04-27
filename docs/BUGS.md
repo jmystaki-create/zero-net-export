@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-385 - Command-center guide button regression stub preserved recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking for remaining recommendation/ranking wording after the command-center visible copy moved to `Current focus section`.
+- **current observed behavior:** `tests/test_button_entity_categories.py` still stubbed the shared command-center guide button text as `Why this section is recommended:` and asserted that phrase in the notification body. Production copy had already moved to neutral current-focus wording, but this stale regression fixture could let future guide-button changes reintroduce recommendation language without a focused test failure.
+- **expected behavior:** command-center guide button coverage should use neutral current-focus language and reject the retired recommendation phrase.
+- **evidence:** direct repo inspection found `Why this section is recommended` only in the guide-button test stub/assertion path, while adjacent production and support-center tests already reject recommendation-style labels.
+- **repo fix:** this run changes the guide-button test stub and assertion to `Why this section is current:` and adds a negative assertion rejecting `Why this section is recommended` in the rendered notification body; the Unreleased changelog records the cleanup.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_button_entity_categories tests.test_bucket_ownership_copy tests.test_command_center_modal_copy tests.test_source_repair_guidance` plus `python3 -m py_compile tests/test_button_entity_categories.py`. Live Home Assistant validation is not required for this process/regression-fixture correction; the next exact `0.1.89` deploy should still validate the real guide rendering.
+- **next action:** include this regression-fixture cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another unchanged fingerprint/bookkeeping loop.
+
 ## ZNE-384 - Validation checklist kept retired recommended-next-section wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
