@@ -123,7 +123,7 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 1. Keep ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope: main integration page device lists, not another Configure or device-info-page row/button pass.
 2. Ask James directly whether the closest Home Assistant-native device-registry representation is acceptable: managed loads and unmanaged candidates appear as child device rows tied to the Zero Net Export config entry, using `Managed Devices — ...` and `Un Managed — ...` row/model language because native HA does not expose arbitrary nested group-heading APIs for one integration.
-3. Version-coupled files are already frozen/tagged as `v0.1.91` at `7217f3b`; if James acceptance and release/deploy/restart approval were not explicitly recorded before that freeze, ask James directly for both before any Home Assistant install/restart.
+3. Version-coupled files are already frozen/tagged as `v0.1.91` at `7217f3b`; if James acceptance and release/deploy/restart approval were not explicitly recorded before that freeze, ask James directly for release/deploy/restart approval and native-row acceptance before any Home Assistant install/restart.
 4. Deploy/install the exact approved `0.1.91` build to Home Assistant or verify HACS installs it only after that explicit approval boundary is satisfied.
 5. Restart/reload Home Assistant and confirm the installed package matches the helper-resolved `0.1.91` component boundary with the fingerprint helper.
 6. Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export` showing managed and unmanaged individual device rows on the Zero Net Export main integration page.
