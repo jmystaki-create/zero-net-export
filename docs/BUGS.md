@@ -86,6 +86,19 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-409 - Validation checklist still told runners to ask for the already-completed 0.1.89 freeze
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 after `844502b` froze/tagged `v0.1.89` and `a2de3da` marked the GitHub release published.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` still listed the next release-boundary order as a final A-D/F defect check, then asking James to approve the `0.1.89` freeze/release/deploy/restart path, then freezing and publishing the helper-resolved candidate. That guidance was stale because `v0.1.89` is already frozen at `844502b`, pushed, and published; following it would re-open completed release work instead of moving to install/restart/live validation.
+- **expected behavior:** the validation checklist should state that the remaining boundary is James installing/updating to `v0.1.89` and approving Home Assistant restart/live validation, while explicitly avoiding another ask for the completed freeze/publication.
+- **evidence:** `git log --oneline -3` showed `a2de3da docs: mark 0.1.89 release published`, `de5e197 docs: mark 0.1.89 release plan post-freeze`, and `844502b release: freeze 0.1.89`; `scripts/print_expected_install_fingerprint.py` reported `manifest_version=0.1.89`, `preferred_validation_commit=844502b`, and repo head `a2de3da`.
+- **repo fix:** this run updates `docs/VALIDATION_CHECKLIST.md` so the boundary is the published-release install/restart/live-validation path, adds regression coverage that rejects the stale freeze/publish ask in the checklist boundary, and keeps manual deploy helper wording limited to cases where James approves a deploy/restart overwrite.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_release_info_install_guidance`; live Home Assistant validation remains pending after James installs/updates to `v0.1.89` and restarts Home Assistant.
+- **next action:** James installs/updates to `v0.1.89` and approves the Home Assistant restart/live-validation pass; OpenClaw then validates the live fingerprint and native UI outcome through the documented HA access path.
+
+
 ## ZNE-408 - Release plan still described the already-frozen `0.1.89` candidate as pre-freeze
 - **status:** `fixed_pending_validation`
 - **severity:** `medium`

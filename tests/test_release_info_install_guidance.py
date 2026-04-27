@@ -108,6 +108,17 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("ask James directly to approve the end-to-end `0.1.89` freeze/release/deploy/restart path", freeze_section)
         self.assertNotIn("After James approves, bump manifest/version-coupled expectations to `0.1.89`", freeze_section)
 
+
+    def test_validation_checklist_tracks_published_0189_state(self) -> None:
+        checklist = (REPO_ROOT / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
+        boundary = checklist.split("Repo-side helper for mixed-build checks:", 1)[0]
+
+        self.assertIn("`v0.1.89` is already frozen at `844502b`, tagged, pushed, and published", boundary)
+        self.assertIn("Do not ask James to approve the already-completed freeze or GitHub publication again", boundary)
+        self.assertIn("James installing/updating to `v0.1.89` and approving the Home Assistant restart/live-validation pass", boundary)
+        self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", boundary)
+        self.assertNotIn("Only after approval, freeze the helper-resolved candidate as `0.1.89`", boundary)
+
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(
