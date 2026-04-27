@@ -122,7 +122,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
             "safe_mode": data.safe_mode if data is not None else None,
             "status": data.status if data is not None else None,
             "reason": data.reason if data is not None else None,
-            "recommendation": data.recommendation if data is not None else None,
+            "current_native_next_action": data.recommendation if data is not None else None,
             "confidence": data.confidence if data is not None else None,
             "health_status": data.health_status if data is not None else None,
             "health_summary": data.health_summary if data is not None else None,

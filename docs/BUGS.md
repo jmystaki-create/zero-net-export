@@ -85,6 +85,19 @@ Suggested area labels:
 
 ## Current active bugs
 
+
+## ZNE-405 - Controller diagnostics payload exposed retired recommendation key
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream D/F Diagnostics surfaces after ZNE-404 fixed the human-readable snapshot line.
+- **current observed behavior:** `custom_components/zero_net_export/diagnostics.py` still exported the controller next-action value under a diagnostics payload key named `recommendation`, even though visible native surfaces had moved to current native next-action/current-focus wording.
+- **expected behavior:** Diagnostics payload evidence should expose the same value as `current_native_next_action` so support evidence matches the native operator wording; the internal coordinator field can remain unchanged for compatibility inside the integration.
+- **evidence:** direct repo inspection found `"recommendation": data.recommendation` in the controller diagnostics payload.
+- **repo fix:** this run changes the Diagnostics controller payload key to `current_native_next_action`, records the cleanup in the `0.1.89` changelog, and adds focused regression coverage rejecting the stale payload key.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_diagnostics_payload_copy` plus `python3 -m py_compile custom_components/zero_net_export/diagnostics.py tests/test_diagnostics_payload_copy.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Diagnostics payload wording cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another wording/fingerprint bookkeeping loop.
+
 ## ZNE-404 - Diagnostics snapshot runtime summary exposed recommendation label
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
