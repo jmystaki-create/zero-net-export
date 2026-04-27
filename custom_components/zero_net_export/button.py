@@ -1318,7 +1318,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         )
         attention_devices, remaining_devices = _partition_review_devices(ordered)
         lines = [
-            "Zero Net Export managed devices review",
+            "Zero Net Export Managed Devices review",
             "",
             f"Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
             f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
@@ -1403,7 +1403,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         persistent_notification.async_create(
             self.hass,
             "\n".join(lines),
-            title=f"{self.coordinator.entry.title}: managed devices review",
+            title=f"{self.coordinator.entry.title}: Managed Devices review",
             notification_id=_managed_device_review_notification_id(self.coordinator.entry.entry_id),
         )
 

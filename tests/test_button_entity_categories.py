@@ -771,9 +771,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         asyncio.run(button.async_press())
 
         self.assertEqual(len(notification_calls), 1)
-        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices review")
+        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: Managed Devices review")
+        self.assertNotIn("Test Entry: managed devices review", notification_calls[0]["kwargs"]["title"])
         message = notification_calls[0]["args"][1]
-        self.assertIn("Zero Net Export managed devices review", message)
+        self.assertIn("Zero Net Export Managed Devices review", message)
+        self.assertNotIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 disabled | 1 usable | active load 1180 W | 1 active managed device | active device Pool pump (action turn_on | active 1180 W) | 2 managed devices need attention | attention first EV charger | blocked EV charger | 1 planned action | plan Pool pump", message)
         self.assertIn("Unmanaged candidates (bottom section): 2 candidates | 2 fixed candidates | surfaced Hot water | likely useful | key warning: No immediate warnings", message)
