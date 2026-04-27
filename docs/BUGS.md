@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-476 - runtime Repairs issue could crash on sparse runtime attention fields
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-28 after sparse-runtime hardening covered entities, Managed Devices buttons, support/setup buttons, diagnostics payloads, and diagnostics snapshots, while `custom_components/zero_net_export/repairs.py` still directly dereferenced runtime attention fields such as `stale_data`, `safe_mode`, `command_failure`, `device_count`, `recommendation`, and `health_summary`.
+- **current observed behavior:** if coordinator runtime data existed in a sparse transitional shape, the native Home Assistant Repairs runtime-blocker sync could raise before creating, updating, or clearing the runtime attention issue.
+- **expected behavior:** Repairs issue sync should tolerate missing runtime attention fields and render empty/default repair context rather than failing, preserving the native Home Assistant operator support path without adding any custom/external UI.
+- **repo fix:** this run adds a shared Repairs runtime-attribute fallback and routes runtime blocker flags, reason text, device counts, recommendation, and health summary through it.
+- **validation status:** closed with focused Repairs sparse-runtime source coverage plus the targeted unittest file. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-475 - diagnostics snapshot could crash on sparse runtime controller fields
 
 - **status:** `closed`

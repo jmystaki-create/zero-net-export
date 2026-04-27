@@ -56,6 +56,20 @@ class RepairsCopyTests(unittest.TestCase):
         self.assertNotIn("Best native troubleshooting path right now:", description)
         self.assertNotIn("Do next\n• Mapped-source repair path: {source_repair_step}\n• Next step: {next_step}\n• Selector fallback", description)
 
+    def test_runtime_attention_uses_sparse_runtime_attr_helper(self) -> None:
+        self.assertIn("def _runtime_attr(data: Any, attr: str, fallback: Any = None) -> Any:", self.repairs_source)
+        self.assertIn("stale_data = bool(_runtime_attr(data, \"stale_data\", False))", self.repairs_source)
+        self.assertIn("safe_mode = bool(_runtime_attr(data, \"safe_mode\", False))", self.repairs_source)
+        self.assertIn("command_failure = bool(_runtime_attr(data, \"command_failure\", False))", self.repairs_source)
+        self.assertIn("def _runtime_int(data: Any, attr: str) -> int:", self.repairs_source)
+        self.assertIn("device_count = _runtime_int(data, \"device_count\")", self.repairs_source)
+        self.assertIn("_runtime_attr(data, \"health_summary\") or summary", self.repairs_source)
+        self.assertNotIn("if data.stale_data:", self.repairs_source)
+        self.assertNotIn("if data.safe_mode:", self.repairs_source)
+        self.assertNotIn("if data.command_failure:", self.repairs_source)
+        self.assertNotIn("data.recommendation", self.repairs_source)
+        self.assertNotIn("data.health_summary", self.repairs_source)
+
     def test_runtime_attention_reasons_use_source_roles_not_mapped_source_jargon(self) -> None:
         self.assertIn("Stale required source roles:", self.repairs_source)
         self.assertIn("Unavailable source roles are holding safe mode:", self.repairs_source)

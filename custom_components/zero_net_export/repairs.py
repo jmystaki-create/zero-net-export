@@ -118,6 +118,19 @@ def _format_named_source_roles(source_keys: list[str]) -> str:
     return ", ".join(named_roles[:6])
 
 
+def _runtime_attr(data: Any, attr: str, fallback: Any = None) -> Any:
+    """Return a runtime attribute while tolerating sparse coordinator state."""
+    return getattr(data, attr, fallback)
+
+
+def _runtime_int(data: Any, attr: str) -> int:
+    """Return a runtime integer while tolerating sparse or malformed state."""
+    try:
+        return int(_runtime_attr(data, attr, 0) or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 def async_sync_repairs_issues(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -208,27 +221,37 @@ def async_sync_repairs_issues(
     stale_sources = _format_named_source_roles(stale_source_keys)
     blocking_validation_details = summarize_validation_issue_messages(data, severities={"error"}, limit=3)
 
+    stale_data = bool(_runtime_attr(data, "stale_data", False))
+    safe_mode = bool(_runtime_attr(data, "safe_mode", False))
+    command_failure = bool(_runtime_attr(data, "command_failure", False))
+    device_count = _runtime_int(data, "device_count")
+    usable_device_count = _runtime_int(data, "usable_device_count")
+
     if install_validation_blocked:
         runtime_reasons.append(build_install_consistency_summary(install_provenance))
-    if data.stale_data:
+    if stale_data:
         if stale_sources:
             runtime_reasons.append(f"Stale required source roles: {stale_sources}.")
-        runtime_reasons.append(data.stale_source_summary or "One or more required source entities are stale.")
-    if data.safe_mode:
+        runtime_reasons.append(_runtime_attr(data, "stale_source_summary") or "One or more required source entities are stale.")
+    if safe_mode:
         if unavailable_sources:
             runtime_reasons.append(f"Unavailable source roles are holding safe mode: {unavailable_sources}.")
         if blocking_validation_details != "None":
             runtime_reasons.append(f"Blocking source validation details: {blocking_validation_details}.")
-        runtime_reasons.append(data.reason or "Source validation has put the controller into safe mode.")
-    if data.command_failure:
-        runtime_reasons.append(data.last_failed_action_message or data.recent_failure_summary or "A recent device command failed.")
-    if data.device_count > 0 and data.usable_device_count == 0 and not device_issues and not data.stale_data:
-        runtime_reasons.append(data.device_status_summary or "Managed devices exist, but none are currently usable.")
+        runtime_reasons.append(_runtime_attr(data, "reason") or "Source validation has put the controller into safe mode.")
+    if command_failure:
+        runtime_reasons.append(
+            _runtime_attr(data, "last_failed_action_message")
+            or _runtime_attr(data, "recent_failure_summary")
+            or "A recent device command failed."
+        )
+    if device_count > 0 and usable_device_count == 0 and not device_issues and not stale_data:
+        runtime_reasons.append(_runtime_attr(data, "device_status_summary") or "Managed devices exist, but none are currently usable.")
 
-    runtime_next_step = str(readiness.get("next_step") or data.recommendation or next_step)
+    runtime_next_step = str(readiness.get("next_step") or _runtime_attr(data, "recommendation") or next_step)
     if install_validation_blocked:
         runtime_next_step = build_install_repair_step(install_provenance)
-    elif missing_source_keys or unavailable_source_keys or stale_source_keys or data.stale_data or blocking_validation_details != "None":
+    elif missing_source_keys or unavailable_source_keys or stale_source_keys or stale_data or blocking_validation_details != "None":
         runtime_next_step = build_source_repair_step(
             missing_source_keys=missing_source_keys,
             unavailable_source_keys=unavailable_source_keys,
@@ -254,8 +277,8 @@ def async_sync_repairs_issues(
                 "sources_path": SOURCES_CONFIGURE_PATH,
                 "policy_path": POLICY_CONFIGURE_PATH,
                 "devices_path": DEVICES_CONFIGURE_PATH,
-                "support_path": SUPPORT_CONFIGURE_PATH if install_validation_blocked else (SOURCES_CONFIGURE_PATH if (missing_source_keys or unavailable_sources or stale_sources or data.stale_data) else SUPPORT_CONFIGURE_PATH),
-                "health_summary": str(data.health_summary or summary),
+                "support_path": SUPPORT_CONFIGURE_PATH if install_validation_blocked else (SOURCES_CONFIGURE_PATH if (missing_source_keys or unavailable_sources or stale_sources or stale_data) else SUPPORT_CONFIGURE_PATH),
+                "health_summary": str(_runtime_attr(data, "health_summary") or summary),
                 "reason_summary": " ".join(runtime_reasons[:3]),
                 "unavailable_sources": unavailable_sources or "None",
                 "stale_sources": stale_sources or "None",
