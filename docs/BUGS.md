@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-496 - managed child-device settings links rewrote device keys with separators
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking the ZNE-429 integration-page child-device settings/gear URL path for native `Managed Devices — ...` rows.
+- **current observed behavior:** `managed_load_configuration_url()` reused the device-registry identifier sanitizer for the `managed_device` query value, so configured managed-device keys containing `.`, `/`, or `:` were rewritten before URL encoding. The visible native row still existed, but its settings/deep-link query no longer carried the exact configured device key.
+- **expected behavior:** device-registry identifiers may use sanitized fragments, but native settings links should preserve the exact configured managed-device key and let URL encoding handle unsafe characters so the row can point back to the correct managed-device target.
+- **repo fix:** this run keeps identifier sanitizing scoped to device-registry identifiers and changes the managed child-device settings URL to encode the raw `entry_id:device_key` value instead of the sanitized key.
+- **validation status:** closed with focused integration-page device-list regression coverage and Python compile for `entity.py`.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-495 - config-fallback managed rows could reappear as unmanaged candidates after setup
 
 - **status:** `closed`

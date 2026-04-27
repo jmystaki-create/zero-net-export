@@ -68,8 +68,8 @@ def managed_load_detail(coordinator, device_key: str, device_name: str | None = 
 
 def managed_load_configuration_url(coordinator, device_key: str) -> str:
     """Return the native HA configuration URL exposed as the row settings/gear action."""
-    entry_id = _device_identifier_part(getattr(coordinator.entry, "entry_id", "entry"))
-    key = _device_identifier_part(device_key)
+    entry_id = str(getattr(coordinator.entry, "entry_id", "entry") or "entry").strip() or "entry"
+    key = str(device_key or "unknown").strip() or "unknown"
     query = urlencode({"managed_device": f"{entry_id}:{key}"})
     return f"homeassistant://navigate/config/integrations/integration/{DOMAIN}?{query}"
 
