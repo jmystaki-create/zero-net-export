@@ -134,6 +134,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-442 - implementation map anti-churn line still referenced historical A-D/F runway
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-27 after `b918c3c` scoped supervisor anti-churn rules to the current `0.1.91` map.
+- **current observed behavior:** `docs/UI_IMPLEMENTATION_MAP.md` still said repeated docs-only release-boundary refreshes should not displace the mapped `Workstream A-D/F` gap, even though the same document now says historical A-F workstreams are not eligible ahead of the approved `0.1.91` integration-main-page device-list scope.
+- **expected behavior:** anti-churn guidance should point only at the current ordered `0.1.91` map and James's explicit release-target decision, not revive historical Configure/promotion/IA/support polish as the next ranked runway.
+- **repo fix:** this run changes the stale implementation-map anti-churn line to reference the current ordered `0.1.91` map and adds regression coverage rejecting `mapped Workstream A-D/F gap` in the active status summary.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** keep the next real boundary on James deciding whether `db5c246` / `v0.1.92` replaces the documented `0.1.91` release target, then native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-441 - supervisor anti-churn rules still referenced historical A-D/F work as ordered runway
 
 - **status:** `closed`

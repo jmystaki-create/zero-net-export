@@ -22,6 +22,10 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
     def test_historical_workstreams_cannot_outrank_091_device_list_scope(self) -> None:
         content = (ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
+        status_summary = content[
+            content.index("## Status summary"):
+            content.index("## Historical 0.1.89 success criteria")
+        ]
         historical_note = content[
             content.index("### Historical broad UI workstreams - not the current 0.1.91 ordered map"):
             content.index("### Workstream A. Finish the opening operator console")
@@ -29,6 +33,8 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
         self.assertIn("not eligible work ahead of the approved `0.1.91`", historical_note)
         self.assertIn("Do not let them outrank the current ordered `0.1.91` map", historical_note)
+        self.assertIn("current ordered `0.1.91` map", status_summary)
+        self.assertNotIn("mapped Workstream A-D/F gap", status_summary)
 
     def test_supervisor_churn_rules_do_not_reopen_historical_a_to_f_workstreams(self) -> None:
         content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
