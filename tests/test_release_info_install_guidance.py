@@ -126,6 +126,16 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
         self.assertNotIn("ask James to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
 
+    def test_zne_411_next_action_is_release_approval_not_more_repo_surface_churn(self) -> None:
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_411 = bugs.split("## ZNE-411", 1)[1].split("\n## ZNE-410", 1)[0]
+
+        self.assertIn("repo-side corrective candidate is ready for release approval", zne_411)
+        self.assertIn("ask James directly for `0.1.90` release/deploy/restart validation approval", zne_411)
+        self.assertIn("Live screenshot-grade proof on an installed `0.1.90` build remains required", zne_411)
+        self.assertNotIn("finish any remaining native device-page surface implementation", zne_411)
+        self.assertNotIn("release as `0.1.90`, deploy/restart", zne_411)
+
     def test_bug_tracker_no_longer_points_active_next_actions_at_0189_install_loop(self) -> None:
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
         active_entries = bugs.split("## ZNE-416", 1)[1].split("## ZNE-415", 1)[1]
