@@ -168,6 +168,21 @@ The intended top-board operating picture includes:
 
 These fields do not all need equal visual weight, but they should remain visible in the opening operator console.
 
+## Device-page Managed Devices surface
+
+The Zero Net Export device info page is now a required operator surface for Managed Devices visibility. It does not replace `Configure -> Managed Devices`, but it must make the managed fleet visible enough that an operator can tell the feature exists and understand current fleet state from the device page itself.
+
+Home Assistant device pages are auto-generated from native entities, controls, and activity; they are not arbitrary custom panels. The design therefore must use HA-native rows/entities/buttons carefully:
+
+- expose a clearly named Managed Devices surface or cluster
+- show current managed fleet count/status
+- show unmanaged backlog/candidate state
+- show the current blocker or next fleet action before a button is pressed
+- provide an obvious drill-down action to the detailed Managed Devices workflow
+- keep promotion/edit/save operations in `Configure -> Managed Devices` while making the device-page handoff obvious
+
+A generic `Review managed devices` button plus Activity history is not enough. The `0.1.89` live screenshot proved that pattern looks like zero meaningful change to the operator. `0.1.90` must be validated with screenshot-grade evidence from the actual device page.
+
 ## Managed Devices workspace
 
 Managed Devices should appear directly below the top control board.

@@ -1,4 +1,8 @@
 # SUPERVISOR.md
+## 0.1.90 device-page Managed Devices corrective priority
+
+James's live `0.1.89` screenshot is now controlling evidence: the release installed and fingerprint-verified, but the Zero Net Export device page did not visibly show the requested Managed Devices surface. Treat `docs/RELEASE_0.1.90_PLAN.md` and `ZNE-411` as the current delivery target. Do not spend supervisor cycles defending `0.1.89`, repeating release-boundary bookkeeping, or making label-only changes unless they are part of a visible HA-native device-page Managed Devices surface with screenshot-grade proof.
+
 
 This file is the steering guide for this project.
 

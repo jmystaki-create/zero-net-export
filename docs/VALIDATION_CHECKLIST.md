@@ -9,17 +9,18 @@ Supervisor note: this document is the evidence ledger for the release gates defi
 Supervisor note: this checklist is a validation ledger, not a standing instruction to skip the mapped `0.1.89` workstream order.
 
 Current release-boundary order:
-1. `v0.1.89` is already frozen at `844502b`, tagged, pushed, and published as the latest non-draft/non-prerelease GitHub release.
-2. Do not ask James to approve the already-completed freeze or GitHub publication again.
-3. The remaining approval boundary is James installing/updating to `v0.1.89` and approving the Home Assistant restart/live-validation pass.
-4. After the installed package changes, use the deploy/fingerprint commands below only for the approved build/path, then perform the live Home Assistant validation pass.
+1. `v0.1.89` is already frozen at `844502b`, tagged, pushed, published, installed, restarted, and fingerprint-verified in Home Assistant.
+2. James's live device-page screenshot showed `0.1.89` did not visibly deliver the requested Managed Devices device-page surface.
+3. Do not ask James to approve the already-completed `0.1.89` freeze/publication again, and do not treat `0.1.89` as a successful UI release.
+4. The active release boundary is `0.1.90`: implement the device-page Managed Devices visibility fix, then seek approval for the `0.1.90` release/deploy/restart/live-validation pass.
+5. After the installed package changes, use the deploy/fingerprint commands below only for the approved build/path, then perform the live Home Assistant validation pass with screenshot-grade device-page evidence.
 
 Repo-side helper for mixed-build checks:
 - Run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` in this repo before trusting deploy or validation results. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the remote Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the live install path is inspected over SSH without remote Python. For release/deploy boundaries, the helper now keeps `expected_commit`, `expected_component_commit`, and `preferred_validation_commit` aligned on the latest component-changing commit, while exposing full repo HEAD separately as `repo_head_commit`, so doc-only or bug-tracker-only commits do not create false deploy-candidate drift. Compare that component anchor, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or the device-page Review diagnostics / Review diagnostics snapshot actions.
 - If you need to overwrite a mixed manual install from one exact repo build first, ask James directly to approve deploy/restart before using deploy commands. After approval, run `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` (or point it at the live Home Assistant `custom_components` or installed `custom_components/zero_net_export` path outside this repo). If you want to sanity-check the resolved destination first, add `--dry-run`. The deploy helper replaces the destination component directory instead of layering files onto an older copy, keeps a timestamped backup by default, and then runs the same fingerprint validation against the deployed path before restart. If repo-only docs moved since the last component change, pin the deploy with `--expected-component-commit <commit>` instead of treating repo HEAD as the shipped target.
 - If you need the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare script exits non-zero on mismatch, fails fast if the path does not actually contain `zero_net_export/manifest.json`, refuses repo-local paths so a repo copy cannot be mistaken for live validation, and can save the full comparison verdict as validation evidence.
 
-After James installs/updates to `v0.1.89` and approves restart/live validation, validate in this order:
+For `0.1.90`, after James approves release/deploy/restart/live validation, validate in this order:
 
 1. Verify the intended operator path still works end-to-end:
    - add integration if needed, or reopen the existing integration
@@ -32,9 +33,15 @@ After James installs/updates to `v0.1.89` and approves restart/live validation, 
    - confirm readiness moves from installed -> mapped -> operational
 2. Use at least one real controllable device and verify a real control loop decision/action path.
 3. Test the **Configure** gear path from Home Assistant again and confirm it cleanly opens the native setup surface without any custom panel, sidebar, or external UI handoff.
-4. If the install is good, record the live validation evidence against `0.1.89`. If not, capture the exact failure surface and fix that before doing more UX expansion.
+4. Open the Zero Net Export device info page and confirm a visible Managed Devices surface exists before pressing any review button:
+   - current managed fleet count/status is visible
+   - unmanaged backlog/candidate state is visible
+   - the current blocker or next fleet action is visible
+   - the detailed Managed Devices drill-down action is obvious
+5. Capture screenshot-grade evidence of the device page. Activity-history-only evidence or generic button rows are not enough.
+6. If the install is good, record the live validation evidence against `0.1.90`. If not, capture the exact failure surface and fix that before doing more UX expansion.
 
-This is the live validation path for the already-published `v0.1.89` release once James has installed/updated and approved restart/live validation; it must not be used to justify another unchanged fingerprint or release-bookkeeping loop.
+This is the live validation path for the `0.1.90` corrective release. It must not be used to justify another unchanged fingerprint or release-bookkeeping loop, and it must not downgrade the device-page failure into a Configure-only navigation explanation.
 
 ## Pre-Installation Checks
 

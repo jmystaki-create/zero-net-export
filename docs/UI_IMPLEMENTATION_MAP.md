@@ -8,13 +8,15 @@ The intended product design now lives in `docs/UI_DESIGN.md`.
 
 ## Scope
 
-The current live/UI correction history now includes a published `v0.1.88` release, but repo-side UI fixes continued after that tag. `0.1.89` is the clean follow-up release line for the final UI validation candidate unless James explicitly chooses to retag `v0.1.88`.
-Treat this document as the UI-shaping checklist for `0.1.89`, and do not use stale `0.1.83`, `0.1.85`, `0.1.86`, or published-but-superseded `0.1.88` wording as if those were still the future UI target.
+The current live/UI correction history includes published `v0.1.88` and `v0.1.89` releases. `0.1.89` installed successfully and matched the deployed fingerprint, but live Home Assistant evidence showed it did **not** satisfy James's device-page Managed Devices expectation. The active UI correction target is therefore `0.1.90`, not another attempt to defend or reword `0.1.89`.
 
-`0.1.89` should focus on the three native-UI outcomes James explicitly asked for:
-1. a clear **managed vs unmanaged** device experience
-2. a clear **promote / vet / review** native flow for bringing unmanaged devices into the managed fleet
-3. a clear native information architecture split between **Controls**, **Sensors**, **Managed Devices**, and **Diagnostics**
+Treat this document as the UI-shaping checklist for `0.1.90`, and do not use stale `0.1.83`, `0.1.85`, `0.1.86`, published-but-superseded `0.1.88`, or already-failed `0.1.89` wording as if those were still the future UI target.
+
+`0.1.90` should focus on the concrete native-UI outcome James's screenshot proved missing:
+1. a clear **Managed Devices surface on the Zero Net Export device page**
+2. a clear **managed vs unmanaged** device experience visible without relying on Activity history
+3. a clear **promote / vet / review** native flow for bringing unmanaged devices into the managed fleet
+4. a clear native information architecture split between **Controls**, **Sensors**, **Managed Devices**, and **Diagnostics**
 
 If a change does not materially improve one of those visible outcomes, it should not displace this work unless it is required to keep the integration loading or to unblock live UI validation.
 
@@ -46,11 +48,11 @@ If a change does not materially improve one of those visible outcomes, it should
 - Diagnostics text carries less UX burden than before, but live validation still needs to confirm the main operator burden really moved into Configure and Managed Devices.
 
 ### Still blocked or incomplete
-- The documented HA SSH path still works, but the live install still has not proven the final UI candidate: the last live checks showed a mixed-build class of drift, with live Home Assistant behind the repo candidate. Treat that as live-install state to re-check after James installs the next release, not as evidence that the repo UI plan is incomplete.
-- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.88` tag by default. Plan `v0.1.89` from the helper-resolved current component build, using `scripts/print_expected_install_fingerprint.py` immediately before release to capture the exact candidate.
+- Live install drift is no longer the explanation for the current failure: `0.1.89` was deployed, restarted, and fingerprint-verified, and the device page still lacked the requested Managed Devices surface. Treat this as a product/UI gap, not an install-cache gap.
+- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.89` tag. Plan `0.1.90` as the corrective release for the device-page Managed Devices surface, using `scripts/print_expected_install_fingerprint.py` immediately before release to capture the exact candidate.
 - Treat the exact deploy boundary as the current component-changing build reported by `scripts/print_expected_install_fingerprint.py`, not as a hash that needs to be recopied into source-of-truth docs every time another UI commit lands.
 - Repeated doc-only release-boundary refresh commits are process drift, not product progress. The helper-resolved component boundary must come from `scripts/print_expected_install_fingerprint.py` at deploy/validation time; later docs-only commits still do not create a new release target and should not displace the mapped Workstream A-D/F gap or a plain no-change report.
-- Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the `Detailed remaining work map` while a concrete A-D/F gap still exists. Do not spend watchdog or supervisor runs rephrasing the same mismatch unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a real repo inspection does not find a sharper remaining A-D/F defect, then Workstream G execution on the `0.1.89` follow-up candidate becomes the next step.
+- Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the mapped visible UI gap. For `0.1.90`, do not spend watchdog or supervisor runs rephrasing release-boundary state unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a repo inspection does not produce a device-page Managed Devices surface that can be proven in live HA, the work is not done.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path, promotion flow, and four-bucket IA still do not feel proven until the exact current helper-resolved build is reviewed in live Home Assistant.
 - Screenshot-grade proof of the requested UI outcome does not yet exist.
@@ -76,6 +78,33 @@ If a change does not materially improve one of those visible outcomes, it should
 4. **The result is visible in live Home Assistant**
    - James can inspect the live UI and see the intended outcome directly
    - repo code, docs, or wording alone do not count as UI completion
+
+## What counts as success for 0.1.90
+
+`0.1.90` is successful only if the actual Zero Net Export device info page visibly shows Managed Devices state. A generic button row, Activity history, or a Configure-only explanation is not enough.
+
+Required live evidence:
+
+1. **Device-page Managed Devices surface is obvious**
+   - the page visibly names Managed Devices as a current surface/cluster
+   - the operator does not need to infer it from candidate Activity rows
+
+2. **Managed/unmanaged state appears at a glance**
+   - current managed fleet count/status is visible
+   - unmanaged backlog/candidate state is visible
+   - review-first or ready-next state is visible when candidates exist
+
+3. **Current fleet action is visible before pressing a button**
+   - blocker or next fleet action appears as current state, not only inside a persistent notification opened after pressing a button
+
+4. **Deep workflow handoff is clear**
+   - Configure -> Managed Devices remains the edit/promote workspace
+   - the device page explains that handoff from current state rather than hiding the feature elsewhere
+
+5. **Screenshot-grade proof exists**
+   - a live HA screenshot/browser capture shows the above on the installed `0.1.90` build
+
+See `docs/RELEASE_0.1.90_PLAN.md` for the detailed gap analysis and release plan.
 
 ## Phase plan
 

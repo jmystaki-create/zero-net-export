@@ -86,6 +86,20 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-411 - 0.1.89 device page lacks obvious Managed Devices surface
+- **status:** `open`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** James live Home Assistant screenshot on 2026-04-27 after `0.1.89` was installed, deployed, restarted, and fingerprint-verified.
+- **current observed behavior:** the Zero Net Export device info page shows firmware `0.1.89`, generic Controls rows including `Review managed devices` / `Review managed devices ...`, and Activity history for candidate shortlist/usefulness/warnings, but it does not visibly present an obvious Managed Devices window, panel, or current fleet surface. The page therefore looks like zero meaningful UI change for the requested Managed Devices device-page outcome.
+- **expected behavior:** the native Home Assistant device info page should visibly expose a Managed Devices surface within HA's auto-generated device-page constraints: current managed fleet state, unmanaged candidate/backlog state, current blocker or next fleet action, and an obvious drill-down action to the detailed Managed Devices workflow. Configure -> Managed Devices may remain the deep edit/promote path, but the device page itself must show enough current state that the feature is visible without relying on Activity history or external explanation.
+- **evidence:** live screenshot supplied by James showed the installed device page with Device info firmware `0.1.89`, Controls rows, and Activity rows, but no clearly named Managed Devices surface or at-a-glance managed/unmanaged fleet summary. Earlier validation evidence confirmed the deployed package itself matched `0.1.89`, so this is not merely install drift.
+- **suspected cause:** repo work exposed config-flow workspace screens, sensors, persistent-notification review buttons, and candidate Activity events, but treated native entity/button exposure as sufficient for the device page. HA device pages are auto-generated; vague button rows and Activity entries do not amount to the visible Managed Devices surface the user requested.
+- **repo fix target:** `0.1.90`; see `docs/RELEASE_0.1.90_PLAN.md`. The fix must be more than a label rename unless live screenshot evidence proves the device page visibly carries the Managed Devices surface.
+- **validation status:** open; no repo fix or live screenshot-grade proof exists yet.
+- **next action:** implement the smallest HA-native device-page surface that makes Managed Devices visible, update tests for names/categories/attributes, release as `0.1.90`, deploy/restart, validate fingerprint, and capture screenshot-grade evidence from the actual Home Assistant device page.
+
+
 ## ZNE-410 - Bug tracker next-action lines still revived completed freeze/release approval
 - **status:** `closed`
 - **severity:** `medium`
