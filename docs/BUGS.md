@@ -213,6 +213,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-505 - 0.1.94 changelog still advertised deprecated suggested-area child-device metadata
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog release-metadata audit on 2026-04-28 after the repo removed deprecated `suggested_area` metadata from Managed Devices / Un Managed child devices and added dynamic managed/unmanaged row lifecycle fixes.
+- **current observed behavior:** `CHANGELOG.md` for `0.1.94` still said the candidate added `Managed Devices` and `Un Managed` suggested-area/group metadata, even though ZNE-502 removed that deprecated metadata and later fixes made the stronger current release-metadata story the native child-row add/refresh/remove lifecycle. Home Assistant release metadata built from the changelog could therefore tell operators the opposite of the current component behavior.
+- **expected behavior:** current candidate release metadata should not advertise deprecated Home Assistant device-registry fields, and should mention the native Managed Devices / Un Managed row sync/removal work that materially protects the ZNE-429 integration-page device-list outcome.
+- **repo fix:** this run rewrites the `0.1.94` changelog bullet to say deprecated suggested-area metadata was removed while durable row/model grouping remains, and adds a release-metadata bullet for synchronized Managed Devices / Un Managed child-row add, refresh, removal, and stale device-registry cleanup.
+- **validation status:** closed with focused changelog regression coverage that rejects the stale suggested-area wording and requires the current child-row sync/removal release notes.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-497 - unmanaged candidate cache could keep stale integration-page rows after HA state changes
 
 - **status:** `closed`

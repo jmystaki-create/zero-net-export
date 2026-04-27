@@ -488,6 +488,19 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("mapped-source", current_highlights.lower())
         self.assertNotIn("source mapping", current_highlights.lower())
 
+    def test_current_candidate_changelog_tracks_child_row_sync_without_deprecated_area_metadata(self) -> None:
+        sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
+        current_section = next(
+            section for section in sections if section["version"] == release_info.INTEGRATION_VERSION
+        )
+        current_highlights = "\n".join(current_section["highlights"])
+
+        self.assertIn("Removed deprecated suggested-area metadata", current_highlights)
+        self.assertIn("integration-page rows synchronized after setup", current_highlights)
+        self.assertIn("stale device-registry entries", current_highlights)
+        self.assertNotIn("Added `Managed Devices` and `Un Managed` suggested-area", current_highlights)
+        self.assertNotIn("suggested-area/group metadata", current_highlights)
+
     def test_cli_steps_use_parent_custom_components_path_for_component_root(self) -> None:
         steps = release_info.build_install_validation_cli_steps(
             {"component_root": "/tmp/ha config/custom_components/zero_net_export"}
