@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-460 - install repair guidance did not make James the native-row acceptance actor
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog operator-guidance audit on 2026-04-28 while comparing `custom_components/zero_net_export/release_info.py` against `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, and ZNE-429.
+- **current observed behavior:** `build_install_repair_step()` correctly told operators to ask James for the release-target decision and exact release/deploy/restart validation approval, but the middle gate said to `accept or reject` the closest native `Managed Devices / Un Managed` child-device representation without explicitly saying James must be the person making that native-row acceptance decision.
+- **expected behavior:** install repair guidance should preserve all three human gates with James as the decision-maker: release-target decision, closest native child-device representation acceptance/rejection, then exact release/deploy/restart validation approval before any Home Assistant deploy/restart/fingerprint action.
+- **repo fix:** this run updates `build_install_repair_step()` so the repair text says to ask James to accept or reject the closest native `Managed Devices / Un Managed` child-device representation and ask James to approve exact release/deploy/restart validation, and tightens release-info regression coverage for both manifest-mismatch and manifest-error guidance.
+- **validation status:** closed with focused release-info install-guidance regression coverage and Python compile; no Home Assistant live validation is required while ZNE-439 remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then James's native-row acceptance/rejection, then exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-459 - supervisor current-position still softened the release approval gate
 
 - **status:** `closed`
