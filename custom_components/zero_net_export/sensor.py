@@ -336,10 +336,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
             )
 
     candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
-    unmanaged_candidate_keys = set()
+    unmanaged_candidate_entities = {}
     for candidate in candidates:
-        unmanaged_candidate_keys.add(_candidate_unique_key(candidate))
-        entities.append(ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate))
+        entity = ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+        unmanaged_candidate_entities[_candidate_unique_key(candidate)] = entity
+        entities.append(entity)
 
     async_add_entities(entities)
     _register_unmanaged_candidate_sync(
@@ -347,7 +348,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         hass,
         entry,
         async_add_entities,
-        unmanaged_candidate_keys,
+        unmanaged_candidate_entities,
     )
 
 
@@ -356,34 +357,60 @@ def _register_unmanaged_candidate_sync(
     hass,
     entry,
     async_add_entities,
-    known_candidate_keys: set[str],
+    known_candidate_entities: dict[str, "ZeroNetExportUnmanagedCandidateSensor"],
 ) -> None:
-    """Add newly discovered unmanaged candidate rows without requiring platform reload."""
+    """Keep unmanaged candidate rows aligned without requiring platform reload."""
 
-    def _sync_new_unmanaged_candidate_rows() -> None:
+    def _sync_unmanaged_candidate_rows() -> None:
         state = getattr(coordinator, "data", None)
         if state is None:
             return
         candidates = _candidate_devices_for_state(coordinator, hass, state)
+        current_candidate_keys = {_candidate_unique_key(candidate) for candidate in candidates}
+        for stale_key in sorted(set(known_candidate_entities) - current_candidate_keys):
+            stale_entity = known_candidate_entities.pop(stale_key)
+            _schedule_unmanaged_candidate_entity_removal(hass, stale_entity)
+
         new_entities = []
         for candidate in candidates:
             candidate_key = _candidate_unique_key(candidate)
-            if candidate_key in known_candidate_keys:
+            if candidate_key in known_candidate_entities:
                 continue
-            known_candidate_keys.add(candidate_key)
-            new_entities.append(ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate))
+            entity = ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+            known_candidate_entities[candidate_key] = entity
+            new_entities.append(entity)
         if new_entities:
             async_add_entities(new_entities)
 
     add_listener = getattr(coordinator, "async_add_listener", None)
     if add_listener is None:
         return
-    unsubscribe = add_listener(_sync_new_unmanaged_candidate_rows)
+    unsubscribe = add_listener(_sync_unmanaged_candidate_rows)
     if unsubscribe is None:
         return
     async_on_unload = getattr(entry, "async_on_unload", None)
     if async_on_unload is not None:
         async_on_unload(unsubscribe)
+
+
+def _schedule_unmanaged_candidate_entity_removal(hass, entity) -> None:
+    """Remove a stale unmanaged-candidate entity after it disappears or is promoted."""
+    remove = getattr(entity, "async_remove", None)
+    if remove is None:
+        return
+    try:
+        result = remove(force_remove=True)
+    except TypeError:
+        result = remove()
+    if result is None:
+        return
+    create_task = getattr(hass, "async_create_task", None)
+    if create_task is not None:
+        create_task(result)
+        return
+    close = getattr(result, "close", None)
+    if close is not None:
+        close()
 
 
 def _configured_managed_details(entry) -> dict[str, dict[str, object]]:
