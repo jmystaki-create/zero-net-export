@@ -63,11 +63,11 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     coordinator = hass.data[DOMAIN][entry.entry_id]
     data = coordinator.data
 
-    safe_validation_details = (data.validation_details or {}) if data is not None else {}
+    safe_validation_details = (getattr(data, "validation_details", {}) or {}) if data is not None else {}
     validation_details = async_redact_data(deepcopy(safe_validation_details), REDACT_NESTED_KEYS)
 
     device_details = []
-    for index, detail in enumerate((data.device_details or {}).values(), start=1):
+    for index, detail in enumerate((getattr(data, "device_details", {}) or {}).values(), start=1):
         redacted_detail = async_redact_data(deepcopy(detail), REDACT_NESTED_KEYS)
         redacted_detail["runtime_slot"] = index
         device_details.append(redacted_detail)

@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-471 - diagnostics snapshot could crash on missing runtime device_details
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-28 after sparse managed-device hardening had covered native entity setup and Managed Devices buttons, while `custom_components/zero_net_export/diagnostics.py` still directly dereferenced `data.device_details`.
+- **current observed behavior:** if coordinator runtime data existed but did not yet expose a `device_details` mapping, the native Diagnostics snapshot path could raise before returning install/runtime evidence. That weakened the native Home Assistant support path while the current release-target hold keeps live validation intentionally blocked.
+- **expected behavior:** Diagnostics snapshots should treat missing runtime `device_details` as an empty mapping and continue returning redacted controller, source, install, and native-surface evidence.
+- **repo fix:** this run changes diagnostics payload construction to use safe `getattr(..., {})` fallbacks for validation details and managed-device details, preserving the native Home Assistant diagnostics path without adding any custom/external UI.
+- **validation status:** closed with focused diagnostics snapshot coverage for missing runtime `device_details` plus Python compile. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-470 - Managed Devices workspace buttons could crash on missing runtime device_details
 
 - **status:** `closed`
