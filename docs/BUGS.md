@@ -134,6 +134,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-441 - supervisor anti-churn rules still referenced historical A-D/F work as ordered runway
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-27 after the current ordered `0.1.91` map narrowed the approved work to the integration-main-page Managed Devices / Un Managed device-list release boundary.
+- **current observed behavior:** `docs/SUPERVISOR.md` correctly said historical A-D/F workstreams must not outrank the current `0.1.91` map elsewhere, but its anti-churn rules still described remaining work as `higher ordered A-D/F repo work` / `earlier mapped A-D/F work`. That stale wording could let a runner treat broad historical Configure, promotion-flow, IA, or support-surface polish as the next ordered runway when rejecting repeated release/fingerprint bookkeeping.
+- **expected behavior:** supervisor anti-churn guidance should reject repeated unchanged release/fingerprint bookkeeping while pointing only to the current ordered `0.1.91` map, not reopening historical A-D/F runway unless James explicitly expands scope or a regression directly blocks ZNE-429.
+- **repo fix:** this run updates the Rule 5/Rule 6 anti-churn wording to name current ordered `0.1.91` map work instead of A-D/F, and adds regression coverage so those stale phrases cannot re-enter the supervisor churn block.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** keep the next real boundary on James's release-target decision for `db5c246` / `v0.1.92` versus the documented `0.1.91` target, then closest-native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-440 - README development status still pointed at the old 0.1.89 runway
 
 - **status:** `closed`

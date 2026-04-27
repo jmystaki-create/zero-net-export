@@ -30,6 +30,18 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("not eligible work ahead of the approved `0.1.91`", historical_note)
         self.assertIn("Do not let them outrank the current ordered `0.1.91` map", historical_note)
 
+    def test_supervisor_churn_rules_do_not_reopen_historical_a_to_f_workstreams(self) -> None:
+        content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        churn_rules = content[
+            content.index("### Rule 5: Update source-of-truth only when it changes a real decision"):
+            content.index("### Rule 7: Release approval is edge-triggered")
+        ]
+
+        self.assertIn("current ordered repo work from the `0.1.91` map", churn_rules)
+        self.assertIn("current ordered `0.1.91` map work", churn_rules)
+        self.assertNotIn("higher ordered A-D/F", churn_rules)
+        self.assertNotIn("earlier mapped A-D/F", churn_rules)
+
     def test_project_status_tracks_current_091_approval_boundary(self) -> None:
         content = (ROOT / "project_status.md").read_text(encoding="utf-8")
 
