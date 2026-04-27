@@ -28,6 +28,7 @@ from .entity import (
     managed_load_detail,
     managed_load_detail_mapping,
     managed_load_details_mapping,
+    managed_load_device_info,
     sync_integration_page_child_device_registry,
     unmanaged_candidate_device_info,
 )
@@ -284,57 +285,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     managed_details = _integration_page_managed_details(entry, state)
     coordinator._zne_integration_page_managed_details = managed_details
+    managed_device_entities = {}
     for device_key, detail in managed_details.items():
-        device_name = str(detail.get("name") or device_key or "Managed device")
-        entities.extend(
-            [
-                ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, device_name),
-                ZeroNetExportDeviceStatusSensor(coordinator, device_key, device_name),
-                ZeroNetExportDevicePowerSensor(coordinator, device_key, device_name, "current_power_w", "Current power"),
-                ZeroNetExportDevicePlanSensor(coordinator, device_key, device_name),
-                ZeroNetExportDeviceGuardSensor(coordinator, device_key, device_name),
-                ZeroNetExportDevicePowerSensor(
-                    coordinator,
-                    device_key,
-                    device_name,
-                    "planned_power_delta_w",
-                    "Planned power delta",
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                ),
-                ZeroNetExportDevicePowerSensor(
-                    coordinator,
-                    device_key,
-                    device_name,
-                    "last_requested_power_w",
-                    "Last requested power",
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                ),
-                ZeroNetExportDevicePowerSensor(
-                    coordinator,
-                    device_key,
-                    device_name,
-                    "last_applied_power_w",
-                    "Last applied power",
-                    entity_category=EntityCategory.DIAGNOSTIC,
-                ),
-                ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "current_active_seconds", "Current active runtime"),
-                ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "active_runtime_today_seconds", "Active runtime today"),
-                ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_action_at", "Last action at"),
-                ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_applied_at", "Last applied at"),
-                ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_status", "Last action status"),
-                ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_result_message", "Last action result"),
-            ]
-        )
-        if detail.get("kind") == "variable":
-            entities.append(
-                ZeroNetExportDevicePowerSensor(
-                    coordinator,
-                    device_key,
-                    device_name,
-                    "current_target_power_w",
-                    "Target power",
-                )
-            )
+        device_entities = _build_managed_device_row_entities(coordinator, device_key, detail)
+        managed_device_entities[device_key] = device_entities
+        entities.extend(device_entities)
 
     candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
     unmanaged_candidate_entities = {}
@@ -344,6 +299,13 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.append(entity)
 
     async_add_entities(entities)
+    _register_managed_device_row_sync(
+        coordinator,
+        hass,
+        entry,
+        async_add_entities,
+        managed_device_entities,
+    )
     _register_unmanaged_candidate_sync(
         coordinator,
         hass,
@@ -351,6 +313,142 @@ async def async_setup_entry(hass, entry, async_add_entities):
         async_add_entities,
         unmanaged_candidate_entities,
     )
+
+
+def _build_managed_device_row_entities(coordinator, device_key: str, detail: dict[str, object]) -> list[ZeroNetExportEntity]:
+    """Build the native integration-page child-device entities for one managed load."""
+    device_name = str(detail.get("name") or device_key or "Managed device")
+    entities: list[ZeroNetExportEntity] = [
+        ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, device_name),
+        ZeroNetExportDeviceStatusSensor(coordinator, device_key, device_name),
+        ZeroNetExportDevicePowerSensor(coordinator, device_key, device_name, "current_power_w", "Current power"),
+        ZeroNetExportDevicePlanSensor(coordinator, device_key, device_name),
+        ZeroNetExportDeviceGuardSensor(coordinator, device_key, device_name),
+        ZeroNetExportDevicePowerSensor(
+            coordinator,
+            device_key,
+            device_name,
+            "planned_power_delta_w",
+            "Planned power delta",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+        ZeroNetExportDevicePowerSensor(
+            coordinator,
+            device_key,
+            device_name,
+            "last_requested_power_w",
+            "Last requested power",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+        ZeroNetExportDevicePowerSensor(
+            coordinator,
+            device_key,
+            device_name,
+            "last_applied_power_w",
+            "Last applied power",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
+        ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "current_active_seconds", "Current active runtime"),
+        ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "active_runtime_today_seconds", "Active runtime today"),
+        ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_action_at", "Last action at"),
+        ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_applied_at", "Last applied at"),
+        ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_status", "Last action status"),
+        ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_result_message", "Last action result"),
+    ]
+    if detail.get("kind") == "variable":
+        entities.append(
+            ZeroNetExportDevicePowerSensor(
+                coordinator,
+                device_key,
+                device_name,
+                "current_target_power_w",
+                "Target power",
+            )
+        )
+    return entities
+
+
+def _refresh_managed_device_row_entities(
+    hass,
+    coordinator,
+    device_key: str,
+    detail: dict[str, object],
+    entities,
+    async_add_entities,
+) -> None:
+    """Refresh existing managed child-device row metadata after managed-load detail changes."""
+    target_power_key = f"device_{device_key}_current_target_power_w"
+    target_power_entities = [entity for entity in entities if getattr(entity, "_key", None) == target_power_key]
+    if detail.get("kind") == "variable" and not target_power_entities:
+        device_name = str(detail.get("name") or device_key or "Managed device")
+        target_power_entity = ZeroNetExportDevicePowerSensor(
+            coordinator,
+            device_key,
+            device_name,
+            "current_target_power_w",
+            "Target power",
+        )
+        entities.append(target_power_entity)
+        async_add_entities([target_power_entity])
+    elif detail.get("kind") != "variable" and target_power_entities:
+        for target_power_entity in target_power_entities:
+            entities.remove(target_power_entity)
+            _schedule_integration_page_entity_removal(hass, target_power_entity)
+
+    device_info = managed_load_device_info(coordinator, device_key, detail)
+    for entity in entities:
+        entity._attr_device_info = device_info
+        sync_integration_page_child_device_registry(hass, device_info)
+        write_state = getattr(entity, "async_write_ha_state", None)
+        if write_state is not None:
+            write_state()
+
+
+def _register_managed_device_row_sync(
+    coordinator,
+    hass,
+    entry,
+    async_add_entities,
+    known_managed_entities: dict[str, list[ZeroNetExportEntity]],
+) -> None:
+    """Keep managed device rows aligned without requiring platform reload."""
+
+    def _sync_managed_device_rows() -> None:
+        state = getattr(coordinator, "data", None)
+        managed_details = _integration_page_managed_details(entry, state)
+        coordinator._zne_integration_page_managed_details = managed_details
+        current_device_keys = set(managed_details)
+        for stale_key in sorted(set(known_managed_entities) - current_device_keys):
+            stale_entities = known_managed_entities.pop(stale_key)
+            for stale_entity in stale_entities:
+                _schedule_integration_page_entity_removal(hass, stale_entity)
+
+        new_entities = []
+        for device_key, detail in managed_details.items():
+            existing_entities = known_managed_entities.get(device_key)
+            if existing_entities is not None:
+                _refresh_managed_device_row_entities(
+                    hass,
+                    coordinator,
+                    device_key,
+                    detail,
+                    existing_entities,
+                    async_add_entities,
+                )
+                continue
+            device_entities = _build_managed_device_row_entities(coordinator, device_key, detail)
+            known_managed_entities[device_key] = device_entities
+            new_entities.extend(device_entities)
+        if new_entities:
+            async_add_entities(new_entities)
+
+    add_listener = getattr(coordinator, "async_add_listener", None)
+    if add_listener is None:
+        return
+    async_on_unload = getattr(entry, "async_on_unload", None)
+    unsubscribe = add_listener(_sync_managed_device_rows)
+    if unsubscribe is not None and async_on_unload is not None:
+        async_on_unload(unsubscribe)
 
 
 def _register_unmanaged_candidate_sync(
@@ -370,7 +468,7 @@ def _register_unmanaged_candidate_sync(
         current_candidate_keys = {_candidate_unique_key(candidate) for candidate in candidates}
         for stale_key in sorted(set(known_candidate_entities) - current_candidate_keys):
             stale_entity = known_candidate_entities.pop(stale_key)
-            _schedule_unmanaged_candidate_entity_removal(hass, stale_entity)
+            _schedule_integration_page_entity_removal(hass, stale_entity)
 
         new_entities = []
         for candidate in candidates:
@@ -411,8 +509,8 @@ def _register_unmanaged_candidate_sync(
         async_on_unload(unsubscribe_state)
 
 
-def _schedule_unmanaged_candidate_entity_removal(hass, entity) -> None:
-    """Remove a stale unmanaged-candidate entity after it disappears or is promoted."""
+def _schedule_integration_page_entity_removal(hass, entity) -> None:
+    """Remove a stale integration-page child-row entity after its backing row disappears."""
     remove = getattr(entity, "async_remove", None)
     if remove is None:
         return

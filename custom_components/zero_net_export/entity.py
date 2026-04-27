@@ -124,8 +124,11 @@ def sync_integration_page_child_device_registry(hass, device_info: dict | None) 
     except Exception:
         return
 
-    device_registry = dr.async_get(hass)
-    device = device_registry.async_get_device({identifier})
+    try:
+        device_registry = dr.async_get(hass)
+        device = device_registry.async_get_device({identifier})
+    except Exception:
+        return
     if device is None:
         return
 

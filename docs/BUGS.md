@@ -185,6 +185,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** fixed in repo with focused integration-page device-list regression coverage, Python compile for `entity.py` and `sensor.py`, and the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
 - **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that `Managed Devices — ...` and `Un Managed — ...` rows still appear with the name/model grouping language and no custom UI path.
 
+## ZNE-503 - Managed Devices child rows only synced at platform setup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while comparing the recent dynamic `Un Managed — ...` row lifecycle fixes against the same ZNE-429 requirement for `Managed Devices — ...` rows on the main integration page.
+- **current observed behavior:** managed-load child-device entities were built once in `async_setup_entry()` from the managed details available during sensor-platform setup. If the managed fleet changed later through Configure/runtime state, the main integration-page `Managed Devices — ...` child rows could fail to add new managed loads, remove stale managed loads, or refresh row name/model metadata until an integration reload.
+- **expected behavior:** native Home Assistant `Managed Devices — ...` integration-page rows should stay aligned with current managed-load details after setup, matching the dynamic row behavior already added for `Un Managed — ...` candidates.
+- **evidence:** `async_setup_entry()` populated per-managed-load sensors inside its initial managed-details loop and only registered an unmanaged-candidate sync listener. No corresponding managed-row listener updated the native child-device row set when `coordinator.data.device_details` changed.
+- **repo fix:** this run adds a coordinator-listener sync path for managed device rows: newly managed loads get their native child-device entities without reload, removed managed loads are force-removed, and existing managed rows refresh their device-info plus registry metadata when names/kinds change. This remains native Home Assistant device-registry/entity behavior and does not add any custom UI path.
+- **validation status:** fixed in repo with focused integration-page regression coverage for managed-row add/remove/metadata-refresh, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `entity.py`, `sensor.py`, and the touched test file, plus the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that `Managed Devices — ...` rows update when managed loads are added, removed, or renamed.
+
 ## Closed bugs and process corrections
 
 ## ZNE-497 - unmanaged candidate cache could keep stale integration-page rows after HA state changes

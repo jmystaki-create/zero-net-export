@@ -549,6 +549,134 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(captured_managed_ids, [{"switch.pool_pump"}])
 
+    def test_setup_entry_syncs_new_managed_device_rows_after_setup(self) -> None:
+        sensor_module = _load_sensor_module()
+        listeners = []
+
+        def add_listener(listener):
+            listeners.append(listener)
+            return lambda: listeners.remove(listener)
+
+        coordinator = self._coordinator()
+        coordinator.async_add_listener = add_listener
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+        self.assertTrue(listeners)
+        self.assertNotIn(
+            "Managed Devices — EV Charger",
+            [
+                entity._attr_device_info.get("name")
+                for entity in added
+                if getattr(entity, "_attr_device_info", None)
+            ],
+        )
+
+        coordinator.data.device_details["ev"] = {
+            "name": "EV Charger",
+            "kind": "variable",
+            "entity_id": "number.ev_charger",
+            "status": "ready",
+        }
+        listeners[0]()
+
+        self.assertIn(
+            "Managed Devices — EV Charger",
+            [
+                entity._attr_device_info.get("name")
+                for entity in added
+                if getattr(entity, "_attr_device_info", None)
+            ],
+        )
+
+    def test_setup_entry_removes_stale_managed_device_rows_after_setup(self) -> None:
+        sensor_module = _load_sensor_module()
+        listeners = []
+
+        def add_listener(listener):
+            listeners.append(listener)
+            return lambda: listeners.remove(listener)
+
+        coordinator = self._coordinator()
+        coordinator.async_add_listener = add_listener
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(entry_id="entry-1", data={}, options={}, async_on_unload=lambda unsubscribe: None)
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+        stale_entities = [
+            entity
+            for entity in added
+            if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — Pool Pump"
+        ]
+        self.assertTrue(stale_entities)
+        removed = []
+        for stale_entity in stale_entities:
+            stale_entity.async_remove = lambda **kwargs: removed.append(kwargs)
+
+        coordinator.data.device_details.clear()
+        listeners[0]()
+
+        self.assertEqual(removed, [{"force_remove": True}] * len(stale_entities))
+
+    def test_setup_entry_refreshes_existing_managed_device_row_metadata(self) -> None:
+        sensor_module = _load_sensor_module()
+        listeners = []
+
+        def add_listener(listener):
+            listeners.append(listener)
+            return lambda: listeners.remove(listener)
+
+        coordinator = self._coordinator()
+        coordinator.async_add_listener = add_listener
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+        )
+        entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+        managed_summary = next(
+            entity
+            for entity in added
+            if isinstance(entity, sensor_module.ZeroNetExportDeviceManagedSummarySensor)
+            and entity._device_key == "pool"
+        )
+        writes = []
+        managed_summary.async_write_ha_state = lambda: writes.append(managed_summary._attr_device_info["name"])
+
+        self.assertNotIn("device_pool_current_target_power_w", [getattr(entity, "_key", None) for entity in added])
+
+        coordinator.data.device_details["pool"]["name"] = "Main Pool Pump"
+        coordinator.data.device_details["pool"]["kind"] = "variable"
+        listeners[0]()
+
+        self.assertEqual(managed_summary._attr_device_info["name"], "Managed Devices — Main Pool Pump")
+        self.assertEqual(managed_summary._attr_device_info["model"], "Managed Devices — Variable managed load")
+        self.assertIn("device_pool_current_target_power_w", [getattr(entity, "_key", None) for entity in added])
+        self.assertTrue(writes)
+
     def test_candidate_cache_invalidates_when_ha_candidate_states_change(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
@@ -641,7 +769,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                 attributes={"friendly_name": "Hot Water"},
             )
         )
-        listeners[0]()
+        listeners[-1]()
 
         self.assertIn(
             "Un Managed — Hot Water",
@@ -701,7 +829,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         stale_entity.async_remove = lambda **kwargs: removed.append(kwargs)
 
         current_states.clear()
-        listeners[0]()
+        listeners[-1]()
 
         self.assertEqual(removed, [{"force_remove": True}])
 
@@ -760,7 +888,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                 attributes={"friendly_name": "Hot Water Boost"},
             )
         ]
-        listeners[0]()
+        listeners[-1]()
 
         self.assertEqual(candidate._attr_name, "Hot Water Boost unmanaged candidate")
         self.assertEqual(candidate._attr_device_info["name"], "Un Managed — Hot Water Boost")
