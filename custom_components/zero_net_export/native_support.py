@@ -2109,7 +2109,10 @@ def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[
 def _runtime_device_details(state: Any) -> list[dict[str, Any]]:
     if state is None:
         return []
-    return [dict(detail) if isinstance(detail, Mapping) else {} for detail in (getattr(state, "device_details", {}) or {}).values()]
+    raw_details = getattr(state, "device_details", {}) or {}
+    if not isinstance(raw_details, Mapping):
+        return []
+    return [dict(detail) if isinstance(detail, Mapping) else {} for detail in raw_details.values()]
 
 def _ordered_runtime_device_details(state: Any) -> list[dict[str, Any]]:
     return sorted(_runtime_device_details(state), key=_runtime_device_sort_key)
@@ -2646,10 +2649,12 @@ def build_native_support_snapshot(coordinator: Any) -> str:
         SOURCE_ROLE_LABELS.get(key, key)
         for key in source_attention["stale_source_keys"]
     ]
-    runtime_device_details = getattr(state, "device_details", None) or {}
+    raw_runtime_device_details = getattr(state, "device_details", None) or {}
+    runtime_device_details = raw_runtime_device_details if isinstance(raw_runtime_device_details, Mapping) else {}
     device_lines = []
     for item in configured_devices:
-        runtime = dict(runtime_device_details.get(item.get("key"), {}) or {})
+        raw_runtime = runtime_device_details.get(item.get("key"), {}) or {}
+        runtime = dict(raw_runtime) if isinstance(raw_runtime, Mapping) else {}
         device_label = str(
             runtime.get("name")
             or item.get("name")

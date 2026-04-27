@@ -5,7 +5,13 @@ from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.entity import EntityCategory
 
 from .const import DOMAIN
-from .entity import ZeroNetExportEntity, attach_managed_load_device, managed_load_detail, managed_load_display_name
+from .entity import (
+    ZeroNetExportEntity,
+    attach_managed_load_device,
+    managed_load_detail,
+    managed_load_details_mapping,
+    managed_load_display_name,
+)
 
 
 SOURCE_LABELS = {
@@ -52,7 +58,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     if state is not None:
         entities.extend(
             ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, managed_load_display_name(device_key, details))
-            for device_key, details in (getattr(state, "device_details", {}) or {}).items()
+            for device_key, details in managed_load_details_mapping(getattr(state, "device_details", {}) or {}).items()
         )
     entities.extend(
         ZeroNetExportSourceStaleBinarySensor(coordinator, source_key, label)

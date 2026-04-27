@@ -20,6 +20,7 @@ from .entity import (
     ZeroNetExportEntity,
     attach_managed_load_device,
     managed_load_detail_mapping,
+    managed_load_details_mapping,
     managed_load_display_name,
 )
 from .native_support import (
@@ -53,13 +54,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
     ]
     state = coordinator.data
     if state is not None:
+        device_details = managed_load_details_mapping(getattr(state, "device_details", {}) or {})
         entities.extend(
             ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details))
-            for device_key, details in (getattr(state, "device_details", {}) or {}).items()
+            for device_key, details in device_details.items()
         )
         entities.extend(
             ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details))
-            for device_key, details in (getattr(state, "device_details", {}) or {}).items()
+            for device_key, details in device_details.items()
         )
     async_add_entities(entities)
 
@@ -68,7 +70,7 @@ def _managed_device_details_for_state(state) -> list[dict]:
     """Return managed device runtime details, tolerating sparse coordinator state."""
     if state is None:
         return []
-    return [managed_load_detail_mapping(detail) for detail in (getattr(state, "device_details", {}) or {}).values()]
+    return list(managed_load_details_mapping(getattr(state, "device_details", {}) or {}).values())
 
 
 def _managed_device_detail_for_state(state, device_key: str) -> dict:
@@ -354,7 +356,7 @@ def _next_bucket_device_name(device_details: list[dict], target: dict) -> str:
 def _managed_entity_ids(state) -> set[str]:
     return {
         str(detail.get("entity_id"))
-        for detail in (managed_load_detail_mapping(raw_detail) for raw_detail in (getattr(state, "device_details", None) or {}).values())
+        for detail in managed_load_details_mapping(getattr(state, "device_details", None) or {}).values()
         if detail.get("entity_id")
     }
 

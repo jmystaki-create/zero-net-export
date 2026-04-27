@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-485 - malformed runtime device_details could crash native support summaries
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-28 after the native-row sparse-runtime hardening series, while native support summary helpers still assumed runtime `device_details` was a mapping in the command-center summary and diagnostics snapshot text paths.
+- **current observed behavior:** if a transitional runtime state exposed `device_details` as a non-mapping object, or a configured device's runtime detail value was malformed, native support helpers could call `.values()`, `.get(...)`, or `dict(...)` on that malformed value before producing command-center/diagnostics evidence.
+- **expected behavior:** native Home Assistant support summaries should tolerate malformed runtime managed-device details, fall back to configured-device labels/defaults, and keep the Managed Devices evidence renderable without adding any custom/external UI path.
+- **repo fix:** this run adds a shared managed-device-detail container normalizer, uses it across native platform setup/helpers and diagnostics, and normalizes the diagnostics snapshot configured-device lookup before reading fields.
+- **validation status:** closed with focused support-snapshot regression coverage, Python compile for the touched component modules, and the targeted native-platform/docs unittest set.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-484 - compact fleet activity could drop unmanaged review warning detail
 
 - **status:** `closed`

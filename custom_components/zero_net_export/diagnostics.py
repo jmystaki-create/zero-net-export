@@ -27,6 +27,7 @@ from .const import (
     DOMAIN,
     INTEGRATION_VERSION,
 )
+from .entity import managed_load_details_mapping
 from .native_support import PRIMARY_CONFIGURE_PATH, build_native_operator_readiness
 from .release_info import (
     build_install_consistency_summary,
@@ -72,7 +73,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     validation_details = async_redact_data(deepcopy(safe_validation_details), REDACT_NESTED_KEYS)
 
     device_details = []
-    for index, detail in enumerate((getattr(data, "device_details", {}) or {}).values(), start=1):
+    for index, detail in enumerate(managed_load_details_mapping(getattr(data, "device_details", {}) or {}).values(), start=1):
         redacted_detail = async_redact_data(deepcopy(detail), REDACT_NESTED_KEYS)
         redacted_detail["runtime_slot"] = index
         device_details.append(redacted_detail)

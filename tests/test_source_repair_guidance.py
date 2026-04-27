@@ -775,6 +775,61 @@ class SourceRepairGuidanceTests(unittest.TestCase):
             snapshot,
         )
 
+    def test_support_snapshot_tolerates_malformed_runtime_device_details(self) -> None:
+        native_support = _load_native_support_module(
+            parse_device_result=(
+                [
+                    SimpleNamespace(
+                        key="pool_pump",
+                        name="Pool Pump",
+                        kind="fixed",
+                        entity_id="switch.pool_pump",
+                        adapter="switch",
+                        nominal_power_w=1200,
+                        min_power_w=0,
+                        max_power_w=1200,
+                        step_w=1200,
+                        priority=100,
+                        enabled=True,
+                        min_on_seconds=0,
+                        min_off_seconds=0,
+                        cooldown_seconds=0,
+                        max_active_seconds=0,
+                    )
+                ],
+                [],
+            )
+        )
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(
+                title="Test Entry",
+                entry_id="entry-1",
+                version=1,
+                data={},
+                options={},
+            ),
+            data=SimpleNamespace(
+                validation_details={"issues": []},
+                device_details={"pool_pump": None},
+            ),
+        )
+
+        snapshot = native_support.build_native_support_snapshot(coordinator)
+
+        self.assertIn(
+            "- Pool Pump: enabled=True, usable=n/a, status=n/a, planned=n/a, guard=n/a, kind=fixed, adapter=switch, priority=100",
+            snapshot,
+        )
+
+        coordinator.data.device_details = ["not", "a", "mapping"]
+        snapshot = native_support.build_native_support_snapshot(coordinator)
+
+        self.assertIn(
+            "- Pool Pump: enabled=True, usable=n/a, status=n/a, planned=n/a, guard=n/a, kind=fixed, adapter=switch, priority=100",
+            snapshot,
+        )
+
     def test_empty_fleet_operator_readiness_prefers_unmanaged_review_over_manual_add(self) -> None:
         native_support = _load_native_support_module()
         native_support.discover_candidate_devices = lambda states, managed_ids: [

@@ -20,6 +20,13 @@ def managed_load_detail_mapping(value: object) -> dict:
     return dict(value) if isinstance(value, Mapping) else {}
 
 
+def managed_load_details_mapping(value: object) -> dict[str, dict]:
+    """Return all managed-load details, tolerating malformed runtime containers."""
+    if not isinstance(value, Mapping):
+        return {}
+    return {str(device_key): managed_load_detail_mapping(detail) for device_key, detail in value.items()}
+
+
 def zero_net_export_device_info(coordinator) -> dict:
     """Return the integration's primary Home Assistant device info."""
     return {
