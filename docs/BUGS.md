@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-383 - Command-center focus labels still used recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking Workstream A/D opening-console and four-bucket IA copy after the neutral next-step wording cleanups.
+- **current observed behavior:** the opening Configure command-center setup check and device-page command-center guide still labelled the active bucket as `Recommended section`, and the fallback blocker copy still said to follow the `recommended native path`. That left recommendation/ranking language in the primary native operator console after adjacent Managed Devices, Sensors, Controls, and promotion labels had moved to neutral workflow wording.
+- **expected behavior:** the command center should identify the current native focus bucket without implying a ranked recommendation, while still preserving the grouped setup-check signal and native path handoff.
+- **evidence:** direct repo inspection found `Recommended section` in `strings.json`, `translations/en.json`, command-center guide text, button-guide test stubs, and focused copy tests; `config_flow.py` also carried `recommended native path` fallback wording.
+- **repo fix:** this run changes the visible labels to `Current focus section`, changes the guide stub wording to `Current focus section right now`, changes the fallback to `current native path`, and renames the visible command-center path entity label to `Command center focus path` while keeping internal compatibility keys unchanged.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_command_center_modal_copy tests.test_source_repair_guidance tests.test_command_center_setup_focus tests.test_button_entity_categories tests.test_sensor_entity_categories tests.test_config_flow_device_runtime_overlay tests.test_translation_sync`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A/D wording cleanup in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more recommendation-wording or fingerprint bookkeeping.
+
 ## ZNE-382 - Unreleased changelog repeated archived source-mapping/release-target wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

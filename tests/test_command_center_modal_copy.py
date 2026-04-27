@@ -22,7 +22,7 @@ class TestCommandCenterModalCopy(unittest.TestCase):
         self.assertNotIn("basic setup and current operating picture only", description)
         self.assertIn("\n- Alerts: {alert_summary}", description)
         self.assertIn("\n- Next action: {next_action_summary}", description)
-        self.assertIn("\n- Recommended section: {recommended_section}", description)
+        self.assertIn("\n- Current focus section: {recommended_section}", description)
         self.assertNotIn("{recommended_menu_hint}", description)
         self.assertNotIn("The first menu item below", description)
         self.assertNotIn("\n- Recommended path: {recommended_path}", description)

@@ -2836,7 +2836,7 @@ def build_native_command_center_guide_text(command_center: dict[str, Any]) -> st
             f"- Diagnostics: {command_center.get('support_status')}",
             f"- Source blockers: {source_attention_summary}",
             f"- Repair path: {source_repair_step}",
-            f"- Recommended section: {command_center.get('recommended_section')}",
+            f"- Current focus section: {command_center.get('recommended_section')}",
             "",
             "Command-center use",
             "- Live setup and current operating picture.",

@@ -112,7 +112,7 @@ SENSOR_DEFS = {
     "mapped_source_blocker_summary": "Source blocker summary",
     "mapped_source_blocker_next_step": "Source blocker next step",
     "command_center_status": "Command center status",
-    "command_center_recommended_path": "Command center recommended path",
+    "command_center_recommended_path": "Command center focus path",
     "command_center_next_step": "Command center next step",
 }
 

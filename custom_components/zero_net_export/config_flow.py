@@ -2431,7 +2431,7 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
             "next_action_summary": str(
                 command_center.get("next_action_summary")
                 or readiness.get("next_step")
-                or f"Review the current blocker, then follow the recommended native path under {PRIMARY_CONFIGURE_PATH}."
+                or f"Review the current blocker, then follow the current native path under {PRIMARY_CONFIGURE_PATH}."
             ),
         }
 

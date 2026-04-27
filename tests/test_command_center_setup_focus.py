@@ -120,7 +120,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             f"- Next action: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,
         )
-        self.assertIn(f"- Recommended section: {native_support.SOURCES_SECTION_LABEL}", text)
+        self.assertIn(f"- Current focus section: {native_support.SOURCES_SECTION_LABEL}", text)
         self.assertNotIn("- Recommended path:", text)
         self.assertIn("Structured control board", text)
         self.assertIn("- Energy state: solar 4200 W | grid export 1800 W", text)
@@ -237,7 +237,7 @@ class CommandCenterSetupFocusTests(unittest.TestCase):
             f"- Next action: Open {native_support.SOURCES_CONFIGURE_PATH} next.",
             text,
         )
-        self.assertIn(f"- Recommended section: {native_support.SOURCES_SECTION_LABEL}", text)
+        self.assertIn(f"- Current focus section: {native_support.SOURCES_SECTION_LABEL}", text)
         self.assertNotIn("- Recommended path:", text)
 
 

@@ -140,7 +140,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     }
     native_support_module.build_native_command_center_guide_text = lambda command_center: (
         "Zero Net Export native command center guide\n\n"
-        f"Recommended section right now: {command_center.get('recommended_section')}\n"
+        f"Current focus section right now: {command_center.get('recommended_section')}\n"
         f"Why this section is recommended: {command_center.get('recommended_reason')}\n"
         f"Managed-device audit path: {command_center.get('detailed_management_summary')}"
     )
@@ -1894,7 +1894,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(notification_calls), 1)
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export native command center guide", message)
-        self.assertIn("Recommended section right now: Sensors", message)
+        self.assertIn("Current focus section right now: Sensors", message)
         self.assertIn("Why this section is recommended: Source blockers remain.", message)
         self.assertIn("Managed-device audit path: Use the device page for secondary per-device review/audit.", message)
 
