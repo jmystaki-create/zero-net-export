@@ -326,6 +326,21 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertNotIn("active device, review-first", formatted)
 
+    def test_fleet_activity_operator_format_is_idempotent_for_grouped_labels(self) -> None:
+        native_support = _load_native_support_module()
+
+        formatted = native_support.format_fleet_activity_for_operator(
+            "source blockers active; Managed devices: 1 managed | active load 900 W; "
+            "Unmanaged backlog: 2 unmanaged backlog | review Garage relay"
+        )
+
+        self.assertEqual(
+            formatted,
+            "source blockers active; Managed devices: 1 managed | active load 900 W; "
+            "Unmanaged backlog: 2 unmanaged backlog | review Garage relay",
+        )
+        self.assertNotIn("Managed devices: 1 managed | active load 900 W | Unmanaged backlog:", formatted)
+
     def test_fleet_activity_summary_names_disabled_managed_devices_when_inventory_is_visible(self) -> None:
         native_support = _load_native_support_module()
 

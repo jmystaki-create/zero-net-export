@@ -504,8 +504,14 @@ def _normalize_fleet_activity_delimiters(summary: str) -> str:
 
     normalized = " ".join(str(summary or "").split()).replace("; ", " | ")
     normalized = re.sub(
-        rf"^{re.escape(DEVICES_SECTION_LABEL)}\s*:",
-        "",
+        rf"(?:^|\|\s*){re.escape(DEVICES_SECTION_LABEL)}\s*:",
+        lambda match: "| " if match.group(0).lstrip().startswith("|") else "",
+        normalized,
+        flags=re.IGNORECASE,
+    ).strip()
+    normalized = re.sub(
+        r"(?:^|\|\s*)Unmanaged (?:backlog|candidates)\s*:",
+        lambda match: "| " if match.group(0).lstrip().startswith("|") else "",
         normalized,
         flags=re.IGNORECASE,
     ).strip()

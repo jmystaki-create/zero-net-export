@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-398 - Grouped Fleet activity labels were not idempotent
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `config_flow`
+- **where seen:** supervisor repo audit on 2026-04-27 while advancing Workstream A item 2, remaining weak spots in the opening `Fleet activity` block.
+- **current observed behavior:** already-grouped Fleet activity text such as `source blockers active; Managed devices: 1 managed | active load 900 W; Unmanaged backlog: 2 unmanaged backlog | review Garage relay` could be normalized back into a flat labelled chain because the formatter stripped only a leading `Managed Devices:` prefix and did not remove embedded `Managed devices:` / `Unmanaged backlog:` group labels before re-grouping.
+- **expected behavior:** repeated formatting should be idempotent, preserving the managed-on-top / unmanaged-below Fleet activity story even when cached or downstream text already contains grouped labels.
+- **evidence:** focused regression coverage now exercises grouped Fleet activity text with a global source blocker and requires the grouped `Managed devices: ...; Unmanaged backlog: ...` output to remain stable.
+- **repo fix:** this run teaches Fleet activity delimiter normalization to strip embedded grouped labels before re-grouping, while preserving source blockers outside the managed/unmanaged buckets.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_command_center_summary` plus `python3 -m py_compile custom_components/zero_net_export/native_support.py tests/test_command_center_summary.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this Workstream A Fleet activity idempotence cleanup in the next `0.1.89` exact build; if no sharper A-D/F implementation defect remains, the next ordered boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path.
+
 ## ZNE-397 - Native entity list still showed legacy Recommendation label
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
