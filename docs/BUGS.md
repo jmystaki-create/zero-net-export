@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-477 - Configure support path could crash on sparse runtime summary fields
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `config_flow`
+- **where seen:** watchdog repo audit on 2026-04-28 after sparse-runtime hardening covered entities, buttons, diagnostics, snapshots, and Repairs, while `custom_components/zero_net_export/config_flow.py` still directly read `state.health_summary` and `state.diagnostic_summary` in the native Configure support path.
+- **current observed behavior:** if coordinator runtime data existed in a sparse transitional shape without those summary fields, `async_step_support()` could raise before rendering the native support/diagnostics Configure surface.
+- **expected behavior:** Configure support placeholders should tolerate missing runtime summary fields and keep the native Home Assistant support path renderable with the existing unloaded-state fallback.
+- **repo fix:** this run routes the support health-summary fallback through safe `getattr(...)` reads instead of direct sparse-state dereferences.
+- **validation status:** closed with focused config-flow sparse-runtime support-path regression coverage plus the targeted unittest file. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-476 - runtime Repairs issue could crash on sparse runtime attention fields
 
 - **status:** `closed`

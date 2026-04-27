@@ -1492,6 +1492,50 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             f"{module.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
         )
 
+    def test_support_path_tolerates_sparse_runtime_summary_fields(self) -> None:
+        module = _load_config_flow_module()
+        module.build_native_command_center_summary = lambda coordinator: {
+            "recommended_section": module.SUPPORT_SECTION_LABEL,
+            "recommended_reason": "Review diagnostics details.",
+            "recommended_path": module.SUPPORT_CONFIGURE_PATH,
+            "next_action_summary": "Open support path and review the current blocker.",
+        }
+        module.build_native_operator_readiness = lambda coordinator: {
+            "phase": "support_needed",
+            "summary": "Diagnostics needed.",
+            "next_step": "Open support path and review the current blocker.",
+        }
+        module.build_source_attention_details = lambda state: {
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "validation_details": {"issues": []},
+        }
+        module.build_source_attention_summary = lambda *args, **kwargs: "None"
+        module.build_source_attention_role_summary = lambda *args, **kwargs: "None"
+        module.summarize_validation_issue_messages = lambda *args, **kwargs: "None"
+        module.build_source_mapping_summary = lambda merged: "- Solar: sensor.solar"
+        module.build_install_provenance = lambda *args, **kwargs: {
+            "live_validation_safe": True,
+            "summary": "Installed package ok",
+        }
+        module.build_install_consistency_summary = lambda provenance: "Installed package version metadata matches the running code version."
+        module.build_install_fingerprint_summary = lambda provenance: "- component_root: /config/custom_components/zero_net_export"
+        module._infer_grid_sensor_mode = lambda merged: module.GRID_SENSOR_MODE_SEPARATE
+        flow = module.ZeroNetExportOptionsFlow(SimpleNamespace(entry_id="entry-1", options={}, data={}))
+        flow.hass = SimpleNamespace(
+            data={
+                module.DOMAIN: {
+                    "entry-1": SimpleNamespace(data=SimpleNamespace(validation_details={}), entry=SimpleNamespace(data={}, options={}))
+                }
+            },
+            states=SimpleNamespace(async_all=lambda: [], get=lambda entity_id: None),
+        )
+        flow.async_show_form = lambda **kwargs: kwargs
+
+        result = asyncio.run(flow.async_step_support())
+
+        self.assertEqual(result["description_placeholders"]["health_status"], "Integration state not loaded yet")
+
     def test_existing_fleet_forms_keep_managed_and_unmanaged_snapshots_visible(self) -> None:
         module = _load_config_flow_module()
         module.build_native_command_center_summary = lambda coordinator: {

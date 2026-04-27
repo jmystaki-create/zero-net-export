@@ -2337,7 +2337,11 @@ class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):
         merged.update(self._config_entry.options)
         health_summary = "Integration state not loaded yet"
         if state is not None:
-            health_summary = state.health_summary or state.diagnostic_summary or health_summary
+            health_summary = (
+                getattr(state, "health_summary", None)
+                or getattr(state, "diagnostic_summary", None)
+                or health_summary
+            )
         blocking_validation_issues = [
             issue
             for issue in (source_attention["validation_details"].get("issues", []) or [])
