@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-449 - ordered map release-target step skipped the 0.1.94 freeze
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog detailed-map audit on 2026-04-28 after `docs/SUPERVISOR.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, ZNE-429, and the lower order-of-execution summary all named `4c0d071` / `v0.1.94` as an unapproved freeze, while the numbered current ordered `0.1.91` map item 2 jumped from `026f189` / `v0.1.93` to the post-freeze `0b4f420` component boundary.
+- **current observed behavior:** the strict numbered release-target step omitted the `v0.1.94` freeze even though runners are instructed to follow that numbered map first. That could make the direct James release-target ask understate the unapproved candidate chain before Home Assistant install, restart, fingerprint validation, or screenshot proof.
+- **expected behavior:** the ordered map's first release-target decision step should name the full chain: historical `v0.1.91` tag, post-tag `c4802a3`, `v0.1.92`, `v0.1.93`, `v0.1.94`, and then the helper-resolved post-freeze `0b4f420` / manifest `0.1.94` component boundary.
+- **repo fix:** this run updates current ordered map item 2 to include `v0.1.94` at `4c0d071` before the `0b4f420` component boundary and adds regression coverage so the numbered map cannot omit that freeze while the rest of the source-of-truth set names it.
+- **validation status:** closed with focused source-of-truth regression coverage; no Home Assistant live validation is required for this process-order correction.
+- **next action:** keep the next real boundary on James deciding whether `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` release target, then closest-native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-448 - install repair guidance skipped the release-target and native-row acceptance boundary
 
 - **status:** `closed`

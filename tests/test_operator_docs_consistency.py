@@ -23,6 +23,8 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
         self.assertLess(release_target, native_acceptance)
         self.assertLess(native_acceptance, deploy_gate)
+        self.assertIn("`v0.1.94` at `4c0d071`", current_map)
+        self.assertIn("helper now resolves the current component boundary to `0b4f420` / manifest `0.1.94`", current_map)
         self.assertIn("ask James directly for release/deploy/restart approval", current_map)
         self.assertIn("Settings -> Devices & Services -> Integrations -> Zero Net Export", current_map)
 
