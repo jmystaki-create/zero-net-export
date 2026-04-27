@@ -1571,7 +1571,7 @@ def _compact_next_action_fallback(
 def _validation_details(state: Any) -> dict[str, Any]:
     if state is None:
         return {}
-    return state.validation_details or {}
+    return getattr(state, "validation_details", {}) or {}
 
 
 def build_source_attention_details(state: Any) -> dict[str, Any]:

@@ -164,6 +164,19 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertIsNone(sensor._attr_device_info)
 
+    def test_base_entity_tolerates_missing_validation_details(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace()
+
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "previous_installed_version",
+            "Previous installed version",
+        )
+
+        self.assertIsNone(sensor.native_value)
+
     def test_setup_entry_adds_unmanaged_candidate_entities_for_integration_page_rows(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

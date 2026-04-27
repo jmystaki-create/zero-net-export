@@ -82,6 +82,15 @@ def _load_native_support_module():
 
 
 class CommandCenterSummaryTests(unittest.TestCase):
+    def test_source_attention_details_tolerates_missing_validation_details(self) -> None:
+        native_support = _load_native_support_module()
+
+        details = native_support.build_source_attention_details(SimpleNamespace())
+
+        self.assertEqual(details["validation_details"], {})
+        self.assertEqual(details["source_diagnostics"], {})
+        self.assertEqual(details["source_freshness"], {})
+
     def test_operator_checklist_uses_normal_plural_copy_for_device_counts(self) -> None:
         native_support = _load_native_support_module()
 

@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-472 - missing runtime validation_details could break native entity and source-attention surfaces
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `runtime`
+- **where seen:** watchdog repo audit on 2026-04-28 after sparse `device_details` hardening covered diagnostics, sensors, controls, and buttons, while the shared base entity helper and native source-attention helper still directly dereferenced `state.validation_details`.
+- **current observed behavior:** if coordinator runtime data existed in a sparse transitional shape without `validation_details`, release/update sensors and native source-attention summaries could raise instead of rendering empty validation evidence. That weakened the native Home Assistant operator path while the release-target hold keeps live validation intentionally blocked.
+- **expected behavior:** native entity helpers and source-attention helpers should treat missing runtime `validation_details` as an empty mapping, matching the diagnostics snapshot fallback behavior and preserving the native-only UI path.
+- **repo fix:** this run changes the shared entity `_validation_details` property and native-support `_validation_details()` helper to use safe `getattr(..., {})` fallbacks, without adding any custom/external UI.
+- **validation status:** closed with focused coverage for missing runtime `validation_details` in base entity release/update sensors and native source-attention details, plus Python compile. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-471 - diagnostics snapshot could crash on missing runtime device_details
 
 - **status:** `closed`

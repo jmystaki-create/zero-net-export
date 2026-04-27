@@ -142,7 +142,7 @@ class ZeroNetExportEntity(CoordinatorEntity):
         state = self._state
         if state is None:
             return {}
-        return state.validation_details or {}
+        return getattr(state, "validation_details", {}) or {}
 
     @property
     def available(self) -> bool:
