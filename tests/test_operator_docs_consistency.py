@@ -111,6 +111,21 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("0.1.88", status)
         self.assertNotIn("A-D/F", status)
 
+    def test_readme_manual_deploy_guidance_keeps_approval_order(self) -> None:
+        content = (ROOT / "README.md").read_text(encoding="utf-8")
+        install = content[
+            content.index("## 📦 Installation"):
+            content.index("## ⚙️ Configuration")
+        ]
+
+        self.assertIn("do not make deploy/restart the first approval ask", install)
+        self.assertIn("do not skip the current release-target and native-row acceptance boundaries", install)
+        self.assertIn("whether current `0b4f420` / manifest `0.1.94` replaces the documented `0.1.91` release target", install)
+        self.assertIn("after that target decision, ask whether the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation is acceptable", install)
+        self.assertIn("then ask for exact release/deploy/restart approval for that accepted target", install)
+        self.assertIn("Only after those approvals, run `python3 scripts/deploy_exact_repo_build.py", install)
+        self.assertNotIn("ask James directly to approve deploy/restart first", install)
+
     def test_watchdog_tracks_current_091_scope_not_historical_runway(self) -> None:
         content = (ROOT / "docs" / "WATCHDOG.md").read_text(encoding="utf-8")
         source_order = content[
