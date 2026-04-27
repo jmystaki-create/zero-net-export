@@ -107,6 +107,25 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool.pump%2Fmain%3Aone",
         )
 
+    def test_managed_device_identifier_sanitizes_query_sensitive_device_key(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+
+        sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(
+            coordinator,
+            "Pool Pump/Main:One & Boost",
+            "Pool Pump",
+        )
+
+        self.assertIn(
+            ("zero_net_export", "entry-1:managed-device:pool_pump_main_one_boost"),
+            sensor._attr_device_info["identifiers"],
+        )
+        self.assertEqual(
+            sensor._attr_device_info["configuration_url"],
+            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3APool+Pump%2FMain%3AOne+%26+Boost",
+        )
+
     def test_unmanaged_candidate_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

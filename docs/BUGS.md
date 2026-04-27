@@ -91,6 +91,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Current active bugs
 
+## ZNE-507 - managed child-device registry identifiers still used raw device keys
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking ZNE-496's closed settings-link fix against the actual `Managed Devices — ...` child-device registry identifier path.
+- **current observed behavior:** managed child-device settings URLs correctly preserved the raw configured managed-device key through URL encoding, but `managed_load_device_info()` still placed the raw key directly in the Home Assistant device-registry identifier. Query-sensitive or separator-heavy keys such as `Pool Pump/Main:One & Boost` could therefore leak unsafe punctuation/spacing into the registry identifier even though prior bug state said sanitizing was scoped to identifiers.
+- **expected behavior:** device-registry identifiers should use a stable sanitized fragment, while the row settings URL should continue carrying the exact raw managed-device key as an encoded query value.
+- **evidence:** `custom_components/zero_net_export/entity.py` used `f"{entry_id}:managed-device:{device_key}"` for managed-row identifiers, while `_device_identifier_part(...)` was only applied to unmanaged candidate identifiers.
+- **repo fix:** this run routes managed child-device identifiers through the shared registry-safe identifier helper and hardens that helper for punctuation/spacing, without changing the raw encoded managed-device settings URL and without adding any custom UI path.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `entity.py` and the touched test file, and the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that `Managed Devices — ...` rows still appear and their settings links preserve the exact managed-device key.
+
 ## ZNE-439 - repo froze 0.1.94 while source-of-truth still limits approval to 0.1.91
 
 - **status:** `open`

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import re
 from urllib.parse import urlencode
 
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -11,8 +12,8 @@ from .const import DOMAIN, INTEGRATION_VERSION
 
 def _device_identifier_part(value: object) -> str:
     """Return a stable device-registry-safe identifier fragment."""
-    text = str(value or "unknown").strip()
-    return text.replace(".", "_").replace(":", "_").replace("/", "_") or "unknown"
+    text = str(value or "unknown").strip().lower()
+    return re.sub(r"[^a-z0-9_]+", "_", text.replace(".", "_").replace(":", "_").replace("/", "_")).strip("_") or "unknown"
 
 
 def managed_load_detail_mapping(value: object) -> dict:
@@ -80,7 +81,7 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
     name = str(detail.get("name") or device_key or "Managed device").strip()
     kind = str(detail.get("kind") or "managed").strip()
     return {
-        "identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:managed-device:{device_key}")},
+        "identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:managed-device:{_device_identifier_part(device_key)}")},
         "name": f"Managed Devices — {name}",
         "manufacturer": "OpenClaw",
         "model": f"Managed Devices — {kind.title()} managed load" if kind else "Managed Devices — Managed load",
