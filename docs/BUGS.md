@@ -86,6 +86,19 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-412 - Detailed remaining work map still pointed release execution at 0.1.89
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `docs/SUPERVISOR.md`, `docs/UI_DESIGN.md`, and the top of `docs/UI_IMPLEMENTATION_MAP.md` had moved the active corrective target to `0.1.90` for the device-page Managed Devices failure.
+- **current observed behavior:** the `Detailed remaining work map` still said it was getting the `0.1.89` release out, and Workstream G / order-of-execution still told runners to validate, publish, deploy, and treat follow-up gaps around the already-published `v0.1.89` candidate. That stale lower-section guidance contradicted the current 0.1.90 source-of-truth boundary and could make the supervisor re-open completed 0.1.89 release bookkeeping instead of finishing the corrective device-page release.
+- **expected behavior:** the detailed map should make `0.1.90` the active release execution target, preserve `0.1.89` only as historical failed evidence, and explicitly keep the next release approval boundary on the corrective `0.1.90` candidate.
+- **evidence:** direct repo inspection found stale `0.1.89` release execution wording in `docs/UI_IMPLEMENTATION_MAP.md` lines covering the detailed map introduction, Workstream G, order of execution, and rollout view even though the same document's scope/status sections already said the active UI correction target is `0.1.90`.
+- **repo fix:** this run updates the detailed map and Workstream G to `0.1.90`, marks the `0.1.89` rollout section as historical/failed on device-page evidence, and adds regression coverage so the detailed map no longer points release execution at the old `v0.1.89` candidate.
+- **validation status:** tracker/source-of-truth correction verified with `python3 -m unittest -q tests.test_release_info_install_guidance` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. No Home Assistant live validation is required for this process-state closure.
+- **next action:** continue `ZNE-411` and the `0.1.90` release plan: finish or prove the device-page Managed Devices surface, then ask James directly for `0.1.90` release approval when the repo candidate is ready.
+
+
 ## ZNE-411 - 0.1.89 device page lacks obvious Managed Devices surface
 - **status:** `open`
 - **severity:** `high`

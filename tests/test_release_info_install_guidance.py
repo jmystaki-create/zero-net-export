@@ -131,6 +131,19 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", boundary)
         self.assertNotIn("Only after approval, freeze the helper-resolved candidate as `0.1.89`", boundary)
 
+    def test_ui_implementation_map_detailed_work_uses_0190_boundary(self) -> None:
+        plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
+        detailed_map = plan.split("## Detailed remaining work map", 1)[1].split("### Stage 0.", 1)[0]
+
+        self.assertIn("corrective `0.1.90` device-page Managed Devices release", detailed_map)
+        self.assertIn("Workstream G. Exact-build validation and release execution", detailed_map)
+        self.assertIn("release approval", detailed_map)
+        self.assertIn("freeze version-coupled metadata as `0.1.90`", detailed_map)
+        self.assertIn("installed `0.1.90` build", detailed_map)
+        self.assertNotIn("convert the repo candidate into a real shipped and validated `0.1.89` release", detailed_map)
+        self.assertNotIn("Publish/deploy the approved `v0.1.89` candidate", detailed_map)
+        self.assertNotIn("treat them as post-`0.1.89` work", detailed_map)
+
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(

@@ -112,7 +112,7 @@ This section is now the explicit staged delivery map. Each phase should be imple
 
 ## Detailed remaining work map
 
-This is the detailed remaining-step map for finishing the full `docs/UI_DESIGN.md` scope and getting the `0.1.89` release out.
+This is the detailed remaining-step map for finishing the full `docs/UI_DESIGN.md` scope and getting the corrective `0.1.90` device-page Managed Devices release out. The already-published and live-failed `0.1.89` line is historical evidence, not the active release target.
 Use this list to decide what still has to be built, what has to be proven live, and what order the remaining work should happen in.
 
 ### Workstream A. Finish the opening operator console
@@ -198,27 +198,28 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 ### Workstream G. Exact-build validation and release execution
 **Goal**
-- convert the repo candidate into a real shipped and validated `0.1.89` release
+- convert the repo candidate into a real shipped and validated `0.1.90` corrective release for the device-page Managed Devices surface
 
 **Still to do**
-1. Re-run the full validation pass on the exact helper-resolved `0.1.89` candidate.
-2. Push the final candidate to `main`.
-3. Bump version-coupled metadata to `0.1.89` during the formal freeze.
-4. Publish the GitHub release from the approved `v0.1.89` tag/candidate.
-5. Deploy the exact approved `0.1.89` build to Home Assistant.
-6. Restart/reload Home Assistant and confirm the installed package matches the intended candidate.
-7. Capture live evidence that the UI outcome is actually present on the exact installed build.
+1. Finish the `0.1.90` device-page Managed Devices surface implementation and focused repo validation.
+2. Ask James directly for release approval once the repo candidate is ready; do not re-open the completed `0.1.89` freeze/publication boundary.
+3. Bump version-coupled metadata to `0.1.90` during the approved formal freeze.
+4. Re-run full validation and capture the helper-resolved expected install fingerprint immediately before release.
+5. Push the final approved candidate to `main`, tag `v0.1.90`, and publish the GitHub release.
+6. Deploy/install the exact approved `0.1.90` build to Home Assistant.
+7. Restart/reload Home Assistant and confirm the installed package matches the intended candidate.
+8. Capture screenshot-grade live evidence that the device page visibly shows the Managed Devices surface.
 
 **Done when**
-- the approved `v0.1.89` tag/candidate is published, deployed, and live-validated as the intended native UI build.
+- the approved `v0.1.90` tag/candidate is published, deployed, fingerprint-verified, and live-validated with screenshot-grade device-page Managed Devices evidence.
 
 ### Order of execution from here
-1. Finish repo-side UI work only where a remaining stage is still visibly incomplete.
-2. Do not let unchanged fingerprint bookkeeping displace the next unfinished mapped workstream.
-3. Re-run full validation on the helper-resolved `0.1.89` candidate.
-4. Publish/deploy the approved `v0.1.89` candidate.
-5. Perform live screenshot-grade acceptance review.
-6. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.89` work instead of silently rolling the cut line forever.
+1. Finish repo-side UI work only where the `0.1.90` device-page Managed Devices outcome or earlier A-D/F map items are still visibly incomplete.
+2. Do not let unchanged `0.1.89` fingerprint/release bookkeeping displace the next unfinished mapped workstream.
+3. When the `0.1.90` repo candidate is ready, ask James directly for release approval.
+4. After approval, freeze version-coupled metadata as `0.1.90`, run full validation, and publish/deploy the approved candidate.
+5. Perform live screenshot-grade acceptance review on the installed `0.1.90` build.
+6. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.90` work instead of silently rolling the cut line forever.
 
 ### Stage 0. Baseline and source-of-truth consolidation
 **Purpose**
@@ -426,11 +427,11 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - screenshot-grade acceptance evidence
 - release-by-release validation discipline
 
-## 0.1.89 release rollout view
+## Historical 0.1.89 release rollout view
 
-This is the explicit `0.1.89` follow-up rollout target after the already-published `v0.1.88` tag drifted behind later UI fixes. It converts the staged design work above into the release feature set without rewriting the published `v0.1.88` artifact.
+This section records the already-published `0.1.89` rollout target after the earlier `v0.1.88` tag drifted behind later UI fixes. It is no longer the active release target: `0.1.89` was installed, restarted, fingerprint-verified, and then failed James's device-page Managed Devices screenshot expectation. Use it only as historical scope evidence; use the `0.1.90` sections above and `docs/RELEASE_0.1.90_PLAN.md` for current execution.
 
-See `docs/RELEASE_0.1.89_PLAN.md` for the release execution plan.
+See `docs/RELEASE_0.1.89_PLAN.md` for the historical release execution record.
 
 ### 0.1.89 must include
 1. **Command center reduction**
@@ -468,8 +469,8 @@ See `docs/RELEASE_0.1.89_PLAN.md` for the release execution plan.
 - backend-only cleanup presented as shipped UI
 - wording tweaks that do not produce a visible HA change
 
-### 0.1.89 acceptance test
-`0.1.89` is only successful if James can open the live HA surfaces and see:
+### 0.1.89 acceptance test (historical, failed on device-page evidence)
+`0.1.89` was intended to be successful if James could open the live HA surfaces and see:
 - the command center behaving like a setup-first operator console with the current operating picture obvious at the top, not like a setup-only helper screen
 - Configure -> Managed Devices clearly functioning as the managed-devices workspace, with the device page acting as the secondary review/audit path
 - managed vs unmanaged visually obvious
