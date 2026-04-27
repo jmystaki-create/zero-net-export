@@ -1,10 +1,16 @@
 # Zero Net Export 0.1.89 Release Plan
 
+## Superseded status
+
+This plan is historical. `v0.1.89` was frozen, published, installed, restarted, and fingerprint-verified, but James's live device-page screenshot showed it did not deliver the required Managed Devices device-page surface.
+
+Do not use this file as the active release plan or ask James to repeat the `0.1.89` install/restart/live-validation loop. The active corrective release plan is `docs/RELEASE_0.1.90_PLAN.md`, tracked by `ZNE-411`.
+
 ## Purpose
 
-`0.1.89` is the clean follow-up release line for the UI fixes that landed after the already-published `v0.1.88` GitHub release.
+`0.1.89` was the clean follow-up release line for the UI fixes that landed after the already-published `v0.1.88` GitHub release.
 
-Do **not** move or rewrite the published `v0.1.88` tag unless James explicitly asks for a retag. The safer path is the already-started `v0.1.89` follow-up release line.
+Do **not** move or rewrite the published `v0.1.88` tag unless James explicitly asks for a retag. The safer path was the already-completed `0.1.89` follow-up release line.
 
 ## Current baseline at plan creation
 
@@ -25,7 +31,7 @@ Always re-run `scripts/print_expected_install_fingerprint.py` immediately before
 - Current helper output reports `manifest_version=0.1.89` and `preferred_validation_commit=844502b`; the preferred component validation boundary remains the frozen tag even when later repo `HEAD` commits are docs-only.
 - Repo tests at the freeze audit passed with `480` tests.
 
-From here, do not ask James for permission to perform the already-completed version freeze again or repeat the already-completed GitHub publication check. The next release-execution gap is James's install/restart/live-validation path, unless a materially new release-blocking defect appears.
+From here, do not ask James for permission to perform the already-completed version freeze again, repeat the already-completed GitHub publication check, or rerun the now-failed `0.1.89` install/restart/live-validation loop. The next release-execution gap belongs to the corrective `0.1.90` device-page Managed Devices release plan, unless a materially new release-blocking defect appears.
 
 ## Why 0.1.89 exists
 
@@ -35,7 +41,7 @@ The follow-up line avoids the ambiguity of a republished `0.1.88` while preservi
 
 ## Scope
 
-`0.1.89` should be a **release-correction and validation release**, not a new feature expansion.
+`0.1.89` was a **release-correction and validation release**, not a new feature expansion.
 
 It should include:
 

@@ -95,18 +95,23 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("recommendation", unreleased_highlights.lower())
         self.assertNotIn("0.1.88 candidate", unreleased_highlights)
 
-    def test_0189_release_plan_tracks_post_freeze_state(self) -> None:
+    def test_0189_release_plan_tracks_post_freeze_and_superseded_state(self) -> None:
         plan = (REPO_ROOT / "docs" / "RELEASE_0.1.89_PLAN.md").read_text(encoding="utf-8")
         freeze_section = plan.split("### B. Publish", 1)[0]
 
+        self.assertIn("## Superseded status", freeze_section)
+        self.assertIn("This plan is historical", freeze_section)
+        self.assertIn("The active corrective release plan is `docs/RELEASE_0.1.90_PLAN.md`, tracked by `ZNE-411`.", freeze_section)
         self.assertIn("## Current execution state", freeze_section)
         self.assertIn("`v0.1.89` is now frozen and tagged at `844502b`", freeze_section)
         self.assertIn("The repo manifest now reports `0.1.89`", freeze_section)
         self.assertIn("do not ask James for permission to perform the already-completed version freeze again", freeze_section)
+        self.assertIn("rerun the now-failed `0.1.89` install/restart/live-validation loop", freeze_section)
         self.assertIn("- [x] Freeze the `0.1.89` version-coupled release files.", freeze_section)
         self.assertIn("- [x] Commit the approved freeze: `844502b`.", freeze_section)
         self.assertNotIn("ask James directly to approve the end-to-end `0.1.89` freeze/release/deploy/restart path", freeze_section)
         self.assertNotIn("After James approves, bump manifest/version-coupled expectations to `0.1.89`", freeze_section)
+        self.assertNotIn("The next release-execution gap is James's install/restart/live-validation path", freeze_section)
 
 
 
