@@ -6,7 +6,7 @@ Supervisor note: this document is the evidence ledger for the release gates defi
 
 ## Next validation boundary
 
-Supervisor note: this checklist is a validation ledger, not a standing instruction to skip the mapped `0.1.89` workstream order.
+Supervisor note: this checklist is a validation ledger, not a standing instruction to skip the mapped `0.1.90` corrective device-page Managed Devices workstream order.
 
 Current release-boundary order:
 1. `v0.1.89` is already frozen at `844502b`, tagged, pushed, published, installed, restarted, and fingerprint-verified in Home Assistant.

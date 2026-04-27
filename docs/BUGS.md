@@ -88,6 +88,19 @@ Suggested area labels:
 
 
 
+## ZNE-417 - Validation checklist revived mapped 0.1.89 workstream order
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and the same validation checklist had already moved the active correction boundary to `0.1.90`.
+- **current observed behavior:** the top of `docs/VALIDATION_CHECKLIST.md` still warned that the checklist was not a standing instruction to skip the mapped `0.1.89` workstream order. That single active-ledger line contradicted the surrounding `0.1.90` device-page Managed Devices boundary and could pull runners back into the already-failed `0.1.89` validation loop.
+- **expected behavior:** the active validation ledger should reference the mapped `0.1.90` corrective device-page Managed Devices workstream order, while preserving `0.1.89` only as installed-and-failed historical evidence.
+- **evidence:** direct repo inspection found the stale line in the checklist's `Next validation boundary` section while adjacent bullets already said `0.1.89` was installed, restarted, fingerprint-verified, and failed James's screenshot expectation.
+- **repo fix:** this run updates the checklist note to the `0.1.90` corrective device-page Managed Devices workstream order and adds regression coverage rejecting the stale mapped `0.1.89` workstream wording in that boundary.
+- **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** continue `ZNE-411`: finish/prove the device-page Managed Devices surface and ask James directly for `0.1.90` release/deploy/restart validation approval once the corrective repo candidate is ready.
+
+
 ## ZNE-416 - Bug tracker still pointed validation at another 0.1.89 install loop
 - **status:** `closed`
 - **severity:** `medium`

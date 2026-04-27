@@ -138,7 +138,9 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("`v0.1.89` is already frozen at `844502b`, tagged, pushed, published, installed, restarted, and fingerprint-verified", boundary)
         self.assertIn("James's live device-page screenshot showed `0.1.89` did not visibly deliver", boundary)
         self.assertIn("The active release boundary is `0.1.90`", boundary)
+        self.assertIn("mapped `0.1.90` corrective device-page Managed Devices workstream order", boundary)
         self.assertIn("screenshot-grade device-page evidence", boundary)
+        self.assertNotIn("mapped `0.1.89` workstream order", boundary)
         self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", boundary)
         self.assertNotIn("Only after approval, freeze the helper-resolved candidate as `0.1.89`", boundary)
 
