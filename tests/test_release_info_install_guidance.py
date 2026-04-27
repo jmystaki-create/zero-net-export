@@ -155,6 +155,20 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("release as `0.1.90`, deploy/restart", zne_411)
         self.assertNotIn("Screenshot-grade device-page proof and action drill-down validation remain required", zne_411)
 
+    def test_zne_427_supervisor_no_longer_reopens_closed_0190_delivery_target(self) -> None:
+        supervisor = (REPO_ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_427 = bugs.split("## ZNE-427", 1)[1].split("\n## ZNE-426", 1)[0]
+
+        self.assertIn("0.1.90 device-page Managed Devices validation is closed", supervisor)
+        self.assertIn("`ZNE-411` is now closed", supervisor)
+        self.assertIn("Do not reopen the completed `0.1.90` release, deploy, restart, fingerprint, screenshot, or action-drill-down loop", supervisor)
+        self.assertIn("active `fixed_pending_validation` bugs", supervisor)
+        self.assertNotIn("Treat `docs/RELEASE_0.1.90_PLAN.md` and `ZNE-411` as the current delivery target", supervisor)
+        self.assertIn("- **status:** `closed`", zne_427)
+        self.assertIn("Supervisor still treated closed ZNE-411 as the current delivery target", zne_427)
+        self.assertIn("no Home Assistant live validation is required for this process-state correction", zne_427)
+
     def test_bug_tracker_no_longer_points_active_next_actions_at_0189_install_loop(self) -> None:
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
         active_entries = bugs.split("## ZNE-416", 1)[1].split("## ZNE-415", 1)[1]

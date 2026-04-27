@@ -87,6 +87,19 @@ Suggested area labels:
 
 
 
+## ZNE-427 - Supervisor still treated closed ZNE-411 as the current delivery target
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `c5abc2b` closed the `0.1.90` device-page Managed Devices live-validation loop with screenshot-grade evidence.
+- **current observed behavior:** `docs/SUPERVISOR.md` still opened by saying to treat `docs/RELEASE_0.1.90_PLAN.md` and `ZNE-411` as the current delivery target, even though `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.90_PLAN.md`, and `ZNE-411` now say the installed `0.1.90` build is fingerprint-matched, browser-validated, and the screenshot/action-drill-down gate is complete. That stale top priority could make supervisor/watchdog runs reopen the completed release/fingerprint/screenshot loop instead of following the remaining work map or active fixed-pending-validation bugs.
+- **expected behavior:** supervisor steering should keep `0.1.89` as historical failure evidence, mark the `0.1.90` ZNE-411 validation loop as closed, and direct future runs to the detailed remaining work map plus active fixed-pending-validation bugs unless new live evidence regresses.
+- **evidence:** direct inspection found the stale current-delivery-target sentence at the top of `docs/SUPERVISOR.md` while `ZNE-411` is closed and `docs/evidence/0.1.90-device-page-managed-devices-surface.png` plus `docs/evidence/0.1.90-managed-devices-workspace-notification.png` are recorded as validation proof.
+- **repo fix:** this run rewrites the supervisor top priority to say the `0.1.90` device-page Managed Devices validation loop is closed, not to reopen release/deploy/restart/fingerprint/screenshot/action-drill-down work without new regression evidence, and to follow the detailed remaining work map plus active fixed-pending-validation bugs instead.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
+- **next action:** continue with the next mapped UI polish or active fixed-pending-validation bugs, currently the post-`0.1.90` Managed Devices label fixes such as ZNE-425/ZNE-426, without reopening the completed `0.1.90` validation loop.
+
+
 ## ZNE-426 - Native workspace headings still used lower-case Managed devices labels
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
