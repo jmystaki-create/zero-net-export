@@ -134,6 +134,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-443 - ordered map asked native-row acceptance before the open release-target decision
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog source-of-truth audit on 2026-04-27 after the active release-target hold was added for `db5c246` / `v0.1.92` while the current ordered `0.1.91` map still put closest-native-row acceptance before the release-target decision.
+- **current observed behavior:** `docs/SUPERVISOR.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-439, ZNE-429, README, and `project_status.md` all make James's release-target decision the first human boundary, but `docs/UI_IMPLEMENTATION_MAP.md` still ordered the ask as native-row acceptance first and release-target resolution second. Because the supervisor must follow that map strictly, this could make the next run ask the right questions in the wrong order and obscure the actual approval boundary.
+- **expected behavior:** the ordered map should first ask whether `db5c246` / `v0.1.92` replaces the documented `0.1.91` target or execution returns to the approved `0.1.91` boundary, then ask closest-native-row acceptance and exact release/deploy/restart approval for that chosen target before any Home Assistant action.
+- **repo fix:** this run reorders the current `0.1.91` map and lower order-of-execution summary so release-target resolution comes before native-row acceptance, and adds regression coverage that locks that order.
+- **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required or appropriate for this process-order correction.
+- **next action:** ask James directly for the release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-442 - implementation map anti-churn line still referenced historical A-D/F runway
 
 - **status:** `closed`

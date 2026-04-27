@@ -17,6 +17,12 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertLess(historical, workstream_a)
         self.assertLess(workstream_a, workstream_g)
         current_map = content[current:historical]
+        release_target = current_map.index("Resolve the release-target mismatch")
+        native_acceptance = current_map.index("After the release-target decision")
+        deploy_gate = current_map.index("Only after that release-target decision, native-row acceptance")
+
+        self.assertLess(release_target, native_acceptance)
+        self.assertLess(native_acceptance, deploy_gate)
         self.assertIn("ask James directly for release/deploy/restart approval", current_map)
         self.assertIn("Settings -> Devices & Services -> Integrations -> Zero Net Export", current_map)
 
@@ -33,7 +39,15 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
 
         self.assertIn("not eligible work ahead of the approved `0.1.91`", historical_note)
         self.assertIn("Do not let them outrank the current ordered `0.1.91` map", historical_note)
+        order_from_here = content[
+            content.index("### Order of execution from here"):
+            content.index("### Stage 0. Baseline and source-of-truth consolidation")
+        ]
+        release_target = order_from_here.index("Ask James directly for the release-target decision first")
+        native_acceptance = order_from_here.index("After that target decision")
+
         self.assertIn("current ordered `0.1.91` map", status_summary)
+        self.assertLess(release_target, native_acceptance)
         self.assertNotIn("mapped Workstream A-D/F gap", status_summary)
 
     def test_supervisor_churn_rules_do_not_reopen_historical_a_to_f_workstreams(self) -> None:
