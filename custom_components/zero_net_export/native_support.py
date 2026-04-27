@@ -494,7 +494,7 @@ _FLEET_ACTIVITY_COMMA_DELIMITER_RE = re.compile(
     r"\d+ need(?:s)? review|"
     r"\d+ ready to promote|"
     r"attention first |blocked |plan |active load |active device |"
-    r"review |ready |surfaced |fixed backlog |variable backlog "
+    r"review-first |ready-next |review |ready |surfaced |fixed backlog |variable backlog "
     r"))"
 )
 

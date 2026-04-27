@@ -310,6 +310,22 @@ class CommandCenterSummaryTests(unittest.TestCase):
         )
         self.assertNotIn("0 managed", formatted)
 
+    def test_fleet_activity_operator_format_splits_comma_review_first_ready_next_cues(self) -> None:
+        native_support = _load_native_support_module()
+
+        formatted = native_support.format_fleet_activity_for_operator(
+            "active load 900 W, 1 active managed device, review-first unmanaged candidate: EV limit, "
+            "ready-next unmanaged candidate: Hot water"
+        )
+
+        self.assertEqual(
+            formatted,
+            "Managed devices: active load 900 W | 1 active managed device; "
+            "Unmanaged backlog: review-first unmanaged candidate: EV limit | "
+            "ready-next unmanaged candidate: Hot water",
+        )
+        self.assertNotIn("active device, review-first", formatted)
+
     def test_fleet_activity_summary_names_disabled_managed_devices_when_inventory_is_visible(self) -> None:
         native_support = _load_native_support_module()
 
