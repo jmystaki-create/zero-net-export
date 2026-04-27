@@ -87,6 +87,21 @@ Suggested area labels:
 
 
 
+
+
+## ZNE-423 - Stage 9 still listed completed 0.1.90 install/update as remaining
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-27 after `docs/UI_IMPLEMENTATION_MAP.md` already stated the installed Home Assistant package reports `0.1.90`, matches `d94436a`, and only screenshot-grade device-page proof plus Managed Devices action drill-down validation remain.
+- **current observed behavior:** the Stage 9 `Live validation and release gate` subsection still listed `install/update Home Assistant to the published v0.1.90 build and verify that exact build in live HA` as remaining work, contradicting the same document's Workstream G/order-of-execution state and risking another unchanged install/fingerprint loop.
+- **expected behavior:** Stage 9 should mark the `0.1.90` install/version/fingerprint/API-surface evidence as completed and leave only screenshot-grade device-page proof, action drill-down validation, or exact failure logging as remaining work.
+- **evidence:** direct inspection found the stale Stage 9 remaining bullet; this run also used the documented HA API/SSH paths and confirmed live `sensor.zero_net_export_managed_devices_surface` plus the Managed Devices entity/action cluster are exposed, and `button.zero_net_export_show_managed_device_review` accepted a `button.press` call and updated its live timestamp/attributes with current managed/unmanaged state. Browser screenshot capture through the documented browser node was attempted but unavailable from this shell (`canvas.navigate` not allowed on that node), so screenshot-grade proof remains open.
+- **repo fix:** this run updates Stage 9 so completed install/version/fingerprint/API-surface evidence is no longer listed as remaining, keeps the remaining gate on screenshot-grade device-page proof and action drill-down validation, and adds regression coverage rejecting the stale Stage 9 install/update loop.
+- **validation status:** closed with repo-side doc/test validation; no release/deploy/restart approval is required for this process-state correction.
+- **next action:** capture screenshot-grade proof from the actual Zero Net Export device page and verify the Managed Devices action drill-down opens the expected native review/notification with current state; do not reopen the completed `0.1.90` install/restart/fingerprint loop.
+
+
 ## ZNE-422 - Bug validation tails still pointed at 0.1.89 deploy validation
 - **status:** `closed`
 - **severity:** `medium`

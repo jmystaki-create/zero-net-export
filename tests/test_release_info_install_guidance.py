@@ -199,6 +199,29 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("Publish/deploy the approved `v0.1.89` candidate", detailed_map)
         self.assertNotIn("treat them as post-`0.1.89` work", detailed_map)
 
+    def test_ui_implementation_map_stage9_does_not_reopen_0190_install_loop(self) -> None:
+        plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
+        stage9 = plan.split("### Stage 9. Live validation and release gate", 1)[1].split(
+            "## Historical 0.1.89 release rollout view", 1
+        )[0]
+
+        self.assertIn("Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`", stage9)
+        self.assertIn("`overall_match: true`", stage9)
+        self.assertIn("live API state exposes the `Managed Devices surface` row", stage9)
+        self.assertIn("capture screenshot-grade proof from the actual Zero Net Export device page", stage9)
+        self.assertIn("verify the Managed Devices action drill-down opens the expected native review/notification", stage9)
+        self.assertNotIn("install/update Home Assistant to the published `v0.1.90` build", stage9)
+
+    def test_zne_423_closes_stale_stage9_install_loop(self) -> None:
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_423 = bugs.split("## ZNE-423", 1)[1].split("\n## ZNE-422", 1)[0]
+
+        self.assertIn("- **status:** `closed`", zne_423)
+        self.assertIn("still listed `install/update Home Assistant", zne_423)
+        self.assertIn("button.zero_net_export_show_managed_device_review", zne_423)
+        self.assertIn("screenshot-grade proof remains open", zne_423)
+        self.assertIn("do not reopen the completed `0.1.90` install/restart/fingerprint loop", zne_423)
+
     def test_ui_implementation_map_keeps_0189_success_gate_historical(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
         current_success = plan.split("### Still blocked or incomplete", 1)[1].split(

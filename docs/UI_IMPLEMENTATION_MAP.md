@@ -407,16 +407,19 @@ Use this list to decide what still has to be built, what has to be proven live, 
 
 ### Stage 9. Live validation and release gate
 **Purpose**
-- prove the UI release with real Home Assistant evidence
+- prove the installed UI release with real Home Assistant device-page evidence
 
 **Completed**
 - release discipline and approval rules already exist elsewhere in project steering
 - `v0.1.90` is frozen, tagged, pushed, and published at `d94436a`
+- Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`
+- documented SSH fingerprint validation matched the installed package to `d94436a` with `overall_match: true`
+- live API state exposes the `Managed Devices surface` row plus the Managed Devices device-page entity/action cluster
 
 **Remaining**
-- install/update Home Assistant to the published `v0.1.90` build and verify that exact build in live HA
-- gather screenshot-visible proof of the UI outcome during live validation
-- make sure the installed product, not just repo wording, reflects the design intent
+- capture screenshot-grade proof from the actual Zero Net Export device page showing the visible Managed Devices surface
+- verify the Managed Devices action drill-down opens the expected native review/notification with current managed/unmanaged state
+- if the screenshot or drill-down fails, log the exact installed UI gap before doing more wording or release-bookkeeping work
 
 **Features in this stage**
 - exact-build validation
