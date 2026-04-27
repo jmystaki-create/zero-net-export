@@ -660,7 +660,8 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertNotIn("Why this section is recommended:", snapshot)
         self.assertNotIn("Command-center next action:", snapshot)
         self.assertNotIn("Managed-device audit path:", snapshot)
-        self.assertIn("- current_native_next_action:", snapshot)
+        self.assertIn("- current native next action:", snapshot)
+        self.assertNotIn("- current_native_next_action:", snapshot)
         self.assertNotIn("- recommendation:", snapshot)
 
     def test_support_snapshot_uses_friendly_source_and_device_labels(self) -> None:
