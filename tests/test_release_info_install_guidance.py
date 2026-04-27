@@ -307,6 +307,15 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("- [ ] Capture screenshot-grade proof of the device page showing the Managed Devices surface.", checklist)
         self.assertNotIn("- [ ] Add or adjust a dedicated device-page Managed Devices summary row/entity if needed.", checklist)
 
+    def test_unreleased_changelog_records_post_0190_managed_devices_metric_label_fix(self) -> None:
+        sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
+        unreleased_section = next(section for section in sections if section["version"] == "Unreleased")
+        unreleased_highlights = "\n".join(unreleased_section["highlights"])
+
+        self.assertIn("Managed Devices fleet metric labels", unreleased_highlights)
+        self.assertIn("Managed Devices surface", unreleased_highlights)
+        self.assertIn("lower-case entity list", unreleased_highlights)
+
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(

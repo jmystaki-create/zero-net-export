@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Renamed the remaining legacy Managed Devices fleet metric labels to start with `Managed Devices`, so the device page can show the count, enablement, usability, power, and status rows as part of the same native Managed Devices surface instead of blending into the old lower-case entity list.
+
 ## [0.1.90] - 2026-04-27
 
 ### Fixed
