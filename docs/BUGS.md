@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-391 - Unreleased changelog exceeded compact release-info highlight cap
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 while running the full regression suite against the current `0.1.89` release-info candidate.
+- **current observed behavior:** the `Unreleased` changelog section had grown to 11 parsed highlights after the latest planning cleanup, failing the release-info guard that keeps native Home Assistant support surfaces compact.
+- **expected behavior:** current candidate release metadata should stay at or below the 10-highlight cap so the installed release-info surface remains concise and does not read like churn.
+- **evidence:** `python3 -m unittest discover -s tests -q` failed in `tests.test_release_info_install_guidance.ReleaseInfoInstallGuidanceTests.test_unreleased_changelog_carries_0189_post_tag_ui_fixes` with `AssertionError: 11 not less than or equal to 10`.
+- **repo fix:** this run folds the two planning highlights into one compact planning bullet while preserving the `0.1.89` line, current native bucket wording, and James approval boundary.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest discover -s tests -q` plus `python3 -m py_compile custom_components/zero_net_export/release_info.py tests/test_release_info_install_guidance.py`. Live Home Assistant validation remains pending with the next exact `0.1.89` deploy.
+- **next action:** include this release-metadata compaction in the next helper-resolved `0.1.89` candidate; if no sharper A-D/F product defect remains, the next real gap is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than more release-bookkeeping churn.
+
 ## ZNE-390 - UI implementation map kept retired recommendation wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
