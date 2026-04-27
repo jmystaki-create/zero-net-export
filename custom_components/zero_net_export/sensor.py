@@ -336,10 +336,54 @@ async def async_setup_entry(hass, entry, async_add_entities):
             )
 
     candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
+    unmanaged_candidate_keys = set()
     for candidate in candidates:
+        unmanaged_candidate_keys.add(_candidate_unique_key(candidate))
         entities.append(ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate))
 
     async_add_entities(entities)
+    _register_unmanaged_candidate_sync(
+        coordinator,
+        hass,
+        entry,
+        async_add_entities,
+        unmanaged_candidate_keys,
+    )
+
+
+def _register_unmanaged_candidate_sync(
+    coordinator,
+    hass,
+    entry,
+    async_add_entities,
+    known_candidate_keys: set[str],
+) -> None:
+    """Add newly discovered unmanaged candidate rows without requiring platform reload."""
+
+    def _sync_new_unmanaged_candidate_rows() -> None:
+        state = getattr(coordinator, "data", None)
+        if state is None:
+            return
+        candidates = _candidate_devices_for_state(coordinator, hass, state)
+        new_entities = []
+        for candidate in candidates:
+            candidate_key = _candidate_unique_key(candidate)
+            if candidate_key in known_candidate_keys:
+                continue
+            known_candidate_keys.add(candidate_key)
+            new_entities.append(ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate))
+        if new_entities:
+            async_add_entities(new_entities)
+
+    add_listener = getattr(coordinator, "async_add_listener", None)
+    if add_listener is None:
+        return
+    unsubscribe = add_listener(_sync_new_unmanaged_candidate_rows)
+    if unsubscribe is None:
+        return
+    async_on_unload = getattr(entry, "async_on_unload", None)
+    if async_on_unload is not None:
+        async_on_unload(unsubscribe)
 
 
 def _configured_managed_details(entry) -> dict[str, dict[str, object]]:

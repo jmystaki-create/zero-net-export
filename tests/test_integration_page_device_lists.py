@@ -589,6 +589,68 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual([candidate["entity_id"] for candidate in first], ["switch.hot_water"])
         self.assertEqual([candidate["entity_id"] for candidate in second], ["switch.ev_charger"])
 
+    def test_setup_entry_syncs_new_unmanaged_candidate_rows_after_setup(self) -> None:
+        sensor_module = _load_sensor_module()
+        listeners = []
+
+        def add_listener(listener):
+            listeners.append(listener)
+            return lambda: listeners.remove(listener)
+
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        coordinator.async_add_listener = add_listener
+        current_states = []
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: list(current_states)),
+        )
+        entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: [
+            {
+                "entity_id": state.entity_id,
+                "name": state.attributes.get("friendly_name", state.entity_id),
+                "domain": state.entity_id.split(".", 1)[0],
+                "kind": "fixed",
+                "state": state.state,
+            }
+            for state in states
+            if state.entity_id not in managed_entity_ids
+        ]
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+        self.assertTrue(listeners)
+        self.assertNotIn(
+            "Un Managed — Hot Water",
+            [
+                entity._attr_device_info.get("name")
+                for entity in added
+                if getattr(entity, "_attr_device_info", None)
+            ],
+        )
+
+        current_states.append(
+            SimpleNamespace(
+                entity_id="switch.hot_water",
+                state="off",
+                attributes={"friendly_name": "Hot Water"},
+            )
+        )
+        listeners[0]()
+
+        self.assertIn(
+            "Un Managed — Hot Water",
+            [
+                entity._attr_device_info.get("name")
+                for entity in added
+                if getattr(entity, "_attr_device_info", None)
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
