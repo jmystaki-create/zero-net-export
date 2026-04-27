@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-488 - malformed validation_details could crash native support summaries
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-28 after ZNE-487 hardened base entity/source-stale rows and diagnostics snapshots, while `native_support.py` still read runtime `validation_details` and nested source/issue containers as mapping-like in command-center and support-center summary helpers.
+- **current observed behavior:** if coordinator runtime data exposed a malformed non-mapping `validation_details`, malformed nested `source_diagnostics` / `source_freshness`, or non-mapping validation issue entries, native command-center/source-attention/support summaries could call `.get(...)`, `.keys()`, or `issue.get(...)` on malformed values before rendering operator support evidence.
+- **expected behavior:** native Home Assistant support summaries should tolerate malformed validation-detail containers, fall back to empty source/issue evidence, and preserve the native operator path without adding any custom/external UI.
+- **repo fix:** this run adds native-support mapping and validation-issue normalizers and routes source-attention, validation-message, operator-checklist, diagnostics-summary, and support-center issue handling through them.
+- **validation status:** closed with focused command-center/source-attention regression coverage plus Python compile and targeted unittest coverage. No Home Assistant live validation is appropriate while ZNE-439's release-target hold remains open.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-487 - malformed validation_details container could crash native diagnostics/source rows
 
 - **status:** `closed`

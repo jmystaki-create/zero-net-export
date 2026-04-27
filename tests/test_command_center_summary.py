@@ -91,6 +91,65 @@ class CommandCenterSummaryTests(unittest.TestCase):
         self.assertEqual(details["source_diagnostics"], {})
         self.assertEqual(details["source_freshness"], {})
 
+    def test_source_attention_details_tolerates_malformed_validation_details(self) -> None:
+        native_support = _load_native_support_module()
+
+        details = native_support.build_source_attention_details(
+            SimpleNamespace(validation_details=["temporarily malformed"])
+        )
+
+        self.assertEqual(details["validation_details"], {})
+        self.assertEqual(details["source_diagnostics"], {})
+        self.assertEqual(details["source_freshness"], {})
+        self.assertEqual(
+            native_support.summarize_validation_issue_messages(
+                SimpleNamespace(
+                    validation_details={
+                        "issues": [
+                            "bad issue",
+                            {"severity": "error", "message": "Grid source blocked"},
+                        ]
+                    }
+                ),
+                severities={"error"},
+            ),
+            "Grid source blocked",
+        )
+
+    def test_source_attention_details_tolerates_malformed_nested_validation_containers(self) -> None:
+        native_support = _load_native_support_module()
+
+        details = native_support.build_source_attention_details(
+            SimpleNamespace(
+                validation_details={
+                    "source_diagnostics": ["temporarily malformed"],
+                    "source_freshness": {"grid_export_power_entity": ["bad freshness"]},
+                    "issues": "bad issue container",
+                }
+            )
+        )
+
+        self.assertEqual(details["validation_details"]["source_diagnostics"], ["temporarily malformed"])
+        self.assertEqual(
+            details["source_diagnostics"],
+            {
+                "grid_export_power_entity": {
+                    "stale": False,
+                    "age_seconds": None,
+                    "last_updated": None,
+                    "stale_threshold_seconds": None,
+                    "entity_id": None,
+                }
+            },
+        )
+        self.assertEqual(details["source_freshness"], {"grid_export_power_entity": ["bad freshness"]})
+        self.assertEqual(
+            native_support.summarize_validation_issue_messages(
+                SimpleNamespace(validation_details={"issues": "bad issue container"})
+            ),
+            "None",
+        )
+
     def test_operator_checklist_uses_normal_plural_copy_for_device_counts(self) -> None:
         native_support = _load_native_support_module()
 

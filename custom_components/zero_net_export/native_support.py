@@ -1569,17 +1569,33 @@ def _compact_next_action_fallback(
     )
 
 
+def _mapping(value: Any) -> dict[str, Any]:
+    """Return a plain mapping, tolerating malformed runtime containers."""
+    return dict(value) if isinstance(value, Mapping) else {}
+
+
 def _validation_details(state: Any) -> dict[str, Any]:
     if state is None:
         return {}
-    return getattr(state, "validation_details", {}) or {}
+    return _mapping(getattr(state, "validation_details", {}) or {})
+
+
+def _validation_issue_mappings(value: Any) -> list[dict[str, Any]]:
+    """Return only mapping-like validation issues from a runtime issue container."""
+    if not isinstance(value, (list, tuple)):
+        return []
+    return [_mapping(issue) for issue in value if isinstance(issue, Mapping)]
+
+
+def _validation_issues(validation_details: Mapping[str, Any] | None) -> list[dict[str, Any]]:
+    return _validation_issue_mappings((validation_details or {}).get("issues", []))
 
 
 def build_source_attention_details(state: Any) -> dict[str, Any]:
     """Return merged source diagnostics plus freshness metadata for operator surfaces."""
     validation_details = _validation_details(state)
-    source_diagnostics = dict(validation_details.get("source_diagnostics", {}) or {})
-    source_freshness = validation_details.get("source_freshness", {}) or {}
+    source_diagnostics = _mapping(validation_details.get("source_diagnostics", {}) or {})
+    source_freshness = _mapping(validation_details.get("source_freshness", {}) or {})
 
     unavailable_source_keys: list[str] = []
     stale_source_keys: list[str] = []
@@ -1587,8 +1603,8 @@ def build_source_attention_details(state: Any) -> dict[str, Any]:
 
     ordered_keys = list(dict.fromkeys([*source_diagnostics.keys(), *source_freshness.keys()]))
     for key in ordered_keys:
-        details = source_diagnostics.get(key, {}) or {}
-        freshness = source_freshness.get(key, {}) or {}
+        details = _mapping(source_diagnostics.get(key, {}) or {})
+        freshness = _mapping(source_freshness.get(key, {}) or {})
         merged = dict(freshness)
         merged.update(details)
         if "stale" not in merged:
@@ -1627,7 +1643,7 @@ def _issue_role_keys(issues: list[dict[str, Any]] | None, *, severities: set[str
     allowed = {severity.lower() for severity in severities} if severities else None
     known_suffixes = ("_missing_entity", "_unavailable", "_non_numeric")
     keys: list[str] = []
-    for issue in issues or []:
+    for issue in _validation_issue_mappings(issues):
         severity = str(issue.get("severity", "") or "").lower()
         if allowed is not None and severity not in allowed:
             continue
@@ -1679,7 +1695,7 @@ def _blocking_source_attention_keys(source_attention: dict[str, Any]) -> list[st
 
 
 def _validation_issue_message_for_role(source_attention: dict[str, Any], key: str) -> str:
-    validation_issues = list(source_attention.get("validation_details", {}).get("issues", []) or [])
+    validation_issues = _validation_issues(source_attention.get("validation_details", {}))
     validation_role_keys = _issue_role_keys(validation_issues)
     if key not in validation_role_keys:
         return ""
@@ -1893,7 +1909,7 @@ def summarize_validation_issue_messages(
 ) -> str:
     """Return a concise deduplicated summary of validation issue messages."""
     validation_details = _validation_details(state)
-    raw_issues = list(validation_details.get("issues", []) or [])
+    raw_issues = _validation_issues(validation_details)
     allowed = {severity.lower() for severity in severities} if severities else None
 
     messages: list[str] = []
@@ -2367,7 +2383,7 @@ def _build_operator_checklist(
     missing_required_sources = [key for key in REQUIRED_SOURCE_KEYS if not source_mapping.get(key)]
     source_attention = build_source_attention_details(state)
     validation_details = source_attention["validation_details"]
-    validation_issues = validation_details.get("issues", [])
+    validation_issues = _validation_issues(validation_details)
     source_diagnostics = source_attention["source_diagnostics"]
     blocking_validation_issues = [
         issue for issue in validation_issues if str(issue.get("severity", "")).lower() == "error"
@@ -2671,7 +2687,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
                 f"priority={item.get('priority')}"
             )
         )
-    recent_issues = list(validation_details.get("issues", []))[:5]
+    recent_issues = _validation_issues(validation_details)[:5]
     issue_lines = [
         f"- {issue.get('severity', 'info')}: {issue.get('message', issue)}"
         for issue in recent_issues
@@ -5888,7 +5904,7 @@ def build_native_support_center(coordinator: Any) -> str:
     blocking_keys = _blocking_source_attention_keys(source_attention)
     blocking_validation_issues = [
         issue
-        for issue in (source_attention.get("validation_details", {}).get("issues", []) or [])
+        for issue in _validation_issues(source_attention.get("validation_details", {}))
         if str(issue.get("severity", "")).lower() == "error"
     ]
     fallback_hint = build_source_selector_fallback_hint(
