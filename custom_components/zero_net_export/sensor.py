@@ -396,8 +396,12 @@ def _refresh_managed_device_row_entities(
             entities.remove(target_power_entity)
             _schedule_integration_page_entity_removal(hass, target_power_entity)
 
+    device_name = str(detail.get("name") or device_key or "Managed device")
     device_info = managed_load_device_info(coordinator, device_key, detail)
     for entity in entities:
+        suffix = getattr(entity, "_zero_net_export_managed_name_suffix", None)
+        if suffix:
+            entity._attr_name = f"{device_name} {suffix}"
         entity._attr_device_info = device_info
         sync_integration_page_child_device_registry(hass, device_info)
         write_state = getattr(entity, "async_write_ha_state", None)
@@ -1826,6 +1830,7 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_managed_summary", f"{device_name} managed summary")
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "managed summary"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @staticmethod
@@ -1912,6 +1917,7 @@ class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_status", f"{device_name} status")
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "status"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
@@ -1935,6 +1941,7 @@ class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_planned_action", f"{device_name} planned action")
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "planned action"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
@@ -1958,6 +1965,7 @@ class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_guard_status", f"{device_name} guard status")
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "guard status"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
@@ -1989,6 +1997,7 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        self._zero_net_export_managed_name_suffix = suffix
         self._attr_entity_category = entity_category
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
@@ -2018,6 +2027,7 @@ class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        self._zero_net_export_managed_name_suffix = suffix
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
@@ -2047,6 +2057,7 @@ class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        self._zero_net_export_managed_name_suffix = suffix
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
@@ -2071,6 +2082,7 @@ class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
         super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
         self._device_key = device_key
         self._value_key = value_key
+        self._zero_net_export_managed_name_suffix = suffix
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property

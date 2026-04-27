@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Refreshed existing Managed Devices child-row entity names when managed-load names change after setup, so integration-page child-device rows and their supporting entities do not keep stale per-load labels until reload.
+
 ## [0.1.94] - 2026-04-28
 
 ### Fixed

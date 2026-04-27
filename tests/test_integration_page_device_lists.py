@@ -685,6 +685,15 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         coordinator.data.device_details["pool"]["kind"] = "variable"
         listeners[0]()
 
+        status = next(
+            entity
+            for entity in added
+            if isinstance(entity, sensor_module.ZeroNetExportDeviceStatusSensor)
+            and entity._device_key == "pool"
+        )
+
+        self.assertEqual(managed_summary._attr_name, "Main Pool Pump managed summary")
+        self.assertEqual(status._attr_name, "Main Pool Pump status")
         self.assertEqual(managed_summary._attr_device_info["name"], "Managed Devices — Main Pool Pump")
         self.assertEqual(managed_summary._attr_device_info["model"], "Managed Devices — Variable managed load")
         self.assertIn("device_pool_current_target_power_w", [getattr(entity, "_key", None) for entity in added])

@@ -211,6 +211,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** fixed in repo with focused integration-page device-list regression coverage for managed and unmanaged stale-row device-registry removal, plus `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest discover -s tests -q`, and Python compile for `entity.py`, `sensor.py`, and the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
 - **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that removed managed loads and removed/promoted unmanaged candidates no longer leave stale child-device rows behind.
 
+## ZNE-506 - existing Managed Devices child-row entity names stayed stale after managed-load rename
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing ZNE-503's managed-row metadata refresh against the actual supporting entity labels that Home Assistant renders under each native `Managed Devices — ...` child-device row.
+- **current observed behavior:** existing managed-load child-row device registry metadata refreshed when a managed load changed name or kind, but the already-created supporting entities kept their old `_attr_name` values such as `Pool Pump status` and `Pool Pump managed summary` until an integration/platform reload.
+- **expected behavior:** when a managed load is renamed after setup, both the native child-device row metadata and the supporting entities under that row should refresh to the new managed-load name without requiring a reload.
+- **evidence:** `_refresh_managed_device_row_entities()` rebuilt `_attr_device_info`, synchronized the child-device registry, and wrote entity state, but did not update `_attr_name` for existing managed-row entities.
+- **repo fix:** this run stores a managed-row name suffix on the per-load entities and uses it during managed-row refresh so existing entity names update alongside the child-device registry metadata. This preserves the native Home Assistant integration-page device-row path and does not add a custom UI.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage for managed-row entity-name refresh plus Python compile for `sensor.py` and the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that renamed `Managed Devices — ...` rows and their supporting entities no longer show stale old managed-load labels.
+
 ## Closed bugs and process corrections
 
 ## ZNE-505 - 0.1.94 changelog still advertised deprecated suggested-area child-device metadata
