@@ -53,6 +53,7 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
         "sw_version": INTEGRATION_VERSION,
         "via_device": (DOMAIN, coordinator.entry.entry_id),
         "configuration_url": managed_load_configuration_url(coordinator, device_key),
+        "suggested_area": "Zero Net Export Managed Devices",
     }
 
 
@@ -83,7 +84,6 @@ def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
     entity_id = str(candidate.get("entity_id") or "candidate").strip()
     name = str(candidate.get("name") or entity_id).strip()
     kind = str(candidate.get("kind") or "candidate").strip()
-    domain = str(candidate.get("domain") or entity_id.partition(".")[0] or "unknown").strip()
     return {
         "identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:unmanaged-candidate:{_device_identifier_part(entity_id)}")},
         "name": f"Un Managed — {name}",
@@ -92,7 +92,7 @@ def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
         "sw_version": INTEGRATION_VERSION,
         "via_device": (DOMAIN, coordinator.entry.entry_id),
         "configuration_url": f"homeassistant://navigate/config/entities?entity_id={entity_id}",
-        "suggested_area": f"Zero Net Export {domain.title()} candidates",
+        "suggested_area": "Zero Net Export Un Managed",
     }
 
 

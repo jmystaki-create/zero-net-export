@@ -49,6 +49,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["model"], "Managed Devices — Fixed managed load")
         self.assertIn(("zero_net_export", "entry-1:managed-device:pool"), sensor._attr_device_info["identifiers"])
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
+        self.assertEqual(sensor._attr_device_info["suggested_area"], "Zero Net Export Managed Devices")
+        self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Managed Devices")
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
             "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1:pool",
@@ -95,6 +97,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             sensor._attr_device_info["identifiers"],
         )
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
+        self.assertEqual(sensor._attr_device_info["suggested_area"], "Zero Net Export Un Managed")
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Un Managed")
 
     def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:

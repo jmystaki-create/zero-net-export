@@ -1590,7 +1590,11 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         state = self._state
         if state is None:
             return {}
-        return state.device_details.get(self._device_key, {})
+        return {
+            **state.device_details.get(self._device_key, {}),
+            "bucket": "Managed Devices",
+            "integration_page_group": "Managed Devices",
+        }
 
 
 class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
