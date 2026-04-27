@@ -4,6 +4,20 @@ import asyncio
 import unittest
 from types import SimpleNamespace
 
+
+class _FakeDeviceRegistry:
+    def __init__(self, device):
+        self.device = device
+        self.updated = None
+
+    def async_get_device(self, identifiers):
+        return self.device if self.device.identifier in identifiers else None
+
+    def async_update_device(self, device_id, **kwargs):
+        self.updated = (device_id, kwargs)
+        for key, value in kwargs.items():
+            setattr(self.device, key, value)
+
 from tests.test_sensor_entity_categories import _load_sensor_module
 
 
@@ -38,6 +52,27 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
             "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1:pool",
+        )
+
+    def test_managed_device_async_added_updates_existing_registry_configuration_url(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool Pump")
+        identifier = ("zero_net_export", "entry-1:managed-device:pool")
+        device = SimpleNamespace(id="device-1", identifier=identifier, configuration_url=None)
+        registry = _FakeDeviceRegistry(device)
+        sensor.hass = SimpleNamespace(device_registry=registry)
+
+        asyncio.run(sensor.async_added_to_hass())
+
+        self.assertEqual(
+            registry.updated,
+            (
+                "device-1",
+                {
+                    "configuration_url": "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1:pool"
+                },
+            ),
         )
 
     def test_unmanaged_candidate_sensor_registers_candidate_as_own_ha_device(self) -> None:

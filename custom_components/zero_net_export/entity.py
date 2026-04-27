@@ -63,6 +63,19 @@ def attach_managed_load_device(entity, coordinator, device_key: str, device_name
         device_key,
         managed_load_detail(coordinator, device_key, device_name),
     )
+    entity._zero_net_export_managed_device_key = device_key
+
+
+def _managed_device_identifier(device_info: dict | None) -> tuple[str, str] | None:
+    """Return the managed-device identifier from DeviceInfo, if present."""
+    for identifier in (device_info or {}).get("identifiers", set()) or set():
+        if len(identifier) != 2:
+            continue
+        domain, value = identifier
+        value = str(value)
+        if domain == DOMAIN and ":managed-device:" in value:
+            return (domain, value)
+    return None
 
 
 def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
@@ -92,6 +105,25 @@ class ZeroNetExportEntity(CoordinatorEntity):
         self._attr_unique_id = f"{coordinator.entry.entry_id}_{key}"
         self._attr_name = name
         self._attr_device_info = zero_net_export_device_info(coordinator)
+
+    async def async_added_to_hass(self) -> None:
+        """Keep existing managed child devices updated with their settings/gear URL."""
+        parent = getattr(super(), "async_added_to_hass", None)
+        if parent is not None:
+            await parent()
+
+        device_info = getattr(self, "_attr_device_info", None)
+        config_url = (device_info or {}).get("configuration_url")
+        identifier = _managed_device_identifier(device_info)
+        if not config_url or identifier is None:
+            return
+
+        from homeassistant.helpers import device_registry as dr
+
+        device_registry = dr.async_get(self.hass)
+        device = device_registry.async_get_device({identifier})
+        if device is not None and getattr(device, "configuration_url", None) != config_url:
+            device_registry.async_update_device(device.id, configuration_url=config_url)
 
     @property
     def _state(self):

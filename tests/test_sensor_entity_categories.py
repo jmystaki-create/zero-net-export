@@ -26,6 +26,15 @@ def _load_sensor_module():
     integration_pkg.__path__ = [str(PACKAGE_ROOT)]
 
     ha_pkg = sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
+    ha_pkg.__path__ = []
+
+    helpers_pkg = types.ModuleType("homeassistant.helpers")
+    helpers_pkg.__path__ = []
+    sys.modules[helpers_pkg.__name__] = helpers_pkg
+
+    device_registry_module = types.ModuleType("homeassistant.helpers.device_registry")
+    device_registry_module.async_get = lambda hass: hass.device_registry
+    sys.modules[device_registry_module.__name__] = device_registry_module
 
     sensor_component_module = types.ModuleType("homeassistant.components.sensor")
     sensor_component_module.SensorEntity = type("SensorEntity", (), {})

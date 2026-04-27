@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.94] - 2026-04-28
+
+### Fixed
+- Backfilled the managed child-device settings URL into existing Home Assistant device-registry entries when entities are added, so already-created Managed Devices rows gain the per-row settings action after upgrade.
+
 ## [0.1.93] - 2026-04-28
 
 ### Fixed
