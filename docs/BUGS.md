@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-490 - integration-page managed rows could be skipped before runtime details existed
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing the ZNE-429 integration-main-page child-device setup path.
+- **current observed behavior:** `sensor.async_setup_entry()` only created `Managed Devices — ...` child-device row entities from coordinator runtime `device_details`. If runtime data was present but had not populated `device_details` yet, configured managed loads from the config-entry inventory were not registered as integration-page child devices during setup; unmanaged candidate discovery also lacked the configured managed entity IDs and could misclassify an already-managed entity as `Un Managed` before runtime details arrived.
+- **expected behavior:** the native integration-page Managed Devices rows should be created from the config-entry inventory when runtime managed details are not available yet, and unmanaged candidate discovery should still exclude configured managed entities.
+- **repo fix:** this run makes the integration-page sensor setup fall back to parsed config-entry managed-device inventory for child-device rows before runtime details exist, and uses that fallback inventory to seed the managed-entity exclusion set for unmanaged candidate discovery.
+- **validation status:** closed with focused integration-page device-list regression coverage, the full unittest suite, and Python compile for the component package.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-489 - malformed device_details container could crash per-device review buttons
 
 - **status:** `closed`

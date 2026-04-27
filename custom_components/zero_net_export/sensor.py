@@ -18,7 +18,8 @@ from .candidate_utils import (
     discover_candidate_devices,
     first_review_candidate,
 )
-from .const import DOMAIN, INTEGRATION_VERSION
+from .const import CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON, DOMAIN, INTEGRATION_VERSION
+from .device_model import parse_device_configs
 from .entity import (
     ZeroNetExportEntity,
     attach_managed_load_device,
@@ -277,64 +278,95 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities.extend(_build_source_entities(coordinator))
 
     state = coordinator.data
-    if state is not None:
-        for device_key, detail in managed_load_details_mapping(getattr(state, "device_details", {}) or {}).items():
-            device_name = str(detail.get("name") or device_key or "Managed device")
-            entities.extend(
-                [
-                    ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, device_name),
-                    ZeroNetExportDeviceStatusSensor(coordinator, device_key, device_name),
-                    ZeroNetExportDevicePowerSensor(coordinator, device_key, device_name, "current_power_w", "Current power"),
-                    ZeroNetExportDevicePlanSensor(coordinator, device_key, device_name),
-                    ZeroNetExportDeviceGuardSensor(coordinator, device_key, device_name),
-                    ZeroNetExportDevicePowerSensor(
-                        coordinator,
-                        device_key,
-                        device_name,
-                        "planned_power_delta_w",
-                        "Planned power delta",
-                        entity_category=EntityCategory.DIAGNOSTIC,
-                    ),
-                    ZeroNetExportDevicePowerSensor(
-                        coordinator,
-                        device_key,
-                        device_name,
-                        "last_requested_power_w",
-                        "Last requested power",
-                        entity_category=EntityCategory.DIAGNOSTIC,
-                    ),
-                    ZeroNetExportDevicePowerSensor(
-                        coordinator,
-                        device_key,
-                        device_name,
-                        "last_applied_power_w",
-                        "Last applied power",
-                        entity_category=EntityCategory.DIAGNOSTIC,
-                    ),
-                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "current_active_seconds", "Current active runtime"),
-                    ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "active_runtime_today_seconds", "Active runtime today"),
-                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_action_at", "Last action at"),
-                    ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_applied_at", "Last applied at"),
-                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_status", "Last action status"),
-                    ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_result_message", "Last action result"),
-                ]
-            )
-            if detail.get("kind") == "variable":
-                entities.append(
-                    ZeroNetExportDevicePowerSensor(
-                        coordinator,
-                        device_key,
-                        device_name,
-                        "current_target_power_w",
-                        "Target power",
-                    )
+    managed_details = _integration_page_managed_details(entry, state)
+    for device_key, detail in managed_details.items():
+        device_name = str(detail.get("name") or device_key or "Managed device")
+        entities.extend(
+            [
+                ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, device_name),
+                ZeroNetExportDeviceStatusSensor(coordinator, device_key, device_name),
+                ZeroNetExportDevicePowerSensor(coordinator, device_key, device_name, "current_power_w", "Current power"),
+                ZeroNetExportDevicePlanSensor(coordinator, device_key, device_name),
+                ZeroNetExportDeviceGuardSensor(coordinator, device_key, device_name),
+                ZeroNetExportDevicePowerSensor(
+                    coordinator,
+                    device_key,
+                    device_name,
+                    "planned_power_delta_w",
+                    "Planned power delta",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+                ZeroNetExportDevicePowerSensor(
+                    coordinator,
+                    device_key,
+                    device_name,
+                    "last_requested_power_w",
+                    "Last requested power",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+                ZeroNetExportDevicePowerSensor(
+                    coordinator,
+                    device_key,
+                    device_name,
+                    "last_applied_power_w",
+                    "Last applied power",
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                ),
+                ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "current_active_seconds", "Current active runtime"),
+                ZeroNetExportDeviceDurationSensor(coordinator, device_key, device_name, "active_runtime_today_seconds", "Active runtime today"),
+                ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_action_at", "Last action at"),
+                ZeroNetExportDeviceTimestampSensor(coordinator, device_key, device_name, "last_applied_at", "Last applied at"),
+                ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_status", "Last action status"),
+                ZeroNetExportDeviceDetailSensor(coordinator, device_key, device_name, "last_action_result_message", "Last action result"),
+            ]
+        )
+        if detail.get("kind") == "variable":
+            entities.append(
+                ZeroNetExportDevicePowerSensor(
+                    coordinator,
+                    device_key,
+                    device_name,
+                    "current_target_power_w",
+                    "Target power",
                 )
+            )
 
-        candidates = _candidate_devices_for_state(coordinator, hass, state)
-        for candidate in candidates:
-            entities.append(ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate))
+    candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
+    for candidate in candidates:
+        entities.append(ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate))
 
     async_add_entities(entities)
+
+
+def _configured_managed_details(entry) -> dict[str, dict[str, object]]:
+    """Return configured managed-load details when runtime has not populated yet."""
+    raw_inventory = getattr(entry, "options", {}).get(
+        CONF_DEVICE_INVENTORY_JSON,
+        getattr(entry, "data", {}).get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
+    )
+    devices, _issues = parse_device_configs(raw_inventory)
+    return {
+        device.key: {
+            "name": device.name,
+            "kind": device.kind,
+            "entity_id": device.entity_id,
+            "status": "configured",
+            "enabled": device.enabled,
+            "effective_enabled": device.enabled,
+            "priority": device.priority,
+            "nominal_power_w": device.nominal_power_w,
+            "min_power_w": device.min_power_w,
+            "max_power_w": device.max_power_w,
+            "step_w": device.step_w,
+        }
+        for device in devices
+    }
+
+
+def _integration_page_managed_details(entry, state) -> dict[str, dict[str, object]]:
+    """Return managed rows for the integration page, falling back to config inventory."""
+    runtime_details = _managed_device_details(state)
+    return runtime_details or _configured_managed_details(entry)
 
 
 def _build_source_entities(coordinator):
@@ -375,8 +407,19 @@ def _candidate_devices_for_hass(hass, managed_entity_ids: set[str]) -> list[dict
     return discover_candidate_devices(hass.states.async_all(), managed_entity_ids)
 
 
-def _candidate_devices_for_state(coordinator, hass, state) -> list[dict[str, str]]:
+def _candidate_devices_for_state(
+    coordinator,
+    hass,
+    state,
+    configured_managed_details: dict[str, dict[str, object]] | None = None,
+) -> list[dict[str, str]]:
     managed_entity_ids = _managed_entity_ids(state)
+    if not managed_entity_ids and configured_managed_details:
+        managed_entity_ids = {
+            str(detail.get("entity_id"))
+            for detail in configured_managed_details.values()
+            if detail.get("entity_id")
+        }
     cache_key = (id(state), tuple(sorted(managed_entity_ids)))
     cached = getattr(coordinator, "_zne_candidate_sensor_cache", None)
     if cached and cached.get("key") == cache_key:
