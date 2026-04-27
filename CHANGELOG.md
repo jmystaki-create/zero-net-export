@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Capitalized the Configure Managed Devices `Managed Devices review` section heading across fleet and promotion screens, so the primary workspace no longer falls back to lower-case generic review wording while the `0.1.90` Managed Devices surface is being prepared for release approval.
 - Capitalized the main device-page `Managed Devices review` persistent-notification title and heading, so the secondary review action keeps the exact Managed Devices surface name after it opens instead of falling back to lower-case generic review wording.
 - Marked the `0.1.90` release-plan repo implementation checklist as candidate-ready instead of unstarted, keeping the remaining release gate on James's explicit approval, freeze/deploy/restart, fingerprint, and screenshot-grade live validation path.
 - Reworded the secondary device-page handoff path and notification guidance from generic per-device `Review` buttons to per-device `Managed Devices review` buttons, keeping the audit path visibly attached to the `0.1.90` Managed Devices surface.
