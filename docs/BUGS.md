@@ -85,6 +85,18 @@ Suggested area labels:
 
 ## Current active bugs
 
+## ZNE-402 - Optional Lovelace scaffold kept retired recommendation wording
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 while checking remaining native-HA support examples after the visible next-action helper sensor moved to `Current native next action`.
+- **current observed behavior:** `examples/lovelace/zero_net_export_dashboard.yaml` still displayed `sensor.zero_net_export_recommendation` with the card label `Recommendation`, and its managed-load markdown still introduced `Recommended per-device card contents`. Although optional dashboards are secondary and not the supported operator path, this scaffold is still an in-Home Assistant example and could reintroduce retired ranking wording into optional native debug visibility.
+- **expected behavior:** optional Lovelace examples should remain clearly secondary while matching the current native next-action and review wording used by the supported Configure/device-page path.
+- **evidence:** direct repo inspection found the stale labels in the optional dashboard YAML; active-doc regression coverage did not guard the example scaffold.
+- **repo fix:** this run changes the dashboard label to `Current native next action`, changes the managed-load template heading to `Per-device card contents to review`, records the cleanup in the `0.1.89` changelog, and adds regression coverage for the optional dashboard wording.
+- **validation status:** repo-side fixed and verified with `python3 -m unittest -q tests.test_bucket_ownership_copy` plus `python3 -m py_compile tests/test_bucket_ownership_copy.py`. Live Home Assistant validation is not required for this optional example cleanup; the supported native path still needs exact `0.1.89` deploy validation.
+- **next action:** include this optional native-dashboard wording cleanup in the next `0.1.89` candidate; if no sharper A-D/F implementation defect remains, the next real boundary is James's direct approval for the `0.1.89` freeze/release/deploy/restart path rather than another wording or fingerprint-bookkeeping pass.
+
 ## ZNE-401 - Candidate-fit summaries used suggestion wording
 - **status:** `fixed_pending_validation`
 - **severity:** `low`

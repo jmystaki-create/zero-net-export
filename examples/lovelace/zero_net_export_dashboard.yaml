@@ -77,7 +77,7 @@ views:
               - entity: sensor.zero_net_export_reason
                 name: Why
               - entity: sensor.zero_net_export_recommendation
-                name: Recommendation
+                name: Current native next action
               - entity: sensor.zero_net_export_control_status
                 name: Control status
               - entity: sensor.zero_net_export_control_summary
@@ -294,7 +294,7 @@ views:
             content: |
               Add one dedicated card per controlled load using the entities the integration already exposes.
 
-              Recommended per-device card contents:
+              Per-device card contents to review:
               - `switch.zero_net_export_<device_key>_enabled`
               - `binary_sensor.zero_net_export_<device_key>_usable`
               - `number.zero_net_export_<device_key>_priority`

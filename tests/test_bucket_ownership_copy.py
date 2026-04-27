@@ -676,6 +676,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         ui_implementation_map = (project_root / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
         entity_model = (project_root / "docs" / "ENTITY_MODEL.md").read_text(encoding="utf-8")
         supervisor = (project_root / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        optional_dashboard = (project_root / "examples" / "lovelace" / "zero_net_export_dashboard.yaml").read_text(encoding="utf-8")
 
         for name, text in docs.items():
             with self.subTest(doc=name):
@@ -728,6 +729,10 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("current focus Configure bucket", entity_model)
         self.assertNotIn("diagnostic entities now also exist for each mapped source role", entity_model)
         self.assertNotIn("recommended Configure bucket", entity_model)
+        self.assertIn("name: Current native next action", optional_dashboard)
+        self.assertIn("Per-device card contents to review", optional_dashboard)
+        self.assertNotIn("name: Recommendation", optional_dashboard)
+        self.assertNotIn("Recommended per-device card contents", optional_dashboard)
 
 
 if __name__ == "__main__":
