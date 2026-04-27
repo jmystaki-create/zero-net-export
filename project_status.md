@@ -7,7 +7,7 @@ project_name: zero-net-export
 status: active
 
 # Single next best action
-next_action: ask James directly whether `db5c246` / `v0.1.92` should replace the documented `0.1.91` release target for deploy/restart validation, or whether release execution should return to the approved `0.1.91` boundary before any Home Assistant install/restart; then capture integration-main-page screenshot evidence only after that approval boundary is explicit
+next_action: ask James directly whether `db5c246` / `v0.1.92` should replace the documented `0.1.91` release target for deploy/restart validation, or whether release execution should return to the approved `0.1.91` boundary before any Home Assistant install/restart; only after that target decision, ask James to accept or reject the closest native child-device representation and to approve exact release/deploy/restart validation before integration-main-page screenshot evidence
 
 # Current blocker or none
 blocker: the helper-resolved component install candidate is `db5c246` / `v0.1.92` while repo HEAD has moved on with docs-only hold commits and the source-of-truth docs still approve only `0.1.91` / release `1.91`; explicit James release-target acceptance plus release/deploy/restart approval is required before exact-build live validation

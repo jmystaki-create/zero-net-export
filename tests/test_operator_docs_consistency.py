@@ -65,10 +65,20 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
     def test_project_status_tracks_current_091_approval_boundary(self) -> None:
         content = (ROOT / "project_status.md").read_text(encoding="utf-8")
 
+        next_action = content[
+            content.index("next_action:"):
+            content.index("\n\n# Current blocker or none")
+        ]
+        target_decision = next_action.index("whether `db5c246` / `v0.1.92` should replace")
+        native_acceptance = next_action.index("only after that target decision")
+        live_evidence = next_action.index("before integration-main-page screenshot evidence")
+
         self.assertIn("`0.1.91`", content)
         self.assertIn("ask James directly", content)
         self.assertIn("release/deploy/restart approval", content)
         self.assertIn("native child-device representation", content)
+        self.assertLess(target_decision, native_acceptance)
+        self.assertLess(native_acceptance, live_evidence)
         self.assertNotIn("`0.1.89`", content)
         self.assertNotIn("published `v0.1.88`", content)
         self.assertNotIn("A-D/F", content)
