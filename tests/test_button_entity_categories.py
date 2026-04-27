@@ -1443,8 +1443,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(len(notification_calls), 1)
         self.assertEqual(
             notification_calls[0]["kwargs"]["title"],
-            "Test Entry: managed devices review: Pool pump",
+            "Test Entry: Managed Devices review: Pool pump",
         )
+        self.assertNotIn("Test Entry: managed devices review", notification_calls[0]["kwargs"]["title"])
         message = notification_calls[0]["args"][1]
         self.assertIn("Zero Net Export managed-device detail review", message)
         self.assertIn("Managed Devices workspace: devices path", message)
