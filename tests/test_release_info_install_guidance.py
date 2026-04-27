@@ -142,15 +142,18 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
         zne_411 = bugs.split("## ZNE-411", 1)[1].split("\n## ZNE-410", 1)[0]
 
-        self.assertIn("- **status:** `fixed_pending_validation`", zne_411)
-        self.assertIn("repo-side corrective candidate is frozen, tagged, pushed, and published as `v0.1.90` at `d94436a`", zne_411)
-        self.assertIn("live Home Assistant API reports `sensor.zero_net_export_installed_version = 0.1.90`", zne_411)
+        self.assertIn("- **status:** `closed`", zne_411)
+        self.assertIn("installed, fingerprint-matched `v0.1.90` build at `d94436a`", zne_411)
+        self.assertIn("live API reported `sensor.zero_net_export_installed_version = 0.1.90`", zne_411)
         self.assertIn("`overall_match: true`", zne_411)
-        self.assertIn("Screenshot-grade device-page proof and action drill-down validation remain required", zne_411)
+        self.assertIn("docs/evidence/0.1.90-device-page-managed-devices-surface.png", zne_411)
+        self.assertIn("docs/evidence/0.1.90-managed-devices-workspace-notification.png", zne_411)
+        self.assertIn("do not reopen the completed `0.1.90` install/restart/fingerprint/screenshot loop", zne_411)
         self.assertNotIn("repo-side corrective candidate is ready for release approval", zne_411)
         self.assertNotIn("ask James directly for `0.1.90` release/deploy/restart validation approval", zne_411)
         self.assertNotIn("finish any remaining native device-page surface implementation", zne_411)
         self.assertNotIn("release as `0.1.90`, deploy/restart", zne_411)
+        self.assertNotIn("Screenshot-grade device-page proof and action drill-down validation remain required", zne_411)
 
     def test_bug_tracker_no_longer_points_active_next_actions_at_0189_install_loop(self) -> None:
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
@@ -174,11 +177,11 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("`v0.1.89` is already frozen at `844502b`, tagged, pushed, published, installed, restarted, and fingerprint-verified", boundary)
         self.assertIn("James's live device-page screenshot showed `0.1.89` did not visibly deliver", boundary)
         self.assertIn("The active published release is `v0.1.90` at `d94436a`", boundary)
-        self.assertIn("The `v0.1.90` Home Assistant install/reload and fingerprint boundary is now complete", boundary)
+        self.assertIn("The `v0.1.90` Home Assistant install/reload/fingerprint/screenshot boundary is now complete", boundary)
         self.assertIn("the live API reports `sensor.zero_net_export_installed_version = 0.1.90`", boundary)
-        self.assertIn("The remaining boundary is screenshot-grade device-page evidence capture", boundary)
+        self.assertIn("browser/CDP evidence in `docs/evidence/` proves the device-page Managed Devices surface", boundary)
         self.assertIn("mapped `0.1.90` corrective device-page Managed Devices workstream order", boundary)
-        self.assertIn("screenshot-grade device-page evidence", boundary)
+        self.assertIn("browser/CDP evidence in `docs/evidence/` proves the device-page Managed Devices surface", boundary)
         self.assertNotIn("mapped `0.1.89` workstream order", boundary)
         self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", boundary)
         self.assertNotIn("Only after approval, freeze the helper-resolved candidate as `0.1.89`", boundary)
@@ -192,7 +195,7 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("published `v0.1.90` corrective release", detailed_map)
         self.assertIn("Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`", detailed_map)
         self.assertIn("documented SSH fingerprint validation reported `overall_match: true`", detailed_map)
-        self.assertIn("installed and fingerprint-matched `0.1.90` build", detailed_map)
+        self.assertIn("browser/CDP evidence in `docs/evidence/`", detailed_map)
         self.assertNotIn("Ask James directly for release approval once the repo candidate is ready", detailed_map)
         self.assertNotIn("freeze version-coupled metadata as `0.1.90`", detailed_map)
         self.assertNotIn("convert the repo candidate into a real shipped and validated `0.1.89` release", detailed_map)
@@ -209,9 +212,10 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("`overall_match: true`", stage9)
         self.assertIn("live API state exposes the `Managed Devices surface` row", stage9)
         self.assertIn("pressed `button.zero_net_export_show_fleet_console` and `button.zero_net_export_show_managed_device_review`", stage9)
-        self.assertIn("capture screenshot-grade proof from the actual Zero Net Export device page", stage9)
-        self.assertIn("browser-visible proof that the Managed Devices action drill-down opens", stage9)
+        self.assertIn("docs/evidence/0.1.90-device-page-managed-devices-surface.png", stage9)
+        self.assertIn("docs/evidence/0.1.90-managed-devices-workspace-notification.png", stage9)
         self.assertIn("do not keep repeating API-only button.press checks", stage9)
+        self.assertIn("no remaining `0.1.90` install/fingerprint/screenshot gate", stage9)
         self.assertNotIn("install/update Home Assistant to the published `v0.1.90` build", stage9)
 
     def test_zne_424_closes_api_only_action_drilldown_loop(self) -> None:
@@ -298,14 +302,17 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
             "corrective repo candidate has been frozen, tagged, pushed, published as `v0.1.90` at `d94436a`, installed in Home Assistant",
             checklist,
         )
+        self.assertIn("browser-validated with screenshot-grade Managed Devices device-page plus action-drill-down evidence", checklist)
         self.assertIn("- [x] Add or adjust a dedicated device-page Managed Devices summary row/entity if needed.", checklist)
         self.assertIn("- [x] Run full tests for the repo candidate.", checklist)
         self.assertIn("- [x] Ask James directly for `0.1.90` release/deploy/restart validation approval.", checklist)
         self.assertIn("- [x] Commit, tag `v0.1.90`, push, and publish GitHub release only after approval/release readiness.", checklist)
         self.assertIn("- [x] Deploy exact `0.1.90` build to Home Assistant or verify HACS installs it.", checklist)
         self.assertIn("- [x] Validate install fingerprint `overall_match: true` against `d94436a` over the documented SSH path.", checklist)
-        self.assertIn("- [ ] Capture screenshot-grade proof of the device page showing the Managed Devices surface.", checklist)
+        self.assertIn("- [x] Capture screenshot-grade proof of the device page showing the Managed Devices surface", checklist)
+        self.assertIn("- [x] Verify pressing the Managed Devices action opens the expected notification/review/window", checklist)
         self.assertNotIn("- [ ] Add or adjust a dedicated device-page Managed Devices summary row/entity if needed.", checklist)
+        self.assertNotIn("- [ ] Capture screenshot-grade proof of the device page showing the Managed Devices surface.", checklist)
 
     def test_unreleased_changelog_records_post_0190_managed_devices_metric_label_fix(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())

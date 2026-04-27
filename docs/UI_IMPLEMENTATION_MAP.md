@@ -49,13 +49,13 @@ If a change does not materially improve one of those visible outcomes, it should
 
 ### Still blocked or incomplete
 - Live install drift is no longer the explanation for the current failure: `0.1.89` was deployed, restarted, and fingerprint-verified, and the device page still lacked the requested Managed Devices surface. Treat this as a product/UI gap, not an install-cache gap.
-- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.89` tag, and do not reopen the completed `v0.1.90` freeze/tag/GitHub publication/install/fingerprint boundary. The installed Home Assistant package now reports `0.1.90` and matches `d94436a`; the remaining `0.1.90` gate is screenshot-grade device-page evidence and Managed Devices action drill-down validation.
+- Release execution now has a clean follow-up decision: do not rewrite the already-published `v0.1.89` tag, and do not reopen the completed `v0.1.90` freeze/tag/GitHub publication/install/fingerprint/screenshot boundary. The installed Home Assistant package reports `0.1.90`, matches `d94436a`, and has screenshot-grade browser proof of the device-page Managed Devices surface plus the Managed Devices workspace notification drill-down.
 - Treat the exact deploy boundary as the current component-changing build reported by `scripts/print_expected_install_fingerprint.py`, not as a hash that needs to be recopied into source-of-truth docs every time another UI commit lands.
 - Repeated doc-only release-boundary refresh commits are process drift, not product progress. The helper-resolved component boundary must come from `scripts/print_expected_install_fingerprint.py` at deploy/validation time; later docs-only commits still do not create a new release target and should not displace the mapped Workstream A-D/F gap or a plain no-change report.
 - Keep the ranking lesson intact: unchanged live exact-build mismatch is still real release drift, but it does not outrank the mapped visible UI gap. For `0.1.90`, do not spend watchdog or supervisor runs rephrasing release-boundary state unless live evidence, the helper-resolved component boundary, or operator instruction materially changes. If a repo inspection does not produce a device-page Managed Devices surface that can be proven in live HA, the work is not done.
 - Live runtime stability still needs to be strong enough that the UI can be judged honestly in Home Assistant.
 - The native Managed Devices path, promotion flow, and four-bucket IA still do not feel proven until the exact current helper-resolved build is reviewed in live Home Assistant.
-- Screenshot-grade proof of the requested UI outcome does not yet exist.
+- Screenshot-grade proof of the requested `0.1.90` device-page Managed Devices outcome now exists in `docs/evidence/0.1.90-device-page-managed-devices-surface.png` and `docs/evidence/0.1.90-managed-devices-workspace-notification.png`.
 
 ## Historical 0.1.89 success criteria (failed on device-page evidence)
 
@@ -203,17 +203,17 @@ Use this list to decide what still has to be built, what has to be proven live, 
 **Still to do**
 1. ~~Deploy/install the exact published `v0.1.90` build at `d94436a` to Home Assistant or verify HACS installs it.~~ Done: Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`.
 2. ~~Restart/reload Home Assistant and confirm the installed package matches `d94436a` with the fingerprint helper.~~ Done: documented SSH fingerprint validation reported `overall_match: true`.
-3. Capture screenshot-grade live evidence that the device page visibly shows the Managed Devices surface.
-4. Verify pressing the Managed Devices action opens the expected notification/review/window with current state.
-5. If live evidence fails, log the exact installed UI gap before doing more wording or release-bookkeeping work.
+3. ~~Capture screenshot-grade live evidence that the device page visibly shows the Managed Devices surface.~~ Done: browser/CDP capture saved `docs/evidence/0.1.90-device-page-managed-devices-surface.png` from the installed device page.
+4. ~~Verify pressing the Managed Devices action opens the expected notification/review/window with current state.~~ Done: browser-visible native notification evidence saved `docs/evidence/0.1.90-managed-devices-workspace-notification.png`.
+5. If future live evidence fails, log the exact installed UI gap before doing more wording or release-bookkeeping work.
 
 **Done when**
-- the published `v0.1.90` build is deployed, fingerprint-verified, and live-validated with screenshot-grade device-page Managed Devices evidence.
+- the published `v0.1.90` build is deployed, fingerprint-verified, and live-validated with screenshot-grade device-page Managed Devices evidence. This is now complete for the `d94436a` installed build unless new live evidence regresses.
 
 ### Order of execution from here
 1. Do not reopen completed `0.1.90` repo implementation, version bump, tag, push, or GitHub publication work unless new evidence proves the published artifact is wrong.
-2. Do not repeat the now-completed `v0.1.90` install/update/restart/fingerprint loop unless new evidence changes the installed package state.
-3. Perform live screenshot-grade acceptance review on the installed and fingerprint-matched `0.1.90` build.
+2. Do not repeat the now-completed `v0.1.90` install/update/restart/fingerprint/screenshot loop unless new evidence changes the installed package state.
+3. ~~Perform live screenshot-grade acceptance review on the installed and fingerprint-matched `0.1.90` build.~~ Done with browser/CDP evidence in `docs/evidence/`.
 4. If live review reveals real remaining gaps, log them explicitly and treat them as post-`0.1.90` work instead of silently rolling the cut line forever.
 5. Only resume earlier A-D/F polish if live validation identifies a concrete native-HA UI gap or if installation/runtime blockers prevent judging the UI honestly.
 
@@ -416,11 +416,11 @@ Use this list to decide what still has to be built, what has to be proven live, 
 - documented SSH fingerprint validation matched the installed package to `d94436a` with `overall_match: true`
 - live API state exposes the `Managed Devices surface` row plus the Managed Devices device-page entity/action cluster
 - documented API validation in this run pressed `button.zero_net_export_show_fleet_console` and `button.zero_net_export_show_managed_device_review`; both accepted `button.press` and updated current managed/unmanaged state attributes on installed `0.1.90`
+- browser/CDP capture from the actual Zero Net Export device page shows the visible Managed Devices surface in `docs/evidence/0.1.90-device-page-managed-devices-surface.png`
+- browser-visible proof that the Managed Devices action drill-down opens the expected native review/notification with current managed/unmanaged state is saved in `docs/evidence/0.1.90-managed-devices-workspace-notification.png`; do not keep repeating API-only button.press checks as a substitute for screenshot-grade UI proof
 
 **Remaining**
-- capture screenshot-grade proof from the actual Zero Net Export device page showing the visible Managed Devices surface
-- capture browser-visible proof that the Managed Devices action drill-down opens the expected native review/notification with current managed/unmanaged state; do not keep repeating API-only button.press checks as a substitute for screenshot-grade UI proof
-- if the screenshot or drill-down fails, log the exact installed UI gap before doing more wording or release-bookkeeping work
+- no remaining `0.1.90` install/fingerprint/screenshot gate unless new live evidence regresses; continue only with later ordered UI polish or active fixed-pending-validation bugs
 
 **Features in this stage**
 - exact-build validation

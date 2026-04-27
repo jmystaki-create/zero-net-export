@@ -141,13 +141,13 @@ Do not use `0.1.90` for:
 
 ## Candidate implementation checklist
 
-Current release state on 2026-04-27: the corrective repo candidate has been frozen, tagged, pushed, published as `v0.1.90` at `d94436a`, installed in Home Assistant, loaded as `sensor.zero_net_export_installed_version = 0.1.90`, and fingerprint-verified over the documented SSH path with `overall_match: true`. Do not keep treating the repo implementation, GitHub publication, install/update, restart/reload, or fingerprint checklist below as unstarted; the remaining unchecked work is screenshot-grade device-page validation plus the Managed Devices action drill-down check.
+Current release state on 2026-04-27: the corrective repo candidate has been frozen, tagged, pushed, published as `v0.1.90` at `d94436a`, installed in Home Assistant, loaded as `sensor.zero_net_export_installed_version = 0.1.90`, fingerprint-verified over the documented SSH path with `overall_match: true`, and browser-validated with screenshot-grade Managed Devices device-page plus action-drill-down evidence in `docs/evidence/`. Do not keep treating the repo implementation, GitHub publication, install/update, restart/reload, fingerprint, screenshot, or action-drill-down checklist below as unstarted.
 
 Before coding:
 
 - [x] Capture current live device-page baseline from James's screenshot and/or browser.
-- [ ] Inspect current device-page entities and ordering via HA API/entity registry during the approved live validation pass.
-- [ ] Identify which existing sensors/buttons appear on the Zero Net Export device page and what card/section HA places them in during the approved live validation pass.
+- [x] Inspect current device-page entities and ordering via HA API/entity registry during the approved live validation pass.
+- [x] Identify which existing sensors/buttons appear on the Zero Net Export device page and what card/section HA places them in during the approved live validation pass.
 
 Repo implementation:
 
@@ -172,8 +172,8 @@ Deploy/validate:
 - [x] Restart/reload Home Assistant so the installed integration reports `sensor.zero_net_export_installed_version = 0.1.90`.
 - [x] Validate install fingerprint `overall_match: true` against `d94436a` over the documented SSH path.
 - [x] Verify `sensor.zero_net_export_installed_version = 0.1.90` via the Home Assistant API.
-- [ ] Capture screenshot-grade proof of the device page showing the Managed Devices surface.
-- [ ] Verify pressing the Managed Devices action opens the expected notification/review/window with current state.
+- [x] Capture screenshot-grade proof of the device page showing the Managed Devices surface (`docs/evidence/0.1.90-device-page-managed-devices-surface.png`).
+- [x] Verify pressing the Managed Devices action opens the expected notification/review/window with current state (`docs/evidence/0.1.90-managed-devices-workspace-notification.png`).
 
 ## Acceptance test
 
