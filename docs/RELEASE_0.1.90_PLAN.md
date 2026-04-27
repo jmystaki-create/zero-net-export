@@ -141,26 +141,29 @@ Do not use `0.1.90` for:
 
 ## Candidate implementation checklist
 
+Current repo-side state on 2026-04-27: the corrective repo candidate is ready for James's explicit `0.1.90` release/deploy/restart validation approval. Do not keep treating the repo implementation checklist below as unstarted; the remaining unchecked work is the approval-bound freeze, release, deploy, restart, fingerprint, and screenshot-grade live validation path.
+
 Before coding:
 
-- [ ] Capture current live device-page baseline from James's screenshot and/or browser.
-- [ ] Inspect current device-page entities and ordering via HA API/entity registry.
-- [ ] Identify which existing sensors/buttons appear on the Zero Net Export device page and what card/section HA places them in.
+- [x] Capture current live device-page baseline from James's screenshot and/or browser.
+- [ ] Inspect current device-page entities and ordering via HA API/entity registry during the approved live validation pass.
+- [ ] Identify which existing sensors/buttons appear on the Zero Net Export device page and what card/section HA places them in during the approved live validation pass.
 
 Repo implementation:
 
-- [ ] Add or adjust a dedicated device-page Managed Devices summary row/entity if needed.
-- [ ] Rename/reorder Managed Devices actions only as part of a larger visible surface, not as the whole fix.
-- [ ] Ensure entity categories do not hide the key Managed Devices rows under Diagnostics if they must be visible on the device page.
-- [ ] Keep deep edit/promote flow in `Configure -> Managed Devices`.
-- [ ] Update tests to assert device-page Managed Devices names, categories, and attributes.
+- [x] Add or adjust a dedicated device-page Managed Devices summary row/entity if needed.
+- [x] Rename/reorder Managed Devices actions only as part of a larger visible surface, not as the whole fix.
+- [x] Ensure entity categories do not hide the key Managed Devices rows under Diagnostics if they must be visible on the device page.
+- [x] Keep deep edit/promote flow in `Configure -> Managed Devices`.
+- [x] Update tests to assert device-page Managed Devices names, categories, and attributes.
 
 Release:
 
-- [ ] Bump manifest and version-coupled tests to `0.1.90` only after the repo implementation is complete.
+- [ ] Ask James directly for `0.1.90` release/deploy/restart validation approval.
+- [ ] Bump manifest and version-coupled tests to `0.1.90` only after approval.
 - [ ] Add `0.1.90` changelog section describing the device-page Managed Devices visibility fix.
-- [ ] Run full tests.
-- [ ] Capture expected install fingerprint.
+- [x] Run full tests for the repo candidate.
+- [ ] Capture expected install fingerprint immediately before release.
 - [ ] Commit, tag `v0.1.90`, push, and publish GitHub release only after approval/release readiness.
 
 Deploy/validate:

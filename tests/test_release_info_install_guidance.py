@@ -214,6 +214,21 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("`Review managed devices workspace`", active_stages)
         self.assertNotIn("`Review managed devices`", active_stages)
 
+    def test_release_0190_plan_marks_repo_candidate_ready_for_approval(self) -> None:
+        plan = (REPO_ROOT / "docs" / "RELEASE_0.1.90_PLAN.md").read_text(encoding="utf-8")
+        checklist = plan.split("## Candidate implementation checklist", 1)[1].split(
+            "## Acceptance test", 1
+        )[0]
+
+        self.assertIn(
+            "corrective repo candidate is ready for James's explicit `0.1.90` release/deploy/restart validation approval",
+            checklist,
+        )
+        self.assertIn("- [x] Add or adjust a dedicated device-page Managed Devices summary row/entity if needed.", checklist)
+        self.assertIn("- [x] Run full tests for the repo candidate.", checklist)
+        self.assertIn("- [ ] Ask James directly for `0.1.90` release/deploy/restart validation approval.", checklist)
+        self.assertNotIn("- [ ] Add or adjust a dedicated device-page Managed Devices summary row/entity if needed.", checklist)
+
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(

@@ -88,6 +88,19 @@ Suggested area labels:
 
 
 
+## ZNE-419 - 0.1.90 release plan still showed repo implementation as unstarted
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-27 after `ZNE-411` and commit `217467a` marked the corrective `0.1.90` repo candidate ready for James's explicit release/deploy/restart validation approval.
+- **current observed behavior:** `docs/RELEASE_0.1.90_PLAN.md` still left the candidate implementation checklist unchecked for the dedicated Managed Devices summary row, action rename/reorder, entity-category placement, Configure boundary, tests, and full-test run. That contradicted the bug tracker and recent commits, making the next runner look as if repo implementation was still unstarted instead of at the approval-bound release edge.
+- **expected behavior:** the release plan should distinguish completed repo-side corrective implementation from the remaining approval, freeze, release, deploy, restart, fingerprint, HA API/entity-order inspection, and screenshot-grade live validation work.
+- **evidence:** direct inspection found `ZNE-411` said the repo-side corrective candidate was ready and the full suite had passed, while the `0.1.90` release plan still had unchecked repo implementation and full-test checklist lines.
+- **repo fix:** this run updates the `0.1.90` release-plan checklist to mark repo implementation/full-test items complete, leaves live/device-order inspection and release execution unchecked, and adds regression coverage so the plan keeps the candidate-ready approval boundary explicit.
+- **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this release-plan state correction.
+- **next action:** ask James directly for `0.1.90` release/deploy/restart validation approval, then freeze, publish/deploy the exact approved build, validate fingerprint, and capture screenshot-grade device-page Managed Devices evidence.
+
+
 ## ZNE-418 - Secondary device-page path still named generic per-device Review buttons
 - **status:** `fixed_pending_validation`
 - **severity:** `low`
