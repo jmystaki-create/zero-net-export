@@ -704,6 +704,66 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(removed, [{"force_remove": True}])
 
+    def test_setup_entry_syncs_unmanaged_candidate_rows_on_ha_state_change(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator_listeners = []
+        bus_listeners = []
+
+        def add_listener(listener):
+            coordinator_listeners.append(listener)
+            return lambda: coordinator_listeners.remove(listener)
+
+        def listen(event_type, listener):
+            bus_listeners.append((event_type, listener))
+            return lambda: bus_listeners.remove((event_type, listener))
+
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        coordinator.async_add_listener = add_listener
+        current_states = []
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: list(current_states)),
+            bus=SimpleNamespace(async_listen=listen),
+        )
+        entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: [
+            {
+                "entity_id": state.entity_id,
+                "name": state.attributes.get("friendly_name", state.entity_id),
+                "domain": state.entity_id.split(".", 1)[0],
+                "kind": "fixed",
+                "state": state.state,
+            }
+            for state in states
+            if state.entity_id not in managed_entity_ids
+        ]
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+        self.assertEqual([event_type for event_type, _listener in bus_listeners], ["state_changed"])
+
+        current_states.append(
+            SimpleNamespace(
+                entity_id="switch.hot_water",
+                state="off",
+                attributes={"friendly_name": "Hot Water"},
+            )
+        )
+        bus_listeners[0][1](SimpleNamespace(data={"entity_id": "switch.hot_water"}))
+
+        self.assertIn(
+            "Un Managed — Hot Water",
+            [
+                entity._attr_device_info.get("name")
+                for entity in added
+                if getattr(entity, "_attr_device_info", None)
+            ],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

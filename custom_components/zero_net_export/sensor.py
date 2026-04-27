@@ -385,12 +385,27 @@ def _register_unmanaged_candidate_sync(
     add_listener = getattr(coordinator, "async_add_listener", None)
     if add_listener is None:
         return
-    unsubscribe = add_listener(_sync_unmanaged_candidate_rows)
-    if unsubscribe is None:
-        return
     async_on_unload = getattr(entry, "async_on_unload", None)
-    if async_on_unload is not None:
+    unsubscribe = add_listener(_sync_unmanaged_candidate_rows)
+    if unsubscribe is not None and async_on_unload is not None:
         async_on_unload(unsubscribe)
+
+    bus = getattr(hass, "bus", None)
+    async_listen = getattr(bus, "async_listen", None)
+    if async_listen is None:
+        return
+
+    def _sync_after_candidate_state_change(event) -> None:
+        data = getattr(event, "data", {}) or {}
+        entity_id = str(data.get("entity_id") or "")
+        domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
+        if domain not in DEVICE_CANDIDATE_DOMAINS:
+            return
+        _sync_unmanaged_candidate_rows()
+
+    unsubscribe_state = async_listen("state_changed", _sync_after_candidate_state_change)
+    if unsubscribe_state is not None and async_on_unload is not None:
+        async_on_unload(unsubscribe_state)
 
 
 def _schedule_unmanaged_candidate_entity_removal(hass, entity) -> None:

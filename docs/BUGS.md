@@ -133,6 +133,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** fixed in repo with focused integration-page device-list regression coverage for both adding new unmanaged rows and removing stale rows, plus Python compile for `sensor.py`; no Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
 - **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate the approved build on the Zero Net Export main integration page and confirm the `Un Managed — ...` device rows track candidate appearance/removal without reload.
 
+## ZNE-499 - Un Managed row sync waited for coordinator refresh after HA state changes
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while comparing ZNE-498's row-lifecycle fix against the ZNE-429 requirement that integration-page `Un Managed — ...` child-device rows track candidate appearance/removal.
+- **current observed behavior:** the new unmanaged-row sync only ran from the Zero Net Export coordinator listener. Candidate cache invalidation could see Home Assistant state/friendly-name/device-class changes once discovery was called, but native integration-page child rows still would not be added or removed on ordinary HA `state_changed` events until a later coordinator update happened.
+- **expected behavior:** candidate-domain Home Assistant state changes should trigger the same native unmanaged-row reconciliation path so the integration page does not require a coordinator refresh or platform reload before newly surfaced or removed `Un Managed — ...` rows catch up.
+- **evidence:** `_register_unmanaged_candidate_sync()` registered only `coordinator.async_add_listener(_sync_unmanaged_candidate_rows)` even though `_candidate_devices_for_state()` deliberately keys candidate discovery on `hass.states.async_all()` signatures.
+- **repo fix:** this run also registers a native HA `state_changed` listener filtered to candidate domains (`switch`, `input_boolean`, `light`, `number`, `input_number`) and routes those events through the same unmanaged-row reconciliation path, preserving the native Home Assistant integration-page device-row approach with no custom UI.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage for HA-state-triggered unmanaged-row addition, the existing add/remove row lifecycle coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest discover -s tests -q`, and Python compile for `sensor.py` plus the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that `Un Managed — ...` rows update promptly when candidate entities appear/disappear or are promoted.
+
 ## Closed bugs and process corrections
 
 ## ZNE-497 - unmanaged candidate cache could keep stale integration-page rows after HA state changes
