@@ -91,6 +91,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Current active bugs
 
+## ZNE-508 - sanitized child-device registry identifiers could collide
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking ZNE-507's identifier sanitizing against the actual Home Assistant device-registry identity path for `Managed Devices — ...` and `Un Managed — ...` child rows.
+- **current observed behavior:** `_device_identifier_part(...)` collapsed punctuation and separators to underscores. Distinct managed keys or unmanaged candidate entity IDs such as `pool/main` and `pool:main`, or `switch.load/a` and `switch.load:a`, could therefore resolve to the same child-device identifier fragment and merge two native integration-page rows into one device-registry row.
+- **expected behavior:** child-device registry identifiers should stay safe for Home Assistant while remaining collision-resistant for distinct raw managed-device keys and unmanaged candidate entity IDs. Raw managed-device keys should still be preserved only in the encoded settings URL.
+- **evidence:** `custom_components/zero_net_export/entity.py` converted `.`, `:`, `/`, spaces, and other punctuation to `_` without adding any differentiator from the original raw key/entity ID.
+- **repo fix:** this run keeps simple already-safe identifiers unchanged, but appends a stable short SHA-1 suffix whenever sanitizing changes the raw managed key or unmanaged entity ID. This preserves native HA child-device rows, avoids unsafe punctuation in registry identifiers, and avoids custom UI.
+- **validation status:** fixed in repo with focused regression coverage proving separator-colliding managed and unmanaged inputs now produce distinct safe identifiers, plus `python3 -m unittest tests.test_integration_page_device_lists -q`. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that distinct `Managed Devices — ...` and `Un Managed — ...` rows do not merge when keys/entity IDs differ only by separators.
+
 ## ZNE-507 - managed child-device registry identifiers still used raw device keys
 
 - **status:** `fixed_pending_validation`

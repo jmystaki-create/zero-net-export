@@ -118,13 +118,37 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
 
         self.assertIn(
-            ("zero_net_export", "entry-1:managed-device:pool_pump_main_one_boost"),
+            ("zero_net_export", "entry-1:managed-device:pool_pump_main_one_boost_18a397c3"),
             sensor._attr_device_info["identifiers"],
         )
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
             "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3APool+Pump%2FMain%3AOne+%26+Boost",
         )
+
+    def test_child_device_identifiers_remain_unique_after_sanitizing_separators(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+
+        managed_slash = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool/main", "Pool Main")
+        managed_colon = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool:main", "Pool Main")
+        unmanaged_slash = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+            coordinator,
+            {"entity_id": "switch.load/a", "name": "Load A", "domain": "switch", "kind": "fixed", "state": "off"},
+        )
+        unmanaged_colon = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+            coordinator,
+            {"entity_id": "switch.load:a", "name": "Load A", "domain": "switch", "kind": "fixed", "state": "off"},
+        )
+
+        managed_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (managed_slash, managed_colon)]
+        unmanaged_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (unmanaged_slash, unmanaged_colon)]
+
+        self.assertNotEqual(managed_identifiers[0], managed_identifiers[1])
+        self.assertNotEqual(unmanaged_identifiers[0], unmanaged_identifiers[1])
+        for _, identifier in managed_identifiers + unmanaged_identifiers:
+            suffix = identifier.rsplit(":", 1)[-1]
+            self.assertRegex(suffix, r"^[a-z0-9_]+_[a-f0-9]{8}$")
 
     def test_unmanaged_candidate_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
@@ -160,7 +184,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["name"], "Un Managed — Hot Water")
         self.assertEqual(sensor._attr_device_info["model"], "Un Managed — Fixed unmanaged candidate")
         self.assertIn(
-            ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water"),
+            ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c"),
             sensor._attr_device_info["identifiers"],
         )
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
@@ -178,7 +202,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             "state": "off",
         }
         sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
-        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water")
+        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c")
         device = SimpleNamespace(id="device-2", identifier=identifier, configuration_url=None)
         registry = _FakeDeviceRegistry(device)
         sensor.hass = SimpleNamespace(device_registry=registry)
@@ -834,7 +858,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         coordinator.async_add_listener = add_listener
         registry_device = SimpleNamespace(
             id="unmanaged-device-1",
-            identifier=("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water"),
+            identifier=("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c"),
         )
         registry = _FakeDeviceRegistry(registry_device)
         current_states = [
@@ -954,7 +978,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             "state": "off",
         }
         sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
-        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water")
+        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c")
         device = SimpleNamespace(
             id="device-2",
             identifier=identifier,

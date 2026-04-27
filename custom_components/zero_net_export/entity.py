@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import hashlib
 import re
 from urllib.parse import urlencode
 
@@ -11,9 +12,14 @@ from .const import DOMAIN, INTEGRATION_VERSION
 
 
 def _device_identifier_part(value: object) -> str:
-    """Return a stable device-registry-safe identifier fragment."""
-    text = str(value or "unknown").strip().lower()
-    return re.sub(r"[^a-z0-9_]+", "_", text.replace(".", "_").replace(":", "_").replace("/", "_")).strip("_") or "unknown"
+    """Return a stable, safe, collision-resistant device-registry identifier fragment."""
+    original = str(value or "unknown").strip() or "unknown"
+    normalized = original.lower()
+    safe = re.sub(r"[^a-z0-9_]+", "_", normalized.replace(".", "_").replace(":", "_").replace("/", "_")).strip("_") or "unknown"
+    if normalized == safe:
+        return safe
+    digest = hashlib.sha1(original.encode("utf-8")).hexdigest()[:8]
+    return f"{safe}_{digest}"
 
 
 def managed_load_detail_mapping(value: object) -> dict:
