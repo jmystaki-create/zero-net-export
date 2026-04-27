@@ -82,6 +82,32 @@ def _load_native_support_module(*, parse_device_result=([], [])):
 
 
 class SourceRepairGuidanceTests(unittest.TestCase):
+
+    def test_native_support_runtime_device_helpers_tolerate_null_details(self) -> None:
+        native_support = _load_native_support_module()
+        state = SimpleNamespace(
+            device_details={
+                "pool": None,
+                "heater": {
+                    "name": "Heater",
+                    "kind": "fixed",
+                    "nominal_power_w": 1200,
+                    "observed_active": True,
+                    "current_power_w": 900,
+                },
+            },
+            fixed_device_count=0,
+            variable_device_count=0,
+            controllable_nominal_power_w=0,
+            active_controlled_power_w=0,
+        )
+
+        self.assertEqual(native_support._managed_runtime_mix(state), (True, 1, 0, 1200))
+        self.assertEqual(native_support._managed_runtime_activity(state), (1, 900.0))
+        ordered = native_support._ordered_runtime_device_details(state)
+        self.assertEqual(len(ordered), 2)
+        self.assertIn({}, ordered)
+
     def test_native_path_normalizer_rewrites_stale_unmanaged_section_handoffs_to_exact_workspace(self) -> None:
         native_support = _load_native_support_module()
 

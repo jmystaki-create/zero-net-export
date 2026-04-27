@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-482 - null managed-device detail could crash command-center native summaries
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after ZNE-481 normalized null managed details for native per-device control rows and review buttons, while `native_support.py` still iterated raw runtime `device_details` values in command-center/native support summaries.
+- **current observed behavior:** if a managed-device runtime detail value was temporarily `None`, native command-center summaries and support snapshot helpers could call `.get(...)` on that null detail while building Managed Devices activity, mix, attention, blocked, or planned counts.
+- **expected behavior:** native command-center and support summaries should normalize null managed detail values to empty mappings, keep counts/defaults renderable, and preserve the native Home Assistant integration-page/device-list path.
+- **repo fix:** this run adds a shared native-support runtime managed-detail normalizer, routes command-center and support-summary managed-detail iteration through it, and normalizes configured-device support snapshot detail lookups.
+- **validation status:** closed with focused native-support regression coverage for null managed details in runtime mix/activity/ordering helpers, plus Python compile and targeted unittest coverage.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-481 - null managed-device detail could crash per-device control rows and review buttons
 
 - **status:** `closed`

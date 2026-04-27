@@ -2103,11 +2103,15 @@ def _configured_device_payloads(entry: Any) -> tuple[list[dict[str, Any]], list[
     return payloads, issues
 
 
-def _ordered_runtime_device_details(state: Any) -> list[dict[str, Any]]:
+
+
+def _runtime_device_details(state: Any) -> list[dict[str, Any]]:
     if state is None:
         return []
-    details = list((getattr(state, "device_details", {}) or {}).values())
-    return sorted(details, key=_runtime_device_sort_key)
+    return [detail if isinstance(detail, dict) else {} for detail in (getattr(state, "device_details", {}) or {}).values()]
+
+def _ordered_runtime_device_details(state: Any) -> list[dict[str, Any]]:
+    return sorted(_runtime_device_details(state), key=_runtime_device_sort_key)
 
 
 def _first_runtime_device_name(state: Any, *, predicate) -> str:
@@ -2295,7 +2299,7 @@ def _same_runtime_device(left: dict[str, Any] | None, right: dict[str, Any] | No
 def _managed_runtime_mix(state: Any) -> tuple[bool, int, int, int]:
     if state is None:
         return False, 0, 0, 0
-    device_details = list((getattr(state, "device_details", {}) or {}).values())
+    device_details = _runtime_device_details(state)
     fixed_count = int(getattr(state, "fixed_device_count", 0) or 0)
     variable_count = int(getattr(state, "variable_device_count", 0) or 0)
     nominal_power = int(float(getattr(state, "controllable_nominal_power_w", 0) or 0))
@@ -2316,7 +2320,7 @@ def _managed_runtime_mix(state: Any) -> tuple[bool, int, int, int]:
 def _managed_runtime_activity(state: Any) -> tuple[int, float]:
     if state is None:
         return 0, 0.0
-    device_details = list((getattr(state, "device_details", {}) or {}).values())
+    device_details = _runtime_device_details(state)
     active_count = sum(1 for detail in device_details if detail.get("observed_active") is True)
     active_power_w = float(getattr(state, "active_controlled_power_w", 0) or 0)
     if active_power_w <= 0 and active_count:
@@ -2644,7 +2648,7 @@ def build_native_support_snapshot(coordinator: Any) -> str:
     runtime_device_details = getattr(state, "device_details", None) or {}
     device_lines = []
     for item in configured_devices:
-        runtime = runtime_device_details.get(item.get("key"), {})
+        runtime = dict(runtime_device_details.get(item.get("key"), {}) or {})
         device_label = str(
             runtime.get("name")
             or item.get("name")
@@ -2957,7 +2961,7 @@ def _command_center_candidate_snapshot(coordinator: Any, state: Any) -> tuple[li
         return [], ""
     managed_ids = {
         str(detail.get("entity_id"))
-        for detail in ((getattr(state, "device_details", None) or {}) or {}).values()
+        for detail in _runtime_device_details(state)
         if detail.get("entity_id")
     }
     candidates = discover_candidate_devices(states(), managed_ids)
@@ -3660,7 +3664,7 @@ def _build_command_center_fleet_activity_summary(
     source_blocked: bool,
     configured_managed_count: int = 0,
 ) -> str:
-    device_details = list((getattr(state, "device_details", {}) or {}).values()) if state is not None else []
+    device_details = _runtime_device_details(state)
     runtime_device_count_known = state is not None and hasattr(state, "device_count")
     managed_count = int(getattr(state, "device_count", 0) or 0) if state is not None else 0
     if not runtime_device_count_known and configured_managed_count > managed_count:
@@ -3682,7 +3686,7 @@ def _build_command_center_fleet_activity_summary(
         predicate=_runtime_device_needs_attention,
     )
     attention_device_count = (
-        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_needs_attention(detail))
+        sum(1 for detail in _runtime_device_details(state) if _runtime_device_needs_attention(detail))
         if state is not None
         else 0
     )
@@ -3696,7 +3700,7 @@ def _build_command_center_fleet_activity_summary(
         excluded=(first_attention_device,),
     ) or first_blocked_device
     blocked_activity_count = (
-        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
+        sum(1 for detail in _runtime_device_details(state) if _runtime_device_has_blocked_activity(detail))
         if state is not None
         else 0
     )
@@ -3743,7 +3747,7 @@ def _build_command_center_fleet_activity_summary(
         and not _same_runtime_device(planned_focus_device, first_active_device)
     )
     planned_activity_count = (
-        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_active_plan(detail))
+        sum(1 for detail in _runtime_device_details(state) if _runtime_device_has_active_plan(detail))
         if state is not None
         else 0
     )
@@ -5140,7 +5144,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
     variable_candidate_count = sum(1 for item in candidates if str(item.get("kind") or "") == "variable")
     review_needed_count = sum(1 for item in candidates if candidate_needs_review(assess_candidate(item)))
     managed_attention_count = (
-        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_needs_attention(detail))
+        sum(1 for detail in _runtime_device_details(state) if _runtime_device_needs_attention(detail))
         if state is not None
         else 0
     )
@@ -5150,7 +5154,7 @@ def build_native_command_center_summary(coordinator: Any) -> dict[str, str]:
         predicate=lambda detail: detail.get("observed_active") is True,
     )
     blocked_activity_count = (
-        sum(1 for detail in (getattr(state, "device_details", {}) or {}).values() if _runtime_device_has_blocked_activity(detail))
+        sum(1 for detail in _runtime_device_details(state) if _runtime_device_has_blocked_activity(detail))
         if state is not None
         else 0
     )
