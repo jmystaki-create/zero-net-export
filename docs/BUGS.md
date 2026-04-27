@@ -120,6 +120,21 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** repo-side fixed and verified with focused integration-page device-list coverage, Python compile, and the full unittest suite. Component code changed after the historical `v0.1.91` tag at `7217f3b`, later froze as `v0.1.92` at `db5c246`, and the helper now resolves the install candidate to manifest `0.1.92` / preferred validation commit `db5c246` while repo HEAD has moved on with docs-only hold commits. Live validation is still pending and intentionally held; success still requires James to resolve the release-target mismatch, accept the closest native child-device representation, approve exact deploy/restart validation, and provide screenshot-grade proof from `Settings -> Devices & Services -> Integrations -> Zero Net Export` on the approved installed build.
 - **next action:** do not treat either the `v0.1.91` freeze/tag or the unapproved `v0.1.92` freeze/tag as Home Assistant deploy approval. Ask James directly whether `db5c246` / `v0.1.92` should replace the documented `0.1.91` release target or whether release execution should return to the approved `0.1.91` boundary; only after that decision, ask for native-row acceptance and exact release/deploy/restart approval before any install/restart or integration-main-page screenshot validation.
 
+## Closed process corrections
+
+## ZNE-444 - closed ZNE-438 remained inside Current active bugs
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog bug-tracker audit on 2026-04-27 after ZNE-439 and ZNE-429 became the only active approved release blockers.
+- **current observed behavior:** `docs/BUGS.md` placed the closed ZNE-438 process correction under `Current active bugs` because the `Closed process corrections` section break appeared after ZNE-438 instead of immediately after ZNE-429. That made the active section visually include a closed historical deploy-boundary correction while the actual active decision is the newer ZNE-439 release-target mismatch.
+- **expected behavior:** `Current active bugs` should contain only live decision blockers for the current approved scope: ZNE-439 and ZNE-429. Closed process corrections should sit under `Closed process corrections` so future runners do not treat obsolete `c4802a3` deploy-boundary guidance as active work.
+- **evidence:** direct inspection found ZNE-438, with `status: closed`, before the `Closed process corrections` heading and inside the slice used by regression coverage for current active bugs.
+- **repo fix:** this run moves the `Closed process corrections` section break above ZNE-438 and adds regression coverage rejecting closed entries in the current-active bug section.
+- **validation status:** closed with repo-side bug-tracker/test validation; no Home Assistant live validation is required for this tracker-section correction.
+- **next action:** keep the active boundary on James's release-target decision for `db5c246` / `v0.1.92` versus the documented `0.1.91` target, then native-row acceptance and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-438 - 0.1.91 docs still treated the pre-fix tag as the exact deploy boundary
 
 - **status:** `closed`
@@ -131,8 +146,6 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **repo fix:** this run updates the release plan, implementation map, project status, and ZNE-429 validation text to name `c4802a3` as the current helper-resolved boundary after post-tag component changes while preserving the direct James approval requirement.
 - **validation status:** closed with repo-side source-of-truth/test validation; no Home Assistant live validation is required for this process-state correction.
 - **next action:** ask James directly for native-representation acceptance and exact `c4802a3` release/deploy/restart approval, then install/restart and capture integration-main-page screenshot-grade evidence.
-
-## Closed process corrections
 
 ## ZNE-443 - ordered map asked native-row acceptance before the open release-target decision
 
