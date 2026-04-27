@@ -50,6 +50,18 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertLess(release_target, native_acceptance)
         self.assertNotIn("mapped Workstream A-D/F gap", status_summary)
 
+    def test_supervisor_release_hold_names_all_frozen_candidates(self) -> None:
+        content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
+        hold = content[
+            content.index("## Active release-target hold"):
+            content.index("\n\nThis file is the steering guide")
+        ]
+
+        self.assertIn("earlier `v0.1.92` and `v0.1.93` freezes", hold)
+        self.assertIn("`v0.1.94` at `4c0d071`", hold)
+        self.assertIn("`7217f3b`, `c4802a3`, `db5c246`, `026f189`, or `4c0d071`", hold)
+        self.assertNotIn("earlier `v0.1.92` and `v0.1.94` freezes", hold)
+
     def test_supervisor_churn_rules_do_not_reopen_historical_a_to_f_workstreams(self) -> None:
         content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
         churn_rules = content[
