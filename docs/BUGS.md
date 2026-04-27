@@ -134,6 +134,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed process corrections
 
+## ZNE-440 - README development status still pointed at the old 0.1.89 runway
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 after the active source-of-truth docs moved to the `0.1.91` / release `1.91` integration-main-page device-list scope and later opened the `v0.1.92` release-target hold.
+- **current observed behavior:** `README.md` still described the next clean UI rollout target as `0.1.89`, told runners to do a final A-D/F repo-side defect check, and asked for the old `0.1.89` freeze/release/deploy/restart path. That contradicted `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, ZNE-429, and ZNE-439, and could pull operators back into stale broad-polish or release-bookkeeping work.
+- **expected behavior:** the README development status should defer to the current native Home Assistant scope: main integration page `Managed Devices — ...` and `Un Managed — ...` child-device rows, plus the explicit James decision on whether `db5c246` / `v0.1.92` replaces the documented `0.1.91` release target before any Home Assistant deploy/restart/fingerprint/screenshot validation.
+- **repo fix:** this run rewrites the README development-status paragraph and current-next-step callout to the `0.1.91` / `v0.1.92` release-target hold and adds regression coverage rejecting stale `0.1.89`, `0.1.88`, and A-D/F guidance in that README section.
+- **validation status:** closed with repo-side doc/test validation; no Home Assistant live validation is required for this README steering correction.
+- **next action:** keep the next real boundary on James's release-target decision, closest-native-row acceptance, and exact deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-437 - project_status.md still pointed the next action at the historical 0.1.89 line
 
 - **status:** `closed`

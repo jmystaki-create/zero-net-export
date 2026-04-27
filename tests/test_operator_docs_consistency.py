@@ -41,6 +41,20 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("published `v0.1.88`", content)
         self.assertNotIn("A-D/F", content)
 
+    def test_readme_tracks_current_091_release_target_hold(self) -> None:
+        content = (ROOT / "README.md").read_text(encoding="utf-8")
+        status = content[content.index("## 🚧 Development Status"):]
+
+        self.assertIn("main integration page", status)
+        self.assertIn("`Managed Devices — ...`", status)
+        self.assertIn("`Un Managed — ...`", status)
+        self.assertIn("`db5c246` / `v0.1.92`", status)
+        self.assertIn("documented `0.1.91` release target", status)
+        self.assertIn("ask James directly", status)
+        self.assertNotIn("0.1.89", status)
+        self.assertNotIn("0.1.88", status)
+        self.assertNotIn("A-D/F", status)
+
 
 if __name__ == "__main__":
     unittest.main()
