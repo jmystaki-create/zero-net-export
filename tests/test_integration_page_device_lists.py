@@ -175,6 +175,26 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertRegex(unmanaged_identifiers[0][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
         self.assertRegex(unmanaged_identifiers[1][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
 
+    def test_unmanaged_candidate_lifecycle_keys_remain_unique_after_case_normalizing(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        upper_key = sensor_module._candidate_unique_key({"entity_id": "switch.Load"})
+        lower_key = sensor_module._candidate_unique_key({"entity_id": "switch.load"})
+
+        self.assertNotEqual(upper_key, lower_key)
+        self.assertRegex(upper_key, r"^switch_load_[a-f0-9]{8}$")
+        self.assertEqual(lower_key, "switch_load")
+
+    def test_unmanaged_candidate_lifecycle_keys_remain_unique_after_sanitizing_separators(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        slash_key = sensor_module._candidate_unique_key({"entity_id": "switch.load/a"})
+        colon_key = sensor_module._candidate_unique_key({"entity_id": "switch.load:a"})
+
+        self.assertNotEqual(slash_key, colon_key)
+        self.assertRegex(slash_key, r"^switch_load_a_[a-f0-9]{8}$")
+        self.assertRegex(colon_key, r"^switch_load_a_[a-f0-9]{8}$")
+
     def test_unmanaged_candidate_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

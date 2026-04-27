@@ -91,6 +91,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Current active bugs
 
+## ZNE-509 - unmanaged candidate lifecycle keys could still collapse sanitized row variants
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking ZNE-508's registry-identifier collision fix against the unmanaged candidate row lifecycle map used by `async_setup_entry()` and later row sync.
+- **current observed behavior:** child-device registry identifiers became collision-resistant, but `_candidate_unique_key(...)` still lowercased and separator-normalized candidate identifiers without a differentiator. Odd unmanaged candidate variants such as `switch.Load` versus `switch.load`, or separator variants such as `switch.load/a` versus `switch.load:a`, could therefore share the same lifecycle key even though their device-registry identifiers were now distinct. That could make row sync update/remove the wrong `Un Managed — ...` entity or leave an untracked stale row.
+- **expected behavior:** the unmanaged candidate lifecycle key should be at least as collision-resistant as the native child-device registry identifier path, while preserving legacy unique IDs for ordinary lowercase Home Assistant entity IDs such as `switch.hot_water`.
+- **evidence:** `custom_components/zero_net_export/sensor.py` used `_candidate_unique_key(...)` for `known_candidate_entities`, but the helper returned only a lower/separator-normalized string and did not share ZNE-508's hash differentiator.
+- **repo fix:** this run keeps the legacy lifecycle key for normal lowercase Home Assistant entity IDs, but appends a stable short SHA-1 suffix for case-normalized or separator-sanitized odd variants so distinct unmanaged candidates do not collapse in the row lifecycle map. This preserves the native HA integration-page child-device path and does not add any custom UI.
+- **validation status:** fixed in repo with focused regression coverage for case-normalized and separator-sanitized unmanaged lifecycle keys, plus `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `sensor.py` plus the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that distinct `Un Managed — ...` rows do not collapse or leave stale row lifecycle state when candidate IDs differ only by case or sanitizable separators.
+
 ## ZNE-508 - sanitized child-device registry identifiers could collide
 
 - **status:** `fixed_pending_validation`

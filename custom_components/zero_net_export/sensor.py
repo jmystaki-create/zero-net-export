@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import hashlib
+import re
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
@@ -1821,9 +1823,20 @@ def _attach_managed_load_device(entity, coordinator, device_key: str, device_nam
 
 
 def _candidate_unique_key(candidate: dict[str, Any]) -> str:
-    entity_id = str(candidate.get("entity_id") or candidate.get("name") or "candidate").strip().lower()
-    normalized = "_".join(part for part in entity_id.replace(".", "_").replace(":", "_").split() if part)
-    return normalized or "candidate"
+    raw_entity_id = str(candidate.get("entity_id") or candidate.get("name") or "candidate").strip() or "candidate"
+    normalized = re.sub(
+        r"[^a-z0-9_]+",
+        "_",
+        raw_entity_id.lower().replace(".", "_").replace(":", "_").replace("/", "_"),
+    ).strip("_") or "candidate"
+
+    # Preserve the legacy key shape for ordinary Home Assistant entity IDs so existing
+    # unmanaged-row unique IDs do not churn, but add a differentiator for odd/case
+    # variants that would otherwise collapse in the row lifecycle map.
+    if raw_entity_id == raw_entity_id.lower() and re.fullmatch(r"[a-z0-9_]+\.[a-z0-9_]+", raw_entity_id):
+        return normalized
+    digest = hashlib.sha1(raw_entity_id.encode("utf-8")).hexdigest()[:8]
+    return f"{normalized}_{digest}"
 
 
 class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity):
