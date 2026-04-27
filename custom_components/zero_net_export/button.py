@@ -77,7 +77,8 @@ def _managed_device_detail_for_state(state, device_key: str) -> dict:
     """Return one managed device detail, tolerating sparse coordinator state."""
     if state is None:
         return {}
-    return managed_load_detail_mapping((getattr(state, "device_details", {}) or {}).get(device_key, {}))
+    device_details = managed_load_details_mapping(getattr(state, "device_details", {}) or {})
+    return device_details.get(device_key, {})
 
 
 def _runtime_state_attr(state, name: str):

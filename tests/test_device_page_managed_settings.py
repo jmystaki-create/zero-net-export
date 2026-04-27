@@ -124,6 +124,18 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                 ]
                 self.assertIn("Managed Devices — pool", device_names)
 
+    def test_managed_device_buttons_tolerate_malformed_runtime_detail_container(self) -> None:
+        coordinator = _coordinator()
+        coordinator.data.device_details = "temporarily malformed runtime details"
+        button_module = _load_button_module()
+
+        review = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool")
+        reset = button_module.ZeroNetExportResetDeviceOverridesButton(coordinator, "pool", "Pool")
+        review.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertEqual(review.extra_state_attributes["managed_snapshot"], "no managed yet")
+        self.assertEqual(reset.extra_state_attributes, {})
+
     def test_managed_device_control_rows_tolerate_null_runtime_detail(self) -> None:
         coordinator = _coordinator()
         coordinator.data.device_details = {"pool": None}

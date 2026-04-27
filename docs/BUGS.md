@@ -122,6 +122,18 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-489 - malformed device_details container could crash per-device review buttons
+
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after the malformed validation-detail hardening series, while `button.py` still read one per-device managed detail with `.get(...)` on the raw top-level runtime `device_details` container.
+- **current observed behavior:** if a transitional runtime state exposed `device_details` as a non-mapping value, existing per-device Managed Devices review and reset-overrides buttons could raise while Home Assistant rendered their native device-page attributes.
+- **expected behavior:** native per-device Managed Devices buttons should tolerate a malformed `device_details` container, fall back to empty device detail evidence, and keep the native Home Assistant child-device/review path renderable without adding any custom/external UI.
+- **repo fix:** this run routes the per-device button detail lookup through the shared managed-device detail container normalizer before selecting the requested device key.
+- **validation status:** closed with focused regression coverage for malformed top-level runtime `device_details` on per-device review/reset buttons plus Python compile for `button.py`.
+- **next action:** keep the active boundary on ZNE-439/ZNE-429: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-488 - malformed validation_details could crash native support summaries
 
 - **status:** `closed`
