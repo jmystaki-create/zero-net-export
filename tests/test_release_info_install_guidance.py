@@ -154,6 +154,31 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("remaining `0.1.89` UI rollout", optimization_target)
         self.assertNotIn("ordered `0.1.89` UI work", acceptance_stance)
 
+    def test_ui_design_current_visible_outcomes_use_0190_device_page_boundary(self) -> None:
+        design = (REPO_ROOT / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
+        visible_outcomes = design.split(
+            "## The four required visible outcomes for the current UI correction line", 1
+        )[1].split("## UX principles", 1)[0]
+
+        self.assertIn("The current UI correction target is `0.1.90`", visible_outcomes)
+        self.assertIn("live-failed `0.1.89` wording", visible_outcomes)
+        self.assertIn("### 1. Device-page Managed Devices must be obvious", visible_outcomes)
+        self.assertIn("Managed Devices exists as a current surface or cluster", visible_outcomes)
+        self.assertIn("### 4. The product structure must be clearly felt", visible_outcomes)
+        self.assertNotIn("The current UI correction target is `0.1.89`", visible_outcomes)
+        self.assertNotIn("these three visible outcomes", visible_outcomes)
+
+    def test_ui_implementation_map_uses_current_device_page_action_names(self) -> None:
+        plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
+        active_stages = plan.split("### Stage 4. Managed Devices workspace redesign", 1)[1].split(
+            "## Historical 0.1.89 release rollout view", 1
+        )[0]
+
+        self.assertIn("`Open Managed Devices workspace`", active_stages)
+        self.assertIn("`Open Managed Devices review`", active_stages)
+        self.assertNotIn("`Review managed devices workspace`", active_stages)
+        self.assertNotIn("`Review managed devices`", active_stages)
+
     def test_current_candidate_changelog_avoids_stale_ranking_or_deeper_path_wording(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(

@@ -377,13 +377,23 @@ The product should avoid both extremes:
 - one giant unstructured flow
 - or a fragmented maze of disconnected sections
 
-## The three required visible outcomes for the current UI correction line
+## The four required visible outcomes for the current UI correction line
 
-The current UI correction target is `0.1.89`. Do not treat stale `0.1.83`, `0.1.85`, `0.1.86`, or published-but-superseded `0.1.88` wording as the active future release target.
+The current UI correction target is `0.1.90`. Do not treat stale `0.1.83`, `0.1.85`, `0.1.86`, published-but-superseded `0.1.88`, or live-failed `0.1.89` wording as the active future release target.
 
-It must focus on these three visible outcomes:
+It must focus on these four visible outcomes:
 
-### 1. Managed vs unmanaged must be visually obvious
+### 1. Device-page Managed Devices must be obvious
+The Zero Net Export device page must visibly expose Managed Devices state, not just generic review buttons or Activity history.
+
+An operator should immediately be able to tell from the device page:
+- that Managed Devices exists as a current surface or cluster
+- how many devices are managed or need attention
+- whether unmanaged candidates/backlog exist
+- what the current blocker or next fleet action is before pressing a button
+- where to open the deeper `Configure -> Managed Devices` workflow
+
+### 2. Managed vs unmanaged must be visually obvious
 An operator should immediately be able to tell:
 - what is already managed
 - what is still unmanaged
@@ -391,7 +401,7 @@ An operator should immediately be able to tell:
 
 The vertical split of Managed Devices is part of making this obvious.
 
-### 2. Promote / vet / review must feel first-class
+### 3. Promote / vet / review must feel first-class
 The promotion flow must feel like a coherent workflow inside the native product.
 
 It must clearly support:
@@ -401,7 +411,7 @@ It must clearly support:
 - promote the candidate into the managed fleet
 - receive a meaningful success landing
 
-### 3. The product structure must be clearly felt
+### 4. The product structure must be clearly felt
 The operator should not have to guess where something lives.
 
 The landing flow should make it obvious:

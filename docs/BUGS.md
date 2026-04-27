@@ -86,6 +86,19 @@ Suggested area labels:
 ## Current active bugs
 
 
+## ZNE-414 - UI design visible-outcomes section still named 0.1.89
+- **status:** `closed`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-27 after `docs/SUPERVISOR.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.90_PLAN.md`, and `ZNE-411` had already made `0.1.90` the active corrective target.
+- **current observed behavior:** `docs/UI_DESIGN.md` still said the current UI correction target was `0.1.89` and framed the current visible outcomes as three Configure/promotion/IA outcomes, omitting the now-controlling device-page Managed Devices surface that James's `0.1.89` screenshot proved missing. The implementation map also still named the active Stage 4/8 device-page actions as the failed generic `Review managed devices` wording instead of the current `Open Managed Devices workspace` / `Open Managed Devices review` names.
+- **expected behavior:** the product-design source of truth should name `0.1.90` as the active correction target, treat `0.1.89` as live-failed evidence, include device-page Managed Devices visibility as the first current visible outcome, and keep implementation-map completed action names aligned with the repo's current native HA button labels.
+- **evidence:** direct repo inspection found `The current UI correction target is 0.1.89` in `docs/UI_DESIGN.md` and stale `Review managed devices workspace` / `Review managed devices` completed-state wording in `docs/UI_IMPLEMENTATION_MAP.md`, while the active 0.1.90 release plan and button code use the corrective device-page Managed Devices boundary and `Open Managed Devices ...` action names.
+- **repo fix:** this run updates the UI design visible-outcomes section to the `0.1.90` four-outcome boundary with device-page Managed Devices first, aligns the implementation-map completed action names with the current repo labels, and adds regression coverage so the design/map cannot silently fall back to the stale `0.1.89`/generic-review wording.
+- **validation status:** tracker/source-of-truth correction verified with `python3 -m unittest -q tests.test_release_info_install_guidance` plus `python3 -m py_compile tests/test_release_info_install_guidance.py`. No Home Assistant live validation is required for this docs/process-state closure.
+- **next action:** continue `ZNE-411`: finish/prove the repo-side device-page Managed Devices surface, then ask James directly for `0.1.90` release approval once the candidate is ready.
+
+
 ## ZNE-413 - Supervisor still named 0.1.89 as the ordered UI rollout
 - **status:** `closed`
 - **severity:** `medium`
