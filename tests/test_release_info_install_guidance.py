@@ -109,6 +109,17 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("After James approves, bump manifest/version-coupled expectations to `0.1.89`", freeze_section)
 
 
+
+    def test_zne_403_process_bug_no_longer_reopens_completed_freeze_release_boundary(self) -> None:
+        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
+        zne_403 = bugs.split("## ZNE-403", 1)[1].split("\n## ZNE-402", 1)[0]
+
+        self.assertIn("- **status:** `closed`", zne_403)
+        self.assertIn("already-completed `0.1.89` freeze or GitHub publication", zne_403)
+        self.assertIn("James installs/updates to `v0.1.89`", zne_403)
+        self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
+        self.assertNotIn("ask James to approve the `0.1.89` freeze/release/deploy/restart path", zne_403)
+
     def test_validation_checklist_tracks_published_0189_state(self) -> None:
         checklist = (REPO_ROOT / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
         boundary = checklist.split("Repo-side helper for mixed-build checks:", 1)[0]
