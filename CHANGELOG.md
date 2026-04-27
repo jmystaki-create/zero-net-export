@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
+- Capitalized the device-page `Managed Devices workspace` persistent-notification title and heading, so the primary workspace action keeps the exact Managed Devices surface name after it opens instead of falling back to lower-case generic workspace wording.
 - Replaced the last generic diagnostics payload entry for per-device review controls with `Per-device Managed Devices review buttons`, so support metadata matches the `0.1.90` device-page Managed Devices action names.
 - Marked the historical `0.1.89` release-plan install/test checklist as completed-and-failed, so runners cannot mistake the superseded plan for another `0.1.89` install/restart/live-validation loop while `0.1.90` is the active corrective path.
 - Capitalized the Configure Managed Devices `Managed Devices review` section heading across fleet and promotion screens, so the primary workspace no longer falls back to lower-case generic review wording while the `0.1.90` Managed Devices surface is being prepared for release approval.

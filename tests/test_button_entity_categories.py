@@ -483,9 +483,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         asyncio.run(button.async_press())
 
         self.assertEqual(len(notification_calls), 1)
-        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: managed devices workspace")
+        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: Managed Devices workspace")
         message = notification_calls[0]["args"][1]
-        self.assertIn("Zero Net Export managed devices workspace", message)
+        self.assertIn("Zero Net Export Managed Devices workspace", message)
+        self.assertNotIn("Test Entry: managed devices workspace", notification_calls[0]["kwargs"]["title"])
+        self.assertNotIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Managed Devices workspace: devices path", message)
         self.assertIn("Secondary device-page review/audit path: detailed device path", message)
         self.assertIn(

@@ -1141,7 +1141,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             has_managed_devices=bool(ordered),
         )
         lines = [
-            'Zero Net Export managed devices workspace',
+            'Zero Net Export Managed Devices workspace',
             '',
             f'Managed Devices workspace: {DEVICES_CONFIGURE_PATH}',
             f'Secondary device-page review/audit path: {DETAILED_MANAGEMENT_PATH}',
@@ -1224,7 +1224,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         persistent_notification.async_create(
             self.hass,
             '\n'.join(lines),
-            title=f"{self.coordinator.entry.title}: managed devices workspace",
+            title=f"{self.coordinator.entry.title}: Managed Devices workspace",
             notification_id=_fleet_console_notification_id(self.coordinator.entry.entry_id),
         )
 
