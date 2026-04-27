@@ -198,6 +198,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 - **validation status:** fixed in repo with focused integration-page regression coverage for managed-row add/remove/metadata-refresh, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `entity.py`, `sensor.py`, and the touched test file, plus the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
 - **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that `Managed Devices — ...` rows update when managed loads are added, removed, or renamed.
 
+## ZNE-504 - stale child-device rows could remain in the device registry after entity removal
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing the ZNE-498/ZNE-503 stale-row removal path against the actual Home Assistant integration-page Devices list, which is backed by the device registry rather than only live entity objects.
+- **current observed behavior:** stale `Managed Devices — ...` and `Un Managed — ...` row entities were force-removed when managed loads disappeared or unmanaged candidates were no longer candidates, but their child device-registry rows were not explicitly removed. That could leave old child devices visible on the Zero Net Export main integration page even after the backing managed load/candidate disappeared.
+- **expected behavior:** when a whole managed-load or unmanaged-candidate child row disappears, the integration should remove both the stale row entity and the corresponding child device-registry device. Removing only a per-row supporting entity, such as a variable-load target-power entity, must not remove the whole child device row.
+- **evidence:** `_schedule_integration_page_entity_removal()` called `entity.async_remove(force_remove=True)` only; no stale-row path called Home Assistant's device registry `async_remove_device(...)` for the managed/unmanaged child-device identifier.
+- **repo fix:** this run adds a stale child-device registry removal helper and uses it only when an entire managed or unmanaged integration-page row disappears. The existing variable/fixed target-power cleanup still removes only that supporting entity, preserving the native HA child-device row.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage for managed and unmanaged stale-row device-registry removal, plus `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest discover -s tests -q`, and Python compile for `entity.py`, `sensor.py`, and the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that removed managed loads and removed/promoted unmanaged candidates no longer leave stale child-device rows behind.
+
 ## Closed bugs and process corrections
 
 ## ZNE-497 - unmanaged candidate cache could keep stale integration-page rows after HA state changes

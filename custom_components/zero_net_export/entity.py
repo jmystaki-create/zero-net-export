@@ -113,23 +113,29 @@ def _integration_page_child_device_identifier(device_info: dict | None) -> tuple
 
 
 
-def sync_integration_page_child_device_registry(hass, device_info: dict | None) -> None:
-    """Refresh device-registry metadata for managed/unmanaged integration-page rows."""
+def _integration_page_child_device_registry_entry(hass, device_info: dict | None):
+    """Return the registry and device entry for a managed/unmanaged child device."""
     identifier = _integration_page_child_device_identifier(device_info)
     if identifier is None:
-        return
+        return None, None
 
     try:
         from homeassistant.helpers import device_registry as dr
     except Exception:
-        return
+        return None, None
 
     try:
         device_registry = dr.async_get(hass)
         device = device_registry.async_get_device({identifier})
     except Exception:
-        return
-    if device is None:
+        return None, None
+    return device_registry, device
+
+
+def sync_integration_page_child_device_registry(hass, device_info: dict | None) -> None:
+    """Refresh device-registry metadata for managed/unmanaged integration-page rows."""
+    device_registry, device = _integration_page_child_device_registry_entry(hass, device_info)
+    if device_registry is None or device is None:
         return
 
     updates = {}
@@ -151,6 +157,21 @@ def sync_integration_page_child_device_registry(hass, device_info: dict | None) 
 
     if updates:
         device_registry.async_update_device(device.id, **updates)
+
+
+def remove_integration_page_child_device_registry(hass, device_info: dict | None) -> None:
+    """Remove a stale managed/unmanaged child device row from the device registry."""
+    device_registry, device = _integration_page_child_device_registry_entry(hass, device_info)
+    if device_registry is None or device is None:
+        return
+    remove_device = getattr(device_registry, "async_remove_device", None)
+    if remove_device is None:
+        return
+    try:
+        remove_device(device.id)
+    except Exception:
+        return
+
 
 def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
     """Return device info that makes an unmanaged candidate appear as its own HA device row."""

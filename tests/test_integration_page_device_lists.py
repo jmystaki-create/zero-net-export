@@ -9,14 +9,20 @@ class _FakeDeviceRegistry:
     def __init__(self, device):
         self.device = device
         self.updated = None
+        self.removed = []
 
     def async_get_device(self, identifiers):
-        return self.device if self.device.identifier in identifiers else None
+        return self.device if self.device is not None and self.device.identifier in identifiers else None
 
     def async_update_device(self, device_id, **kwargs):
         self.updated = (device_id, kwargs)
         for key, value in kwargs.items():
             setattr(self.device, key, value)
+
+    def async_remove_device(self, device_id):
+        self.removed.append(device_id)
+        if self.device is not None and self.device.id == device_id:
+            self.device = None
 
 from tests.test_sensor_entity_categories import _load_sensor_module
 
@@ -608,9 +614,15 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         coordinator = self._coordinator()
         coordinator.async_add_listener = add_listener
+        registry_device = SimpleNamespace(
+            id="managed-device-1",
+            identifier=("zero_net_export", "entry-1:managed-device:pool"),
+        )
+        registry = _FakeDeviceRegistry(registry_device)
         hass = SimpleNamespace(
             data={"zero_net_export": {"entry-1": coordinator}},
             states=SimpleNamespace(async_all=lambda: []),
+            device_registry=registry,
         )
         entry = SimpleNamespace(entry_id="entry-1", data={}, options={}, async_on_unload=lambda unsubscribe: None)
         added = []
@@ -634,6 +646,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         listeners[0]()
 
         self.assertEqual(removed, [{"force_remove": True}] * len(stale_entities))
+        self.assertEqual(registry.removed, ["managed-device-1"])
 
     def test_setup_entry_refreshes_existing_managed_device_row_metadata(self) -> None:
         sensor_module = _load_sensor_module()
@@ -791,6 +804,11 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         coordinator = self._coordinator()
         coordinator.data = SimpleNamespace(validation_details={})
         coordinator.async_add_listener = add_listener
+        registry_device = SimpleNamespace(
+            id="unmanaged-device-1",
+            identifier=("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water"),
+        )
+        registry = _FakeDeviceRegistry(registry_device)
         current_states = [
             SimpleNamespace(
                 entity_id="switch.hot_water",
@@ -801,6 +819,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         hass = SimpleNamespace(
             data={"zero_net_export": {"entry-1": coordinator}},
             states=SimpleNamespace(async_all=lambda: list(current_states)),
+            device_registry=registry,
         )
         entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
         added = []
@@ -832,6 +851,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         listeners[-1]()
 
         self.assertEqual(removed, [{"force_remove": True}])
+        self.assertEqual(registry.removed, ["unmanaged-device-1"])
 
     def test_setup_entry_refreshes_existing_unmanaged_candidate_row_details(self) -> None:
         sensor_module = _load_sensor_module()

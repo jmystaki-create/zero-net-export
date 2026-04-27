@@ -29,6 +29,7 @@ from .entity import (
     managed_load_detail_mapping,
     managed_load_details_mapping,
     managed_load_device_info,
+    remove_integration_page_child_device_registry,
     sync_integration_page_child_device_registry,
     unmanaged_candidate_device_info,
 )
@@ -421,7 +422,7 @@ def _register_managed_device_row_sync(
         for stale_key in sorted(set(known_managed_entities) - current_device_keys):
             stale_entities = known_managed_entities.pop(stale_key)
             for stale_entity in stale_entities:
-                _schedule_integration_page_entity_removal(hass, stale_entity)
+                _schedule_integration_page_entity_removal(hass, stale_entity, remove_child_device=True)
 
         new_entities = []
         for device_key, detail in managed_details.items():
@@ -468,7 +469,7 @@ def _register_unmanaged_candidate_sync(
         current_candidate_keys = {_candidate_unique_key(candidate) for candidate in candidates}
         for stale_key in sorted(set(known_candidate_entities) - current_candidate_keys):
             stale_entity = known_candidate_entities.pop(stale_key)
-            _schedule_integration_page_entity_removal(hass, stale_entity)
+            _schedule_integration_page_entity_removal(hass, stale_entity, remove_child_device=True)
 
         new_entities = []
         for candidate in candidates:
@@ -509,8 +510,10 @@ def _register_unmanaged_candidate_sync(
         async_on_unload(unsubscribe_state)
 
 
-def _schedule_integration_page_entity_removal(hass, entity) -> None:
+def _schedule_integration_page_entity_removal(hass, entity, *, remove_child_device: bool = False) -> None:
     """Remove a stale integration-page child-row entity after its backing row disappears."""
+    if remove_child_device:
+        remove_integration_page_child_device_registry(hass, getattr(entity, "_attr_device_info", None))
     remove = getattr(entity, "async_remove", None)
     if remove is None:
         return
