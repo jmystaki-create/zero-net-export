@@ -22,6 +22,7 @@ from .entity import (
     managed_load_detail_mapping,
     managed_load_details_mapping,
     managed_load_display_name,
+    managed_load_settings_action_name,
 )
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
@@ -1439,7 +1440,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
 
 class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_review", f"Managed Devices review: {device_name}")
+        super().__init__(coordinator, f"device_{device_key}_review", managed_load_settings_action_name(device_name, "review"))
         self._device_key = device_key
         self._attr_icon = "mdi:text-box-search-outline"
         self._attr_entity_category = EntityCategory.CONFIG
@@ -1646,7 +1647,7 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
 
 class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_reset_overrides", f"{device_name} reset overrides")
+        super().__init__(coordinator, f"device_{device_key}_reset_overrides", managed_load_settings_action_name(device_name, "reset overrides"))
         self._device_key = device_key
         self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)

@@ -65,6 +65,13 @@ def managed_load_display_name(device_key: str, details: dict | None = None) -> s
     return str(detail.get("name") or device_key or "Managed device")
 
 
+def managed_load_settings_action_name(device_name: str, action: str) -> str:
+    """Return a visible managed-device settings/action label for native HA rows."""
+    name = str(device_name or "Managed device").strip() or "Managed device"
+    action_label = str(action or "settings").strip() or "settings"
+    return f"⚙ Settings — {name} {action_label}"
+
+
 def managed_load_detail(coordinator, device_key: str, device_name: str | None = None) -> dict:
     """Return the latest coordinator detail for a managed load."""
     state = getattr(coordinator, "data", None)

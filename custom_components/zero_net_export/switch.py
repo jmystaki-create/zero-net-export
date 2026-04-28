@@ -11,6 +11,7 @@ from .entity import (
     managed_load_detail,
     managed_load_details_mapping,
     managed_load_display_name,
+    managed_load_settings_action_name,
 )
 
 
@@ -47,7 +48,7 @@ class ZeroNetExportEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
 
 class ZeroNetExportDeviceEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_enabled", f"{device_name} enabled")
+        super().__init__(coordinator, f"device_{device_key}_enabled", managed_load_settings_action_name(device_name, "enabled"))
         self._device_key = device_key
         self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)

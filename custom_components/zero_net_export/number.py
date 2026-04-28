@@ -12,6 +12,7 @@ from .entity import (
     managed_load_detail,
     managed_load_details_mapping,
     managed_load_display_name,
+    managed_load_settings_action_name,
 )
 
 
@@ -70,7 +71,7 @@ class ZeroNetExportNumber(ZeroNetExportEntity, NumberEntity):
 
 class ZeroNetExportDevicePriorityNumber(ZeroNetExportEntity, NumberEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_priority", f"{device_name} priority")
+        super().__init__(coordinator, f"device_{device_key}_priority", managed_load_settings_action_name(device_name, "priority"))
         self._device_key = device_key
         self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)

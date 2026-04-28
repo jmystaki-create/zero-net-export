@@ -65,6 +65,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         switch = switch_module.ZeroNetExportDeviceEnabledSwitch(_coordinator(), "pool", "Pool Pump")
 
         self.assertEqual(switch._attr_entity_category, switch_module.EntityCategory.CONFIG)
+        self.assertEqual(switch._attr_name, "⚙ Settings — Pool Pump enabled")
         self.assertEqual(switch._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(switch._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
@@ -74,6 +75,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         number = number_module.ZeroNetExportDevicePriorityNumber(_coordinator(), "pool", "Pool Pump")
 
         self.assertEqual(number._attr_entity_category, number_module.EntityCategory.CONFIG)
+        self.assertEqual(number._attr_name, "⚙ Settings — Pool Pump priority")
         self.assertEqual(number._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(number._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
@@ -85,6 +87,8 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
 
         self.assertEqual(review._attr_entity_category, button_module.EntityCategory.CONFIG)
         self.assertEqual(reset._attr_entity_category, button_module.EntityCategory.CONFIG)
+        self.assertEqual(review._attr_name, "⚙ Settings — Pool Pump review")
+        self.assertEqual(reset._attr_name, "⚙ Settings — Pool Pump reset overrides")
         self.assertEqual(review._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(reset._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
 

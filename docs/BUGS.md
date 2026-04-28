@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-521 - managed-device config actions lacked visible settings labels
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking Riley's highlighted requirement that managed-device rows/actions need an obvious visible settings/gear affordance, not only Home Assistant's native chevron/settings path.
+- **current observed behavior:** managed child-device row `name`/`model` text included `⚙ Settings`, but the native per-managed-device config entities/actions still had plain labels such as `Pool Pump enabled`, `Pool Pump priority`, `Managed Devices review: Pool Pump`, and `Pool Pump reset overrides`. Screenshots of row actions could therefore still look like ordinary controls without an explicit settings affordance.
+- **expected behavior:** managed-device configuration/action surfaces should visibly carry the same `⚙ Settings` affordance while keeping unmanaged candidates out of the peer device list and available through Managed Devices workflow/backlog surfaces.
+- **repo fix:** this run adds a shared managed-device settings/action label helper and applies it to the per-managed-device enabled switch, priority number, review button, and reset-overrides button, producing labels like `⚙ Settings — Pool Pump enabled` and `⚙ Settings — Pool Pump review` while leaving the managed-only peer-row behavior intact.
+- **validation status:** fixed in repo with focused native managed-device settings coverage, `python3 -m unittest tests.test_device_page_managed_settings tests.test_integration_page_device_lists -q`, `python3 -m unittest tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q`, and Python compile for touched component modules. Live Home Assistant screenshot validation remains pending and requires explicit approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list and managed-device action surfaces showing visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-520 - deprecated 0.1.91 release plan still required peer Un Managed rows
 
 - **status:** `fixed_pending_validation`
