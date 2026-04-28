@@ -20,23 +20,32 @@ class TestBugTrackerIds(unittest.TestCase):
         managed_settings = content.index("## ZNE-521 - managed-device config actions lacked visible settings labels")
         unmanaged_suppression = content.index("## ZNE-515 - setup still created peer Un Managed candidate rows")
         superseded_heading = content.index("## Superseded historical release/peer-row bugs retained for context")
+        historical_release_scope = content.index("## ZNE-439 - historical release-target mismatch superseded")
         historical_peer_scope = content.index("## ZNE-429 - historical 0.1.91 peer Un Managed device-list scope superseded")
         closed_entries_section = content.index("## Closed bugs and process corrections")
         historical_backlog_section = content.index("## Historical fixed-pending validation backlog")
         active_section = content[active_heading:superseded_heading]
         superseded_section = content[superseded_heading:closed_entries_section]
+        zne_439 = content[historical_release_scope:historical_peer_scope]
         zne_429 = content[historical_peer_scope:content.index("## ZNE-498", historical_peer_scope)]
 
         self.assertLess(active_heading, managed_settings)
         self.assertLess(managed_settings, unmanaged_suppression)
         self.assertLess(unmanaged_suppression, superseded_heading)
-        self.assertLess(superseded_heading, historical_peer_scope)
+        self.assertLess(superseded_heading, historical_release_scope)
+        self.assertLess(historical_release_scope, historical_peer_scope)
         self.assertLess(historical_peer_scope, closed_entries_section)
         self.assertLess(closed_entries_section, historical_backlog_section)
         self.assertIn("visible `⚙ Settings` labels", active_section)
         self.assertIn("stops adding unmanaged candidate peer-row entities", active_section)
         self.assertIn("no peer `Un Managed — ...` rows", active_section)
         self.assertIn("not the current work queue", superseded_section)
+        self.assertIn("## ZNE-538 - superseded ZNE-439 still reopened the old release-target approval loop", active_section)
+        self.assertIn("**status:** `deferred`", zne_439)
+        self.assertIn("Riley's explicit approval", zne_439)
+        self.assertNotIn("- **status:** `open`", zne_439)
+        self.assertNotIn("ask James directly", zne_439)
+        self.assertNotIn("release-target decision remains open", zne_439)
         self.assertIn("Riley-approved live screenshot evidence", zne_429)
         self.assertIn("**status:** `deferred`", zne_429)
         self.assertIn("Do not use the old `0.1.91` peer-row acceptance criteria", zne_429)

@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-538 - superseded ZNE-439 still reopened the old release-target approval loop
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-28 while explicitly checking for loop/churn drift under Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** ZNE-439 had been moved under the superseded historical release/peer-row section, but it still had `open` status and a next action asking James to decide whether the helper-resolved `0.1.94` component boundary should replace the old `0.1.91` release target. That stale tail could reopen release-target/fingerprint approval churn even though the current gate is Riley approval plus tests and screenshot proof for the managed-only behavior.
+- **expected behavior:** superseded release-target history should remain context only. It must not present an open work queue item, ask James for an old release-target decision, or block the current managed-only peer-list/settings-affordance scope.
+- **repo fix:** this run defers ZNE-439 as historical/superseded process context, rewrites its validation/next-action tail around Riley's current approval gate, and adds bug-tracker regression coverage rejecting the stale open release-target loop.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_bug_tracker_ids -q`. No Home Assistant live validation needed because this is bug-tracker/process steering only.
+- **next action:** after explicit Riley approval, validate live screenshot evidence for the current managed-only native device-list behavior: managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-537 - stale unmanaged peer entities could survive alternate registry ownership shapes
 
 - **status:** `fixed_pending_validation`
@@ -459,19 +471,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 The entries below are not the current work queue when they conflict with `docs/ACTIVE_USER_REQUESTS.md`. They remain only to explain historical release and peer-row decisions; current work is managed-only peer rows, visible managed-device settings affordance, unmanaged candidates behind workflow/backlog/review surfaces, and no release/deploy/readiness claim without approval, tests, and screenshot proof.
 
-## ZNE-439 - repo froze 0.1.94 while source-of-truth still limits approval to 0.1.91
+## ZNE-439 - historical release-target mismatch superseded by Riley's current approval gate
 
-- **status:** `open`
+- **status:** `deferred`
 - **severity:** `high`
 - **area:** `release`
-- **where seen:** watchdog repo audit on 2026-04-28 after `4c0d071` backfilled managed device registry settings links and froze/tagged `v0.1.94`, while `docs/SUPERVISOR.md`, `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, `docs/RELEASE_0.1.91_PLAN.md`, `docs/BUGS.md`, and `project_status.md` still define the approved release scope as `0.1.91` / release `1.91` only.
-- **current observed behavior:** the fingerprint helper now resolves the component install candidate to the current helper-resolved manifest `0.1.94` component boundary after post-freeze component fixes including install guidance and child-device model grouping with `manifest_version: 0.1.94`, while repo HEAD may move on with source-of-truth hardening and the approved source-of-truth scope is still `0.1.91`. Follow-up source-of-truth hardening now prevents runners from deploying the obsolete `c4802a3` `0.1.91` boundary, the unapproved `db5c246` `0.1.92` candidate, the unapproved `026f189` `0.1.93` candidate, or the unapproved `4c0d071` `0.1.94` freeze or the post-freeze helper-resolved component boundary, but the human release-target decision remains open.
-- **expected behavior:** before any Home Assistant install, restart, fingerprint validation, or success claim, James must explicitly approve whether the post-`0.1.91` `0.1.94` candidate is the new release target or whether the project should return to the documented `0.1.91` boundary. The supervisor must not silently substitute the `0.1.94` tag for the approved `0.1.91` scope.
-- **evidence:** recent history includes `db5c246 release: freeze 0.1.92`, `3b722ff feat: add per-load configuration card entities`, `026f189 fix: add managed device row settings links`, `4c0d071 fix: backfill managed device registry settings links`, and later source-of-truth hardening commits; `scripts/print_expected_install_fingerprint.py` reports `manifest_version: 0.1.94`, the helper-resolved expected commit, and the helper-resolved preferred validation commit for the component candidate, while the release plan and implementation map now explicitly hold `7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, and the current helper-resolved component boundary until James decides the release target.
-- **suspected cause:** release/version bookkeeping advanced after the approved `0.1.91` native child-device candidate without updating or re-approving the governing source-of-truth docs and human approval boundary.
-- **repo fix:** follow-up source-of-truth hardening now puts the same hold into the supervisor, release plan, and implementation map so the next runner does not deploy/restart or validate Home Assistant against `7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or the current helper-resolved component boundary without an explicit James release-target decision. This run corrected the supervisor hold line itself so it names the earlier `v0.1.93` freeze, not a duplicate `v0.1.94`, and explicitly includes `4c0d071` plus the post-freeze helper-resolved component boundary in the do-not-deploy/call-successful list.
-- **validation status:** process-state fix verified with bug-tracker/project-status and source-of-truth regression coverage; this run added supervisor release-hold regression coverage. No Home Assistant live validation is required or appropriate until James resolves the release-target mismatch.
-- **next action:** ask James directly: should the current helper-resolved manifest `0.1.94` component boundary replace the documented `0.1.91` release target for release/deploy/restart validation, or should release execution return to the approved `0.1.91` boundary?
+- **where seen:** watchdog repo audit on 2026-04-28 after `4c0d071` backfilled managed device registry settings links and froze/tagged `v0.1.94`, while then-current docs still defined an old `0.1.91` / release `1.91` scope. Riley later superseded that release-target/peer-row boundary with `docs/ACTIVE_USER_REQUESTS.md`.
+- **current observed behavior:** this entry previously remained `open` and asked for a James release-target decision even after it was moved under the superseded historical release/peer-row section. That tail could reopen stale fingerprint/release-target churn instead of focusing on Riley's managed-only native device-list scope.
+- **expected behavior:** this entry should remain historical context only. It must not be used to choose work, block current fixes, request an old release-target decision, deploy/restart Home Assistant, run fingerprint validation, or claim readiness. Current release/live-validation gates are Riley's explicit approval, passing tests, and screenshot proof for managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+- **evidence:** current source-of-truth docs now name `docs/ACTIVE_USER_REQUESTS.md` first, deprecate the old UI/release-map documents, and require managed-only native peer rows plus Riley-approved screenshot proof.
+- **supersession note:** retained only to explain prior `0.1.91`/`0.1.94` release bookkeeping. Do not reopen this as an approval-boundary task unless Riley explicitly asks to revisit release targeting.
+- **validation status:** historical release-target mismatch deferred by current user request. No Home Assistant live validation is appropriate from this entry.
+- **next action:** follow the current highlighted validation gate after explicit Riley approval: tests plus live screenshot evidence that native managed rows/actions show visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
 
 ## ZNE-429 - historical 0.1.91 peer Un Managed device-list scope superseded by managed-only rows
 
