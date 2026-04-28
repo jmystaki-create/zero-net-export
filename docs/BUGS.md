@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-520 - deprecated 0.1.91 release plan still required peer Un Managed rows
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking for deprecated release-plan drift under Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** `docs/RELEASE_0.1.91_PLAN.md` had a deprecation banner, but the body still read like an active release plan requiring peer `Un Managed — ...` unmanaged-candidate rows and an old `0.1.91`/`1.91` release-target decision path. That could pull future watchdog/supervisor runs back into deprecated peer-row acceptance criteria.
+- **expected behavior:** old release plans must be historical only and must not require or imply peer `Un Managed — ...` rows beside managed devices; they should point operators to the current managed-only peer-list scope, visible settings affordance, workflow/backlog unmanaged candidates, and approval-gated screenshot proof.
+- **repo fix:** this run rewrites `docs/RELEASE_0.1.91_PLAN.md` as a short deprecated/historical note, removes active-looking peer-row acceptance and release-target instructions, and adds regression coverage that the plan now follows the current highlighted scope instead of the old peer-row checklist.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q`. No Home Assistant live validation needed because this is documentation/test steering only.
+- **next action:** keep live validation blocked until Riley explicitly approves deployment/restart/screenshot work and evidence shows managed rows with visible settings affordance and no peer `Un Managed — ...` rows.
+
 ## ZNE-519 - stale unmanaged peer entity-registry entries could survive device-row suppression
 
 - **status:** `fixed_pending_validation`

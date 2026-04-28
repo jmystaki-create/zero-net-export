@@ -260,26 +260,20 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("## Detailed remaining work map", plan)
         self.assertNotIn("approved `0.1.91` / release `1.91` scope", plan)
 
-    def test_0191_release_plan_and_bug_tracker_make_human_boundary_explicit(self) -> None:
+    def test_0191_release_plan_is_historical_not_current_peer_row_scope(self) -> None:
         release_plan = (REPO_ROOT / "docs" / "RELEASE_0.1.91_PLAN.md").read_text(encoding="utf-8")
-        bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
-        zne_429 = bugs.split("## ZNE-429", 1)[1].split("\n## ZNE-432", 1)[0]
 
-        self.assertIn("later `v0.1.94` at `4c0d071`", release_plan)
-        self.assertIn("Do not deploy, restart, fingerprint-validate, or call successful either the old `7217f3b` tag", release_plan)
-        self.assertIn("until James explicitly decides whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` release target", release_plan)
-        self.assertIn("after post-freeze component fixes", release_plan)
-        self.assertNotIn("after the post-freeze component guidance fix", release_plan)
-        self.assertIn("do not treat the `v0.1.91` freeze/tag, the unapproved `v0.1.92` freeze/tag, the unapproved `v0.1.93` freeze/tag, the unapproved `v0.1.94` freeze/tag, or the post-freeze helper-resolved component boundary", zne_429)
-        self.assertIn("Ask James directly whether the current helper-resolved manifest `0.1.94` component boundary should replace", zne_429)
-        self.assertIn("only after that decision, ask for native-row acceptance and exact release/deploy/restart approval", zne_429)
-        self.assertIn("If James rejects the closest native child-device representation", release_plan)
-        self.assertIn("visible `Managed Devices — ...` and `Un Managed — ...` device row/model grouping", release_plan)
-        self.assertIn("now resolves as manifest `0.1.94` / the helper-resolved preferred validation commit", zne_429)
-        self.assertNotIn("review whether the closest native device-info representation is acceptable", zne_429)
-        self.assertNotIn("if accepted, freeze `0.1.91`", zne_429)
-        self.assertNotIn("before freezing/deploying `0.1.91`", zne_429)
-        self.assertIn("ZNE-438 - 0.1.91 docs still treated the pre-fix tag as the exact deploy boundary", zne_429)
+        self.assertIn("Release Plan — DEPRECATED", release_plan)
+        self.assertIn("Do not use this file as active release scope", release_plan)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", release_plan)
+        self.assertIn("Native integration/device peer rows must be **managed-only**", release_plan)
+        self.assertIn("Managed rows must visibly show a settings affordance", release_plan)
+        self.assertIn("Peer `Un Managed — ...` unmanaged-candidate rows must be suppressed/removed", release_plan)
+        self.assertIn("behind Managed Devices workflow/backlog/review surfaces", release_plan)
+        self.assertIn("No release, deploy, restart, fingerprint validation, readiness claim, or live screenshot validation", release_plan)
+        self.assertNotIn("A visible **Un Managed** group/list", release_plan)
+        self.assertNotIn("unmanaged candidates as child Home Assistant devices", release_plan)
+        self.assertNotIn("can be called successful only when live Home Assistant screenshot evidence shows the accepted native representation", release_plan)
 
     def test_0191_success_criteria_respect_accepted_native_grouping_constraint(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
