@@ -32,6 +32,7 @@ from .entity import (
     managed_load_device_info,
     managed_load_settings_action_name,
     remove_integration_page_child_device_registry,
+    remove_stale_managed_child_devices_for_entry,
     remove_unmanaged_candidate_child_devices_for_entry,
     sync_integration_page_child_device_registry,
     legacy_unmanaged_candidate_device_info,
@@ -280,6 +281,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
         managed_device_entities[device_key] = device_entities
         entities.extend(device_entities)
 
+    remove_stale_managed_child_devices_for_entry(
+        hass,
+        entry.entry_id,
+        [managed_load_device_info(coordinator, device_key, detail) for device_key, detail in managed_details.items()],
+    )
     candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
     _cleanup_legacy_unmanaged_candidate_device_rows(coordinator, hass, candidates)
 
@@ -408,6 +414,11 @@ def _register_managed_device_row_sync(
         state = getattr(coordinator, "data", None)
         managed_details = _integration_page_managed_details(entry, state)
         coordinator._zne_integration_page_managed_details = managed_details
+        remove_stale_managed_child_devices_for_entry(
+            hass,
+            entry.entry_id,
+            [managed_load_device_info(coordinator, device_key, detail) for device_key, detail in managed_details.items()],
+        )
         current_device_keys = set(managed_details)
         for stale_key in sorted(set(known_managed_entities) - current_device_keys):
             stale_entities = known_managed_entities.pop(stale_key)

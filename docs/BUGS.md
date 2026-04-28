@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-557 - stale managed child-device rows could survive current fleet changes
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking Riley's managed-only native Home Assistant device-list scope after the unmanaged peer-row cleanup fixes.
+- **current observed behavior:** setup and later managed-detail sync removed stale `Un Managed — ...` peer rows and removed stale managed entities that still had live entity objects, but a preexisting `entry:managed-device:<old-load>` device-registry row for a load no longer in the configured/runtime managed fleet could survive if no current entity object existed for it. That could leave a non-current managed child row beside the current managed rows.
+- **expected behavior:** the native integration/device peer list should contain only the current managed fleet rows; stale managed child-device registry rows and same-entry entity-registry entries attached to them should be removed without touching current managed rows, other config entries, or unmanaged backlog/workflow surfaces.
+- **repo fix:** this run adds a current-fleet managed child-device registry sweep during sensor setup and managed-detail sync, removes same-entry entity-registry entries attached to removed stale managed child devices, and keeps the existing unmanaged peer-row cleanup separate.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py`, `custom_components/zero_net_export/sensor.py`, and the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing only current managed rows/actions with visible `⚙ Settings` labels, no stale managed rows, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-556 - workflow sensor attributes could drift from shared preservation keys
 
 - **status:** `fixed_pending_validation`

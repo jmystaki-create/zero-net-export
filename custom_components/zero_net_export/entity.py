@@ -465,6 +465,36 @@ def _entity_registry_entry_config_entry_ids(entity) -> set[str]:
     return ids
 
 
+def _remove_entity_registry_entries_attached_to_devices(
+    hass,
+    entry_id: str,
+    child_device_ids: set[str] | None,
+    *,
+    preserve_current_workflow_entries: bool,
+) -> None:
+    """Remove entity-registry entries attached to removed current-entry child devices."""
+    try:
+        from homeassistant.helpers import entity_registry as er
+    except Exception:
+        return
+    try:
+        entity_registry = er.async_get(hass)
+    except Exception:
+        return
+    device_ids = {str(device_id) for device_id in (child_device_ids or set()) if device_id}
+    if not device_ids:
+        return
+    expected_entry_id = str(entry_id)
+    for entity in _entity_registry_entries(entity_registry):
+        entity_entry_ids = _entity_registry_entry_config_entry_ids(entity)
+        if entity_entry_ids and expected_entry_id not in entity_entry_ids:
+            continue
+        if preserve_current_workflow_entries and _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id):
+            continue
+        if str(getattr(entity, "device_id", "") or "") in device_ids:
+            _remove_entity_registry_entry(entity_registry, entity)
+
+
 def remove_unmanaged_candidate_entity_registry_entries_for_entry(
     hass,
     entry_id: str,
@@ -498,6 +528,55 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
             )
         ):
             _remove_entity_registry_entry(entity_registry, entity)
+
+
+def remove_stale_managed_child_devices_for_entry(hass, entry_id: str, current_device_infos: object) -> set[str]:
+    """Remove managed child-device rows that no longer belong to the current managed fleet."""
+    removed_device_ids: set[str] = set()
+    current_identifiers: set[tuple[str, str]] = set()
+    for device_info in current_device_infos or []:
+        identifier = _integration_page_child_device_identifier(device_info)
+        if identifier is not None and ":managed-device:" in identifier[1]:
+            current_identifiers.add(identifier)
+    try:
+        from homeassistant.helpers import device_registry as dr
+    except Exception:
+        return removed_device_ids
+    try:
+        device_registry = dr.async_get(hass)
+    except Exception:
+        return removed_device_ids
+    remove_device = getattr(device_registry, "async_remove_device", None)
+    devices = getattr(device_registry, "devices", None)
+    if remove_device is None or devices is None:
+        return removed_device_ids
+    prefix = f"{entry_id}:managed-device:"
+    try:
+        device_values = list(devices.values() if isinstance(devices, Mapping) else devices)
+    except Exception:
+        return removed_device_ids
+    for device in device_values:
+        managed_identifiers = {
+            (domain, value)
+            for domain, value in _device_entry_identifiers(device)
+            if domain == DOMAIN and value.startswith(prefix)
+        }
+        if not managed_identifiers or managed_identifiers & current_identifiers:
+            continue
+        device_id = str(getattr(device, "id", "") or "")
+        try:
+            remove_device(device.id)
+            if device_id:
+                removed_device_ids.add(device_id)
+        except Exception:
+            continue
+    _remove_entity_registry_entries_attached_to_devices(
+        hass,
+        entry_id,
+        removed_device_ids,
+        preserve_current_workflow_entries=False,
+    )
+    return removed_device_ids
 
 
 def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> set[str]:

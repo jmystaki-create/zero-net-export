@@ -975,7 +975,14 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             states=SimpleNamespace(async_all=lambda: []),
             device_registry=registry,
         )
-        entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
+        entry = SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "device_inventory_json": '[{"key":"pool","name":"Pool Pump","kind":"fixed","entity_id":"switch.pool_pump","nominal_power_w":1200,"min_power_w":1200,"max_power_w":1200,"step_w":1200}]'
+            },
+            options={},
+            async_on_unload=lambda unsubscribe: None,
+        )
         added = []
         sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
 
@@ -986,6 +993,75 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(registry.removed, ["stale-unmanaged-device"])
         self.assertIn("managed-device", registry.devices)
+
+    def test_setup_entry_removes_stale_managed_registry_rows_not_in_current_fleet(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        registry = _FakeDeviceRegistry(
+            [
+                SimpleNamespace(
+                    id="current-managed-device",
+                    identifier=("zero_net_export", "entry-1:managed-device:pool"),
+                ),
+                SimpleNamespace(
+                    id="stale-managed-device",
+                    identifier=("zero_net_export", "entry-1:managed-device:old_load"),
+                ),
+                SimpleNamespace(
+                    id="other-entry-managed-device",
+                    identifier=("zero_net_export", "other-entry:managed-device:old_load"),
+                ),
+                SimpleNamespace(
+                    id="unmanaged-device",
+                    identifier=("zero_net_export", "entry-1:unmanaged-candidate:switch_old_load"),
+                ),
+            ]
+        )
+        entity_registry = _FakeEntityRegistry(
+            [
+                SimpleNamespace(
+                    entity_id="sensor.old_load_managed_summary",
+                    config_entry_id="entry-1",
+                    device_id="stale-managed-device",
+                    unique_id="entry-1_device_old_load_managed_summary",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.other_entry_old_load_managed_summary",
+                    config_entry_id="other-entry",
+                    device_id="stale-managed-device",
+                    unique_id="other-entry_device_old_load_managed_summary",
+                ),
+            ]
+        )
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+            device_registry=registry,
+            entity_registry=entity_registry,
+        )
+        entry = SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "device_inventory_json": '[{"key":"pool","name":"Pool Pump","kind":"fixed","entity_id":"switch.pool_pump","nominal_power_w":1200,"min_power_w":1200,"max_power_w":1200,"step_w":1200}]'
+            },
+            options={},
+            async_on_unload=lambda unsubscribe: None,
+        )
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        self.assertIn("stale-managed-device", registry.removed)
+        self.assertNotIn("current-managed-device", registry.removed)
+        self.assertNotIn("other-entry-managed-device", registry.removed)
+        self.assertIn("unmanaged-device", registry.removed)
+        self.assertEqual(entity_registry.removed, ["sensor.old_load_managed_summary"])
+        self.assertIn("sensor.other_entry_old_load_managed_summary", entity_registry.entities)
 
     def test_setup_entry_removes_entity_registry_entries_for_stale_unmanaged_peer_rows(self) -> None:
         sensor_module = _load_sensor_module()
