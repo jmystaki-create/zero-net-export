@@ -106,11 +106,11 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **severity:** `high`
 - **area:** `docs`
 - **where seen:** Riley flagged on 2026-04-28 that cron jobs/project docs were stale and asked to deprecate the UI design/implementation documents and focus only on the highlighted bugs/features.
-- **current observed behavior:** supervisor/watchdog/project docs still referenced `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, old `0.1.91` / `1.91` release scope, and peer `Un Managed — ...` rows as active guidance.
+- **current observed behavior:** supervisor/watchdog/project docs still referenced `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, old `0.1.91` / `1.91` release scope, and peer `Un Managed — ...` rows as active guidance. A follow-up watchdog check also found the enabled OpenClaw supervisor/watchdog cron payloads still told future runs to treat the deprecated UI roadmap/map and old `0.1.88` ordered checklist as authoritative.
 - **expected behavior:** automation and project docs should use `docs/ACTIVE_USER_REQUESTS.md` plus this bug tracker as the active source of truth, with old UI roadmap/release-plan documents marked deprecated or historical.
-- **evidence:** direct grep found UI roadmap and old release-scope references in supervisor/watchdog docs, cron payloads, validation checklist, and release-plan documents.
-- **repo fix:** deprecated `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`, added `docs/ACTIVE_USER_REQUESTS.md`, rewrote supervisor/watchdog guidance to follow current user-highlighted requests, and updated cron payloads so future runs no longer read the deprecated UI roadmap docs.
-- **validation status:** fixed in repo with JSON validation for both cron payloads and `python3 -m unittest discover -s tests -q` (576 tests OK). No Home Assistant live validation needed because this is steering/documentation-only.
+- **evidence:** direct grep found UI roadmap and old release-scope references in supervisor/watchdog docs, cron payloads, validation checklist, and release-plan documents; `openclaw cron show` confirmed enabled jobs `221265ff-f554-4731-be96-c5ac8d5d8fe9` and `b518b9ff-1a73-44b1-8ef5-a21f64ce003d` still carried stale roadmap/checklist instructions after the docs were corrected.
+- **repo fix:** deprecated `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`, added `docs/ACTIVE_USER_REQUESTS.md`, rewrote supervisor/watchdog guidance to follow current user-highlighted requests, and updated cron payloads, including the enabled runtime supervisor/watchdog jobs, so future runs no longer read the deprecated UI roadmap docs as source-of-truth inputs.
+- **validation status:** fixed in repo/runtime with JSON validation for both cron payloads, `openclaw cron show` verification of the enabled supervisor/watchdog job messages, and `python3 -m unittest discover -s tests -q` (576 tests OK). No Home Assistant live validation needed because this is steering/documentation-only.
 - **next action:** continue implementing the current highlighted code behavior: managed-only peer rows, visible managed settings affordance, and no peer `Un Managed — ...` rows.
 
 
