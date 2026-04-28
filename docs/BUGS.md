@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-550 - historical unmanaged peer-row backlog still carried stale validation gates
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking loop/churn behavior and stale bug state under Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** superseded ZNE-498 through ZNE-502 still described peer `Un Managed — ...` row add/update/metadata behavior as expected or fixed-pending work, and ZNE-498 through ZNE-506 still carried stale ZNE-439/James release-target validation blockers. That could revive old peer-row acceptance and approval-boundary churn even though Riley's current scope requires managed-only native peer rows.
+- **expected behavior:** superseded peer-row lifecycle entries should be historical/deferred only, managed-row entries should use Riley's current approval gate, and no superseded bug tail should ask for James release-target decisions or peer `Un Managed — ...` row validation.
+- **repo fix:** this run defers/rewords ZNE-498 through ZNE-502 around the current managed-only requirement, rewrites ZNE-503 through ZNE-506 validation tails to Riley's approval boundary, and adds bug-tracker regression coverage rejecting stale ZNE-439 blockers in the superseded section.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_bug_tracker_ids -q`. No Home Assistant live validation needed because this is bug-tracker/process steering only.
+- **next action:** after explicit Riley approval, validate live screenshot evidence for current managed-only native device-list behavior: managed rows/actions with visible `⚙ Settings`, no peer `Un Managed — ...` rows, and unmanaged candidates behind workflow/backlog/review surfaces.
+
 ## ZNE-549 - attached unmanaged backlog sensors could be removed with stale peer devices
 
 - **status:** `fixed_pending_validation`
@@ -632,68 +644,68 @@ The entries below are not the current work queue when they conflict with `docs/A
 
 ## ZNE-498 - Un Managed child-device rows are only seeded during sensor setup
 
-- **status:** `fixed_pending_validation`
+- **status:** `deferred`
 - **severity:** `medium`
 - **area:** `integration-page`
-- **where seen:** watchdog repo audit on 2026-04-28 while following up the ZNE-497 cache-invalidation fix against the ZNE-429 main integration-page `Un Managed — ...` child-device row requirement.
+- **where seen:** watchdog repo audit on 2026-04-28 while following up the historical ZNE-497/ZNE-429 unmanaged peer-row lifecycle scope, later superseded by Riley's managed-only native device-list requirement.
 - **current observed behavior:** `_candidate_devices_for_state()` now invalidates the unmanaged-candidate cache when candidate-relevant Home Assistant states or metadata change, so fleet summary sensors can see fresher candidates. Before the fix, `async_setup_entry()` created `ZeroNetExportUnmanagedCandidateSensor` entities only once from the candidate list available during platform setup, with no later native entity-sync path for newly surfaced candidates or stale rows.
-- **expected behavior:** the native Home Assistant integration-page unmanaged device rows should stay aligned with current candidate discovery so candidates that appear, disappear, or become managed do not require an integration/platform reload before the main integration page row set catches up.
-- **evidence:** `custom_components/zero_net_export/sensor.py` built unmanaged candidate sensors inside `async_setup_entry()` after one `_candidate_devices_for_state(coordinator, hass, state, managed_details)` call, while later `_candidate_devices_for_state()` calls were used by fleet summary sensors and next-step text only. The bug was an uncovered dynamic-row lifecycle gap rather than a failing existing regression test.
-- **repo fix:** this run completes the coordinator-listener sync for unmanaged candidate rows: newly discovered `Un Managed — ...` native row entities are added after platform setup, and stale unmanaged candidate entities are force-removed when candidates disappear or are promoted into managed inventory. This keeps the candidate-row lifecycle native to Home Assistant and does not add a custom UI path.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage for both adding new unmanaged rows and removing stale rows, plus Python compile for `sensor.py`; no Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate the approved build on the Zero Net Export main integration page and confirm the `Un Managed — ...` device rows track candidate appearance/removal without reload.
+- **expected behavior:** superseded by the current requirement: unmanaged candidates should feed Managed Devices workflow/backlog/review surfaces, not appear as native peer `Un Managed — ...` rows beside managed devices.
+- **evidence:** current steering and later fixes ZNE-515 through ZNE-549 remove/suppress unmanaged peer-row lifecycle behavior while preserving candidate discovery surfaces.
+- **repo fix:** historical peer-row sync work is no longer the desired behavior; later repo fixes suppress/remove these rows instead.
+- **validation status:** deferred as historical peer-row scope. Do not use this entry to request deploy/restart/fingerprint validation, James release-target decisions, or peer `Un Managed — ...` row acceptance.
+- **next action:** follow Riley's current validation gate after explicit approval: managed rows/actions with visible `⚙ Settings`, no peer `Un Managed — ...` rows, and unmanaged candidates behind workflow/backlog/review surfaces.
 
 ## ZNE-499 - Un Managed row sync waited for coordinator refresh after HA state changes
 
-- **status:** `fixed_pending_validation`
+- **status:** `deferred`
 - **severity:** `medium`
 - **area:** `integration-page`
-- **where seen:** watchdog repo audit on 2026-04-28 while comparing ZNE-498's row-lifecycle fix against the ZNE-429 requirement that integration-page `Un Managed — ...` child-device rows track candidate appearance/removal.
+- **where seen:** watchdog repo audit on 2026-04-28 while comparing ZNE-498's historical peer-row lifecycle fix against the now-superseded ZNE-429 unmanaged child-device row scope.
 - **current observed behavior:** the new unmanaged-row sync only ran from the Zero Net Export coordinator listener. Candidate cache invalidation could see Home Assistant state/friendly-name/device-class changes once discovery was called, but native integration-page child rows still would not be added or removed on ordinary HA `state_changed` events until a later coordinator update happened.
-- **expected behavior:** candidate-domain Home Assistant state changes should trigger the same native unmanaged-row reconciliation path so the integration page does not require a coordinator refresh or platform reload before newly surfaced or removed `Un Managed — ...` rows catch up.
+- **expected behavior:** superseded by the current requirement: Home Assistant state changes may refresh unmanaged candidate backlog/review data, but must not recreate peer `Un Managed — ...` native rows beside managed devices.
 - **evidence:** `_register_unmanaged_candidate_sync()` registered only `coordinator.async_add_listener(_sync_unmanaged_candidate_rows)` even though `_candidate_devices_for_state()` deliberately keys candidate discovery on `hass.states.async_all()` signatures.
-- **repo fix:** this run also registers a native HA `state_changed` listener filtered to candidate domains (`switch`, `input_boolean`, `light`, `number`, `input_number`) and routes those events through the same unmanaged-row reconciliation path, preserving the native Home Assistant integration-page device-row approach with no custom UI.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage for HA-state-triggered unmanaged-row addition, the existing add/remove row lifecycle coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest discover -s tests -q`, and Python compile for `sensor.py` plus the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that `Un Managed — ...` rows update promptly when candidate entities appear/disappear or are promoted.
+- **repo fix:** historical state-change peer-row sync is no longer the desired behavior; later repo fixes keep state-change handling focused on candidate discovery plus stale peer-row cleanup/suppression.
+- **validation status:** deferred as historical peer-row scope. Do not use this entry to request deploy/restart/fingerprint validation, James release-target decisions, or peer `Un Managed — ...` row acceptance.
+- **next action:** follow Riley's current validation gate after explicit approval: managed rows/actions with visible `⚙ Settings`, no peer `Un Managed — ...` rows, and unmanaged candidates behind workflow/backlog/review surfaces.
 
 ## ZNE-500 - existing Un Managed rows kept stale candidate details after HA state changes
 
-- **status:** `fixed_pending_validation`
+- **status:** `deferred`
 - **severity:** `medium`
 - **area:** `integration-page`
-- **where seen:** watchdog repo audit on 2026-04-28 while following the ZNE-499 state-change sync path against the ZNE-429 main integration-page `Un Managed — ...` child-device row requirement.
+- **where seen:** watchdog repo audit on 2026-04-28 while following the historical ZNE-499 state-change sync path against the now-superseded unmanaged peer-row requirement.
 - **current observed behavior:** after an unmanaged candidate row already existed, later candidate metadata changes with the same entity ID refreshed the candidate discovery list but did not update the existing `ZeroNetExportUnmanagedCandidateSensor`. The row entity could keep the old display name, device-info label, native value, and attributes until an integration/platform reload.
-- **expected behavior:** existing native `Un Managed — ...` row entities should refresh their candidate snapshot when Home Assistant state or metadata changes, so the integration-page child-device representation and attached diagnostic entity do not go stale just because the candidate key stayed the same.
+- **expected behavior:** superseded by the current requirement: candidate detail refresh should feed backlog/review data and stale-row cleanup, not maintain existing peer `Un Managed — ...` row entities.
 - **evidence:** `_register_unmanaged_candidate_sync()` skipped candidates whose `_candidate_unique_key(...)` was already present in `known_candidate_entities`, so the new candidate dict was ignored unless the row was newly added or removed.
-- **repo fix:** this run adds `ZeroNetExportUnmanagedCandidateSensor.update_candidate(...)` and routes existing candidate keys through it during unmanaged-row reconciliation. The refresh updates the entity name, native device-info metadata, candidate attributes, and writes state without adding any custom UI path.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage for existing-row detail refresh, the existing add/remove/state-change sync coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `sensor.py` plus the touched test file, and the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that existing `Un Managed — ...` rows refresh promptly when candidate names/states/metadata change.
+- **repo fix:** historical peer-row entity refresh is no longer the desired behavior; later repo fixes remove the unmanaged candidate peer-row entity class and preserve candidate details behind workflow/backlog surfaces.
+- **validation status:** deferred as historical peer-row scope. Do not use this entry to request deploy/restart/fingerprint validation, James release-target decisions, or peer `Un Managed — ...` row acceptance.
+- **next action:** follow Riley's current validation gate after explicit approval: managed rows/actions with visible `⚙ Settings`, no peer `Un Managed — ...` rows, and unmanaged candidates behind workflow/backlog/review surfaces.
 
 ## ZNE-501 - existing Un Managed device-registry rows kept stale row metadata after candidate detail refresh
 
-- **status:** `fixed_pending_validation`
+- **status:** `deferred`
 - **severity:** `medium`
 - **area:** `integration-page`
-- **where seen:** watchdog repo audit on 2026-04-28 while reviewing ZNE-500's existing-row refresh fix against the actual Home Assistant integration-page device-row registry path.
+- **where seen:** watchdog repo audit on 2026-04-28 while reviewing ZNE-500's historical existing-row refresh fix against the actual Home Assistant device-registry path.
 - **current observed behavior:** ZNE-500 refreshed the existing `ZeroNetExportUnmanagedCandidateSensor` name, device-info dict, native value, and attributes when a candidate with the same entity ID changed, but it only wrote entity state. Home Assistant device-registry metadata for the existing child device row could keep the old `Un Managed — ...` row name/model until reload because the registry was not updated after `_attr_device_info` changed.
-- **expected behavior:** when an existing unmanaged candidate row changes name/kind metadata, the native integration-page child device row should refresh its device-registry default name/model/configuration metadata without requiring a platform reload.
+- **expected behavior:** superseded by the current requirement: unmanaged-candidate metadata changes should update backlog/review discovery surfaces while stale peer `Un Managed — ...` device-registry rows are removed/suppressed.
 - **evidence:** `ZeroNetExportUnmanagedCandidateSensor.update_candidate(...)` rebuilt `_attr_device_info` and called `async_write_ha_state()`, while only `async_added_to_hass()` updated the existing device registry, and that previous helper covered only `configuration_url`.
-- **repo fix:** this run adds a shared child-device registry sync helper and calls it both when entities are added and when existing unmanaged candidates refresh. The helper keeps native Managed Devices / Un Managed child-device registry metadata aligned with the current device-info defaults without adding any custom UI path.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage for existing unmanaged registry metadata refresh plus the existing row lifecycle/detail-refresh tests. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that existing `Un Managed — ...` rows update their visible row name/model when candidate names/kinds change.
+- **repo fix:** historical unmanaged peer-row registry metadata refresh is no longer the desired behavior; later repo fixes use registry helpers for managed rows and stale unmanaged cleanup/suppression only.
+- **validation status:** deferred as historical peer-row scope. Do not use this entry to request deploy/restart/fingerprint validation, James release-target decisions, or peer `Un Managed — ...` row acceptance.
+- **next action:** follow Riley's current validation gate after explicit approval: managed rows/actions with visible `⚙ Settings`, no peer `Un Managed — ...` rows, and unmanaged candidates behind workflow/backlog/review surfaces.
 
 ## ZNE-502 - child-device rows still used deprecated suggested_area metadata
 
-- **status:** `fixed_pending_validation`
+- **status:** `deferred`
 - **severity:** `low`
 - **area:** `integration-page`
 - **where seen:** watchdog repo audit on 2026-04-28 while checking the ZNE-429 native `Managed Devices — ...` / `Un Managed — ...` child-device metadata against Home Assistant's current device registry API.
 - **current observed behavior:** managed-load and unmanaged-candidate device-info payloads included `suggested_area` solely to reinforce the intended Managed Devices versus Un Managed grouping. Home Assistant's device registry still accepts that key today, but it is deprecated and scheduled for removal, so leaving it in the integration-page row path risks warnings or future breakage without adding a real grouping primitive.
-- **expected behavior:** the native child-device representation should use durable Home Assistant device-info fields only. The visible grouping language should remain in device names/models and entity attributes, not deprecated area-suggestion metadata.
+- **expected behavior:** durable Home Assistant device-info fields should remain on managed native rows; unmanaged candidates should not expose peer row metadata and should remain behind backlog/review workflow surfaces.
 - **evidence:** `managed_load_device_info()` and `unmanaged_candidate_device_info()` returned `suggested_area` values while Home Assistant's device registry marks suggested-area usage deprecated for removal in 2026.9.
-- **repo fix:** this run removes `suggested_area` from both Managed Devices and Un Managed child-device device-info payloads and updates focused integration-page coverage to assert the deprecated key is absent while names/models/groups remain native-HA only.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage, Python compile for `entity.py` and `sensor.py`, and the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that `Managed Devices — ...` and `Un Managed — ...` rows still appear with the name/model grouping language and no custom UI path.
+- **repo fix:** this historical cleanup is superseded for unmanaged peer rows by later suppression/removal work; durable managed-row metadata remains covered by current managed-only tests.
+- **validation status:** fixed/deferred as historical cleanup; no live validation should be driven from this superseded peer-row entry.
+- **next action:** follow Riley's current validation gate after explicit approval: managed rows/actions with visible `⚙ Settings`, no peer `Un Managed — ...` rows, and unmanaged candidates behind workflow/backlog/review surfaces.
 
 ## ZNE-503 - Managed Devices child rows only synced at platform setup
 
@@ -705,8 +717,8 @@ The entries below are not the current work queue when they conflict with `docs/A
 - **expected behavior:** native Home Assistant `Managed Devices — ...` integration-page rows should stay aligned with current managed-load details after setup, matching the dynamic row behavior already added for `Un Managed — ...` candidates.
 - **evidence:** `async_setup_entry()` populated per-managed-load sensors inside its initial managed-details loop and only registered an unmanaged-candidate sync listener. No corresponding managed-row listener updated the native child-device row set when `coordinator.data.device_details` changed.
 - **repo fix:** this run adds a coordinator-listener sync path for managed device rows: newly managed loads get their native child-device entities without reload, removed managed loads are force-removed, and existing managed rows refresh their device-info plus registry metadata when names/kinds change. This remains native Home Assistant device-registry/entity behavior and does not add any custom UI path.
-- **validation status:** fixed in repo with focused integration-page regression coverage for managed-row add/remove/metadata-refresh, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `entity.py`, `sensor.py`, and the touched test file, plus the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that `Managed Devices — ...` rows update when managed loads are added, removed, or renamed.
+- **validation status:** fixed in repo with focused integration-page regression coverage for managed-row add/remove/metadata-refresh, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `entity.py`, `sensor.py`, and the touched test file, plus the full unittest suite. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate on the Zero Net Export main integration page that `Managed Devices — ...` rows update when managed loads are added, removed, or renamed.
 
 ## ZNE-504 - stale child-device rows could remain in the device registry after entity removal
 
@@ -718,8 +730,8 @@ The entries below are not the current work queue when they conflict with `docs/A
 - **expected behavior:** when a whole managed-load or unmanaged-candidate child row disappears, the integration should remove both the stale row entity and the corresponding child device-registry device. Removing only a per-row supporting entity, such as a variable-load target-power entity, must not remove the whole child device row.
 - **evidence:** `_schedule_integration_page_entity_removal()` called `entity.async_remove(force_remove=True)` only; no stale-row path called Home Assistant's device registry `async_remove_device(...)` for the managed/unmanaged child-device identifier.
 - **repo fix:** this run adds a stale child-device registry removal helper and uses it only when an entire managed or unmanaged integration-page row disappears. The existing variable/fixed target-power cleanup still removes only that supporting entity, preserving the native HA child-device row.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage for managed and unmanaged stale-row device-registry removal, plus `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest discover -s tests -q`, and Python compile for `entity.py`, `sensor.py`, and the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that removed managed loads and removed/promoted unmanaged candidates no longer leave stale child-device rows behind.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage for managed and unmanaged stale-row device-registry removal, plus `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest discover -s tests -q`, and Python compile for `entity.py`, `sensor.py`, and the touched test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate on the Zero Net Export main integration page that removed managed loads and removed/promoted unmanaged candidates no longer leave stale child-device rows behind.
 
 ## ZNE-506 - existing Managed Devices child-row entity names stayed stale after managed-load rename
 
@@ -731,8 +743,8 @@ The entries below are not the current work queue when they conflict with `docs/A
 - **expected behavior:** when a managed load is renamed after setup, both the native child-device row metadata and the supporting entities under that row should refresh to the new managed-load name without requiring a reload.
 - **evidence:** `_refresh_managed_device_row_entities()` rebuilt `_attr_device_info`, synchronized the child-device registry, and wrote entity state, but did not update `_attr_name` for existing managed-row entities.
 - **repo fix:** this run stores a managed-row name suffix on the per-load entities and uses it during managed-row refresh so existing entity names update alongside the child-device registry metadata. This preserves the native Home Assistant integration-page device-row path and does not add a custom UI.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage for managed-row entity-name refresh plus Python compile for `sensor.py` and the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the Zero Net Export main integration page that renamed `Managed Devices — ...` rows and their supporting entities no longer show stale old managed-load labels.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage for managed-row entity-name refresh plus Python compile for `sensor.py` and the touched test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate on the Zero Net Export main integration page that renamed `Managed Devices — ...` rows and their supporting entities no longer show stale old managed-load labels.
 
 ## Closed bugs and process corrections
 

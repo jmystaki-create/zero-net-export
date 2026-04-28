@@ -67,6 +67,13 @@ class TestBugTrackerIds(unittest.TestCase):
         self.assertNotIn("0.1.90 acceptance pass", active_section)
         self.assertNotIn("post-`0.1.90`", active_section)
 
+        self.assertIn("## ZNE-550 - historical unmanaged peer-row backlog still carried stale validation gates", active_section)
+        self.assertNotIn("ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation", superseded_section)
+        self.assertNotIn("until James decides the release target", superseded_section)
+        self.assertNotIn("after ZNE-439 is resolved", superseded_section)
+        self.assertNotIn("newly discovered `Un Managed — ...` native row entities are added", superseded_section)
+        self.assertNotIn("validate on the approved build that `Managed Devices — ...` and `Un Managed — ...` rows still appear", superseded_section)
+
 
 if __name__ == "__main__":
     unittest.main()
