@@ -128,6 +128,41 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                 ]
                 self.assertIn("Managed Devices — ⚙ Settings — pool", device_names)
 
+    def test_managed_device_setup_platforms_use_config_inventory_before_runtime_details(self) -> None:
+        coordinator = _coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        hass = SimpleNamespace(data={"zero_net_export": {"entry-1": coordinator}})
+        entry = SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                "device_inventory_json": '[{"key":"pool","name":"Pool Pump","kind":"fixed","entity_id":"switch.pool_pump","nominal_power_w":1200,"min_power_w":1200,"max_power_w":1200,"step_w":1200}]'
+            },
+            options={},
+        )
+
+        platform_specs = [
+            (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "⚙ Settings — Pool Pump enabled"),
+            (_load_simple_platform_module("number", "number", "NumberEntity"), "⚙ Settings — Pool Pump priority"),
+            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "Pool Pump usable"),
+            (_load_button_module(), "⚙ Settings — Pool Pump review"),
+        ]
+
+        for module, expected_name in platform_specs:
+            with self.subTest(entity=expected_name):
+                added = []
+
+                async def run_setup() -> None:
+                    await module.async_setup_entry(hass, entry, added.extend)
+
+                asyncio.run(run_setup())
+                managed_entities = [
+                    entity
+                    for entity in added
+                    if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — ⚙ Settings — Pool Pump"
+                ]
+                self.assertTrue(managed_entities)
+                self.assertIn(expected_name, [entity._attr_name for entity in managed_entities])
+
     def test_managed_device_buttons_tolerate_malformed_runtime_detail_container(self) -> None:
         coordinator = _coordinator()
         coordinator.data.device_details = "temporarily malformed runtime details"

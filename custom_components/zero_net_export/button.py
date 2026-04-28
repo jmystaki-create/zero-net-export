@@ -19,6 +19,7 @@ from .device_model import DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE
 from .entity import (
     ZeroNetExportEntity,
     attach_managed_load_device,
+    integration_page_managed_load_details,
     managed_load_detail_mapping,
     managed_load_details_mapping,
     managed_load_display_name,
@@ -54,16 +55,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ZeroNetExportShowSetupChecklistButton(coordinator),
     ]
     state = coordinator.data
-    if state is not None:
-        device_details = managed_load_details_mapping(getattr(state, "device_details", {}) or {})
-        entities.extend(
-            ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details))
-            for device_key, details in device_details.items()
-        )
-        entities.extend(
-            ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details))
-            for device_key, details in device_details.items()
-        )
+    device_details = integration_page_managed_load_details(entry, state)
+    coordinator._zne_integration_page_managed_details = device_details
+    entities.extend(
+        ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details))
+        for device_key, details in device_details.items()
+    )
+    entities.extend(
+        ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details))
+        for device_key, details in device_details.items()
+    )
     async_add_entities(entities)
 
 

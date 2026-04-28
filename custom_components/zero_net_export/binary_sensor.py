@@ -8,8 +8,8 @@ from .const import DOMAIN
 from .entity import (
     ZeroNetExportEntity,
     attach_managed_load_device,
+    integration_page_managed_load_details,
     managed_load_detail,
-    managed_load_details_mapping,
     managed_load_display_name,
 )
 
@@ -55,11 +55,12 @@ async def async_setup_entry(hass, entry, async_add_entities):
     ]
 
     state = coordinator.data
-    if state is not None:
-        entities.extend(
-            ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, managed_load_display_name(device_key, details))
-            for device_key, details in managed_load_details_mapping(getattr(state, "device_details", {}) or {}).items()
-        )
+    managed_details = integration_page_managed_load_details(entry, state)
+    coordinator._zne_integration_page_managed_details = managed_details
+    entities.extend(
+        ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, managed_load_display_name(device_key, details))
+        for device_key, details in managed_details.items()
+    )
     entities.extend(
         ZeroNetExportSourceStaleBinarySensor(coordinator, source_key, label)
         for source_key, label in SOURCE_LABELS.items()

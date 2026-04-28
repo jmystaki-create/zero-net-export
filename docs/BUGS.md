@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-522 - config-only managed devices lacked native settings actions before runtime details
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking Riley's highlighted requirement that managed-device rows/actions keep visible settings affordances and remain the only native peer rows even before runtime `device_details` populates.
+- **current observed behavior:** sensor setup already used the configured Managed Devices inventory as a fallback for native managed rows, but the switch, number, binary-sensor, and button platforms only created per-managed-device controls/actions from runtime `device_details`. During startup or sparse-runtime windows, a configured managed load could show its managed row while its visible `⚙ Settings` enabled/priority/review/reset actions were missing until runtime detail arrived.
+- **expected behavior:** every configured managed load should get the native managed child-device row and its managed-device controls/actions from the same config-plus-runtime fallback, with visible `⚙ Settings` labels on configurable action surfaces and no peer `Un Managed — ...` unmanaged-candidate rows.
+- **repo fix:** this run moves the config-plus-runtime managed-detail resolver into shared entity helpers, reuses it from sensor setup and the switch, number, binary-sensor, and button platforms, and seeds the coordinator fallback detail cache from those platforms so config-only managed devices still expose their native managed settings/actions before runtime details arrive.
+- **validation status:** fixed in repo with focused config-fallback native settings/action coverage, `python3 -m unittest tests.test_device_page_managed_settings tests.test_integration_page_device_lists -q`, and `python3 -m compileall -q custom_components/zero_net_export && python3 -m unittest tests.test_device_page_managed_settings tests.test_integration_page_device_lists tests.test_sparse_control_entities -q`. Live Home Assistant screenshot validation remains pending and requires explicit approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list and managed-device action surfaces showing configured managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-521 - managed-device config actions lacked visible settings labels
 
 - **status:** `fixed_pending_validation`

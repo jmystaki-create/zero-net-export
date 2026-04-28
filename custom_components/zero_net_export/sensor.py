@@ -22,11 +22,11 @@ from .candidate_utils import (
     discover_candidate_devices,
     first_review_candidate,
 )
-from .const import CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON, DEVICE_CANDIDATE_DOMAINS, DOMAIN, INTEGRATION_VERSION
-from .device_model import parse_device_configs
+from .const import DEVICE_CANDIDATE_DOMAINS, DOMAIN, INTEGRATION_VERSION
 from .entity import (
     ZeroNetExportEntity,
     attach_managed_load_device,
+    integration_page_managed_load_details,
     managed_load_detail,
     managed_load_detail_mapping,
     managed_load_details_mapping,
@@ -542,43 +542,9 @@ def _schedule_integration_page_entity_removal(hass, entity, *, remove_child_devi
         close()
 
 
-def _configured_managed_details(entry) -> dict[str, dict[str, object]]:
-    """Return configured managed-load details when runtime has not populated yet."""
-    raw_inventory = getattr(entry, "options", {}).get(
-        CONF_DEVICE_INVENTORY_JSON,
-        getattr(entry, "data", {}).get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
-    )
-    devices, _issues = parse_device_configs(raw_inventory)
-    return {
-        device.key: {
-            "name": device.name,
-            "kind": device.kind,
-            "entity_id": device.entity_id,
-            "status": "configured",
-            "enabled": device.enabled,
-            "effective_enabled": device.enabled,
-            "priority": device.priority,
-            "nominal_power_w": device.nominal_power_w,
-            "min_power_w": device.min_power_w,
-            "max_power_w": device.max_power_w,
-            "step_w": device.step_w,
-        }
-        for device in devices
-    }
-
-
 def _integration_page_managed_details(entry, state) -> dict[str, dict[str, object]]:
     """Return managed rows for the integration page, merging config inventory with runtime details."""
-    configured_details = _configured_managed_details(entry)
-    runtime_details = _managed_device_details(state)
-    if not runtime_details:
-        return configured_details
-    merged_details = {device_key: dict(detail) for device_key, detail in configured_details.items()}
-    for device_key, detail in runtime_details.items():
-        merged_detail = dict(merged_details.get(device_key, {}))
-        merged_detail.update(detail)
-        merged_details[device_key] = merged_detail
-    return merged_details
+    return integration_page_managed_load_details(entry, state)
 
 
 def _build_source_entities(coordinator):
