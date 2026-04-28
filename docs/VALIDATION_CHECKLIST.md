@@ -1,40 +1,36 @@
 # Real-Installation Validation Checklist
 
-> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This checklist is historical until updated for `docs/ACTIVE_USER_REQUESTS.md`. Do not use its old `0.1.91` / `1.91` Managed+Un Managed peer-row acceptance criteria as active release guidance.
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This checklist is not a source of truth. Use `docs/ACTIVE_USER_REQUESTS.md` plus `docs/BUGS.md` for the current validation boundary, and do not use old `0.1.91` / `1.91` Managed+Un Managed peer-row acceptance criteria as active release guidance.
 
 
-Use this checklist to validate Zero Net Export in a real Home Assistant environment before considering v1 complete.
+This file remains as a historical evidence ledger template only. For current validation, follow `docs/ACTIVE_USER_REQUESTS.md`, `docs/BUGS.md`, `docs/SUPERVISOR.md`, and `docs/WATCHDOG.md` instead of the old `0.1.91` Managed+Un Managed peer-row checklist below.
 
-Supervisor note: this document is the evidence ledger for the release gates defined in `docs/SUPERVISOR.md`.
+Supervisor note: do not use this deprecated checklist to approve release/deploy work or to require peer `Un Managed — ...` rows.
 
-## Next validation boundary
+## Current highlighted validation boundary
 
-Supervisor note: this checklist is a validation ledger for the approved `0.1.91` / release `1.91` scope only.
+Current release/readiness claims are blocked until Riley explicitly approves live validation and screenshot evidence proves the active native Home Assistant behavior:
 
-Current release-boundary order:
-1. `v0.1.89` and `v0.1.90` are historical. Do not reopen or defend them as satisfying the new requested UI.
-2. James's latest screenshots clarified the target surface: the Zero Net Export **main integration page**, like the HomeKit integration examples, not the individual Zero Net Export device-info page.
-3. The next approved scope is `0.1.91` / release `1.91`: show a `Managed Devices` list under Zero Net Export and an `Un Managed` list underneath it.
-4. Managed loads and unmanaged candidates must appear as individual Home Assistant device rows in those lists.
-5. The repo later froze `4c0d071` / `v0.1.94`, then component code moved again after `4c0d071`, after the earlier `db5c246` / `v0.1.92` and `026f189` / `v0.1.93` freezes while this checklist still belongs to the documented `0.1.91` scope; before any Home Assistant install, restart, fingerprint validation, or screenshot claim, ask James directly whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` release target or whether release execution returns to the approved `0.1.91` boundary.
-6. Only after that release-target decision should the project ask James to accept or reject the closest native child-device representation, then approve exact release/deploy/restart validation for the chosen target.
-7. No release/deploy validation is approved by this documentation update alone; implementation and later release work must stay inside this exact scope.
+1. The Zero Net Export native integration/device list shows managed-device peer rows only.
+2. Managed rows visibly communicate settings/configuration access, for example with `⚙ Settings` row text or an equivalent native-HA-visible affordance.
+3. No peer `Un Managed — ...` unmanaged-candidate rows appear beside managed devices, including stale device-registry rows from older builds.
+4. Unmanaged candidates remain discoverable behind Managed Devices workflow/backlog/review surfaces, not as peer rows in the integration/device list.
+5. Tests pass for the accepted build before any release-readiness claim.
+6. Home Assistant deploy, restart, tagging/release, fingerprint validation, and live screenshot validation all require explicit Riley approval first.
 
 Repo-side helper for mixed-build checks:
-- Run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` in this repo before trusting deploy or validation results. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the remote Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the live install path is inspected over SSH without remote Python. For release/deploy boundaries, the helper now keeps `expected_commit`, `expected_component_commit`, and `preferred_validation_commit` aligned on the latest component-changing commit, while exposing full repo HEAD separately as `repo_head_commit`, so doc-only or bug-tracker-only commits do not create false deploy-candidate drift. Compare that component anchor, tracked-file hashes, and match verdict against the installed package details shown in Zero Net Export Configure or the device-page Review diagnostics / Review diagnostics snapshot actions.
-- If you need to overwrite a mixed manual install from one exact repo build first, do not make deploy/restart the first approval ask while the current release-target hold is open. Ask James directly whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` release target or whether release execution returns to the approved `0.1.91` boundary; after that target decision, ask whether the closest native `Managed Devices — ...` / `Un Managed — ...` child-device representation is acceptable, then ask for exact release/deploy/restart approval for that accepted target. Only after those approvals, run `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config` (or point it at the live Home Assistant `custom_components` or installed `custom_components/zero_net_export` path outside this repo). If you want to sanity-check the resolved destination first, add `--dry-run`. The deploy helper replaces the destination component directory instead of layering files onto an older copy, keeps a timestamped backup by default, and then runs the same fingerprint validation against the deployed path before restart. If repo-only docs moved since the last component change, pin the deploy with `--expected-component-commit <commit>` instead of treating repo HEAD as the shipped target.
-- If you need the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare script exits non-zero on mismatch, fails fast if the path does not actually contain `zero_net_export/manifest.json`, refuses repo-local paths so a repo copy cannot be mistaken for live validation, and can save the full comparison verdict as validation evidence.
+- Run `python3 scripts/validate_install_fingerprint.py /path/to/home-assistant/config/custom_components` in this repo only after approval for the chosen live install target. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the remote Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the live install path is inspected over SSH without remote Python.
+- If an exact repo build must be copied to Home Assistant, ask Riley for explicit deploy/restart approval first. Preview with `python3 scripts/deploy_exact_repo_build.py /path/to/home-assistant/config --dry-run`, then only after approval run the deploy helper and the fingerprint validator against the same live install path before trusting screenshot validation.
+- If you need the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/home-assistant/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare script exits non-zero on mismatch, fails fast if the path does not actually contain `zero_net_export/manifest.json`, and refuses repo-local paths so a repo copy cannot be mistaken for live validation.
 
-For `0.1.91`, validation is only about the main integration page device lists:
+Current live screenshot validation target after approval:
 
 1. Open `Settings -> Devices & Services -> Integrations -> Zero Net Export`.
-2. Confirm a visible `Managed Devices` group/list appears under Zero Net Export.
-3. Confirm managed loads appear as individual Home Assistant device rows in that group/list.
-4. Confirm a visible `Un Managed` group/list appears below Managed Devices.
-5. Confirm unmanaged candidates appear as individual Home Assistant device rows in that group/list.
-6. Capture screenshot-grade evidence from the live installed build.
+2. Confirm managed-device rows are visible and include the settings/gear affordance.
+3. Confirm no peer `Un Managed — ...` rows are visible beside those managed devices.
+4. Separately confirm unmanaged candidates remain available through Managed Devices workflow/backlog/review surfaces.
+5. Capture screenshot-grade evidence from the live installed build.
 
-This is the live validation path for the `0.1.91` corrective release. Activity-history-only evidence, generic button rows, Configure-only screens, persistent notifications, API-only state, and screenshots of the individual device-info page do not count.
 
 ## Pre-Installation Checks
 

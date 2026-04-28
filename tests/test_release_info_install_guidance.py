@@ -233,20 +233,20 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("live `manifest_version` remains `0.1.86`", zne_022)
         self.assertNotIn("future exact-build proof through the `0.1.89` freeze", zne_022)
 
-    def test_validation_checklist_tracks_0191_integration_page_boundary(self) -> None:
+    def test_validation_checklist_tracks_current_highlighted_scope(self) -> None:
         checklist = (REPO_ROOT / "docs" / "VALIDATION_CHECKLIST.md").read_text(encoding="utf-8")
         boundary = checklist.split("Repo-side helper for mixed-build checks:", 1)[0]
 
-        self.assertIn("approved `0.1.91` / release `1.91` scope only", boundary)
-        self.assertIn("`v0.1.89` and `v0.1.90` are historical", boundary)
-        self.assertIn("Zero Net Export **main integration page**", boundary)
-        self.assertIn("show a `Managed Devices` list under Zero Net Export and an `Un Managed` list underneath it", boundary)
-        self.assertIn("Managed loads and unmanaged candidates must appear as individual Home Assistant device rows", boundary)
-        self.assertIn("No release/deploy validation is approved by this documentation update alone", boundary)
-        self.assertNotIn("mapped `0.1.89` workstream order", boundary)
-        self.assertNotIn("mapped `0.1.90` corrective device-page Managed Devices workstream order", boundary)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", boundary)
+        self.assertIn("managed-device peer rows only", boundary)
+        self.assertIn("settings/configuration access", boundary)
+        self.assertIn("No peer `Un Managed — ...` unmanaged-candidate rows", boundary)
+        self.assertIn("Managed Devices workflow/backlog/review surfaces", boundary)
+        self.assertIn("explicit Riley approval", boundary)
+        self.assertNotIn("show a `Managed Devices` list under Zero Net Export and an `Un Managed` list underneath it", boundary)
+        self.assertNotIn("Managed loads and unmanaged candidates must appear as individual Home Assistant device rows", boundary)
+        self.assertNotIn("approved `0.1.91` / release `1.91` scope only", boundary)
         self.assertNotIn("ask James directly to approve the `0.1.89` freeze/release/deploy/restart path", boundary)
-        self.assertNotIn("Only after approval, freeze the helper-resolved candidate as `0.1.89`", boundary)
 
     def test_ui_implementation_map_detailed_work_uses_0191_integration_page_scope(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")

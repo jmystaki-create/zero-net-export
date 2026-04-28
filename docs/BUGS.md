@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-518 - deprecated validation checklist still required peer Un Managed rows
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-28 while explicitly checking for loop/churn and deprecated roadmap/checklist drift under Riley's current highlighted managed-only native Home Assistant scope.
+- **current observed behavior:** `docs/VALIDATION_CHECKLIST.md` was marked deprecated but its active-looking validation boundary still told operators to validate the old `0.1.91` / `1.91` Managed Devices plus peer `Un Managed` rows outcome, and focused docs tests still asserted that stale checklist wording.
+- **expected behavior:** deprecated validation material must not revive peer `Un Managed — ...` row acceptance criteria or old release-scope validation steps; it should point operators back to the active managed-only peer-list, visible settings affordance, unmanaged-backlog workflow, and approval-gated screenshot requirements.
+- **repo fix:** this run rewrites the checklist's validation boundary around `docs/ACTIVE_USER_REQUESTS.md`, removes the old peer-row validation instructions from the current boundary, preserves deploy/fingerprint helpers only behind explicit approval, and updates docs regression coverage to reject the stale checklist acceptance wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q`. No Home Assistant live validation needed because this is documentation/test steering only.
+- **next action:** keep live validation blocked until Riley explicitly approves deployment/restart/screenshot work and evidence shows managed rows with visible settings affordance and no peer `Un Managed — ...` rows.
+
 ## ZNE-517 - stale Un Managed registry rows survived when candidates disappeared before upgrade
 
 - **status:** `fixed_pending_validation`
