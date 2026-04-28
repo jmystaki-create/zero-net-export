@@ -467,6 +467,7 @@ def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> s
     remove_device = getattr(device_registry, "async_remove_device", None)
     devices = getattr(device_registry, "devices", None)
     if remove_device is None or devices is None:
+        remove_unmanaged_candidate_entity_registry_entries_for_entry(hass, entry_id, removed_device_ids)
         return removed_device_ids
     prefix = f"{entry_id}:unmanaged-candidate:"
     try:

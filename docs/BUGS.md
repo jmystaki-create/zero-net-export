@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-545 - orphan unmanaged peer entities could survive when device registry enumeration is unavailable
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking stale unmanaged peer-row entity cleanup under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** the broad current-entry unmanaged child-device cleanup removed orphan legacy unmanaged peer entity-registry entries only after the device registry exposed an iterable device collection. In registry/test shapes with direct lookup support but no broad `devices` enumeration, old orphan `<entry>_unmanaged_candidate_<candidate-domain>` entity-registry entries with no device id could survive if the candidate was no longer currently discoverable.
+- **expected behavior:** current-entry legacy unmanaged peer entity-registry cleanup should still remove orphan stale peer entities when device enumeration is unavailable, while preserving controller/backlog unmanaged sensors and other-entry entities.
+- **repo fix:** this run lets the no-enumeration unmanaged cleanup path still run current-entry orphan legacy unmanaged peer entity-registry cleanup before returning, and adds focused regression coverage for that registry shape.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-544 - orphaned unmanaged peer entities with missing config ownership could survive cleanup
 
 - **status:** `fixed_pending_validation`
