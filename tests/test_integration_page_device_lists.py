@@ -1018,6 +1018,39 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(registry.removed, ["unmanaged-device-1"])
 
+    def test_setup_entry_removes_preexisting_unmanaged_registry_rows_without_current_candidates(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        registry = _FakeDeviceRegistry(
+            [
+                SimpleNamespace(
+                    id="stale-unmanaged-device",
+                    identifier=("zero_net_export", "entry-1:unmanaged-candidate:switch_old_load"),
+                ),
+                SimpleNamespace(
+                    id="managed-device",
+                    identifier=("zero_net_export", "entry-1:managed-device:pool"),
+                ),
+            ]
+        )
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+            device_registry=registry,
+        )
+        entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        self.assertEqual(registry.removed, ["stale-unmanaged-device"])
+        self.assertIn("managed-device", registry.devices)
+
     def test_setup_entry_keeps_unmanaged_candidates_out_of_peer_rows_when_details_change(self) -> None:
         sensor_module = _load_sensor_module()
         listeners = []

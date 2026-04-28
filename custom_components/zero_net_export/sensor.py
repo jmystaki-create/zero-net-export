@@ -32,6 +32,7 @@ from .entity import (
     managed_load_details_mapping,
     managed_load_device_info,
     remove_integration_page_child_device_registry,
+    remove_unmanaged_candidate_child_devices_for_entry,
     sync_integration_page_child_device_registry,
     legacy_unmanaged_candidate_device_info,
     unmanaged_candidate_device_info,
@@ -511,6 +512,7 @@ def _remove_unmanaged_candidate_device_rows(coordinator, hass, candidates: list[
     Candidate discovery still feeds Managed Devices backlog/review surfaces; this cleanup only
     suppresses the old integration-page `Un Managed — ...` child-device representation.
     """
+    remove_unmanaged_candidate_child_devices_for_entry(hass, coordinator.entry.entry_id)
     for candidate in candidates:
         remove_integration_page_child_device_registry(hass, unmanaged_candidate_device_info(coordinator, candidate))
         legacy_info = legacy_unmanaged_candidate_device_info(coordinator, candidate)

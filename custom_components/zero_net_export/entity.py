@@ -218,6 +218,48 @@ def remove_integration_page_child_device_registry(hass, device_info: dict | None
         return
 
 
+def _device_entry_identifiers(device) -> set[tuple[str, str]]:
+    """Return registry identifiers from real HA entries and test doubles."""
+    identifiers = getattr(device, "identifiers", None)
+    if identifiers is None:
+        identifier = getattr(device, "identifier", None)
+        identifiers = {identifier} if identifier is not None else set()
+    normalized: set[tuple[str, str]] = set()
+    for identifier in identifiers or set():
+        if not isinstance(identifier, tuple) or len(identifier) != 2:
+            continue
+        domain, value = identifier
+        normalized.add((str(domain), str(value)))
+    return normalized
+
+
+def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> None:
+    """Remove all legacy peer `Un Managed` child-device rows for one config entry."""
+    try:
+        from homeassistant.helpers import device_registry as dr
+    except Exception:
+        return
+    try:
+        device_registry = dr.async_get(hass)
+    except Exception:
+        return
+    remove_device = getattr(device_registry, "async_remove_device", None)
+    devices = getattr(device_registry, "devices", None)
+    if remove_device is None or devices is None:
+        return
+    prefix = f"{entry_id}:unmanaged-candidate:"
+    try:
+        device_values = list(devices.values() if isinstance(devices, Mapping) else devices)
+    except Exception:
+        return
+    for device in device_values:
+        if any(domain == DOMAIN and value.startswith(prefix) for domain, value in _device_entry_identifiers(device)):
+            try:
+                remove_device(device.id)
+            except Exception:
+                continue
+
+
 def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
     """Return device info that makes an unmanaged candidate appear as its own HA device row."""
     entity_id = str(candidate.get("entity_id") or "candidate").strip()

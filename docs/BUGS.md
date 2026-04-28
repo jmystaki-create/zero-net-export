@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-517 - stale Un Managed registry rows survived when candidates disappeared before upgrade
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking the current highlighted requirement that existing/stale `Un Managed — ...` device-registry rows must be removed/suppressed, not just newly discovered candidates.
+- **current observed behavior:** the suppression path removed current discovered unmanaged candidate child-device rows and their hashed/unhashed legacy variants, but an existing `entry:unmanaged-candidate:...` device-registry row for a candidate that was no longer currently discoverable could survive because there was no broad registry sweep for the config entry.
+- **expected behavior:** every legacy unmanaged-candidate child device for the Zero Net Export config entry should be removed from the native integration/device peer list, while managed child-device rows remain and unmanaged candidates continue feeding Managed Devices backlog/review surfaces.
+- **repo fix:** this run adds a config-entry scoped registry sweep for `:unmanaged-candidate:` child devices and calls it from the unmanaged suppression path before candidate-specific cleanup, preserving managed rows and backlog discovery while removing stale peer `Un Managed — ...` rows even when no current candidate matches them.
+- **validation status:** fixed in repo with focused regression coverage proving a preexisting stale unmanaged registry row is removed when no candidates are currently discovered, while the managed registry row remains. Live Home Assistant screenshot validation remains pending and requires explicit approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows with `⚙ Settings` text and no peer `Un Managed — ...` rows.
+
 ## ZNE-516 - managed rows had settings URL but no visible gear affordance in native row text
 
 - **status:** `fixed_pending_validation`
