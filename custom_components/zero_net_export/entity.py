@@ -387,6 +387,13 @@ def _is_legacy_unmanaged_candidate_entity_registry_entry(
 ) -> bool:
     """Return True for old peer-row unmanaged-candidate entity-registry entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
+    current_backlog_unique_ids = {
+        f"{entry_id}_unmanaged_candidate_count",
+        f"{entry_id}_unmanaged_candidate_overview",
+        f"{entry_id}_top_unmanaged_candidate",
+    }
+    if unique_id in current_backlog_unique_ids:
+        return False
 
     # When config-entry ownership is missing, only current-entry-scoped legacy
     # unique IDs are safe to remove.  A bare ``*_unmanaged_candidate`` entity id is

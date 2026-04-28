@@ -100,6 +100,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+
+## ZNE-548 - unmanaged peer cleanup could remove top unmanaged backlog sensor
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking that unmanaged candidates remain available behind Managed Devices workflow/backlog surfaces under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** orphan legacy unmanaged peer entity cleanup treated any current-entry no-device entity whose entity id ended in `_unmanaged_candidate` as removable. The current controller/backlog sensor `top_unmanaged_candidate` can have entity id `sensor.zero_net_export_top_unmanaged_candidate`, so a degraded/no-device registry shape could delete that workflow/backlog surface while removing stale peer rows.
+- **expected behavior:** legacy peer-row cleanup should remove stale native `Un Managed — ...` artifacts while preserving current controller/backlog unmanaged-candidate sensors, including the surfaced/top unmanaged candidate sensor.
+- **repo fix:** this run excludes current controller/backlog unmanaged candidate unique IDs from legacy peer-row cleanup before applying the broad `_unmanaged_candidate` suffix cleanup.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-547 - missing-ownership orphan unmanaged cleanup could remove another entry's legacy entity
 
 - **status:** `fixed_pending_validation`
