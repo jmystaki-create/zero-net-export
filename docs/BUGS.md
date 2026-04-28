@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-542 - unmanaged candidate cleanup helpers still used peer-row sync naming
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking for remaining loop/churn and peer-row drift under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** after unmanaged candidate peer-row creation was removed, the remaining cleanup path still used internal/test names such as `_register_unmanaged_candidate_sync()`, `_sync_unmanaged_candidate_rows()`, and a HA state-change test that said it synced unmanaged candidate rows. The code behavior was suppression/removal, but the stale naming could mislead future work back toward syncing peer `Un Managed — ...` rows.
+- **expected behavior:** unmanaged candidate code/tests should describe only cleanup/suppression of legacy peer rows while preserving candidate discovery for backlog/review surfaces.
+- **repo fix:** this run renames the unmanaged candidate listener/removal helpers and HA state-change regression test around cleanup/removal wording, without changing runtime behavior.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/sensor.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-541 - direct unmanaged peer-row cleanup could leave attached entity entries
 
 - **status:** `fixed_pending_validation`

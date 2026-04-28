@@ -1194,7 +1194,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertNotIn("Un Managed — Hot Water", device_names)
         self.assertNotIn("Un Managed — Hot Water Boost", device_names)
 
-    def test_setup_entry_syncs_unmanaged_candidate_rows_on_ha_state_change(self) -> None:
+    def test_setup_entry_removes_unmanaged_candidate_peer_rows_on_ha_state_change(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator_listeners = []
         bus_listeners = []
