@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-536 - historical 0.1.89 plan still pointed at deprecated UI roadmap polish
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking loop/churn drift and deprecated roadmap references under Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** `docs/RELEASE_0.1.89_PLAN.md` was marked deprecated/historical, but its current-state and failure-tail wording still told future runs to continue with "later ordered UI polish" and described the historical follow-up release as validating the full `docs/UI_DESIGN.md` outcome. That could steer watchdog/supervisor runs back to deprecated roadmap polish instead of Riley's highlighted managed-only peer-list/settings-affordance scope.
+- **expected behavior:** historical release plans should not use deprecated UI roadmap outcomes or broad ordered UI polish as current work selection. They should point back to `docs/ACTIVE_USER_REQUESTS.md` and this bug tracker for current scope.
+- **repo fix:** this run rewrites the stale `0.1.89` plan tails to continue only with Riley's current highlighted scope in `docs/ACTIVE_USER_REQUESTS.md` and active bug state in this tracker, and adds regression coverage rejecting the stale ordered-polish/UI-design outcome wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q`. No Home Assistant live validation needed because this is documentation steering only.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-535 - orphaned prefix-style unmanaged peer entities could survive cleanup
 
 - **status:** `fixed_pending_validation`
@@ -1431,7 +1443,7 @@ The entries below are not the current work queue when they conflict with `docs/A
 - **evidence:** direct grep found stale `continue ZNE-411` / screenshot-grade next actions in active `fixed_pending_validation` entries ZNE-418 and ZNE-415, stale fixed-pending release/process entries ZNE-409 and ZNE-408, and stale `remaining release-execution gap is screenshot-grade...` wording in `docs/RELEASE_0.1.89_PLAN.md`.
 - **repo fix:** this run closes ZNE-408 and ZNE-409 as process/doc corrections, retargets ZNE-418 and ZNE-415 next actions to the next installed-build/browser acceptance pass for their own fixed-pending labels/copy, updates the historical `0.1.89` plan to say the `0.1.90` screenshot/action-drill-down loop is complete, and adds regression coverage rejecting active bug next actions that keep routing through closed `ZNE-411`.
 - **validation status:** closed with repo-side tracker/doc/test validation; no Home Assistant live validation is required for this process-state correction.
-- **next action:** continue with later ordered UI polish or active fixed-pending-validation bugs such as ZNE-425/ZNE-426/ZNE-418/ZNE-415; do not reopen the completed `0.1.90` screenshot/action-drill-down loop unless new live evidence regresses.
+- **next action:** historical entry only; follow Riley's current highlighted scope in `docs/ACTIVE_USER_REQUESTS.md` and active bug state above, and do not reopen the completed `0.1.90` screenshot/action-drill-down loop unless new live evidence regresses.
 
 
 ## ZNE-427 - Supervisor still treated closed ZNE-411 as the current delivery target
@@ -1660,7 +1672,7 @@ These entries remain tracked for future installed-build/browser validation, but 
 - **repo fix target:** `0.1.90`; see `docs/RELEASE_0.1.90_PLAN.md`. The fix must be more than a label rename unless live screenshot evidence proves the device page visibly carries the Managed Devices surface.
 - **repo fix:** this run makes the existing primary Managed Devices device-page sensor cluster and review/workspace actions visibly start with `Managed Devices`, including overview, unmanaged backlog, surfaced candidate, usefulness/warnings, shortlist, next-step, and action button names, so the native HA device page has a named fleet surface instead of lower-case generic review controls. A follow-up repo pass also aligns Diagnostics support metadata and the detailed management path with the new `Open Managed Devices workspace` / `Open Managed Devices review` action names so validation evidence does not point operators back to the generic failed `Review managed devices` controls from `0.1.89`. This watchdog pass also renames per-device audit buttons and notification titles from generic `Review <device>` wording to `Managed Devices review: <device>`, keeping each managed-load audit row attached to the same visible device-page Managed Devices surface. This supervisor pass adds a primary `Managed Devices surface` sensor that compresses managed count/attention/blocker or plan, unmanaged backlog/review-ready state, and the Configure handoff into one at-a-glance device-page row before any button is pressed.
 - **validation status:** closed on the installed, fingerprint-matched `v0.1.90` build at `d94436a`. Live browser/CDP validation through the documented browser node captured screenshot-grade device-page evidence in `docs/evidence/0.1.90-device-page-managed-devices-surface.png`: the Zero Net Export device page visibly shows the Managed Devices surface row with managed/unmanaged/backlog/current-action state before pressing a button. The same pass captured `docs/evidence/0.1.90-managed-devices-workspace-notification.png` after the Managed Devices workspace action produced a native Home Assistant notification/window headed `Zero Net Export: Managed Devices workspace` with current managed devices, unmanaged candidates, blockers, and Configure handoff text. Earlier in the same acceptance pass, the live API reported `sensor.zero_net_export_installed_version = 0.1.90`, documented SSH fingerprint validation against `/config/custom_components/zero_net_export` reported `overall_match: true`, and API states exposed `sensor.zero_net_export_managed_devices_surface` plus the Managed Devices entity/action cluster with current managed/unmanaged state.
-- **next action:** do not reopen the completed `0.1.90` install/restart/fingerprint/screenshot loop unless new live evidence regresses; continue only with later ordered UI polish or active fixed-pending-validation bugs.
+- **next action:** do not reopen the completed `0.1.90` install/restart/fingerprint/screenshot loop unless new live evidence regresses; follow Riley's current highlighted scope in `docs/ACTIVE_USER_REQUESTS.md` and active bug state above.
 
 
 ## ZNE-410 - Bug tracker next-action lines still revived completed freeze/release approval

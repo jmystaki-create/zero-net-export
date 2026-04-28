@@ -34,11 +34,11 @@ Always re-run `scripts/print_expected_install_fingerprint.py` immediately before
 - Current helper output reports `manifest_version=0.1.89` and `preferred_validation_commit=844502b`; the preferred component validation boundary remains the frozen tag even when later repo `HEAD` commits are docs-only.
 - Repo tests at the freeze audit passed with `480` tests.
 
-From here, do not ask James for permission to perform the already-completed version freeze again, repeat the already-completed GitHub publication check, rerun the now-failed `0.1.89` install/restart/live-validation loop, or reopen the completed `0.1.90` release/deploy/restart/fingerprint/screenshot/action-drill-down loop unless new live evidence regresses. Continue only with later ordered UI polish or active fixed-pending-validation bugs.
+From here, do not ask James for permission to perform the already-completed version freeze again, repeat the already-completed GitHub publication check, rerun the now-failed `0.1.89` install/restart/live-validation loop, or reopen the completed `0.1.90` release/deploy/restart/fingerprint/screenshot/action-drill-down loop unless new live evidence regresses. Continue only with Riley's current highlighted scope in `docs/ACTIVE_USER_REQUESTS.md` and active bug state in `docs/BUGS.md`.
 
 ## Why 0.1.89 exists
 
-After `v0.1.88` was published, repo-side UI fixes continued. Those fixes are exactly the kind of polish that should be in the build James tests if the goal is to validate the full `docs/UI_DESIGN.md` outcome.
+After `v0.1.88` was published, repo-side UI fixes continued. Those fixes were historical polish for the then-current design roadmap; do not use this plan to validate deprecated `docs/UI_DESIGN.md` outcomes or to choose current work over Riley's highlighted managed-only scope.
 
 The follow-up line avoids the ambiguity of a republished `0.1.88` while preserving a clean install/update path through GitHub/HACS.
 
@@ -142,4 +142,4 @@ Validation did fail on the device-page Managed Devices outcome after the install
 - Exact evidence is recorded in `docs/BUGS.md` under `ZNE-411`.
 - The issue is a genuine native device-page product/UI gap, not install drift or stale HACS cache.
 - Do not fix or republish another `0.1.89` candidate.
-- Do not continue through the completed `docs/RELEASE_0.1.90_PLAN.md` / `ZNE-411` screenshot loop unless new live evidence regresses; continue with later ordered UI polish or active fixed-pending-validation bugs instead.
+- Do not continue through the completed `docs/RELEASE_0.1.90_PLAN.md` / `ZNE-411` screenshot loop unless new live evidence regresses; continue only with Riley's current highlighted scope in `docs/ACTIVE_USER_REQUESTS.md` and active bug state in `docs/BUGS.md` instead.
