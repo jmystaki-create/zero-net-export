@@ -296,6 +296,12 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertIsNone(sensor.native_value)
 
+    def test_unmanaged_candidate_cleanup_uses_legacy_device_list_naming(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        self.assertTrue(hasattr(sensor_module, "_cleanup_legacy_unmanaged_candidate_device_rows"))
+        self.assertFalse(hasattr(sensor_module, "_remove_unmanaged_candidate_peer_rows"))
+
     def test_setup_entry_suppresses_unmanaged_candidate_peer_rows(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

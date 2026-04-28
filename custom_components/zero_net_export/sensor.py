@@ -296,7 +296,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.extend(device_entities)
 
     candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
-    _remove_unmanaged_candidate_peer_rows(coordinator, hass, candidates)
+    _cleanup_legacy_unmanaged_candidate_device_rows(coordinator, hass, candidates)
 
     async_add_entities(entities)
     _register_managed_device_row_sync(
@@ -462,20 +462,20 @@ def _register_unmanaged_candidate_cleanup(
     hass,
     entry,
 ) -> None:
-    """Remove/suppress unmanaged peer rows while keeping backlog discovery available."""
+    """Remove/suppress legacy unmanaged device-list rows while keeping backlog discovery available."""
 
-    def _cleanup_unmanaged_candidate_rows() -> None:
+    def _cleanup_legacy_unmanaged_candidate_device_rows_from_state() -> None:
         state = getattr(coordinator, "data", None)
         if state is None:
             return
         candidates = _candidate_devices_for_state(coordinator, hass, state)
-        _remove_unmanaged_candidate_peer_rows(coordinator, hass, candidates)
+        _cleanup_legacy_unmanaged_candidate_device_rows(coordinator, hass, candidates)
 
     add_listener = getattr(coordinator, "async_add_listener", None)
     if add_listener is None:
         return
     async_on_unload = getattr(entry, "async_on_unload", None)
-    unsubscribe = add_listener(_cleanup_unmanaged_candidate_rows)
+    unsubscribe = add_listener(_cleanup_legacy_unmanaged_candidate_device_rows_from_state)
     if unsubscribe is not None and async_on_unload is not None:
         async_on_unload(unsubscribe)
 
@@ -484,21 +484,21 @@ def _register_unmanaged_candidate_cleanup(
     if async_listen is None:
         return
 
-    def _sync_after_candidate_state_change(event) -> None:
+    def _cleanup_after_candidate_state_change(event) -> None:
         data = getattr(event, "data", {}) or {}
         entity_id = str(data.get("entity_id") or "")
         domain = entity_id.split(".", 1)[0] if "." in entity_id else ""
         if domain not in DEVICE_CANDIDATE_DOMAINS:
             return
-        _cleanup_unmanaged_candidate_rows()
+        _cleanup_legacy_unmanaged_candidate_device_rows_from_state()
 
-    unsubscribe_state = async_listen("state_changed", _sync_after_candidate_state_change)
+    unsubscribe_state = async_listen("state_changed", _cleanup_after_candidate_state_change)
     if unsubscribe_state is not None and async_on_unload is not None:
         async_on_unload(unsubscribe_state)
 
 
-def _remove_unmanaged_candidate_peer_rows(coordinator, hass, candidates: list[dict[str, object]]) -> None:
-    """Remove discovered unmanaged candidates from native peer device rows.
+def _cleanup_legacy_unmanaged_candidate_device_rows(coordinator, hass, candidates: list[dict[str, object]]) -> None:
+    """Remove discovered unmanaged candidates from the native device-list surface.
 
     Candidate discovery still feeds Managed Devices backlog/review surfaces; this cleanup only
     suppresses the old integration-page `Un Managed — ...` child-device representation.
