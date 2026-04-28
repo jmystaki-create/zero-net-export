@@ -299,6 +299,44 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("current-device", registry.devices)
         self.assertEqual(registry.updated[0], "current-device")
 
+    def test_managed_device_async_added_removes_legacy_raw_registry_row(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(
+            coordinator,
+            "pool.pump/main:one",
+            "Pool Pump",
+        )
+        current_identifier = (
+            "zero_net_export",
+            "entry-1:managed-device:pool_pump_main_one_82055144",
+        )
+        raw_legacy_identifier = (
+            "zero_net_export",
+            "entry-1:managed-device:pool.pump/main:one",
+        )
+        normalized_legacy_identifier = (
+            "zero_net_export",
+            "entry-1:managed-device:pool_pump_main_one",
+        )
+        registry = _FakeDeviceRegistry(
+            [
+                SimpleNamespace(id="raw-legacy-device", identifier=raw_legacy_identifier, configuration_url=None),
+                SimpleNamespace(id="normalized-legacy-device", identifier=normalized_legacy_identifier, configuration_url=None),
+                SimpleNamespace(id="current-device", identifier=current_identifier, configuration_url=None),
+            ]
+        )
+        sensor.hass = SimpleNamespace(device_registry=registry)
+
+        asyncio.run(sensor.async_added_to_hass())
+
+        self.assertIn("raw-legacy-device", registry.removed)
+        self.assertIn("normalized-legacy-device", registry.removed)
+        self.assertNotIn("raw-legacy-device", registry.devices)
+        self.assertNotIn("normalized-legacy-device", registry.devices)
+        self.assertIn("current-device", registry.devices)
+        self.assertEqual(registry.updated[0], "current-device")
+
     def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()

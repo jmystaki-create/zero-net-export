@@ -106,13 +106,27 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
     }
 
 
-def legacy_managed_load_device_info(coordinator, device_key: str) -> dict | None:
-    """Return legacy managed-row device info when the old identifier differs."""
-    current = _device_identifier_part(device_key)
-    legacy = _legacy_device_identifier_part(device_key)
-    if legacy == current:
-        return None
-    return {"identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:managed-device:{legacy}")}}
+def legacy_managed_load_device_info(coordinator, device_key: str) -> list[dict]:
+    """Return legacy managed-row device infos when old identifiers differ."""
+    entry_id = coordinator.entry.entry_id
+    current_identifier = f"{entry_id}:managed-device:{_device_identifier_part(device_key)}"
+    legacy_identifiers = []
+
+    # ZNE-507 removed the pre-hardening raw device-key identifier. Existing installs
+    # may still have that device-registry row after upgrade when the key contained
+    # separators, spaces, or other unsafe punctuation.
+    raw_key = str(device_key or "unknown").strip() or "unknown"
+    legacy_identifiers.append(f"{entry_id}:managed-device:{raw_key}")
+
+    # ZNE-508 then added hash differentiators for normalized fragments. Keep cleaning
+    # up that intermediate unhashed identifier too so upgrades converge to one row.
+    legacy_identifiers.append(f"{entry_id}:managed-device:{_legacy_device_identifier_part(device_key)}")
+
+    return [
+        {"identifiers": {(DOMAIN, identifier)}}
+        for identifier in dict.fromkeys(legacy_identifiers)
+        if identifier != current_identifier
+    ]
 
 
 def attach_managed_load_device(entity, coordinator, device_key: str, device_name: str | None = None) -> None:
@@ -158,10 +172,12 @@ def _integration_page_child_device_registry_entry(hass, device_info: dict | None
     return device_registry, device
 
 
-def sync_integration_page_child_device_registry(hass, device_info: dict | None, legacy_device_info: dict | None = None) -> None:
+def sync_integration_page_child_device_registry(hass, device_info: dict | None, legacy_device_info: object = None) -> None:
     """Refresh device-registry metadata for managed/unmanaged integration-page rows."""
     if legacy_device_info is not None:
-        remove_integration_page_child_device_registry(hass, legacy_device_info)
+        legacy_infos = legacy_device_info if isinstance(legacy_device_info, list) else [legacy_device_info]
+        for legacy_info in legacy_infos:
+            remove_integration_page_child_device_registry(hass, legacy_info)
 
     device_registry, device = _integration_page_child_device_registry_entry(hass, device_info)
     if device_registry is None or device is None:

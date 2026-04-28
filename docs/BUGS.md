@@ -91,6 +91,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Current active bugs
 
+## ZNE-513 - legacy raw managed registry rows could survive identifier hardening
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking ZNE-512's legacy child-device cleanup against the earlier ZNE-507 transition from raw managed-device keys to registry-safe identifiers.
+- **current observed behavior:** ZNE-507 moved managed child-device registry identifiers away from raw configured device keys such as `pool.pump/main:one`, and ZNE-512 cleaned up the later normalized unhashed legacy row. Existing installs that had already registered the pre-ZNE-507 raw identifier `entry:managed-device:pool.pump/main:one` could still keep that stale device-registry row after upgrade beside the current hashed `Managed Devices — ...` row.
+- **expected behavior:** when a managed child-device registry identifier is hardened, the integration should remove both the pre-hardening raw-key registry row and the intermediate normalized unhashed row during entity add/refresh so the native integration page shows one current row per managed load.
+- **evidence:** `legacy_managed_load_device_info()` only returned the normalized legacy identifier, not the older raw `:managed-device:<device_key>` identifier used before managed child-device identifiers were sanitized.
+- **repo fix:** this run expands managed legacy cleanup to remove both raw-key and normalized legacy managed child-device registry identifiers while preserving the current hashed row metadata and native Home Assistant device-row path.
+- **validation status:** fixed in repo with focused regression coverage proving existing raw and normalized legacy `Managed Devices — ...` registry rows are removed while the current hashed row remains and is updated, plus `python3 -m unittest tests.test_integration_page_device_lists -q`. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that legacy raw or normalized managed child-device rows do not remain beside current hashed `Managed Devices — ...` rows after upgrade.
+
 ## ZNE-512 - legacy unhashed Un Managed registry rows could survive identifier hardening
 
 - **status:** `fixed_pending_validation`
