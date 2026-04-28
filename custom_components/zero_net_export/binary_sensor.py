@@ -11,6 +11,7 @@ from .entity import (
     integration_page_managed_load_details,
     managed_load_detail,
     managed_load_display_name,
+    managed_load_settings_action_name,
 )
 
 
@@ -107,7 +108,7 @@ class ZeroNetExportDeviceUsableBinarySensor(ZeroNetExportEntity, BinarySensorEnt
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_usable", f"{device_name} usable")
+        super().__init__(coordinator, f"device_{device_key}_usable", managed_load_settings_action_name(device_name, "usable"))
         self._device_key = device_key
         attach_managed_load_device(self, coordinator, device_key, device_name)
 

@@ -92,6 +92,15 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(review._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(reset._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
 
+    def test_managed_device_usable_binary_sensor_keeps_visible_settings_affordance(self) -> None:
+        binary_sensor_module = _load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity")
+
+        usable = binary_sensor_module.ZeroNetExportDeviceUsableBinarySensor(_coordinator(), "pool", "Pool Pump")
+
+        self.assertEqual(usable._attr_entity_category, binary_sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(usable._attr_name, "⚙ Settings — Pool Pump usable")
+        self.assertEqual(usable._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+
     def test_managed_device_setup_platforms_keep_sparse_rows_registered(self) -> None:
         coordinator = _coordinator()
         coordinator.data.device_details = {
@@ -143,7 +152,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         platform_specs = [
             (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "⚙ Settings — Pool Pump enabled"),
             (_load_simple_platform_module("number", "number", "NumberEntity"), "⚙ Settings — Pool Pump priority"),
-            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "Pool Pump usable"),
+            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "⚙ Settings — Pool Pump usable"),
             (_load_button_module(), "⚙ Settings — Pool Pump review"),
         ]
 

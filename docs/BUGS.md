@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-524 - managed-device usable row lacked visible settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking Riley's highlighted requirement that managed-device rows/actions keep an obvious visible settings/gear affordance.
+- **current observed behavior:** the managed-device enabled switch, priority number, review button, reset button, device row name, and model had visible `⚙ Settings` labels, but the per-managed-device usable binary sensor still rendered as a plain `<device> usable` attached row. On native managed-device surfaces that row could still look like an ordinary diagnostic without the same visible settings affordance as the other managed-device rows/actions.
+- **expected behavior:** every per-managed-device row/action exposed on the native managed child-device surface should keep the visible `⚙ Settings` affordance, while unmanaged candidates remain suppressed from peer `Un Managed — ...` rows and continue behind Managed Devices workflow/backlog/review surfaces.
+- **repo fix:** this run applies the shared managed settings/action label helper to the usable binary sensor, producing names like `⚙ Settings — Pool Pump usable`, and adds focused regression coverage for the binary-sensor row plus the existing config-fallback platform setup path.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_device_page_managed_settings tests.test_integration_page_device_lists -q` and `python3 -m compileall -q custom_components/zero_net_export/binary_sensor.py`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list and managed-device action surfaces showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-523 - deprecated 0.1.90 status still pointed at peer Un Managed lists
 
 - **status:** `fixed_pending_validation`
