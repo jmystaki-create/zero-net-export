@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-529 - install repair guidance revived stale release-target approval loop
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking explicit loop/churn drift under Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** `build_install_repair_step()` still told operators to ask James whether the old helper-resolved `0.1.94` component boundary should replace the documented `0.1.91` release target before accepting the managed-only native device-list representation. Focused release-info tests locked in that stale approval-boundary narration.
+- **expected behavior:** install repair guidance should name Riley's current approval gate, keep the validation target on managed-only native peer rows with visible settings affordance and no peer `Un Managed — ...` rows, and explicitly avoid reopening old `0.1.91`/`0.1.94` release-target loops or treating fingerprint commands as proof without approval.
+- **repo fix:** this run rewrites the install-repair approval boundary to ask Riley for explicit approval before release/deploy/restart/fingerprint/readiness/screenshot validation and updates release-info tests to reject the stale James/old-release-target prompt.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_release_info_install_guidance -q` and `python3 -m compileall -q custom_components/zero_net_export/release_info.py tests/test_release_info_install_guidance.py`. No Home Assistant live validation needed because this is release/process guidance only.
+- **next action:** after explicit Riley approval, collect live screenshot proof that managed rows/actions show visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-528 - managed-device review notification title lacked visible settings affordance
 
 - **status:** `fixed_pending_validation`

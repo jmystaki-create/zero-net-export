@@ -217,10 +217,10 @@ def build_install_repair_step(install_provenance: dict[str, Any] | None = None) 
             f"Wait for the async install-provenance refresh to complete for {component_root}, then rerun the exact-build fingerprint check against {compare_target} before treating install provenance as a blocker."
         )
     approval_boundary = (
-        "Ask James directly whether the current helper-resolved manifest 0.1.94 component boundary replaces the documented "
-        "0.1.91 release target or whether release execution returns to the approved 0.1.91 boundary, "
-        "then ask James to accept or reject the managed-only native device-list representation with a visible settings affordance and no peer Un Managed rows "
-        "and ask James to approve exact release/deploy/restart validation for that accepted target"
+        "Ask Riley for explicit approval before any release, deploy, Home Assistant restart, "
+        "fingerprint validation, readiness claim, or live screenshot validation. The current validation target is the "
+        "managed-only native device-list behavior with visible settings affordance and no peer Un Managed rows; "
+        "do not reopen old 0.1.91/0.1.94 release-target questions or run exact-build commands as proof without that approval"
     )
     if provenance.get("manifest_matches_code_version") is False:
         return (
