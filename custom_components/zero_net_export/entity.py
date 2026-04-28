@@ -12,6 +12,22 @@ from .const import CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON, DO
 from .device_model import parse_device_configs
 
 
+FLEET_WORKSPACE_SENSOR_KEYS = {
+    "managed_devices_surface",
+    "managed_fleet_overview",
+    "managed_fleet_attention",
+    "managed_fleet_ready",
+    "unmanaged_candidate_count",
+    "unmanaged_candidate_overview",
+    "top_unmanaged_candidate",
+    "top_candidate_fit",
+    "top_candidate_warnings",
+    "candidate_shortlist",
+    "candidate_shortlist_fit",
+    "fleet_console_next_step",
+}
+
+
 def _legacy_device_identifier_part(value: object) -> str:
     """Return the pre-ZNE-508 registry identifier fragment for upgrade cleanup only."""
     original = str(value or "unknown").strip() or "unknown"
@@ -382,28 +398,14 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
 def _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id: str) -> bool:
     """Return True for current Managed Devices workflow/backlog entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
-    current_backlog_keys = {
-        "managed_devices_surface",
-        "managed_fleet_overview",
-        "managed_fleet_attention",
-        "managed_fleet_ready",
-        "unmanaged_candidate_count",
-        "unmanaged_candidate_overview",
-        "top_unmanaged_candidate",
-        "top_candidate_fit",
-        "top_candidate_warnings",
-        "candidate_shortlist",
-        "candidate_shortlist_fit",
-        "fleet_console_next_step",
-    }
-    current_backlog_unique_ids = {f"{entry_id}_{key}" for key in current_backlog_keys}
+    current_backlog_unique_ids = {f"{entry_id}_{key}" for key in FLEET_WORKSPACE_SENSOR_KEYS}
     if unique_id in current_backlog_unique_ids:
         return True
 
     entity_id = str(getattr(entity, "entity_id", "") or "")
     return any(
         entity_id.endswith(f"_{key}") or re.search(rf"_{re.escape(key)}_\d+$", entity_id)
-        for key in current_backlog_keys
+        for key in FLEET_WORKSPACE_SENSOR_KEYS
     )
 
 

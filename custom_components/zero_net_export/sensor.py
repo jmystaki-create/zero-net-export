@@ -22,6 +22,7 @@ from .candidate_utils import (
 )
 from .const import DEVICE_CANDIDATE_DOMAINS, DOMAIN, INTEGRATION_VERSION
 from .entity import (
+    FLEET_WORKSPACE_SENSOR_KEYS,
     ZeroNetExportEntity,
     attach_managed_load_device,
     integration_page_managed_load_details,
@@ -163,22 +164,6 @@ def _candidate_usefulness_summary(candidate: dict) -> str:
     }.get(confidence, confidence)
     summary = str(fit.get("summary") or "Looks like a plausible controllable candidate, but review before promotion.")
     return f"{usefulness}: {summary}"
-
-
-FLEET_WORKSPACE_SENSOR_KEYS = {
-    "managed_devices_surface",
-    "managed_fleet_overview",
-    "managed_fleet_attention",
-    "managed_fleet_ready",
-    "unmanaged_candidate_count",
-    "unmanaged_candidate_overview",
-    "top_unmanaged_candidate",
-    "top_candidate_fit",
-    "top_candidate_warnings",
-    "candidate_shortlist",
-    "candidate_shortlist_fit",
-    "fleet_console_next_step",
-}
 
 
 def _count_label(count: int, singular: str, plural: str | None = None) -> str:

@@ -1118,6 +1118,18 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                     unique_id="entry-1_fleet_console_next_step",
                 ),
                 SimpleNamespace(
+                    entity_id="sensor.zero_net_export_attached_managed_devices_surface",
+                    config_entry_id="entry-1",
+                    device_id="stale-unmanaged-device",
+                    unique_id="entry-1_managed_devices_surface",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.zero_net_export_managed_devices_surface_2",
+                    config_entry_id="entry-1",
+                    device_id="stale-unmanaged-device",
+                    unique_id=None,
+                ),
+                SimpleNamespace(
                     entity_id="sensor.zero_net_export_attached_managed_fleet_ready",
                     config_entry_id="entry-1",
                     device_id="stale-unmanaged-device",
@@ -1178,6 +1190,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("sensor.zero_net_export_attached_top_candidate_warnings", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_candidate_shortlist_fit", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_fleet_console_next_step", entity_registry.entities)
+        self.assertIn("sensor.zero_net_export_attached_managed_devices_surface", entity_registry.entities)
+        self.assertIn("sensor.zero_net_export_managed_devices_surface_2", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_managed_fleet_ready", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_managed_fleet_attention_2", entity_registry.entities)
         self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)

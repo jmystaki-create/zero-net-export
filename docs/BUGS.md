@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-555 - workflow sensor preservation keys could drift from stale peer cleanup guard
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking ZNE-554's stale peer `Un Managed — ...` cleanup guard against the Managed Devices workflow sensor registry set.
+- **current observed behavior:** the Managed Devices workflow sensor key list existed separately in `sensor.py` and in the entity-registry stale peer cleanup guard. The values currently matched, but the duplication meant a future Managed Devices workflow/backlog/review sensor could be added to the native workflow surface while the stale peer cleanup guard silently missed it and removed the registry entry if it was attached to a legacy unmanaged child device.
+- **expected behavior:** Managed Devices workflow/backlog/review sensor keys should have one shared source for both sensor setup and stale peer cleanup preservation, including unique-id and numeric-suffixed entity-id degraded registry shapes.
+- **repo fix:** this run moves the fleet workflow sensor key set into the shared entity helper module, imports it from `sensor.py`, and extends focused stale peer cleanup coverage for `managed_devices_surface` unique-id and numeric-suffixed entity-id shapes attached to a stale unmanaged child device.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py`, `custom_components/zero_net_export/sensor.py`, and the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-554 - managed workflow sensors could be removed during stale peer cleanup
 
 - **status:** `fixed_pending_validation`
