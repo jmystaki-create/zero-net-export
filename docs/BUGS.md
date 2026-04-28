@@ -85,11 +85,34 @@ Suggested area labels:
 
 ## Current approved scope override
 
-The active release scope is `0.1.91` / release `1.91` only: implement the Zero Net Export main integration page `Managed Devices` and `Un Managed` device lists described in ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md`.
+The active scope is Riley's current highlighted bugs/features in `docs/ACTIVE_USER_REQUESTS.md`.
 
-Older bug entries that mention continuing `0.1.90` device-page validation, post-`0.1.90` label polish, or another `0.1.89`/`0.1.90` release loop are historical unless they are strictly required to support ZNE-429. Do not use them to broaden the approved scope.
+The old `0.1.91` / release `1.91` integration-page Managed Devices + Un Managed peer-row scope is superseded. Do not use old ZNE-429/0.1.91 wording, deprecated UI roadmap docs, or old release plans to override current user direction.
+
+Current priority:
+- managed devices only in the native integration/device peer list
+- visible managed-device settings/gear affordance
+- suppress/remove peer `Un Managed — ...` unmanaged-candidate rows from that list
+- keep unmanaged candidates available behind Managed Devices workflow/backlog/review surfaces
+- no release/deploy/readiness claim without approval, tests, and screenshot proof
+
+Older bug entries that require peer `Un Managed — ...` rows are historical/superseded unless they are reworked to support the current managed-only peer-list requirement.
 
 ## Current active bugs
+
+## ZNE-514 - project steering docs used deprecated UI roadmap instead of current user-highlighted requests
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `docs`
+- **where seen:** Riley flagged on 2026-04-28 that cron jobs/project docs were stale and asked to deprecate the UI design/implementation documents and focus only on the highlighted bugs/features.
+- **current observed behavior:** supervisor/watchdog/project docs still referenced `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, old `0.1.91` / `1.91` release scope, and peer `Un Managed — ...` rows as active guidance.
+- **expected behavior:** automation and project docs should use `docs/ACTIVE_USER_REQUESTS.md` plus this bug tracker as the active source of truth, with old UI roadmap/release-plan documents marked deprecated or historical.
+- **evidence:** direct grep found UI roadmap and old release-scope references in supervisor/watchdog docs, cron payloads, validation checklist, and release-plan documents.
+- **repo fix:** deprecated `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md`, added `docs/ACTIVE_USER_REQUESTS.md`, rewrote supervisor/watchdog guidance to follow current user-highlighted requests, and updated cron payloads so future runs no longer read the deprecated UI roadmap docs.
+- **validation status:** fixed in repo with JSON validation for both cron payloads and `python3 -m unittest discover -s tests -q` (576 tests OK). No Home Assistant live validation needed because this is steering/documentation-only.
+- **next action:** continue implementing the current highlighted code behavior: managed-only peer rows, visible managed settings affordance, and no peer `Un Managed — ...` rows.
+
 
 ## ZNE-513 - legacy raw managed registry rows could survive identifier hardening
 

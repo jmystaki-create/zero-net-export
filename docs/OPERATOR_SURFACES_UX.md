@@ -1,14 +1,14 @@
 # Operator Surfaces and UX
 
-> Historical UX note: the active UI design source of truth is now `docs/UI_DESIGN.md`, and the active implementation/phase/status source of truth is `docs/UI_IMPLEMENTATION_MAP.md`. This file is retained as supporting background so older UX notes do not silently drift.
+> Historical UX note: this file is supporting background only. Current steering lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`; `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` are deprecated and must not override user-flagged bugs/features.
 
 ## Purpose of this file
 
 This is now a short background note about the operator-UX intent behind the native Home Assistant direction.
 
 Use instead:
-- `docs/UI_DESIGN.md` for the current UI design
-- `docs/UI_IMPLEMENTATION_MAP.md` for the current implementation strategy and delivery status
+- `docs/ACTIVE_USER_REQUESTS.md` for current Riley-flagged bugs/features
+- `docs/BUGS.md` for active bug state
 
 ## Durable UX principles
 
@@ -27,4 +27,4 @@ The product UX should keep one clear ownership boundary for each of these areas:
 - Managed Devices
 - Diagnostics
 
-Those boundaries are now defined in `docs/UI_DESIGN.md` and delivered through the plan in `docs/UI_IMPLEMENTATION_MAP.md`.
+Those boundaries are now constrained by current user-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md` and tracked in `docs/BUGS.md`.

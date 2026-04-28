@@ -1,6 +1,6 @@
 # Native Surface Technical Direction
 
-> Historical technical-direction note: UI design direction now lives in `docs/UI_DESIGN.md`, and implementation status / delivery phasing now lives in `docs/UI_IMPLEMENTATION_MAP.md`. Use this file as supporting background only.
+> Historical technical-direction note: this file is supporting background only. Current steering lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`; `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` are deprecated.
 
 ## Purpose of this file
 
@@ -8,8 +8,8 @@ This file is now a compact technical background note.
 It should not be the main location for current UI design or current UI implementation planning.
 
 Use instead:
-- `docs/UI_DESIGN.md` for the intended native Home Assistant UI design
-- `docs/UI_IMPLEMENTATION_MAP.md` for implementation status, remaining work, and phase planning
+- `docs/ACTIVE_USER_REQUESTS.md` for current Riley-flagged bugs/features
+- `docs/BUGS.md` for active bug state
 
 ## Durable technical direction
 

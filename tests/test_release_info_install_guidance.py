@@ -106,7 +106,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertIn("## Superseded status", freeze_section)
         self.assertIn("This plan is historical", freeze_section)
         self.assertIn("The corrective `0.1.90` device-info-page release plan and `ZNE-411` validation loop are historical and insufficient", freeze_section)
-        self.assertIn("The active approved scope is `0.1.91` / release `1.91`", freeze_section)
+        self.assertIn("old `0.1.91` / release `1.91` scope is now superseded", freeze_section)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", freeze_section)
         self.assertIn("## Current execution state", freeze_section)
         self.assertIn("`v0.1.89` is now frozen and tagged at `844502b`", freeze_section)
         self.assertIn("The repo manifest now reports `0.1.89`", freeze_section)
@@ -165,11 +166,11 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
         zne_427 = bugs.split("## ZNE-427", 1)[1].split("\n## ZNE-426", 1)[0]
 
-        self.assertIn("0.1.91 / release 1.91 approved scope", supervisor)
-        self.assertIn("Use `docs/RELEASE_0.1.91_PLAN.md` as the current release scope", supervisor)
-        self.assertIn("Treat `0.1.90` device-info-page work as historical and insufficient", supervisor)
-        self.assertIn("the approved `0.1.91` / release `1.91` integration-main-page device-list scope", supervisor)
-        self.assertNotIn("Treat `docs/RELEASE_0.1.90_PLAN.md` and `ZNE-411` as the current delivery target", supervisor)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", supervisor)
+        self.assertIn("docs/BUGS.md", supervisor)
+        self.assertIn("deprecated design-map requirements", supervisor)
+        self.assertIn("Do not reopen old `0.1.91` / `1.91` scope unless Riley explicitly asks", supervisor)
+        self.assertNotIn("Use `docs/RELEASE_0.1.91_PLAN.md` as the current release scope", supervisor)
         self.assertNotIn("ordered `0.1.90` corrective UI work", supervisor)
         self.assertIn("- **status:** `closed`", zne_427)
         self.assertIn("Supervisor still treated closed ZNE-411 as the current delivery target", zne_427)
@@ -249,33 +250,15 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
     def test_ui_implementation_map_detailed_work_uses_0191_integration_page_scope(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
-        detailed_map = plan.split("## Detailed remaining work map", 1)[1].split("### Stage 0.", 1)[0]
 
-        self.assertIn("approved `0.1.91` / release `1.91` scope", detailed_map)
-        self.assertIn("managed and unmanaged device lists on the Zero Net Export main integration page", detailed_map)
-        self.assertIn("Workstream G. Exact-build validation and release execution", detailed_map)
-        self.assertIn("Treat the repo-side native child-device implementation as present", detailed_map)
-        self.assertIn("Capture screenshot-grade live evidence from `Settings -> Devices & Services -> Integrations -> Zero Net Export`", detailed_map)
-        self.assertIn("ZNE-429 and `docs/RELEASE_0.1.91_PLAN.md` as the active implementation scope", detailed_map)
-        release_target = detailed_map.index("Resolve the release-target mismatch")
-        native_acceptance = detailed_map.index("After the release-target decision, ask James directly whether the closest Home Assistant-native device-registry representation is acceptable")
-        order_summary_target = detailed_map.index("Ask James directly for the release-target decision first")
-        order_summary_acceptance = detailed_map.index("After that target decision")
-
-        self.assertLess(release_target, native_acceptance)
-        self.assertLess(order_summary_target, order_summary_acceptance)
-        self.assertIn("ask James directly whether this closest native representation is acceptable for the chosen target", detailed_map)
-        self.assertIn("froze `v0.1.92` at `db5c246`, `v0.1.93` at `026f189`, and `v0.1.94` at `4c0d071`", detailed_map)
-        self.assertIn("helper must resolve the current manifest `0.1.94` component boundary at decision/deploy time", detailed_map)
-        self.assertIn("ask James directly whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` target", detailed_map)
-        self.assertIn("`7217f3b`, the post-tag `c4802a3` component boundary, the unapproved `db5c246` / `v0.1.92` freeze, the unapproved `026f189` / `v0.1.93` freeze, the newer `4c0d071` / `v0.1.94` freeze, and the post-freeze helper-resolved component boundary are not deploy approval", detailed_map)
-        self.assertNotIn("Only after a repo implementation exists should the project enter `0.1.91` release/fingerprint/live-screenshot execution", detailed_map)
-        self.assertNotIn("future `0.1.91` / release `1.91` integration-main-page device-list implementation", detailed_map)
-        self.assertNotIn("published `v0.1.90` corrective release", detailed_map)
-        self.assertNotIn("convert the published `v0.1.90` corrective release into a real installed", detailed_map)
-        self.assertNotIn("freeze version-coupled metadata as `0.1.90`", detailed_map)
-        self.assertNotIn("convert the repo candidate into a real shipped and validated `0.1.89` release", detailed_map)
-        self.assertNotIn("Publish/deploy the approved `v0.1.89` candidate", detailed_map)
+        self.assertIn("UI_IMPLEMENTATION_MAP.md — DEPRECATED", plan)
+        self.assertIn("no longer a project source of truth", plan)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", plan)
+        self.assertIn("managed devices only", plan)
+        self.assertIn("visible settings/gear affordance", plan)
+        self.assertIn("no peer `Un Managed — ...`", plan)
+        self.assertNotIn("## Detailed remaining work map", plan)
+        self.assertNotIn("approved `0.1.91` / release `1.91` scope", plan)
 
     def test_0191_release_plan_and_bug_tracker_make_human_boundary_explicit(self) -> None:
         release_plan = (REPO_ROOT / "docs" / "RELEASE_0.1.91_PLAN.md").read_text(encoding="utf-8")
@@ -300,15 +283,12 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
     def test_0191_success_criteria_respect_accepted_native_grouping_constraint(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
-        success = plan.split("## What counts as success for 0.1.91 / release 1.91", 1)[1].split(
-            "See `docs/RELEASE_0.1.91_PLAN.md`", 1
-        )[0]
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
         zne_433 = bugs.split("## ZNE-433", 1)[1].split("\n## ZNE-432", 1)[0]
 
-        self.assertIn("accepted native child-device representation", success)
-        self.assertIn("James-accepted native `Managed Devices — ...` row/model grouping", success)
-        self.assertIn("James-accepted native `Un Managed — ...` row/model grouping", success)
+        self.assertIn("DEPRECATED", plan)
+        self.assertIn("Current steering lives", plan)
+        self.assertIn("Riley's current highlighted bugs/features", plan)
         self.assertIn("if James rejects the native child-device representation", zne_433)
         self.assertIn("closed with repo-side source-of-truth/test validation", zne_433)
 
@@ -322,28 +302,20 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         for text in (ui_design, plan, supervisor):
             self.assertNotIn("before implementation and the closest native representation", text)
             self.assertNotIn("before implementation substitutes another representation", text)
-            self.assertIn("before release execution", text)
 
-        self.assertIn("agreed before the candidate is called successful", ui_design)
-        self.assertIn("ask James whether the closest native device-registry representation is acceptable", plan)
+        self.assertIn("no longer a project source of truth", ui_design)
+        self.assertIn("no longer a project source of truth", plan)
+        self.assertIn("claim release readiness without explicit approval and screenshot proof", supervisor)
         self.assertIn("- **status:** `closed`", zne_434)
         self.assertIn("pre-release/pre-success acceptance boundary", zne_434)
 
     def test_ui_implementation_map_stage9_does_not_reopen_0190_install_loop(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
-        stage9 = plan.split("### Stage 9. Live validation and release gate", 1)[1].split(
-            "## Historical 0.1.89 release rollout view", 1
-        )[0]
 
-        self.assertIn("Home Assistant reports `sensor.zero_net_export_installed_version = 0.1.90`", stage9)
-        self.assertIn("`overall_match: true`", stage9)
-        self.assertIn("live API state exposes the `Managed Devices surface` row", stage9)
-        self.assertIn("pressed `button.zero_net_export_show_fleet_console` and `button.zero_net_export_show_managed_device_review`", stage9)
-        self.assertIn("docs/evidence/0.1.90-device-page-managed-devices-surface.png", stage9)
-        self.assertIn("docs/evidence/0.1.90-managed-devices-workspace-notification.png", stage9)
-        self.assertIn("do not keep repeating API-only button.press checks", stage9)
-        self.assertIn("no remaining `0.1.90` install/fingerprint/screenshot gate", stage9)
-        self.assertNotIn("install/update Home Assistant to the published `v0.1.90` build", stage9)
+        self.assertIn("DEPRECATED", plan)
+        self.assertNotIn("### Stage 9. Live validation and release gate", plan)
+        self.assertNotIn("install/update Home Assistant to the published `v0.1.90` build", plan)
+        self.assertIn("No release-readiness claim without proof", (REPO_ROOT / "docs" / "ACTIVE_USER_REQUESTS.md").read_text(encoding="utf-8"))
 
     def test_zne_424_closes_api_only_action_drilldown_loop(self) -> None:
         bugs = (REPO_ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
@@ -368,67 +340,50 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
     def test_ui_implementation_map_keeps_0189_success_gate_historical(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
-        current_success = plan.split("### Still blocked or incomplete", 1)[1].split(
-            "## What counts as success for 0.1.91 / release 1.91", 1
-        )[0]
 
-        self.assertIn("## Historical 0.1.89 success criteria (failed on device-page evidence)", current_success)
-        self.assertIn("Keep this section as historical evidence only", current_success)
-        self.assertIn("The clarified active target is now `0.1.91` integration-main-page device lists", current_success)
-        self.assertNotIn("## What counts as success for 0.1.89", current_success)
-        self.assertNotIn("`0.1.89` should not be called a successful UI release", current_success)
+        self.assertIn("DEPRECATED", plan)
+        self.assertNotIn("## Historical 0.1.89 success criteria", plan)
+        self.assertNotIn("## What counts as success for 0.1.89", plan)
+        self.assertIn("Current steering lives", plan)
 
     def test_supervisor_steering_uses_0191_integration_page_scope(self) -> None:
         supervisor = (REPO_ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
-        optimization_target = supervisor.split("## Project optimization target", 1)[1].split("## What counts as real progress", 1)[0]
-        acceptance_stance = supervisor.split("## Acceptance stance", 1)[1].split("## Release behavior", 1)[0]
 
-        self.assertIn("approved `0.1.91` / release `1.91` integration-page Managed Devices and Un Managed device-list scope", optimization_target)
-        self.assertIn("the approved `0.1.91` / release `1.91` integration-main-page device-list scope", acceptance_stance)
-        self.assertIn("Zero Net Export main integration page visibly shows a Managed Devices device list and an Un Managed device list", acceptance_stance)
-        self.assertNotIn("remaining `0.1.90` corrective device-page Managed Devices UI rollout", optimization_target)
-        self.assertNotIn("ordered `0.1.90` corrective UI work", acceptance_stance)
-        self.assertNotIn("remaining `0.1.89` UI rollout", optimization_target)
-        self.assertNotIn("ordered `0.1.89` UI work", acceptance_stance)
+        self.assertIn("Riley's highlighted bugs/features only", supervisor)
+        self.assertIn("managed devices must be the only peer rows", supervisor)
+        self.assertIn("visible settings/gear affordance", supervisor)
+        self.assertIn("unmanaged candidates must not appear as peer `Un Managed — ...` rows", supervisor)
+        self.assertNotIn("approved `0.1.91` / release `1.91`", supervisor)
+        self.assertNotIn("ordered `0.1.90` corrective UI work", supervisor)
 
     def test_archived_ui_design_pointer_does_not_revive_0189_active_line(self) -> None:
         archived = (REPO_ROOT / "docs" / "UI_DESIGN-old.md").read_text(encoding="utf-8")
 
         self.assertIn("historical only", archived)
-        self.assertIn("native-only `0.1.91` / release `1.91` integration-main-page Managed Devices and Un Managed device-list scope", archived)
-        self.assertIn("docs/RELEASE_0.1.91_PLAN.md", archived)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", archived)
+        self.assertIn("active scope is now Riley-flagged bugs/features", archived)
         self.assertNotIn("native-only `0.1.89` follow-up", archived)
         self.assertNotIn("`0.1.90` corrective device-page Managed Devices release", archived)
 
     def test_ui_design_current_visible_outcomes_use_0191_integration_page_boundary(self) -> None:
         design = (REPO_ROOT / "docs" / "UI_DESIGN.md").read_text(encoding="utf-8")
-        visible_outcomes = design.split(
-            "## The four required visible outcomes for the current UI correction line", 1
-        )[1].split("## UX principles", 1)[0]
-        integration_page = design.split("## Integration-page Managed Devices device lists", 1)[1].split(
-            "## Managed Devices workspace", 1
-        )[0]
 
-        self.assertIn("The current UI correction target is `0.1.91` / release `1.91`", visible_outcomes)
-        self.assertIn("or `0.1.90` wording", visible_outcomes)
-        self.assertIn("main integration page", integration_page)
-        self.assertIn("Managed Devices", integration_page)
-        self.assertIn("Un Managed", integration_page)
-        self.assertIn("does not satisfy this design target", integration_page)
-        self.assertNotIn("The current UI correction target is `0.1.90`", visible_outcomes)
-        self.assertNotIn("The current UI correction target is `0.1.89`", visible_outcomes)
-        self.assertNotIn("these three visible outcomes", visible_outcomes)
+        self.assertIn("UI_DESIGN.md — DEPRECATED", design)
+        self.assertIn("no longer a project source of truth", design)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", design)
+        self.assertIn("managed-only peer rows", design)
+        self.assertIn("visible managed-device settings affordance", design)
+        self.assertIn("suppression/removal of peer `Un Managed — ...` rows", design)
+        self.assertNotIn("The current UI correction target is `0.1.91` / release `1.91`", design)
 
     def test_ui_implementation_map_uses_current_device_page_action_names(self) -> None:
         plan = (REPO_ROOT / "docs" / "UI_IMPLEMENTATION_MAP.md").read_text(encoding="utf-8")
-        active_stages = plan.split("### Stage 4. Managed Devices workspace redesign", 1)[1].split(
-            "## Historical 0.1.89 release rollout view", 1
-        )[0]
 
-        self.assertIn("`Open Managed Devices workspace`", active_stages)
-        self.assertIn("`Open Managed Devices review`", active_stages)
-        self.assertNotIn("`Review managed devices workspace`", active_stages)
-        self.assertNotIn("`Review managed devices`", active_stages)
+        self.assertIn("DEPRECATED", plan)
+        self.assertIn("visible settings/gear affordance", plan)
+        self.assertNotIn("### Stage 4. Managed Devices workspace redesign", plan)
+        self.assertNotIn("`Review managed devices workspace`", plan)
+        self.assertNotIn("`Review managed devices`", plan)
 
     def test_release_0190_plan_marks_release_published_and_live_validation_pending(self) -> None:
         plan = (REPO_ROOT / "docs" / "RELEASE_0.1.90_PLAN.md").read_text(encoding="utf-8")

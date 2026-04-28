@@ -1,5 +1,8 @@
 # Zero Net Export 0.1.91 Release Plan
 
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This release plan is historical/superseded. Do not use it as active scope. Current scope lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
+
+
 `0.1.91` is the integration-main-page Managed Devices release.
 
 This is the only approved scope for the next release line: make the Zero Net Export **main integration page** show real managed and unmanaged device lists under the Zero Net Export integration, matching the Home Assistant integration-page pattern shown by James.

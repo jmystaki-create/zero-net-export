@@ -1,6 +1,6 @@
 # Native Home Assistant Operator Plan
 
-> Historical-direction note: this document is now background context only. The current UI design source of truth is `docs/UI_DESIGN.md`, the current UI implementation/status source of truth is `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/SUPERVISOR.md` remains the active steering layer for goals, risks, release gates, and next actions.
+> Historical-direction note: this document is background context only. Current steering lives in `docs/ACTIVE_USER_REQUESTS.md`, `docs/BUGS.md`, `docs/SUPERVISOR.md`, and `docs/WATCHDOG.md`. `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` are deprecated and are not active source-of-truth documents.
 
 ## Purpose of this file
 
@@ -8,8 +8,8 @@ This file remains as a short historical record of the project's pivot to native 
 
 Do not use this file as the primary source of truth for current UI design or current UI implementation planning.
 Use:
-- `docs/UI_DESIGN.md` for intended UI design
-- `docs/UI_IMPLEMENTATION_MAP.md` for completed work, remaining work, phases, and features
+- `docs/ACTIVE_USER_REQUESTS.md` for current Riley-flagged bugs/features
+- `docs/BUGS.md` for active bug state
 - `docs/SUPERVISOR.md` for current steering and release posture
 
 ## Historical summary

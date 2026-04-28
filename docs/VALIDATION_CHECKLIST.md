@@ -1,5 +1,8 @@
 # Real-Installation Validation Checklist
 
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This checklist is historical until updated for `docs/ACTIVE_USER_REQUESTS.md`. Do not use its old `0.1.91` / `1.91` Managed+Un Managed peer-row acceptance criteria as active release guidance.
+
+
 Use this checklist to validate Zero Net Export in a real Home Assistant environment before considering v1 complete.
 
 Supervisor note: this document is the evidence ledger for the release gates defined in `docs/SUPERVISOR.md`.

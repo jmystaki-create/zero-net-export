@@ -1,5 +1,8 @@
 # UI_RESEARCH.md
 
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This research doc is historical. Do not use it to override current user-highlighted scope in `docs/ACTIVE_USER_REQUESTS.md`.
+
+
 This document captures the research base for a refreshed Zero Net Export UI design.
 
 It is intended to synthesize:

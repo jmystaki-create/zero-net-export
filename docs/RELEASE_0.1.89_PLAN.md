@@ -1,10 +1,13 @@
 # Zero Net Export 0.1.89 Release Plan
 
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This release plan is historical. Current scope lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
+
+
 ## Superseded status
 
 This plan is historical. `v0.1.89` was frozen, published, installed, restarted, and fingerprint-verified, but James's live device-page screenshot showed it did not deliver the required Managed Devices device-page surface.
 
-Do not use this file as the active release plan or ask James to repeat the `0.1.89` install/restart/live-validation loop. The corrective `0.1.90` device-info-page release plan and `ZNE-411` validation loop are historical and insufficient for the clarified integration-main-page requirement. The active approved scope is `0.1.91` / release `1.91` in `docs/RELEASE_0.1.91_PLAN.md` and ZNE-429.
+Do not use this file as the active release plan or ask James to repeat the `0.1.89` install/restart/live-validation loop. The corrective `0.1.90` device-info-page release plan and `ZNE-411` validation loop are historical and insufficient for the clarified integration-main-page requirement. That old `0.1.91` / release `1.91` scope is now superseded by Riley-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
 
 ## Purpose
 

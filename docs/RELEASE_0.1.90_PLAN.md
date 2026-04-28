@@ -1,10 +1,13 @@
 # Zero Net Export 0.1.90 Release Plan
 
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This release plan is historical. Current scope lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
+
+
 ## Superseded status
 
 This plan is historical. `0.1.90` addressed the earlier device-info-page Managed Devices visibility failure, but it does not satisfy the newly clarified requirement for the Zero Net Export main integration page to show `Managed Devices` and `Un Managed` device lists.
 
-Do not use this file as the active release plan. The active approved scope is `0.1.91` / release `1.91` in `docs/RELEASE_0.1.91_PLAN.md` and ZNE-429.
+Do not use this file as the active release plan. That old `0.1.91` / release `1.91` scope is now superseded by Riley-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
 
 ## Purpose
 

@@ -1,6 +1,9 @@
 # UI_IMPLEMENTATION_SPEC.md
 
-This document translates the current `UI_DESIGN.md` into a screen-by-screen implementation specification for the native Home Assistant UI.
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This implementation spec is deprecated with the old UI roadmap. Current scope lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
+
+
+This deprecated document translated the old `UI_DESIGN.md` roadmap into a screen-by-screen implementation specification for the native Home Assistant UI. It is historical only.
 
 It is intended to answer:
 - what the operator should see
@@ -14,10 +17,9 @@ This is an implementation-facing UI spec, not the higher-level design rationale.
 
 ## Relationship to other docs
 
-- `docs/UI_DESIGN.md` = product design source of truth
-- `docs/UI_RESEARCH.md` = research base and redesign-session decisions
-- `docs/UI_IMPLEMENTATION_MAP.md` = delivery phases and status
-- `docs/UI_IMPLEMENTATION_SPEC.md` = concrete screen/flow spec
+- `docs/ACTIVE_USER_REQUESTS.md` = current Riley-flagged bugs/features
+- `docs/BUGS.md` = active bug state and validation status
+- `docs/UI_DESIGN.md` / `docs/UI_IMPLEMENTATION_MAP.md` / this file = deprecated historical UI roadmap/spec context
 
 ---
 

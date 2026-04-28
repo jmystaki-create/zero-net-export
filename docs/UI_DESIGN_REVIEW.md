@@ -1,5 +1,8 @@
 # UI_DESIGN_REVIEW.md
 
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This review doc is historical/deprecated with the old UI roadmap. Current scope lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
+
+
 This document captures UI review notes, critique, feedback, open questions, and design-direction commentary for Zero Net Export.
 
 It is a review/input document, not the implementation source of truth.
@@ -16,9 +19,9 @@ Use this file to record:
 
 ## Relationship to other docs
 
-- `docs/UI_DESIGN.md` remains the intended UI design source of truth.
-- `docs/UI_IMPLEMENTATION_MAP.md` remains the implementation/status/phase source of truth.
-- `docs/UI_DESIGN_REVIEW.md` is for review commentary, critique, and feedback gathering.
+- `docs/ACTIVE_USER_REQUESTS.md` is the current Riley-flagged source of truth.
+- `docs/BUGS.md` tracks active bug state and validation status.
+- `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and this file are deprecated historical UI roadmap/review context.
 
 ## Review notes
 
