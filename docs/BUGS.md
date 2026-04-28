@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-547 - missing-ownership orphan unmanaged cleanup could remove another entry's legacy entity
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking current-entry orphan legacy unmanaged peer entity cleanup under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** after ZNE-544 allowed cleanup of missing-ownership orphan legacy unmanaged peer entities, the no-device/no-config-entry path still treated a bare `*_unmanaged_candidate` entity id as enough evidence to remove the entity. If another Zero Net Export config entry had an orphan with missing ownership and an other-entry legacy unique-id, the current entry cleanup could remove that other-entry artifact.
+- **expected behavior:** missing-ownership orphan cleanup should remove only current-entry-scoped legacy unmanaged peer entities, while preserving other-entry orphan entities and controller/backlog unmanaged sensors.
+- **repo fix:** this run requires current-entry-scoped legacy unique IDs before removing no-device/no-ownership orphan unmanaged peer entities, while preserving the broader suffix cleanup when the entity still records current config-entry ownership.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-546 - unreadable device registry enumeration skipped orphan unmanaged peer entity cleanup
 
 - **status:** `fixed_pending_validation`

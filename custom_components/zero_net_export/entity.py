@@ -379,15 +379,24 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
         return
 
 
-def _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id: str) -> bool:
+def _is_legacy_unmanaged_candidate_entity_registry_entry(
+    entity,
+    entry_id: str,
+    *,
+    require_entry_scoped_unique_id: bool = False,
+) -> bool:
     """Return True for old peer-row unmanaged-candidate entity-registry entries."""
-    entity_id = str(getattr(entity, "entity_id", "") or "")
-    if entity_id.endswith("_unmanaged_candidate"):
-        return True
-
     unique_id = str(getattr(entity, "unique_id", "") or "")
-    if unique_id.endswith("_unmanaged_candidate"):
-        return True
+
+    # When config-entry ownership is missing, only current-entry-scoped legacy
+    # unique IDs are safe to remove.  A bare ``*_unmanaged_candidate`` entity id is
+    # not enough to distinguish another Zero Net Export config entry's orphan.
+    if not require_entry_scoped_unique_id:
+        entity_id = str(getattr(entity, "entity_id", "") or "")
+        if entity_id.endswith("_unmanaged_candidate"):
+            return True
+        if unique_id.endswith("_unmanaged_candidate"):
+            return True
 
     # Older peer-row entities commonly used ``<entry>_unmanaged_candidate_<entity>``
     # unique IDs.  Do not treat controller/backlog sensors such as
@@ -448,7 +457,11 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
         if device_id in device_ids or (
             not device_id
             and (expected_entry_id in entity_entry_ids or not entity_entry_ids)
-            and _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id)
+            and _is_legacy_unmanaged_candidate_entity_registry_entry(
+                entity,
+                entry_id,
+                require_entry_scoped_unique_id=not entity_entry_ids,
+            )
         ):
             _remove_entity_registry_entry(entity_registry, entity)
 
