@@ -386,6 +386,11 @@ def _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id: str) -
         f"{entry_id}_unmanaged_candidate_count",
         f"{entry_id}_unmanaged_candidate_overview",
         f"{entry_id}_top_unmanaged_candidate",
+        f"{entry_id}_top_candidate_fit",
+        f"{entry_id}_top_candidate_warnings",
+        f"{entry_id}_candidate_shortlist",
+        f"{entry_id}_candidate_shortlist_fit",
+        f"{entry_id}_fleet_console_next_step",
     }
     return unique_id in current_backlog_unique_ids
 

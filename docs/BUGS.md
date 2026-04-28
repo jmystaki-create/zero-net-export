@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-551 - attached unmanaged workflow sensors could be removed with stale peer devices
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while extending stale peer `Un Managed — ...` cleanup checks under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** ZNE-549 preserved attached `unmanaged_candidate_count`, `unmanaged_candidate_overview`, and `top_unmanaged_candidate` workflow sensors, but other current unmanaged workflow surfaces such as `candidate_shortlist`, `candidate_shortlist_fit`, `top_candidate_fit`, `top_candidate_warnings`, and `fleet_console_next_step` were not guarded. If a degraded or migrated entity registry attached one of those current workflow sensors to a stale legacy unmanaged child device, the device-id cleanup branch could remove it while deleting the stale peer row.
+- **expected behavior:** stale native `Un Managed — ...` peer devices and their legacy peer entities should be removed, while all current Managed Devices unmanaged workflow/backlog/review sensors remain available even if their registry device attachment is stale.
+- **repo fix:** this run broadens the current unmanaged workflow entity guard to preserve shortlist, surfaced-candidate fit/warning, and fleet next-step unique IDs in addition to the existing unmanaged backlog sensors before device-id based stale peer cleanup runs.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-550 - historical unmanaged peer-row backlog still carried stale validation gates
 
 - **status:** `fixed_pending_validation`
