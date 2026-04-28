@@ -265,6 +265,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Closed bugs and process corrections
 
+## ZNE-511 - committed supervisor/watchdog drift replaced 0.1.91 scope with contradictory current-UI-fix steering
+
+- **status:** `closed`
+- **severity:** `high`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-28 after `7f9d269 docs: remove stale release steering from cron guidance` while comparing `docs/SUPERVISOR.md` and `docs/WATCHDOG.md` against `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, ZNE-429, and the operator-doc regression tests.
+- **current observed behavior:** the committed supervisor top section said the approved `0.1.91` / release `1.91` scope was historical, replaced it with a vague `current UI fix`, and explicitly told runners that unmanaged candidates must not appear beside managed devices as peer `Un Managed — ...` rows. The watchdog guide also stopped naming current ordered `0.1.91` map work. That contradicted the active implementation map and bug tracker, both of which still require Zero Net Export main integration-page `Managed Devices — ...` and `Un Managed — ...` native child-device rows before release validation.
+- **expected behavior:** steering and watchdog guidance must preserve the active source-of-truth order: `0.1.91` / release `1.91` remains the approved integration-main-page device-list scope until James changes it, unmanaged candidates remain part of the required `Un Managed` row/list outcome, and unchanged release/fingerprint mismatch must not outrank current ordered `0.1.91` map work.
+- **evidence:** `python3 -m unittest tests.test_operator_docs_consistency -q` failed because `docs/SUPERVISOR.md` no longer contained `## Active release-target hold`, no longer named current ordered `0.1.91` map work in churn rules, and `docs/WATCHDOG.md` no longer named current ordered `0.1.91` map work in Rule 6.
+- **repo fix:** this run restores `docs/SUPERVISOR.md` and `docs/WATCHDOG.md` to the tracked `0.1.91` / release `1.91` steering from `941bc28`, keeping the native Home Assistant Managed Devices and Un Managed integration-page row path intact and removing the contradictory `current UI fix` / managed-only-peer guidance.
+- **validation status:** closed with `python3 -m unittest tests.test_operator_docs_consistency -q`, `python3 -m unittest tests.test_integration_page_device_lists -q`, and Python compile for `entity.py`, `sensor.py`, and `tests/test_integration_page_device_lists.py`. No Home Assistant live validation was attempted because this was steering/process drift and ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** keep ZNE-439/ZNE-429 as the active boundary: James's release-target decision first, then native-row acceptance and exact release/deploy/restart approval before integration-main-page screenshot validation.
+
 ## ZNE-510 - uncommitted worktree drift suppressed Un Managed integration-page rows
 
 - **status:** `closed`
