@@ -260,6 +260,16 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("## Detailed remaining work map", plan)
         self.assertNotIn("approved `0.1.91` / release `1.91` scope", plan)
 
+    def test_0190_release_plan_status_does_not_revive_peer_unmanaged_scope(self) -> None:
+        release_plan = (REPO_ROOT / "docs" / "RELEASE_0.1.90_PLAN.md").read_text(encoding="utf-8")
+        superseded_status = release_plan.split("## Purpose", 1)[0]
+
+        self.assertIn("DEPRECATED/HISTORICAL", superseded_status)
+        self.assertIn("managed-only native integration/device peer rows", superseded_status)
+        self.assertIn("no peer `Un Managed — ...` unmanaged-candidate rows", superseded_status)
+        self.assertIn("old `0.1.91` / release `1.91` peer-row scope is now superseded", superseded_status)
+        self.assertNotIn("show `Managed Devices` and `Un Managed` device lists", superseded_status)
+
     def test_0191_release_plan_is_historical_not_current_peer_row_scope(self) -> None:
         release_plan = (REPO_ROOT / "docs" / "RELEASE_0.1.91_PLAN.md").read_text(encoding="utf-8")
 

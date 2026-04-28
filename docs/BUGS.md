@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-523 - deprecated 0.1.90 status still pointed at peer Un Managed lists
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking deprecated roadmap/release-plan drift against Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** `docs/RELEASE_0.1.90_PLAN.md` was marked deprecated, but its superseded-status section still said the newly clarified requirement was to show `Managed Devices` and `Un Managed` device lists on the Zero Net Export main integration page. That wording could revive the old peer-row acceptance target during future release-plan searches.
+- **expected behavior:** historical release plans should not describe peer `Un Managed — ...` rows or lists as the current requirement; they should point to managed-only native peer rows, visible settings affordance, unmanaged candidates behind workflow/backlog/review surfaces, and approval-gated screenshot proof.
+- **repo fix:** this run updates the `0.1.90` plan's superseded-status text to name the current managed-only peer-list requirement and adds regression coverage rejecting the stale `Managed Devices` plus `Un Managed` device-list wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_release_info_install_guidance -q`. No Home Assistant live validation needed because this is documentation/test steering only.
+- **next action:** keep live validation blocked until Riley explicitly approves deployment/restart/screenshot work and evidence shows managed rows with visible settings affordance and no peer `Un Managed — ...` rows.
+
 ## ZNE-522 - config-only managed devices lacked native settings actions before runtime details
 
 - **status:** `fixed_pending_validation`

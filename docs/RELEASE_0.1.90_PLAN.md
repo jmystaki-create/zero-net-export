@@ -5,9 +5,9 @@
 
 ## Superseded status
 
-This plan is historical. `0.1.90` addressed the earlier device-info-page Managed Devices visibility failure, but it does not satisfy the newly clarified requirement for the Zero Net Export main integration page to show `Managed Devices` and `Un Managed` device lists.
+This plan is historical. `0.1.90` addressed the earlier device-info-page Managed Devices visibility failure, but it does not satisfy the current requirement for managed-only native integration/device peer rows with a visible settings affordance and no peer `Un Managed — ...` unmanaged-candidate rows.
 
-Do not use this file as the active release plan. That old `0.1.91` / release `1.91` scope is now superseded by Riley-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
+Do not use this file as the active release plan. The old `0.1.91` / release `1.91` peer-row scope is now superseded by Riley-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
 
 ## Purpose
 
