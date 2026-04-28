@@ -380,9 +380,13 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
 
 
 def _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id: str) -> bool:
-    """Return True for current unmanaged workflow/backlog entity-registry entries."""
+    """Return True for current Managed Devices workflow/backlog entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
     current_backlog_keys = {
+        "managed_devices_surface",
+        "managed_fleet_overview",
+        "managed_fleet_attention",
+        "managed_fleet_ready",
         "unmanaged_candidate_count",
         "unmanaged_candidate_overview",
         "top_unmanaged_candidate",
