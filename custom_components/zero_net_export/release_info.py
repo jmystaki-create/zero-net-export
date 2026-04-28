@@ -219,7 +219,7 @@ def build_install_repair_step(install_provenance: dict[str, Any] | None = None) 
     approval_boundary = (
         "Ask James directly whether the current helper-resolved manifest 0.1.94 component boundary replaces the documented "
         "0.1.91 release target or whether release execution returns to the approved 0.1.91 boundary, "
-        "then ask James to accept or reject the closest native Managed Devices / Un Managed child-device representation "
+        "then ask James to accept or reject the managed-only native device-list representation with a visible settings affordance and no peer Un Managed rows "
         "and ask James to approve exact release/deploy/restart validation for that accepted target"
     )
     if provenance.get("manifest_matches_code_version") is False:

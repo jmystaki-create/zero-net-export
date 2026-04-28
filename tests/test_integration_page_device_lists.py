@@ -375,7 +375,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertIsNone(sensor.native_value)
 
-    def test_setup_entry_adds_unmanaged_candidate_entities_for_integration_page_rows(self) -> None:
+    def test_setup_entry_suppresses_unmanaged_candidate_peer_rows(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
         sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: [
@@ -405,7 +405,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             if getattr(entity, "_attr_device_info", None)
         ]
         self.assertIn("Managed Devices — Pool Pump", device_names)
-        self.assertIn("Un Managed — Hot Water", device_names)
+        self.assertNotIn("Un Managed — Hot Water", device_names)
 
     def test_setup_entry_keeps_managed_device_row_when_detail_is_sparse(self) -> None:
         sensor_module = _load_sensor_module()
@@ -437,7 +437,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         ]
         self.assertIn("Managed Devices — pool", device_names)
 
-    def test_setup_entry_keeps_managed_row_and_candidates_when_detail_is_none(self) -> None:
+    def test_setup_entry_keeps_managed_row_and_suppresses_candidate_peer_rows_when_detail_is_none(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
         coordinator.data.device_details = {"pool": None}
@@ -474,7 +474,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             if getattr(entity, "_attr_device_info", None)
         ]
         self.assertIn("Managed Devices — pool", device_names)
-        self.assertIn("Un Managed — Hot Water", device_names)
+        self.assertNotIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [set()])
 
     def test_setup_entry_tolerates_malformed_managed_detail(self) -> None:
@@ -652,7 +652,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertTrue(
             all(info.get("model") == "Managed Devices — Fixed managed load" for info in managed_infos)
         )
-        self.assertIn("Un Managed — Hot Water", device_names)
+        self.assertNotIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [{"switch.pool_pump"}])
 
     def test_config_fallback_managed_rows_keep_status_and_summary_detail(self) -> None:
@@ -903,7 +903,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual([candidate["entity_id"] for candidate in first], ["switch.hot_water"])
         self.assertEqual([candidate["entity_id"] for candidate in second], ["switch.ev_charger"])
 
-    def test_setup_entry_syncs_new_unmanaged_candidate_rows_after_setup(self) -> None:
+    def test_setup_entry_suppresses_new_unmanaged_candidate_peer_rows_after_setup(self) -> None:
         sensor_module = _load_sensor_module()
         listeners = []
 
@@ -956,7 +956,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
         listeners[-1]()
 
-        self.assertIn(
+        self.assertNotIn(
             "Un Managed — Hot Water",
             [
                 entity._attr_device_info.get("name")
@@ -965,7 +965,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             ],
         )
 
-    def test_setup_entry_removes_stale_unmanaged_candidate_rows_after_setup(self) -> None:
+    def test_setup_entry_removes_stale_unmanaged_candidate_registry_rows_after_setup(self) -> None:
         sensor_module = _load_sensor_module()
         listeners = []
 
@@ -1011,21 +1011,14 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             await sensor_module.async_setup_entry(hass, entry, added.extend)
 
         asyncio.run(run_setup())
-        stale_entity = next(
-            entity
-            for entity in added
-            if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Un Managed — Hot Water"
-        )
-        removed = []
-        stale_entity.async_remove = lambda **kwargs: removed.append(kwargs)
+        self.assertEqual(registry.removed, ["unmanaged-device-1"])
 
         current_states.clear()
         listeners[-1]()
 
-        self.assertEqual(removed, [{"force_remove": True}])
         self.assertEqual(registry.removed, ["unmanaged-device-1"])
 
-    def test_setup_entry_refreshes_existing_unmanaged_candidate_row_details(self) -> None:
+    def test_setup_entry_keeps_unmanaged_candidates_out_of_peer_rows_when_details_change(self) -> None:
         sensor_module = _load_sensor_module()
         listeners = []
 
@@ -1065,13 +1058,6 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             await sensor_module.async_setup_entry(hass, entry, added.extend)
 
         asyncio.run(run_setup())
-        candidate = next(
-            entity
-            for entity in added
-            if isinstance(entity, sensor_module.ZeroNetExportUnmanagedCandidateSensor)
-        )
-        writes = []
-        candidate.async_write_ha_state = lambda: writes.append(candidate.native_value)
 
         current_states[:] = [
             SimpleNamespace(
@@ -1082,10 +1068,13 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         ]
         listeners[-1]()
 
-        self.assertEqual(candidate._attr_name, "Hot Water Boost unmanaged candidate")
-        self.assertEqual(candidate._attr_device_info["name"], "Un Managed — Hot Water Boost")
-        self.assertEqual(candidate.extra_state_attributes["state"], "on")
-        self.assertTrue(writes)
+        device_names = [
+            entity._attr_device_info.get("name")
+            for entity in added
+            if getattr(entity, "_attr_device_info", None)
+        ]
+        self.assertNotIn("Un Managed — Hot Water", device_names)
+        self.assertNotIn("Un Managed — Hot Water Boost", device_names)
 
     def test_unmanaged_candidate_update_refreshes_existing_registry_metadata(self) -> None:
         sensor_module = _load_sensor_module()
@@ -1172,7 +1161,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
         bus_listeners[0][1](SimpleNamespace(data={"entity_id": "switch.hot_water"}))
 
-        self.assertIn(
+        self.assertNotIn(
             "Un Managed — Hot Water",
             [
                 entity._attr_device_info.get("name")

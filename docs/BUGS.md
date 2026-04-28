@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-515 - setup still created peer Un Managed candidate rows despite managed-only steering
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 after the steering docs were refocused on Riley's highlighted request that unmanaged candidates must not appear as peer `Un Managed — ...` rows beside managed devices.
+- **current observed behavior:** `sensor.async_setup_entry()` still created `ZeroNetExportUnmanagedCandidateSensor` entities for discovered candidates during setup, and the candidate sync listeners still added/refreshed those entities after setup or Home Assistant state changes. Focused integration-page tests still asserted that `Un Managed — ...` rows appeared.
+- **expected behavior:** unmanaged candidates should keep feeding Managed Devices backlog/review/workflow surfaces, but the native integration/device peer list should create and retain only managed-device child rows; discovered unmanaged candidate device-registry rows from older builds should be removed/suppressed.
+- **repo fix:** this run stops adding unmanaged candidate peer-row entities during setup and later candidate sync, keeps discovery available for the backlog sensors/workflow, removes current and legacy unmanaged-candidate child-device registry rows when candidates are discovered, and updates focused tests/release guidance to assert no peer `Un Managed — ...` rows are added.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q` and Python compile for `sensor.py` and `release_info.py`. Live Home Assistant screenshot validation remains pending and requires explicit approval.
+- **next action:** add/verify the obvious visible managed-device settings/gear affordance in the native managed-row surfaces, then obtain approved live screenshot evidence showing managed rows only and no peer `Un Managed — ...` rows.
+
 ## ZNE-514 - project steering docs used deprecated UI roadmap instead of current user-highlighted requests
 
 - **status:** `fixed_pending_validation`

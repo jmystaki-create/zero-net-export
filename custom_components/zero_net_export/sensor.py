@@ -297,10 +297,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
     candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
     unmanaged_candidate_entities = {}
-    for candidate in candidates:
-        entity = ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
-        unmanaged_candidate_entities[_candidate_unique_key(candidate)] = entity
-        entities.append(entity)
+    _remove_unmanaged_candidate_device_rows(coordinator, hass, candidates)
 
     async_add_entities(entities)
     _register_managed_device_row_sync(
@@ -470,30 +467,17 @@ def _register_unmanaged_candidate_sync(
     async_add_entities,
     known_candidate_entities: dict[str, "ZeroNetExportUnmanagedCandidateSensor"],
 ) -> None:
-    """Keep unmanaged candidate rows aligned without requiring platform reload."""
+    """Remove/suppress unmanaged peer rows while keeping backlog discovery available."""
 
     def _sync_unmanaged_candidate_rows() -> None:
         state = getattr(coordinator, "data", None)
         if state is None:
             return
-        candidates = _candidate_devices_for_state(coordinator, hass, state)
-        current_candidate_keys = {_candidate_unique_key(candidate) for candidate in candidates}
-        for stale_key in sorted(set(known_candidate_entities) - current_candidate_keys):
+        for stale_key in sorted(known_candidate_entities):
             stale_entity = known_candidate_entities.pop(stale_key)
             _schedule_integration_page_entity_removal(hass, stale_entity, remove_child_device=True)
-
-        new_entities = []
-        for candidate in candidates:
-            candidate_key = _candidate_unique_key(candidate)
-            existing_entity = known_candidate_entities.get(candidate_key)
-            if existing_entity is not None:
-                existing_entity.update_candidate(candidate)
-                continue
-            entity = ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
-            known_candidate_entities[candidate_key] = entity
-            new_entities.append(entity)
-        if new_entities:
-            async_add_entities(new_entities)
+        candidates = _candidate_devices_for_state(coordinator, hass, state)
+        _remove_unmanaged_candidate_device_rows(coordinator, hass, candidates)
 
     add_listener = getattr(coordinator, "async_add_listener", None)
     if add_listener is None:
@@ -519,6 +503,19 @@ def _register_unmanaged_candidate_sync(
     unsubscribe_state = async_listen("state_changed", _sync_after_candidate_state_change)
     if unsubscribe_state is not None and async_on_unload is not None:
         async_on_unload(unsubscribe_state)
+
+
+def _remove_unmanaged_candidate_device_rows(coordinator, hass, candidates: list[dict[str, object]]) -> None:
+    """Remove discovered unmanaged candidates from native peer device rows.
+
+    Candidate discovery still feeds Managed Devices backlog/review surfaces; this cleanup only
+    suppresses the old integration-page `Un Managed — ...` child-device representation.
+    """
+    for candidate in candidates:
+        remove_integration_page_child_device_registry(hass, unmanaged_candidate_device_info(coordinator, candidate))
+        legacy_info = legacy_unmanaged_candidate_device_info(coordinator, candidate)
+        if legacy_info is not None:
+            remove_integration_page_child_device_registry(hass, legacy_info)
 
 
 def _schedule_integration_page_entity_removal(hass, entity, *, remove_child_device: bool = False) -> None:
