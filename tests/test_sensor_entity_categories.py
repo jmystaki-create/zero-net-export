@@ -36,6 +36,10 @@ def _load_sensor_module():
     device_registry_module.async_get = lambda hass: hass.device_registry
     sys.modules[device_registry_module.__name__] = device_registry_module
 
+    entity_registry_module = types.ModuleType("homeassistant.helpers.entity_registry")
+    entity_registry_module.async_get = lambda hass: hass.entity_registry
+    sys.modules[entity_registry_module.__name__] = entity_registry_module
+
     sensor_component_module = types.ModuleType("homeassistant.components.sensor")
     sensor_component_module.SensorEntity = type("SensorEntity", (), {})
     sensor_component_module.SensorDeviceClass = types.SimpleNamespace(TIMESTAMP="timestamp")

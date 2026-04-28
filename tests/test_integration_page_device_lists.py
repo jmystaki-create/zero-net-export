@@ -33,6 +33,16 @@ class _FakeDeviceRegistry:
         if self.device is not None and self.device.id == device_id:
             self.device = None
 
+
+class _FakeEntityRegistry:
+    def __init__(self, entities):
+        self.entities = {item.entity_id: item for item in entities}
+        self.removed = []
+
+    def async_remove(self, entity_id):
+        self.removed.append(entity_id)
+        self.entities.pop(entity_id, None)
+
 from tests.test_sensor_entity_categories import _load_sensor_module
 
 
@@ -1050,6 +1060,64 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(registry.removed, ["stale-unmanaged-device"])
         self.assertIn("managed-device", registry.devices)
+
+    def test_setup_entry_removes_entity_registry_entries_for_stale_unmanaged_peer_rows(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+        registry = _FakeDeviceRegistry(
+            [
+                SimpleNamespace(
+                    id="stale-unmanaged-device",
+                    identifier=("zero_net_export", "entry-1:unmanaged-candidate:switch_old_load"),
+                ),
+                SimpleNamespace(
+                    id="controller-device",
+                    identifier=("zero_net_export", "entry-1"),
+                ),
+            ]
+        )
+        entity_registry = _FakeEntityRegistry(
+            [
+                SimpleNamespace(
+                    entity_id="sensor.old_load_unmanaged_candidate",
+                    config_entry_id="entry-1",
+                    device_id="stale-unmanaged-device",
+                    unique_id="entry-1_unmanaged_candidate_switch_old_load",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.zero_net_export_unmanaged_candidate_count",
+                    config_entry_id="entry-1",
+                    device_id="controller-device",
+                    unique_id="entry-1_unmanaged_candidate_count",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.other_entry_old_load_unmanaged_candidate",
+                    config_entry_id="other-entry",
+                    device_id="stale-unmanaged-device",
+                    unique_id="other-entry_unmanaged_candidate_switch_old_load",
+                ),
+            ]
+        )
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+            device_registry=registry,
+            entity_registry=entity_registry,
+        )
+        entry = SimpleNamespace(entry_id="entry-1", async_on_unload=lambda unsubscribe: None)
+        added = []
+        sensor_module.discover_candidate_devices = lambda states, managed_entity_ids: []
+
+        async def run_setup() -> None:
+            await sensor_module.async_setup_entry(hass, entry, added.extend)
+
+        asyncio.run(run_setup())
+
+        self.assertEqual(registry.removed, ["stale-unmanaged-device"])
+        self.assertEqual(entity_registry.removed, ["sensor.old_load_unmanaged_candidate"])
+        self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
+        self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)
 
     def test_setup_entry_keeps_unmanaged_candidates_out_of_peer_rows_when_details_change(self) -> None:
         sensor_module = _load_sensor_module()

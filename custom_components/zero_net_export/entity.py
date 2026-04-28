@@ -233,31 +233,85 @@ def _device_entry_identifiers(device) -> set[tuple[str, str]]:
     return normalized
 
 
-def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> None:
+def _entity_registry_entries(entity_registry) -> list[object]:
+    """Return entity-registry entries from real HA registries and test doubles."""
+    entities = getattr(entity_registry, "entities", None)
+    if entities is None:
+        return []
+    try:
+        return list(entities.values() if isinstance(entities, Mapping) else entities)
+    except Exception:
+        return []
+
+
+def _remove_entity_registry_entry(entity_registry, entity) -> None:
+    """Remove one entity-registry entry, tolerating HA/test-double API shapes."""
+    remove = getattr(entity_registry, "async_remove", None)
+    entity_id = getattr(entity, "entity_id", None)
+    if remove is None or not entity_id:
+        return
+    try:
+        remove(entity_id)
+    except Exception:
+        return
+
+
+def remove_unmanaged_candidate_entity_registry_entries_for_entry(
+    hass,
+    entry_id: str,
+    child_device_ids: set[str] | None = None,
+) -> None:
+    """Remove stale entity-registry entries attached to legacy unmanaged peer devices."""
+    try:
+        from homeassistant.helpers import entity_registry as er
+    except Exception:
+        return
+    try:
+        entity_registry = er.async_get(hass)
+    except Exception:
+        return
+    device_ids = {str(device_id) for device_id in (child_device_ids or set()) if device_id}
+    if not device_ids:
+        return
+    for entity in _entity_registry_entries(entity_registry):
+        if str(getattr(entity, "config_entry_id", "") or "") != str(entry_id):
+            continue
+        if str(getattr(entity, "device_id", "") or "") not in device_ids:
+            continue
+        _remove_entity_registry_entry(entity_registry, entity)
+
+
+def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> set[str]:
     """Remove all legacy peer `Un Managed` child-device rows for one config entry."""
+    removed_device_ids: set[str] = set()
     try:
         from homeassistant.helpers import device_registry as dr
     except Exception:
-        return
+        return removed_device_ids
     try:
         device_registry = dr.async_get(hass)
     except Exception:
-        return
+        return removed_device_ids
     remove_device = getattr(device_registry, "async_remove_device", None)
     devices = getattr(device_registry, "devices", None)
     if remove_device is None or devices is None:
-        return
+        return removed_device_ids
     prefix = f"{entry_id}:unmanaged-candidate:"
     try:
         device_values = list(devices.values() if isinstance(devices, Mapping) else devices)
     except Exception:
-        return
+        return removed_device_ids
     for device in device_values:
         if any(domain == DOMAIN and value.startswith(prefix) for domain, value in _device_entry_identifiers(device)):
+            device_id = str(getattr(device, "id", "") or "")
             try:
                 remove_device(device.id)
+                if device_id:
+                    removed_device_ids.add(device_id)
             except Exception:
                 continue
+    remove_unmanaged_candidate_entity_registry_entries_for_entry(hass, entry_id, removed_device_ids)
+    return removed_device_ids
 
 
 def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:

@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-519 - stale unmanaged peer entity-registry entries could survive device-row suppression
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking Riley's current highlighted requirement that stale `Un Managed — ...` peer rows be removed/suppressed rather than merely hiding newly discovered candidates.
+- **current observed behavior:** the repo now swept legacy unmanaged-candidate child devices from the Home Assistant device registry, but did not also clean the entity-registry entries attached to those stale child devices. Existing installs could therefore retain orphan `unmanaged_candidate_*` entity-registry rows tied to the removed peer device, risking stale HA UI/search artefacts even after the peer device row was deleted.
+- **expected behavior:** suppressing legacy unmanaged peer rows should remove the stale child device and the entity-registry entries attached to that child device, while preserving the controller/backlog unmanaged sensors such as unmanaged candidate count/overview and preserving unrelated config entries.
+- **repo fix:** this run records removed unmanaged child-device ids during the config-entry scoped sweep, then removes same-config-entry entity-registry entries whose `device_id` points at those stale unmanaged peer devices. The cleanup deliberately does not delete controller-device unmanaged backlog sensors, so candidates remain available behind Managed Devices workflow/review surfaces.
+- **validation status:** fixed in repo with focused regression coverage proving a stale unmanaged peer entity-registry entry is removed while the unmanaged backlog count sensor and other config entries remain, plus `python3 -m unittest tests.test_integration_page_device_lists tests.test_device_page_managed_settings tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q` and Python compile for touched files. Live Home Assistant screenshot validation remains pending and requires explicit approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows with `⚙ Settings` text and no peer `Un Managed — ...` rows.
+
 ## ZNE-518 - deprecated validation checklist still required peer Un Managed rows
 
 - **status:** `fixed_pending_validation`
