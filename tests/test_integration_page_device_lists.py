@@ -1052,9 +1052,21 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                     unique_id="entry-1_unmanaged_candidate_count",
                 ),
                 SimpleNamespace(
+                    entity_id="sensor.zero_net_export_attached_unmanaged_candidate_count",
+                    config_entry_id="entry-1",
+                    device_id="stale-unmanaged-device",
+                    unique_id="entry-1_unmanaged_candidate_count",
+                ),
+                SimpleNamespace(
                     entity_id="sensor.zero_net_export_top_unmanaged_candidate",
                     config_entry_id="entry-1",
                     device_id=None,
+                    unique_id="entry-1_top_unmanaged_candidate",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.zero_net_export_attached_top_unmanaged_candidate",
+                    config_entry_id="entry-1",
+                    device_id="stale-unmanaged-device",
                     unique_id="entry-1_top_unmanaged_candidate",
                 ),
                 SimpleNamespace(
@@ -1095,7 +1107,9 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("sensor.other_missing_config_orphaned_old_load_unmanaged_candidate", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_orphaned_unmanaged_candidate_count", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
+        self.assertIn("sensor.zero_net_export_attached_unmanaged_candidate_count", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_top_unmanaged_candidate", entity_registry.entities)
+        self.assertIn("sensor.zero_net_export_attached_top_unmanaged_candidate", entity_registry.entities)
         self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)
 
     def test_unmanaged_cleanup_without_device_enumeration_removes_orphan_entity_registry_entries(self) -> None:

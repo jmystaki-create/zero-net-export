@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-549 - attached unmanaged backlog sensors could be removed with stale peer devices
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking that unmanaged candidates remain available behind Managed Devices workflow/backlog surfaces during stale peer `Un Managed — ...` cleanup.
+- **current observed behavior:** entity-registry cleanup preserved current unmanaged backlog unique IDs only in the orphan/no-device legacy suffix path. If a degraded or migrated registry attached `unmanaged_candidate_count`, `unmanaged_candidate_overview`, or `top_unmanaged_candidate` to a stale legacy unmanaged child device that was removed in the same cleanup pass, the device-id cleanup branch could still remove that current workflow/backlog sensor.
+- **expected behavior:** stale native `Un Managed — ...` peer devices and their legacy peer entities should be removed, while current controller/workflow unmanaged backlog sensors are preserved even if their registry device attachment is stale.
+- **repo fix:** this run adds an explicit current unmanaged-backlog entity guard before device-id based entity removal, preserving current backlog/top-candidate unique IDs while still removing same-device legacy peer-row entities.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-548 - unmanaged peer cleanup could remove top unmanaged backlog sensor
 
 - **status:** `fixed_pending_validation`

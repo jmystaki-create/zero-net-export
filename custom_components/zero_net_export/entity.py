@@ -379,6 +379,17 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
         return
 
 
+def _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id: str) -> bool:
+    """Return True for current unmanaged workflow/backlog entity-registry entries."""
+    unique_id = str(getattr(entity, "unique_id", "") or "")
+    current_backlog_unique_ids = {
+        f"{entry_id}_unmanaged_candidate_count",
+        f"{entry_id}_unmanaged_candidate_overview",
+        f"{entry_id}_top_unmanaged_candidate",
+    }
+    return unique_id in current_backlog_unique_ids
+
+
 def _is_legacy_unmanaged_candidate_entity_registry_entry(
     entity,
     entry_id: str,
@@ -387,12 +398,7 @@ def _is_legacy_unmanaged_candidate_entity_registry_entry(
 ) -> bool:
     """Return True for old peer-row unmanaged-candidate entity-registry entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
-    current_backlog_unique_ids = {
-        f"{entry_id}_unmanaged_candidate_count",
-        f"{entry_id}_unmanaged_candidate_overview",
-        f"{entry_id}_top_unmanaged_candidate",
-    }
-    if unique_id in current_backlog_unique_ids:
+    if _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id):
         return False
 
     # When config-entry ownership is missing, only current-entry-scoped legacy
@@ -459,6 +465,8 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
     for entity in _entity_registry_entries(entity_registry):
         entity_entry_ids = _entity_registry_entry_config_entry_ids(entity)
         if entity_entry_ids and expected_entry_id not in entity_entry_ids:
+            continue
+        if _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id):
             continue
         device_id = str(getattr(entity, "device_id", "") or "")
         if device_id in device_ids or (
