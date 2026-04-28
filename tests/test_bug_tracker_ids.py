@@ -12,28 +12,38 @@ class TestBugTrackerIds(unittest.TestCase):
         self.assertTrue(ids, "BUGS.md should contain tracked bug headings")
         self.assertEqual(len(ids), len(set(ids)), f"duplicate bug ids found in BUGS.md: {ids}")
 
-    def test_current_active_bugs_section_contains_current_release_blockers(self):
+    def test_current_active_bugs_section_tracks_current_highlighted_scope(self):
         bug_tracker = Path(__file__).resolve().parents[1] / "docs" / "BUGS.md"
         content = bug_tracker.read_text(encoding="utf-8")
 
         active_heading = content.index("## Current active bugs")
-        release_drift = content.index("## ZNE-439 - repo froze 0.1.94")
-        current_blocker = content.index("## ZNE-429 - 0.1.91 main integration page lacks Managed Devices")
+        managed_settings = content.index("## ZNE-521 - managed-device config actions lacked visible settings labels")
+        unmanaged_suppression = content.index("## ZNE-515 - setup still created peer Un Managed candidate rows")
+        superseded_heading = content.index("## Superseded historical release/peer-row bugs retained for context")
+        historical_peer_scope = content.index("## ZNE-429 - historical 0.1.91 peer Un Managed device-list scope superseded")
         closed_entries_section = content.index("## Closed bugs and process corrections")
         historical_backlog_section = content.index("## Historical fixed-pending validation backlog")
-        active_section = content[active_heading:closed_entries_section]
+        active_section = content[active_heading:superseded_heading]
+        superseded_section = content[superseded_heading:closed_entries_section]
+        zne_429 = content[historical_peer_scope:content.index("## ZNE-498", historical_peer_scope)]
 
-        self.assertLess(active_heading, release_drift)
-        self.assertLess(release_drift, current_blocker)
-        self.assertLess(current_blocker, closed_entries_section)
+        self.assertLess(active_heading, managed_settings)
+        self.assertLess(managed_settings, unmanaged_suppression)
+        self.assertLess(unmanaged_suppression, superseded_heading)
+        self.assertLess(superseded_heading, historical_peer_scope)
+        self.assertLess(historical_peer_scope, closed_entries_section)
         self.assertLess(closed_entries_section, historical_backlog_section)
-        self.assertIn("should the current helper-resolved manifest `0.1.94` component boundary replace the documented `0.1.91` release target", active_section)
-        self.assertIn("resolves the component install candidate to the current helper-resolved manifest `0.1.94` component boundary after post-freeze component fixes", active_section)
-        self.assertIn("the helper-resolved preferred validation commit", active_section)
-        self.assertIn("unapproved `v0.1.94` freeze/tag, or the post-freeze helper-resolved component boundary", active_section)
-        self.assertIn("only after that decision, ask for native-row acceptance", active_section)
+        self.assertIn("visible `⚙ Settings` labels", active_section)
+        self.assertIn("stops adding unmanaged candidate peer-row entities", active_section)
+        self.assertIn("no peer `Un Managed — ...` rows", active_section)
+        self.assertIn("not the current work queue", superseded_section)
+        self.assertIn("Riley-approved live screenshot evidence", zne_429)
+        self.assertIn("**status:** `deferred`", zne_429)
+        self.assertIn("Do not use the old `0.1.91` peer-row acceptance criteria", zne_429)
         self.assertNotIn("**status:** `closed`", active_section)
-        self.assertNotIn("## ZNE-438 - 0.1.91 docs still treated", active_section)
+        self.assertNotIn("## ZNE-439 - repo froze 0.1.94", active_section)
+        self.assertNotIn("only after that decision, ask for native-row acceptance", zne_429)
+        self.assertNotIn("must make the Zero Net Export main integration page show", zne_429)
         self.assertIn("## ZNE-466 - closed managed-device code fixes sat under a process-only heading", content[closed_entries_section:historical_backlog_section])
         self.assertIn("## ZNE-444 - closed ZNE-438 remained inside Current active bugs", content[closed_entries_section:historical_backlog_section])
         self.assertIn("## ZNE-438 - 0.1.91 docs still treated", content[closed_entries_section:historical_backlog_section])
