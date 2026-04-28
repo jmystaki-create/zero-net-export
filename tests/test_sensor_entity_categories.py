@@ -505,7 +505,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             entity_category=sensor_module.EntityCategory.DIAGNOSTIC,
         )
 
-        self.assertEqual(summary._attr_name, "Pool pump managed summary")
+        self.assertEqual(summary._attr_name, "⚙ Settings — Pool pump managed summary")
         self.assertEqual(
             managed_overview.native_value,
             "1 managed | no unmanaged candidates | 1 managed device needs attention | plan Pool pump | 1 enabled | 1 usable | 1 fixed managed | 1200 W nominal",

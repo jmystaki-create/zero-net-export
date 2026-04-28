@@ -31,6 +31,7 @@ from .entity import (
     managed_load_detail_mapping,
     managed_load_details_mapping,
     managed_load_device_info,
+    managed_load_settings_action_name,
     remove_integration_page_child_device_registry,
     remove_unmanaged_candidate_child_devices_for_entry,
     sync_integration_page_child_device_registry,
@@ -402,7 +403,7 @@ def _refresh_managed_device_row_entities(
     for entity in entities:
         suffix = getattr(entity, "_zero_net_export_managed_name_suffix", None)
         if suffix:
-            entity._attr_name = f"{device_name} {suffix}"
+            entity._attr_name = managed_load_settings_action_name(device_name, suffix)
         entity._attr_device_info = device_info
         sync_integration_page_child_device_registry(
             hass,
@@ -1811,7 +1812,11 @@ def _candidate_unique_key(candidate: dict[str, Any]) -> str:
 
 class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_managed_summary", f"{device_name} managed summary")
+        super().__init__(
+            coordinator,
+            f"device_{device_key}_managed_summary",
+            managed_load_settings_action_name(device_name, "managed summary"),
+        )
         self._device_key = device_key
         self._zero_net_export_managed_name_suffix = "managed summary"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
@@ -1898,7 +1903,7 @@ class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_status", f"{device_name} status")
+        super().__init__(coordinator, f"device_{device_key}_status", managed_load_settings_action_name(device_name, "status"))
         self._device_key = device_key
         self._zero_net_export_managed_name_suffix = "status"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
@@ -1922,7 +1927,7 @@ class ZeroNetExportDevicePlanSensor(ZeroNetExportEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_planned_action", f"{device_name} planned action")
+        super().__init__(coordinator, f"device_{device_key}_planned_action", managed_load_settings_action_name(device_name, "planned action"))
         self._device_key = device_key
         self._zero_net_export_managed_name_suffix = "planned action"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
@@ -1946,7 +1951,7 @@ class ZeroNetExportDeviceGuardSensor(ZeroNetExportEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str):
-        super().__init__(coordinator, f"device_{device_key}_guard_status", f"{device_name} guard status")
+        super().__init__(coordinator, f"device_{device_key}_guard_status", managed_load_settings_action_name(device_name, "guard status"))
         self._device_key = device_key
         self._zero_net_export_managed_name_suffix = "guard status"
         _attach_managed_load_device(self, coordinator, device_key, device_name)
@@ -1977,7 +1982,7 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
         *,
         entity_category=None,
     ):
-        super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
+        super().__init__(coordinator, f"device_{device_key}_{value_key}", managed_load_settings_action_name(device_name, suffix))
         self._device_key = device_key
         self._value_key = value_key
         self._zero_net_export_managed_name_suffix = suffix
@@ -2007,7 +2012,7 @@ class ZeroNetExportDeviceDurationSensor(ZeroNetExportEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
-        super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
+        super().__init__(coordinator, f"device_{device_key}_{value_key}", managed_load_settings_action_name(device_name, suffix))
         self._device_key = device_key
         self._value_key = value_key
         self._zero_net_export_managed_name_suffix = suffix
@@ -2037,7 +2042,7 @@ class ZeroNetExportDeviceTimestampSensor(ZeroNetExportEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
-        super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
+        super().__init__(coordinator, f"device_{device_key}_{value_key}", managed_load_settings_action_name(device_name, suffix))
         self._device_key = device_key
         self._value_key = value_key
         self._zero_net_export_managed_name_suffix = suffix
@@ -2062,7 +2067,7 @@ class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
     _attr_entity_category = EntityCategory.DIAGNOSTIC
 
     def __init__(self, coordinator, device_key: str, device_name: str, value_key: str, suffix: str):
-        super().__init__(coordinator, f"device_{device_key}_{value_key}", f"{device_name} {suffix}")
+        super().__init__(coordinator, f"device_{device_key}_{value_key}", managed_load_settings_action_name(device_name, suffix))
         self._device_key = device_key
         self._value_key = value_key
         self._zero_net_export_managed_name_suffix = suffix

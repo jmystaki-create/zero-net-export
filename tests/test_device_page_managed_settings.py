@@ -101,6 +101,26 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(usable._attr_name, "⚙ Settings — Pool Pump usable")
         self.assertEqual(usable._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
 
+    def test_managed_device_sensor_rows_keep_visible_settings_affordance(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        entities = sensor_module._build_managed_device_row_entities(
+            _coordinator(),
+            "pool",
+            {"name": "Pool Pump", "kind": "fixed"},
+        )
+
+        self.assertIn("⚙ Settings — Pool Pump managed summary", [entity._attr_name for entity in entities])
+        self.assertIn("⚙ Settings — Pool Pump status", [entity._attr_name for entity in entities])
+        self.assertIn("⚙ Settings — Pool Pump Current power", [entity._attr_name for entity in entities])
+        self.assertTrue(
+            all(
+                entity._attr_name.startswith("⚙ Settings — Pool Pump ")
+                for entity in entities
+                if getattr(entity, "_zero_net_export_managed_name_suffix", None)
+            )
+        )
+
     def test_managed_device_setup_platforms_keep_sparse_rows_registered(self) -> None:
         coordinator = _coordinator()
         coordinator.data.device_details = {

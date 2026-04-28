@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-526 - managed-device diagnostic sensor rows lacked visible settings labels
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking Riley's highlighted requirement that managed-device rows/actions need an obvious visible settings/gear affordance across native managed child-device surfaces.
+- **current observed behavior:** managed-device row name/model text and config entities/actions already carried `⚙ Settings`, but the per-managed-device sensor rows registered by `sensor.py` still rendered as plain labels such as `Pool Pump managed summary`, `Pool Pump status`, and `Pool Pump Current power`. Those rows could make a native managed child-device surface look like ordinary diagnostics without the explicit settings affordance Riley requested.
+- **expected behavior:** every per-managed-device row exposed on the native managed child-device surface should carry the visible `⚙ Settings` affordance, while unmanaged candidates remain suppressed from peer `Un Managed — ...` rows and stay available through Managed Devices workflow/backlog/review surfaces.
+- **repo fix:** this run applies the shared managed settings/action label helper to per-managed-device sensor rows and to managed-row rename refresh, producing labels like `⚙ Settings — Pool Pump managed summary`, `⚙ Settings — Pool Pump status`, and `⚙ Settings — Pool Pump Current power`.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_device_page_managed_settings tests.test_integration_page_device_lists tests.test_sensor_entity_categories -q` and `python3 -m compileall -q custom_components/zero_net_export/sensor.py`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list and managed-device action surfaces showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-525 - archived UI design snapshot still pointed at deprecated source docs
 
 - **status:** `fixed_pending_validation`

@@ -865,8 +865,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             and entity._device_key == "pool"
         )
 
-        self.assertEqual(managed_summary._attr_name, "Main Pool Pump managed summary")
-        self.assertEqual(status._attr_name, "Main Pool Pump status")
+        self.assertEqual(managed_summary._attr_name, "⚙ Settings — Main Pool Pump managed summary")
+        self.assertEqual(status._attr_name, "⚙ Settings — Main Pool Pump status")
         self.assertEqual(managed_summary._attr_device_info["name"], "Managed Devices — ⚙ Settings — Main Pool Pump")
         self.assertEqual(managed_summary._attr_device_info["model"], "Managed Devices — ⚙ Settings — Variable managed load")
         self.assertIn("device_pool_current_target_power_w", [getattr(entity, "_key", None) for entity in added])
