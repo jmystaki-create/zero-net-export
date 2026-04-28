@@ -38,6 +38,17 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("Current ordered 0.1.91 map", content)
         self.assertNotIn("Workstream A. Finish the opening operator console", content)
 
+    def test_archived_ui_design_snapshot_points_to_active_requests_not_deprecated_docs(self) -> None:
+        content = (ROOT / "docs" / "UI_DESIGN-old.md").read_text(encoding="utf-8")
+        source_list = content[content.index("The current source-of-truth files are:"):content.index("This archived file intentionally")]
+
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", source_list)
+        self.assertIn("docs/BUGS.md", source_list)
+        self.assertIn("docs/WATCHDOG.md", source_list)
+        self.assertIn("historical references only", source_list)
+        self.assertNotIn("docs/UI_DESIGN.md` for product design", source_list)
+        self.assertNotIn("docs/UI_IMPLEMENTATION_MAP.md` for implementation strategy", source_list)
+
     def test_supervisor_tracks_current_user_flagged_scope(self) -> None:
         content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
 

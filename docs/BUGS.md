@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-525 - archived UI design snapshot still pointed at deprecated source docs
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking deprecated-doc drift against Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** `docs/UI_DESIGN-old.md` was marked deprecated/historical, but its current source-of-truth list still said to use `docs/UI_DESIGN.md` for product design and `docs/UI_IMPLEMENTATION_MAP.md` for implementation status. Those files are explicitly deprecated, so the archived snapshot could still steer future searches back to old roadmap/release-map behavior.
+- **expected behavior:** archived UI snapshots should point to `docs/ACTIVE_USER_REQUESTS.md`, `docs/BUGS.md`, `docs/SUPERVISOR.md`, and `docs/WATCHDOG.md`, and should describe deprecated UI roadmap/map files as historical references only.
+- **repo fix:** this run updates `docs/UI_DESIGN-old.md` so its source-of-truth list names the active request/bug/supervisor/watchdog documents and explicitly demotes `docs/UI_DESIGN.md` plus `docs/UI_IMPLEMENTATION_MAP.md` to historical references, with regression coverage in operator-doc tests.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_operator_docs_consistency -q`. No Home Assistant live validation needed because this is documentation steering only.
+- **next action:** keep live validation blocked until Riley explicitly approves deployment/restart/screenshot work and evidence shows managed rows with visible settings affordance and no peer `Un Managed — ...` rows.
+
 ## ZNE-524 - managed-device usable row lacked visible settings affordance
 
 - **status:** `fixed_pending_validation`

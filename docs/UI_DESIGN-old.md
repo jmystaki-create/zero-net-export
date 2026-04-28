@@ -7,10 +7,11 @@
 
 The current source-of-truth files are:
 
-- `docs/UI_DESIGN.md` for product design and supported native Home Assistant surfaces
-- `docs/UI_IMPLEMENTATION_MAP.md` for implementation strategy, delivery status, remaining work, and the active release line
+- `docs/ACTIVE_USER_REQUESTS.md` for Riley's current highlighted native Home Assistant scope
 - `docs/BUGS.md` for active bugs, regressions, validation state, and closure state
-- `docs/SUPERVISOR.md` for current execution discipline and release-approval behavior
+- `docs/SUPERVISOR.md` and `docs/WATCHDOG.md` for current execution discipline and approval-gated validation behavior
+
+The deprecated `docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` files are historical references only and must not be used as active source-of-truth inputs.
 
 This archived file intentionally no longer repeats the old design snapshot. Keeping the full stale snapshot here was creating source-of-truth drift: it still named older release targets and older section wording even though the active scope is now Riley-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
 
