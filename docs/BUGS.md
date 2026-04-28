@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-552 - unique-id-missing unmanaged workflow sensors could be removed during stale peer cleanup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking degraded entity-registry shapes in stale peer `Un Managed — ...` cleanup under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** ZNE-551 preserved current unmanaged workflow/backlog sensors by unique id, but a degraded entity-registry entry missing `unique_id` and named like a current workflow sensor such as `top_unmanaged_candidate` could still be removed when orphan cleanup or stale child-device cleanup ran.
+- **expected behavior:** stale native `Un Managed — ...` peer devices and legacy peer entities should be removed, while current Managed Devices unmanaged workflow/backlog/review sensors remain available even if registry unique-id metadata is missing.
+- **repo fix:** this run extends the current unmanaged workflow entity guard to recognize current backlog/review entity-id suffixes as well as unique IDs before stale peer cleanup removes orphaned or stale-device-attached entries.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-551 - attached unmanaged workflow sensors could be removed with stale peer devices
 
 - **status:** `fixed_pending_validation`

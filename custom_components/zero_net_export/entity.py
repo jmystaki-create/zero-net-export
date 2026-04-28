@@ -382,17 +382,22 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
 def _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id: str) -> bool:
     """Return True for current unmanaged workflow/backlog entity-registry entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
-    current_backlog_unique_ids = {
-        f"{entry_id}_unmanaged_candidate_count",
-        f"{entry_id}_unmanaged_candidate_overview",
-        f"{entry_id}_top_unmanaged_candidate",
-        f"{entry_id}_top_candidate_fit",
-        f"{entry_id}_top_candidate_warnings",
-        f"{entry_id}_candidate_shortlist",
-        f"{entry_id}_candidate_shortlist_fit",
-        f"{entry_id}_fleet_console_next_step",
+    current_backlog_keys = {
+        "unmanaged_candidate_count",
+        "unmanaged_candidate_overview",
+        "top_unmanaged_candidate",
+        "top_candidate_fit",
+        "top_candidate_warnings",
+        "candidate_shortlist",
+        "candidate_shortlist_fit",
+        "fleet_console_next_step",
     }
-    return unique_id in current_backlog_unique_ids
+    current_backlog_unique_ids = {f"{entry_id}_{key}" for key in current_backlog_keys}
+    if unique_id in current_backlog_unique_ids:
+        return True
+
+    entity_id = str(getattr(entity, "entity_id", "") or "")
+    return any(entity_id.endswith(f"_{key}") for key in current_backlog_keys)
 
 
 def _is_legacy_unmanaged_candidate_entity_registry_entry(
