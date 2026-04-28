@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-558 - direct legacy managed cleanup could leave attached entity entries
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking legacy managed child-device cleanup after ZNE-557's current-fleet stale managed row sweep.
+- **current observed behavior:** direct legacy managed child-device cleanup removed old raw/normalized `entry:managed-device:<old-id>` device-registry rows during entity add/refresh, but unlike the stale managed fleet sweep it did not remove same-entry entity-registry entries attached to those just-deleted legacy devices. Existing installs could retain stale managed entity/search artifacts attached to removed legacy rows even though the current hashed managed row was preserved.
+- **expected behavior:** every managed child-device cleanup path should remove deleted legacy managed device rows and same-config-entry entity-registry entries attached to them, while preserving the current managed row and other config entries.
+- **repo fix:** this run makes direct integration-page child-device registry removal clean same-entry entity-registry entries for managed legacy devices as well as the existing unmanaged path, and extends focused legacy managed cleanup coverage for raw/normalized device rows plus attached entities.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing only current managed rows/actions with visible `⚙ Settings` labels, no stale legacy managed rows/entities, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-557 - stale managed child-device rows could survive current fleet changes
 
 - **status:** `fixed_pending_validation`

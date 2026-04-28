@@ -352,9 +352,19 @@ def remove_integration_page_child_device_registry(hass, device_info: dict | None
         remove_device(device.id)
     except Exception:
         return
-    if identifier is not None and ":unmanaged-candidate:" in identifier[1] and device_id:
+    if identifier is None or not device_id:
+        return
+    if ":unmanaged-candidate:" in identifier[1]:
         entry_id = identifier[1].split(":unmanaged-candidate:", 1)[0]
         remove_unmanaged_candidate_entity_registry_entries_for_entry(hass, entry_id, {device_id})
+    elif ":managed-device:" in identifier[1]:
+        entry_id = identifier[1].split(":managed-device:", 1)[0]
+        _remove_entity_registry_entries_attached_to_devices(
+            hass,
+            entry_id,
+            {device_id},
+            preserve_current_workflow_entries=False,
+        )
 
 
 def _device_entry_identifiers(device) -> set[tuple[str, str]]:

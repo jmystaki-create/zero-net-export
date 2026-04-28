@@ -248,7 +248,29 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                 SimpleNamespace(id="current-device", identifier=current_identifier, configuration_url=None),
             ]
         )
-        sensor.hass = SimpleNamespace(device_registry=registry)
+        entity_registry = _FakeEntityRegistry(
+            [
+                SimpleNamespace(
+                    entity_id="sensor.raw_legacy_pool_managed_summary",
+                    config_entry_id="entry-1",
+                    device_id="raw-legacy-device",
+                    unique_id="entry-1_device_pool_pump_main_one_managed_summary",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.normalized_legacy_pool_managed_summary",
+                    config_entry_id="entry-1",
+                    device_id="normalized-legacy-device",
+                    unique_id="entry-1_device_pool_pump_main_one_normalized_managed_summary",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.other_entry_legacy_pool_managed_summary",
+                    config_entry_id="other-entry",
+                    device_id="raw-legacy-device",
+                    unique_id="other-entry_device_pool_pump_main_one_managed_summary",
+                ),
+            ]
+        )
+        sensor.hass = SimpleNamespace(device_registry=registry, entity_registry=entity_registry)
 
         asyncio.run(sensor.async_added_to_hass())
 
@@ -258,6 +280,14 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertNotIn("normalized-legacy-device", registry.devices)
         self.assertIn("current-device", registry.devices)
         self.assertEqual(registry.updated[0], "current-device")
+        self.assertEqual(
+            entity_registry.removed,
+            [
+                "sensor.raw_legacy_pool_managed_summary",
+                "sensor.normalized_legacy_pool_managed_summary",
+            ],
+        )
+        self.assertIn("sensor.other_entry_legacy_pool_managed_summary", entity_registry.entities)
 
     def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:
         sensor_module = _load_sensor_module()
