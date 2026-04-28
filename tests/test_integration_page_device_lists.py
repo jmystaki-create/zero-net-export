@@ -1028,6 +1028,12 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                     unique_id="entry-1_unmanaged_candidate_switch_missing_config_id",
                 ),
                 SimpleNamespace(
+                    entity_id="sensor.missing_config_orphaned_old_load_unmanaged_candidate",
+                    config_entry_id=None,
+                    device_id=None,
+                    unique_id="entry-1_unmanaged_candidate_switch_missing_config_orphaned",
+                ),
+                SimpleNamespace(
                     entity_id="sensor.zero_net_export_orphaned_unmanaged_candidate_count",
                     config_entry_id="entry-1",
                     device_id=None,
@@ -1071,6 +1077,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                 "sensor.old_load_unmanaged_candidate_switch_old_load",
                 "sensor.new_registry_shape_old_load_unmanaged_candidate",
                 "sensor.missing_config_id_old_load_unmanaged_candidate",
+                "sensor.missing_config_orphaned_old_load_unmanaged_candidate",
             ],
         )
         self.assertIn("sensor.zero_net_export_orphaned_unmanaged_candidate_count", entity_registry.entities)

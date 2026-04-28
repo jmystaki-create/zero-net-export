@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-544 - orphaned unmanaged peer entities with missing config ownership could survive cleanup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking stale unmanaged peer-row cleanup under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** legacy orphan unmanaged-candidate entity-registry entries with no `device_id` were cleaned when they still carried the current config entry id, but an orphan whose registry ownership fields were missing could survive even when its unique id still used the current entry's old `<entry>_unmanaged_candidate_<candidate-domain>` peer-row shape.
+- **expected behavior:** current-entry legacy unmanaged peer entities should be removed even if config ownership metadata is missing, while controller/backlog unmanaged sensors and other-entry entities remain preserved.
+- **repo fix:** this run allows orphan legacy unmanaged peer entity cleanup to use the current entry-scoped legacy unique-id prefix when registry config-entry metadata is absent, and adds focused regression coverage for that shape.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-543 - unmanaged cleanup entry point still used peer-row removal naming
 
 - **status:** `fixed_pending_validation`

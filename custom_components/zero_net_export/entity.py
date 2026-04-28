@@ -446,8 +446,8 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
             continue
         device_id = str(getattr(entity, "device_id", "") or "")
         if device_id in device_ids or (
-            expected_entry_id in entity_entry_ids
-            and not device_id
+            not device_id
+            and (expected_entry_id in entity_entry_ids or not entity_entry_ids)
             and _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id)
         ):
             _remove_entity_registry_entry(entity_registry, entity)
