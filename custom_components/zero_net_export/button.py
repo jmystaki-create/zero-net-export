@@ -24,6 +24,7 @@ from .entity import (
     managed_load_details_mapping,
     managed_load_display_name,
     managed_load_settings_action_name,
+    register_managed_load_platform_sync,
 )
 from .native_support import (
     DETAILED_MANAGEMENT_PATH,
@@ -57,15 +58,27 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     device_details = integration_page_managed_load_details(entry, state)
     coordinator._zne_integration_page_managed_details = device_details
-    entities.extend(
-        ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details))
+    managed_entities = {
+        device_key: [
+            ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details)),
+            ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details)),
+        ]
         for device_key, details in device_details.items()
-    )
-    entities.extend(
-        ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details))
-        for device_key, details in device_details.items()
-    )
+    }
+    for device_entities in managed_entities.values():
+        entities.extend(device_entities)
     async_add_entities(entities)
+    register_managed_load_platform_sync(
+        hass,
+        entry,
+        coordinator,
+        async_add_entities,
+        managed_entities,
+        lambda device_key, details: [
+            ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details)),
+            ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details)),
+        ],
+    )
 
 
 def _managed_device_details_for_state(state) -> list[dict]:
@@ -1443,6 +1456,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_review", managed_load_settings_action_name(device_name, "review"))
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "review"
         self._attr_icon = "mdi:text-box-search-outline"
         self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)
@@ -1650,6 +1664,7 @@ class ZeroNetExportResetDeviceOverridesButton(ZeroNetExportEntity, ButtonEntity)
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_reset_overrides", managed_load_settings_action_name(device_name, "reset overrides"))
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "reset overrides"
         self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)
 

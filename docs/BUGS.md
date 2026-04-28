@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-530 - managed-device settings entities did not follow fleet changes after setup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking Riley's highlighted requirement that managed rows/actions keep a visible settings affordance and remain managed-only as the configured/runtime managed fleet changes after platform setup.
+- **current observed behavior:** sensor managed rows already had a coordinator-listener refresh path, but the switch, number, binary-sensor, and button platforms only created per-managed-device settings/action entities during initial setup. If a managed load was added, renamed, or removed through Configure/runtime updates after setup, the visible `⚙ Settings` enabled/priority/usable/review/reset actions could stay missing, stale, or orphaned until reload.
+- **expected behavior:** all native managed-device settings/action entities should add, refresh, and remove with the same config-plus-runtime managed detail resolver as managed rows, preserving visible `⚙ Settings` labels and avoiding unmanaged peer-row behavior.
+- **repo fix:** this run adds a shared managed-load platform sync helper, wires it into switch, number, binary-sensor, and button setup, refreshes entity names/device-info/registry metadata on managed-detail changes, adds newly managed devices, and removes stale per-managed-device controls/actions.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_device_page_managed_settings -q`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list and managed-device action surfaces showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-529 - install repair guidance revived stale release-target approval loop
 
 - **status:** `fixed_pending_validation`

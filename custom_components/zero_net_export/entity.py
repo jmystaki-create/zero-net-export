@@ -187,6 +187,77 @@ def attach_managed_load_device(entity, coordinator, device_key: str, device_name
     entity._zero_net_export_managed_device_key = device_key
 
 
+def refresh_managed_load_entity(hass, entity, coordinator, device_key: str, detail: dict[str, object]) -> None:
+    """Refresh a native managed-load entity after config/runtime detail changes."""
+    device_name = managed_load_display_name(device_key, detail)
+    suffix = getattr(entity, "_zero_net_export_managed_name_suffix", None)
+    if suffix:
+        entity._attr_name = managed_load_settings_action_name(device_name, suffix)
+    attach_managed_load_device(entity, coordinator, device_key, device_name)
+    sync_integration_page_child_device_registry(
+        hass,
+        getattr(entity, "_attr_device_info", None),
+        getattr(entity, "_zero_net_export_legacy_device_info", None),
+    )
+    write_state = getattr(entity, "async_write_ha_state", None)
+    if write_state is not None:
+        write_state()
+
+
+def schedule_entity_removal(hass, entity) -> None:
+    """Remove a stale HA entity, tolerating test and older-HA shims."""
+    remove = getattr(entity, "async_remove", None)
+    if remove is None:
+        return
+    try:
+        result = remove(force_remove=True)
+    except TypeError:
+        result = remove()
+    if result is None:
+        return
+    create_task = getattr(hass, "async_create_task", None)
+    if create_task is not None:
+        create_task(result)
+        return
+    close = getattr(result, "close", None)
+    if close is not None:
+        close()
+
+
+def register_managed_load_platform_sync(hass, entry, coordinator, async_add_entities, known_entities, entity_factory) -> None:
+    """Keep per-managed-device platform entities aligned after setup."""
+
+    def _sync_managed_load_entities() -> None:
+        state = getattr(coordinator, "data", None)
+        managed_details = integration_page_managed_load_details(entry, state)
+        coordinator._zne_integration_page_managed_details = managed_details
+        current_device_keys = set(managed_details)
+        for stale_key in sorted(set(known_entities) - current_device_keys):
+            stale_entities = known_entities.pop(stale_key)
+            for stale_entity in stale_entities:
+                schedule_entity_removal(hass, stale_entity)
+        new_entities = []
+        for device_key, detail in managed_details.items():
+            existing_entities = known_entities.get(device_key)
+            if existing_entities is not None:
+                for entity in existing_entities:
+                    refresh_managed_load_entity(hass, entity, coordinator, device_key, detail)
+                continue
+            device_entities = list(entity_factory(device_key, detail))
+            known_entities[device_key] = device_entities
+            new_entities.extend(device_entities)
+        if new_entities:
+            async_add_entities(new_entities)
+
+    add_listener = getattr(coordinator, "async_add_listener", None)
+    if add_listener is None:
+        return
+    unsubscribe = add_listener(_sync_managed_load_entities)
+    async_on_unload = getattr(entry, "async_on_unload", None)
+    if unsubscribe is not None and async_on_unload is not None:
+        async_on_unload(unsubscribe)
+
+
 def _integration_page_child_device_identifier(device_info: dict | None) -> tuple[str, str] | None:
     """Return the managed/unmanaged integration-page child-device identifier, if present."""
     for identifier in (device_info or {}).get("identifiers", set()) or set():

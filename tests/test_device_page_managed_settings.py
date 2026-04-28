@@ -192,6 +192,58 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                 self.assertTrue(managed_entities)
                 self.assertIn(expected_name, [entity._attr_name for entity in managed_entities])
 
+    def test_managed_device_setup_platforms_sync_after_managed_fleet_changes(self) -> None:
+        platform_specs = [
+            (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "⚙ Settings — Spa Pump enabled", 1),
+            (_load_simple_platform_module("number", "number", "NumberEntity"), "⚙ Settings — Spa Pump priority", 1),
+            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "⚙ Settings — Spa Pump usable", 1),
+            (_load_button_module(), "⚙ Settings — Spa Pump review", 2),
+        ]
+
+        for module, expected_spa_name, expected_removed_count in platform_specs:
+            with self.subTest(entity=expected_spa_name):
+                listeners = []
+                removed = []
+                coordinator = _coordinator()
+                coordinator.async_add_listener = lambda listener: listeners.append(listener) or (lambda: None)
+                hass = SimpleNamespace(data={"zero_net_export": {"entry-1": coordinator}})
+                entry = SimpleNamespace(entry_id="entry-1", data={"device_inventory_json": "[]"}, options={})
+                added = []
+
+                async def run_setup() -> None:
+                    await module.async_setup_entry(hass, entry, added.extend)
+
+                asyncio.run(run_setup())
+                self.assertTrue(listeners)
+                pool_entities = [
+                    entity
+                    for entity in added
+                    if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — ⚙ Settings — Pool Pump"
+                ]
+                self.assertEqual(len(pool_entities), expected_removed_count)
+                for entity in pool_entities:
+                    entity.async_remove = lambda force_remove=False, entity=entity: removed.append(entity._attr_name)
+
+                coordinator.data.device_details = {
+                    "pool": {"name": "Pool Pump Prime", "kind": "fixed", "entity_id": "switch.pool_pump"},
+                    "spa": {"name": "Spa Pump", "kind": "fixed", "entity_id": "switch.spa_pump"},
+                }
+                listeners[0]()
+
+                self.assertIn(expected_spa_name, [entity._attr_name for entity in added])
+                self.assertTrue(
+                    any(
+                        (getattr(entity, "_attr_device_info", None) or {}).get("name")
+                        == "Managed Devices — ⚙ Settings — Pool Pump Prime"
+                        for entity in added
+                    )
+                )
+
+                coordinator.data.device_details = {"spa": {"name": "Spa Pump", "kind": "fixed", "entity_id": "switch.spa_pump"}}
+                listeners[0]()
+
+                self.assertEqual(len(removed), expected_removed_count)
+
     def test_managed_device_buttons_tolerate_malformed_runtime_detail_container(self) -> None:
         coordinator = _coordinator()
         coordinator.data.device_details = "temporarily malformed runtime details"

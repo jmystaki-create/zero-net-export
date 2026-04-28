@@ -12,6 +12,7 @@ from .entity import (
     managed_load_detail,
     managed_load_display_name,
     managed_load_settings_action_name,
+    register_managed_load_platform_sync,
 )
 
 
@@ -21,11 +22,23 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     managed_details = integration_page_managed_load_details(entry, state)
     coordinator._zne_integration_page_managed_details = managed_details
-    entities.extend(
-        ZeroNetExportDeviceEnabledSwitch(coordinator, device_key, managed_load_display_name(device_key, details))
+    managed_entities = {
+        device_key: [ZeroNetExportDeviceEnabledSwitch(coordinator, device_key, managed_load_display_name(device_key, details))]
         for device_key, details in managed_details.items()
-    )
+    }
+    for device_entities in managed_entities.values():
+        entities.extend(device_entities)
     async_add_entities(entities)
+    register_managed_load_platform_sync(
+        hass,
+        entry,
+        coordinator,
+        async_add_entities,
+        managed_entities,
+        lambda device_key, details: [
+            ZeroNetExportDeviceEnabledSwitch(coordinator, device_key, managed_load_display_name(device_key, details))
+        ],
+    )
 
 
 class ZeroNetExportEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
@@ -51,6 +64,7 @@ class ZeroNetExportDeviceEnabledSwitch(ZeroNetExportEntity, SwitchEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_enabled", managed_load_settings_action_name(device_name, "enabled"))
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "enabled"
         self._attr_entity_category = EntityCategory.CONFIG
         attach_managed_load_device(self, coordinator, device_key, device_name)
 

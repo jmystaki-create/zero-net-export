@@ -12,6 +12,7 @@ from .entity import (
     managed_load_detail,
     managed_load_display_name,
     managed_load_settings_action_name,
+    register_managed_load_platform_sync,
 )
 
 
@@ -58,15 +59,27 @@ async def async_setup_entry(hass, entry, async_add_entities):
     state = coordinator.data
     managed_details = integration_page_managed_load_details(entry, state)
     coordinator._zne_integration_page_managed_details = managed_details
-    entities.extend(
-        ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, managed_load_display_name(device_key, details))
+    managed_entities = {
+        device_key: [ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, managed_load_display_name(device_key, details))]
         for device_key, details in managed_details.items()
-    )
+    }
+    for device_entities in managed_entities.values():
+        entities.extend(device_entities)
     entities.extend(
         ZeroNetExportSourceStaleBinarySensor(coordinator, source_key, label)
         for source_key, label in SOURCE_LABELS.items()
     )
     async_add_entities(entities)
+    register_managed_load_platform_sync(
+        hass,
+        entry,
+        coordinator,
+        async_add_entities,
+        managed_entities,
+        lambda device_key, details: [
+            ZeroNetExportDeviceUsableBinarySensor(coordinator, device_key, managed_load_display_name(device_key, details))
+        ],
+    )
 
 
 class ZeroNetExportBinarySensor(ZeroNetExportEntity, BinarySensorEntity):
@@ -110,6 +123,7 @@ class ZeroNetExportDeviceUsableBinarySensor(ZeroNetExportEntity, BinarySensorEnt
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_usable", managed_load_settings_action_name(device_name, "usable"))
         self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "usable"
         attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property
