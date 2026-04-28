@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-553 - suffixed unmanaged workflow sensors could be removed during stale peer cleanup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking Home Assistant entity-registry duplicate/suffix shapes in stale peer `Un Managed — ...` cleanup under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** ZNE-552 preserved current unmanaged workflow/backlog sensors by unique id and exact entity-id suffix, but a degraded registry entry missing `unique_id` with a Home Assistant duplicate suffix such as `sensor.zero_net_export_candidate_shortlist_2` could still be removed when attached to a stale legacy unmanaged child device.
+- **expected behavior:** stale native `Un Managed — ...` peer devices and legacy peer entities should be removed, while current Managed Devices unmanaged workflow/backlog/review sensors remain available even if registry unique-id metadata is missing and Home Assistant has assigned a numeric entity-id suffix.
+- **repo fix:** this run extends the current unmanaged workflow entity guard to recognize HA numeric-suffixed entity IDs such as `*_candidate_shortlist_2` before stale peer cleanup removes stale-device-attached entries.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-552 - unique-id-missing unmanaged workflow sensors could be removed during stale peer cleanup
 
 - **status:** `fixed_pending_validation`

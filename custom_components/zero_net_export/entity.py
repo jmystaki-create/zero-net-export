@@ -397,7 +397,10 @@ def _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id: str) -
         return True
 
     entity_id = str(getattr(entity, "entity_id", "") or "")
-    return any(entity_id.endswith(f"_{key}") for key in current_backlog_keys)
+    return any(
+        entity_id.endswith(f"_{key}") or re.search(rf"_{re.escape(key)}_\d+$", entity_id)
+        for key in current_backlog_keys
+    )
 
 
 def _is_legacy_unmanaged_candidate_entity_registry_entry(

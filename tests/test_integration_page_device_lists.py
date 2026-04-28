@@ -1088,6 +1088,12 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                     unique_id="entry-1_candidate_shortlist",
                 ),
                 SimpleNamespace(
+                    entity_id="sensor.zero_net_export_candidate_shortlist_2",
+                    config_entry_id="entry-1",
+                    device_id="stale-unmanaged-device",
+                    unique_id=None,
+                ),
+                SimpleNamespace(
                     entity_id="sensor.zero_net_export_attached_top_candidate_fit",
                     config_entry_id="entry-1",
                     device_id="stale-unmanaged-device",
@@ -1155,6 +1161,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("sensor.zero_net_export_orphaned_top_unmanaged_candidate", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_current_top_unmanaged_candidate", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_candidate_shortlist", entity_registry.entities)
+        self.assertIn("sensor.zero_net_export_candidate_shortlist_2", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_top_candidate_fit", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_top_candidate_warnings", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_attached_candidate_shortlist_fit", entity_registry.entities)
