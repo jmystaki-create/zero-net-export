@@ -23,7 +23,14 @@ class DeviceSurfaceVersionTests(unittest.TestCase):
             (package_dir / "__init__.py").write_text("")
             (package_dir / "entity.py").write_text(ENTITY_PATH.read_text())
             (package_dir / "const.py").write_text(
-                'DOMAIN = "zero_net_export"\nINTEGRATION_VERSION = "7.7.7"\n'
+                'CONF_DEVICE_INVENTORY_JSON = "device_inventory_json"\n'
+                'DEFAULT_DEVICE_INVENTORY_JSON = "[]"\n'
+                'DOMAIN = "zero_net_export"\n'
+                'INTEGRATION_VERSION = "7.7.7"\n'
+            )
+            (package_dir / "device_model.py").write_text(
+                'def parse_device_configs(raw_inventory):\n'
+                '    return [], []\n'
             )
 
             custom_components_pkg = sys.modules.setdefault("custom_components", types.ModuleType("custom_components"))
@@ -57,18 +64,33 @@ class DeviceSurfaceVersionTests(unittest.TestCase):
             sys.modules[const_spec.name] = const_module
             const_spec.loader.exec_module(const_module)
 
-            entity_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.entity", package_dir / "entity.py")
-            assert entity_spec and entity_spec.loader
-            entity_module = importlib.util.module_from_spec(entity_spec)
-            sys.modules[entity_spec.name] = entity_module
-            entity_spec.loader.exec_module(entity_module)
+            previous_modules = {
+                name: sys.modules.get(name)
+                for name in (
+                    "custom_components.zero_net_export.const",
+                    "custom_components.zero_net_export.device_model",
+                    "custom_components.zero_net_export.entity",
+                )
+            }
+            try:
+                entity_spec = importlib.util.spec_from_file_location("custom_components.zero_net_export.entity", package_dir / "entity.py")
+                assert entity_spec and entity_spec.loader
+                entity_module = importlib.util.module_from_spec(entity_spec)
+                sys.modules[entity_spec.name] = entity_module
+                entity_spec.loader.exec_module(entity_module)
 
-            class FakeCoordinator:
-                def __init__(self) -> None:
-                    self.entry = types.SimpleNamespace(entry_id="entry-1", title="Zero Net Export")
+                class FakeCoordinator:
+                    def __init__(self) -> None:
+                        self.entry = types.SimpleNamespace(entry_id="entry-1", title="Zero Net Export")
 
-            entity = entity_module.ZeroNetExportEntity(FakeCoordinator(), "status", "Status")
-            self.assertEqual(entity.device_info["sw_version"], "7.7.7")
+                entity = entity_module.ZeroNetExportEntity(FakeCoordinator(), "status", "Status")
+                self.assertEqual(entity.device_info["sw_version"], "7.7.7")
+            finally:
+                for name, module in previous_modules.items():
+                    if module is None:
+                        sys.modules.pop(name, None)
+                    else:
+                        sys.modules[name] = module
 
 
 if __name__ == "__main__":

@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-528 - managed-device review notification title lacked visible settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while running the full repo unittest suite under Riley's highlighted requirement that managed-device rows/actions have an obvious visible settings/gear affordance.
+- **current observed behavior:** the per-managed-device review button entity label already rendered as `⚙ Settings — <device> review`, but pressing the button created a persistent notification titled `Managed Devices review: <device>`. That notification/action surface could still look like an ordinary review action without the visible settings affordance Riley requested.
+- **expected behavior:** per-managed-device review action surfaces should consistently carry the visible `⚙ Settings` affordance, while unmanaged candidates remain suppressed from peer `Un Managed — ...` rows and stay available through Managed Devices workflow/backlog/review surfaces.
+- **repo fix:** this run changes the per-managed-device review notification title to reuse the button's visible settings label, producing titles like `Test Entry: ⚙ Settings — Pool pump review`, and updates stale regression tests so the full suite no longer asserts pre-affordance labels or old `0.1.91` peer-row validation wording.
+- **validation status:** fixed in repo with `python3 -m unittest discover -s tests -q` and `python3 -m compileall -q custom_components/zero_net_export/button.py tests/test_device_surface_version.py tests/test_binary_sensor_entity_categories.py tests/test_button_entity_categories.py tests/test_bucket_ownership_copy.py`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list and managed-device action surfaces showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-527 - historical research docs still pointed strategy back to deprecated UI sources
 
 - **status:** `fixed_pending_validation`

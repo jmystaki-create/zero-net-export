@@ -135,7 +135,7 @@ class BinarySensorEntityCategoryTests(unittest.TestCase):
 
         usable = binary_sensor_module.ZeroNetExportDeviceUsableBinarySensor(coordinator, "pool", "Pool pump")
 
-        self.assertEqual(usable._attr_name, "Pool pump usable")
+        self.assertEqual(usable._attr_name, "⚙ Settings — Pool pump usable")
         self.assertTrue(usable.is_on)
         self.assertEqual(usable._attr_entity_category, binary_sensor_module.EntityCategory.DIAGNOSTIC)
 

@@ -1514,7 +1514,7 @@ class ZeroNetExportShowManagedDeviceDetailButton(ZeroNetExportEntity, ButtonEnti
                     ready_candidate_fit=ready_candidate_fit,
                 )
             ),
-            title=f"{self.coordinator.entry.title}: Managed Devices review: {detail.get('name') or self._device_key}",
+            title=f"{self.coordinator.entry.title}: {self._attr_name}",
             notification_id=_managed_device_detail_notification_id(self.coordinator.entry.entry_id, self._device_key),
         )
 

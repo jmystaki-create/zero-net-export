@@ -1445,11 +1445,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         import asyncio
         asyncio.run(button.async_press())
 
-        self.assertEqual(button._attr_name, "Managed Devices review: Pool pump")
+        self.assertEqual(button._attr_name, "⚙ Settings — Pool pump review")
         self.assertEqual(len(notification_calls), 1)
         self.assertEqual(
             notification_calls[0]["kwargs"]["title"],
-            "Test Entry: Managed Devices review: Pool pump",
+            "Test Entry: ⚙ Settings — Pool pump review",
         )
         self.assertNotIn("Test Entry: managed devices review", notification_calls[0]["kwargs"]["title"])
         message = notification_calls[0]["args"][1]

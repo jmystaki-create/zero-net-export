@@ -615,7 +615,7 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "Command-center landing screen shows headline decision, energy state, control decision/outcome, Fleet activity, and a current focus section",
             checklist,
         )
-        self.assertIn("## Next validation boundary", checklist)
+        self.assertIn("## Current highlighted validation boundary", checklist)
         self.assertIn("### Final validation outcome", checklist)
         self.assertIn("`sensor.zero_net_export_recommendation` reports the current native next action", checklist)
         self.assertNotIn("## Recommended next validation run", checklist)
@@ -626,7 +626,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
             "Configure clearly communicates where Sensors/source roles, Controls, Managed Devices, and Diagnostics actions live",
             checklist,
         )
-        self.assertIn("For `0.1.91`, validation is only about the main integration page device lists", checklist)
+        self.assertIn("managed-device rows are visible and include the settings/gear affordance", checklist)
+        self.assertNotIn("For `0.1.91`, validation is only about the main integration page device lists", checklist)
         self.assertIn("Controls flow states whether target export, reserve, deadband, and live mode are actionable", checklist)
         self.assertNotIn("native source mapping", checklist)
         self.assertNotIn("raw source-mapping form", checklist)
