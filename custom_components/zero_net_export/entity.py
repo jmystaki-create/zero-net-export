@@ -402,6 +402,23 @@ def _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id: str) 
     return candidate_part.startswith(candidate_domain_prefixes)
 
 
+def _entity_registry_entry_config_entry_ids(entity) -> set[str]:
+    """Return config-entry ids from old and new HA entity-registry shapes."""
+    ids: set[str] = set()
+    config_entry_id = str(getattr(entity, "config_entry_id", "") or "")
+    if config_entry_id:
+        ids.add(config_entry_id)
+    config_entry_ids = getattr(entity, "config_entry_ids", None)
+    if isinstance(config_entry_ids, str):
+        ids.add(config_entry_ids)
+    else:
+        try:
+            ids.update(str(item) for item in (config_entry_ids or set()) if item)
+        except Exception:
+            pass
+    return ids
+
+
 def remove_unmanaged_candidate_entity_registry_entries_for_entry(
     hass,
     entry_id: str,
@@ -417,11 +434,17 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
     except Exception:
         return
     device_ids = {str(device_id) for device_id in (child_device_ids or set()) if device_id}
+    expected_entry_id = str(entry_id)
     for entity in _entity_registry_entries(entity_registry):
-        if str(getattr(entity, "config_entry_id", "") or "") != str(entry_id):
+        entity_entry_ids = _entity_registry_entry_config_entry_ids(entity)
+        if entity_entry_ids and expected_entry_id not in entity_entry_ids:
             continue
         device_id = str(getattr(entity, "device_id", "") or "")
-        if device_id in device_ids or (not device_id and _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id)):
+        if device_id in device_ids or (
+            expected_entry_id in entity_entry_ids
+            and not device_id
+            and _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id)
+        ):
             _remove_entity_registry_entry(entity_registry, entity)
 
 

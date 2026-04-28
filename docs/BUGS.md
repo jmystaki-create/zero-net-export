@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-537 - stale unmanaged peer entities could survive alternate registry ownership shapes
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking stale `Un Managed — ...` peer-row cleanup under Riley's managed-only native device-list scope.
+- **current observed behavior:** stale unmanaged peer entity-registry cleanup only matched the legacy singular `config_entry_id` field before considering attached removed child-device ids. Home Assistant/test registry shapes that expose ownership through `config_entry_ids`, or stale entries attached to a just-removed unmanaged child device with no singular config id, could survive the cleanup pass and leave peer-row artifacts after the device row was removed.
+- **expected behavior:** cleanup should remove stale unmanaged peer entity-registry entries for the current config entry across both singular and set-style registry ownership, and should also remove entries attached to the config-entry-scoped unmanaged child devices just deleted, while preserving explicit other-entry entities and controller/backlog unmanaged sensors.
+- **repo fix:** this run adds config-entry id normalization for entity-registry entries, accepts both `config_entry_id` and `config_entry_ids`, and removes entries attached to deleted unmanaged child devices when no config-entry id is recorded, without touching explicit other-entry entries or backlog count sensors.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-536 - historical 0.1.89 plan still pointed at deprecated UI roadmap polish
 
 - **status:** `fixed_pending_validation`
