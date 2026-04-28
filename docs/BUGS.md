@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-533 - packaged release metadata still revived stale peer-row approval loop
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `release`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking loop/churn drift and current native Home Assistant highlighted scope after recent managed-only fixes.
+- **current observed behavior:** `CHANGELOG.md` still made the packaged `0.1.94` release metadata preview say the install repair guidance should ask James for a release-target decision and described `Un Managed — ...` native child rows as part of the closest integration-page representation. Because `build_release_info()` reads the manifest-matching changelog section for in-product release/support surfaces, exact repo builds could still surface stale approval-boundary and peer-row acceptance wording even after code/docs moved to Riley's managed-only scope.
+- **expected behavior:** packaged release metadata shown in Home Assistant support surfaces should reinforce Riley's current approval gate and managed-only native device-list target: visible `⚙ Settings` managed affordances, no peer `Un Managed — ...` rows, unmanaged candidates behind workflow/backlog/review surfaces, and no release/deploy/restart/fingerprint/readiness/screenshot claim without Riley's explicit approval.
+- **repo fix:** this run rewrites the current `0.1.94` changelog highlights to the managed-only scope, removes stale James/release-target-decision/peer-row language from the in-product preview, and updates release-info regression coverage to reject that stale loop wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_release_info_install_guidance tests.test_bug_tracker_ids -q`. No Home Assistant live validation needed because this is packaged release/support metadata only.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-532 - unmanaged cleanup helper still exposed reusable peer-row metadata
 
 - **status:** `fixed_pending_validation`

@@ -72,8 +72,11 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
         self.assertIn("Home Assistant", info["changes_preview"])
-        self.assertIn("James", info["changes_preview"])
-        self.assertIn("release/deploy/restart", info["changes_preview"])
+        self.assertIn("Riley", info["changes_preview"])
+        self.assertIn("managed-only native device-list scope", info["changes_preview"])
+        self.assertIn("release, deploy, Home Assistant restart", info["changes_preview"])
+        self.assertNotIn("James", info["changes_preview"])
+        self.assertNotIn("release-target decision", info["changes_preview"])
 
     def test_0189_changelog_carries_post_tag_ui_fixes(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
@@ -447,18 +450,23 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("mapped-source", current_highlights.lower())
         self.assertNotIn("source mapping", current_highlights.lower())
 
-    def test_current_candidate_changelog_tracks_child_row_sync_without_deprecated_area_metadata(self) -> None:
+    def test_current_candidate_changelog_tracks_managed_only_scope_without_stale_release_loop(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(
             section for section in sections if section["version"] == release_info.INTEGRATION_VERSION
         )
         current_highlights = "\n".join(current_section["highlights"])
 
+        self.assertIn("managed-only native device-list scope", current_highlights)
+        self.assertIn("visible `⚙ Settings` affordances", current_highlights)
+        self.assertIn("peer `Un Managed — ...` rows are suppressed", current_highlights)
         self.assertIn("Removed deprecated suggested-area metadata", current_highlights)
-        self.assertIn("integration-page rows synchronized after setup", current_highlights)
-        self.assertIn("stale device-registry entries", current_highlights)
+        self.assertIn("stale registry cleanup", current_highlights)
+        self.assertIn("stale unmanaged-candidate device and entity registry entries", current_highlights)
         self.assertNotIn("Added `Managed Devices` and `Un Managed` suggested-area", current_highlights)
         self.assertNotIn("suggested-area/group metadata", current_highlights)
+        self.assertNotIn("ask James", current_highlights.lower())
+        self.assertNotIn("release-target decision", current_highlights)
 
     def test_cli_steps_use_parent_custom_components_path_for_component_root(self) -> None:
         steps = release_info.build_install_validation_cli_steps(

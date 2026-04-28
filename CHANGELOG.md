@@ -13,13 +13,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [0.1.94] - 2026-04-28
 
 ### Fixed
-- Made the install repair guidance explicitly ask James for the release-target decision, closest native child-device acceptance, and exact release/deploy/restart approval before any Home Assistant release action.
-- Kept managed-load integration-page device rows registering even when a runtime detail is missing optional `name` or `kind` fields, so sparse managed details cannot drop the native `Managed Devices — ...` rows during setup.
-- Added `Managed Devices — ...` and `Un Managed — ...` group language to child-device model metadata as well as row names, strengthening the closest native integration-page representation when Home Assistant shows device model text.
-- Backfilled managed and unmanaged child-device settings URLs into existing Home Assistant device-registry entries when entities are added, so already-created Managed Devices and Un Managed rows gain the per-row settings action after upgrade.
-- URL-encoded Managed Devices and Un Managed child-device settings links so integration-page row gear actions keep one intact native Home Assistant navigation target even when managed-device keys or candidate entity IDs contain query-sensitive characters.
-- Removed deprecated suggested-area metadata from Managed Devices and Un Managed child devices while keeping the grouping language in durable native row names/models.
-- Kept Managed Devices and Un Managed integration-page rows synchronized after setup: managed loads and unmanaged candidates now add, refresh, and remove their native child rows and stale device-registry entries as the fleet or HA candidate states change.
+- Aligned the packaged Home Assistant release metadata with Riley's current managed-only native device-list scope: managed child rows keep visible `⚙ Settings` affordances, peer `Un Managed — ...` rows are suppressed, and unmanaged candidates remain behind Managed Devices workflow/backlog/review surfaces.
+- Removed stale release-target approval wording from install-repair guidance so release, deploy, Home Assistant restart, fingerprint validation, readiness claims, and live screenshot validation all require Riley's explicit approval instead of reopening old `0.1.91`/`0.1.94` questions.
+- Kept managed-load integration-page device rows and their settings/action entities registering and synchronizing as runtime details or configured managed loads change, so sparse or changing fleets do not drop visible managed settings affordances.
+- Removed reusable unmanaged-candidate peer-row entity metadata while preserving identifier-only stale registry cleanup, preventing old `Un Managed — ...` child-device rows from being recreated beside managed devices.
+- Removed stale unmanaged-candidate device and entity registry entries scoped to this config entry while preserving controller/backlog unmanaged candidate sensors for Managed Devices review surfaces.
+- URL-encoded managed child-device settings links so integration-page row gear actions keep one intact native Home Assistant navigation target even when managed-device keys contain query-sensitive characters.
+- Removed deprecated suggested-area metadata from managed child devices while keeping durable `Managed Devices — ⚙ Settings — ...` native row names and models.
 
 ## [0.1.93] - 2026-04-28
 
