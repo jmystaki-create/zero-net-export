@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-556 - workflow sensor attributes could drift from shared preservation keys
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while following up ZNE-555's shared Managed Devices workflow sensor key set under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** ZNE-555 moved the Managed Devices workflow sensor key set into the shared entity helper for sensor setup and stale peer cleanup preservation, but `ZeroNetExportSensor.extra_state_attributes` still carried its own hardcoded copy of the same workflow/backlog/review key list. The values currently matched, but a future workflow sensor could receive native setup/preservation while silently missing backlog/review attributes.
+- **expected behavior:** Managed Devices workflow/backlog/review sensor keys should use one shared source for setup, stale peer cleanup preservation, and workflow extra-state attributes.
+- **repo fix:** this run routes workflow extra-state attribute generation through `FLEET_WORKSPACE_SENSOR_KEYS` and adds focused regression coverage rejecting a restored hardcoded workflow key list in `extra_state_attributes`.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/sensor.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-555 - workflow sensor preservation keys could drift from stale peer cleanup guard
 
 - **status:** `fixed_pending_validation`

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import unittest
 from types import SimpleNamespace
 
@@ -269,6 +270,14 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
 
         self.assertIsNone(sensor._attr_device_info)
+
+    def test_fleet_workspace_extra_attributes_use_shared_key_set(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        source = inspect.getsource(sensor_module.ZeroNetExportSensor.extra_state_attributes.fget)
+
+        self.assertIn("FLEET_WORKSPACE_SENSOR_KEYS", source)
+        self.assertNotIn('"managed_devices_surface", "managed_fleet_overview"', source)
 
     def test_base_entity_tolerates_missing_validation_details(self) -> None:
         sensor_module = _load_sensor_module()

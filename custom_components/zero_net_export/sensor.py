@@ -1507,7 +1507,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 **(self._validation_details.get("release_update", {}) or {}),
                 "config_entry_version": self.coordinator.entry.version,
             }
-        if self._key in {"managed_devices_surface", "managed_fleet_overview", "managed_fleet_attention", "managed_fleet_ready", "unmanaged_candidate_count", "unmanaged_candidate_overview", "top_unmanaged_candidate", "top_candidate_fit", "top_candidate_warnings", "candidate_shortlist", "candidate_shortlist_fit", "fleet_console_next_step"}:
+        if self._key in FLEET_WORKSPACE_SENSOR_KEYS:
             state = self._state
             if state is None:
                 return None
