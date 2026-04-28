@@ -1,19 +1,19 @@
 # UI_RESEARCH.md
 
-> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This research doc is historical. Do not use it to override current user-highlighted scope in `docs/ACTIVE_USER_REQUESTS.md`.
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This research doc is historical. Do not use it to override current user-highlighted scope in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`, and do not use it to revive `docs/UI_DESIGN.md` or `docs/UI_IMPLEMENTATION_MAP.md` as active source-of-truth inputs.
 
 
-This document captures the research base for a refreshed Zero Net Export UI design.
+This document captures historical research for a refreshed Zero Net Export UI design.
 
 It is intended to synthesize:
-1. the current local UI design document
+1. the historical local UI design document
 2. relevant external reference patterns, including solar optimizer / energy-management integrations in the Home Assistant ecosystem
 3. historical discussion and user feedback already captured in project memory and review notes
 4. general product-design best practice for a solar optimizer control panel
-5. the current UI implementation/status document
+5. the historical UI implementation/status document
 6. the design constraints imposed by native Home Assistant surfaces, especially the current device/configure format
 
-This is a research and synthesis document, not yet the new design itself.
+This is a research and synthesis document, not the current steering source of truth.
 
 ## Goal
 
@@ -26,14 +26,14 @@ Use this document to:
 
 ---
 
-## Input 1. Current local UI design document
+## Input 1. Historical local UI design document
 
 Source:
-- `docs/UI_DESIGN.md`
+- historical reference only: `docs/UI_DESIGN.md`
 
 ### What it already establishes well
 
-The current design document already makes several strong decisions:
+The historical design document made several strong decisions:
 - Zero Net Export must remain a **native Home Assistant integration**.
 - No custom sidebar, parallel app, or external web UI should be the supported path.
 - **Configure** is the primary operator workspace.
@@ -70,9 +70,7 @@ The current design doc is strong on principles, but still light on some concrete
 
 ### Research conclusion from input 1
 
-The existing design is directionally right.
-The redesign should build on it, not replace its core stance.
-The main need is to turn principle-level guidance into a more specific, operator-shaped design.
+The historical design was directionally useful background only. Current work must follow `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`, especially managed-only peer rows, visible managed-device settings/gear affordance, and no peer `Un Managed — ...` rows beside managed devices.
 
 ---
 
@@ -228,14 +226,14 @@ The redesign should probably be organized around three recurring operator questi
 
 ---
 
-## Input 5. Current UI implementation/status document
+## Input 5. Historical UI implementation/status document
 
 Source:
-- `docs/UI_IMPLEMENTATION_MAP.md`
+- historical reference only: `docs/UI_IMPLEMENTATION_MAP.md`
 
 ### What it tells us about reality
 
-The current implementation map is valuable because it distinguishes:
+The historical implementation map was useful background because it distinguished:
 - what is already implemented enough to build on
 - what exists only as scaffolding
 - what is still incomplete in the lived HA experience
@@ -625,13 +623,13 @@ This implies the redesign should optimize for:
 
 ## Recommended next step
 
-Use this research document as the input base for the next redesign round.
+Do not use this research document as the input base for active scope selection. If it is consulted for background, first apply the current steering in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`.
 
-That redesign round should now focus on:
+Any future redesign round must be explicitly re-approved and should not displace the current highlighted scope:
 1. defining the exact top-level control-board composition
 2. defining the exact contents of the Managed Devices workspace
 3. defining how much detail belongs on the landing view versus one click deeper
-4. producing a rewritten `docs/UI_DESIGN.md` that reflects the confirmed choices above
+4. updating the current active steering documents only if Riley explicitly changes the scope
 
 ---
 

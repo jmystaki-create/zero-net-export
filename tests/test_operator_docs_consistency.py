@@ -49,6 +49,24 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("docs/UI_DESIGN.md` for product design", source_list)
         self.assertNotIn("docs/UI_IMPLEMENTATION_MAP.md` for implementation strategy", source_list)
 
+    def test_historical_research_docs_do_not_restore_deprecated_ui_sources(self) -> None:
+        research = (ROOT / "docs" / "UI_RESEARCH.md").read_text(encoding="utf-8")
+        matrix = (ROOT / "docs" / "REFERENCE_MATRIX.md").read_text(encoding="utf-8")
+
+        self.assertIn("CURRENT STATUS: DEPRECATED/HISTORICAL", research)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", research)
+        self.assertIn("docs/BUGS.md", research)
+        self.assertIn("historical reference only: `docs/UI_DESIGN.md`", research)
+        self.assertIn("historical reference only: `docs/UI_IMPLEMENTATION_MAP.md`", research)
+        self.assertIn("managed-only peer rows", research)
+        self.assertNotIn("producing a rewritten `docs/UI_DESIGN.md`", research)
+
+        self.assertIn("CURRENT STATUS: DEPRECATED/HISTORICAL", matrix)
+        self.assertIn("docs/ACTIVE_USER_REQUESTS.md", matrix)
+        self.assertIn("docs/BUGS.md", matrix)
+        self.assertIn("current product strategy defined by `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`", matrix)
+        self.assertNotIn("product strategy defined in `docs/UI_DESIGN.md`", matrix)
+
     def test_supervisor_tracks_current_user_flagged_scope(self) -> None:
         content = (ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
 

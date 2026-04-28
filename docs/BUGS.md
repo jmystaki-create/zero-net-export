@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-527 - historical research docs still pointed strategy back to deprecated UI sources
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking for deprecated roadmap/source drift under Riley's current managed-only native Home Assistant highlighted scope.
+- **current observed behavior:** `docs/UI_RESEARCH.md` was marked deprecated/historical, but its body still called `docs/UI_DESIGN.md` the current local design input, called `docs/UI_IMPLEMENTATION_MAP.md` the current implementation/status input, and recommended producing a rewritten `docs/UI_DESIGN.md`. `docs/REFERENCE_MATRIX.md` also still said product strategy was defined in `docs/UI_DESIGN.md`. Those historical docs could steer future searches back to deprecated UI-roadmap/map work instead of the current active request/bug boundary.
+- **expected behavior:** historical research/reference docs should point operators to `docs/ACTIVE_USER_REQUESTS.md` and this bug tracker for current strategy, treat `docs/UI_DESIGN.md` plus `docs/UI_IMPLEMENTATION_MAP.md` as historical references only, and avoid recommending deprecated-design rewrites as active next work.
+- **repo fix:** this run strengthens the deprecated/historical banners and source wording in `docs/UI_RESEARCH.md` and `docs/REFERENCE_MATRIX.md`, replaces the stale active-strategy references with `docs/ACTIVE_USER_REQUESTS.md` plus `docs/BUGS.md`, and adds operator-doc regression coverage so these docs cannot restore deprecated UI sources as active strategy.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_operator_docs_consistency -q`. No Home Assistant live validation needed because this is documentation steering only.
+- **next action:** keep live validation blocked until Riley explicitly approves deployment/restart/screenshot work and evidence shows managed rows with visible settings affordance and no peer `Un Managed — ...` rows.
+
 ## ZNE-526 - managed-device diagnostic sensor rows lacked visible settings labels
 
 - **status:** `fixed_pending_validation`

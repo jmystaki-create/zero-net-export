@@ -1,8 +1,10 @@
 # Reference Matrix
 
+> **CURRENT STATUS: DEPRECATED/HISTORICAL.** This reference matrix is background only. Current steering lives in `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`; do not use this file to revive `docs/UI_DESIGN.md` or `docs/UI_IMPLEMENTATION_MAP.md` as active source-of-truth inputs.
+
 ## Purpose
 
-Compare the strongest discovered Home Assistant / energy-management references against the current **Zero Net Export** native Home Assistant integration direction.
+Compare the strongest discovered Home Assistant / energy-management references against the historical **Zero Net Export** native Home Assistant integration direction.
 
 ---
 
@@ -115,7 +117,7 @@ A cohesive native Home Assistant operator workflow that combines:
 - source validation
 - export-target control
 - fixed + variable device orchestration
-- dashboard implementation reference only, with product strategy defined in `docs/UI_DESIGN.md`
+- dashboard implementation reference only, with current product strategy defined by `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`
 - explainable decisions
 - safety / degraded modes
 - reporting
