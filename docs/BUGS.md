@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-531 - unused unmanaged-candidate sensor class still encoded peer-row behavior
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking for tests/code that could revive peer `Un Managed — ...` unmanaged-candidate rows under Riley's current managed-only native device-list scope.
+- **current observed behavior:** `sensor.py` no longer added unmanaged candidate peer-row entities during setup or sync, but the dead `ZeroNetExportUnmanagedCandidateSensor` class still registered unmanaged candidates as their own `Un Managed — ...` HA child devices if reused, and focused integration-page tests still instantiated that class and asserted the peer-row metadata/update path.
+- **expected behavior:** unmanaged candidates should keep discovery/backlog/review data behind Managed Devices workflow surfaces, while native peer-row code/tests should not keep a reusable entity class that registers `Un Managed — ...` child devices beside managed rows. Legacy unmanaged device-info helpers may remain only for stale registry cleanup.
+- **repo fix:** this run removes the unused unmanaged-candidate peer-row sensor class and rewrites focused integration-page tests to cover only legacy unmanaged device-info helper behavior needed for registry cleanup plus the existing setup/sync assertions that no `Un Managed — ...` peer rows are added.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and `python3 -m compileall -q custom_components/zero_net_export/sensor.py tests/test_integration_page_device_lists.py`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-530 - managed-device settings entities did not follow fleet changes after setup
 
 - **status:** `fixed_pending_validation`

@@ -151,17 +151,17 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         managed_slash = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool/main", "Pool Main")
         managed_colon = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool:main", "Pool Main")
-        unmanaged_slash = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+        unmanaged_slash = sensor_module.unmanaged_candidate_device_info(
             coordinator,
             {"entity_id": "switch.load/a", "name": "Load A", "domain": "switch", "kind": "fixed", "state": "off"},
         )
-        unmanaged_colon = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+        unmanaged_colon = sensor_module.unmanaged_candidate_device_info(
             coordinator,
             {"entity_id": "switch.load:a", "name": "Load A", "domain": "switch", "kind": "fixed", "state": "off"},
         )
 
         managed_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (managed_slash, managed_colon)]
-        unmanaged_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (unmanaged_slash, unmanaged_colon)]
+        unmanaged_identifiers = [next(iter(device_info["identifiers"])) for device_info in (unmanaged_slash, unmanaged_colon)]
 
         self.assertNotEqual(managed_identifiers[0], managed_identifiers[1])
         self.assertNotEqual(unmanaged_identifiers[0], unmanaged_identifiers[1])
@@ -175,17 +175,17 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         managed_upper = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "Pool", "Pool")
         managed_lower = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "pool")
-        unmanaged_upper = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+        unmanaged_upper = sensor_module.unmanaged_candidate_device_info(
             coordinator,
             {"entity_id": "switch.Load", "name": "Load", "domain": "switch", "kind": "fixed", "state": "off"},
         )
-        unmanaged_lower = sensor_module.ZeroNetExportUnmanagedCandidateSensor(
+        unmanaged_lower = sensor_module.unmanaged_candidate_device_info(
             coordinator,
             {"entity_id": "switch.load", "name": "load", "domain": "switch", "kind": "fixed", "state": "off"},
         )
 
         managed_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (managed_upper, managed_lower)]
-        unmanaged_identifiers = [next(iter(entity._attr_device_info["identifiers"])) for entity in (unmanaged_upper, unmanaged_lower)]
+        unmanaged_identifiers = [next(iter(device_info["identifiers"])) for device_info in (unmanaged_upper, unmanaged_lower)]
 
         self.assertNotEqual(managed_identifiers[0], managed_identifiers[1])
         self.assertNotEqual(unmanaged_identifiers[0], unmanaged_identifiers[1])
@@ -193,26 +193,6 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(managed_identifiers[1][1].rsplit(":", 1)[-1], "pool")
         self.assertRegex(unmanaged_identifiers[0][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
         self.assertRegex(unmanaged_identifiers[1][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
-
-    def test_unmanaged_candidate_lifecycle_keys_remain_unique_after_case_normalizing(self) -> None:
-        sensor_module = _load_sensor_module()
-
-        upper_key = sensor_module._candidate_unique_key({"entity_id": "switch.Load"})
-        lower_key = sensor_module._candidate_unique_key({"entity_id": "switch.load"})
-
-        self.assertNotEqual(upper_key, lower_key)
-        self.assertRegex(upper_key, r"^switch_load_[a-f0-9]{8}$")
-        self.assertEqual(lower_key, "switch_load")
-
-    def test_unmanaged_candidate_lifecycle_keys_remain_unique_after_sanitizing_separators(self) -> None:
-        sensor_module = _load_sensor_module()
-
-        slash_key = sensor_module._candidate_unique_key({"entity_id": "switch.load/a"})
-        colon_key = sensor_module._candidate_unique_key({"entity_id": "switch.load:a"})
-
-        self.assertNotEqual(slash_key, colon_key)
-        self.assertRegex(slash_key, r"^switch_load_a_[a-f0-9]{8}$")
-        self.assertRegex(colon_key, r"^switch_load_a_[a-f0-9]{8}$")
 
     def test_unmanaged_candidate_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
@@ -225,14 +205,14 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             "state": "off",
         }
 
-        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+        device_info = sensor_module.unmanaged_candidate_device_info(coordinator, candidate)
 
         self.assertEqual(
-            sensor._attr_device_info["configuration_url"],
+            device_info["configuration_url"],
             "homeassistant://navigate/config/entities?entity_id=switch.hot_water%26boost",
         )
 
-    def test_unmanaged_candidate_sensor_registers_candidate_as_own_ha_device(self) -> None:
+    def test_legacy_unmanaged_candidate_device_info_stays_available_for_cleanup(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
         candidate = {
@@ -243,71 +223,16 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             "state": "off",
         }
 
-        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+        device_info = sensor_module.unmanaged_candidate_device_info(coordinator, candidate)
 
-        self.assertEqual(sensor._attr_device_info["name"], "Un Managed — Hot Water")
-        self.assertEqual(sensor._attr_device_info["model"], "Un Managed — Fixed unmanaged candidate")
+        self.assertEqual(device_info["name"], "Un Managed — Hot Water")
+        self.assertEqual(device_info["model"], "Un Managed — Fixed unmanaged candidate")
         self.assertIn(
             ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c"),
-            sensor._attr_device_info["identifiers"],
+            device_info["identifiers"],
         )
-        self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
-        self.assertNotIn("suggested_area", sensor._attr_device_info)
-        self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Un Managed")
-
-    def test_unmanaged_candidate_async_added_updates_existing_registry_configuration_url(self) -> None:
-        sensor_module = _load_sensor_module()
-        coordinator = self._coordinator()
-        candidate = {
-            "entity_id": "switch.hot_water",
-            "name": "Hot Water",
-            "domain": "switch",
-            "kind": "fixed",
-            "state": "off",
-        }
-        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
-        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c")
-        device = SimpleNamespace(id="device-2", identifier=identifier, configuration_url=None)
-        registry = _FakeDeviceRegistry(device)
-        sensor.hass = SimpleNamespace(device_registry=registry)
-
-        asyncio.run(sensor.async_added_to_hass())
-
-        self.assertEqual(registry.updated[0], "device-2")
-        self.assertEqual(
-            registry.updated[1]["configuration_url"],
-            "homeassistant://navigate/config/entities?entity_id=switch.hot_water",
-        )
-        self.assertEqual(registry.updated[1]["name"], "Un Managed — Hot Water")
-        self.assertEqual(registry.updated[1]["model"], "Un Managed — Fixed unmanaged candidate")
-
-    def test_unmanaged_candidate_async_added_removes_legacy_unhashed_registry_row(self) -> None:
-        sensor_module = _load_sensor_module()
-        coordinator = self._coordinator()
-        candidate = {
-            "entity_id": "switch.hot_water",
-            "name": "Hot Water",
-            "domain": "switch",
-            "kind": "fixed",
-            "state": "off",
-        }
-        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
-        current_identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c")
-        legacy_identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water")
-        registry = _FakeDeviceRegistry(
-            [
-                SimpleNamespace(id="legacy-device", identifier=legacy_identifier, configuration_url=None),
-                SimpleNamespace(id="current-device", identifier=current_identifier, configuration_url=None),
-            ]
-        )
-        sensor.hass = SimpleNamespace(device_registry=registry)
-
-        asyncio.run(sensor.async_added_to_hass())
-
-        self.assertIn("legacy-device", registry.removed)
-        self.assertNotIn("legacy-device", registry.devices)
-        self.assertIn("current-device", registry.devices)
-        self.assertEqual(registry.updated[0], "current-device")
+        self.assertEqual(device_info["via_device"], ("zero_net_export", "entry-1"))
+        self.assertNotIn("suggested_area", device_info)
 
     def test_managed_device_async_added_removes_legacy_raw_registry_row(self) -> None:
         sensor_module = _load_sensor_module()
@@ -1176,40 +1101,6 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         ]
         self.assertNotIn("Un Managed — Hot Water", device_names)
         self.assertNotIn("Un Managed — Hot Water Boost", device_names)
-
-    def test_unmanaged_candidate_update_refreshes_existing_registry_metadata(self) -> None:
-        sensor_module = _load_sensor_module()
-        coordinator = self._coordinator()
-        candidate = {
-            "entity_id": "switch.hot_water",
-            "name": "Hot Water",
-            "domain": "switch",
-            "kind": "fixed",
-            "state": "off",
-        }
-        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
-        identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c")
-        device = SimpleNamespace(
-            id="device-2",
-            identifier=identifier,
-            configuration_url="homeassistant://navigate/config/entities?entity_id=switch.hot_water",
-            name="Un Managed — Hot Water",
-            model="Un Managed — Fixed unmanaged candidate",
-        )
-        registry = _FakeDeviceRegistry(device)
-        sensor.hass = SimpleNamespace(device_registry=registry)
-
-        sensor.update_candidate({
-            "entity_id": "switch.hot_water",
-            "name": "Hot Water Boost",
-            "domain": "switch",
-            "kind": "variable",
-            "state": "on",
-        })
-
-        self.assertEqual(registry.updated[0], "device-2")
-        self.assertEqual(registry.updated[1]["name"], "Un Managed — Hot Water Boost")
-        self.assertEqual(registry.updated[1]["model"], "Un Managed — Variable unmanaged candidate")
 
     def test_setup_entry_syncs_unmanaged_candidate_rows_on_ha_state_change(self) -> None:
         sensor_module = _load_sensor_module()

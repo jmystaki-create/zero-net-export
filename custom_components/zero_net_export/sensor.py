@@ -2,8 +2,6 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-import hashlib
-import re
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfPower, UnitOfTime
@@ -467,7 +465,7 @@ def _register_unmanaged_candidate_sync(
     hass,
     entry,
     async_add_entities,
-    known_candidate_entities: dict[str, "ZeroNetExportUnmanagedCandidateSensor"],
+    known_candidate_entities: dict[str, ZeroNetExportEntity],
 ) -> None:
     """Remove/suppress unmanaged peer rows while keeping backlog discovery available."""
 
@@ -1793,23 +1791,6 @@ def _attach_managed_load_device(entity, coordinator, device_key: str, device_nam
     attach_managed_load_device(entity, coordinator, device_key, device_name)
 
 
-def _candidate_unique_key(candidate: dict[str, Any]) -> str:
-    raw_entity_id = str(candidate.get("entity_id") or candidate.get("name") or "candidate").strip() or "candidate"
-    normalized = re.sub(
-        r"[^a-z0-9_]+",
-        "_",
-        raw_entity_id.lower().replace(".", "_").replace(":", "_").replace("/", "_"),
-    ).strip("_") or "candidate"
-
-    # Preserve the legacy key shape for ordinary Home Assistant entity IDs so existing
-    # unmanaged-row unique IDs do not churn, but add a differentiator for odd/case
-    # variants that would otherwise collapse in the row lifecycle map.
-    if raw_entity_id == raw_entity_id.lower() and re.fullmatch(r"[a-z0-9_]+\.[a-z0-9_]+", raw_entity_id):
-        return normalized
-    digest = hashlib.sha1(raw_entity_id.encode("utf-8")).hexdigest()[:8]
-    return f"{normalized}_{digest}"
-
-
 class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity):
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(
@@ -2086,51 +2067,3 @@ class ZeroNetExportDeviceDetailSensor(ZeroNetExportEntity, SensorEntity):
         if state is None:
             return {}
         return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
-
-
-class ZeroNetExportUnmanagedCandidateSensor(ZeroNetExportEntity, SensorEntity):
-    """Minimal native entity used to register an unmanaged candidate as a HA device row."""
-
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-
-    def __init__(self, coordinator, candidate: dict[str, Any]):
-        self._candidate = dict(candidate or {})
-        candidate_key = _candidate_unique_key(self._candidate)
-        candidate_name = str(self._candidate.get("name") or self._candidate.get("entity_id") or "candidate")
-        super().__init__(
-            coordinator,
-            f"unmanaged_candidate_{candidate_key}",
-            f"{candidate_name} unmanaged candidate",
-        )
-        self._attr_device_info = unmanaged_candidate_device_info(coordinator, self._candidate)
-        self._zero_net_export_legacy_device_info = legacy_unmanaged_candidate_device_info(coordinator, self._candidate)
-
-    def update_candidate(self, candidate: dict[str, Any]) -> None:
-        """Refresh candidate state without requiring a platform reload."""
-        self._candidate = dict(candidate or {})
-        candidate_name = str(self._candidate.get("name") or self._candidate.get("entity_id") or "candidate")
-        self._attr_name = f"{candidate_name} unmanaged candidate"
-        self._attr_device_info = unmanaged_candidate_device_info(self.coordinator, self._candidate)
-        self._zero_net_export_legacy_device_info = legacy_unmanaged_candidate_device_info(self.coordinator, self._candidate)
-        hass = getattr(self, "hass", None)
-        if hass is not None:
-            sync_integration_page_child_device_registry(hass, self._attr_device_info, self._zero_net_export_legacy_device_info)
-        write_state = getattr(self, "async_write_ha_state", None)
-        if write_state is not None:
-            write_state()
-
-    @property
-    def native_value(self):
-        return build_candidate_review_hint(self._candidate, include_warning=False)
-
-    @property
-    def extra_state_attributes(self):
-        fit = assess_candidate(self._candidate)
-        return {
-            **self._candidate,
-            "bucket": "Un Managed",
-            "integration_page_group": "Un Managed",
-            "candidate_usefulness": build_candidate_review_hint(self._candidate, include_warning=False),
-            "candidate_warnings": fit.get("warnings") or [],
-            "candidate_summary": fit.get("summary"),
-        }
