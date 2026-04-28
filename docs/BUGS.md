@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-540 - active bug tails still revived old ZNE-439 approval blockers
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking BUGS.md for loop/churn drift under Riley's current managed-only native Home Assistant scope.
+- **current observed behavior:** several still-active fixed-pending-validation entries carried stale validation tails saying old ZNE-439 release-target history blocked live validation until a James decision, and some next actions still pointed at old peer-row validation. That could reopen release-target/fingerprint approval churn and conflict with Riley's current gate.
+- **expected behavior:** active bug entries should use Riley's current approval boundary only: no deploy/restart/release/readiness/screenshot claim without explicit Riley approval, passing tests, and screenshot proof that native managed rows/actions show visible `⚙ Settings` labels with no peer `Un Managed — ...` rows.
+- **repo fix:** this run rewrites the stale active ZNE-507 through ZNE-513 validation/next-action tails to the current Riley approval gate and adds bug-tracker regression coverage rejecting the old active-section ZNE-439 blocker wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_bug_tracker_ids -q`. No Home Assistant live validation needed because this is bug-tracker/process steering only.
+- **next action:** after explicit Riley approval, validate live screenshot evidence for the current managed-only native device-list behavior: managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-539 - unmanaged sync still carried dead peer-row entity lifecycle state
 
 - **status:** `fixed_pending_validation`
@@ -424,8 +436,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **expected behavior:** when a managed child-device registry identifier is hardened, the integration should remove both the pre-hardening raw-key registry row and the intermediate normalized unhashed row during entity add/refresh so the native integration page shows one current row per managed load.
 - **evidence:** `legacy_managed_load_device_info()` only returned the normalized legacy identifier, not the older raw `:managed-device:<device_key>` identifier used before managed child-device identifiers were sanitized.
 - **repo fix:** this run expands managed legacy cleanup to remove both raw-key and normalized legacy managed child-device registry identifiers while preserving the current hashed row metadata and native Home Assistant device-row path.
-- **validation status:** fixed in repo with focused regression coverage proving existing raw and normalized legacy `Managed Devices — ...` registry rows are removed while the current hashed row remains and is updated, plus `python3 -m unittest tests.test_integration_page_device_lists -q`. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that legacy raw or normalized managed child-device rows do not remain beside current hashed `Managed Devices — ...` rows after upgrade.
+- **validation status:** fixed in repo with focused regression coverage proving existing raw and normalized legacy `Managed Devices — ...` registry rows are removed while the current hashed row remains and is updated, plus `python3 -m unittest tests.test_integration_page_device_lists -q`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate screenshot evidence that native managed rows/actions show visible `⚙ Settings` labels, legacy raw/normalized managed child-device rows do not appear as duplicates, and no peer `Un Managed — ...` rows appear beside managed devices.
 
 ## ZNE-512 - legacy unhashed Un Managed registry rows could survive identifier hardening
 
@@ -437,8 +449,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **expected behavior:** when a child-device registry identifier is hardened, the integration should remove the pre-hardening legacy registry row during entity add/refresh so the native integration page shows one current row per unmanaged candidate.
 - **evidence:** `custom_components/zero_net_export/entity.py` could sync the current child-device registry entry but had no path to look up and remove the legacy unhashed `:unmanaged-candidate:` identifier after `_device_identifier_part(...)` started appending hash differentiators.
 - **repo fix:** this run adds legacy identifier cleanup for managed/unmanaged integration-page child devices whose hardened identifier differs from the old normalized identifier. Entity add/refresh now removes the stale legacy registry device before syncing the current row metadata, preserving the native Home Assistant device-row path with no custom UI.
-- **validation status:** fixed in repo with focused regression coverage proving an existing legacy unhashed `Un Managed — ...` registry row is removed while the current hashed row is preserved and updated, plus `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest tests.test_operator_docs_consistency -q`, and Python compile for `entity.py`, `sensor.py`, and the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that legacy unhashed `Un Managed — ...` rows do not remain beside the current hashed candidate rows after upgrade.
+- **validation status:** fixed in repo with focused regression coverage proving an existing legacy unhashed `Un Managed — ...` registry row is removed while the current hashed row is preserved and updated, plus `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest tests.test_operator_docs_consistency -q`, and Python compile for `entity.py`, `sensor.py`, and the touched test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate screenshot evidence that legacy unhashed `Un Managed — ...` peer rows do not remain beside managed devices and unmanaged candidates remain available through workflow/backlog/review surfaces.
 
 ## ZNE-509 - unmanaged candidate lifecycle keys could still collapse sanitized row variants
 
@@ -450,8 +462,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **expected behavior:** the unmanaged candidate lifecycle key should be at least as collision-resistant as the native child-device registry identifier path, while preserving legacy unique IDs for ordinary lowercase Home Assistant entity IDs such as `switch.hot_water`.
 - **evidence:** `custom_components/zero_net_export/sensor.py` used `_candidate_unique_key(...)` for `known_candidate_entities`, but the helper returned only a lower/separator-normalized string and did not share ZNE-508's hash differentiator.
 - **repo fix:** this run keeps the legacy lifecycle key for normal lowercase Home Assistant entity IDs, but appends a stable short SHA-1 suffix for case-normalized or separator-sanitized odd variants so distinct unmanaged candidates do not collapse in the row lifecycle map. This preserves the native HA integration-page child-device path and does not add any custom UI.
-- **validation status:** fixed in repo with focused regression coverage for case-normalized and separator-sanitized unmanaged lifecycle keys, plus `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `sensor.py` plus the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that distinct `Un Managed — ...` rows do not collapse or leave stale row lifecycle state when candidate IDs differ only by case or sanitizable separators.
+- **validation status:** fixed in repo with focused regression coverage for case-normalized and separator-sanitized unmanaged lifecycle keys, plus `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `sensor.py` plus the touched test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate screenshot evidence that no peer `Un Managed — ...` rows appear beside managed devices, including stale/collapsed candidate variants, while workflow/backlog/review candidate data remains available.
 
 ## ZNE-508 - sanitized child-device registry identifiers could collide
 
@@ -463,8 +475,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **expected behavior:** child-device registry identifiers should stay safe for Home Assistant while remaining collision-resistant for distinct raw managed-device keys and unmanaged candidate entity IDs. Raw managed-device keys should still be preserved only in the encoded settings URL.
 - **evidence:** `custom_components/zero_net_export/entity.py` converted `.`, `:`, `/`, spaces, other punctuation, and case changes to lowercase safe fragments without adding any differentiator from the original raw key/entity ID.
 - **repo fix:** this run keeps simple already-safe lowercase identifiers unchanged, but appends a stable short SHA-1 suffix whenever sanitizing or case-normalizing changes the raw managed key or unmanaged entity ID. This preserves native HA child-device rows, avoids unsafe punctuation in registry identifiers, and avoids custom UI.
-- **validation status:** fixed in repo with focused regression coverage proving separator-colliding and case-normalizing managed/unmanaged inputs now produce distinct safe identifiers, plus `python3 -m unittest tests.test_integration_page_device_lists -q`. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that distinct `Managed Devices — ...` and `Un Managed — ...` rows do not merge when keys/entity IDs differ only by separators or case.
+- **validation status:** fixed in repo with focused regression coverage proving separator-colliding and case-normalizing managed/unmanaged inputs now produce distinct safe identifiers, plus `python3 -m unittest tests.test_integration_page_device_lists -q`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate screenshot evidence that distinct managed devices remain separate managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows appear beside them.
 
 ## ZNE-507 - managed child-device registry identifiers still used raw device keys
 
@@ -476,8 +488,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **expected behavior:** device-registry identifiers should use a stable sanitized fragment, while the row settings URL should continue carrying the exact raw managed-device key as an encoded query value.
 - **evidence:** `custom_components/zero_net_export/entity.py` used `f"{entry_id}:managed-device:{device_key}"` for managed-row identifiers, while `_device_identifier_part(...)` was only applied to unmanaged candidate identifiers.
 - **repo fix:** this run routes managed child-device identifiers through the shared registry-safe identifier helper and hardens that helper for punctuation/spacing, without changing the raw encoded managed-device settings URL and without adding any custom UI path.
-- **validation status:** fixed in repo with focused integration-page device-list regression coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `entity.py` and the touched test file, and the full unittest suite. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
-- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that `Managed Devices — ...` rows still appear and their settings links preserve the exact managed-device key.
+- **validation status:** fixed in repo with focused integration-page device-list regression coverage, `python3 -m unittest tests.test_integration_page_device_lists -q`, Python compile for `entity.py` and the touched test file, and the full unittest suite. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval; old release-target/fingerprint history must not be treated as a blocker or proof.
+- **next action:** after explicit Riley approval, validate screenshot evidence that managed rows/actions show visible `⚙ Settings` labels, settings links preserve the exact managed-device key, and no peer `Un Managed — ...` rows appear beside managed devices.
 
 ## Superseded historical release/peer-row bugs retained for context
 
