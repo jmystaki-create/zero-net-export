@@ -432,24 +432,21 @@ def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> s
     return removed_device_ids
 
 
-def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
-    """Return device info that makes an unmanaged candidate appear as its own HA device row."""
+def unmanaged_candidate_cleanup_device_info(coordinator, candidate: dict) -> dict:
+    """Return current unmanaged peer-row identifiers for cleanup only.
+
+    Riley's current scope suppresses native peer `Un Managed — ...` rows.  Keep only
+    enough device-info shape to find and remove stale registry devices; do not expose
+    names, models, or configuration URLs that could be reused to recreate those rows.
+    """
     entity_id = str(candidate.get("entity_id") or "candidate").strip()
-    name = str(candidate.get("name") or entity_id).strip()
-    kind = str(candidate.get("kind") or "candidate").strip()
     return {
         "identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:unmanaged-candidate:{_device_identifier_part(entity_id)}")},
-        "name": f"Un Managed — {name}",
-        "manufacturer": "OpenClaw",
-        "model": f"Un Managed — {kind.title()} unmanaged candidate" if kind else "Un Managed — Unmanaged candidate",
-        "sw_version": INTEGRATION_VERSION,
-        "via_device": (DOMAIN, coordinator.entry.entry_id),
-        "configuration_url": f"homeassistant://navigate/config/entities?{urlencode({'entity_id': entity_id})}",
     }
 
 
 def legacy_unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict | None:
-    """Return legacy unmanaged-row device info when the old identifier differs."""
+    """Return legacy unmanaged-row identifiers for cleanup when the old identifier differs."""
     entity_id = str(candidate.get("entity_id") or "candidate").strip()
     current = _device_identifier_part(entity_id)
     legacy = _legacy_device_identifier_part(entity_id)

@@ -151,11 +151,11 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         managed_slash = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool/main", "Pool Main")
         managed_colon = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool:main", "Pool Main")
-        unmanaged_slash = sensor_module.unmanaged_candidate_device_info(
+        unmanaged_slash = sensor_module.unmanaged_candidate_cleanup_device_info(
             coordinator,
             {"entity_id": "switch.load/a", "name": "Load A", "domain": "switch", "kind": "fixed", "state": "off"},
         )
-        unmanaged_colon = sensor_module.unmanaged_candidate_device_info(
+        unmanaged_colon = sensor_module.unmanaged_candidate_cleanup_device_info(
             coordinator,
             {"entity_id": "switch.load:a", "name": "Load A", "domain": "switch", "kind": "fixed", "state": "off"},
         )
@@ -175,11 +175,11 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         managed_upper = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "Pool", "Pool")
         managed_lower = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "pool")
-        unmanaged_upper = sensor_module.unmanaged_candidate_device_info(
+        unmanaged_upper = sensor_module.unmanaged_candidate_cleanup_device_info(
             coordinator,
             {"entity_id": "switch.Load", "name": "Load", "domain": "switch", "kind": "fixed", "state": "off"},
         )
-        unmanaged_lower = sensor_module.unmanaged_candidate_device_info(
+        unmanaged_lower = sensor_module.unmanaged_candidate_cleanup_device_info(
             coordinator,
             {"entity_id": "switch.load", "name": "load", "domain": "switch", "kind": "fixed", "state": "off"},
         )
@@ -194,25 +194,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertRegex(unmanaged_identifiers[0][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
         self.assertRegex(unmanaged_identifiers[1][1].rsplit(":", 1)[-1], r"^switch_load_[a-f0-9]{8}$")
 
-    def test_unmanaged_candidate_configuration_url_encodes_query_value(self) -> None:
-        sensor_module = _load_sensor_module()
-        coordinator = self._coordinator()
-        candidate = {
-            "entity_id": "switch.hot_water&boost",
-            "name": "Hot Water Boost",
-            "domain": "switch",
-            "kind": "fixed",
-            "state": "off",
-        }
-
-        device_info = sensor_module.unmanaged_candidate_device_info(coordinator, candidate)
-
-        self.assertEqual(
-            device_info["configuration_url"],
-            "homeassistant://navigate/config/entities?entity_id=switch.hot_water%26boost",
-        )
-
-    def test_legacy_unmanaged_candidate_device_info_stays_available_for_cleanup(self) -> None:
+    def test_unmanaged_candidate_cleanup_device_info_is_identifier_only(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
         candidate = {
@@ -223,16 +205,20 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             "state": "off",
         }
 
-        device_info = sensor_module.unmanaged_candidate_device_info(coordinator, candidate)
+        device_info = sensor_module.unmanaged_candidate_cleanup_device_info(coordinator, candidate)
 
-        self.assertEqual(device_info["name"], "Un Managed — Hot Water")
-        self.assertEqual(device_info["model"], "Un Managed — Fixed unmanaged candidate")
-        self.assertIn(
-            ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c"),
-            device_info["identifiers"],
+        self.assertEqual(
+            device_info,
+            {
+                "identifiers": {
+                    ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c")
+                }
+            },
         )
-        self.assertEqual(device_info["via_device"], ("zero_net_export", "entry-1"))
-        self.assertNotIn("suggested_area", device_info)
+        self.assertNotIn("name", device_info)
+        self.assertNotIn("model", device_info)
+        self.assertNotIn("configuration_url", device_info)
+        self.assertNotIn("via_device", device_info)
 
     def test_managed_device_async_added_removes_legacy_raw_registry_row(self) -> None:
         sensor_module = _load_sensor_module()

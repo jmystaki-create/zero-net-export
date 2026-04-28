@@ -34,7 +34,7 @@ from .entity import (
     remove_unmanaged_candidate_child_devices_for_entry,
     sync_integration_page_child_device_registry,
     legacy_unmanaged_candidate_device_info,
-    unmanaged_candidate_device_info,
+    unmanaged_candidate_cleanup_device_info,
 )
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
@@ -513,7 +513,7 @@ def _remove_unmanaged_candidate_device_rows(coordinator, hass, candidates: list[
     """
     remove_unmanaged_candidate_child_devices_for_entry(hass, coordinator.entry.entry_id)
     for candidate in candidates:
-        remove_integration_page_child_device_registry(hass, unmanaged_candidate_device_info(coordinator, candidate))
+        remove_integration_page_child_device_registry(hass, unmanaged_candidate_cleanup_device_info(coordinator, candidate))
         legacy_info = legacy_unmanaged_candidate_device_info(coordinator, candidate)
         if legacy_info is not None:
             remove_integration_page_child_device_registry(hass, legacy_info)

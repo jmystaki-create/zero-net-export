@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-532 - unmanaged cleanup helper still exposed reusable peer-row metadata
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking for remaining reusable code paths that could revive peer `Un Managed — ...` unmanaged-candidate rows under Riley's managed-only native device-list scope.
+- **current observed behavior:** after the unmanaged candidate peer-row entity class was removed, the remaining cleanup helper was still named like general unmanaged candidate device-info and returned full row metadata: `Un Managed — ...` name/model text, `via_device`, and an entity configuration URL. That metadata was only used for registry removal, but it remained a tempting reusable shape for recreating unmanaged peer rows.
+- **expected behavior:** unmanaged-candidate cleanup should keep only the registry identifiers needed to find and remove stale peer rows. It should not expose native row names/models/configuration URLs for unmanaged candidates, while candidates remain available through Managed Devices workflow/backlog/review surfaces.
+- **repo fix:** this run replaces the general `unmanaged_candidate_device_info()` helper with `unmanaged_candidate_cleanup_device_info()`, returns identifier-only cleanup data, routes stale-row cleanup through that helper, and updates focused tests to assert no unmanaged peer-row metadata/configuration URL is exposed.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-531 - unused unmanaged-candidate sensor class still encoded peer-row behavior
 
 - **status:** `fixed_pending_validation`
