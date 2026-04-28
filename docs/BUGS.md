@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-546 - unreadable device registry enumeration skipped orphan unmanaged peer entity cleanup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking no-enumeration stale unmanaged peer cleanup under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** ZNE-545 covered registries with no iterable `devices` collection, but if a registry exposed `devices` and reading/iterating it raised, `remove_unmanaged_candidate_child_devices_for_entry()` returned before running current-entry orphan legacy unmanaged peer entity-registry cleanup. An old `<entry>_unmanaged_candidate_<candidate-domain>` entry with no device id could therefore survive that degraded registry shape.
+- **expected behavior:** even when child-device enumeration is present but unreadable, cleanup should still remove current-entry orphan legacy unmanaged peer entity-registry entries while preserving controller/backlog unmanaged sensors and other-entry entities.
+- **repo fix:** this run routes the unreadable-enumeration exception path through the same orphan unmanaged peer entity-registry cleanup used by the no-enumeration path, and adds focused regression coverage for that registry shape.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-545 - orphan unmanaged peer entities could survive when device registry enumeration is unavailable
 
 - **status:** `fixed_pending_validation`

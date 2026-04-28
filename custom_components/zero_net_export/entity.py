@@ -473,6 +473,7 @@ def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> s
     try:
         device_values = list(devices.values() if isinstance(devices, Mapping) else devices)
     except Exception:
+        remove_unmanaged_candidate_entity_registry_entries_for_entry(hass, entry_id, removed_device_ids)
         return removed_device_ids
     for device in device_values:
         if any(domain == DOMAIN and value.startswith(prefix) for domain, value in _device_entry_identifiers(device)):

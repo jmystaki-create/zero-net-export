@@ -1120,6 +1120,50 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
         self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)
 
+    def test_unmanaged_cleanup_with_unreadable_device_enumeration_removes_orphan_entity_registry_entries(self) -> None:
+        sensor_module = _load_sensor_module()
+
+        class _UnreadableDevices:
+            def values(self):
+                raise RuntimeError("registry storage is unavailable")
+
+        entity_registry = _FakeEntityRegistry(
+            [
+                SimpleNamespace(
+                    entity_id="sensor.orphaned_old_load_unmanaged_candidate",
+                    config_entry_id=None,
+                    device_id=None,
+                    unique_id="entry-1_unmanaged_candidate_switch_old_load",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.zero_net_export_unmanaged_candidate_count",
+                    config_entry_id="entry-1",
+                    device_id=None,
+                    unique_id="entry-1_unmanaged_candidate_count",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.other_entry_old_load_unmanaged_candidate",
+                    config_entry_id="other-entry",
+                    device_id=None,
+                    unique_id="other-entry_unmanaged_candidate_switch_old_load",
+                ),
+            ]
+        )
+        hass = SimpleNamespace(
+            device_registry=SimpleNamespace(
+                async_remove_device=lambda device_id: None,
+                devices=_UnreadableDevices(),
+            ),
+            entity_registry=entity_registry,
+        )
+
+        removed_device_ids = sensor_module.remove_unmanaged_candidate_child_devices_for_entry(hass, "entry-1")
+
+        self.assertEqual(removed_device_ids, set())
+        self.assertEqual(entity_registry.removed, ["sensor.orphaned_old_load_unmanaged_candidate"])
+        self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
+        self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)
+
     def test_current_unmanaged_candidate_direct_cleanup_removes_attached_entity_registry_entries(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
