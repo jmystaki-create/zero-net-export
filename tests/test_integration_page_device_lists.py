@@ -1003,6 +1003,18 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                     unique_id="entry-1_orphaned_load_unmanaged_candidate",
                 ),
                 SimpleNamespace(
+                    entity_id="sensor.old_load_unmanaged_candidate_switch_old_load",
+                    config_entry_id="entry-1",
+                    device_id=None,
+                    unique_id="entry-1_unmanaged_candidate_switch_old_load",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.zero_net_export_orphaned_unmanaged_candidate_count",
+                    config_entry_id="entry-1",
+                    device_id=None,
+                    unique_id="entry-1_unmanaged_candidate_count",
+                ),
+                SimpleNamespace(
                     entity_id="sensor.zero_net_export_unmanaged_candidate_count",
                     config_entry_id="entry-1",
                     device_id="controller-device",
@@ -1034,8 +1046,13 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(registry.removed, ["stale-unmanaged-device"])
         self.assertEqual(
             entity_registry.removed,
-            ["sensor.old_load_unmanaged_candidate", "sensor.orphaned_load_unmanaged_candidate"],
+            [
+                "sensor.old_load_unmanaged_candidate",
+                "sensor.orphaned_load_unmanaged_candidate",
+                "sensor.old_load_unmanaged_candidate_switch_old_load",
+            ],
         )
+        self.assertIn("sensor.zero_net_export_orphaned_unmanaged_candidate_count", entity_registry.entities)
         self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
         self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)
 

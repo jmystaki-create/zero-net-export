@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-535 - orphaned prefix-style unmanaged peer entities could survive cleanup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while extending stale `Un Managed — ...` peer-row cleanup under Riley's managed-only native device-list scope.
+- **current observed behavior:** ZNE-534 removed orphaned legacy unmanaged peer entity-registry entries whose entity id or unique id ended in `_unmanaged_candidate`, but the common old peer-row unique-id shape `<entry>_unmanaged_candidate_<candidate_entity>` could still survive if its child device had already been removed. That could leave orphaned stale unmanaged peer artifacts in Home Assistant entity/search surfaces even though no native child-device row remained.
+- **expected behavior:** cleanup should remove config-entry scoped orphan legacy unmanaged peer entity-registry entries for candidate-domain suffixes such as `switch_*`, while preserving controller/backlog entities such as unmanaged candidate count/overview even when those entries have no device id.
+- **repo fix:** this run expands orphan unmanaged peer entity-registry detection to include `<entry>_unmanaged_candidate_<candidate-domain>` unique IDs, while explicitly excluding controller/backlog `unmanaged_candidate_count` style entities.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-534 - orphaned legacy unmanaged peer entities could survive cleanup
 
 - **status:** `fixed_pending_validation`

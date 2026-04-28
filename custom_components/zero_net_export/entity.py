@@ -374,13 +374,32 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
         return
 
 
-def _is_legacy_unmanaged_candidate_entity_registry_entry(entity) -> bool:
+def _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id: str) -> bool:
     """Return True for old peer-row unmanaged-candidate entity-registry entries."""
     entity_id = str(getattr(entity, "entity_id", "") or "")
     if entity_id.endswith("_unmanaged_candidate"):
         return True
+
     unique_id = str(getattr(entity, "unique_id", "") or "")
-    return unique_id.endswith("_unmanaged_candidate")
+    if unique_id.endswith("_unmanaged_candidate"):
+        return True
+
+    # Older peer-row entities commonly used ``<entry>_unmanaged_candidate_<entity>``
+    # unique IDs.  Do not treat controller/backlog sensors such as
+    # ``<entry>_unmanaged_candidate_count`` as peer rows when they have already
+    # lost their device id; only candidate-domain suffixes belong to legacy rows.
+    prefix = f"{entry_id}_unmanaged_candidate_"
+    if not unique_id.startswith(prefix):
+        return False
+    candidate_part = unique_id[len(prefix) :]
+    candidate_domain_prefixes = (
+        "switch_",
+        "input_boolean_",
+        "light_",
+        "number_",
+        "input_number_",
+    )
+    return candidate_part.startswith(candidate_domain_prefixes)
 
 
 def remove_unmanaged_candidate_entity_registry_entries_for_entry(
@@ -402,7 +421,7 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
         if str(getattr(entity, "config_entry_id", "") or "") != str(entry_id):
             continue
         device_id = str(getattr(entity, "device_id", "") or "")
-        if device_id in device_ids or (not device_id and _is_legacy_unmanaged_candidate_entity_registry_entry(entity)):
+        if device_id in device_ids or (not device_id and _is_legacy_unmanaged_candidate_entity_registry_entry(entity, entry_id)):
             _remove_entity_registry_entry(entity_registry, entity)
 
 
