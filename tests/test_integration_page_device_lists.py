@@ -997,6 +997,12 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
                     unique_id="entry-1_unmanaged_candidate_switch_old_load",
                 ),
                 SimpleNamespace(
+                    entity_id="sensor.orphaned_load_unmanaged_candidate",
+                    config_entry_id="entry-1",
+                    device_id=None,
+                    unique_id="entry-1_orphaned_load_unmanaged_candidate",
+                ),
+                SimpleNamespace(
                     entity_id="sensor.zero_net_export_unmanaged_candidate_count",
                     config_entry_id="entry-1",
                     device_id="controller-device",
@@ -1026,7 +1032,10 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         asyncio.run(run_setup())
 
         self.assertEqual(registry.removed, ["stale-unmanaged-device"])
-        self.assertEqual(entity_registry.removed, ["sensor.old_load_unmanaged_candidate"])
+        self.assertEqual(
+            entity_registry.removed,
+            ["sensor.old_load_unmanaged_candidate", "sensor.orphaned_load_unmanaged_candidate"],
+        )
         self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
         self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)
 

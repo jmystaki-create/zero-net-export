@@ -374,6 +374,15 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
         return
 
 
+def _is_legacy_unmanaged_candidate_entity_registry_entry(entity) -> bool:
+    """Return True for old peer-row unmanaged-candidate entity-registry entries."""
+    entity_id = str(getattr(entity, "entity_id", "") or "")
+    if entity_id.endswith("_unmanaged_candidate"):
+        return True
+    unique_id = str(getattr(entity, "unique_id", "") or "")
+    return unique_id.endswith("_unmanaged_candidate")
+
+
 def remove_unmanaged_candidate_entity_registry_entries_for_entry(
     hass,
     entry_id: str,
@@ -389,14 +398,12 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
     except Exception:
         return
     device_ids = {str(device_id) for device_id in (child_device_ids or set()) if device_id}
-    if not device_ids:
-        return
     for entity in _entity_registry_entries(entity_registry):
         if str(getattr(entity, "config_entry_id", "") or "") != str(entry_id):
             continue
-        if str(getattr(entity, "device_id", "") or "") not in device_ids:
-            continue
-        _remove_entity_registry_entry(entity_registry, entity)
+        device_id = str(getattr(entity, "device_id", "") or "")
+        if device_id in device_ids or (not device_id and _is_legacy_unmanaged_candidate_entity_registry_entry(entity)):
+            _remove_entity_registry_entry(entity_registry, entity)
 
 
 def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> set[str]:

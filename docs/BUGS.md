@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-534 - orphaned legacy unmanaged peer entities could survive cleanup
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-28 while checking stale `Un Managed — ...` peer-row cleanup under Riley's managed-only native device-list scope.
+- **current observed behavior:** stale unmanaged peer entity-registry entries were removed when their legacy unmanaged child device was removed in the same cleanup pass, but an orphaned old `*_unmanaged_candidate` entity-registry entry with no device id could survive if an earlier build or manual registry state had already removed the child device row. That could leave stale unmanaged peer artifacts in Home Assistant entity/search surfaces even though the native device row was gone.
+- **expected behavior:** cleanup should remove legacy unmanaged peer entity-registry entries for the current config entry whether they are attached to a removed legacy child device or already orphaned, while preserving controller/backlog entities such as unmanaged candidate count and preserving other config entries.
+- **repo fix:** this run extends unmanaged peer entity-registry cleanup to remove config-entry scoped orphan `*_unmanaged_candidate` entries with no device id, while keeping attached controller/backlog sensors and other config entries intact.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-533 - packaged release metadata still revived stale peer-row approval loop
 
 - **status:** `fixed_pending_validation`
