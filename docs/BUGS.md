@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-516 - managed rows had settings URL but no visible gear affordance in native row text
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking the current highlighted request that managed rows need an obvious visible settings/gear affordance and that Home Assistant's native chevron/settings path is not enough by itself.
+- **current observed behavior:** managed child-device rows exposed a `configuration_url` to the native integration configure path, but the visible device row `name` and `model` only said `Managed Devices — <name>` / `Managed Devices — <kind> managed load`, so screenshot/live validation could still show no explicit `⚙` or settings label on the row surface.
+- **expected behavior:** the native Home Assistant managed child-device row text should visibly communicate settings/configuration access while staying on the native HA device-registry path and without reintroducing peer `Un Managed — ...` rows.
+- **repo fix:** this run changes managed child-device device-info `name` and `model` to include `⚙ Settings`, while keeping the existing native `configuration_url` query path and managed-only peer-row behavior.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q`. Live Home Assistant screenshot validation remains pending and requires explicit approval.
+- **next action:** after explicit approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows with `⚙ Settings` text and no peer `Un Managed — ...` rows.
+
 ## ZNE-515 - setup still created peer Un Managed candidate rows despite managed-only steering
 
 - **status:** `fixed_pending_validation`
@@ -110,7 +122,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **expected behavior:** unmanaged candidates should keep feeding Managed Devices backlog/review/workflow surfaces, but the native integration/device peer list should create and retain only managed-device child rows; discovered unmanaged candidate device-registry rows from older builds should be removed/suppressed.
 - **repo fix:** this run stops adding unmanaged candidate peer-row entities during setup and later candidate sync, keeps discovery available for the backlog sensors/workflow, removes current and legacy unmanaged-candidate child-device registry rows when candidates are discovered, and updates focused tests/release guidance to assert no peer `Un Managed — ...` rows are added.
 - **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists tests.test_release_info_install_guidance tests.test_operator_docs_consistency -q` and Python compile for `sensor.py` and `release_info.py`. Live Home Assistant screenshot validation remains pending and requires explicit approval.
-- **next action:** add/verify the obvious visible managed-device settings/gear affordance in the native managed-row surfaces, then obtain approved live screenshot evidence showing managed rows only and no peer `Un Managed — ...` rows.
+- **next action:** obtain approved live screenshot evidence showing managed rows with the visible `⚙ Settings` affordance and no peer `Un Managed — ...` rows.
 
 ## ZNE-514 - project steering docs used deprecated UI roadmap instead of current user-highlighted requests
 

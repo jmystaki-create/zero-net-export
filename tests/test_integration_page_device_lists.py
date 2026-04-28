@@ -60,8 +60,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool Pump")
 
-        self.assertEqual(sensor._attr_device_info["name"], "Managed Devices — Pool Pump")
-        self.assertEqual(sensor._attr_device_info["model"], "Managed Devices — Fixed managed load")
+        self.assertEqual(sensor._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+        self.assertEqual(sensor._attr_device_info["model"], "Managed Devices — ⚙ Settings — Fixed managed load")
         self.assertIn(("zero_net_export", "entry-1:managed-device:pool"), sensor._attr_device_info["identifiers"])
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
         self.assertNotIn("suggested_area", sensor._attr_device_info)
@@ -87,8 +87,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             registry.updated[1]["configuration_url"],
             "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool",
         )
-        self.assertEqual(registry.updated[1]["name"], "Managed Devices — Pool Pump")
-        self.assertEqual(registry.updated[1]["model"], "Managed Devices — Fixed managed load")
+        self.assertEqual(registry.updated[1]["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+        self.assertEqual(registry.updated[1]["model"], "Managed Devices — ⚙ Settings — Fixed managed load")
 
     def test_managed_device_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
@@ -404,7 +404,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             for entity in added
             if getattr(entity, "_attr_device_info", None)
         ]
-        self.assertIn("Managed Devices — Pool Pump", device_names)
+        self.assertIn("Managed Devices — ⚙ Settings — Pool Pump", device_names)
         self.assertNotIn("Un Managed — Hot Water", device_names)
 
     def test_setup_entry_keeps_managed_device_row_when_detail_is_sparse(self) -> None:
@@ -435,7 +435,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             for entity in added
             if getattr(entity, "_attr_device_info", None)
         ]
-        self.assertIn("Managed Devices — pool", device_names)
+        self.assertIn("Managed Devices — ⚙ Settings — pool", device_names)
 
     def test_setup_entry_keeps_managed_row_and_suppresses_candidate_peer_rows_when_detail_is_none(self) -> None:
         sensor_module = _load_sensor_module()
@@ -473,7 +473,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             for entity in added
             if getattr(entity, "_attr_device_info", None)
         ]
-        self.assertIn("Managed Devices — pool", device_names)
+        self.assertIn("Managed Devices — ⚙ Settings — pool", device_names)
         self.assertNotIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [set()])
 
@@ -499,7 +499,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             for entity in added
             if getattr(entity, "_attr_device_info", None)
         ]
-        self.assertIn("Managed Devices — pool", device_names)
+        self.assertIn("Managed Devices — ⚙ Settings — pool", device_names)
 
     def test_fleet_workspace_summaries_tolerate_null_managed_detail(self) -> None:
         sensor_module = _load_sensor_module()
@@ -547,7 +547,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertTrue(added)
         self.assertNotIn(
-            "Managed Devices — pool",
+            "Managed Devices — ⚙ Settings — pool",
             [
                 entity._attr_device_info.get("name")
                 for entity in added
@@ -596,8 +596,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             for entity in added
             if getattr(entity, "_attr_device_info", None)
         ]
-        self.assertIn("Managed Devices — Runtime Pool Pump", device_names)
-        self.assertIn("Managed Devices — EV Charger", device_names)
+        self.assertIn("Managed Devices — ⚙ Settings — Runtime Pool Pump", device_names)
+        self.assertIn("Managed Devices — ⚙ Settings — EV Charger", device_names)
         self.assertEqual(captured_managed_ids, [{"switch.pool_pump", "number.ev_charger"}])
 
     def test_setup_entry_uses_config_inventory_for_managed_rows_before_runtime_details(self) -> None:
@@ -646,11 +646,11 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             entity._attr_device_info
             for entity in added
             if getattr(entity, "_attr_device_info", None)
-            and entity._attr_device_info.get("name") == "Managed Devices — Pool Pump"
+            and entity._attr_device_info.get("name") == "Managed Devices — ⚙ Settings — Pool Pump"
         ]
         self.assertTrue(managed_infos)
         self.assertTrue(
-            all(info.get("model") == "Managed Devices — Fixed managed load" for info in managed_infos)
+            all(info.get("model") == "Managed Devices — ⚙ Settings — Fixed managed load" for info in managed_infos)
         )
         self.assertNotIn("Un Managed — Hot Water", device_names)
         self.assertEqual(captured_managed_ids, [{"switch.pool_pump"}])
@@ -742,7 +742,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         asyncio.run(run_setup())
         self.assertTrue(listeners)
         self.assertNotIn(
-            "Managed Devices — EV Charger",
+            "Managed Devices — ⚙ Settings — EV Charger",
             [
                 entity._attr_device_info.get("name")
                 for entity in added
@@ -759,7 +759,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         listeners[0]()
 
         self.assertIn(
-            "Managed Devices — EV Charger",
+            "Managed Devices — ⚙ Settings — EV Charger",
             [
                 entity._attr_device_info.get("name")
                 for entity in added
@@ -798,7 +798,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         stale_entities = [
             entity
             for entity in added
-            if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — Pool Pump"
+            if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — ⚙ Settings — Pool Pump"
         ]
         self.assertTrue(stale_entities)
         removed = []
@@ -857,8 +857,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(managed_summary._attr_name, "Main Pool Pump managed summary")
         self.assertEqual(status._attr_name, "Main Pool Pump status")
-        self.assertEqual(managed_summary._attr_device_info["name"], "Managed Devices — Main Pool Pump")
-        self.assertEqual(managed_summary._attr_device_info["model"], "Managed Devices — Variable managed load")
+        self.assertEqual(managed_summary._attr_device_info["name"], "Managed Devices — ⚙ Settings — Main Pool Pump")
+        self.assertEqual(managed_summary._attr_device_info["model"], "Managed Devices — ⚙ Settings — Variable managed load")
         self.assertIn("device_pool_current_target_power_w", [getattr(entity, "_key", None) for entity in added])
         self.assertTrue(writes)
 

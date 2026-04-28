@@ -65,7 +65,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         switch = switch_module.ZeroNetExportDeviceEnabledSwitch(_coordinator(), "pool", "Pool Pump")
 
         self.assertEqual(switch._attr_entity_category, switch_module.EntityCategory.CONFIG)
-        self.assertEqual(switch._attr_device_info["name"], "Managed Devices — Pool Pump")
+        self.assertEqual(switch._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(switch._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
     def test_managed_device_priority_number_is_child_device_configuration(self) -> None:
@@ -74,7 +74,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         number = number_module.ZeroNetExportDevicePriorityNumber(_coordinator(), "pool", "Pool Pump")
 
         self.assertEqual(number._attr_entity_category, number_module.EntityCategory.CONFIG)
-        self.assertEqual(number._attr_device_info["name"], "Managed Devices — Pool Pump")
+        self.assertEqual(number._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(number._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
     def test_managed_device_action_buttons_are_child_device_configuration(self) -> None:
@@ -85,8 +85,8 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
 
         self.assertEqual(review._attr_entity_category, button_module.EntityCategory.CONFIG)
         self.assertEqual(reset._attr_entity_category, button_module.EntityCategory.CONFIG)
-        self.assertEqual(review._attr_device_info["name"], "Managed Devices — Pool Pump")
-        self.assertEqual(reset._attr_device_info["name"], "Managed Devices — Pool Pump")
+        self.assertEqual(review._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+        self.assertEqual(reset._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
 
     def test_managed_device_setup_platforms_keep_sparse_rows_registered(self) -> None:
         coordinator = _coordinator()
@@ -122,7 +122,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                     for entity in added
                     if getattr(entity, "_attr_device_info", None)
                 ]
-                self.assertIn("Managed Devices — pool", device_names)
+                self.assertIn("Managed Devices — ⚙ Settings — pool", device_names)
 
     def test_managed_device_buttons_tolerate_malformed_runtime_detail_container(self) -> None:
         coordinator = _coordinator()
