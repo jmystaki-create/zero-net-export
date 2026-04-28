@@ -296,7 +296,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         entities.extend(device_entities)
 
     candidates = _candidate_devices_for_state(coordinator, hass, state, managed_details)
-    unmanaged_candidate_entities = {}
     _remove_unmanaged_candidate_device_rows(coordinator, hass, candidates)
 
     async_add_entities(entities)
@@ -311,8 +310,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         coordinator,
         hass,
         entry,
-        async_add_entities,
-        unmanaged_candidate_entities,
     )
 
 
@@ -464,8 +461,6 @@ def _register_unmanaged_candidate_sync(
     coordinator,
     hass,
     entry,
-    async_add_entities,
-    known_candidate_entities: dict[str, ZeroNetExportEntity],
 ) -> None:
     """Remove/suppress unmanaged peer rows while keeping backlog discovery available."""
 
@@ -473,9 +468,6 @@ def _register_unmanaged_candidate_sync(
         state = getattr(coordinator, "data", None)
         if state is None:
             return
-        for stale_key in sorted(known_candidate_entities):
-            stale_entity = known_candidate_entities.pop(stale_key)
-            _schedule_integration_page_entity_removal(hass, stale_entity, remove_child_device=True)
         candidates = _candidate_devices_for_state(coordinator, hass, state)
         _remove_unmanaged_candidate_device_rows(coordinator, hass, candidates)
 

@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-539 - unmanaged sync still carried dead peer-row entity lifecycle state
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking remaining unmanaged peer-row code paths under Riley's managed-only native Home Assistant scope.
+- **current observed behavior:** after the unmanaged candidate peer-row entity class was removed, `_register_unmanaged_candidate_sync()` still accepted an `async_add_entities` callback plus a `known_candidate_entities` lifecycle map and iterated/removing those stale entity objects on each sync. The map was always empty in current setup, but the reusable peer-row lifecycle shape could mislead future work back toward adding/syncing native `Un Managed — ...` peer entities beside managed rows.
+- **expected behavior:** unmanaged candidate sync should only discover candidates for backlog/review data and remove/suppress legacy registry rows. It should not retain dead native peer-row entity add/lifecycle plumbing.
+- **repo fix:** this run removes the unused unmanaged candidate entity map and add callback from the sync registration path, leaving the listener focused on candidate discovery plus stale unmanaged child-device/entity-registry cleanup.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/sensor.py`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-538 - superseded ZNE-439 still reopened the old release-target approval loop
 
 - **status:** `fixed_pending_validation`
