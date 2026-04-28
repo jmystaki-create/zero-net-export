@@ -110,7 +110,7 @@ Do not make a second doc-only `docs/BUGS.md` or watchdog-guidance refresh just t
 
 ### Rule 6: Treat repeated unchanged live validation as secondary while ordered repo work remains
 
-If current ordered `0.1.91` map work or an active ZNE-429/ZNE-439 decision boundary still exists, and live validation is unchanged, do not restate unchanged live mismatch as the main next step.
+If current ordered integration/device-list UI fix or an active ZNE-429/ZNE-439 decision boundary still exists, and live validation is unchanged, do not restate unchanged live mismatch as the main next step.
 Instead audit whether supervisor correctly stayed on the current integration-main-page device-list scope and the release-target decision-first order.
 
 ### Rule 7: Use available access before escalating

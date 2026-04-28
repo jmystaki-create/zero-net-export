@@ -1,16 +1,19 @@
 # SUPERVISOR.md
-## 0.1.91 / release 1.91 approved scope
+## Current active UI fix scope
 
-James has limited the next approved scope to one UI outcome: on the Zero Net Export main integration page, show a `Managed Devices` device list under Zero Net Export and an `Un Managed` device list underneath it, with managed loads and unmanaged candidates appearing as individual Home Assistant device rows like the HomeKit examples.
+The old `0.1.91` / release `1.91` scope is historical and must not drive current work.
 
-Do nothing else for this release line. Do not work on button renames, Activity wording, device-info-page Controls rows, Configure-only explanations, source roles, diagnostics, controls, release/deploy execution, or unrelated polish unless it is strictly required to support this exact integration-page device-list outcome.
+Current user-approved direction is the latest native Home Assistant integration-page/device-list correction:
+- managed devices must be the only peer device rows shown in the integration/device list
+- managed rows must expose an obvious visible settings/gear affordance, not just rely on Home Assistant's native chevron path
+- unmanaged candidates must not appear beside managed devices as peer `Un Managed — ...` rows; keep them discoverable behind the Managed Devices workflow/backlog surfaces instead
+- do not release, tag, deploy, restart Home Assistant, or claim readiness until the repo fix is implemented, tests pass, and live screenshot proof is captured after explicit approval
 
-Use `docs/RELEASE_0.1.91_PLAN.md` as the current release scope. Treat `0.1.90` device-info-page work as historical and insufficient for the requested main integration page device lists.
+Use `docs/UI_DESIGN.md`, `docs/UI_IMPLEMENTATION_MAP.md`, and `docs/BUGS.md` as current sources of truth. Treat `docs/RELEASE_0.1.91_PLAN.md` and older version-specific plans as historical evidence only, not active steering.
 
-## Active release-target hold
+## Active release/deploy hold
 
-The repo later froze `v0.1.94` at `4c0d071` after the earlier `v0.1.92` and `v0.1.93` freezes, then component code moved again after `4c0d071` while this steering file and the release plan still approve only the `0.1.91` / release `1.91` integration-page device-list scope. Until James explicitly decides whether the current helper-resolved manifest `0.1.94` component boundary replaces the documented `0.1.91` target or the project returns to the approved `0.1.91` boundary, do not deploy, restart, fingerprint-validate, or call successful `7217f3b`, `c4802a3`, `db5c246`, `026f189`, `4c0d071`, or the current helper-resolved component boundary. Ask James directly for that release-target decision, then for native-row acceptance and exact release/deploy/restart approval before Home Assistant actions.
-
+No current release candidate is approved. The live install was last known around `0.1.94`, while repo work and requirements have moved again. The next valid path is: finish the current repo-side UI fix, verify with tests, ask for explicit deploy/restart approval, then capture screenshot proof before preparing any release.
 
 This file is the steering guide for this project.
 
@@ -72,7 +75,7 @@ Optimize for:
 - real operator success in native Home Assistant
 - clearer operator workflow through existing native surfaces
 - visible product improvement over abstract internal cleanup
-- finishing only the approved `0.1.91` / release `1.91` integration-page Managed Devices and Un Managed device-list scope
+- finishing the current native integration/device-list fix: visible managed-device settings affordance, managed-only peer rows, and unmanaged candidates kept behind workflow/backlog surfaces
 - producing evidence that moves checklist items forward
 
 Do not drift into:
@@ -100,8 +103,8 @@ This does not count as enough:
 - broad project summaries
 - repeated rewording of unchanged blockers
 - refreshing candidate hashes, release-boundary notes, or doc heads when no real decision changed
-- polishing outside the current ordered `0.1.91` map while an earlier eligible current-map step still remains
-- reopening historical Workstreams A-F while the approved integration-main-page device-list map remains the active scope
+- polishing outside the current ordered UI-fix map while an earlier eligible current-map step still remains
+- reopening historical Workstreams A-F while the current integration/device-list correction remains the active scope
 - treating unchanged live mismatch as the main next step when safe repo-side work still exists
 
 ---
@@ -122,7 +125,7 @@ Do not skip ahead unless:
 - the map explicitly allows parallel work
 - a higher-priority active bug in `docs/BUGS.md` materially overrides it
 
-Do not treat Configure, device-page, diagnostics, or support-copy cleanup as implicitly safe side work. Historical Workstreams A-F are not eligible ahead of the current ordered `0.1.91` integration-main-page device-list map unless James explicitly expands scope or a regression directly blocks that map.
+Do not treat Configure, device-page, diagnostics, or support-copy cleanup as implicitly safe side work. Historical Workstreams A-F are not eligible ahead of the current ordered UI-fix integration/device-list map unless James explicitly expands scope or a regression directly blocks that map.
 
 If you skip an item, say exactly why.
 
@@ -156,7 +159,7 @@ Update `docs/BUGS.md` when:
 - stale bug state would mislead the next run or release decision
 
 Do not do source-of-truth refresh work just because a commit hash changed.
-Do not refresh `docs/BUGS.md` just because the same helper-resolved exact-build mismatch is still present on the same files with the same approval boundary. If the preferred validation commit is unchanged, the live mismatch set is unchanged, and current ordered repo work from the `0.1.91` map still remains, another bug-state refresh is churn, not progress.
+Do not refresh `docs/BUGS.md` just because the same helper-resolved exact-build mismatch is still present on the same files with the same approval boundary. If the preferred validation commit is unchanged, the live mismatch set is unchanged, and current ordered repo work from the UI-fix map still remains, another bug-state refresh is churn, not progress.
 
 ### Rule 6: Throttle live validation and fingerprint checks
 
@@ -171,7 +174,7 @@ Re-run them only when:
 
 If the same blocker is unchanged and there is still safe repo-side work left, continue building.
 If a recheck still lands on the same preferred validation commit and the same mismatch set, do not spend the run on another `docs/BUGS.md` refresh or release-boundary restatement. Either advance the next ordered repo item, or say plainly that no project state changed in this run.
-Even if newer component commits exist in repo state, do not keep refreshing ZNE-022 or other release-anchor wording on the same unchanged live mismatch while current ordered `0.1.91` map work still remains. That is release-bookkeeping churn, not project progress.
+Even if newer component commits exist in repo state, do not keep refreshing ZNE-022 or other release-anchor wording on the same unchanged live mismatch while current ordered UI-fix map work still remains. That is release-bookkeeping churn, not project progress.
 
 ### Rule 7: Release approval is edge-triggered
 
@@ -222,9 +225,9 @@ If blocked on James, continue only with safe adjacent work that does not violate
 ## Acceptance stance
 
 The project is in good shape for this phase when:
-- the approved `0.1.91` / release `1.91` integration-main-page device-list scope has been completed without broadening into unrelated polish
-- the Zero Net Export main integration page visibly shows a Managed Devices device list and an Un Managed device list in native Home Assistant
-- managed loads and unmanaged candidates appear as individual Home Assistant device rows under the Zero Net Export integration, or a documented HA platform constraint has been escalated before release execution and accepted before the candidate is called successful
+- the current integration/device-list UI fix has been completed without broadening into unrelated polish
+- the Zero Net Export native integration/device list shows managed-device rows only, with an obvious visible settings/gear affordance
+- unmanaged candidates do not appear as peer `Un Managed — ...` rows, and remain discoverable behind the Managed Devices workflow/backlog surfaces
 - the tested live install is known to be serving the intended package/build
 - release confidence is based on real proof, not repo confidence alone
 
