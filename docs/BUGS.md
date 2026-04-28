@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-541 - direct unmanaged peer-row cleanup could leave attached entity entries
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking remaining stale `Un Managed — ...` cleanup paths under Riley's managed-only native device-list scope.
+- **current observed behavior:** the broad config-entry sweep removes stale unmanaged child devices and their attached entity-registry entries when the device registry exposes iterable `devices`, but the direct current/legacy cleanup path only removed the child device returned by `async_get_device()`. If a Home Assistant/test registry shape allowed identifier lookup but not broad device enumeration, an attached legacy unmanaged-candidate entity-registry row could remain after the direct device removal.
+- **expected behavior:** every stale unmanaged peer-row cleanup path should remove both the `Un Managed — ...` child device and same-config-entry entity-registry entries attached to that child device, while preserving controller/backlog unmanaged sensors.
+- **repo fix:** this run makes direct unmanaged child-device registry removal parse the entry id from the unmanaged identifier and remove attached same-entry entity-registry entries for the deleted child device.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list showing managed rows/actions with visible `⚙ Settings` labels and no peer `Un Managed — ...` rows.
+
 ## ZNE-540 - active bug tails still revived old ZNE-439 approval blockers
 
 - **status:** `fixed_pending_validation`

@@ -324,16 +324,21 @@ def sync_integration_page_child_device_registry(hass, device_info: dict | None, 
 
 def remove_integration_page_child_device_registry(hass, device_info: dict | None) -> None:
     """Remove a stale managed/unmanaged child device row from the device registry."""
+    identifier = _integration_page_child_device_identifier(device_info)
     device_registry, device = _integration_page_child_device_registry_entry(hass, device_info)
     if device_registry is None or device is None:
         return
     remove_device = getattr(device_registry, "async_remove_device", None)
     if remove_device is None:
         return
+    device_id = str(getattr(device, "id", "") or "")
     try:
         remove_device(device.id)
     except Exception:
         return
+    if identifier is not None and ":unmanaged-candidate:" in identifier[1] and device_id:
+        entry_id = identifier[1].split(":unmanaged-candidate:", 1)[0]
+        remove_unmanaged_candidate_entity_registry_entries_for_entry(hass, entry_id, {device_id})
 
 
 def _device_entry_identifiers(device) -> set[tuple[str, str]]:

@@ -1071,6 +1071,71 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
         self.assertIn("sensor.other_entry_old_load_unmanaged_candidate", entity_registry.entities)
 
+    def test_current_unmanaged_candidate_direct_cleanup_removes_attached_entity_registry_entries(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        coordinator.data = SimpleNamespace(validation_details={})
+
+        class _LookupOnlyDeviceRegistry:
+            def __init__(self, device):
+                self.device = device
+                self.removed = []
+
+            def async_get_device(self, identifiers):
+                if self.device and self.device.identifier in identifiers:
+                    return self.device
+                return None
+
+            def async_remove_device(self, device_id):
+                self.removed.append(device_id)
+                if self.device and self.device.id == device_id:
+                    self.device = None
+
+        registry = _LookupOnlyDeviceRegistry(
+            SimpleNamespace(
+                id="current-unmanaged-device",
+                identifier=("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c"),
+            )
+        )
+        entity_registry = _FakeEntityRegistry(
+            [
+                SimpleNamespace(
+                    entity_id="sensor.hot_water_unmanaged_candidate",
+                    config_entry_id="entry-1",
+                    device_id="current-unmanaged-device",
+                    unique_id="entry-1_unmanaged_candidate_switch_hot_water",
+                ),
+                SimpleNamespace(
+                    entity_id="sensor.zero_net_export_unmanaged_candidate_count",
+                    config_entry_id="entry-1",
+                    device_id=None,
+                    unique_id="entry-1_unmanaged_candidate_count",
+                ),
+            ]
+        )
+        hass = SimpleNamespace(
+            data={"zero_net_export": {"entry-1": coordinator}},
+            states=SimpleNamespace(async_all=lambda: []),
+            device_registry=registry,
+            entity_registry=entity_registry,
+        )
+        candidate = {
+            "entity_id": "switch.hot_water",
+            "name": "Hot Water",
+            "domain": "switch",
+            "kind": "fixed",
+            "state": "off",
+        }
+
+        sensor_module.remove_integration_page_child_device_registry(
+            hass,
+            sensor_module.unmanaged_candidate_cleanup_device_info(coordinator, candidate),
+        )
+
+        self.assertEqual(registry.removed, ["current-unmanaged-device"])
+        self.assertEqual(entity_registry.removed, ["sensor.hot_water_unmanaged_candidate"])
+        self.assertIn("sensor.zero_net_export_unmanaged_candidate_count", entity_registry.entities)
+
     def test_setup_entry_keeps_unmanaged_candidates_out_of_peer_rows_when_details_change(self) -> None:
         sensor_module = _load_sensor_module()
         listeners = []
