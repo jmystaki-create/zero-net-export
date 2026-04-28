@@ -33,6 +33,7 @@ from .entity import (
     managed_load_device_info,
     remove_integration_page_child_device_registry,
     sync_integration_page_child_device_registry,
+    legacy_unmanaged_candidate_device_info,
     unmanaged_candidate_device_info,
 )
 from .native_support import (
@@ -405,7 +406,11 @@ def _refresh_managed_device_row_entities(
         if suffix:
             entity._attr_name = f"{device_name} {suffix}"
         entity._attr_device_info = device_info
-        sync_integration_page_child_device_registry(hass, device_info)
+        sync_integration_page_child_device_registry(
+            hass,
+            device_info,
+            getattr(entity, "_zero_net_export_legacy_device_info", None),
+        )
         write_state = getattr(entity, "async_write_ha_state", None)
         if write_state is not None:
             write_state()
@@ -2128,6 +2133,7 @@ class ZeroNetExportUnmanagedCandidateSensor(ZeroNetExportEntity, SensorEntity):
             f"{candidate_name} unmanaged candidate",
         )
         self._attr_device_info = unmanaged_candidate_device_info(coordinator, self._candidate)
+        self._zero_net_export_legacy_device_info = legacy_unmanaged_candidate_device_info(coordinator, self._candidate)
 
     def update_candidate(self, candidate: dict[str, Any]) -> None:
         """Refresh candidate state without requiring a platform reload."""
@@ -2135,9 +2141,10 @@ class ZeroNetExportUnmanagedCandidateSensor(ZeroNetExportEntity, SensorEntity):
         candidate_name = str(self._candidate.get("name") or self._candidate.get("entity_id") or "candidate")
         self._attr_name = f"{candidate_name} unmanaged candidate"
         self._attr_device_info = unmanaged_candidate_device_info(self.coordinator, self._candidate)
+        self._zero_net_export_legacy_device_info = legacy_unmanaged_candidate_device_info(self.coordinator, self._candidate)
         hass = getattr(self, "hass", None)
         if hass is not None:
-            sync_integration_page_child_device_registry(hass, self._attr_device_info)
+            sync_integration_page_child_device_registry(hass, self._attr_device_info, self._zero_net_export_legacy_device_info)
         write_state = getattr(self, "async_write_ha_state", None)
         if write_state is not None:
             write_state()

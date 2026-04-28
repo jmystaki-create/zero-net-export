@@ -7,20 +7,29 @@ from types import SimpleNamespace
 
 class _FakeDeviceRegistry:
     def __init__(self, device):
-        self.device = device
+        devices = [] if device is None else (list(device) if isinstance(device, list) else [device])
+        self.devices = {item.id: item for item in devices}
+        self.device = devices[0] if len(devices) == 1 else None
         self.updated = None
         self.removed = []
 
     def async_get_device(self, identifiers):
-        return self.device if self.device is not None and self.device.identifier in identifiers else None
+        for device in self.devices.values():
+            if device.identifier in identifiers:
+                return device
+        return None
 
     def async_update_device(self, device_id, **kwargs):
+        device = self.devices[device_id]
         self.updated = (device_id, kwargs)
         for key, value in kwargs.items():
-            setattr(self.device, key, value)
+            setattr(device, key, value)
+            if self.device is not None and self.device.id == device_id:
+                setattr(self.device, key, value)
 
     def async_remove_device(self, device_id):
         self.removed.append(device_id)
+        self.devices.pop(device_id, None)
         if self.device is not None and self.device.id == device_id:
             self.device = None
 
@@ -261,6 +270,34 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
         self.assertEqual(registry.updated[1]["name"], "Un Managed — Hot Water")
         self.assertEqual(registry.updated[1]["model"], "Un Managed — Fixed unmanaged candidate")
+
+    def test_unmanaged_candidate_async_added_removes_legacy_unhashed_registry_row(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = self._coordinator()
+        candidate = {
+            "entity_id": "switch.hot_water",
+            "name": "Hot Water",
+            "domain": "switch",
+            "kind": "fixed",
+            "state": "off",
+        }
+        sensor = sensor_module.ZeroNetExportUnmanagedCandidateSensor(coordinator, candidate)
+        current_identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water_b4dd5c9c")
+        legacy_identifier = ("zero_net_export", "entry-1:unmanaged-candidate:switch_hot_water")
+        registry = _FakeDeviceRegistry(
+            [
+                SimpleNamespace(id="legacy-device", identifier=legacy_identifier, configuration_url=None),
+                SimpleNamespace(id="current-device", identifier=current_identifier, configuration_url=None),
+            ]
+        )
+        sensor.hass = SimpleNamespace(device_registry=registry)
+
+        asyncio.run(sensor.async_added_to_hass())
+
+        self.assertIn("legacy-device", registry.removed)
+        self.assertNotIn("legacy-device", registry.devices)
+        self.assertIn("current-device", registry.devices)
+        self.assertEqual(registry.updated[0], "current-device")
 
     def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:
         sensor_module = _load_sensor_module()

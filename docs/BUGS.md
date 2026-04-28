@@ -91,6 +91,19 @@ Older bug entries that mention continuing `0.1.90` device-page validation, post-
 
 ## Current active bugs
 
+## ZNE-512 - legacy unhashed Un Managed registry rows could survive identifier hardening
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `integration-page`
+- **where seen:** watchdog repo audit on 2026-04-28 while checking the ZNE-508/ZNE-509 identifier hardening against upgrade behavior for existing native `Un Managed — ...` child devices.
+- **current observed behavior:** ZNE-508 made ordinary unmanaged candidate device-registry identifiers collision-resistant by adding a hash suffix when `switch.hot_water` is normalized to `switch_hot_water`, while ZNE-509 preserved the legacy lifecycle key for ordinary lowercase Home Assistant entity IDs. Existing installs that already had the old unhashed registry device `entry:unmanaged-candidate:switch_hot_water` could therefore keep that stale device-registry row after upgrade while the new hashed row `entry:unmanaged-candidate:switch_hot_water_<hash>` is added, risking duplicate `Un Managed — ...` rows on the main integration page.
+- **expected behavior:** when a child-device registry identifier is hardened, the integration should remove the pre-hardening legacy registry row during entity add/refresh so the native integration page shows one current row per unmanaged candidate.
+- **evidence:** `custom_components/zero_net_export/entity.py` could sync the current child-device registry entry but had no path to look up and remove the legacy unhashed `:unmanaged-candidate:` identifier after `_device_identifier_part(...)` started appending hash differentiators.
+- **repo fix:** this run adds legacy identifier cleanup for managed/unmanaged integration-page child devices whose hardened identifier differs from the old normalized identifier. Entity add/refresh now removes the stale legacy registry device before syncing the current row metadata, preserving the native Home Assistant device-row path with no custom UI.
+- **validation status:** fixed in repo with focused regression coverage proving an existing legacy unhashed `Un Managed — ...` registry row is removed while the current hashed row is preserved and updated, plus `python3 -m unittest tests.test_integration_page_device_lists -q`, `python3 -m unittest tests.test_operator_docs_consistency -q`, and Python compile for `entity.py`, `sensor.py`, and the touched test file. No Home Assistant live validation was attempted because ZNE-439 still blocks deploy/restart/fingerprint/screenshot validation until James decides the release target, accepts the closest native row representation, and gives exact release/deploy/restart approval.
+- **next action:** after ZNE-439 is resolved and exact release/deploy/restart approval exists, validate on the approved build that legacy unhashed `Un Managed — ...` rows do not remain beside the current hashed candidate rows after upgrade.
+
 ## ZNE-509 - unmanaged candidate lifecycle keys could still collapse sanitized row variants
 
 - **status:** `fixed_pending_validation`

@@ -11,11 +11,20 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN, INTEGRATION_VERSION
 
 
+def _legacy_device_identifier_part(value: object) -> str:
+    """Return the pre-ZNE-508 registry identifier fragment for upgrade cleanup only."""
+    original = str(value or "unknown").strip() or "unknown"
+    return re.sub(
+        r"[^a-z0-9_]+",
+        "_",
+        original.lower().replace(".", "_").replace(":", "_").replace("/", "_"),
+    ).strip("_") or "unknown"
+
+
 def _device_identifier_part(value: object) -> str:
     """Return a stable, safe, collision-resistant device-registry identifier fragment."""
     original = str(value or "unknown").strip() or "unknown"
-    normalized = original.lower()
-    safe = re.sub(r"[^a-z0-9_]+", "_", normalized.replace(".", "_").replace(":", "_").replace("/", "_")).strip("_") or "unknown"
+    safe = _legacy_device_identifier_part(original)
     if original == safe:
         return safe
     digest = hashlib.sha1(original.encode("utf-8")).hexdigest()[:8]
@@ -97,6 +106,15 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
     }
 
 
+def legacy_managed_load_device_info(coordinator, device_key: str) -> dict | None:
+    """Return legacy managed-row device info when the old identifier differs."""
+    current = _device_identifier_part(device_key)
+    legacy = _legacy_device_identifier_part(device_key)
+    if legacy == current:
+        return None
+    return {"identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:managed-device:{legacy}")}}
+
+
 def attach_managed_load_device(entity, coordinator, device_key: str, device_name: str | None = None) -> None:
     """Attach an entity to its managed-load child device instead of the controller device."""
     entity._attr_device_info = managed_load_device_info(
@@ -104,6 +122,7 @@ def attach_managed_load_device(entity, coordinator, device_key: str, device_name
         device_key,
         managed_load_detail(coordinator, device_key, device_name),
     )
+    entity._zero_net_export_legacy_device_info = legacy_managed_load_device_info(coordinator, device_key)
     entity._zero_net_export_managed_device_key = device_key
 
 
@@ -139,8 +158,11 @@ def _integration_page_child_device_registry_entry(hass, device_info: dict | None
     return device_registry, device
 
 
-def sync_integration_page_child_device_registry(hass, device_info: dict | None) -> None:
+def sync_integration_page_child_device_registry(hass, device_info: dict | None, legacy_device_info: dict | None = None) -> None:
     """Refresh device-registry metadata for managed/unmanaged integration-page rows."""
+    if legacy_device_info is not None:
+        remove_integration_page_child_device_registry(hass, legacy_device_info)
+
     device_registry, device = _integration_page_child_device_registry_entry(hass, device_info)
     if device_registry is None or device is None:
         return
@@ -196,6 +218,16 @@ def unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict:
     }
 
 
+def legacy_unmanaged_candidate_device_info(coordinator, candidate: dict) -> dict | None:
+    """Return legacy unmanaged-row device info when the old identifier differs."""
+    entity_id = str(candidate.get("entity_id") or "candidate").strip()
+    current = _device_identifier_part(entity_id)
+    legacy = _legacy_device_identifier_part(entity_id)
+    if legacy == current:
+        return None
+    return {"identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:unmanaged-candidate:{legacy}")}}
+
+
 class ZeroNetExportEntity(CoordinatorEntity):
     _attr_has_entity_name = True
 
@@ -212,7 +244,11 @@ class ZeroNetExportEntity(CoordinatorEntity):
         if parent is not None:
             await parent()
 
-        sync_integration_page_child_device_registry(self.hass, getattr(self, "_attr_device_info", None))
+        sync_integration_page_child_device_registry(
+            self.hass,
+            getattr(self, "_attr_device_info", None),
+            getattr(self, "_zero_net_export_legacy_device_info", None),
+        )
 
     @property
     def _state(self):
