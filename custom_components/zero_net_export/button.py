@@ -1441,7 +1441,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
                 has_managed_devices=bool(ordered),
             ),
             "",
-            "Use the per-device Managed Devices review buttons on the Zero Net Export device page when you need a secondary audit trail for one managed device.",
+            "Use the per-device ⚙ Settings — Managed Devices review buttons on the Zero Net Export device page when you need a secondary audit trail for one managed device.",
         ]
         persistent_notification.async_create(
             self.hass,

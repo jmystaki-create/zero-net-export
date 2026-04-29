@@ -192,7 +192,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
                 "Show command center guide",
                 "⚙ Settings — Open Managed Devices workspace",
                 "⚙ Settings — Open Managed Devices review",
-                "Per-device Managed Devices review buttons",
+                "Per-device ⚙ Settings — Managed Devices review buttons",
                 "Review diagnostics",
                 "Review diagnostics snapshot",
                 "Show setup checklist",

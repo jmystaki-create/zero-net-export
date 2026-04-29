@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-564 - per-device review affordance copy omitted visible settings label
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking current native Home Assistant settings-affordance copy after the workflow button/notification fixes.
+- **current observed behavior:** diagnostics/native support metadata and the Managed Devices review notification body still described `per-device Managed Devices review buttons` without the visible `⚙ Settings` wording, even though the actual per-device review button labels use the settings affordance. Screenshot/support copy could therefore look less explicitly settings-oriented than Riley requested.
+- **expected behavior:** every native/support copy path that points users at per-managed-device review actions should carry the visible `⚙ Settings` affordance, while unmanaged candidates stay behind workflow/backlog/review surfaces and no peer `Un Managed — ...` rows appear beside managed devices.
+- **repo fix:** this run updates diagnostics metadata, native support detailed-management path copy, and the Managed Devices review notification handoff sentence to say `per-device ⚙ Settings — Managed Devices review buttons`, with focused regression coverage rejecting the old wording.
+- **validation status:** fixed in repo with focused diagnostics/source-repair/button tests and Python compile for touched component modules. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action surfaces showing managed rows/actions with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-563 - Managed Devices workflow notifications lacked visible settings affordance
 
 - **status:** `fixed_pending_validation`

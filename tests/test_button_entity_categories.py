@@ -829,7 +829,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
             message,
         )
-        self.assertIn("Use the per-device Managed Devices review buttons on the Zero Net Export device page when you need a secondary audit trail for one managed device.", message)
+        self.assertIn("Use the per-device ⚙ Settings — Managed Devices review buttons on the Zero Net Export device page when you need a secondary audit trail for one managed device.", message)
         self.assertNotIn("per-device Review buttons", message)
         self.assertIn("Before fleet work:", message)
         self.assertLess(message.index("Before fleet work:"), message.index("Managed Devices (top section):"))
