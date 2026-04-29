@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-559 - Managed Devices workflow buttons lacked visible settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking native Home Assistant action surfaces against Riley's visible settings/gear-affordance requirement.
+- **current observed behavior:** per-managed-device rows/actions carried `⚙ Settings`, but the primary Home Assistant device-page Managed Devices workspace and review buttons still rendered as plain `Open Managed Devices workspace` and `Open Managed Devices review`. Screenshots of those native action surfaces could therefore still look like generic workflow buttons rather than obvious managed-device settings/review affordances.
+- **expected behavior:** native Managed Devices workflow/review actions should visibly communicate settings/configuration access while keeping unmanaged candidates behind backlog/review surfaces and out of peer `Un Managed — ...` rows.
+- **repo fix:** this run adds visible `⚙ Settings` labels to the Managed Devices workspace/review button names and matching diagnostics/native path copy, preserving managed-only peer-list behavior.
+- **validation status:** fixed in repo with focused button/diagnostics/source-guidance tests and Python compile for touched component modules. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list and device-page action surfaces showing only current managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-558 - direct legacy managed cleanup could leave attached entity entries
 
 - **status:** `fixed_pending_validation`

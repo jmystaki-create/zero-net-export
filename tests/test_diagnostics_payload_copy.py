@@ -104,8 +104,8 @@ class TestDiagnosticsPayloadCopy(unittest.TestCase):
     def test_native_surface_button_metadata_matches_managed_devices_actions(self) -> None:
         source = (Path(__file__).resolve().parents[1] / "custom_components" / "zero_net_export" / "diagnostics.py").read_text(encoding="utf-8")
 
-        self.assertIn('"Open Managed Devices workspace"', source)
-        self.assertIn('"Open Managed Devices review"', source)
+        self.assertIn('"⚙ Settings — Open Managed Devices workspace"', source)
+        self.assertIn('"⚙ Settings — Open Managed Devices review"', source)
         self.assertIn('"Per-device Managed Devices review buttons"', source)
         self.assertNotIn('"Review managed devices",', source)
         self.assertNotIn('"Review managed devices workspace",', source)
