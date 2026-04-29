@@ -542,6 +542,22 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         self.assertIn(native_support.SOURCES_CONFIGURE_PATH, command_center["device_next_step"])
         self.assertNotIn(native_support.DEVICES_CONFIGURE_PATH, command_center["device_next_step"])
 
+    def test_settings_labeled_detailed_management_summary_upgrades_capitalized_stale_handoffs(self) -> None:
+        native_support = _load_native_support_module()
+
+        self.assertEqual(
+            native_support._settings_labeled_detailed_management_summary(
+                "Secondary per-device review/audit path stays available after fleet setup."
+            ),
+            "Secondary per-device ⚙ Settings review/audit path stays available after fleet setup.",
+        )
+        self.assertEqual(
+            native_support._settings_labeled_detailed_management_summary(
+                "Secondary per-device review stays available after fleet setup."
+            ),
+            "Secondary per-device ⚙ Settings review/audit stays available after fleet setup.",
+        )
+
     def test_support_center_lists_each_native_path(self) -> None:
         native_support = _load_native_support_module()
 

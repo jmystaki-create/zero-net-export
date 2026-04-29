@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-572 - Diagnostics guide could leak capitalized secondary review wording without settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking ZNE-570's stale Diagnostics detailed-management summary normalization against Riley's visible settings/gear-affordance scope.
+- **current observed behavior:** ZNE-570 normalized lowercase stale `secondary per-device review` / `secondary per-device review/audit` command-center summaries before rendering the Diagnostics guide, but a cached or injected summary beginning with capitalized `Secondary per-device review` could still appear in the `Managed-device audit path` line without the visible `⚙ Settings` affordance.
+- **expected behavior:** Diagnostics guide handoffs to secondary per-device managed review/audit paths should preserve the visible `⚙ Settings` affordance regardless of stale capitalization, while managed-only peer rows and suppressed peer `Un Managed — ...` rows remain unchanged.
+- **repo fix:** this run extends the Diagnostics detailed-management summary normalizer to upgrade capitalized stale `Secondary per-device review` and `Secondary per-device review/audit` wording to `Secondary per-device ⚙ Settings review/audit`, with focused source-repair guidance coverage.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_source_repair_guidance -q` and Python compile for `custom_components/zero_net_export/native_support.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing managed rows/actions/summaries with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
+
 ## ZNE-571 - Managed-device row put the gear affordance inside the row name instead of the native right-side action
 
 - **status:** `fixed_pending_validation`

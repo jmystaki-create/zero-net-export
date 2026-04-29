@@ -5902,6 +5902,8 @@ def _settings_labeled_detailed_management_summary(summary: Any) -> str:
     replacements = {
         "secondary per-device review/audit": "secondary per-device ⚙ Settings review/audit",
         "secondary per-device review": "secondary per-device ⚙ Settings review/audit",
+        "Secondary per-device review/audit": "Secondary per-device ⚙ Settings review/audit",
+        "Secondary per-device review": "Secondary per-device ⚙ Settings review/audit",
         "secondary device-page review/audit path": "secondary ⚙ Settings device-page review/audit path",
         "Secondary device-page review/audit path": "Secondary ⚙ Settings device-page review/audit path",
     }
