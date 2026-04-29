@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-567 - Managed Devices workspace notification secondary path lacked settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking follow-on native Managed Devices notification surfaces for Riley's visible settings/gear-affordance requirement.
+- **current observed behavior:** the primary Managed Devices workspace button, notification title, and heading already carried `⚙ Settings`, but the notification body still labeled the secondary device-page path as `Secondary device-page review/audit path` without the visible settings affordance.
+- **expected behavior:** Managed Devices workflow notifications should keep `⚙ Settings` visible anywhere they point to secondary managed-device review/audit settings paths, while unmanaged candidates remain behind workflow/backlog/review surfaces and no peer `Un Managed — ...` rows appear beside managed devices.
+- **repo fix:** this run changes the workspace notification handoff to `Secondary ⚙ Settings device-page review/audit path` and adds focused button coverage rejecting the old unlabelled handoff.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_button_entity_categories -q` and Python compile for `custom_components/zero_net_export/button.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing managed rows/actions/summaries with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
+
 ## ZNE-566 - Managed Devices surface summary lacked visible settings affordance
 
 - **status:** `fixed_pending_validation`

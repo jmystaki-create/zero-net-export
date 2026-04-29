@@ -1187,7 +1187,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             'Zero Net Export ⚙ Settings — Managed Devices workspace',
             '',
             f'Managed Devices workspace: {DEVICES_CONFIGURE_PATH}',
-            f'Secondary device-page review/audit path: {DETAILED_MANAGEMENT_PATH}',
+            f'Secondary ⚙ Settings device-page review/audit path: {DETAILED_MANAGEMENT_PATH}',
             f'Device-page boundary: {_managed_devices_workspace_boundary()}',
             f"Next managed-device step: {_managed_devices_recommended_next_step(command_center)}",
             *(['', *blocker_first_lines] if blocker_first_lines else []),

@@ -494,7 +494,8 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("Zero Net Export Managed Devices workspace", message)
         self.assertNotIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Managed Devices workspace: devices path", message)
-        self.assertIn("Secondary device-page review/audit path: detailed device path", message)
+        self.assertIn("Secondary ⚙ Settings device-page review/audit path: detailed device path", message)
+        self.assertNotIn("Secondary device-page review/audit path: detailed device path", message)
         self.assertIn(
             "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
             message,
