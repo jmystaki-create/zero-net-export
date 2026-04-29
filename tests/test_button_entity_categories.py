@@ -130,7 +130,7 @@ def _load_button_module(notification_calls: list[dict] | None = None):
         "policy_status": "Controls ready.",
         "policy_readiness": "Ready after source repair.",
         "support_status": "Diagnostics available.",
-        "detailed_management_summary": "Use the device page for secondary per-device review/audit.",
+        "detailed_management_summary": "Use the device page for secondary per-device ⚙ Settings review/audit.",
         "fleet_activity_summary": "1 managed | 2 unmanaged backlog",
         "sources_path": "sources path",
         "devices_path": "devices path",
@@ -286,7 +286,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- In Managed Devices, open Promotion shortlist for fixed-load candidates.", handoff)
         self.assertIn("- In Promotion shortlist, select Hot water (fixed) | likely useful | key warning: No immediate warnings.", handoff)
         self.assertNotIn("- Open Promotion shortlist for fixed-load candidates.", handoff)
-        self.assertIn("- Use detailed device path afterward only if you need secondary per-device review/audit.", handoff)
+        self.assertIn("- Use detailed device path afterward only if you need secondary per-device ⚙ Settings review/audit.", handoff)
         self.assertNotIn("Choose Promote fixed-load candidate", "\n".join(handoff))
 
     def test_workspace_handoff_prefers_first_review_candidate_over_top_rank(self) -> None:
@@ -497,7 +497,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Secondary ⚙ Settings device-page review/audit path: detailed device path", message)
         self.assertNotIn("Secondary device-page review/audit path: detailed device path", message)
         self.assertIn(
-            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
+            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary ⚙ Settings review/audit and handoff.",
             message,
         )
         self.assertIn("Before fleet work:", message)
@@ -545,11 +545,13 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Why: Source blockers remain.", message)
         self.assertIn("- Next fleet step after repair: Review the next managed device.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
-        self.assertIn("- Use detailed device path only for secondary per-device review/audit after the main fleet step is clear.", message)
+        self.assertIn("- Use detailed device path only for secondary per-device ⚙ Settings review/audit after the main fleet step is clear.", message)
         self.assertIn(
-            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
+            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary ⚙ Settings review/audit and handoff.",
             message,
         )
+        self.assertNotIn("secondary per-device review/audit", message)
+        self.assertNotIn("secondary review/audit and handoff", message)
 
     def test_fleet_console_button_no_candidate_usefulness_fallback_stays_explicit(self) -> None:
         notification_calls: list[dict] = []
@@ -825,9 +827,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("entity=switch.pool_pump", message)
         self.assertIn("Currently surfaced unmanaged candidates:", message)
         self.assertIn("- Hot water (fixed) | likely useful | key warning: No immediate warnings", message)
-        self.assertIn("Secondary device-page audit path: detailed device path", message)
+        self.assertIn("Secondary ⚙ Settings device-page audit path: detailed device path", message)
         self.assertIn(
-            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
+            "Device-page boundary: Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary ⚙ Settings review/audit and handoff.",
             message,
         )
         self.assertIn("Use the per-device ⚙ Settings — Managed Devices review buttons on the Zero Net Export device page when you need a secondary audit trail for one managed device.", message)
@@ -838,9 +840,9 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("- Resolve current focus in sources path before fleet work.", message)
         self.assertIn("- Why: Source blockers remain.", message)
         self.assertIn("- Then reopen devices path for the Managed Devices workspace.", message)
-        self.assertIn("- Use detailed device path only for secondary per-device review/audit after the main fleet step is clear.", message)
+        self.assertIn("- Use detailed device path only for secondary per-device ⚙ Settings review/audit after the main fleet step is clear.", message)
         self.assertIn(
-            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
+            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary ⚙ Settings review/audit and handoff.",
             message,
         )
 
@@ -901,7 +903,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Before fleet work:", attrs["blocker_first"])
         self.assertEqual(
             attrs["workspace_boundary"],
-            "Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
+            "Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary ⚙ Settings review/audit and handoff.",
         )
         self.assertEqual(attrs["unmanaged_candidate_count"], 1)
         self.assertEqual(attrs["top_unmanaged_candidate"]["entity_id"], "number.ev_limit")
@@ -915,7 +917,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Return after blocker repair:", attrs["promotion_handoff"])
         self.assertIn("- Resolve current focus in sources path before fleet work.", attrs["promotion_handoff"])
         self.assertIn(
-            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary review/audit and handoff.",
+            "- Make promotion, enablement, removal, and other fleet edits in devices path; use the device page only for secondary ⚙ Settings review/audit and handoff.",
             attrs["promotion_handoff"],
         )
 
@@ -1464,7 +1466,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("Test Entry: managed devices review", notification_calls[0]["kwargs"]["title"])
         message = notification_calls[0]["args"][1]
-        self.assertIn("Zero Net Export managed-device detail review", message)
+        self.assertIn("Zero Net Export ⚙ Settings — managed-device detail review", message)
         self.assertIn("Managed Devices workspace: devices path", message)
         self.assertIn("Next managed-device step: Review the next managed device.", message)
         self.assertNotIn("Recommended next step:", message)
@@ -1511,7 +1513,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "recommended_reason": "",
             "next_action_summary": "",
             "device_next_step": "",
-            "detailed_management_summary": "Use the device page for secondary per-device review/audit.",
+            "detailed_management_summary": "Use the device page for secondary per-device ⚙ Settings review/audit.",
             "sources_path": "sources path",
             "devices_path": "devices path",
             "policy_path": "policy path",
@@ -1737,7 +1739,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             "recommended_reason": "",
             "next_action_summary": "",
             "device_next_step": "",
-            "detailed_management_summary": "Use the device page for secondary per-device review/audit.",
+            "detailed_management_summary": "Use the device page for secondary per-device ⚙ Settings review/audit.",
             "sources_path": "sources path",
             "devices_path": "devices path",
             "policy_path": "policy path",
@@ -1989,7 +1991,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertIn("Current focus section right now: Sensors", message)
         self.assertIn("Why this section is current: Source blockers remain.", message)
         self.assertNotIn("Why this section is recommended", message)
-        self.assertIn("Managed-device audit path: Use the device page for secondary per-device review/audit.", message)
+        self.assertIn("Managed-device audit path: Use the device page for secondary per-device ⚙ Settings review/audit.", message)
 
 
     def test_managed_device_workspace_buttons_tolerate_missing_device_details(self) -> None:

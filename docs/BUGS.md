@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-568 - Managed Devices handoff boundary copy lacked settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking follow-on native Managed Devices notification handoffs after ZNE-567.
+- **current observed behavior:** the Managed Devices workspace notification's explicit secondary path line carried `⚙ Settings`, but the shared promotion/blocker handoff bullets, device-page boundary, review-notification audit path, and per-device detail heading still described the secondary device-page route as generic review/audit copy without the visible settings affordance.
+- **expected behavior:** every native Managed Devices notification handoff that points to the secondary device-page review/audit route should keep `⚙ Settings` visible, while the primary fleet workspace remains Configure -> Managed Devices, unmanaged candidates stay behind workflow/backlog/review surfaces, and no peer `Un Managed — ...` rows appear beside managed devices.
+- **repo fix:** this run updates the shared Managed Devices workspace handoff, boundary copy, secondary audit-path labels, and per-device detail heading to say `secondary per-device ⚙ Settings review/audit`, `secondary ⚙ Settings review/audit and handoff`, `Secondary ⚙ Settings device-page audit path`, and `Zero Net Export ⚙ Settings — managed-device detail review`, with focused button coverage updated to lock the visible settings affordance.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_button_entity_categories -q` and Python compile for `custom_components/zero_net_export/button.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing managed rows/actions/summaries with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
+
 ## ZNE-567 - Managed Devices workspace notification secondary path lacked settings affordance
 
 - **status:** `fixed_pending_validation`

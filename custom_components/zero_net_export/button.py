@@ -742,7 +742,7 @@ def _first_ready_candidate(candidates: list[dict] | None) -> dict | None:
 def _managed_devices_workspace_boundary() -> str:
     return (
         f"Make promotion, enablement, removal, and other fleet edits in {DEVICES_CONFIGURE_PATH}; "
-        "use the device page only for secondary review/audit and handoff."
+        "use the device page only for secondary ⚙ Settings review/audit and handoff."
     )
 
 
@@ -770,7 +770,7 @@ def _managed_devices_workspace_handoff(
         if next_step:
             lines.append(f"- Next fleet step after repair: {next_step}")
         lines.append(f"- Then reopen {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.")
-        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for secondary per-device review/audit after the main fleet step is clear.")
+        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} only for secondary per-device ⚙ Settings review/audit after the main fleet step is clear.")
         lines.append(f"- {_managed_devices_workspace_boundary()}")
         return lines
 
@@ -797,14 +797,14 @@ def _managed_devices_workspace_handoff(
             lines.append(
                 f"- Then promote ready unmanaged candidate: {build_candidate_preview(ready_candidate, include_entity_id=False, include_state=False)}."
             )
-        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review/audit.")
+        lines.append(f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device ⚙ Settings review/audit.")
     else:
         if has_managed_devices:
             lines.extend(
                 [
                     f"- Reopen {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.",
                     "- Use the Managed Devices workspace to edit device settings or stage enablement changes before changing Controls settings or opening Diagnostics.",
-                    f"- Use {DETAILED_MANAGEMENT_PATH} only if you need secondary per-device review/audit after the main fleet step is clear.",
+                    f"- Use {DETAILED_MANAGEMENT_PATH} only if you need secondary per-device ⚙ Settings review/audit after the main fleet step is clear.",
                 ]
             )
         else:
@@ -812,7 +812,7 @@ def _managed_devices_workspace_handoff(
                 [
                     f"- Open {DEVICES_CONFIGURE_PATH} for the Managed Devices workspace.",
                     "- Add the first fixed or variable load in the Managed Devices workspace because no surfaced unmanaged candidate is available.",
-                    f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device review/audit.",
+                    f"- Use {DETAILED_MANAGEMENT_PATH} afterward only if you need secondary per-device ⚙ Settings review/audit.",
                 ]
             )
     lines.append(f"- {_managed_devices_workspace_boundary()}")
@@ -912,10 +912,10 @@ def _build_managed_device_detail_lines(
         )
 
     lines = [
-        "Zero Net Export managed-device detail review",
+        "Zero Net Export ⚙ Settings — managed-device detail review",
         "",
         f"Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
-        f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
+        f"Secondary ⚙ Settings device-page audit path: {DETAILED_MANAGEMENT_PATH}",
         f"Next managed-device step: {_managed_devices_recommended_next_step(command_center)}",
         *(["", *blocker_first_lines] if blocker_first_lines else []),
         "",
@@ -1364,7 +1364,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
             "Zero Net Export ⚙ Settings — Managed Devices review",
             "",
             f"Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
-            f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
+            f"Secondary ⚙ Settings device-page audit path: {DETAILED_MANAGEMENT_PATH}",
             f"Device-page boundary: {_managed_devices_workspace_boundary()}",
             f"Next managed-device step: {_managed_devices_recommended_next_step(command_center)}",
             *(["", *blocker_first_lines] if blocker_first_lines else []),
