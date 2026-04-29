@@ -457,6 +457,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
         button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
         self.assertEqual(button._attr_name, "⚙ Settings — Open Managed Devices workspace")
+        self.assertEqual(button._attr_icon, "mdi:cog-outline")
         button.hass = SimpleNamespace(
             states=SimpleNamespace(
                 async_all=lambda: [
@@ -749,6 +750,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         )
         button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
         self.assertEqual(button._attr_name, "⚙ Settings — Open Managed Devices review")
+        self.assertEqual(button._attr_icon, "mdi:cog-outline")
         button.hass = SimpleNamespace(
             states=SimpleNamespace(
                 async_all=lambda: [

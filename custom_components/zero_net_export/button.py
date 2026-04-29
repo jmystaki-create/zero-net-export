@@ -17,6 +17,7 @@ from .candidate_utils import (
 from .const import DOMAIN
 from .device_model import DEVICE_KIND_FIXED, DEVICE_KIND_VARIABLE
 from .entity import (
+    MANAGED_LOAD_SETTINGS_ICON,
     ZeroNetExportEntity,
     attach_managed_load_device,
     integration_page_managed_load_details,
@@ -1102,7 +1103,7 @@ class ZeroNetExportShowNativeCommandCenterButton(ZeroNetExportEntity, ButtonEnti
 class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_fleet_console", "⚙ Settings — Open Managed Devices workspace")
-        self._attr_icon = "mdi:format-list-group"
+        self._attr_icon = MANAGED_LOAD_SETTINGS_ICON
         self._attr_device_info = None
 
     @property
@@ -1275,7 +1276,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
 class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_managed_device_review", "⚙ Settings — Open Managed Devices review")
-        self._attr_icon = "mdi:clipboard-list-outline"
+        self._attr_icon = MANAGED_LOAD_SETTINGS_ICON
         self._attr_device_info = None
 
     def _unmanaged_candidates(self) -> list[dict[str, str]]:

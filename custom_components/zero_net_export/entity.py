@@ -12,6 +12,9 @@ from .const import CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON, DO
 from .device_model import parse_device_configs
 
 
+MANAGED_LOAD_SETTINGS_ICON = "mdi:cog-outline"
+
+
 FLEET_WORKSPACE_SENSOR_KEYS = {
     "managed_devices_surface",
     "managed_fleet_overview",
@@ -199,6 +202,7 @@ def attach_managed_load_device(entity, coordinator, device_key: str, device_name
         device_key,
         managed_load_detail(coordinator, device_key, device_name),
     )
+    entity._attr_icon = MANAGED_LOAD_SETTINGS_ICON
     entity._zero_net_export_legacy_device_info = legacy_managed_load_device_info(coordinator, device_key)
     entity._zero_net_export_managed_device_key = device_key
 

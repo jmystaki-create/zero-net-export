@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-561 - managed settings surfaces relied on label-only gear affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking Riley's visible settings/gear-affordance requirement after the managed row/action label fixes.
+- **current observed behavior:** managed-device rows/actions and Managed Devices workflow buttons carried visible `⚙ Settings` text, but their native HA icon affordance could still render as generic list/review controls or omit a gear icon entirely. Screenshots of compact native action surfaces could therefore still look less obviously settings/configuration-oriented than Riley requested.
+- **expected behavior:** managed rows/actions and Managed Devices workflow buttons should carry both visible `⚙ Settings` text and a native gear/settings icon affordance, while unmanaged candidates remain out of peer `Un Managed — ...` rows and available behind Managed Devices workflow/backlog/review surfaces.
+- **repo fix:** this run adds a shared `mdi:cog-outline` managed settings icon, applies it to managed-load child entities through the shared attachment helper, and applies it to the primary Managed Devices workspace/review buttons.
+- **validation status:** fixed in repo with focused managed-device/settings button tests and Python compile for touched component modules. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list and workflow/action surfaces showing managed rows/actions with visible `⚙ Settings` labels plus gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-560 - workflow cleanup guard still used unmanaged-backlog-only naming
 
 - **status:** `fixed_pending_validation`

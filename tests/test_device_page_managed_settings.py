@@ -66,6 +66,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
 
         self.assertEqual(switch._attr_entity_category, switch_module.EntityCategory.CONFIG)
         self.assertEqual(switch._attr_name, "⚙ Settings — Pool Pump enabled")
+        self.assertEqual(switch._attr_icon, "mdi:cog-outline")
         self.assertEqual(switch._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(switch._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
@@ -76,6 +77,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
 
         self.assertEqual(number._attr_entity_category, number_module.EntityCategory.CONFIG)
         self.assertEqual(number._attr_name, "⚙ Settings — Pool Pump priority")
+        self.assertEqual(number._attr_icon, "mdi:cog-outline")
         self.assertEqual(number._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(number._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
@@ -89,6 +91,8 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(reset._attr_entity_category, button_module.EntityCategory.CONFIG)
         self.assertEqual(review._attr_name, "⚙ Settings — Pool Pump review")
         self.assertEqual(reset._attr_name, "⚙ Settings — Pool Pump reset overrides")
+        self.assertEqual(review._attr_icon, "mdi:cog-outline")
+        self.assertEqual(reset._attr_icon, "mdi:cog-outline")
         self.assertEqual(review._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
         self.assertEqual(reset._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
 
@@ -99,6 +103,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
 
         self.assertEqual(usable._attr_entity_category, binary_sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(usable._attr_name, "⚙ Settings — Pool Pump usable")
+        self.assertEqual(usable._attr_icon, "mdi:cog-outline")
         self.assertEqual(usable._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
 
     def test_managed_device_sensor_rows_keep_visible_settings_affordance(self) -> None:
@@ -113,13 +118,13 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertIn("⚙ Settings — Pool Pump managed summary", [entity._attr_name for entity in entities])
         self.assertIn("⚙ Settings — Pool Pump status", [entity._attr_name for entity in entities])
         self.assertIn("⚙ Settings — Pool Pump Current power", [entity._attr_name for entity in entities])
-        self.assertTrue(
-            all(
-                entity._attr_name.startswith("⚙ Settings — Pool Pump ")
-                for entity in entities
-                if getattr(entity, "_zero_net_export_managed_name_suffix", None)
-            )
-        )
+        managed_rows = [
+            entity
+            for entity in entities
+            if getattr(entity, "_zero_net_export_managed_name_suffix", None)
+        ]
+        self.assertTrue(all(entity._attr_name.startswith("⚙ Settings — Pool Pump ") for entity in managed_rows))
+        self.assertTrue(all(entity._attr_icon == "mdi:cog-outline" for entity in managed_rows))
 
     def test_managed_device_setup_platforms_keep_sparse_rows_registered(self) -> None:
         coordinator = _coordinator()
