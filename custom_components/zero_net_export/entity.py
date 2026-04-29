@@ -279,7 +279,7 @@ def register_managed_load_platform_sync(hass, entry, coordinator, async_add_enti
 
 
 def _integration_page_child_device_identifier(device_info: dict | None) -> tuple[str, str] | None:
-    """Return the managed/unmanaged integration-page child-device identifier, if present."""
+    """Return the managed or legacy-unmanaged child-device identifier, if present."""
     for identifier in (device_info or {}).get("identifiers", set()) or set():
         if len(identifier) != 2:
             continue
@@ -292,7 +292,7 @@ def _integration_page_child_device_identifier(device_info: dict | None) -> tuple
 
 
 def _integration_page_child_device_registry_entry(hass, device_info: dict | None):
-    """Return the registry and device entry for a managed/unmanaged child device."""
+    """Return the registry and device entry for a managed or legacy-unmanaged child device."""
     identifier = _integration_page_child_device_identifier(device_info)
     if identifier is None:
         return None, None
@@ -311,7 +311,7 @@ def _integration_page_child_device_registry_entry(hass, device_info: dict | None
 
 
 def sync_integration_page_child_device_registry(hass, device_info: dict | None, legacy_device_info: object = None) -> None:
-    """Refresh device-registry metadata for managed/unmanaged integration-page rows."""
+    """Refresh managed rows while removing legacy unmanaged child-device metadata."""
     if legacy_device_info is not None:
         legacy_infos = legacy_device_info if isinstance(legacy_device_info, list) else [legacy_device_info]
         for legacy_info in legacy_infos:
@@ -343,7 +343,7 @@ def sync_integration_page_child_device_registry(hass, device_info: dict | None, 
 
 
 def remove_integration_page_child_device_registry(hass, device_info: dict | None) -> None:
-    """Remove a stale managed/unmanaged child device row from the device registry."""
+    """Remove a stale managed or legacy-unmanaged child device from the registry."""
     identifier = _integration_page_child_device_identifier(device_info)
     device_registry, device = _integration_page_child_device_registry_entry(hass, device_info)
     if device_registry is None or device is None:

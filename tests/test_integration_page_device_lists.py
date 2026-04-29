@@ -1581,6 +1581,17 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             ],
         )
 
+    def test_unmanaged_candidate_source_copy_names_workflow_surfaces_not_rows(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        candidate_source = (root / "custom_components/zero_net_export/candidate_utils.py").read_text()
+        entity_source = (root / "custom_components/zero_net_export/entity.py").read_text()
+
+        self.assertNotIn("unmanaged candidate rows", candidate_source)
+        self.assertNotIn("dense unmanaged rows", candidate_source)
+        self.assertIn("unmanaged candidate workflow surfaces", candidate_source)
+        self.assertNotIn("managed/unmanaged integration-page rows", entity_source)
+        self.assertIn("legacy-unmanaged child-device", entity_source)
+
 
 if __name__ == "__main__":
     unittest.main()

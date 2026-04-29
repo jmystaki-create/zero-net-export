@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-573 - unmanaged candidate helper comments still said candidate rows
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking loop/churn and source comments under Riley's managed-only native device-list scope.
+- **current observed behavior:** `candidate_utils.py` still described unmanaged candidate previews as `unmanaged candidate rows` / `dense unmanaged rows`, and shared registry helpers still described `managed/unmanaged integration-page rows`, even though unmanaged candidates should only appear behind Managed Devices workflow/backlog/review surfaces and unmanaged child-device identifiers are now legacy cleanup inputs only.
+- **expected behavior:** source comments/docstrings should not imply reusable native peer-row lifecycle for unmanaged candidates; they should distinguish current managed rows from legacy unmanaged child-device cleanup while preserving unmanaged workflow/backlog/review surfaces.
+- **repo fix:** this run renames those source comments/docstrings around unmanaged candidate workflow surfaces and legacy-unmanaged cleanup, and adds focused source-copy coverage rejecting the stale row wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` plus Python compile for `custom_components/zero_net_export/candidate_utils.py`, `custom_components/zero_net_export/entity.py`, and the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing clean managed rows with the native right-side settings affordance, no peer `Un Managed — ...` rows, and unmanaged candidates available through workflow/backlog/review surfaces.
+
+
 ## ZNE-572 - Diagnostics guide could leak capitalized secondary review wording without settings affordance
 
 - **status:** `fixed_pending_validation`

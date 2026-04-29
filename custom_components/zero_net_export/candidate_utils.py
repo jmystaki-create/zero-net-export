@@ -596,7 +596,7 @@ def build_candidate_preview(
     include_kind: bool = True,
     include_state: bool = False,
 ) -> str:
-    """Return a concise operator-facing preview for unmanaged candidate rows."""
+    """Return a concise operator-facing preview for unmanaged candidate workflow surfaces."""
     name = str(candidate.get("name") or candidate.get("entity_id") or "candidate")
     entity_id = str(candidate.get("entity_id") or "")
     kind = str(candidate.get("kind") or "unknown")
@@ -622,7 +622,7 @@ def build_candidate_preview(
 
 
 def _compact_candidate_warning(candidate: dict[str, Any], *, max_chars: int = 28) -> str:
-    """Return a shortlist-friendly warning label for dense unmanaged rows."""
+    """Return a shortlist-friendly warning label for dense unmanaged candidate workflow surfaces."""
     warnings = [str(item).strip() for item in (assess_candidate(candidate).get("warnings") or []) if str(item).strip()]
     if not warnings:
         return ""
