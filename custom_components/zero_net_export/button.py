@@ -1104,7 +1104,6 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_fleet_console", "⚙ Settings — Open Managed Devices workspace")
         self._attr_icon = MANAGED_LOAD_SETTINGS_ICON
-        self._attr_device_info = None
 
     @property
     def extra_state_attributes(self):
@@ -1277,7 +1276,6 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
     def __init__(self, coordinator):
         super().__init__(coordinator, "show_managed_device_review", "⚙ Settings — Open Managed Devices review")
         self._attr_icon = MANAGED_LOAD_SETTINGS_ICON
-        self._attr_device_info = None
 
     def _unmanaged_candidates(self) -> list[dict[str, str]]:
         return _candidate_devices_for_state(self.coordinator, self.hass, self._state)

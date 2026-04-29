@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-562 - Managed Devices workflow buttons were detached from the primary device page
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking the latest native Home Assistant settings-affordance fixes against Riley's requirement that managed workflow/review controls remain visible on controllable surfaces.
+- **current observed behavior:** the primary `⚙ Settings — Open Managed Devices workspace` and `⚙ Settings — Open Managed Devices review` buttons had visible labels and gear icons, but their constructors cleared the inherited Zero Net Export device attachment with `_attr_device_info = None`. In Home Assistant this could keep those workflow/review settings buttons off the main Zero Net Export device-page action surface even though the labels/icons existed.
+- **expected behavior:** the primary Managed Devices workspace/review buttons should stay attached to the main Zero Net Export device while carrying visible `⚙ Settings` labels plus gear icons, with unmanaged candidates still behind workflow/backlog/review surfaces and no peer `Un Managed — ...` rows beside managed devices.
+- **repo fix:** this run keeps the workflow/review buttons on the inherited controller device, preserving their visible settings labels and native `mdi:cog-outline` icons, and adds focused button coverage for the device attachment.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_button_entity_categories -q` and Python compile for `custom_components/zero_net_export/button.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action surfaces showing the Managed Devices workspace/review buttons attached with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-561 - managed settings surfaces relied on label-only gear affordance
 
 - **status:** `fixed_pending_validation`
