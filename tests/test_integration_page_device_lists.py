@@ -102,6 +102,22 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(registry.updated[1]["name"], "Managed Devices — Pool Pump")
         self.assertEqual(registry.updated[1]["model"], "Managed Devices — Fixed managed load")
 
+    def test_managed_devices_surface_attributes_feed_right_gear_panel(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor = sensor_module.ZeroNetExportSensor(
+            self._coordinator(),
+            "managed_devices_surface",
+            "Managed Devices surface",
+        )
+        sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        attrs = sensor.extra_state_attributes
+
+        self.assertEqual(attrs["right_gear_panel_path"], "/zero-net-export-managed-devices")
+        self.assertEqual(attrs["right_gear_panel_title"], "ZNE Managed Devices")
+        self.assertEqual(attrs["managed_devices"][0]["key"], "pool")
+        self.assertEqual(attrs["managed_devices"][0]["name"], "Pool Pump")
+
     def test_managed_device_configuration_url_encodes_query_value(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
@@ -487,7 +503,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertIn("1 managed", sensor.native_value)
-        self.assertEqual(sensor.extra_state_attributes["managed_devices"], [{}])
+        self.assertEqual(sensor.extra_state_attributes["managed_devices"], [{"key": "pool"}])
 
     def test_per_device_sensors_tolerate_null_managed_detail(self) -> None:
         sensor_module = _load_sensor_module()

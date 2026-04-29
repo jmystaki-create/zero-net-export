@@ -6,6 +6,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.97] - 2026-04-29
+
+### Added
+- Added a Zero Net Export managed-device panel (`ZNE Managed Devices`) for Riley's managed-only native device-list scope that renders the user-designed visible right-side gear button on every managed-device row instead of relying on Home Assistant's hidden native device-list affordance; release, deploy, Home Assistant restart, fingerprint validation, readiness claims, and PNG/live screenshot validation remain approval-gated.
+- Wired each right-side settings/configuration affordance to an inline edit surface for the saved first-provisioned settings inventory, with a `zero_net_export.update_managed_device` service that updates the integration options and reloads the config entry.
+
+### Fixed
+- Corrected the partial `0.1.96` fix: clean native row names and `configuration_url` metadata alone did not render Riley's specifically designed visible right-side gears in the screenshoted Home Assistant surface.
+
 ## [0.1.96] - 2026-04-29
 
 ### Fixed

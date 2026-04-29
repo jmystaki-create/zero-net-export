@@ -1,8 +1,13 @@
 """Zero Net Export integration."""
 from __future__ import annotations
 
+from dataclasses import asdict
+import json
+from pathlib import Path
 import re
 from typing import Any
+
+import voluptuous as vol
 
 from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
@@ -333,9 +338,136 @@ def _coerce_number(value: Any, fallback: int | float) -> int | float:
     return parsed
 
 
+PANEL_URL_PATH = "zero-net-export-managed-devices"
+PANEL_MODULE_URL = f"/api/{DOMAIN}/frontend/managed-devices-panel.js"
+
+
+UPDATE_MANAGED_DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Required("device_key"): str,
+        vol.Optional("name"): str,
+        vol.Optional("entity_id"): str,
+        vol.Optional("enabled"): bool,
+        vol.Optional("priority"): int,
+        vol.Optional("nominal_power_w"): float,
+        vol.Optional("min_power_w"): float,
+        vol.Optional("max_power_w"): float,
+        vol.Optional("step_w"): float,
+        vol.Optional("min_on_seconds"): int,
+        vol.Optional("min_off_seconds"): int,
+        vol.Optional("cooldown_seconds"): int,
+        vol.Optional("max_active_seconds"): int,
+    }
+)
+
+
+def _device_config_to_payload(device) -> dict[str, Any]:
+    payload = asdict(device)
+    if payload.get("max_active_seconds") is None:
+        payload["max_active_seconds"] = 0
+    return payload
+
+
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Expose the managed-devices panel with visible right-side gear actions."""
+    from homeassistant.components.http import StaticPathConfig
+
+    frontend_path = Path(__file__).parent / "frontend"
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(f"/api/{DOMAIN}/frontend", str(frontend_path), False)]
+    )
+
+    from homeassistant.components.panel_custom import async_register_panel
+
+    await async_register_panel(
+        hass,
+        frontend_url_path=PANEL_URL_PATH,
+        webcomponent_name="zero-net-export-managed-devices-panel",
+        sidebar_title="ZNE Managed Devices",
+        sidebar_icon="mdi:cog-outline",
+        module_url=PANEL_MODULE_URL,
+        require_admin=True,
+        config={"domain": DOMAIN},
+        config_panel_domain=DOMAIN,
+    )
+
+
+async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any) -> None:
+    """Update a managed device from the custom right-gear panel."""
+    entries = hass.config_entries.async_entries(DOMAIN)
+    if not entries:
+        raise ValueError("Zero Net Export has no configured entries")
+    entry = entries[0]
+    device_key = str(call.data["device_key"])
+    raw_inventory = entry.options.get(
+        CONF_DEVICE_INVENTORY_JSON,
+        entry.data.get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
+    )
+    devices, issues = parse_device_configs(raw_inventory)
+    if issues:
+        raise ValueError("Managed-device inventory is invalid: " + "; ".join(issues[:3]))
+
+    payloads = [_device_config_to_payload(device) for device in devices]
+    target = next((payload for payload in payloads if payload.get("key") == device_key), None)
+    if target is None:
+        raise ValueError(f"Managed device '{device_key}' was not found")
+
+    editable_fields = {
+        "name",
+        "entity_id",
+        "enabled",
+        "priority",
+        "nominal_power_w",
+        "min_power_w",
+        "max_power_w",
+        "step_w",
+        "min_on_seconds",
+        "min_off_seconds",
+        "cooldown_seconds",
+        "max_active_seconds",
+    }
+    for field in editable_fields:
+        if field in call.data:
+            target[field] = call.data[field]
+    if target.get("max_active_seconds") == 0:
+        target["max_active_seconds"] = None
+
+    _validated_devices, validation_issues = parse_device_configs(json.dumps(payloads))
+    if validation_issues:
+        raise ValueError("Managed-device settings are invalid: " + "; ".join(validation_issues[:3]))
+
+    merged_options = dict(entry.options)
+    merged_options[CONF_DEVICE_INVENTORY_JSON] = json.dumps(payloads, indent=2, sort_keys=True)
+    hass.config_entries.async_update_entry(entry, options=merged_options)
+    await hass.config_entries.async_reload(entry.entry_id)
+    persistent_notification.async_create(
+        hass,
+        f"Updated managed-device settings for {target.get('name') or device_key} from the right-side gear panel.",
+        title=f"{entry.title}: managed device settings saved",
+        notification_id=f"{DOMAIN}_{entry.entry_id}_managed_device_panel_update",
+    )
+
+
+def _register_services(hass: HomeAssistant) -> None:
+    if hass.services.has_service(DOMAIN, "update_managed_device"):
+        return
+
+    async def _handle_update_managed_device(call: Any) -> None:
+        await _async_update_managed_device_from_panel(hass, call)
+
+    hass.services.async_register(
+        DOMAIN,
+        "update_managed_device",
+        _handle_update_managed_device,
+        schema=UPDATE_MANAGED_DEVICE_SCHEMA,
+    )
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the integration domain."""
     hass.data.setdefault(DOMAIN, {})
+    _register_services(hass)
+    await _async_register_frontend(hass)
     return True
 
 

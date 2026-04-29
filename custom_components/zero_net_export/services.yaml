@@ -1,0 +1,84 @@
+update_managed_device:
+  name: Update managed device
+  description: Update the first-provisioned settings for a Zero Net Export managed device from the right-side gear panel.
+  fields:
+    device_key:
+      name: Device key
+      required: true
+      selector:
+        text:
+    name:
+      name: Name
+      selector:
+        text:
+    entity_id:
+      name: Entity
+      selector:
+        entity:
+    enabled:
+      name: Enabled
+      selector:
+        boolean:
+    priority:
+      name: Priority
+      selector:
+        number:
+          min: 0
+          max: 1000
+          mode: box
+    nominal_power_w:
+      name: Nominal power W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    min_power_w:
+      name: Minimum power W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    max_power_w:
+      name: Maximum power W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    step_w:
+      name: Step W
+      selector:
+        number:
+          min: 1
+          max: 100000
+          mode: box
+    min_on_seconds:
+      name: Minimum on seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box
+    min_off_seconds:
+      name: Minimum off seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box
+    cooldown_seconds:
+      name: Cooldown seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box
+    max_active_seconds:
+      name: Maximum active seconds
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: box

@@ -12,9 +12,10 @@ Focus only on the concrete bugs/features Riley has flagged in the Home Assistant
    - The Zero Net Export native integration/device list must not show unmanaged candidates as peer rows beside managed devices.
    - Existing/stale `Un Managed — ...` device-registry rows should be removed/suppressed.
 
-2. **Managed rows need the settings gear in the native right-side action location**
-   - Managed device rows must expose settings/configuration access through Home Assistant's native right-side clickable configuration affordance.
+2. **Managed rows need the settings gear in the native right-side action location / visible right-side action location**
+   - Managed device rows/surfaces must expose settings/configuration access through a visible right-side clickable gear affordance.
    - Do not fake the gear by embedding `⚙ Settings` inside the left-side device row name. Riley rejected that placement on 2026-04-29.
+   - Do not treat hidden native `configuration_url` metadata as sufficient if the screenshoted Home Assistant surface does not show the designed gear.
    - Managed child row labels should stay clean, e.g. `Managed Devices — Coffee machine`, while settings/action entities may still use settings-oriented labels/icons where Home Assistant renders them as actual controls.
    - Clicking the right-side settings/configuration affordance should lead to editing the settings captured when the managed device was first provisioned.
 

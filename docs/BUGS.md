@@ -159,12 +159,12 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **severity:** `medium`
 - **area:** `managed_devices`
 - **where seen:** Riley's 2026-04-29 Home Assistant screenshot after live `0.1.95` validation.
-- **current observed behavior:** the native integration/device list rendered managed child rows with inline names such as `Managed Devices — ⚙ Settings — Coffee machine`. The gear was visible, but it was in the wrong location: part of the left-side row text instead of the native clickable settings/configuration affordance on the right of the device row.
-- **expected behavior:** managed child rows should have clean names such as `Managed Devices — Coffee machine`, keep their native `configuration_url`, and rely on Home Assistant's right-side settings/configuration action as the click target for editing the settings captured when the load was first provisioned.
-- **evidence:** user-supplied screenshot showed the inline gear in the row name and pointed to the right-side location where the actionable gear belongs. Repo evidence before this fix: `managed_load_device_info(...)` embedded `⚙ Settings` in both the device `name` and `model`.
-- **repo fix:** this candidate removes inline `⚙ Settings` from managed child device registry `name`/`model` while preserving `configuration_url` and `mdi:cog-outline` on the actual settings/action entities. Focused integration/device-page tests now expect clean managed child row names while still asserting the native configuration URL.
-- **validation status:** fixed in repo for `0.1.96` candidate; live deploy/restart validation is pending explicit Riley approval after PNG proof.
-- **next action:** generate PNG proof before deploy showing the clean managed child row label with the gear/settings affordance on the right, then ask Riley for release/deploy approval.
+- **current observed behavior:** the native integration/device list first rendered managed child rows with inline names such as `Managed Devices — ⚙ Settings — Coffee machine`. The `0.1.96` follow-up cleaned the row and preserved `configuration_url`, but Riley's post-deploy screenshot showed the specifically designed visible right-side gears still were not present in the Home Assistant surface.
+- **expected behavior:** managed child rows/surfaces should have clean names such as `Managed Devices — Coffee machine` and a visible right-side gear button that is actually clickable, not a decorative glyph or hidden native metadata.
+- **evidence:** user-supplied screenshots showed both the rejected inline gear placement and the later missing right-side gear after `0.1.96` deployment. Repo evidence before `0.1.97`: `managed_load_device_info(...)` only exposed `configuration_url`, which Home Assistant did not render as the designed visible gear in the screenshoted location.
+- **repo fix:** `0.1.97` adds a `ZNE Managed Devices` custom panel with a right-aligned `mdi:cog` gear button on every managed-device row. Clicking the gear opens an inline editor for the first-provisioned settings and saves through `zero_net_export.update_managed_device`, updating integration options and reloading the config entry.
+- **validation status:** fixed in repo for `0.1.97` candidate; PNG proof and live deploy/restart validation are pending explicit Riley approval.
+- **next action:** generate PNG proof before deploy showing the actual right-side gear panel and edit flow, then ask Riley for release/deploy approval.
 
 
 ## ZNE-570 - Diagnostics guide could echo stale secondary review wording without settings affordance
