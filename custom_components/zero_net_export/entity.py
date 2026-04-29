@@ -405,11 +405,11 @@ def _remove_entity_registry_entry(entity_registry, entity) -> None:
         return
 
 
-def _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id: str) -> bool:
-    """Return True for current Managed Devices workflow/backlog entries."""
+def _is_current_fleet_workspace_entity_registry_entry(entity, entry_id: str) -> bool:
+    """Return True for current Managed Devices workflow/backlog/review entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
-    current_backlog_unique_ids = {f"{entry_id}_{key}" for key in FLEET_WORKSPACE_SENSOR_KEYS}
-    if unique_id in current_backlog_unique_ids:
+    current_workspace_unique_ids = {f"{entry_id}_{key}" for key in FLEET_WORKSPACE_SENSOR_KEYS}
+    if unique_id in current_workspace_unique_ids:
         return True
 
     entity_id = str(getattr(entity, "entity_id", "") or "")
@@ -427,7 +427,7 @@ def _is_legacy_unmanaged_candidate_entity_registry_entry(
 ) -> bool:
     """Return True for old peer-row unmanaged-candidate entity-registry entries."""
     unique_id = str(getattr(entity, "unique_id", "") or "")
-    if _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id):
+    if _is_current_fleet_workspace_entity_registry_entry(entity, entry_id):
         return False
 
     # When config-entry ownership is missing, only current-entry-scoped legacy
@@ -499,7 +499,7 @@ def _remove_entity_registry_entries_attached_to_devices(
         entity_entry_ids = _entity_registry_entry_config_entry_ids(entity)
         if entity_entry_ids and expected_entry_id not in entity_entry_ids:
             continue
-        if preserve_current_workflow_entries and _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id):
+        if preserve_current_workflow_entries and _is_current_fleet_workspace_entity_registry_entry(entity, entry_id):
             continue
         if str(getattr(entity, "device_id", "") or "") in device_ids:
             _remove_entity_registry_entry(entity_registry, entity)
@@ -525,7 +525,7 @@ def remove_unmanaged_candidate_entity_registry_entries_for_entry(
         entity_entry_ids = _entity_registry_entry_config_entry_ids(entity)
         if entity_entry_ids and expected_entry_id not in entity_entry_ids:
             continue
-        if _is_current_unmanaged_backlog_entity_registry_entry(entity, entry_id):
+        if _is_current_fleet_workspace_entity_registry_entry(entity, entry_id):
             continue
         device_id = str(getattr(entity, "device_id", "") or "")
         if device_id in device_ids or (

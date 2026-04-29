@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 
 
@@ -308,6 +309,12 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertIn("FLEET_WORKSPACE_SENSOR_KEYS", source)
         self.assertNotIn('"managed_devices_surface", "managed_fleet_overview"', source)
+
+    def test_fleet_workspace_cleanup_guard_uses_current_scope_name(self) -> None:
+        source = Path("custom_components/zero_net_export/entity.py").read_text(encoding="utf-8")
+
+        self.assertIn("_is_current_fleet_workspace_entity_registry_entry", source)
+        self.assertNotIn("_is_current_unmanaged_backlog_entity_registry_entry", source)
 
     def test_base_entity_tolerates_missing_validation_details(self) -> None:
         sensor_module = _load_sensor_module()

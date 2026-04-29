@@ -101,6 +101,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-560 - workflow cleanup guard still used unmanaged-backlog-only naming
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking current Managed Devices workflow/backlog/review preservation after ZNE-555 through ZNE-559.
+- **current observed behavior:** the shared entity-registry preservation guard now protects all current Managed Devices workflow/backlog/review sensor keys, including managed fleet workspace sensors, but its helper name and local variable still described only unmanaged backlog entries. That stale naming could mislead future cleanup work back toward preserving unmanaged backlog only while managed workflow sensors are part of Riley's current visible settings/workflow scope.
+- **expected behavior:** shared cleanup guard naming should describe the current fleet workspace scope: managed workflow/review sensors plus unmanaged backlog/review sensors remain available behind workflow surfaces while peer `Un Managed — ...` rows stay suppressed.
+- **repo fix:** this run renames the cleanup guard to `_is_current_fleet_workspace_entity_registry_entry`, updates callers, and adds focused source regression coverage rejecting the old unmanaged-backlog-only helper name. Runtime behavior is unchanged.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list and workflow/action surfaces showing only current managed rows/actions with visible `⚙ Settings` labels, no peer `Un Managed — ...` rows, and unmanaged candidates still available through Managed Devices workflow/backlog/review surfaces.
+
 ## ZNE-559 - Managed Devices workflow buttons lacked visible settings affordance
 
 - **status:** `fixed_pending_validation`
