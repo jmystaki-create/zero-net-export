@@ -56,10 +56,18 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
   }
 
   devices() {
-    return this.managedSurfaces().flatMap((surface) => {
+    const byKey = new Map();
+    for (const surface of this.managedSurfaces()) {
       const entryId = surface.attributes?.config_entry_id || surface.attributes?.entry_id || '';
-      return surface.attributes.managed_devices.map((device) => ({...device, entry_id: device.entry_id || entryId}));
-    });
+      for (const device of surface.attributes.managed_devices) {
+        const deviceKey = String(device.key || device.device_key || device.name || 'managed-device');
+        const stableKey = `${device.entry_id || entryId}:${deviceKey}`;
+        if (!byKey.has(stableKey)) {
+          byKey.set(stableKey, {...device, entry_id: device.entry_id || entryId});
+        }
+      }
+    }
+    return [...byKey.values()];
   }
 
   openEditor(editKey) {

@@ -18,6 +18,8 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("class=\"gear\"", source)
         self.assertIn("data-gear", source)
         self.assertIn("managedSurfaces", source)
+        self.assertIn("const byKey = new Map()", source)
+        self.assertIn("const stableKey = `${device.entry_id || entryId}:${deviceKey}`", source)
         self.assertIn("config_entry_id", source)
         self.assertIn("entry_id: root.dataset.entryId", source)
         self.assertIn("device_key: root.dataset.deviceKey", source)
