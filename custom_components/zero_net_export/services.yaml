@@ -2,6 +2,11 @@ update_managed_device:
   name: Update managed device
   description: Update the first-provisioned settings for a Zero Net Export managed device from the right-side gear panel.
   fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used by the managed-device gear panel when more than one entry is installed.
+      selector:
+        text:
     device_key:
       name: Device key
       required: true

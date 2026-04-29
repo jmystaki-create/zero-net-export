@@ -1540,8 +1540,9 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "configure_path": DEVICES_CONFIGURE_PATH,
                 "right_gear_panel_path": "/zero-net-export-managed-devices",
                 "right_gear_panel_title": "ZNE Managed Devices",
+                "config_entry_id": self.coordinator.entry.entry_id,
                 "managed_devices": [
-                    {"key": device_key, **dict(detail)}
+                    {"entry_id": self.coordinator.entry.entry_id, "key": device_key, **dict(detail)}
                     for device_key, detail in sorted(device_details.items(), key=lambda item: _device_sort_key(item[1]))
                 ],
                 **counts,

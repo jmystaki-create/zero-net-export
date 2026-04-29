@@ -48,20 +48,22 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
     return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.37-.31-.6-.22l-2.49 1a7.28 7.28 0 0 0-1.69-.98L14.5 2.42A.49.49 0 0 0 14 2h-4c-.25 0-.46.18-.5.42L9.12 5.07c-.61.24-1.18.56-1.69.98l-2.49-1a.49.49 0 0 0-.6.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.08.65-.08.98s.03.66.08.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.37.31.6.22l2.49-1c.51.4 1.08.74 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.58 1.69-.98l2.49 1c.23.08.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65ZM12 15.5A3.5 3.5 0 1 1 12 8a3.5 3.5 0 0 1 0 7.5Z"/></svg>`;
   }
 
-  getSurface() {
+  managedSurfaces() {
     const states = this._hass?.states || {};
-    return Object.values(states).find((state) => state.entity_id === 'sensor.zero_net_export_managed_devices_surface') ||
-      Object.values(states).find((state) => state.entity_id?.startsWith('sensor.zero_net_export') && state.attributes?.managed_devices);
+    return Object.values(states).filter((state) =>
+      state.entity_id?.startsWith('sensor.zero_net_export') && Array.isArray(state.attributes?.managed_devices)
+    );
   }
 
   devices() {
-    const surface = this.getSurface();
-    const devices = surface?.attributes?.managed_devices || [];
-    return Array.isArray(devices) ? devices : [];
+    return this.managedSurfaces().flatMap((surface) => {
+      const entryId = surface.attributes?.config_entry_id || surface.attributes?.entry_id || '';
+      return surface.attributes.managed_devices.map((device) => ({...device, entry_id: device.entry_id || entryId}));
+    });
   }
 
-  openEditor(key) {
-    this._editing = key;
+  openEditor(editKey) {
+    this._editing = editKey;
     this.render();
   }
 
@@ -70,13 +72,14 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
     this.render();
   }
 
-  async saveDevice(key) {
-    const root = this.querySelector(`[data-editor="${CSS.escape(key)}"]`);
+  async saveDevice(editKey) {
+    const root = this.querySelector(`[data-editor="${CSS.escape(editKey)}"]`);
     if (!root || !this._hass) return;
     const value = (name) => root.querySelector(`[name="${name}"]`)?.value;
     const checked = (name) => !!root.querySelector(`[name="${name}"]`)?.checked;
     const payload = {
-      device_key: key,
+      entry_id: root.dataset.entryId || '',
+      device_key: root.dataset.deviceKey || '',
       name: value('name'),
       entity_id: value('entity_id'),
       enabled: checked('enabled'),
@@ -100,11 +103,11 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
     this.render();
   }
 
-  editor(device) {
+  editor(device, editKey) {
     const key = device.key || device.device_key || device.name;
     const val = (field, fallback = '') => device[field] ?? fallback;
     return `
-      <div class="editor" data-editor="${this.escapeAttr(key)}">
+      <div class="editor" data-editor="${this.escapeAttr(editKey)}" data-entry-id="${this.escapeAttr(device.entry_id || '')}" data-device-key="${this.escapeAttr(key)}">
         <div class="grid">
           <label>Name<input name="name" value="${this.escapeAttr(val('name'))}"></label>
           <label>Entity<input name="entity_id" value="${this.escapeAttr(val('entity_id'))}"></label>
@@ -125,6 +128,8 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
 
   row(device) {
     const key = String(device.key || device.device_key || device.name || 'managed-device');
+    const entryId = String(device.entry_id || 'default-entry');
+    const editKey = `${entryId}:${key}`;
     const kind = device.kind || 'managed';
     const status = device.status || (device.usable ? 'ready' : 'configured');
     const power = device.current_power_w ?? device.nominal_power_w ?? '—';
@@ -134,8 +139,8 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
           <div class="name">${this.escape(device.name || key)}</div>
           <div class="meta">${this.escape(kind)} • ${this.escape(status)} • ${this.escape(power)} W • ${this.escape(device.entity_id || '')}</div>
         </div>
-        <button class="gear" title="Edit ${this.escapeAttr(device.name || key)} settings" aria-label="Edit ${this.escapeAttr(device.name || key)} settings" data-gear="${this.escapeAttr(key)}">${this.gearIcon()}</button>
-        ${this._editing === key ? this.editor({...device, key}) : ''}
+        <button class="gear" title="Edit ${this.escapeAttr(device.name || key)} settings" aria-label="Edit ${this.escapeAttr(device.name || key)} settings" data-gear="${this.escapeAttr(editKey)}">${this.gearIcon()}</button>
+        ${this._editing === editKey ? this.editor({...device, key}, editKey) : ''}
       </div>`;
   }
 

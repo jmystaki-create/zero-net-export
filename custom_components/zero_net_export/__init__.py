@@ -344,6 +344,7 @@ PANEL_MODULE_URL = f"/api/{DOMAIN}/frontend/managed-devices-panel.js"
 
 UPDATE_MANAGED_DEVICE_SCHEMA = vol.Schema(
     {
+        vol.Optional("entry_id"): str,
         vol.Required("device_key"): str,
         vol.Optional("name"): str,
         vol.Optional("entity_id"): str,
@@ -397,7 +398,10 @@ async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any
     entries = hass.config_entries.async_entries(DOMAIN)
     if not entries:
         raise ValueError("Zero Net Export has no configured entries")
-    entry = entries[0]
+    requested_entry_id = str(call.data.get("entry_id") or "")
+    entry = next((candidate for candidate in entries if candidate.entry_id == requested_entry_id), None) if requested_entry_id else entries[0]
+    if entry is None:
+        raise ValueError(f"Zero Net Export entry '{requested_entry_id}' was not found")
     device_key = str(call.data["device_key"])
     raw_inventory = entry.options.get(
         CONF_DEVICE_INVENTORY_JSON,

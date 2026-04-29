@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-576 - right-gear panel could update the wrong entry in multi-entry installs
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking the new right-side managed-device gear panel under Riley's current highlighted scope.
+- **current observed behavior:** the `ZNE Managed Devices` right-gear panel rendered devices from Home Assistant state, but the save service only accepted `device_key` and always updated the first Zero Net Export config entry. In a multi-entry install, duplicate or non-first managed-device keys could save settings to the wrong entry instead of the device row whose gear was clicked.
+- **expected behavior:** the visible right-side gear affordance should carry the managed device's owning config-entry id through the panel payload and update the settings captured for that specific entry/device, while keeping managed rows clean and unmanaged candidates behind workflow/backlog/review surfaces.
+- **repo fix:** this run adds `config_entry_id` plus per-device `entry_id` to the Managed Devices surface attributes, has the custom gear panel aggregate all managed-device surfaces and submit `entry_id` with `device_key`, and makes `zero_net_export.update_managed_device` target the matching config entry when provided.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_managed_devices_panel tests.test_integration_page_device_lists -q` and Python compile for touched integration/test modules. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list and `ZNE Managed Devices` right-gear panel showing clean managed rows, correct right-side gear edit flow, no peer `Un Managed — ...` rows, and unmanaged candidates available through workflow/backlog/review surfaces.
+
+
 ## ZNE-575 - bucket-copy regression test still enforced current scope inside deprecated UI map
 
 - **status:** `fixed_pending_validation`

@@ -115,6 +115,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(attrs["right_gear_panel_path"], "/zero-net-export-managed-devices")
         self.assertEqual(attrs["right_gear_panel_title"], "ZNE Managed Devices")
+        self.assertEqual(attrs["config_entry_id"], "entry-1")
+        self.assertEqual(attrs["managed_devices"][0]["entry_id"], "entry-1")
         self.assertEqual(attrs["managed_devices"][0]["key"], "pool")
         self.assertEqual(attrs["managed_devices"][0]["name"], "Pool Pump")
 
@@ -503,7 +505,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         sensor.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
         self.assertIn("1 managed", sensor.native_value)
-        self.assertEqual(sensor.extra_state_attributes["managed_devices"], [{"key": "pool"}])
+        self.assertEqual(sensor.extra_state_attributes["managed_devices"], [{"entry_id": "entry-1", "key": "pool"}])
 
     def test_per_device_sensors_tolerate_null_managed_detail(self) -> None:
         sensor_module = _load_sensor_module()
