@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-565 - Managed Devices configure handoff copy lacked settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking native Home Assistant Managed Devices configure-flow copy after the managed row/action settings-affordance fixes.
+- **current observed behavior:** Managed Devices configure-flow descriptions still labeled the secondary per-device handoff as `Secondary per-device review/audit path` without the visible `⚙ Settings` wording, even though the per-device actions and support copy now use the settings affordance.
+- **expected behavior:** configure/workflow copy that points users to per-device managed review actions should carry the visible `⚙ Settings` affordance, while unmanaged candidates stay behind Managed Devices workflow/backlog/review surfaces and no peer `Un Managed — ...` rows appear beside managed devices.
+- **repo fix:** this run updates the Managed Devices options-flow source strings and English translation to say `Secondary per-device ⚙ Settings review/audit path` across fleet, promotion, save, remove, and JSON recovery descriptions, with focused copy and translation-sync coverage rejecting the old unlabelled handoff.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_bucket_ownership_copy tests.test_translation_sync -q`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing managed rows/actions with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
+
 ## ZNE-564 - per-device review affordance copy omitted visible settings label
 
 - **status:** `fixed_pending_validation`
