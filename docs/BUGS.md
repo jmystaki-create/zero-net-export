@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-577 - right-gear panel save button could miss the open editor
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while checking the new right-side managed-device gear panel save flow under Riley's current highlighted scope.
+- **current observed behavior:** the panel opened an editor keyed by `entry_id:device_key`, but the `Save settings` button passed only the bare device key into `saveDevice(...)`. For normal config-entry-backed managed devices, the save handler could fail to find the open editor and return without calling `zero_net_export.update_managed_device`, leaving the visible right-side gear edit flow unable to persist changes.
+- **expected behavior:** the visible right-side managed-device gear editor should use the same stable `entry_id:device_key` key for opening and saving, then submit the owning entry id plus device key to the update service.
+- **repo fix:** this run changes the panel editor action buttons to pass the full edit key and extends focused panel coverage so the save button remains keyed to `editKey`.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_managed_devices_panel -q`. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list and `ZNE Managed Devices` right-gear panel showing the gear edit save flow persists changes, clean managed rows, no peer `Un Managed — ...` rows, and unmanaged candidates available through workflow/backlog/review surfaces.
+
+
 ## ZNE-576 - right-gear panel could update the wrong entry in multi-entry installs
 
 - **status:** `fixed_pending_validation`

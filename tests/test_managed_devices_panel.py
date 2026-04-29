@@ -25,6 +25,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("device_key: root.dataset.deviceKey", source)
         self.assertIn("data-device-key", source)
         self.assertIn("const editKey = `${entryId}:${key}`", source)
+        self.assertIn('data-save="${this.escapeAttr(editKey)}"', source)
         self.assertIn("Edit ${this.escapeAttr(device.name || key)} settings", source)
         self.assertIn("Save settings", source)
         self.assertIn("update_managed_device", source)

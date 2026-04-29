@@ -130,7 +130,7 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
           <label>Max active seconds<input name="max_active_seconds" type="number" value="${this.escapeAttr(val('max_active_seconds', 14400) || 0)}"></label>
         </div>
         <label class="checkbox"><input name="enabled" type="checkbox" ${val('enabled', val('effective_enabled', true)) ? 'checked' : ''}> Enabled</label>
-        <div class="actions"><button class="cancel" data-cancel="${this.escapeAttr(key)}">Cancel</button><button class="save" data-save="${this.escapeAttr(key)}">Save settings</button></div>
+        <div class="actions"><button class="cancel" data-cancel="${this.escapeAttr(editKey)}">Cancel</button><button class="save" data-save="${this.escapeAttr(editKey)}">Save settings</button></div>
       </div>`;
   }
 
