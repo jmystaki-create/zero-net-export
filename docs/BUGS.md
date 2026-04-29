@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-575 - bucket-copy regression test still enforced current scope inside deprecated UI map
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `process`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking loop/churn behavior after the managed-only native device-list fixes.
+- **current observed behavior:** `tests/test_bucket_ownership_copy.py` still asserted that deprecated `docs/UI_IMPLEMENTATION_MAP.md` contained the current `visible settings/gear affordance` phrase. That made a deprecated roadmap/map carry an active-scope regression expectation and could pull future maintenance back into old UI-map churn instead of `docs/ACTIVE_USER_REQUESTS.md` plus `docs/BUGS.md`.
+- **expected behavior:** tests may verify deprecated docs are clearly marked non-authoritative and point to active steering, but they should not require current managed-only/settings-affordance scope copy to live inside deprecated roadmap documents.
+- **repo fix:** this run changes the bucket-copy regression to check the implementation map's deprecation banner, non-source-of-truth wording, and pointer to `docs/ACTIVE_USER_REQUESTS.md` instead of asserting the current settings/gear phrase inside the deprecated map.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_bucket_ownership_copy tests.test_operator_docs_consistency -q`.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export integration/device list and Managed Devices workflow surfaces showing clean managed rows with the native right-side settings affordance, no peer `Un Managed — ...` rows, and unmanaged candidates available through workflow/backlog/review surfaces.
+
+
 ## ZNE-574 - unmanaged cleanup helper docstring still said current peer-row identifiers
 
 - **status:** `fixed_pending_validation`
