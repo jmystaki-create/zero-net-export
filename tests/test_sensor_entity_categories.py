@@ -402,8 +402,9 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             sensor.native_value,
-            "Managed Devices surface | 1 managed | 1 needs attention | blocked Pool pump | 2 unmanaged backlog | review AC outlet (fixed) | review carefully | warn generic outlet label | open Managed Devices workspace",
+            "Managed Devices surface | 1 managed | 1 needs attention | blocked Pool pump | 2 unmanaged backlog | review AC outlet (fixed) | review carefully | warn generic outlet label | open ⚙ Settings — Managed Devices workspace",
         )
+        self.assertNotIn("open Managed Devices workspace", sensor.native_value)
         self.assertIsNone(sensor.entity_category)
         self.assertEqual(sensor.extra_state_attributes["configure_path"], "devices path")
         self.assertEqual(sensor.extra_state_attributes["candidate_count"], 2)

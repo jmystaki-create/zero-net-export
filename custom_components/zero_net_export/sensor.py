@@ -1158,7 +1158,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     surface_parts.append(f"ready {ready_candidate_preview or ready_candidate_name}")
                 elif candidate_count:
                     surface_parts.append("candidate review available")
-                surface_parts.append("open Managed Devices workspace")
+                surface_parts.append("open ⚙ Settings — Managed Devices workspace")
                 return _fleet_overview_state(surface_parts)
 
             if self._key == "managed_fleet_attention":

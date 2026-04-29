@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-566 - Managed Devices surface summary lacked visible settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking native managed workflow/backlog surfaces for Riley's visible settings/gear-affordance requirement.
+- **current observed behavior:** the Managed Devices surface sensor summary ended with `open Managed Devices workspace` even though the corresponding native workflow button now renders as `⚙ Settings — Open Managed Devices workspace` with a gear icon. Compact sensor/status screenshots could therefore still show an unlabeled generic workspace handoff.
+- **expected behavior:** native managed workflow summaries that direct users to the managed workspace should carry the visible `⚙ Settings` affordance, while unmanaged candidates stay behind Managed Devices workflow/backlog/review surfaces and no peer `Un Managed — ...` rows appear beside managed devices.
+- **repo fix:** this run changes the Managed Devices surface summary tail to `open ⚙ Settings — Managed Devices workspace` and updates focused sensor coverage to reject the old unlabelled handoff.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_sensor_entity_categories -q` and Python compile for `custom_components/zero_net_export/sensor.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing managed rows/actions/summaries with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
+
 ## ZNE-565 - Managed Devices configure handoff copy lacked settings affordance
 
 - **status:** `fixed_pending_validation`
