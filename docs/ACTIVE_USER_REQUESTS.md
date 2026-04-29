@@ -12,10 +12,11 @@ Focus only on the concrete bugs/features Riley has flagged in the Home Assistant
    - The Zero Net Export native integration/device list must not show unmanaged candidates as peer rows beside managed devices.
    - Existing/stale `Un Managed — ...` device-registry rows should be removed/suppressed.
 
-2. **Managed rows need an obvious settings affordance**
-   - Managed device rows must visibly communicate settings/configuration access.
-   - Riley rejected treating Home Assistant's native chevron/settings path as enough by itself.
-   - A visible `⚙`/settings label or equivalent native-HA-visible affordance is required on controllable surfaces.
+2. **Managed rows need the settings gear in the native right-side action location**
+   - Managed device rows must expose settings/configuration access through Home Assistant's native right-side clickable configuration affordance.
+   - Do not fake the gear by embedding `⚙ Settings` inside the left-side device row name. Riley rejected that placement on 2026-04-29.
+   - Managed child row labels should stay clean, e.g. `Managed Devices — Coffee machine`, while settings/action entities may still use settings-oriented labels/icons where Home Assistant renders them as actual controls.
+   - Clicking the right-side settings/configuration affordance should lead to editing the settings captured when the managed device was first provisioned.
 
 3. **Unmanaged candidates stay behind workflow/backlog surfaces**
    - Unmanaged devices/candidates should remain discoverable through Managed Devices workflow/backlog/review surfaces.
@@ -23,7 +24,7 @@ Focus only on the concrete bugs/features Riley has flagged in the Home Assistant
 
 4. **No release-readiness claim without proof**
    - Do not tag, release, deploy, restart Home Assistant, or claim the next release is ready without explicit approval.
-   - Required proof after implementation: tests pass and live screenshot evidence shows managed rows with settings affordance and no peer `Un Managed — ...` rows.
+   - Required proof before release/deploy approval: tests pass and PNG evidence shows clean managed rows with the settings affordance on the native right side and no peer `Un Managed — ...` rows.
 
 5. **No direct Home Assistant updates outside release management**
    - No features, bug fixes, or component updates should be pushed directly to the live Home Assistant install outside the GitHub release-management process.

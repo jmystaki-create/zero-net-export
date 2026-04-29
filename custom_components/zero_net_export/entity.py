@@ -163,9 +163,9 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
     kind = str(detail.get("kind") or "managed").strip()
     return {
         "identifiers": {(DOMAIN, f"{coordinator.entry.entry_id}:managed-device:{_device_identifier_part(device_key)}")},
-        "name": f"Managed Devices — ⚙ Settings — {name}",
+        "name": f"Managed Devices — {name}",
         "manufacturer": "OpenClaw",
-        "model": f"Managed Devices — ⚙ Settings — {kind.title()} managed load" if kind else "Managed Devices — ⚙ Settings — Managed load",
+        "model": f"Managed Devices — {kind.title()} managed load" if kind else "Managed Devices — Managed load",
         "sw_version": INTEGRATION_VERSION,
         "via_device": (DOMAIN, coordinator.entry.entry_id),
         "configuration_url": managed_load_configuration_url(coordinator, device_key),

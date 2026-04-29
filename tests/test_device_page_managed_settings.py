@@ -67,7 +67,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(switch._attr_entity_category, switch_module.EntityCategory.CONFIG)
         self.assertEqual(switch._attr_name, "⚙ Settings — Pool Pump enabled")
         self.assertEqual(switch._attr_icon, "mdi:cog-outline")
-        self.assertEqual(switch._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+        self.assertEqual(switch._attr_device_info["name"], "Managed Devices — Pool Pump")
         self.assertEqual(switch._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
     def test_managed_device_priority_number_is_child_device_configuration(self) -> None:
@@ -78,7 +78,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(number._attr_entity_category, number_module.EntityCategory.CONFIG)
         self.assertEqual(number._attr_name, "⚙ Settings — Pool Pump priority")
         self.assertEqual(number._attr_icon, "mdi:cog-outline")
-        self.assertEqual(number._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+        self.assertEqual(number._attr_device_info["name"], "Managed Devices — Pool Pump")
         self.assertEqual(number._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
 
     def test_managed_device_action_buttons_are_child_device_configuration(self) -> None:
@@ -93,8 +93,8 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(reset._attr_name, "⚙ Settings — Pool Pump reset overrides")
         self.assertEqual(review._attr_icon, "mdi:cog-outline")
         self.assertEqual(reset._attr_icon, "mdi:cog-outline")
-        self.assertEqual(review._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
-        self.assertEqual(reset._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+        self.assertEqual(review._attr_device_info["name"], "Managed Devices — Pool Pump")
+        self.assertEqual(reset._attr_device_info["name"], "Managed Devices — Pool Pump")
 
     def test_managed_device_usable_binary_sensor_keeps_visible_settings_affordance(self) -> None:
         binary_sensor_module = _load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity")
@@ -104,7 +104,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(usable._attr_entity_category, binary_sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(usable._attr_name, "⚙ Settings — Pool Pump usable")
         self.assertEqual(usable._attr_icon, "mdi:cog-outline")
-        self.assertEqual(usable._attr_device_info["name"], "Managed Devices — ⚙ Settings — Pool Pump")
+        self.assertEqual(usable._attr_device_info["name"], "Managed Devices — Pool Pump")
 
     def test_managed_device_sensor_rows_keep_visible_settings_affordance(self) -> None:
         sensor_module = _load_sensor_module()
@@ -160,7 +160,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                     for entity in added
                     if getattr(entity, "_attr_device_info", None)
                 ]
-                self.assertIn("Managed Devices — ⚙ Settings — pool", device_names)
+                self.assertIn("Managed Devices — pool", device_names)
 
     def test_managed_device_setup_platforms_use_config_inventory_before_runtime_details(self) -> None:
         coordinator = _coordinator()
@@ -192,7 +192,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                 managed_entities = [
                     entity
                     for entity in added
-                    if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — ⚙ Settings — Pool Pump"
+                    if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — Pool Pump"
                 ]
                 self.assertTrue(managed_entities)
                 self.assertIn(expected_name, [entity._attr_name for entity in managed_entities])
@@ -223,7 +223,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                 pool_entities = [
                     entity
                     for entity in added
-                    if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — ⚙ Settings — Pool Pump"
+                    if (getattr(entity, "_attr_device_info", None) or {}).get("name") == "Managed Devices — Pool Pump"
                 ]
                 self.assertEqual(len(pool_entities), expected_removed_count)
                 for entity in pool_entities:
@@ -239,7 +239,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
                 self.assertTrue(
                     any(
                         (getattr(entity, "_attr_device_info", None) or {}).get("name")
-                        == "Managed Devices — ⚙ Settings — Pool Pump Prime"
+                        == "Managed Devices — Pool Pump Prime"
                         for entity in added
                     )
                 )

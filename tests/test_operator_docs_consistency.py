@@ -14,7 +14,7 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("current project steering source of truth", content)
         self.assertIn("`docs/UI_DESIGN.md` and `docs/UI_IMPLEMENTATION_MAP.md` are deprecated", content)
         self.assertIn("Managed-device list must be managed-only", content)
-        self.assertIn("Managed rows need an obvious settings affordance", content)
+        self.assertIn("Managed rows need the settings gear in the native right-side action location", content)
         self.assertIn("Unmanaged candidates stay behind workflow/backlog surfaces", content)
         self.assertIn("No release-readiness claim without proof", content)
         self.assertIn("When project docs, tests, old release plans, cron prompts, or watchdog/supervisor guidance conflict with this file, this file wins", content)

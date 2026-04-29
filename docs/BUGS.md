@@ -101,6 +101,20 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-571 - Managed-device row put the gear affordance inside the row name instead of the native right-side action
+
+- **status:** `fixed_pending_validation`
+- **severity:** `medium`
+- **area:** `managed_devices`
+- **where seen:** Riley's 2026-04-29 Home Assistant screenshot after live `0.1.95` validation.
+- **current observed behavior:** the native integration/device list rendered managed child rows with inline names such as `Managed Devices — ⚙ Settings — Coffee machine`. The gear was visible, but it was in the wrong location: part of the left-side row text instead of the native clickable settings/configuration affordance on the right of the device row.
+- **expected behavior:** managed child rows should have clean names such as `Managed Devices — Coffee machine`, keep their native `configuration_url`, and rely on Home Assistant's right-side settings/configuration action as the click target for editing the settings captured when the load was first provisioned.
+- **evidence:** user-supplied screenshot showed the inline gear in the row name and pointed to the right-side location where the actionable gear belongs. Repo evidence before this fix: `managed_load_device_info(...)` embedded `⚙ Settings` in both the device `name` and `model`.
+- **repo fix:** this candidate removes inline `⚙ Settings` from managed child device registry `name`/`model` while preserving `configuration_url` and `mdi:cog-outline` on the actual settings/action entities. Focused integration/device-page tests now expect clean managed child row names while still asserting the native configuration URL.
+- **validation status:** fixed in repo for `0.1.96` candidate; live deploy/restart validation is pending explicit Riley approval after PNG proof.
+- **next action:** generate PNG proof before deploy showing the clean managed child row label with the gear/settings affordance on the right, then ask Riley for release/deploy approval.
+
+
 ## ZNE-570 - Diagnostics guide could echo stale secondary review wording without settings affordance
 
 - **status:** `fixed_pending_validation`

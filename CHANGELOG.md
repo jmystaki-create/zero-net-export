@@ -6,6 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.96] - 2026-04-29
+
+### Fixed
+- Corrected Riley's managed-only native device-list scope gear placement bug: `Managed Devices — <name>` child devices no longer fake the settings gear inside the left-side row name/model, so Home Assistant can render the native right-side settings/configuration affordance from the device `configuration_url`.
+- Kept the managed-device edit path attached to the first-provisioned settings inventory: clicking the right-side settings/configuration affordance should route back to the Managed Devices configuration surface where the saved provisioned values can be edited, while release, deploy, Home Assistant restart, fingerprint validation, readiness claims, and PNG/live screenshot validation remain approval-gated.
+
 ## [0.1.95] - 2026-04-29
 
 ### Added
