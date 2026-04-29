@@ -1184,7 +1184,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
             has_managed_devices=bool(ordered),
         )
         lines = [
-            'Zero Net Export Managed Devices workspace',
+            'Zero Net Export ⚙ Settings — Managed Devices workspace',
             '',
             f'Managed Devices workspace: {DEVICES_CONFIGURE_PATH}',
             f'Secondary device-page review/audit path: {DETAILED_MANAGEMENT_PATH}',
@@ -1267,7 +1267,7 @@ class ZeroNetExportShowFleetConsoleButton(ZeroNetExportEntity, ButtonEntity):
         persistent_notification.async_create(
             self.hass,
             '\n'.join(lines),
-            title=f"{self.coordinator.entry.title}: Managed Devices workspace",
+            title=f"{self.coordinator.entry.title}: ⚙ Settings — Managed Devices workspace",
             notification_id=_fleet_console_notification_id(self.coordinator.entry.entry_id),
         )
 
@@ -1361,7 +1361,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         )
         attention_devices, remaining_devices = _partition_review_devices(ordered)
         lines = [
-            "Zero Net Export Managed Devices review",
+            "Zero Net Export ⚙ Settings — Managed Devices review",
             "",
             f"Managed Devices workspace: {DEVICES_CONFIGURE_PATH}",
             f"Secondary device-page audit path: {DETAILED_MANAGEMENT_PATH}",
@@ -1446,7 +1446,7 @@ class ZeroNetExportShowManagedDeviceReviewButton(ZeroNetExportEntity, ButtonEnti
         persistent_notification.async_create(
             self.hass,
             "\n".join(lines),
-            title=f"{self.coordinator.entry.title}: Managed Devices review",
+            title=f"{self.coordinator.entry.title}: ⚙ Settings — Managed Devices review",
             notification_id=_managed_device_review_notification_id(self.coordinator.entry.entry_id),
         )
 

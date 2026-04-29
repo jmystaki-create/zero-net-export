@@ -486,10 +486,12 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         asyncio.run(button.async_press())
 
         self.assertEqual(len(notification_calls), 1)
-        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: Managed Devices workspace")
+        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: ⚙ Settings — Managed Devices workspace")
         message = notification_calls[0]["args"][1]
-        self.assertIn("Zero Net Export Managed Devices workspace", message)
+        self.assertIn("Zero Net Export ⚙ Settings — Managed Devices workspace", message)
+        self.assertNotIn("Test Entry: Managed Devices workspace", notification_calls[0]["kwargs"]["title"])
         self.assertNotIn("Test Entry: managed devices workspace", notification_calls[0]["kwargs"]["title"])
+        self.assertNotIn("Zero Net Export Managed Devices workspace", message)
         self.assertNotIn("Zero Net Export managed devices workspace", message)
         self.assertIn("Managed Devices workspace: devices path", message)
         self.assertIn("Secondary device-page review/audit path: detailed device path", message)
@@ -781,10 +783,12 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         asyncio.run(button.async_press())
 
         self.assertEqual(len(notification_calls), 1)
-        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: Managed Devices review")
+        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: ⚙ Settings — Managed Devices review")
+        self.assertNotIn("Test Entry: Managed Devices review", notification_calls[0]["kwargs"]["title"])
         self.assertNotIn("Test Entry: managed devices review", notification_calls[0]["kwargs"]["title"])
         message = notification_calls[0]["args"][1]
-        self.assertIn("Zero Net Export Managed Devices review", message)
+        self.assertIn("Zero Net Export ⚙ Settings — Managed Devices review", message)
+        self.assertNotIn("Zero Net Export Managed Devices review", message)
         self.assertNotIn("Zero Net Export managed devices review", message)
         self.assertIn("Managed Devices (top section):", message)
         self.assertIn("- Snapshot: 2 managed | 1 enabled | 1 disabled | 1 usable | active load 1180 W | 1 active managed device | active device Pool pump (action turn_on | active 1180 W) | 2 managed devices need attention | attention first EV charger | blocked EV charger | 1 planned action | plan Pool pump", message)
