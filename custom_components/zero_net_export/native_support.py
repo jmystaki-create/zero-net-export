@@ -2605,18 +2605,18 @@ def build_detailed_management_handoff(
     if not devices:
         return (
             f"Keep {DEVICES_CONFIGURE_PATH} as the Managed Devices workspace: review the unmanaged candidate when one is surfaced, or add the first fixed or variable load manually when no surfaced unmanaged candidate is available; use {DETAILED_MANAGEMENT_PATH} "
-            "as the secondary device-page review/audit path once the fleet exists."
+            "as the secondary ⚙ Settings device-page review/audit path once the fleet exists."
         )
 
     usable_count = int(getattr(state, "usable_device_count", 0) or 0) if state is not None else 0
     if usable_count <= 0:
         return (
-            f"Use {DETAILED_MANAGEMENT_PATH} as the secondary device-page review/audit path to inspect each managed device's status, guards, plans, and reset actions, "
+            f"Use {DETAILED_MANAGEMENT_PATH} as the secondary ⚙ Settings device-page review/audit path to inspect each managed device's status, guards, plans, and reset actions, "
             "then return to the Managed Devices workspace to adjust the fleet if needed."
         )
 
     return (
-        f"Use {DETAILED_MANAGEMENT_PATH} as the secondary device-page review/audit path for per-device status, planned actions, guard state, and reset actions when the fleet needs audit detail."
+        f"Use {DETAILED_MANAGEMENT_PATH} as the secondary ⚙ Settings device-page review/audit path for per-device status, planned actions, guard state, and reset actions when the fleet needs audit detail."
     )
 
 
