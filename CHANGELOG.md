@@ -6,9 +6,17 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.95] - 2026-04-29
+
+### Added
+- Aligned the packaged Home Assistant release metadata with Riley's current managed-only native device-list scope: managed child rows keep visible `⚙ Settings` affordances and `mdi:cog-outline` settings icons, peer `Un Managed — ...` rows are suppressed, and unmanaged candidates remain behind Managed Devices workflow/backlog/review surfaces, with release, deploy, Home Assistant restart, fingerprint validation, readiness claims, and live screenshot validation still approval-gated.
+
 ### Fixed
-- Removed legacy unhashed Managed Devices / Un Managed child-device registry rows when hardened registry identifiers replace them, avoiding duplicate native integration-page rows after upgrade.
-- Refreshed existing Managed Devices child-row entity names when managed-load names change after setup, so integration-page child-device rows and their supporting entities do not keep stale per-load labels until reload.
+- Removed legacy unhashed Managed Devices / Un Managed child-device registry rows when hardened registry identifiers replace them, and removed stale unmanaged-candidate device and entity registry entries, avoiding duplicate native integration-page rows after upgrade.
+- Refreshed existing Managed Devices child-row entity names when managed-load names change after setup, so integration-page child-device rows and their supporting entities do not keep stale per-load labels until reload. Removed deprecated suggested-area metadata while keeping durable managed row names and models.
+- Preserved managed and unmanaged workflow/backlog/review entities during stale registry cleanup while suppressing peer `Un Managed — ...` device rows beside managed devices.
+- Attached Managed Devices workflow/review buttons back to the primary device page and aligned notification, diagnostics, Configure handoff, and compact surface copy with the visible `⚙ Settings` affordance.
+- Documented the release-management boundary that release, deploy, Home Assistant restart, fingerprint validation, readiness claims, and live screenshot validation must flow through GitHub release, HACS upgrade, restart, and validation rather than ad-hoc direct install writes.
 
 ## [0.1.94] - 2026-04-28
 

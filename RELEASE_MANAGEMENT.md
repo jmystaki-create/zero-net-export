@@ -20,6 +20,8 @@ A release is only considered complete when:
 The assistant manages this process, but must begin with explicit user approval to release.
 When the release candidate is coherent enough that the true next step is formal release execution, the assistant must proactively ask James for approval to run the release end-to-end. Do not bury that boundary inside “next gap” wording, deploy command suggestions, or restart instructions that make James infer approval is needed.
 
+No feature, bug fix, file update, manual exact-copy recovery, or other component change may be pushed directly into the live Home Assistant install outside this GitHub release-management process. Live Home Assistant changes must flow through the approved release path: committed code, pushed main/tag, published GitHub release, HACS refresh/upgrade, then restart/validation. Direct Home Assistant install writes are only allowed as an explicitly approved release-management recovery step for the exact published release artifact, never as an ad-hoc feature/update deployment.
+
 ## Standard Procedure
 
 ### 1. Ask for release approval
@@ -29,7 +31,7 @@ Before touching the live Home Assistant install, ask:
 
 The approval ask must be explicit. If the real next step is release execution, say that plainly, name the candidate version, and ask James whether he approves the formal release flow now.
 
-No HACS or HA upgrade action should start before that approval.
+No HACS, HA upgrade, direct install write, manual copy, or Home Assistant restart action should start before that approval.
 
 ### 2. Confirm release artifact exists
 Before touching Home Assistant, confirm:
@@ -158,5 +160,6 @@ When executing a release for Zero Net Export, use this user-preferred order:
 - For this project, push and release are treated as one operational workflow, not separate optional steps.
 - Do not call a release done just because code was pushed.
 - Live Home Assistant validation is part of release management.
+- No features or updates should be pushed to Home Assistant outside the GitHub release-management process.
 - Before execution, present the release-management process back to the user when they ask to review it.
 - Project-specific Home Assistant errors discovered during the post-release log review should be treated as input to the next Zero Net Export release by default, without waiting for the user to restate them.
