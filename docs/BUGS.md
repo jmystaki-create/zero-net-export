@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-574 - unmanaged cleanup helper docstring still said current peer-row identifiers
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `managed_devices`
+- **where seen:** supervisor repo audit on 2026-04-29 while following up source-copy drift under Riley's managed-only native device-list scope.
+- **current observed behavior:** `unmanaged_candidate_cleanup_device_info(...)` no longer exposes unmanaged row metadata, but its docstring still described the cleanup identifiers as `current unmanaged peer-row identifiers`, which could imply a current reusable peer-row lifecycle for unmanaged candidates.
+- **expected behavior:** unmanaged cleanup helpers should describe legacy child-device cleanup only; current unmanaged candidates stay behind Managed Devices workflow/backlog/review surfaces and must not be presented as peer `Un Managed — ...` rows beside managed devices.
+- **repo fix:** this run renames the helper docstring to `legacy unmanaged child-device identifiers for cleanup only` and extends focused source-copy coverage to reject the stale current peer-row wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_integration_page_device_lists -q` and Python compile for `custom_components/zero_net_export/entity.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing clean managed rows with the native right-side settings affordance, no peer `Un Managed — ...` rows, and unmanaged candidates available through workflow/backlog/review surfaces.
+
+
 ## ZNE-573 - unmanaged candidate helper comments still said candidate rows
 
 - **status:** `fixed_pending_validation`

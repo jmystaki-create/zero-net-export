@@ -1590,6 +1590,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertNotIn("dense unmanaged rows", candidate_source)
         self.assertIn("unmanaged candidate workflow surfaces", candidate_source)
         self.assertNotIn("managed/unmanaged integration-page rows", entity_source)
+        self.assertNotIn("current unmanaged peer-row identifiers", entity_source)
+        self.assertIn("legacy unmanaged child-device identifiers", entity_source)
         self.assertIn("legacy-unmanaged child-device", entity_source)
 
 

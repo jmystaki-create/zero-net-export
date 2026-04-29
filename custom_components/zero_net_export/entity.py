@@ -629,7 +629,7 @@ def remove_unmanaged_candidate_child_devices_for_entry(hass, entry_id: str) -> s
 
 
 def unmanaged_candidate_cleanup_device_info(coordinator, candidate: dict) -> dict:
-    """Return current unmanaged peer-row identifiers for cleanup only.
+    """Return legacy unmanaged child-device identifiers for cleanup only.
 
     Riley's current scope suppresses native peer `Un Managed — ...` rows.  Keep only
     enough device-info shape to find and remove stale registry devices; do not expose
