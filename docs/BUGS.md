@@ -101,6 +101,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-570 - Diagnostics guide could echo stale secondary review wording without settings affordance
+
+- **status:** `fixed_pending_validation`
+- **severity:** `low`
+- **area:** `diagnostics`
+- **where seen:** watchdog repo audit on 2026-04-29 while checking Riley's visible settings/gear-affordance scope after ZNE-569.
+- **current observed behavior:** `build_native_support_center(...)` printed the command-center `detailed_management_summary` verbatim in the Diagnostics guide's `Managed-device audit path` line. Normal repo-built summaries already carried `⚙ Settings`, but any cached, injected, or legacy command-center summary using older `secondary per-device review` / `secondary device-page review/audit path` wording could still leak an unlabelled secondary managed-device handoff into the Diagnostics support surface.
+- **expected behavior:** Diagnostics guide handoffs to secondary managed-device review/audit paths should preserve the visible `⚙ Settings` affordance even when the upstream summary was built from older wording, while managed-only peer rows and suppressed peer `Un Managed — ...` rows remain unchanged.
+- **repo fix:** this run normalizes the Diagnostics guide's detailed-management summary before rendering it, upgrading stale secondary per-device/device-page review wording to `secondary per-device ⚙ Settings review/audit` / `secondary ⚙ Settings device-page review/audit path`, and adds focused source-repair guidance coverage so the support surface rejects the old unlabelled wording.
+- **validation status:** fixed in repo with `python3 -m unittest tests.test_source_repair_guidance -q` and Python compile for `custom_components/zero_net_export/native_support.py` plus the focused test file. Live Home Assistant screenshot validation remains pending and requires explicit Riley approval.
+- **next action:** after explicit Riley approval, validate screenshot evidence from the native Zero Net Export device/action and Managed Devices workflow surfaces showing managed rows/actions/summaries with visible `⚙ Settings` labels and gear icons, no peer `Un Managed — ...` rows, and unmanaged candidates available through Managed Devices workflow/backlog/review surfaces.
+
+
 ## ZNE-569 - secondary device-page handoffs still omitted settings affordance
 
 - **status:** `fixed_pending_validation`

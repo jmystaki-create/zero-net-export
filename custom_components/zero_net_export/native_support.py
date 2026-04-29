@@ -5895,6 +5895,21 @@ def _compact_setup_checklist_lines(checklist: list[dict[str, Any]] | None) -> li
     return lines
 
 
+def _settings_labeled_detailed_management_summary(summary: Any) -> str:
+    """Keep secondary managed-device handoffs visibly tied to Settings affordances."""
+
+    text = str(summary or "")
+    replacements = {
+        "secondary per-device review/audit": "secondary per-device ⚙ Settings review/audit",
+        "secondary per-device review": "secondary per-device ⚙ Settings review/audit",
+        "secondary device-page review/audit path": "secondary ⚙ Settings device-page review/audit path",
+        "Secondary device-page review/audit path": "Secondary ⚙ Settings device-page review/audit path",
+    }
+    for stale, current in replacements.items():
+        text = text.replace(stale, current)
+    return text
+
+
 def build_native_support_center(coordinator: Any) -> str:
     """Return a compact operator-facing diagnostics guide for native HA surfaces."""
     state, _, _, operator_readiness = _build_support_sections(coordinator)
@@ -5933,6 +5948,9 @@ def build_native_support_center(coordinator: Any) -> str:
     else:
         priority_candidate_hints = "Not needed right now."
     checklist_lines = _compact_setup_checklist_lines(operator_readiness.get("checklist"))
+    detailed_management_summary = _settings_labeled_detailed_management_summary(
+        command_center.get("detailed_management_summary")
+    )
     snapshot_path = f"{INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot"
     checklist_path = f"{INTEGRATION_DEVICE_PATH} -> Show setup checklist"
     return "\n".join(
@@ -5969,7 +5987,7 @@ def build_native_support_center(coordinator: Any) -> str:
             f"- Live mode shortcut ({POLICY_SECTION_LABEL} device action): {command_center.get('mode_path')}",
             f"- {DEVICES_SECTION_LABEL}: {command_center.get('devices_path')}",
             f"- {SUPPORT_SECTION_LABEL}: {command_center.get('support_path')}",
-            f"- Managed-device audit path: {command_center.get('detailed_management_summary')}",
+            f"- Managed-device audit path: {detailed_management_summary}",
             f"- Review diagnostics snapshot: {snapshot_path}",
             f"- Show setup checklist: {checklist_path}",
         ]

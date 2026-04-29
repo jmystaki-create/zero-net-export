@@ -609,6 +609,9 @@ class SourceRepairGuidanceTests(unittest.TestCase):
         )
         self.assertIn(f"- Managed Devices: {native_support.DEVICES_CONFIGURE_PATH}", support_center)
         self.assertIn(f"- Diagnostics: {native_support.SUPPORT_CONFIGURE_PATH}", support_center)
+        self.assertIn("- Managed-device audit path:", support_center)
+        self.assertIn("⚙ Settings", support_center)
+        self.assertNotIn("secondary per-device review.", support_center)
         self.assertIn(
             f"- Review diagnostics snapshot: {native_support.INTEGRATION_DEVICE_PATH} -> Review diagnostics snapshot",
             support_center,
