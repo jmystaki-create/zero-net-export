@@ -11,6 +11,16 @@
           "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. After entry creation, continue in Configure for Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics from Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure."
         }
       },
+      "reconfigure": {
+        "title": "Configure service",
+        "description": "Configure service edits source roles for this selected Zero Net Export service only. Managed-device fleet work stays in Add Managed Devices or the Managed Devices workspace. First choose whether this service uses one combined signed/net grid source or separate import/export entities.\n\nSource status now\n- Currently missing required source roles: {missing_sources}\n- Current source health: {source_health}\n- Next Sensors step: {source_next_step}\n\nSource-role setup progress\n- Required source roles mapped: {source_mapping_progress}\n- Blocking source issues: {source_blocker_summary}\n\nBucket ownership and paths\n- Configure service / Sensors: {sources_path}\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}\n- Add Managed Devices / Managed Devices workspace: {devices_path}\n- Diagnostics: {support_path}\n\nConfigure service path: {configure_path}.",
+        "data": {
+          "grid_sensor_mode": "Grid import/export sensor layout"
+        },
+        "data_description": {
+          "grid_sensor_mode": "Choose Combined when your hardware exposes one signed/net grid sensor. Choose Separate when Home Assistant already has dedicated import and export entities."
+        }
+      },
       "configure_service": {
         "title": "Configure service",
         "description": "Configure service edits source roles for this selected Zero Net Export service only. Managed-device fleet work stays in Add Managed Devices or the Managed Devices workspace. First choose whether this service uses one combined signed/net grid source or separate import/export entities.\n\nSource status now\n- Currently missing required source roles: {missing_sources}\n- Current source health: {source_health}\n- Next Sensors step: {source_next_step}\n\nSource-role setup progress\n- Required source roles mapped: {source_mapping_progress}\n- Blocking source issues: {source_blocker_summary}\n\nBucket ownership and paths\n- Configure service / Sensors: {sources_path}\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}\n- Add Managed Devices / Managed Devices workspace: {devices_path}\n- Diagnostics: {support_path}\n\nConfigure service path: {configure_path}.",

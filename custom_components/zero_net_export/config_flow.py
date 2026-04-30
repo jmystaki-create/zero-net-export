@@ -780,14 +780,19 @@ class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self._zne_service_options_flow = options_flow
         return options_flow
 
-    def _service_action_result(self, result: dict[str, Any]) -> dict[str, Any]:
+    def _service_action_result(
+        self,
+        result: dict[str, Any],
+        *,
+        initial_step_id: str = "configure_service",
+    ) -> dict[str, Any]:
         if result.get("type") == "create_entry":
             self._zne_service_options_flow = None
             return self.async_abort(reason="configure_service_saved")
         if result.get("type") in {"form", "menu"}:
             step_id = result.get("step_id")
             if step_id == "native_setup":
-                result = {**result, "step_id": "configure_service"}
+                result = {**result, "step_id": initial_step_id}
             elif step_id == "native_setup_sources":
                 result = {**result, "step_id": "configure_service_sources"}
         return result
@@ -815,7 +820,8 @@ class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_reconfigure(self, user_input=None):
         """Handle the HA entry overflow Reconfigure action as Configure service."""
-        return await self.async_step_configure_service(user_input)
+        result = await self._service_options_flow().async_step_native_setup(user_input)
+        return self._service_action_result(result, initial_step_id="reconfigure")
 
     async def async_step_configure_service(self, user_input=None):
         """Configure source bindings for this selected service entry only."""

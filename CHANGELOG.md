@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Fixed the service-row three-dot `Reconfigure` config flow so Home Assistant sees the initial built-in reconfigure step as `reconfigure` instead of an integration-specific alias, preventing the `Invalid flow specified` banner while preserving the selected service's Configure service/source-binding flow.
+
 ## [0.1.98] - 2026-04-30
 
 ### Added

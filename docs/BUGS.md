@@ -101,6 +101,25 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-583 - service-row Reconfigure opens with Invalid flow specified
+
+- **status:** `fixed_pending_live_validation`
+- **severity:** `high`
+- **area:** `config_flow`
+- **where seen:** Riley screenshot/report on 2026-04-30 from the Home Assistant Zero Net Export integration Services list after opening a service row's three-dot `Reconfigure` action.
+- **current observed behavior:** the selected service's reconfigure dialog opens but immediately shows the Home Assistant error banner `Invalid flow specified` above the `grid_sensor_mode` choice, making the per-service Configure service path look broken.
+- **expected behavior:** selecting `Reconfigure` from a specific service row should open the first Configure service step cleanly, without an invalid-flow banner, and submitting the grid sensor mode should advance to the selected service's source-binding form.
+- **evidence:** user-supplied screenshot shows Zero Net Export `0.1.98`, separate `Summer Plan` and `Winter Plan` service cards, and the `Invalid flow specified` banner inside the reconfigure dialog.
+- **suspected cause:** the reconfigure flow reused the options-flow `native_setup` step but renamed the initial form to `configure_service`; Home Assistant's built-in reconfigure action expects the initial config-flow step id to remain `reconfigure`.
+- **acceptance criteria:**
+  - The initial HA `async_step_reconfigure` result uses step id `reconfigure` so Home Assistant recognises the built-in service-row flow.
+  - Submitting the initial grid sensor mode advances to `configure_service_sources` and keeps all edits scoped to the selected config entry.
+  - Regression tests cover both the initial step id and the submit transition.
+  - `docs/BUGS.md`, `PROJECT_STATUS.md`, and `CHANGELOG.md` record the regression and fix status.
+- **validation evidence:** repo fix validated with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused regression tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync tests.test_bug_tracker_ids` (91 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
+- **next action:** request approval before live HA deploy/restart/browser validation; closure requires live screenshot proof that the service-row `Reconfigure` dialog opens without `Invalid flow specified`.
+
+
 ## ZNE-582 - no obvious per-service Add Managed Devices action from the service card
 
 - **status:** `released_live_screenshot_validated`

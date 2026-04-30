@@ -195,7 +195,16 @@ def _load_config_flow_module():
     validation_module.PERCENT_UNITS = {"%"}
     validation_module.POWER_UNITS = {"W"}
     validation_module.TOTAL_STATE_CLASSES = {"total", "total_increasing"}
-    validation_module.parse_source_binding = lambda value: value
+    def parse_source_binding(value):
+        text = str(value or "")
+        if not text:
+            return SimpleNamespace(valid=False, entity_id="", mode=validation_module.DERIVED_SOURCE_MODE_DIRECT)
+        if text.startswith(validation_module.DERIVED_SOURCE_PREFIX):
+            _prefix, mode, entity_id = text.split(":", 2)
+            return SimpleNamespace(valid=bool(entity_id), entity_id=entity_id, mode=mode)
+        return SimpleNamespace(valid=True, entity_id=text, mode=validation_module.DERIVED_SOURCE_MODE_DIRECT)
+
+    validation_module.parse_source_binding = parse_source_binding
     validation_module.validate_configured_entities = lambda *args, **kwargs: SimpleNamespace(
         is_valid=True,
         errors=[],
@@ -278,7 +287,7 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(result, {"type": "abort", "reason": "already_configured"})
 
 
-    def test_configure_service_reconfigure_entry_starts_source_binding_flow(self) -> None:
+    def test_reconfigure_entry_keeps_home_assistant_reconfigure_step_id(self) -> None:
         module = _load_config_flow_module()
         entry = SimpleNamespace(
             title="Summer",
@@ -306,7 +315,39 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         result = asyncio.run(flow.async_step_reconfigure())
 
         self.assertEqual(result["type"], "form")
-        self.assertEqual(result["step_id"], "configure_service")
+        self.assertEqual(result["step_id"], "reconfigure")
+
+    def test_reconfigure_submit_advances_to_configure_service_sources(self) -> None:
+        module = _load_config_flow_module()
+        entry = SimpleNamespace(
+            title="Summer",
+            entry_id="summer-entry",
+            data={},
+            options={module.CONF_GRID_SENSOR_MODE: module.GRID_SENSOR_MODE_COMBINED},
+        )
+        flow = module.ZeroNetExportConfigFlow()
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_get_entry=lambda entry_id: entry),
+            states=SimpleNamespace(async_all=lambda: []),
+            data={},
+        )
+        flow._get_reconfigure_entry = lambda: entry
+        flow.async_show_form = lambda **kwargs: {"type": "form", **kwargs}
+        module.build_source_attention_details = lambda *args, **kwargs: {
+            "missing_source_keys": [],
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "blocking_validation_details": "None",
+            "validation_details": {"issues": []},
+            "source_diagnostics": {},
+        }
+
+        result = asyncio.run(
+            flow.async_step_reconfigure({module.CONF_GRID_SENSOR_MODE: module.GRID_SENSOR_MODE_COMBINED})
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "configure_service_sources")
 
     def test_managed_device_subentry_adds_device_to_selected_entry_only(self) -> None:
         module = _load_config_flow_module()

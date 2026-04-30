@@ -2,12 +2,13 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-04-30 19:40
+last_modified: 2026-04-30 19:56
 
 ## Current focus
-Release `0.1.98` is published, deployed through HACS, restarted, and live-validated in Home Assistant. Older release-plan/UI-map history is intentionally cleared from this status document.
+ZNE-583 is the active regression: the service-row three-dot `Reconfigure` action in released `0.1.98` opens with Home Assistant's `Invalid flow specified` banner. Repo fix and automated validation are complete; live deploy/restart/browser validation remains approval-gated.
 
 ## Active bugs
+- ZNE-583 — service-row `Reconfigure` opens with `Invalid flow specified`. User screenshot confirms the regression in `0.1.98`; repo fix is validated to keep the initial HA reconfigure step id as `reconfigure` while still advancing to the selected service's Configure service source-binding flow. Status: fixed pending approved live validation.
 - ZNE-578 — native managed-row gear beside the pencil is not supported by current Home Assistant frontend. Closest supported path is implemented and live-validated: managed child-device `configuration_url` opens the Home Assistant device-detail cog/deep-link into the `ZNE Managed Devices` editor. Exact native-row placement requires upstream HA frontend work if still required.
 - ZNE-579 — Add service wrongly aborted as `already_configured`. Fixed and live-validated; unique ids are now scoped to the submitted service/system name.
 - ZNE-580 — multiple services looked like duplicated generic controllers. Fixed and live-validated; Summer/Winter plan controller rows and managed-device scoping are separated.
@@ -23,6 +24,7 @@ Release `0.1.98` is published, deployed through HACS, restarted, and live-valida
 - ZNE-FR-006 — multi-plan validation evidence. Live-validated for controller identity and managed-device assignment.
 
 ## Validation evidence
+- ZNE-583: repo validation passed with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused regression tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync tests.test_bug_tracker_ids` (91 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
 - ZNE-578: focused tests passed and live Home Assistant proof captured for the supported device-detail cog/deep-link path.
 - ZNE-579: focused config-flow tests passed; live Home Assistant add-service validation succeeded without `already_configured` and cleanup was completed.
 - ZNE-580: focused multi-entry tests passed; live Home Assistant screenshots and registry evidence show separate Summer/Winter rows with Coffee machine scoped to Winter only.
@@ -32,10 +34,10 @@ Release `0.1.98` is published, deployed through HACS, restarted, and live-valida
 - Browser evidence: `bug-evidence/zne-0.1.98-live-integrations.png`.
 
 ## Blockers / approvals
-- No release blocker remains for `0.1.98`.
+- ZNE-583 blocks treating the live `0.1.98` service-row Reconfigure path as healthy until approved live validation passes.
 - Do not deploy, restart Home Assistant, tag, publish, or claim future release readiness without explicit approval and evidence.
 - Exact native managed-row gear placement for ZNE-578 requires an upstream Home Assistant frontend feature request/PR if Riley still wants that exact UI location.
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Monitor for user-reported issues from `0.1.98`. If Riley still wants exact native managed-row gear placement, decide whether to open an upstream Home Assistant frontend feature request/PR; otherwise keep the supported device-detail cog/deep-link path as the accepted resolution.
+Ask Riley for approval before deploying/restarting Home Assistant for ZNE-583 live validation. If approved, install the repo build, restart HA, and capture browser proof that service-row `Reconfigure` opens without `Invalid flow specified`.
