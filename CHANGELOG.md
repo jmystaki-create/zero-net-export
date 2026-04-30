@@ -6,11 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.98] - 2026-04-30
+
 ### Added
 - Added HA-native per-service entry points for the approved multi-plan service-card actions: the selected service's overflow `Reconfigure` action now opens a `Configure service` source-binding flow, and the selected service's overflow menu now exposes `Add Managed Devices` via Home Assistant config-subentry actions. Both paths operate against the selected config entry so Summer/Winter source bindings and managed-device fleets stay separated.
 
 ### Changed
-- Documented that Home Assistant's native integration device row does not support custom integration-provided gear actions beside the built-in pencil, and changed managed child-device `configuration_url` links to use Home Assistant's supported device-detail-page cog action to deep-link directly into the `ZNE Managed Devices` editor for the selected managed device.
+- Documented that Home Assistant's native integration device row does not support custom integration-provided gear actions beside the built-in pencil, and changed managed child-device `configuration_url` links to use Home Assistant's supported device-detail-page cog action to deep-link directly into the `ZNE Managed Devices` editor for the selected managed device, resolving Riley's managed-only native device-list scope for this release through the supported right-side settings/configuration affordance path into the first-provisioned settings inventory while release, deploy, Home Assistant restart, and live validation remain approval-gated.
 
 ### Fixed
 - Fixed the Zero Net Export `Add service` config flow so adding a distinct service from the integration main screen no longer aborts as `already_configured`; duplicate protection is now scoped to the submitted service/system name instead of the whole integration domain.

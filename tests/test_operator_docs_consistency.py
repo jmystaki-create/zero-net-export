@@ -141,13 +141,13 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertNotIn("Those two files are the UI source of truth", content)
 
     def test_project_status_tracks_current_user_request_boundary(self) -> None:
-        content = (ROOT / "project_status.md").read_text(encoding="utf-8")
+        content = (ROOT / "PROJECT_STATUS.md").read_text(encoding="utf-8")
 
-        self.assertIn("ACTIVE_USER_REQUESTS.md", content)
-        self.assertIn("managed-only", content)
-        self.assertIn("visible settings/gear", content)
-        self.assertIn("no peer `Un Managed — ...`", content)
-        self.assertIn("tests and live screenshot proof", content)
+        self.assertIn("ZNE-578", content)
+        self.assertIn("ZNE-582", content)
+        self.assertIn("supported path", content)
+        self.assertIn("0.1.98", content)
+        self.assertIn("Do not deploy, restart Home Assistant, tag, publish", content)
         self.assertNotIn("release `1.91`", content)
         self.assertNotIn("source-of-truth docs still approve only `0.1.91`", content)
 
