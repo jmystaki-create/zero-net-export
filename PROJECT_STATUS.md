@@ -2,10 +2,10 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-04-30 20:18
+last_modified: 2026-04-30 20:22
 
 ## Current focus
-ZNE-583 and ZNE-584 are fixed, deployed to the validation Home Assistant instance, restarted, and live browser-validated. Current focus is release readiness/packaging decision for the post-0.1.98 fixes.
+ZNE-583 and ZNE-584 are fixed, deployed to the validation Home Assistant instance, restarted, live browser-validated, packaged as `0.1.99`, committed, and pushed with tag `v0.1.99`. Current release execution is blocked at GitHub Release publication because the local `gh` CLI is not authenticated; `/releases/latest` still resolves to `v0.1.98`.
 
 ## Active bugs
 - ZNE-584 — setup warning is too wordy and unclear. Fixed and live-validated: warning starts with impact and the primary action, lists missing setup, and no longer duplicates fallback guidance in the primary action. Status: validated.
@@ -36,9 +36,9 @@ ZNE-583 and ZNE-584 are fixed, deployed to the validation Home Assistant instanc
 - Browser evidence: `bug-evidence/zne-0.1.98-live-integrations.png`.
 
 ## Blockers / approvals
-- Do not deploy, restart Home Assistant, tag, publish, or claim future release readiness without explicit approval and evidence.
+- Release approval for `0.1.99` was received on 2026-04-30; main and tag `v0.1.99` were pushed. Do not proceed to HACS, Home Assistant restart, or live release-complete claims until GitHub Release `v0.1.99` is published and verified as latest.
 - Exact native managed-row gear placement for ZNE-578 requires an upstream Home Assistant frontend feature request/PR if Riley still wants that exact UI location.
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Prepare the post-0.1.98 release decision: either tag/package a new release containing ZNE-583/ZNE-584 after approval, or keep the validation install as a tested live patch while monitoring for feedback on the remaining setup-warning path list length.
+Publish GitHub Release `v0.1.99` from pushed tag `v0.1.99`, verify `/releases/latest` resolves to `v0.1.99`, then continue the approved release flow through HACS update/upgrade, Home Assistant restart, log review, and live verification.
