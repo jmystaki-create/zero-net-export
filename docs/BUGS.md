@@ -101,6 +101,23 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-584 - setup warning is too wordy and unclear
+
+- **status:** `fixed_pending_live_validation`
+- **severity:** `medium`
+- **area:** `docs`
+- **where seen:** Riley screenshot/report on 2026-04-30 from the Home Assistant Zero Net Export setup warning/repair surface.
+- **current observed behavior:** the setup warning is too long, repeats routes, and hides the important operator action among status/fallback/path details.
+- **expected behavior:** the warning should be short, direct, and action-first: say that control is paused, state exactly what to do first, list what is missing, and provide only the useful open paths/fallback.
+- **acceptance criteria:**
+  - Setup warning title is short and plain.
+  - Warning body starts with the impact and primary action, before details.
+  - Repeated/secondary paths such as command-center and device-page diagnostics are removed from the warning.
+  - Tests enforce the shorter action-first copy and prevent old verbose sections from returning.
+- **validation evidence:** repo copy fix validated with focused tests `python3 -m unittest -q tests.test_setup_notice_copy tests.test_repairs_copy tests.test_translation_sync tests.test_bug_tracker_ids` (10 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
+- **next action:** request approval before live HA deploy/restart/browser validation; closure requires screenshot proof that the warning is concise and action-first in Home Assistant.
+
+
 ## ZNE-583 - service-row Reconfigure opens with Invalid flow specified
 
 - **status:** `fixed_pending_live_validation`

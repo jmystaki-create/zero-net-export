@@ -8,6 +8,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Fixed
 - Fixed the service-row three-dot `Reconfigure` config flow so Home Assistant sees the initial built-in reconfigure step as `reconfigure` instead of an integration-specific alias, preventing the `Invalid flow specified` banner while preserving the selected service's Configure service/source-binding flow.
+- Reworked the setup-incomplete warning to be short and action-first: state that control is paused, show the next action first, list missing setup, and remove repeated secondary paths.
 
 ## [0.1.98] - 2026-04-30
 

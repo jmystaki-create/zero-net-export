@@ -285,44 +285,41 @@ async def _async_update_native_setup_notice(
     readable_roles = [SOURCE_ROLE_LABELS.get(key, key) for key in missing_sources]
     fallback_hint = build_source_selector_fallback_hint(role_keys=missing_sources) or "Not needed right now."
     readiness_summary = _normalize_native_setup_notice_text(
-        readiness.get("summary") or "Zero Net Export still needs a few native setup steps."
+        readiness.get("summary") or "Setup incomplete."
     )
-    status_lines = [
-        f"• Summary: {readiness_summary}",
-        f"• Missing required source roles: {', '.join(readable_roles) if readable_roles else 'None'}",
-        f"• Managed Devices: {len(devices)}",
+    missing_lines = [
+        f"• Source roles: {', '.join(readable_roles) if readable_roles else 'None'}",
+        f"• Managed devices: {len(devices)}",
     ]
     if device_issues:
-        status_lines.append(f"• Managed-device issues: {'; '.join(device_issues[:3])}")
+        missing_lines.append(f"• Device issues: {'; '.join(device_issues[:3])}")
     elif not devices:
-        status_lines.append("• Managed-device issues: No controllable devices have been added yet.")
+        missing_lines.append("• Device issues: No controllable devices added yet.")
     if source_attention_roles != "None":
-        status_lines.append(f"• Active blockers: {source_attention_roles}")
+        missing_lines.append(f"• Blockers: {source_attention_roles}")
 
     next_step = _normalize_native_setup_notice_text(
         readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup."
     )
 
     message = (
-        "Zero Net Export still needs a few native setup steps.\n\n"
-        "Status\n"
-        + "\n".join(status_lines)
-        + "\n\nDo next\n"
+        "Setup incomplete — control is paused until setup is finished.\n\n"
+        "Do this first\n"
         + f"• {next_step}"
-        + "\n\nFallback, only if Home Assistant rejects a valid choice\n"
-        + f"• {fallback_hint}"
+        + "\n\nMissing\n"
+        + "\n".join(missing_lines)
         + "\n\nOpen\n"
-        + f"• Command center: {PRIMARY_CONFIGURE_PATH}\n"
         + f"• Sensors: {SOURCES_CONFIGURE_PATH}\n"
-        + f"• Controls: {POLICY_CONFIGURE_PATH}\n"
         + f"• Managed Devices: {DEVICES_CONFIGURE_PATH}\n"
-        + f"• Diagnostics: {SUPPORT_CONFIGURE_PATH}\n"
-        + f"• Device-page diagnostics actions: {DIAGNOSTICS_DEVICE_ACTIONS_PATH}"
+        + f"• Controls: {POLICY_CONFIGURE_PATH}\n"
+        + f"• Diagnostics: {SUPPORT_CONFIGURE_PATH}"
+        + "\n\nFallback only if Home Assistant rejects a valid selector choice\n"
+        + f"• {fallback_hint}"
     )
     persistent_notification.async_create(
         hass,
         message,
-        title=f"{entry.title}: finish native Zero Net Export setup",
+        title=f"{entry.title}: setup incomplete",
         notification_id=_setup_notification_id(entry),
     )
 

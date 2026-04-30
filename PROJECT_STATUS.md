@@ -2,12 +2,13 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-04-30 19:56
+last_modified: 2026-04-30 20:02
 
 ## Current focus
-ZNE-583 is the active regression: the service-row three-dot `Reconfigure` action in released `0.1.98` opens with Home Assistant's `Invalid flow specified` banner. Repo fix and automated validation are complete; live deploy/restart/browser validation remains approval-gated.
+ZNE-584 is the active copy/UX bug: the setup warning is too wordy and unclear. Repo copy simplification and automated validation are complete alongside the already-fixed-pending-live-validation ZNE-583 Reconfigure regression; live deploy/restart/browser validation remains approval-gated.
 
 ## Active bugs
+- ZNE-584 — setup warning is too wordy and unclear. User screenshot confirms the copy needs a radical simplification; repo fix is validated to make the warning action-first: impact, do this first, missing items, useful paths, fallback only if needed. Status: fixed pending approved live validation.
 - ZNE-583 — service-row `Reconfigure` opens with `Invalid flow specified`. User screenshot confirms the regression in `0.1.98`; repo fix is validated to keep the initial HA reconfigure step id as `reconfigure` while still advancing to the selected service's Configure service source-binding flow. Status: fixed pending approved live validation.
 - ZNE-578 — native managed-row gear beside the pencil is not supported by current Home Assistant frontend. Closest supported path is implemented and live-validated: managed child-device `configuration_url` opens the Home Assistant device-detail cog/deep-link into the `ZNE Managed Devices` editor. Exact native-row placement requires upstream HA frontend work if still required.
 - ZNE-579 — Add service wrongly aborted as `already_configured`. Fixed and live-validated; unique ids are now scoped to the submitted service/system name.
@@ -24,6 +25,7 @@ ZNE-583 is the active regression: the service-row three-dot `Reconfigure` action
 - ZNE-FR-006 — multi-plan validation evidence. Live-validated for controller identity and managed-device assignment.
 
 ## Validation evidence
+- ZNE-584: repo validation passed with focused copy tests `python3 -m unittest -q tests.test_setup_notice_copy tests.test_repairs_copy tests.test_translation_sync tests.test_bug_tracker_ids` (10 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
 - ZNE-583: repo validation passed with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused regression tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync tests.test_bug_tracker_ids` (91 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
 - ZNE-578: focused tests passed and live Home Assistant proof captured for the supported device-detail cog/deep-link path.
 - ZNE-579: focused config-flow tests passed; live Home Assistant add-service validation succeeded without `already_configured` and cleanup was completed.
@@ -40,4 +42,4 @@ ZNE-583 is the active regression: the service-row three-dot `Reconfigure` action
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Ask Riley for approval before deploying/restarting Home Assistant for ZNE-583 live validation. If approved, install the repo build, restart HA, and capture browser proof that service-row `Reconfigure` opens without `Invalid flow specified`.
+Ask Riley for approval before deploying/restarting Home Assistant for combined ZNE-583/ZNE-584 live validation. If approved, install the repo build, restart HA, and capture browser proof that Reconfigure has no invalid-flow banner and the setup warning is concise/action-first.

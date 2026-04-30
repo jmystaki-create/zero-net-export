@@ -10,16 +10,23 @@ class RepairsCopyTests(unittest.TestCase):
             self.strings = json.load(handle)
         self.repairs_source = (integration_root / "repairs.py").read_text(encoding="utf-8")
 
-    def test_setup_incomplete_copy_uses_compact_sections(self) -> None:
-        description = self.strings["issues"]["setup_incomplete"]["description"]
-        self.assertIn("Status\n• Summary:", description)
-        self.assertIn("\n\nDo next\n•", description)
-        self.assertIn("\n\nFallback, only if Home Assistant rejects a valid choice\n•", description)
-        self.assertIn("\n\nOpen\n• Command center:", description)
-        self.assertIn("\n• Sensors:", description)
-        self.assertIn("\n• Controls:", description)
+    def test_setup_incomplete_copy_is_short_and_action_first(self) -> None:
+        issue = self.strings["issues"]["setup_incomplete"]
+        description = issue["description"]
+        self.assertEqual(issue["title"], "Finish Zero Net Export setup")
+        self.assertTrue(description.startswith("Setup incomplete — control is paused"))
+        self.assertIn("\n\nDo this first\n• {next_step}", description)
+        self.assertIn("\n\nMissing\n• Source roles: {missing_sources}", description)
+        self.assertIn("\n• Managed devices: {device_count}", description)
+        self.assertIn("\n\nOpen\n• Sensors:", description)
         self.assertIn("\n• Managed Devices:", description)
+        self.assertIn("\n• Controls:", description)
         self.assertIn("\n• Diagnostics:", description)
+        self.assertIn("\n\nFallback only if Home Assistant rejects a valid selector choice\n•", description)
+        self.assertLess(description.index("Do this first"), description.index("Missing"))
+        self.assertLess(len(description), 500)
+        self.assertNotIn("Status\n• Summary:", description)
+        self.assertNotIn("Command center", description)
         self.assertNotIn("Known selector workaround:", description)
         self.assertNotIn("Primary path:", description)
         self.assertNotIn("Do next\n• {next_step}\n• Selector fallback", description)

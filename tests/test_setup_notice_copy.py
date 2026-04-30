@@ -31,6 +31,12 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     persistent_notification.async_create = _record_create
     persistent_notification.async_dismiss = _record_dismiss
 
+    voluptuous_module = types.ModuleType("voluptuous")
+    voluptuous_module.Schema = lambda value: value
+    voluptuous_module.Required = lambda key, default=None: key
+    voluptuous_module.Optional = lambda key, default=None: key
+    sys.modules[voluptuous_module.__name__] = voluptuous_module
+
     homeassistant_pkg = types.ModuleType("homeassistant")
     homeassistant_pkg.__path__ = []
     sys.modules[homeassistant_pkg.__name__] = homeassistant_pkg
@@ -91,6 +97,10 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     coordinator_module.ZeroNetExportCoordinator = object
     sys.modules[coordinator_module.__name__] = coordinator_module
 
+    entity_module = types.ModuleType(f"{package_name}.entity")
+    entity_module.sync_primary_controller_device_registry = lambda *args, **kwargs: None
+    sys.modules[entity_module.__name__] = entity_module
+
     device_model_module = types.ModuleType(f"{package_name}.device_model")
     device_model_module.parse_device_configs = lambda raw: ([], [])
     sys.modules[device_model_module.__name__] = device_model_module
@@ -135,7 +145,7 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
 
 
 class SetupNoticeCopyTests(unittest.TestCase):
-    def test_setup_notice_uses_compact_sections(self) -> None:
+    def test_setup_notice_is_short_and_action_first(self) -> None:
         notification_calls: list[dict] = []
         dismiss_calls: list[dict] = []
         module = _load_init_module(notification_calls, dismiss_calls)
@@ -152,34 +162,33 @@ class SetupNoticeCopyTests(unittest.TestCase):
 
         self.assertEqual(dismiss_calls, [])
         self.assertEqual(len(notification_calls), 1)
-        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: finish native Zero Net Export setup")
+        self.assertEqual(notification_calls[0]["kwargs"]["title"], "Test Entry: setup incomplete")
         message = notification_calls[0]["args"][1]
-        self.assertIn("Zero Net Export still needs a few native setup steps.", message)
-        self.assertIn("\n\nStatus\n• Summary: Setup still blocked by missing source roles; source roles are stale.", message)
+        self.assertIn("Setup incomplete — control is paused until setup is finished.", message)
+        self.assertIn("\n\nDo this first\n• Repair source blockers, then review source roles before relying on control.", message)
+        self.assertIn("\n\nMissing\n• Source roles: Solar power, Home load power", message)
+        self.assertIn("\n• Managed devices: 0", message)
+        self.assertIn("\n• Device issues: No controllable devices added yet.", message)
+        self.assertIn("\n• Blockers: Solar power", message)
+        self.assertIn("\n\nOpen\n• Sensors: sensors path", message)
+        self.assertIn("\n• Managed Devices: devices path", message)
+        self.assertIn("\n• Controls: controls path", message)
+        self.assertIn("\n• Diagnostics: diagnostics path", message)
+        self.assertIn(
+            "\n\nFallback only if Home Assistant rejects a valid selector choice\n• Capture the validation error, then paste the same entity id into the matching fallback field.",
+            message,
+        )
+        self.assertLess(message.index("Do this first"), message.index("Missing"))
+        self.assertLess(len(message), 600)
+        self.assertNotIn("Zero Net Export still needs a few native setup steps", message)
+        self.assertNotIn("Status\n• Summary", message)
+        self.assertNotIn("Command center", message)
+        self.assertNotIn("Device-page diagnostics actions", message)
         self.assertNotIn("source mappings", message)
         self.assertNotIn("mapped sources", message)
         self.assertNotIn("mapped-role blockers", message)
-        self.assertIn("\n• Missing required source roles: Solar power, Home load power", message)
-        self.assertIn("\n• Managed Devices: 0", message)
-        self.assertIn("\n• Managed-device issues: No controllable devices have been added yet.", message)
-        self.assertIn("\n• Active blockers: Solar power", message)
-        self.assertIn("\n\nDo next\n• Repair source blockers, then review source roles before relying on control.", message)
-        self.assertIn(
-            "\n\nFallback, only if Home Assistant rejects a valid choice\n• Capture the validation error, then paste the same entity id into the matching fallback field.",
-            message,
-        )
-        self.assertIn("\n\nOpen\n• Command center: configure path", message)
-        self.assertIn("\n• Sensors: sensors path", message)
-        self.assertIn("\n• Controls: controls path", message)
-        self.assertIn("\n• Managed Devices: devices path", message)
-        self.assertIn("\n• Diagnostics: diagnostics path", message)
-        self.assertIn(
-            "\n• Device-page diagnostics actions: device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot",
-            message,
-        )
         self.assertNotIn("Finish setup from Home Assistant's native integration surfaces.", message)
         self.assertNotIn("\n\nNext step:", message)
-        self.assertNotIn("\n\nUse device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot for deeper diagnostics", message)
 
     def test_setup_notice_normalizes_stale_source_mapping_next_step(self) -> None:
         notification_calls: list[dict] = []
