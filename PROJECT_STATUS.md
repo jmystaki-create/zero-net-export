@@ -2,10 +2,10 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-04-30 20:22
+last_modified: 2026-04-30 20:42
 
 ## Current focus
-ZNE-583 and ZNE-584 are fixed, deployed to the validation Home Assistant instance, restarted, live browser-validated, packaged as `0.1.99`, committed, and pushed with tag `v0.1.99`. Current release execution is blocked at GitHub Release publication because the local `gh` CLI is not authenticated; `/releases/latest` still resolves to `v0.1.98`.
+ZNE-583 and ZNE-584 are fixed, deployed to the validation Home Assistant instance, restarted, live browser-validated, packaged, released, HACS-installed, restarted, and live-validated as `0.1.99`. GitHub Release `v0.1.99` is published and Home Assistant now reports installed/latest `v0.1.99`.
 
 ## Active bugs
 - ZNE-584 — setup warning is too wordy and unclear. Fixed and live-validated: warning starts with impact and the primary action, lists missing setup, and no longer duplicates fallback guidance in the primary action. Status: validated.
@@ -32,13 +32,13 @@ ZNE-583 and ZNE-584 are fixed, deployed to the validation Home Assistant instanc
 - ZNE-580: focused multi-entry tests passed; live Home Assistant screenshots and registry evidence show separate Summer/Winter rows with Coffee machine scoped to Winter only.
 - ZNE-581/ZNE-582: repo implementation committed as `32796d8 Add per-service HA entry actions`; release validation passed with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, `python3 -m unittest discover -s tests` (599 tests OK), HACS install fingerprint match, Home Assistant restart, entity-state checks, logs scan, and live browser screenshot.
 - Release `0.1.98`: GitHub release `v0.1.98` published from commit `4140c1d930fcc6370ec99c108b424042574a0c42`; HACS installed `v0.1.98`; Home Assistant restarted and reported `sensor.zero_net_export_installed_version = 0.1.98`, `sensor.zero_net_export_previous_installed_version = 0.1.97`, and `update.zero_net_export_update` installed/latest `v0.1.98`.
-- Release validation record: `validation/0.1.98-release-validation.md`.
+- Release `0.1.99`: GitHub release `v0.1.99` published; HACS repository refresh succeeded; HACS installed `v0.1.99`; install fingerprint matched (`overall_match=true`); Home Assistant restarted and reported `update.zero_net_export_update` installed/latest `v0.1.99`, `sensor.zero_net_export_installed_version = 0.1.99`, `sensor.zero_net_export_previous_installed_version = 0.1.98`; Winter Plan and Summer Plan config entries are `loaded`; 136 Zero Net Export entities are present.
+- Release validation records: `validation/0.1.98-release-validation.md`, `validation/0.1.99-release-validation.md`.
 - Browser evidence: `bug-evidence/zne-0.1.98-live-integrations.png`.
 
 ## Blockers / approvals
-- Release approval for `0.1.99` was received on 2026-04-30; main and tag `v0.1.99` were pushed. Do not proceed to HACS, Home Assistant restart, or live release-complete claims until GitHub Release `v0.1.99` is published and verified as latest.
 - Exact native managed-row gear placement for ZNE-578 requires an upstream Home Assistant frontend feature request/PR if Riley still wants that exact UI location.
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Publish GitHub Release `v0.1.99` from pushed tag `v0.1.99`, verify `/releases/latest` resolves to `v0.1.99`, then continue the approved release flow through HACS update/upgrade, Home Assistant restart, log review, and live verification.
+Close out release bookkeeping for `0.1.99`, then either configure the missing required source roles in the validation Home Assistant instance or pick the next highest-priority backlog issue.
