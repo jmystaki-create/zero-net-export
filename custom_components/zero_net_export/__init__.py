@@ -40,6 +40,7 @@ from .const import (
 )
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
+from .entity import sync_primary_controller_device_registry
 from .native_support import (
     DEVICES_CONFIGURE_PATH,
     DIAGNOSTICS_DEVICE_ACTIONS_PATH,
@@ -476,6 +477,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    sync_primary_controller_device_registry(hass, entry)
     await _async_update_native_setup_notice(hass, entry)
     await async_prime_install_provenance(hass, force_refresh=True)
 
@@ -488,6 +490,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    sync_primary_controller_device_registry(hass, entry)
     return True
 
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+import sys
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -66,6 +67,50 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             ),
         )
 
+    def test_controller_device_registry_name_is_entry_plan_title(self) -> None:
+        _load_sensor_module()
+        entity_module = sys.modules["custom_components.zero_net_export.entity"]
+        entry = SimpleNamespace(entry_id="summer-entry", title="Summer Plan")
+        identifier = ("zero_net_export", "summer-entry")
+        device = SimpleNamespace(
+            id="controller-device",
+            identifier=identifier,
+            name="Zero Net Export Controller",
+            name_by_user="Zero Net Export Controller",
+            model="Legacy Controller",
+            manufacturer="Legacy",
+            sw_version="0.1.96",
+        )
+        registry = _FakeDeviceRegistry(device)
+
+        entity_module.sync_primary_controller_device_registry(SimpleNamespace(device_registry=registry), entry)
+
+        self.assertEqual(registry.updated[0], "controller-device")
+        self.assertEqual(registry.updated[1]["name"], "Summer Plan")
+        self.assertEqual(registry.updated[1]["name_by_user"], "Summer Plan")
+        self.assertEqual(registry.updated[1]["model"], "Zero Net Export")
+        self.assertEqual(registry.updated[1]["manufacturer"], "OpenClaw")
+
+    def test_controller_device_registry_keeps_real_user_override(self) -> None:
+        _load_sensor_module()
+        entity_module = sys.modules["custom_components.zero_net_export.entity"]
+        entry = SimpleNamespace(entry_id="summer-entry", title="Summer Plan")
+        device = SimpleNamespace(
+            id="controller-device",
+            identifier=("zero_net_export", "summer-entry"),
+            name="Zero Net Export Controller",
+            name_by_user="My custom controller label",
+            model="Legacy Controller",
+            manufacturer="Legacy",
+            sw_version="0.1.96",
+        )
+        registry = _FakeDeviceRegistry(device)
+
+        entity_module.sync_primary_controller_device_registry(SimpleNamespace(device_registry=registry), entry)
+
+        self.assertEqual(registry.updated[1]["name"], "Summer Plan")
+        self.assertNotIn("name_by_user", registry.updated[1])
+
     def test_managed_device_sensors_register_managed_load_as_own_ha_device(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
@@ -80,7 +125,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Managed Devices")
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
-            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool",
+            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool",
         )
 
     def test_managed_device_async_added_updates_existing_registry_configuration_url(self) -> None:
@@ -97,7 +142,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(registry.updated[0], "device-1")
         self.assertEqual(
             registry.updated[1]["configuration_url"],
-            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool",
+            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool",
         )
         self.assertEqual(registry.updated[1]["name"], "Managed Devices — Pool Pump")
         self.assertEqual(registry.updated[1]["model"], "Managed Devices — Fixed managed load")
@@ -128,7 +173,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
-            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool+pump%26main",
+            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool+pump%26main",
         )
 
     def test_managed_device_configuration_url_preserves_raw_device_key_separators(self) -> None:
@@ -143,7 +188,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
-            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3Apool.pump%2Fmain%3Aone",
+            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool.pump%2Fmain%3Aone",
         )
 
     def test_managed_device_identifier_sanitizes_query_sensitive_device_key(self) -> None:
@@ -162,7 +207,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
         self.assertEqual(
             sensor._attr_device_info["configuration_url"],
-            "homeassistant://navigate/config/integrations/integration/zero_net_export?managed_device=entry-1%3APool+Pump%2FMain%3AOne+%26+Boost",
+            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3APool+Pump%2FMain%3AOne+%26+Boost",
         )
 
     def test_child_device_identifiers_remain_unique_after_sanitizing_separators(self) -> None:

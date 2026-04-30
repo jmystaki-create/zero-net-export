@@ -10,21 +10,70 @@
         "data_description": {
           "name": "This is just the label Home Assistant will show for this Zero Net Export system. Pick something human-friendly, like the site, inverter, or switchboard name. After entry creation, continue in Configure for Sensors/source roles, Managed Devices onboarding, Controls policy/live mode, and Diagnostics from Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure."
         }
+      },
+      "configure_service": {
+        "title": "Configure service",
+        "description": "Configure service edits source roles for this selected Zero Net Export service only. Managed-device fleet work stays in Add Managed Devices or the Managed Devices workspace. First choose whether this service uses one combined signed/net grid source or separate import/export entities.\n\nSource status now\n- Currently missing required source roles: {missing_sources}\n- Current source health: {source_health}\n- Next Sensors step: {source_next_step}\n\nSource-role setup progress\n- Required source roles mapped: {source_mapping_progress}\n- Blocking source issues: {source_blocker_summary}\n\nBucket ownership and paths\n- Configure service / Sensors: {sources_path}\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}\n- Add Managed Devices / Managed Devices workspace: {devices_path}\n- Diagnostics: {support_path}\n\nConfigure service path: {configure_path}.",
+        "data": {
+          "grid_sensor_mode": "Grid import/export sensor layout"
+        },
+        "data_description": {
+          "grid_sensor_mode": "Choose Combined when your hardware exposes one signed/net grid sensor. Choose Separate when Home Assistant already has dedicated import and export entities."
+        }
+      },
+      "configure_service_sources": {
+        "title": "Configure service",
+        "description": "Configure service edits source roles for this selected Zero Net Export service only. These bindings are saved only to the selected service/plan. Managed-device fleet work stays in Add Managed Devices or the Managed Devices workspace. Grid mode: {grid_mode}. {grid_mapping_note}\n\nSource-role setup progress\n- Required source roles mapped: {source_mapping_progress}\n- Blocking source issues: {source_blocker_summary}\n\nUse the native selectors first. Only drop to the fallback fields if Home Assistant rejects a valid choice.\n\nRole guide for common real-world labels:\n{source_role_guide}\n\nBlocking source repair\n- Currently missing required source roles: {missing_sources}\n- Current source health: {source_health}\n- Unavailable source roles: {unavailable_sources}\n- Stale source roles: {stale_sources}\n- Affected source roles: {source_attention_roles}\n- Blocking validation details: {blocking_validation_details}\n- Source repair path: {source_repair_step}\n- Next Sensors step: {source_next_step}\n\nLive candidate cues for the current blocker:\n{priority_source_candidate_hints}\n\nCurrent source bindings, for cross-check only:\n{source_mapping_summary}\n\nFallback, only if Home Assistant rejects a valid choice:\n{fallback_guidance}\n\nBucket ownership and paths\n- Configure service / Sensors: {sources_path}\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}\n- Add Managed Devices / Managed Devices workspace: {devices_path}\n- Diagnostics: {support_path}\n\nConfigure service path: {configure_path}.",
+        "data": {
+          "solar_power_entity": "Solar power entity",
+          "solar_energy_entity": "Solar energy entity",
+          "grid_power_entity": "Combined / net grid power entity",
+          "grid_energy_entity": "Combined / net grid energy entity",
+          "grid_energy_entity_manual": "Combined / net grid energy entity ID fallback (optional)",
+          "grid_import_power_entity": "Grid import power entity",
+          "grid_export_power_entity": "Grid export power entity",
+          "grid_import_energy_entity": "Grid import energy entity",
+          "grid_export_energy_entity": "Grid export energy entity",
+          "home_load_power_entity": "Home load power entity (optional)",
+          "battery_soc_entity": "Battery state of charge entity",
+          "battery_soc_entity_manual": "Battery state of charge entity ID fallback (optional)",
+          "battery_charge_power_entity": "Battery charge power entity",
+          "battery_discharge_power_entity": "Battery discharge power entity"
+        },
+        "data_description": {
+          "solar_power_entity": "Live solar generation power sensor.",
+          "solar_energy_entity": "Accumulating solar energy sensor.",
+          "grid_power_entity": "Single signed/net grid power sensor. Positive values are treated as import and negative values are treated as export.",
+          "grid_energy_entity": "Single signed/net grid energy sensor for the combined-grid energy source role. Positive values are treated as import and negative values are treated as export.",
+          "grid_energy_entity_manual": "Optional native fallback if Home Assistant still rejects a valid Combined / net grid energy choice. Capture the exact error or a screenshot first, then clear the selector, paste the same energy entity ID into this fallback field, and save again.",
+          "grid_import_power_entity": "Dedicated grid import power sensor.",
+          "grid_export_power_entity": "Dedicated grid export power sensor.",
+          "grid_import_energy_entity": "Grid import energy sensor.",
+          "grid_export_energy_entity": "Grid export energy sensor.",
+          "home_load_power_entity": "Optional whole-home load power sensor. If omitted, Zero Net Export infers household load from solar, grid, and battery flows when possible.",
+          "battery_soc_entity": "Optional battery SOC sensor for reserve-aware control and battery reserve source health.",
+          "battery_soc_entity_manual": "Optional native fallback if Home Assistant still rejects a valid Battery state of charge choice. Capture the exact error or a screenshot first, then clear the selector, paste the same battery SOC entity ID into this fallback field, and save again.",
+          "battery_charge_power_entity": "Optional battery charging power sensor.",
+          "battery_discharge_power_entity": "Optional battery discharge power sensor."
+        }
       }
+    },
+    "abort": {
+      "configure_service_saved": "Configure service saved for this Zero Net Export service."
     }
   },
   "issues": {
     "setup_incomplete": {
       "title": "Finish native Zero Net Export setup",
-      "description": "Zero Net Export still needs a few native setup steps.\n\nStatus\n\u2022 Summary: {summary}\n\u2022 Missing required source roles: {missing_sources}\n\u2022 Managed Devices: {device_count}\n\nDo next\n\u2022 {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n\u2022 {fallback_hint}\n\nOpen\n\u2022 Command center: {configure_path}\n\u2022 Sensors: {sources_path}\n\u2022 Controls: {policy_path}\n\u2022 Managed Devices: {devices_path}\n\u2022 Diagnostics: {support_path}"
+      "description": "Zero Net Export still needs a few native setup steps.\n\nStatus\n• Summary: {summary}\n• Missing required source roles: {missing_sources}\n• Managed Devices: {device_count}\n\nDo next\n• {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n• {fallback_hint}\n\nOpen\n• Command center: {configure_path}\n• Sensors: {sources_path}\n• Controls: {policy_path}\n• Managed Devices: {devices_path}\n• Diagnostics: {support_path}"
     },
     "device_inventory_invalid": {
       "title": "Managed-device configuration needs repair",
-      "description": "One or more managed devices could not be parsed cleanly.\n\nStatus\n\u2022 Issue count: {issue_count}\n\u2022 Examples: {issue_examples}\n\nDo next\n\u2022 Repair the affected fleet entries in the Managed Devices workspace first.\n\u2022 Use the advanced recovery path only if the normal native device editor is no longer enough.\n\nOpen\n\u2022 Managed Devices: {configure_path}\n\u2022 Advanced recovery: {advanced_recovery_path}"
+      "description": "One or more managed devices could not be parsed cleanly.\n\nStatus\n• Issue count: {issue_count}\n• Examples: {issue_examples}\n\nDo next\n• Repair the affected fleet entries in the Managed Devices workspace first.\n• Use the advanced recovery path only if the normal native device editor is no longer enough.\n\nOpen\n• Managed Devices: {configure_path}\n• Advanced recovery: {advanced_recovery_path}"
     },
     "runtime_attention": {
       "title": "Zero Net Export runtime blockers",
-      "description": "Zero Net Export is running, but control is still constrained by one or more active blockers.\n\nNow\n\u2022 Health: {health_summary}\n\u2022 Reasons: {reason_summary}\n\nActive blockers\n\u2022 Unavailable source roles: {unavailable_sources}\n\u2022 Stale source roles: {stale_sources}\n\u2022 Affected source roles: {source_attention_roles}\n\u2022 Blocking validation details: {blocking_validation_details}\n\nDo next\n\u2022 {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n\u2022 {fallback_hint}\n\nOpen\n\u2022 Command center: {configure_path}\n\u2022 Sensors: {sources_path}\n\u2022 Controls: {policy_path}\n\u2022 Managed Devices: {devices_path}\n\u2022 Diagnostics: {support_path}"
+      "description": "Zero Net Export is running, but control is still constrained by one or more active blockers.\n\nNow\n• Health: {health_summary}\n• Reasons: {reason_summary}\n\nActive blockers\n• Unavailable source roles: {unavailable_sources}\n• Stale source roles: {stale_sources}\n• Affected source roles: {source_attention_roles}\n• Blocking validation details: {blocking_validation_details}\n\nDo next\n• {next_step}\n\nFallback, only if Home Assistant rejects a valid choice\n• {fallback_hint}\n\nOpen\n• Command center: {configure_path}\n• Sensors: {sources_path}\n• Controls: {policy_path}\n• Managed Devices: {devices_path}\n• Diagnostics: {support_path}"
     }
   },
   "options": {
@@ -202,6 +251,60 @@
     "error": {
       "device_inventory_invalid": "The managed-device configuration is invalid or incomplete.",
       "source_entities_invalid": "One or more source entities are missing, duplicated, or invalid."
+    }
+  },
+  "config_subentries": {
+    "managed_device": {
+      "initiate_flow": {
+        "user": "Add Managed Devices"
+      },
+      "step": {
+        "user": {
+          "title": "Add Managed Devices",
+          "description": "Add a managed load/device to this selected Zero Net Export service only. The new device is saved into this service/plan fleet and will not be added to other Zero Net Export services.\n\nChoose the managed-device type first, then enter the native device settings.",
+          "data": {
+            "device_kind": "Managed-device type"
+          },
+          "data_description": {
+            "device_kind": "Fixed loads are on/off devices such as relays and switches. Variable loads expose a numeric power target such as an EV charger or controllable load."
+          }
+        },
+        "device_details": {
+          "title": "Add Managed Devices",
+          "description": "Add this {device_kind} to the selected Zero Net Export service only. Review the entity and timing limits before saving.\n\nManaged Devices path after saving: {configure_path}.",
+          "data": {
+            "name": "Device name",
+            "entity_id": "Control entity",
+            "nominal_power_w": "Nominal power (W)",
+            "priority": "Priority",
+            "enabled": "Enabled",
+            "min_on_seconds": "Minimum on time (seconds)",
+            "min_off_seconds": "Minimum off time (seconds)",
+            "cooldown_seconds": "Cooldown (seconds)",
+            "max_active_seconds": "Maximum active time (seconds)",
+            "min_power_w": "Minimum power (W)",
+            "max_power_w": "Maximum power (W)",
+            "step_w": "Power step (W)"
+          },
+          "data_description": {
+            "name": "Human-friendly name for this managed device in the selected service fleet.",
+            "entity_id": "Home Assistant entity this service can control.",
+            "nominal_power_w": "Typical power used for fixed-load planning and display.",
+            "priority": "Lower numbers are shed earlier; higher numbers are kept longer.",
+            "enabled": "Whether this service may control the device immediately after saving.",
+            "min_on_seconds": "Minimum runtime once switched on.",
+            "min_off_seconds": "Minimum rest time once switched off.",
+            "cooldown_seconds": "Extra guard time between actions.",
+            "max_active_seconds": "Optional maximum continuous runtime. Use 0 for no limit.",
+            "min_power_w": "Lowest allowed variable power target.",
+            "max_power_w": "Highest allowed variable power target.",
+            "step_w": "Power increment for variable target changes."
+          }
+        }
+      },
+      "abort": {
+        "managed_device_saved": "Managed device saved for this Zero Net Export service."
+      }
     }
   }
 }

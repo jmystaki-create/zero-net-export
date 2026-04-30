@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Mapping
 from typing import Any
 
@@ -273,6 +274,48 @@ def _build_bootstrap_entry_data(user_input: dict[str, str]) -> dict[str, str | i
         CONF_REFRESH_SECONDS: DEFAULT_REFRESH_SECONDS,
         CONF_DEVICE_INVENTORY_JSON: DEFAULT_DEVICE_INVENTORY_JSON,
     }
+
+
+def _bootstrap_unique_id(name: str | None) -> str:
+    """Return a per-service config-flow unique id.
+
+    The Home Assistant integration page's Add service flow creates another
+    Zero Net Export config entry. A domain-wide unique id makes every future
+    service look like the original entry and abort as already configured.
+    Scope the duplicate guard to the submitted service name instead.
+    """
+
+    normalized = re.sub(r"[^a-z0-9]+", "_", str(name or DEFAULT_NAME).strip().lower()).strip("_")
+    return f"{DOMAIN}:{normalized or 'default'}"
+
+
+def _normalized_bootstrap_name(name: str | None) -> str:
+    return str(name or DEFAULT_NAME).strip().casefold()
+
+
+def _entry_bootstrap_name(entry: Any) -> str:
+    data = getattr(entry, "data", {}) or {}
+    title = getattr(entry, "title", "") or ""
+    if isinstance(data, Mapping) and data.get(CONF_NAME):
+        return _normalized_bootstrap_name(data.get(CONF_NAME))
+    return _normalized_bootstrap_name(title)
+
+
+def _bootstrap_name_already_configured(hass: Any, name: str | None) -> bool:
+    """Return true when the submitted service name already has a config entry."""
+
+    config_entries_manager = getattr(hass, "config_entries", None)
+    async_entries = getattr(config_entries_manager, "async_entries", None)
+    if async_entries is None:
+        return False
+    wanted_name = _normalized_bootstrap_name(name)
+    wanted_unique_id = _bootstrap_unique_id(name)
+    for entry in async_entries(DOMAIN):
+        if getattr(entry, "unique_id", None) == wanted_unique_id:
+            return True
+        if _entry_bootstrap_name(entry) == wanted_name:
+            return True
+    return False
 
 
 def _device_options_json(devices: list[dict[str, Any]]) -> str:
@@ -729,9 +772,37 @@ def _command_center_menu_options(recommended_section: str) -> list[str]:
 class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
+    def _service_options_flow(self):
+        options_flow = getattr(self, "_zne_service_options_flow", None)
+        if options_flow is None:
+            options_flow = ZeroNetExportOptionsFlow(self._get_reconfigure_entry())
+            options_flow.hass = self.hass
+            self._zne_service_options_flow = options_flow
+        return options_flow
+
+    def _service_action_result(self, result: dict[str, Any]) -> dict[str, Any]:
+        if result.get("type") == "create_entry":
+            self._zne_service_options_flow = None
+            return self.async_abort(reason="configure_service_saved")
+        if result.get("type") in {"form", "menu"}:
+            step_id = result.get("step_id")
+            if step_id == "native_setup":
+                result = {**result, "step_id": "configure_service"}
+            elif step_id == "native_setup_sources":
+                result = {**result, "step_id": "configure_service_sources"}
+        return result
+
+    @classmethod
+    @callback
+    def async_get_supported_subentry_types(cls, config_entry):
+        """Return HA-native per-entry actions shown in the entry overflow menu."""
+        return {"managed_device": ZeroNetExportManagedDeviceSubentryFlow}
+
     async def async_step_user(self, user_input=None):
         if user_input is not None:
-            await self.async_set_unique_id(DOMAIN)
+            if _bootstrap_name_already_configured(self.hass, user_input[CONF_NAME]):
+                return self.async_abort(reason="already_configured")
+            await self.async_set_unique_id(_bootstrap_unique_id(user_input[CONF_NAME]))
             self._abort_if_unique_id_configured()
             entry_data = _build_bootstrap_entry_data(user_input)
             return self.async_create_entry(title=user_input[CONF_NAME], data=entry_data)
@@ -742,10 +813,139 @@ class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors={},
         )
 
+    async def async_step_reconfigure(self, user_input=None):
+        """Handle the HA entry overflow Reconfigure action as Configure service."""
+        return await self.async_step_configure_service(user_input)
+
+    async def async_step_configure_service(self, user_input=None):
+        """Configure source bindings for this selected service entry only."""
+        result = await self._service_options_flow().async_step_native_setup(user_input)
+        return self._service_action_result(result)
+
+    async def async_step_configure_service_sources(self, user_input=None):
+        """Save source bindings for this selected service entry only."""
+        result = await self._service_options_flow().async_step_native_setup_sources(user_input)
+        return self._service_action_result(result)
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
         return ZeroNetExportOptionsFlow(config_entry)
+
+
+class ZeroNetExportManagedDeviceSubentryFlow(config_entries.ConfigSubentryFlow):
+    """HA-native overflow action for adding a managed device to one service."""
+
+    def __init__(self) -> None:
+        self._pending_device_kind: str | None = None
+
+    def _config_entry(self):
+        entry_id = self.handler[0]
+        return self.hass.config_entries.async_get_entry(entry_id)
+
+    def _options_flow(self):
+        options_flow = ZeroNetExportOptionsFlow(self._config_entry())
+        options_flow.hass = self.hass
+        return options_flow
+
+    async def async_step_user(self, user_input=None):
+        if user_input is not None:
+            self._pending_device_kind = str(user_input.get("device_kind") or DEVICE_KIND_FIXED)
+            return await self.async_step_device_details()
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("device_kind", default=DEVICE_KIND_FIXED): selector.SelectSelector(
+                        selector.SelectSelectorConfig(
+                            options=[
+                                selector.SelectOptionDict(value=DEVICE_KIND_FIXED, label="Fixed load"),
+                                selector.SelectOptionDict(value=DEVICE_KIND_VARIABLE, label="Variable load"),
+                            ],
+                            mode=selector.SelectSelectorMode.LIST,
+                        )
+                    )
+                }
+            ),
+            errors={},
+        )
+
+    async def async_step_device_details(self, user_input=None):
+        errors: dict[str, str] = {}
+        kind = self._pending_device_kind or DEVICE_KIND_FIXED
+        options_flow = self._options_flow()
+        devices, _ = options_flow._load_devices()
+
+        if user_input is not None:
+            new_device = options_flow._build_device_payload(user_input, kind)
+            candidate_devices = [*devices, new_device]
+            raw_inventory = _device_options_json(candidate_devices)
+            _, device_issues = parse_device_configs(raw_inventory)
+            if device_issues:
+                errors["base"] = "device_inventory_invalid"
+            else:
+                feedback = options_flow._build_device_action_feedback(
+                    action="promote",
+                    devices=candidate_devices,
+                    device=new_device,
+                )
+                await options_flow._save_devices(candidate_devices, feedback=feedback)
+                return self.async_abort(reason="managed_device_saved")
+
+        defaults = ZeroNetExportOptionsFlow._device_form_defaults(None, kind)
+        entity_domain = list(DEVICE_CANDIDATE_FIXED_DOMAINS) if kind == DEVICE_KIND_FIXED else list(DEVICE_CANDIDATE_VARIABLE_DOMAINS)
+        schema_dict: dict[Any, Any] = {
+            vol.Required("name", default=defaults["name"]): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+            vol.Required("entity_id", default=defaults["entity_id"]): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain=entity_domain)
+            ),
+            vol.Required("nominal_power_w", default=defaults["nominal_power_w"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("priority", default=defaults["priority"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=1000, step=1, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("enabled", default=defaults["enabled"]): selector.BooleanSelector(),
+            vol.Required("min_on_seconds", default=defaults["min_on_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=86400, step=30, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("min_off_seconds", default=defaults["min_off_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=86400, step=30, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("cooldown_seconds", default=defaults["cooldown_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=3600, step=5, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("max_active_seconds", default=defaults["max_active_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=172800, step=60, mode=selector.NumberSelectorMode.BOX)
+            ),
+        }
+        if kind == DEVICE_KIND_VARIABLE:
+            schema_dict.update(
+                {
+                    vol.Required("min_power_w", default=defaults["min_power_w"]): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                    vol.Required("max_power_w", default=defaults["max_power_w"]): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                    vol.Required("step_w", default=defaults["step_w"]): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=5000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                }
+            )
+
+        return self.async_show_form(
+            step_id="device_details",
+            data_schema=vol.Schema(schema_dict),
+            errors=errors,
+            description_placeholders={
+                "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "configure_path": DEVICES_CONFIGURE_PATH,
+            },
+        )
 
 
 class ZeroNetExportOptionsFlow(config_entries.OptionsFlow):

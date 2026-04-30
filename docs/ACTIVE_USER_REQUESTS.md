@@ -23,11 +23,18 @@ Focus only on the concrete bugs/features Riley has flagged in the Home Assistant
    - Unmanaged devices/candidates should remain discoverable through Managed Devices workflow/backlog/review surfaces.
    - They should not appear as peer `Un Managed — ...` rows in the same integration/device list as managed devices.
 
-4. **No release-readiness claim without proof**
+4. **Per-service service-card actions for multi-plan operation**
+   - Each service/plan card needs an obvious per-service path to configure core parameters/source bindings such as solar, home load, and grid.
+   - Each service/plan card needs an obvious per-service path to add managed devices/loads to that specific service only.
+   - Preferred design is service-card three-dot actions labelled `Configure service` and `Add Managed Devices`; if Home Assistant does not allow custom integration actions in that exact overflow menu, use the nearest supported HA-native entry point while preserving the wording, scope, and outcome.
+   - Implementation note: Home Assistant supports custom config-subentry overflow actions, so `Add Managed Devices` can appear with exact wording in the selected service overflow. Home Assistant's built-in entry reconfigure row is labelled by HA as `Reconfigure`, but the opened flow is titled `Configure service` and remains selected-entry scoped.
+   - These actions must be entry-scoped so Summer/Winter plans cannot cross-edit each other's source bindings or managed-device fleets.
+
+5. **No release-readiness claim without proof**
    - Do not tag, release, deploy, restart Home Assistant, or claim the next release is ready without explicit approval.
    - Required proof before release/deploy approval: tests pass and PNG evidence shows clean managed rows with the settings affordance on the native right side and no peer `Un Managed — ...` rows.
 
-5. **No direct Home Assistant updates outside release management**
+6. **No direct Home Assistant updates outside release management**
    - No features, bug fixes, or component updates should be pushed directly to the live Home Assistant install outside the GitHub release-management process.
    - Live changes must flow through committed code, pushed GitHub main/tag, published GitHub release, HACS refresh/upgrade, restart, and validation per `RELEASE_MANAGEMENT.md`.
    - Manual install writes are only acceptable as an explicitly approved release-management recovery step for the exact published release artifact, not as ad-hoc deployment.

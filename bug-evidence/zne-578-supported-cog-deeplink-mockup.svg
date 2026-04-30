@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#000" flood-opacity="0.18"/></filter>
+    <style>
+      .bg{fill:#f5f7fb}.card{fill:#fff;stroke:#d9dde6;stroke-width:1.5;filter:url(#shadow)}.muted{fill:#667085;font:24px Arial, sans-serif}.text{fill:#101828;font:28px Arial, sans-serif}.small{fill:#667085;font:20px Arial, sans-serif}.title{fill:#101828;font:bold 34px Arial, sans-serif}.pill{fill:#eef4ff;stroke:#84adff}.blue{fill:#2563eb}.green{fill:#039855}.red{fill:#d92d20}.line{stroke:#98a2b3;stroke-width:3;fill:none;marker-end:url(#arrow)}.note{fill:#fff7ed;stroke:#fdba74;stroke-width:2}.noteText{fill:#9a3412;font:bold 22px Arial, sans-serif}.btn{fill:#eff6ff;stroke:#60a5fa;stroke-width:2}.btnText{fill:#1d4ed8;font:bold 22px Arial, sans-serif}
+    </style>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M2,2 L10,6 L2,10 z" fill="#98a2b3"/></marker>
+  </defs>
+  <rect class="bg" width="1400" height="900"/>
+  <text x="60" y="64" class="title">ZNE-578 mockup: supported Home Assistant path</text>
+  <text x="60" y="100" class="muted">Native row gear beside the pencil is not supported by HA frontend; this uses the supported device-detail cog deep link.</text>
+
+  <rect x="60" y="150" width="390" height="560" rx="22" class="card"/>
+  <text x="90" y="205" class="title">1. Native integration row</text>
+  <rect x="90" y="250" width="330" height="110" rx="16" fill="#f9fafb" stroke="#d0d5dd"/>
+  <circle cx="125" cy="305" r="18" fill="#98a2b3"/>
+  <text x="160" y="297" class="text" font-size="24">Managed Devices —</text>
+  <text x="160" y="327" class="text" font-size="24">Coffee machine</text>
+  <text x="335" y="317" class="muted">›</text>
+  <text x="370" y="317" class="muted">✎</text>
+  <text x="404" y="317" class="muted">⋮</text>
+  <rect x="90" y="410" width="330" height="140" rx="14" class="note"/>
+  <text x="112" y="454" class="noteText">No custom gear here</text>
+  <text x="112" y="492" class="small">HA hardcodes this row:</text>
+  <text x="112" y="522" class="small">chevron + pencil + menu only.</text>
+  <text x="90" y="620" class="small">Click the row to open the HA device page.</text>
+
+  <line x1="470" y1="430" x2="575" y2="430" class="line"/>
+
+  <rect x="590" y="150" width="390" height="560" rx="22" class="card"/>
+  <text x="620" y="205" class="title">2. HA device detail page</text>
+  <rect x="620" y="250" width="330" height="120" rx="16" fill="#f9fafb" stroke="#d0d5dd"/>
+  <text x="645" y="296" class="text">Coffee machine</text>
+  <text x="645" y="330" class="small">Managed Devices • 1 entity</text>
+  <rect x="620" y="420" width="330" height="70" rx="14" class="btn"/>
+  <text x="647" y="464" class="btnText">⚙ Open configuration</text>
+  <text x="620" y="545" class="small">This is the supported Home Assistant</text>
+  <text x="620" y="575" class="small">device.configuration_url cog action.</text>
+  <text x="620" y="635" class="small">URL: /zero-net-export-managed-devices</text>
+  <text x="620" y="665" class="small">?managed_device=entry:coffee</text>
+
+  <line x1="1000" y1="430" x2="1105" y2="430" class="line"/>
+
+  <rect x="1120" y="150" width="220" height="560" rx="22" class="card"/>
+  <text x="1148" y="205" class="title" font-size="28">3. ZNE panel</text>
+  <text x="1148" y="252" class="text" font-size="23">Managed Devices</text>
+  <rect x="1148" y="290" width="164" height="86" rx="14" fill="#f9fafb" stroke="#d0d5dd"/>
+  <text x="1166" y="324" class="small">Coffee machine</text>
+  <text x="1166" y="354" class="small">⚙ editor opens</text>
+  <rect x="1148" y="420" width="164" height="185" rx="14" fill="#f0fdf4" stroke="#86efac"/>
+  <text x="1165" y="460" class="small">First-provisioned</text>
+  <text x="1165" y="490" class="small">settings editor</text>
+  <rect x="1165" y="525" width="130" height="44" rx="10" class="green"/>
+  <text x="1192" y="555" fill="#fff" font="bold 20px Arial">Save</text>
+
+  <text x="60" y="790" class="muted">Acceptance shown by mockup: clean native row text; no false claim of native-row custom gear; supported cog opens the selected managed-device editor.</text>
+</svg>

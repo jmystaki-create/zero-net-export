@@ -70,6 +70,23 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
     return [...byKey.values()];
   }
 
+  applyDeepLink(devices) {
+    if (this._deepLinkApplied) return;
+    this._deepLinkApplied = true;
+    const requested = new URLSearchParams(window.location.search).get('managed_device');
+    if (!requested) return;
+    const match = devices.find((device) => {
+      const key = String(device.key || device.device_key || device.name || 'managed-device');
+      const entryId = String(device.entry_id || 'default-entry');
+      return `${entryId}:${key}` === requested;
+    });
+    if (match) {
+      const key = String(match.key || match.device_key || match.name || 'managed-device');
+      const entryId = String(match.entry_id || 'default-entry');
+      this._editing = `${entryId}:${key}`;
+    }
+  }
+
   openEditor(editKey) {
     this._editing = editKey;
     this.render();
@@ -161,6 +178,7 @@ class ZeroNetExportManagedDevicesPanel extends HTMLElement {
   render() {
     if (!this.isConnected || !this._hass) return;
     const devices = this.devices();
+    this.applyDeepLink(devices);
     this.innerHTML = `${this.css()}<div class="wrap"><div class="header"><h1>Managed Devices</h1><div class="sub">Right-side gears edit the settings used when each load was first provisioned.</div></div>${this._error ? `<div class="error">${this.escape(this._error)}</div>` : ''}<div class="card">${devices.length ? devices.map((device) => this.row(device)).join('') : '<div class="empty">No managed devices configured yet.</div>'}</div></div>`;
     this.bind();
   }

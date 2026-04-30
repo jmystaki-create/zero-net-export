@@ -51,8 +51,22 @@ def _load_config_flow_module():
         def __init__(self, *args, **kwargs) -> None:
             pass
 
+        def async_create_entry(self, *, title, data):
+            return {"type": "create_entry", "title": title, "data": data}
+
+        def async_show_form(self, **kwargs):
+            return {"type": "form", **kwargs}
+
+        def async_show_menu(self, **kwargs):
+            return {"type": "menu", **kwargs}
+
+    class ConfigSubentryFlow:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
     config_entries_module.ConfigFlow = ConfigFlow
     config_entries_module.OptionsFlow = OptionsFlow
+    config_entries_module.ConfigSubentryFlow = ConfigSubentryFlow
     sys.modules[config_entries_module.__name__] = config_entries_module
     homeassistant_module.config_entries = config_entries_module
 
@@ -209,6 +223,137 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("DIAGNOSTICS_DEVICE_ACTIONS_PATH", source)
         self.assertNotIn("support actions", source)
         self.assertNotIn("device support actions", source)
+
+    def test_add_service_unique_id_is_scoped_to_system_name(self) -> None:
+        module = _load_config_flow_module()
+
+        self.assertEqual(
+            module._bootstrap_unique_id("Zero Net Export - Pool Pump"),
+            "zero_net_export:zero_net_export_pool_pump",
+        )
+        self.assertNotEqual(module._bootstrap_unique_id("Pool Pump"), module.DOMAIN)
+
+    def test_add_service_allows_distinct_service_name_with_existing_entry(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportConfigFlow()
+        existing = SimpleNamespace(
+            unique_id=module.DOMAIN,
+            title="Zero Net Export",
+            data={module.CONF_NAME: "Zero Net Export"},
+        )
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_entries=lambda domain: [existing] if domain == module.DOMAIN else [])
+        )
+        set_unique_ids = []
+
+        async def async_set_unique_id(unique_id):
+            set_unique_ids.append(unique_id)
+
+        flow.async_set_unique_id = async_set_unique_id
+        flow._abort_if_unique_id_configured = lambda: None
+        flow.async_abort = lambda reason: {"type": "abort", "reason": reason}
+        flow.async_create_entry = lambda title, data: {"type": "create_entry", "title": title, "data": data}
+
+        result = asyncio.run(flow.async_step_user({module.CONF_NAME: "Zero Net Export - Pool Pump"}))
+
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["title"], "Zero Net Export - Pool Pump")
+        self.assertEqual(set_unique_ids, ["zero_net_export:zero_net_export_pool_pump"])
+
+    def test_add_service_blocks_true_duplicate_service_name(self) -> None:
+        module = _load_config_flow_module()
+        flow = module.ZeroNetExportConfigFlow()
+        existing = SimpleNamespace(
+            unique_id=module.DOMAIN,
+            title="Zero Net Export",
+            data={module.CONF_NAME: "Zero Net Export"},
+        )
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_entries=lambda domain: [existing] if domain == module.DOMAIN else [])
+        )
+        flow.async_abort = lambda reason: {"type": "abort", "reason": reason}
+
+        result = asyncio.run(flow.async_step_user({module.CONF_NAME: "Zero Net Export"}))
+
+        self.assertEqual(result, {"type": "abort", "reason": "already_configured"})
+
+
+    def test_configure_service_reconfigure_entry_starts_source_binding_flow(self) -> None:
+        module = _load_config_flow_module()
+        entry = SimpleNamespace(
+            title="Summer",
+            entry_id="summer-entry",
+            data={},
+            options={module.CONF_GRID_SENSOR_MODE: module.GRID_SENSOR_MODE_COMBINED},
+        )
+        flow = module.ZeroNetExportConfigFlow()
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_get_entry=lambda entry_id: entry),
+            states=SimpleNamespace(async_all=lambda: []),
+            data={},
+        )
+        flow._get_reconfigure_entry = lambda: entry
+        flow.async_show_form = lambda **kwargs: {"type": "form", **kwargs}
+        module.build_source_attention_details = lambda *args, **kwargs: {
+            "missing_source_keys": [],
+            "unavailable_source_keys": [],
+            "stale_source_keys": [],
+            "blocking_validation_details": "None",
+            "validation_details": {"issues": []},
+            "source_diagnostics": {},
+        }
+
+        result = asyncio.run(flow.async_step_reconfigure())
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "configure_service")
+
+    def test_managed_device_subentry_adds_device_to_selected_entry_only(self) -> None:
+        module = _load_config_flow_module()
+        entry = SimpleNamespace(
+            title="Winter",
+            entry_id="winter-entry",
+            data={},
+            options={module.CONF_DEVICE_INVENTORY_JSON: "[]"},
+        )
+        updates = []
+        reloads = []
+
+        async def async_reload(entry_id):
+            reloads.append(entry_id)
+
+        flow = module.ZeroNetExportManagedDeviceSubentryFlow()
+        flow.handler = ("winter-entry", "managed_device")
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(
+                async_get_entry=lambda entry_id: entry,
+                async_update_entry=lambda config_entry, **kwargs: updates.append((config_entry, kwargs)),
+                async_reload=async_reload,
+            ),
+            states=SimpleNamespace(async_all=lambda: []),
+            data={},
+        )
+        flow.async_abort = lambda reason: {"type": "abort", "reason": reason}
+        flow.async_show_form = lambda **kwargs: {"type": "form", **kwargs}
+        flow.async_create_entry = lambda title, data: {"type": "create_entry", "title": title, "data": data}
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+
+        result = asyncio.run(flow.async_step_device_details({
+            "name": "Pool Pump",
+            "entity_id": "switch.pool_pump",
+            "nominal_power_w": 1100,
+            "priority": 120,
+            "enabled": True,
+            "min_on_seconds": 900,
+            "min_off_seconds": 900,
+            "cooldown_seconds": 60,
+            "max_active_seconds": 14400,
+        }))
+
+        self.assertEqual(result, {"type": "abort", "reason": "managed_device_saved"})
+        self.assertEqual(reloads, ["winter-entry"])
+        self.assertEqual(updates[0][0], entry)
+        self.assertIn("switch.pool_pump", updates[0][1]["options"][module.CONF_DEVICE_INVENTORY_JSON])
 
     def test_best_source_candidate_prefers_explicit_grid_export_energy_sensor(self) -> None:
         module = _load_config_flow_module()

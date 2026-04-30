@@ -118,6 +118,47 @@ def zero_net_export_device_info(coordinator) -> dict:
     }
 
 
+def sync_primary_controller_device_registry(hass, entry) -> None:
+    """Keep each config entry's native controller device named as its own plan.
+
+    Older installs can retain the generic device-registry name from the first
+    controller row (for example ``Zero Net Export Controller``). In multi-entry
+    installs that makes each service look like a duplicate controller instead of
+    a separate plan/brain. The registry identifier is already entry-scoped, so
+    refresh the visible metadata to the owning config entry title on setup.
+    """
+
+    try:
+        from homeassistant.helpers import device_registry as dr
+    except Exception:
+        return
+    try:
+        device_registry = dr.async_get(hass)
+        device = device_registry.async_get_device({(DOMAIN, entry.entry_id)})
+    except Exception:
+        return
+    if device is None:
+        return
+    updates: dict[str, object] = {}
+    title = str(getattr(entry, "title", "") or "Zero Net Export").strip() or "Zero Net Export"
+    if getattr(device, "name", None) != title:
+        updates["name"] = title
+    stale_user_names = {"Zero Net Export", "Zero Net Export Controller"}
+    if getattr(device, "name_by_user", None) in stale_user_names:
+        updates["name_by_user"] = title
+    if getattr(device, "model", None) != "Zero Net Export":
+        updates["model"] = "Zero Net Export"
+    if getattr(device, "manufacturer", None) != "OpenClaw":
+        updates["manufacturer"] = "OpenClaw"
+    if getattr(device, "sw_version", None) != INTEGRATION_VERSION:
+        updates["sw_version"] = INTEGRATION_VERSION
+    if updates:
+        try:
+            device_registry.async_update_device(device.id, **updates)
+        except Exception:
+            return
+
+
 def managed_load_display_name(device_key: str, details: dict | None = None) -> str:
     """Return a stable display name for sparse managed-load details."""
     detail = managed_load_detail_mapping(details)
@@ -149,11 +190,17 @@ def managed_load_detail(coordinator, device_key: str, device_name: str | None = 
 
 
 def managed_load_configuration_url(coordinator, device_key: str) -> str:
-    """Return the native HA configuration URL exposed as the row settings/gear action."""
+    """Return the supported HA configuration URL for the managed-device editor.
+
+    Home Assistant's native integration device row does not consume device
+    ``configuration_url`` as an extra row action; the frontend only exposes it as
+    a cog action from the device detail page. Point that supported cog action at
+    the managed-devices panel and deep-link the selected device into edit mode.
+    """
     entry_id = str(getattr(coordinator.entry, "entry_id", "entry") or "entry").strip() or "entry"
     key = str(device_key or "unknown").strip() or "unknown"
     query = urlencode({"managed_device": f"{entry_id}:{key}"})
-    return f"homeassistant://navigate/config/integrations/integration/{DOMAIN}?{query}"
+    return f"homeassistant://zero-net-export-managed-devices?{query}"
 
 
 def managed_load_device_info(coordinator, device_key: str, detail: dict | None = None) -> dict:
