@@ -114,7 +114,7 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     native_support_module.DIAGNOSTICS_DEVICE_ACTIONS_PATH = "device path -> Review diagnostics / Show setup checklist / Review diagnostics snapshot"
     native_support_module.build_native_operator_readiness = lambda coordinator: {
         "summary": "Setup still blocked by missing source mappings; mapped sources are stale.",
-        "next_step": "Repair mapped-role blockers, then review mapped sources before relying on control.",
+        "next_step": "Repair mapped-role blockers, then review mapped sources before relying on control. Capture the validation error, then paste the same entity id into the matching fallback field.",
     }
     native_support_module.build_source_attention_role_summary = lambda state, merged, limit=4: "Solar power"
     native_support_module.build_source_selector_fallback_hint = lambda role_keys=None: "Capture the validation error, then paste the same entity id into the matching fallback field."
@@ -178,6 +178,7 @@ class SetupNoticeCopyTests(unittest.TestCase):
             "\n\nFallback only if Home Assistant rejects a valid selector choice\n• Capture the validation error, then paste the same entity id into the matching fallback field.",
             message,
         )
+        self.assertEqual(message.count("Capture the validation error"), 1)
         self.assertLess(message.index("Do this first"), message.index("Missing"))
         self.assertLess(len(message), 600)
         self.assertNotIn("Zero Net Export still needs a few native setup steps", message)

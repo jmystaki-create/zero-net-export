@@ -30,6 +30,8 @@ class RepairsCopyTests(unittest.TestCase):
         self.assertNotIn("Known selector workaround:", description)
         self.assertNotIn("Primary path:", description)
         self.assertNotIn("Do next\n• {next_step}\n• Selector fallback", description)
+        self.assertNotIn("next_step = f\"{next_step} {setup_fallback_hint}\"", self.repairs_source)
+        self.assertIn("next_step = next_step.replace(f\" {setup_fallback_hint}\", \"\").replace(setup_fallback_hint, \"\").strip()", self.repairs_source)
 
     def test_device_inventory_invalid_copy_uses_compact_sections(self) -> None:
         description = self.strings["issues"]["device_inventory_invalid"]["description"]

@@ -301,6 +301,8 @@ async def _async_update_native_setup_notice(
     next_step = _normalize_native_setup_notice_text(
         readiness.get("next_step") or f"Open {PRIMARY_CONFIGURE_PATH} and continue setup."
     )
+    if fallback_hint != "Not needed right now.":
+        next_step = next_step.replace(f" {fallback_hint}", "").replace(fallback_hint, "").strip()
 
     message = (
         "Setup incomplete — control is paused until setup is finished.\n\n"

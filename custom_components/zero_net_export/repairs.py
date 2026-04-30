@@ -162,8 +162,8 @@ def async_sync_repairs_issues(
 
     setup_fallback_hint = build_source_selector_fallback_hint(role_keys=missing_source_keys)
     setup_fallback_text = setup_fallback_hint or "Not needed right now."
-    if setup_fallback_hint and setup_fallback_hint not in next_step:
-        next_step = f"{next_step} {setup_fallback_hint}"
+    if setup_fallback_hint:
+        next_step = next_step.replace(f" {setup_fallback_hint}", "").replace(setup_fallback_hint, "").strip()
 
     if missing_sources or not devices:
         _create_issue(
