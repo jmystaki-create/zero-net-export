@@ -2,14 +2,14 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-04-30 20:02
+last_modified: 2026-04-30 20:18
 
 ## Current focus
-ZNE-584 is the active copy/UX bug: the setup warning is too wordy and unclear. Repo copy simplification and automated validation are complete alongside the already-fixed-pending-live-validation ZNE-583 Reconfigure regression; live deploy/restart/browser validation remains approval-gated.
+ZNE-583 and ZNE-584 are fixed, deployed to the validation Home Assistant instance, restarted, and live browser-validated. Current focus is release readiness/packaging decision for the post-0.1.98 fixes.
 
 ## Active bugs
-- ZNE-584 — setup warning is too wordy and unclear. User screenshot confirms the copy needs a radical simplification; repo fix is validated to make the warning action-first: impact, do this first, missing items, useful paths, fallback only if needed. Status: fixed pending approved live validation.
-- ZNE-583 — service-row `Reconfigure` opens with `Invalid flow specified`. User screenshot confirms the regression in `0.1.98`; repo fix is validated to keep the initial HA reconfigure step id as `reconfigure` while still advancing to the selected service's Configure service source-binding flow. Status: fixed pending approved live validation.
+- ZNE-584 — setup warning is too wordy and unclear. Fixed and live-validated: warning starts with impact and the primary action, lists missing setup, and no longer duplicates fallback guidance in the primary action. Status: validated.
+- ZNE-583 — service-row `Reconfigure` opens with `Invalid flow specified`. Fixed and live-validated: service-row overflow `Reconfigure` opens the reconfigure form with `grid_sensor_mode` choices and no invalid-flow banner. Status: validated.
 - ZNE-578 — native managed-row gear beside the pencil is not supported by current Home Assistant frontend. Closest supported path is implemented and live-validated: managed child-device `configuration_url` opens the Home Assistant device-detail cog/deep-link into the `ZNE Managed Devices` editor. Exact native-row placement requires upstream HA frontend work if still required.
 - ZNE-579 — Add service wrongly aborted as `already_configured`. Fixed and live-validated; unique ids are now scoped to the submitted service/system name.
 - ZNE-580 — multiple services looked like duplicated generic controllers. Fixed and live-validated; Summer/Winter plan controller rows and managed-device scoping are separated.
@@ -25,8 +25,8 @@ ZNE-584 is the active copy/UX bug: the setup warning is too wordy and unclear. R
 - ZNE-FR-006 — multi-plan validation evidence. Live-validated for controller identity and managed-device assignment.
 
 ## Validation evidence
-- ZNE-584: repo validation passed with focused copy tests `python3 -m unittest -q tests.test_setup_notice_copy tests.test_repairs_copy tests.test_translation_sync tests.test_bug_tracker_ids` (10 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
-- ZNE-583: repo validation passed with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused regression tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync tests.test_bug_tracker_ids` (91 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
+- ZNE-584: repo validation passed with focused copy tests `python3 -m unittest -q tests.test_setup_notice_copy tests.test_repairs_copy tests.test_translation_sync tests.test_bug_tracker_ids` (10 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`. Follow-up duplication guard committed as `8c4b4b7` and revalidated with the same focused/full test suite plus `git diff --check`. Live validation deployed the repo build, fingerprint-matched it (`overall_match=true`), restarted HA with API recovery after 22s, and captured browser proof `bug-evidence/zne-584-final-live-repair-detail.png` / `.json` showing action-first repair copy and fallback guidance present once.
+- ZNE-583: repo validation passed with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused regression tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync tests.test_bug_tracker_ids` (91 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`. Live validation deployed the repo build, fingerprint-matched it (`overall_match=true`), restarted HA with API recovery after 22s, and captured browser proof `bug-evidence/zne-583-final-service-menu.png` plus `bug-evidence/zne-583-final-live-reconfigure-flow.png` / `.json`; the service-row `Reconfigure` action opens `grid_sensor_mode` choices and the evidence JSON contains zero `Invalid flow specified` matches.
 - ZNE-578: focused tests passed and live Home Assistant proof captured for the supported device-detail cog/deep-link path.
 - ZNE-579: focused config-flow tests passed; live Home Assistant add-service validation succeeded without `already_configured` and cleanup was completed.
 - ZNE-580: focused multi-entry tests passed; live Home Assistant screenshots and registry evidence show separate Summer/Winter rows with Coffee machine scoped to Winter only.
@@ -36,10 +36,9 @@ ZNE-584 is the active copy/UX bug: the setup warning is too wordy and unclear. R
 - Browser evidence: `bug-evidence/zne-0.1.98-live-integrations.png`.
 
 ## Blockers / approvals
-- ZNE-583 blocks treating the live `0.1.98` service-row Reconfigure path as healthy until approved live validation passes.
 - Do not deploy, restart Home Assistant, tag, publish, or claim future release readiness without explicit approval and evidence.
 - Exact native managed-row gear placement for ZNE-578 requires an upstream Home Assistant frontend feature request/PR if Riley still wants that exact UI location.
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Ask Riley for approval before deploying/restarting Home Assistant for combined ZNE-583/ZNE-584 live validation. If approved, install the repo build, restart HA, and capture browser proof that Reconfigure has no invalid-flow banner and the setup warning is concise/action-first.
+Prepare the post-0.1.98 release decision: either tag/package a new release containing ZNE-583/ZNE-584 after approval, or keep the validation install as a tested live patch while monitoring for feedback on the remaining setup-warning path list length.

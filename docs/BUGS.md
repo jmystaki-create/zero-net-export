@@ -103,28 +103,29 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-584 - setup warning is too wordy and unclear
 
-- **status:** `fixed_pending_live_validation`
+- **status:** `validated`
 - **severity:** `medium`
 - **area:** `docs`
 - **where seen:** Riley screenshot/report on 2026-04-30 from the Home Assistant Zero Net Export setup warning/repair surface.
-- **current observed behavior:** the setup warning is too long, repeats routes, and hides the important operator action among status/fallback/path details.
+- **current observed behavior:** the setup warning was too long, repeated routes, and hid the important operator action among status/fallback/path details.
 - **expected behavior:** the warning should be short, direct, and action-first: say that control is paused, state exactly what to do first, list what is missing, and provide only the useful open paths/fallback.
 - **acceptance criteria:**
   - Setup warning title is short and plain.
   - Warning body starts with the impact and primary action, before details.
   - Repeated/secondary paths such as command-center and device-page diagnostics are removed from the warning.
   - Tests enforce the shorter action-first copy and prevent old verbose sections from returning.
-- **validation evidence:** repo copy fix validated with focused tests `python3 -m unittest -q tests.test_setup_notice_copy tests.test_repairs_copy tests.test_translation_sync tests.test_bug_tracker_ids` (10 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
-- **next action:** request approval before live HA deploy/restart/browser validation; closure requires screenshot proof that the warning is concise and action-first in Home Assistant.
+- **validation evidence:** repo copy fix validated with focused tests `python3 -m unittest -q tests.test_setup_notice_copy tests.test_repairs_copy tests.test_translation_sync tests.test_bug_tracker_ids` (10 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`. Follow-up duplication guard committed as `8c4b4b7` and revalidated with the same focused/full test suite plus `git diff --check`.
+- **live validation evidence:** deployed the exact repo component to `/homeassistant/custom_components/zero_net_export` on 2026-04-30, fingerprint comparison returned `overall_match=true`, Home Assistant restart recovered after 22s, and browser proof `bug-evidence/zne-584-final-live-repair-detail.png` / `.json` shows the `Finish Zero Net Export setup` repair detail starts with `Setup incomplete — control is paused`, then `Do this first`, then `Missing`, with fallback guidance present once and not duplicated in the primary action.
+- **next action:** monitor for user feedback on whether the remaining path list should be shortened further; no closure blocker remains for this bug.
 
 
 ## ZNE-583 - service-row Reconfigure opens with Invalid flow specified
 
-- **status:** `fixed_pending_live_validation`
+- **status:** `validated`
 - **severity:** `high`
 - **area:** `config_flow`
 - **where seen:** Riley screenshot/report on 2026-04-30 from the Home Assistant Zero Net Export integration Services list after opening a service row's three-dot `Reconfigure` action.
-- **current observed behavior:** the selected service's reconfigure dialog opens but immediately shows the Home Assistant error banner `Invalid flow specified` above the `grid_sensor_mode` choice, making the per-service Configure service path look broken.
+- **current observed behavior:** the selected service's reconfigure dialog opened but immediately showed the Home Assistant error banner `Invalid flow specified` above the `grid_sensor_mode` choice, making the per-service Configure service path look broken.
 - **expected behavior:** selecting `Reconfigure` from a specific service row should open the first Configure service step cleanly, without an invalid-flow banner, and submitting the grid sensor mode should advance to the selected service's source-binding form.
 - **evidence:** user-supplied screenshot shows Zero Net Export `0.1.98`, separate `Summer Plan` and `Winter Plan` service cards, and the `Invalid flow specified` banner inside the reconfigure dialog.
 - **suspected cause:** the reconfigure flow reused the options-flow `native_setup` step but renamed the initial form to `configure_service`; Home Assistant's built-in reconfigure action expects the initial config-flow step id to remain `reconfigure`.
@@ -134,7 +135,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Regression tests cover both the initial step id and the submit transition.
   - `docs/BUGS.md`, `PROJECT_STATUS.md`, and `CHANGELOG.md` record the regression and fix status.
 - **validation evidence:** repo fix validated with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused regression tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync tests.test_bug_tracker_ids` (91 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
-- **next action:** request approval before live HA deploy/restart/browser validation; closure requires live screenshot proof that the service-row `Reconfigure` dialog opens without `Invalid flow specified`.
+- **live validation evidence:** deployed the exact repo component to `/homeassistant/custom_components/zero_net_export` on 2026-04-30, fingerprint comparison returned `overall_match=true`, Home Assistant restart recovered after 22s, and browser proof `bug-evidence/zne-583-final-service-menu.png` shows the service-row overflow contains `Reconfigure`; `bug-evidence/zne-583-final-live-reconfigure-flow.png` / `.json` shows clicking it opens the reconfigure form with `grid_sensor_mode` choices and no `Invalid flow specified` text (`invalid flow` count 0).
+- **next action:** monitor for user feedback; no closure blocker remains for this bug.
 
 
 ## ZNE-582 - no obvious per-service Add Managed Devices action from the service card

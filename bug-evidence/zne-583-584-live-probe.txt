@@ -1,0 +1,199 @@
+html aria= title= role= xy=0,0,1440,1400 text=Integrations – Home Assistantbody{font-family:Roboto,Noto,sans-serif;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;font-weight:400;margin:0;padding:0;height:100%}@keyframes fade
+body aria= title= role= xy=0,0,1440,1400 text=function _ls(d,e){var i=document.createElement("script");return e&&(i.crossOrigin="use-credentials"),i.src=d,document.head.appendChild(i)}"attachShadow"in Element.prototype||(_ls("/static/polyfills/we
+div aria= title= role= xy=0,0,256,56 text=Home Assistant
+ha-button aria=Sidebar toggle title=Sidebar toggle role= xy=4,4,48,48 text=
+button aria= title=Sidebar toggle role=button xy=4,4,48,48 text=
+svg aria= title= role=img xy=16,16,24,24 text=
+div aria= title= role= xy=55,16,201,24 text=Home Assistant
+div aria= title= role= xy=0,56,255,1344 text=Kitchen Export Garage Internet Lounge Room Power Management Test Energy Activity History AdGuard Home File editor HACS Media Tailscale Terminal ZNE Managed Devices 5 Settings 5 2 Notifications 2 jmyst
+div aria= title= role= xy=0,56,255,1192 text=Kitchen Export Garage Internet Lounge Room Power Management Test Energy Activity History AdGuard Home File editor HACS Media Tailscale Terminal ZNE Managed Devices
+ha-md-list aria= title= role= xy=0,56,255,824 text=Kitchen Export Garage Internet Lounge Room Power Management Test Energy Activity History AdGuard Home File editor HACS Media Tailscale Terminal ZNE Managed Devices
+ha-md-list-item aria= title= role= xy=4,68,248,40 text=Kitchen
+a aria= title= role=listitem xy=4,68,248,40 text=
+svg aria= title= role=img xy=16,76,24,24 text=
+span aria= title= role= xy=56,78,184,21 text=Kitchen
+ha-md-list-item aria= title= role= xy=4,116,248,40 text=Export
+a aria= title= role=listitem xy=4,116,248,40 text=
+svg aria= title= role=img xy=16,124,24,24 text=
+span aria= title= role= xy=56,126,184,21 text=Export
+ha-md-list-item aria= title= role= xy=4,164,248,40 text=Garage
+a aria= title= role=listitem xy=4,164,248,40 text=
+svg aria= title= role=img xy=16,172,24,24 text=
+span aria= title= role= xy=56,174,184,21 text=Garage
+ha-md-list-item aria= title= role= xy=4,212,248,40 text=Internet
+a aria= title= role=listitem xy=4,212,248,40 text=
+svg aria= title= role=img xy=16,220,24,24 text=
+span aria= title= role= xy=56,222,184,21 text=Internet
+ha-md-list-item aria= title= role= xy=4,260,248,40 text=Lounge Room
+a aria= title= role=listitem xy=4,260,248,40 text=
+svg aria= title= role=img xy=16,268,24,24 text=
+span aria= title= role= xy=56,270,184,21 text=Lounge Room
+ha-md-list-item aria= title= role= xy=4,308,248,40 text=Power Management
+a aria= title= role=listitem xy=4,308,248,40 text=
+svg aria= title= role=img xy=16,316,24,24 text=
+span aria= title= role= xy=56,318,184,21 text=Power Management
+ha-md-list-item aria= title= role= xy=4,356,248,40 text=Test
+a aria= title= role=listitem xy=4,356,248,40 text=
+svg aria= title= role=img xy=16,364,24,24 text=
+span aria= title= role= xy=56,366,184,21 text=Test
+ha-md-list-item aria= title= role= xy=4,404,248,40 text=Energy
+a aria= title= role=listitem xy=4,404,248,40 text=
+svg aria= title= role=img xy=16,412,24,24 text=
+span aria= title= role= xy=56,414,184,21 text=Energy
+ha-md-list-item aria= title= role= xy=4,452,248,40 text=Activity
+a aria= title= role=listitem xy=4,452,248,40 text=
+svg aria= title= role=img xy=16,460,24,24 text=
+span aria= title= role= xy=56,462,184,21 text=Activity
+ha-md-list-item aria= title= role= xy=4,500,248,40 text=History
+a aria= title= role=listitem xy=4,500,248,40 text=
+svg aria= title= role=img xy=16,508,24,24 text=
+span aria= title= role= xy=56,510,184,21 text=History
+ha-md-list-item aria= title= role= xy=4,548,248,40 text=AdGuard Home
+a aria= title= role=listitem xy=4,548,248,40 text=
+svg aria= title= role=img xy=16,556,24,24 text=
+span aria= title= role= xy=56,558,184,21 text=AdGuard Home
+ha-md-list-item aria= title= role= xy=4,596,248,40 text=File editor
+a aria= title= role=listitem xy=4,596,248,40 text=
+svg aria= title= role=img xy=16,604,24,24 text=
+span aria= title= role= xy=56,606,184,21 text=File editor
+ha-md-list-item aria= title= role= xy=4,644,248,40 text=HACS
+a aria= title= role=listitem xy=4,644,248,40 text=
+svg aria= title= role=img xy=16,652,24,24 text=
+span aria= title= role= xy=56,654,184,21 text=HACS
+ha-md-list-item aria= title= role= xy=4,692,248,40 text=Media
+a aria= title= role=listitem xy=4,692,248,40 text=
+svg aria= title= role=img xy=16,700,24,24 text=
+span aria= title= role= xy=56,702,184,21 text=Media
+ha-md-list-item aria= title= role= xy=4,740,248,40 text=Tailscale
+a aria= title= role=listitem xy=4,740,248,40 text=
+svg aria= title= role=img xy=16,748,24,24 text=
+span aria= title= role= xy=56,750,184,21 text=Tailscale
+ha-md-list-item aria= title= role= xy=4,788,248,40 text=Terminal
+a aria= title= role=listitem xy=4,788,248,40 text=
+svg aria= title= role=img xy=16,796,24,24 text=
+span aria= title= role= xy=56,798,184,21 text=Terminal
+ha-md-list-item aria= title= role= xy=4,836,248,40 text=ZNE Managed Devices
+a aria= title= role=listitem xy=4,836,248,40 text=
+svg aria= title= role=img xy=16,844,24,24 text=
+span aria= title= role= xy=56,846,184,21 text=ZNE Managed Devices
+ha-md-list aria= title= role= xy=0,1248,255,152 text=5 Settings 5 2 Notifications 2 jmystaki@hotmail.com
+ha-md-list-item aria= title= role= xy=4,1252,248,40 text=5 Settings 5
+a aria= title= role=listitem xy=4,1252,248,40 text=
+svg aria= title= role=img xy=16,1260,24,24 text=
+span aria= title= role= xy=32,1258,13,15 text=5
+span aria= title= role= xy=56,1262,148,21 text=Settings
+span aria= title= role= xy=220,1262,20,20 text=5
+ha-md-list-item aria= title= role= xy=4,1300,248,40 text=2 Notifications 2
+button aria= title= role=listitem xy=4,1300,248,40 text=
+svg aria= title= role=img xy=16,1308,24,24 text=
+span aria= title= role= xy=32,1306,13,15 text=2
+span aria= title= role= xy=56,1310,148,21 text=Notifications
+span aria= title= role= xy=220,1310,20,20 text=2
+ha-md-list-item aria= title= role= xy=4,1348,248,40 text=jmystaki@hotmail.com
+a aria= title= role=listitem xy=4,1348,248,40 text=
+div aria= title= role= xy=8,1348,40,40 text=j
+span aria= title= role= xy=56,1358,184,21 text=jmystaki@hotmail.com
+hass-subpage aria= title= role= xy=256,0,1184,1400 text=Zero Net Export Version 0.1.98 Custom integration 4 devices • 332 entities Add service Add Managed Devices Services
+ha-button aria=Back title=Back role= xy=268,4,48,48 text=
+button aria= title=Back role=button xy=268,4,48,48 text=
+svg aria= title= role=img xy=280,16,24,24 text=
+ha-button aria=Documentation title=Documentation role= xy=1332,4,48,48 text=
+button aria= title=Documentation role=button xy=1332,4,48,48 text=
+svg aria= title= role=img xy=1344,16,24,24 text=
+ha-dropdown aria= title= role= xy=1380,4,48,48 text=Known issues Enable debug logging
+ha-button aria=Menu title=Menu role= xy=1380,4,48,48 text=
+button aria= title=Menu role=button xy=1380,4,48,48 text=
+svg aria= title= role=img xy=1392,16,24,24 text=
+div aria= title= role= xy=316,56,1064,686 text=Zero Net Export Version 0.1.98 Custom integration 4 devices • 332 entities Add service Add Managed Devices Services
+div aria= title= role= xy=348,88,1000,94 text=Zero Net Export Version 0.1.98 Custom integration 4 devices • 332 entities Add service Add Managed Devices
+div aria= title= role= xy=348,88,368,94 text=Zero Net Export Version 0.1.98 Custom integration 4 devices • 332 entities
+div aria= title= role= xy=460,88,256,94 text=Zero Net Export Version 0.1.98 Custom integration 4 devices • 332 entities
+h1 aria= title= role= xy=460,88,256,40 text=Zero Net Export
+div aria= title= role= xy=460,132,256,24 text=Version 0.1.98 Custom integration
+span aria= title= role= xy=460,133,89,22 text=Version 0.1.98
+div aria= title= role= xy=565,132,151,24 text=Custom integration
+svg aria= title= role=img xy=565,132,24,24 text=
+a aria= title= role= xy=597,133,119,22 text=Custom integration
+div aria= title= role= xy=460,160,256,22 text=4 devices • 332 entities
+a aria= title= role= xy=460,163,62,16 text=4 devices
+a aria= title= role= xy=530,163,73,16 text=332 entities
+div aria= title= role= xy=1038,115,310,40 text=Add service Add Managed Devices
+ha-button aria= title= role= xy=1038,115,108,40 text=Add service
+button aria= title= role=button xy=1038,115,108,40 text=
+ha-button aria= title= role= xy=1154,115,194,40 text=Add Managed Devices
+button aria= title= role=button xy=1154,115,194,40 text=
+svg aria= title= role=img xy=1163,123,24,24 text=
+div aria= title= role= xy=348,206,1000,504 text=Services
+h3 aria= title= role= xy=364,212,984,20 text=Services
+ha-md-list aria= title= role= xy=348,238,1000,220 text=Summer Plan
+ha-md-list-item aria= title= role= xy=349,239,998,72 text=Summer Plan
+li aria= title= role=listitem xy=349,239,998,72 text=
+button aria= title= role=button xy=353,251,48,48 text=
+svg aria= title= role=img xy=365,263,24,24 text=
+div aria= title= role= xy=405,265,798,21 text=Summer Plan
+ha-button aria=Configure title=Configure role= xy=1219,251,48,48 text=
+a aria= title=Configure role= xy=1219,251,48,48 text=
+svg aria= title= role=img xy=1231,263,24,24 text=
+ha-button aria=Menu title=Menu role= xy=1283,251,48,48 text=
+button aria= title=Menu role=button xy=1283,251,48,48 text=
+svg aria= title= role=img xy=1295,263,24,24 text=
+ha-md-list-item aria= title= role= xy=349,312,998,72 text=Managed Devices — 7th test list Managed Devices — Fixed managed load • 19 entities
+button aria= title= role=listitem xy=349,312,998,72 text=
+svg aria= title= role=img xy=405,336,24,24 text=
+div aria= title= role= xy=445,329,701,21 text=Managed Devices — 7th test list
+span aria= title= role= xy=445,350,701,18 text=Managed Devices — Fixed managed load • 19 entities
+svg aria= title= role=img xy=1162,336,24,24 text=
+ha-button aria=Edit device title=Edit device role= xy=1219,324,48,48 text=
+button aria= title=Edit device role=button xy=1219,324,48,48 text=
+svg aria= title= role=img xy=1231,336,24,24 text=
+ha-button aria=Menu title=Menu role= xy=1283,324,48,48 text=
+button aria= title=Menu role=button xy=1283,324,48,48 text=
+svg aria= title= role=img xy=1295,336,24,24 text=
+ha-md-list-item aria= title= role= xy=349,385,998,72 text=Summer Plan Zero Net Export • 135 entities
+button aria= title= role=listitem xy=349,385,998,72 text=
+svg aria= title= role=img xy=405,409,24,24 text=
+div aria= title= role= xy=445,402,701,21 text=Summer Plan
+span aria= title= role= xy=445,423,701,18 text=Zero Net Export • 135 entities
+svg aria= title= role=img xy=1162,409,24,24 text=
+ha-button aria=Edit device title=Edit device role= xy=1219,397,48,48 text=
+button aria= title=Edit device role=button xy=1219,397,48,48 text=
+svg aria= title= role=img xy=1231,409,24,24 text=
+ha-button aria=Menu title=Menu role= xy=1283,397,48,48 text=
+button aria= title=Menu role=button xy=1283,397,48,48 text=
+svg aria= title= role=img xy=1295,409,24,24 text=
+ha-md-list aria= title= role= xy=348,474,1000,220 text=Winter Plan
+ha-md-list-item aria= title= role= xy=349,475,998,72 text=Winter Plan
+li aria= title= role=listitem xy=349,475,998,72 text=
+button aria= title= role=button xy=353,487,48,48 text=
+svg aria= title= role=img xy=365,499,24,24 text=
+div aria= title= role= xy=405,501,798,21 text=Winter Plan
+ha-button aria=Configure title=Configure role= xy=1219,487,48,48 text=
+a aria= title=Configure role= xy=1219,487,48,48 text=
+svg aria= title= role=img xy=1231,499,24,24 text=
+ha-button aria=Menu title=Menu role= xy=1283,487,48,48 text=
+button aria= title=Menu role=button xy=1283,487,48,48 text=
+svg aria= title= role=img xy=1295,499,24,24 text=
+ha-md-list-item aria= title= role= xy=349,548,998,72 text=Managed Devices — 7th - test light Managed Devices — Fixed managed load • 19 entities
+button aria= title= role=listitem xy=349,548,998,72 text=
+svg aria= title= role=img xy=405,572,24,24 text=
+div aria= title= role= xy=445,565,701,21 text=Managed Devices — 7th - test light
+span aria= title= role= xy=445,586,701,18 text=Managed Devices — Fixed managed load • 19 entities
+svg aria= title= role=img xy=1162,572,24,24 text=
+ha-button aria=Edit device title=Edit device role= xy=1219,560,48,48 text=
+button aria= title=Edit device role=button xy=1219,560,48,48 text=
+svg aria= title= role=img xy=1231,572,24,24 text=
+ha-button aria=Menu title=Menu role= xy=1283,560,48,48 text=
+button aria= title=Menu role=button xy=1283,560,48,48 text=
+svg aria= title= role=img xy=1295,572,24,24 text=
+ha-md-list-item aria= title= role= xy=349,621,998,72 text=Winter Plan Zero Net Export • 135 entities
+button aria= title= role=listitem xy=349,621,998,72 text=
+svg aria= title= role=img xy=405,645,24,24 text=
+div aria= title= role= xy=445,638,701,21 text=Winter Plan
+span aria= title= role= xy=445,659,701,18 text=Zero Net Export • 135 entities
+svg aria= title= role=img xy=1162,645,24,24 text=
+ha-button aria=Edit device title=Edit device role= xy=1219,633,48,48 text=
+button aria= title=Edit device role=button xy=1219,633,48,48 text=
+svg aria= title= role=img xy=1231,645,24,24 text=
+ha-button aria=Menu title=Menu role= xy=1283,633,48,48 text=
+button aria= title=Menu role=button xy=1283,633,48,48 text=
+svg aria= title= role=img xy=1295,645,24,24 text=
