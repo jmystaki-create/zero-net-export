@@ -33,6 +33,7 @@ Release `0.1.98` is published, deployed through HACS, restarted, and live-valida
 
 ## Blockers / approvals
 - No release blocker remains for `0.1.98`.
+- Do not deploy, restart Home Assistant, tag, publish, or claim future release readiness without explicit approval and evidence.
 - Exact native managed-row gear placement for ZNE-578 requires an upstream Home Assistant frontend feature request/PR if Riley still wants that exact UI location.
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 

@@ -103,7 +103,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-582 - no obvious per-service Add Managed Devices action from the service card
 
-- **status:** `implemented_pending_live_validation`
+- **status:** `released_live_screenshot_validated`
 - **severity:** `high`
 - **area:** `managed_devices`
 - **where seen:** Riley report/mockup approval on 2026-04-30 from the Home Assistant Zero Net Export integration service-card screen.
@@ -115,14 +115,14 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - The onboarding flow carries the owning config-entry id through candidate selection/manual add/save.
   - Multi-service tests prove a managed device added through one service appears only under that service.
   - Documentation/changelog state whether the exact 3-dot placement was possible or whether HA forced the supported Configure/menu path.
-- **validation plan:** focused config-flow/panel tests for entry-scoped device add plus live Home Assistant screenshot proof after release-management approval.
+- **validation:** released in `0.1.98` after broader automated validation (`python3 -m unittest discover -s tests`, 599 tests OK), HACS install fingerprint match, Home Assistant restart, entity-state checks, log scan, and live Home Assistant browser screenshot proof. Release evidence: `validation/0.1.98-release-validation.md` and `bug-evidence/zne-0.1.98-live-integrations.png`.
 - **implementation note:** Home Assistant's native config-entry overflow supports integration-provided config-subentry actions, so `Add Managed Devices` was added there with the approved wording. The flow saves a new managed device into the selected config entry/options only.
-- **next action:** run broader automated validation and, after release-management approval, collect live Home Assistant screenshot proof.
+- **next action:** if Riley reports that the visible row action is still not discoverable enough, collect a focused click-through screenshot/video of the selected service's overflow menu; otherwise monitor `0.1.98`.
 
 
 ## ZNE-581 - no obvious per-service Configure Service action for core source parameters
 
-- **status:** `implemented_pending_live_validation`
+- **status:** `released_live_screenshot_validated`
 - **severity:** `high`
 - **area:** `config_flow`
 - **where seen:** Riley report/mockup approval on 2026-04-30 from the Home Assistant Zero Net Export integration service-card screen.
@@ -134,9 +134,9 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Saving updates only the selected service/config entry.
   - Existing Summer/Winter services keep independent source bindings and policy/runtime options.
   - Documentation/changelog state whether the exact 3-dot placement was possible or whether HA forced the supported Configure/menu path.
-- **validation plan:** focused options-flow tests for entry-scoped source/core parameter edits plus live Home Assistant screenshot proof after release-management approval.
+- **validation:** released in `0.1.98` after broader automated validation (`python3 -m unittest discover -s tests`, 599 tests OK), HACS install fingerprint match, Home Assistant restart, entity-state checks, log scan, and live Home Assistant browser screenshot proof. Release evidence: `validation/0.1.98-release-validation.md` and `bug-evidence/zne-0.1.98-live-integrations.png`.
 - **implementation note:** Home Assistant exposes a built-in `Reconfigure` overflow action when an integration implements `async_step_reconfigure`; it does not expose custom integration wording for that built-in row. The implemented flow opens as `Configure service` and saves source bindings to the selected config entry only.
-- **next action:** run broader automated validation and, after release-management approval, collect live Home Assistant screenshot proof.
+- **next action:** if Riley reports that the built-in `Reconfigure` label is not discoverable enough, collect a focused click-through screenshot/video of the selected service's overflow menu and opened `Configure service` flow; otherwise monitor `0.1.98`.
 
 
 ## ZNE-580 - multiple services duplicate controller rows instead of clearly separating controller brains
@@ -155,7 +155,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - `ZNE-FR-006` operator validation: live HA evidence must show independent Summer/Winter services with distinct controller labels and managed devices under the correct plan.
 - **repo fix:** refresh the primary controller device-registry metadata during setup so each entry-scoped controller device is visibly named as its owning plan title, preventing stale `Zero Net Export Controller` rows from presenting as duplicates. Existing coordinator storage and managed-device identifiers are already entry-scoped and are covered by focused tests.
 - **validation status:** fixed and live-validated on 2026-04-30. Focused repo validation passes: `python3 -m unittest -q tests.test_integration_page_device_lists tests.test_managed_devices_panel tests.test_config_flow_device_runtime_overlay` (132 tests). Live Home Assistant validation deployed the repo build, fingerprint-matched the install, restarted HA, confirmed API recovery, inspected storage/API registry state, and captured PNG browser proof in `bug-evidence/zne-580-live-ha-integrations.png` plus managed-device editor proof in `bug-evidence/zne-580-live-ha-managed-devices-panel.png`. Evidence shows separate `Summer Plan` and `Winter Plan` service/controller rows; `Coffee machine` remains under the Winter entry only; Summer has no managed-device child row.
-- **next action:** package/release the validated fix through the normal release path.
+- **next action:** monitor `0.1.98` for user-reported regressions; no release packaging action remains for this bug.
 
 
 ## ZNE-579 - Add service from main screen always says already configured
