@@ -101,6 +101,24 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-585 - Configure service modal copy is too wordy
+
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `config_flow`
+- **where seen:** Riley screenshot/report on 2026-05-01 from the Home Assistant `Configure service` reconfigure modal.
+- **current observed behavior:** the modal opens successfully, but the description is so long that the useful action is buried under repeated status, path, bucket ownership, and fallback text.
+- **expected behavior:** the Configure service modal should be concise and action-first: choose the grid sensor layout, show only essential source-role status/progress/next action, then leave detailed guidance to later source-binding screens or diagnostics.
+- **acceptance criteria:**
+  - The initial `Configure service`/`Reconfigure` description fits in a short status block.
+  - Repeated path and bucket ownership sections are removed from the initial modal.
+  - The follow-up service source-binding description is also concise and preserves only status plus selector/fallback guidance.
+  - Tests prevent the removed verbose sections from returning.
+- **fix:** shortened the `reconfigure`, `configure_service`, and `configure_service_sources` translation descriptions in `strings.json` and `translations/en.json`.
+- **validation evidence:** repo validation passed with focused copy/translation/bug-id tests `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_bug_tracker_ids` (9 tests OK), full discovery `python3 -m unittest discover -s tests` (602 tests OK), and `git diff --check`.
+- **next action:** release packaging/live validation if Riley wants this shipped immediately.
+
+
 ## ZNE-584 - setup warning is too wordy and unclear
 
 - **status:** `validated`

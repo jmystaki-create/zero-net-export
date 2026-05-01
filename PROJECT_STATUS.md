@@ -2,12 +2,13 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 12:30
+last_modified: 2026-05-01 12:45
 
 ## Current focus
-ZNE-583 is fixed and release-validated in `0.1.100`. The `0.1.99` validation was superseded by Riley's screenshot because it missed Home Assistant's invalid config-flow identity banner; fix commit `2b1b73e` preserves the active `flow_id` and `handler`, and release commit `9c14f39` shipped it through GitHub release `v0.1.100`, HACS install, Home Assistant restart, fingerprint validation, and Slave browser validation with `invalidFlowCount=0`.
+ZNE-585 is fixed and repo-validated from Riley's screenshot feedback: the per-service `Configure service` modal opens, but the description was too wordy and buried the grid-layout choice. The repo copy is now short, action-first, and ready for release packaging/live validation if requested.
 
 ## Active bugs
+- ZNE-585 — Configure service modal copy is too wordy. Fixed and repo-validated: initial grid-layout step now shows only a short status block, removes repeated path/bucket ownership guidance, and keeps detailed help out of the first modal. Status: validated_pending_release.
 - ZNE-584 — setup warning is too wordy and unclear. Fixed and live-validated: warning starts with impact and the primary action, lists missing setup, and no longer duplicates fallback guidance in the primary action. Status: validated.
 - ZNE-583 — service-row `Reconfigure` opened with `Invalid flow specified`. Fixed and release-validated in `0.1.100`: HACS installed the release, fingerprint matched, Home Assistant restarted, and Slave browser proof shows the service-row `Reconfigure` dialog opens with grid sensor choices and `invalidFlowCount=0`. Status: released_live_validated.
 - ZNE-578 — native managed-row gear beside the pencil is not supported by current Home Assistant frontend. Closest supported path is implemented and live-validated: managed child-device `configuration_url` opens the Home Assistant device-detail cog/deep-link into the `ZNE Managed Devices` editor. Exact native-row placement requires upstream HA frontend work if still required.

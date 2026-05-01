@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Shortened the per-service `Configure service` modal copy so it stays action-first and removes repeated path/bucket-ownership guidance from the initial grid-layout step.
+
 ## [0.1.100] - 2026-05-01
 
 ### Fixed
