@@ -289,7 +289,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-578 - 0.1.97 still does not show a native managed-row gear beside the pencil
 
-- **status:** `live_validated_supported_path`
+- **status:** `completed_supported_path`
 - **severity:** `high`
 - **area:** `managed_devices`
 - **where seen:** Riley's 2026-04-30 Home Assistant screenshots of installed Zero Net Export `0.1.97`.
@@ -299,7 +299,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **suspected cause:** Home Assistant's native integration row action set is not extensible by custom integrations. The exact requested gear placement beside the native pencil requires an upstream Home Assistant frontend change.
 - **repo fix:** this run implements the closest supported Home Assistant path: managed child-device `configuration_url` now points directly to the `ZNE Managed Devices` panel with a `managed_device=<entry_id>:<device_key>` deep link, and the panel opens that managed-device editor automatically. This does not claim to add a native-row gear; it makes the supported Home Assistant device-detail cog land directly in the correct first-provisioned settings editor.
 - **validation status:** focused repo tests pass with `python3 -m unittest -q tests.test_managed_devices_panel tests.test_integration_page_device_lists` (45 tests). Approved live deploy/restart validation on 2026-04-30 passed: install fingerprint `overall_match=true`, HA API returned `{"message":"API running."}` after `ha core restart`, device registry contains `configuration_url=homeassistant://zero-net-export-managed-devices?managed_device=01KP8MW539MQ724BBFZX2EF6S2%3Acoffee_machine`, post-restart log scan found no Zero Net Export errors, and PNG proof `bug-evidence/zne-578-live-deeplink-proof.png` shows the Managed Devices panel with the Coffee machine editor open. Full record: `bug-evidence/ZNE-578-live-validation.md`.
-- **next action:** if exact native-row placement is still required, open/prepare an upstream Home Assistant frontend feature request/PR; otherwise treat ZNE-578 as resolved via the supported Home Assistant device-detail cog path.
+- **completion note:** completed via the supported Home Assistant device-detail cog/deep-link path. Exact native-row gear placement remains an upstream Home Assistant frontend limitation and is not part of the active release scope.
 
 
 ## ZNE-577 - right-gear panel save button could miss the open editor

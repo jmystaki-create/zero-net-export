@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 18:20
+last_modified: 2026-05-01 18:56
 
 ## Current focus
 ZNE-588 corrective candidate is implemented locally after Riley confirmed `0.1.103` still failed the brief: Tier 1 buttons were visible but did not navigate, Diagnostics still ran for pages, and Tier 2 was inaccessible. Current candidate adds a real `/zero-net-export` Tier 2 panel with Sensors/Controls/Managed Devices/Diagnostics sections and corrects launcher targets/copy. Status remains validation-blocked for release until Riley receives and accepts screenshot proof; no release is approved.
@@ -14,7 +14,7 @@ ZNE-588 corrective candidate is implemented locally after Riley confirmed `0.1.1
 - ZNE-585 — Configure service modal copy is too wordy. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: initial grid-layout step now shows only a short status block, removes repeated path/bucket ownership guidance, and keeps detailed help out of the first modal. Status: released_live_validated.
 - ZNE-584 — setup warning is too wordy and unclear. Fixed and live-validated: warning starts with impact and the primary action, lists missing setup, and no longer duplicates fallback guidance in the primary action. Status: validated.
 - ZNE-583 — service-row `Reconfigure` opened with `Invalid flow specified`. Fixed and release-validated in `0.1.100`: HACS installed the release, fingerprint matched, Home Assistant restarted, and Slave browser proof shows the service-row `Reconfigure` dialog opens with grid sensor choices and `invalidFlowCount=0`. Status: released_live_validated.
-- ZNE-578 — native managed-row gear beside the pencil is not supported by current Home Assistant frontend. Closest supported path is implemented and live-validated: managed child-device `configuration_url` opens the Home Assistant device-detail cog/deep-link into the `ZNE Managed Devices` editor. Exact native-row placement requires upstream HA frontend work if still required.
+- ZNE-578 — Completed via the supported Home Assistant path: native managed-row gear beside the pencil is not supported by current Home Assistant frontend, but managed child-device `configuration_url` opens the Home Assistant device-detail cog/deep-link into the `ZNE Managed Devices` editor and was live-validated. Status: completed_supported_path. Exact native-row placement is explicitly out-of-scope unless pursued upstream in Home Assistant frontend.
 - ZNE-579 — Add service wrongly aborted as `already_configured`. Fixed and live-validated; unique ids are now scoped to the submitted service/system name.
 - ZNE-580 — multiple services looked like duplicated generic controllers. Fixed and live-validated; Summer/Winter plan controller rows and managed-device scoping are separated.
 - ZNE-581 — no obvious per-service Configure service action. Released in `0.1.98`; Home Assistant's native per-service row actions are visible on the live Zero Net Export integration detail page.
@@ -47,7 +47,6 @@ ZNE-588 corrective candidate is implemented locally after Riley confirmed `0.1.1
 - Browser evidence: `bug-evidence/zne-0.1.98-live-integrations.png`.
 
 ## Blockers / approvals
-- Exact native managed-row gear placement for ZNE-578 requires an upstream Home Assistant frontend feature request/PR if Riley still wants that exact UI location.
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
