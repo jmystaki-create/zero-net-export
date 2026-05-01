@@ -1,0 +1,94 @@
+{
+  "startedAt": "2026-05-01T01:22:52.889Z",
+  "node": "Slave Debian Browser Node",
+  "target": "http://192.168.86.200:8123/config/integrations/integration/zero_net_export",
+  "clickMenuResult": {
+    "clicked": true,
+    "picked": {
+      "tag": "ha-button",
+      "txt": "",
+      "aria": "Menu",
+      "title": "Menu",
+      "x": 1283,
+      "y": 251.390625,
+      "w": 48,
+      "h": 48
+    },
+    "count": 12
+  },
+  "menuSnapshot": [
+    {
+      "tag": "ha-md-list",
+      "txt": "Summer Plan\n2 device \n166 entitie \nReload\nRename\nCopy entry ID\nAdd Managed Device \nDownload diagno tic \nReconfigure\nSy tem option \nDi able\nDelete",
+      "aria": "",
+      "title": "",
+      "role": "",
+      "x": 348,
+      "y": 238.390625,
+      "w": 1000,
+      "h": 220
+    },
+    {
+      "tag": "ha-md-list-item",
+      "txt": "Summer Plan\n2 device \n166 entitie \nReload\nRename\nCopy entry ID\nAdd Managed Device \nDownload diagno tic \nReconfigure\nSy tem option \nDi able\nDelete",
+      "aria": "",
+      "title": "",
+      "role": "",
+      "x": 349,
+      "y": 239.390625,
+      "w": 998,
+      "h": 72
+    },
+    {
+      "tag": "ha-dropdown-item",
+      "txt": "Reconfigure",
+      "aria": "",
+      "title": "",
+      "role": "menuitem",
+      "x": 1124.640625,
+      "y": 592.390625,
+      "w": 201.359375,
+      "h": 40
+    }
+  ],
+  "clickReconfigureResult": {
+    "clicked": true,
+    "picked": {
+      "txt": "Reconfigure",
+      "tag": "ha-dropdown-item",
+      "x": 1124.640625,
+      "y": 592.390625,
+      "w": 201.359375,
+      "h": 40
+    },
+    "count": 1
+  },
+  "finalUrl": "http://192.168.86.200:8123/config/integrations/integration/zero_net_export",
+  "finalTitle": "Integrations – Home Assistant",
+  "hasGridSensorMode": true,
+  "invalidFlowCount": 0,
+  "matchingElements": [
+    {
+      "tag": "input",
+      "txt": "",
+      "aria": "Combined / net sensors",
+      "title": "",
+      "role": "",
+      "x": 454,
+      "y": 669.1875,
+      "w": 48,
+      "h": 48
+    },
+    {
+      "tag": "input",
+      "txt": "",
+      "aria": "Separate import and export sensors",
+      "title": "",
+      "role": "",
+      "x": 454,
+      "y": 717.1875,
+      "w": 48,
+      "h": 48
+    }
+  ]
+}
