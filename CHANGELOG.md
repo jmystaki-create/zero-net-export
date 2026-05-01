@@ -18,7 +18,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Validation
 - Marked ZNE-578 completed via the supported Home Assistant device-detail cog/deep-link path; exact native-row gear placement remains upstream-only and out of active release scope.
 - Reopened ZNE-588 validation status pending fresh installed-build Home Assistant screenshot/browser proof for the Tier 1/Tier 2 screen outcome; existing `0.1.103` API/entity-registry/button-press evidence is not enough to close the UI brief.
-- Candidate repo validation passes focused Tier 2/panel tests, full unit discovery, py_compile, and `git diff --check`; after approved validation deploy, the installed Home Assistant build matched the repo fingerprint, restarted successfully, exposed live Tier 1 launcher URLs, and produced live Tier 2 screenshots for Sensors, Controls, Managed Devices, and compact Diagnostics. Riley screenshot acceptance remains the final acceptance gate.
+- Candidate repo validation now passes focused Tier 2/panel tests, full unit discovery, py_compile, and `git diff --check`; local mock screenshots exist, but live HA screenshots remain required before any release.
 
 ## [0.1.103] - 2026-05-01
 
