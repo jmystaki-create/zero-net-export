@@ -103,7 +103,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-588 - Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page
 
-- **status:** `fixed_pending_validation`
+- **status:** `released_live_validated`
 - **severity:** `high`
 - **area:** `diagnostics`
 - **where seen:** Riley screenshot/report on 2026-05-01 from the native Home Assistant Zero Net Export device page for `Winter Plan` on version `0.1.102`.
@@ -118,8 +118,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Existing visible non-curated diagnostic sensor entities are hidden by the integration on add, unless already explicitly hidden/customised.
   - Regression tests cover launcher target URLs, notification copy, and compact diagnostics defaults.
 - **repo fix:** added Tier 2 action/open URLs to launcher attributes, added clickable notification links on button press, routed Managed Devices to the custom panel, hid non-curated diagnostic sensors from the default device page by default, and added an upgrade-time registry hide pass for existing visible diagnostic sensor entities.
-- **validation status:** fixed in repo with `python3 -m unittest -q tests.test_button_entity_categories tests.test_sensor_entity_categories tests.test_bug_tracker_ids`, Python compile for `button.py`/`sensor.py`, and `git diff --check`. Live Home Assistant validation remains pending.
-- **next action:** package/release and live-validate in Home Assistant that pressing each launcher shows the target link/path and that the Diagnostics card is compact on a fresh/upgraded entity registry.
+- **validation status:** released in `v0.1.103` and live-validated. GitHub latest release is `v0.1.103`; HACS installed `v0.1.103`; installed fingerprint matched (`overall_match=true`, tracked files matched, no mismatches); Home Assistant restarted and reports `sensor.zero_net_export_installed_version=0.1.103`; all four launcher button presses returned `200`; runtime button attributes expose the expected `action_url`/`open_url`; entity registry evidence shows non-curated diagnostic sensors hidden by integration while curated diagnostics remain visible. Repo validation passed with focused release/UI tests, py_compile, `git diff --check`, and full discovery (`608` tests OK). Evidence: `validation/0.1.103-release-validation.md`.
+- **next action:** monitor for Riley's UI confirmation/screenshots in normal use; no release blocker remains for ZNE-588.
 
 
 ## ZNE-587 - climate devices missing from Add Managed Devices selector
