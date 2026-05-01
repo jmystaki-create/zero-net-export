@@ -67,14 +67,15 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
         self.assertTrue(info["has_changelog"])
-        self.assertEqual(info["released_on"], "2026-04-30")
+        self.assertEqual(info["released_on"], "2026-05-01")
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
         self.assertIn("Home Assistant", info["changes_preview"])
         self.assertIn("Reconfigure", info["changes_preview"])
         self.assertIn("Invalid flow specified", info["changes_preview"])
-        self.assertIn("setup-incomplete warning", info["changes_preview"])
+        self.assertIn("flow_id", info["changes_preview"])
+        self.assertIn("handler", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
         self.assertNotIn("release-target decision", info["changes_preview"])
 
@@ -453,17 +454,17 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("mapped-source", current_highlights.lower())
         self.assertNotIn("source mapping", current_highlights.lower())
 
-    def test_current_candidate_changelog_tracks_reconfigure_and_setup_warning_release_scope(self) -> None:
+    def test_current_candidate_changelog_tracks_reconfigure_flow_identity_release_scope(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(
             section for section in sections if section["version"] == release_info.INTEGRATION_VERSION
         )
         current_highlights = "\n".join(current_section["highlights"])
 
-        self.assertIn("service-row three-dot `Reconfigure`", current_highlights)
+        self.assertIn("service-row `Reconfigure`", current_highlights)
         self.assertIn("Invalid flow specified", current_highlights)
-        self.assertIn("setup-incomplete warning", current_highlights)
-        self.assertIn("fallback guidance", current_highlights)
+        self.assertIn("flow_id", current_highlights)
+        self.assertIn("handler", current_highlights)
         self.assertNotIn("Managed Devices — ⚙ Settings —", current_highlights)
         self.assertNotIn("Added `Managed Devices` and `Un Managed` suggested-area", current_highlights)
         self.assertNotIn("suggested-area/group metadata", current_highlights)
