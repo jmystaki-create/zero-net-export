@@ -138,3 +138,18 @@ Activity:
 ### Revised next design task
 
 Discard the earlier Tier 1 free-layout mockup as too unconstrained. Produce replacement Tier 1 mockups that preserve the screenshoted Home Assistant structure and only shrink/relabel/reprioritise what appears inside the existing native cards.
+
+## Tier 1 constrained mockup — 2026-05-01
+
+Produced a replacement Tier 1 mockup that preserves the screenshoted Home Assistant native device page structure instead of inventing a custom card grid.
+
+Artifact sent for review:
+- `/root/.openclaw/outbox/zero-net-export/2026-05-01/zne_tier1_native_constrained_design.png`
+
+Design intent:
+- Keep native cards: Device info, Controls, Sensors, Activity, plus HA-owned Automations/Scenes/Scripts.
+- Use Automations/Scenes/Scripts as empty HA-owned cards, not ZNE product UI.
+- Controls: keep only enabled, mode, target export, battery reserve, deadband, and one detail link.
+- Sensors: keep readiness, active controlled power, grid/source health, battery SOC, actions today, and one mapping link.
+- Activity: curate only meaningful setup/device/diagnostic/control/repair events.
+- Move explanatory or workflow-heavy content to Tier 2.
