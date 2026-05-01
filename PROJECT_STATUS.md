@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 14:05
+last_modified: 2026-05-01 14:10
 
 ## Current focus
 ZNE-FR-007 is the active redesign workstream for release 0.1.101: Riley accepted the constrained Tier 1 native Home Assistant device-page design, selected Tier 2 Option A (native HA guided flows), and approved making the next release `1.101`/`0.1.101` include the discussed UI changes plus prior/outstanding validated bugs and feature requests. Repo validation is complete; release publish/install/live browser validation is pending.
@@ -48,4 +48,4 @@ ZNE-FR-007 is the active redesign workstream for release 0.1.101: Riley accepted
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Commit the repo-validated 0.1.101 candidate, then package/publish/install/live-validate it through the normal GitHub release -> HACS upgrade -> Home Assistant restart -> browser proof path.
+Publish/tag the committed 0.1.101 candidate, then install/live-validate it through the normal GitHub release -> HACS upgrade -> Home Assistant restart -> browser proof path.
