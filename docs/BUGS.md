@@ -121,7 +121,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-583 - service-row Reconfigure opens with Invalid flow specified
 
-- **status:** `fixing_after_failed_validation`
+- **status:** `released_live_validated`
 - **severity:** `high`
 - **area:** `config_flow`
 - **where seen:** Riley screenshot/report on 2026-04-30 and again on 2026-05-01 from the Home Assistant Zero Net Export integration Services list after opening a service row's three-dot `Reconfigure` action.
@@ -136,8 +136,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Regression tests cover the initial step id, flow identity, and submit transition.
   - `docs/BUGS.md`, `PROJECT_STATUS.md`, and `CHANGELOG.md` record the regression and fix status.
 - **failed validation note:** previous live validation is superseded by Riley's 2026-05-01 screenshot. The validation asserted visible form fields and did not assert the raw Home Assistant config-flow `flow_id`/`handler`, so it missed the invalid-flow banner condition.
-- **validation evidence:** new repo fix currently passes `python3 -m py_compile custom_components/zero_net_export/config_flow.py` and `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` (88 tests OK). Full test discovery, release packaging, HACS install, restart, and exact Slave browser revalidation are pending.
-- **next action:** finish validation, commit, release through the approved release-management path, then revalidate the exact UI path from Riley's screenshot.
+- **validation evidence:** release `0.1.100` is published and live-validated. Repo validation passed `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused release/regression tests (165 tests OK), full discovery (600 tests OK), and `git diff --check`. HACS installed `v0.1.100`; install fingerprint matched with `overall_match=true`; Home Assistant restarted and reported `update.zero_net_export_update` installed/latest `v0.1.100`, `sensor.zero_net_export_installed_version = 0.1.100`, and `sensor.zero_net_export_previous_installed_version = 0.1.99`. Slave browser validation opened the service-row `Reconfigure` dialog for `Summer Plan`, confirmed grid sensor choices are visible, and recorded `invalidFlowCount=0`. Evidence: `validation/0.1.100-release-validation.md`, `bug-evidence/zne-583-0.1.100-slave-reconfigure.txt`, `bug-evidence/zne-583-0.1.100-update-state.json`.
+- **next action:** monitor for user-reported regressions; no release packaging action remains for this bug.
 
 
 ## ZNE-582 - no obvious per-service Add Managed Devices action from the service card

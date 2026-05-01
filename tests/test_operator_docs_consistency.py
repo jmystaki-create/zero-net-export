@@ -147,7 +147,8 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         self.assertIn("ZNE-582", content)
         self.assertIn("supported path", content)
         self.assertIn("0.1.98", content)
-        self.assertIn("Do not deploy, restart Home Assistant, tag, publish", content)
+        self.assertIn("Release `0.1.100`", content)
+        self.assertIn("invalidFlowCount=0", content)
         self.assertNotIn("release `1.91`", content)
         self.assertNotIn("source-of-truth docs still approve only `0.1.91`", content)
 
