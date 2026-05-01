@@ -1,6 +1,6 @@
 # ZNE-FR-007 — main device page two-tier redesign workstream
 
-Status: design only — Tier 1 native Home Assistant device-page design accepted; Tier 2 still pending. No implementation approved.
+Status: design direction approved — Tier 1 native Home Assistant device-page design accepted; Tier 2 Option A (native HA guided flows) selected by Riley on 2026-05-01. Implementation planning is next; no code implementation has started in this task update.
 
 ## User outcome
 
@@ -160,7 +160,7 @@ Design intent:
 
 Riley accepted the constrained Tier 1 design: keep the native Home Assistant device-page structure and shrink/reprioritise the visible ZNE entities/actions inside the existing cards.
 
-Implementation remains explicitly unapproved until Riley asks to move from design to build. Next design task is Tier 2 detail flow design from the accepted Tier 1 launch points.
+Tier 1 implementation remains pending. Next implementation planning must preserve the accepted native Home Assistant device-page boundary and keep the existing Diagnostic and Connected devices cards.
 
 ## Tier 2 options — 2026-05-01
 
@@ -231,3 +231,21 @@ Assessment:
 ### Recommendation
 
 Recommend Option A for the primary Tier 2 workflow, with optional pieces of Option B later only if Riley explicitly approves a maintained ZNE command-center panel. Option C can remain optional/operator-facing visibility, not the main setup path.
+
+## Tier 2 decision — 2026-05-01
+
+Riley selected Tier 2 Option A: native Home Assistant guided flows.
+
+Implementation direction:
+- Tier 1 remains the native Home Assistant device page.
+- Tier 1 must keep the existing Diagnostic and Connected devices cards.
+- Tier 1 buttons/links should launch native HA config-entry reconfigure/options/subentry flows.
+- Tier 2 should be implemented as short guided flows for controls, source/sensor mapping, managed devices, diagnostics/review, and save/reload.
+- Avoid making the existing custom panel a required core workflow unless Riley later explicitly approves that maintenance tradeoff.
+
+Initial acceptance criteria for implementation planning:
+- Map each accepted Tier 1 launch point to a native HA flow step.
+- Reuse existing config/reconfigure/options/subentry infrastructure where possible.
+- Keep copy short and operator-focused, consistent with ZNE-585/ZNE-586.
+- Preserve existing Diagnostic and Connected devices cards.
+- Validate with focused config-flow tests, full unit discovery, `git diff --check`, and a live Home Assistant browser proof before release.

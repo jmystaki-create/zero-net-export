@@ -2,10 +2,10 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 13:20
+last_modified: 2026-05-01 13:35
 
 ## Current focus
-ZNE-FR-007 is the active design-only workstream: Riley accepted the constrained Tier 1 native Home Assistant device-page design. No implementation is approved. Next design task is Tier 2 detail flow design from the accepted Tier 1 launch points. Separately, ZNE-585/ZNE-586/ZNE-587 are repo-validated and pending release packaging/live validation if Riley approves shipping them.
+ZNE-FR-007 is the active redesign workstream: Riley accepted the constrained Tier 1 native Home Assistant device-page design and selected Tier 2 Option A (native HA guided flows). Next task is implementation planning/slicing from the accepted Tier 1 launch points; no code implementation has started in this update. Separately, ZNE-585/ZNE-586/ZNE-587 are repo-validated and pending release packaging/live validation if Riley approves shipping them.
 
 ## Active bugs
 - ZNE-587 — climate devices missing from Add Managed Devices selector. Fixed and repo-validated: `climate` entities are now fixed-load candidates, shown by the Add Managed Devices entity selector, and supported by fixed-toggle adapter inference. Status: validated_pending_release.
@@ -20,7 +20,7 @@ ZNE-FR-007 is the active design-only workstream: Riley accepted the constrained 
 - ZNE-582 — no obvious per-service Add Managed Devices action. Released in `0.1.98`; Home Assistant's native per-service row actions and top-level Add Managed Devices action are visible on the live Zero Net Export integration detail page.
 
 ## Active feature scope
-- ZNE-FR-007 — main device page two-tier redesign. Design-only workstream opened from Riley's 2026-05-01 request; constrained native Tier 1 design accepted; no implementation approved; Tier 2 design remains pending. See `docs/ZNE-FR-007_DEVICE_PAGE_REDESIGN_WORKSTREAM.md`.
+- ZNE-FR-007 — main device page two-tier redesign. Constrained native Tier 1 design accepted; Tier 2 Option A native HA guided flows selected; implementation planning/slicing pending. Preserve existing Diagnostic and Connected devices cards. See `docs/ZNE-FR-007_DEVICE_PAGE_REDESIGN_WORKSTREAM.md`.
 - ZNE-FR-001 — managed-device settings should reopen first-provisioned settings. Supported device-detail cog/deep-link path is live-validated; exact native-row gear remains upstream-blocked.
 - ZNE-FR-002 — controller identity must be plan-specific. Live-validated fixed.
 - ZNE-FR-003 — controller config must be isolated per plan. Read-only live evidence plus focused repo coverage now confirms distinct Summer/Winter config entries and selected-entry source binding saves; optional live reversible write-path proof still requires approval if Riley wants closure at live-write level.
@@ -47,4 +47,4 @@ ZNE-FR-007 is the active design-only workstream: Riley accepted the constrained 
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Design the ZNE-FR-007 Tier 2 detail flow that launches from the accepted Tier 1 native Home Assistant device-page cards, then send PNG mockups for Riley review before implementation. If Riley wants the validated bug fixes live first, request approval to release/deploy/live-validate `0.1.101` containing ZNE-585/ZNE-586/ZNE-587.
+Plan the ZNE-FR-007 Tier 2 Option A implementation slice: map accepted Tier 1 launch points to native HA guided flows, preserve Diagnostic and Connected devices cards, define tests/live validation, then implement the smallest safe slice. If Riley wants the validated bug fixes live first, request approval to release/deploy/live-validate `0.1.101` containing ZNE-585/ZNE-586/ZNE-587.
