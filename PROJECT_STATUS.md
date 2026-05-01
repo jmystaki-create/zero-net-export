@@ -49,6 +49,7 @@ ZNE-588 has been restarted as a bug-only corrective path after Riley directed th
 
 ## Blockers / approvals
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
+- New process gate: no architecture, mockup, or code may proceed until a target environment feasibility check is written and accepted. OpenClaw may perform the validation. Template: `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md`.
 
 ## Next best action
 Continue ZNE-588 validation: focused button/diagnostics tests passed after removing misleading Tier 2 launcher button entities; full discovery is being repaired/validated, then record evidence and prepare a validation Home Assistant deploy only after approval.

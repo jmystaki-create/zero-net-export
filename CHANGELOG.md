@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Process
+- Added `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md` to require written/accepted target-environment feasibility checks before architecture, mockups, or code; OpenClaw may perform the validation.
+
 ### Validation
 - Marked ZNE-578 completed via the supported Home Assistant device-detail cog/deep-link path; exact native-row gear placement remains upstream-only and out of active release scope.
 - Reopened ZNE-588 validation status pending fresh installed-build Home Assistant screenshot/browser proof for the Tier 1/Tier 2 screen outcome; existing `0.1.103` API/entity-registry/button-press evidence is not enough to close the UI brief.
