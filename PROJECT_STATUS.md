@@ -20,6 +20,7 @@ ZNE-587 is fixed and repo-validated from Riley's Add Managed Devices screenshot 
 - ZNE-582 — no obvious per-service Add Managed Devices action. Released in `0.1.98`; Home Assistant's native per-service row actions and top-level Add Managed Devices action are visible on the live Zero Net Export integration detail page.
 
 ## Active feature scope
+- ZNE-FR-007 — main device page two-tier redesign. Design-only workstream opened from Riley's 2026-05-01 request; no implementation approved. Two PNG mockups produced for review: native Tier 1 compression and custom Tier 2 command-center detail screen. See `docs/ZNE-FR-007_DEVICE_PAGE_REDESIGN_WORKSTREAM.md`.
 - ZNE-FR-001 — managed-device settings should reopen first-provisioned settings. Supported device-detail cog/deep-link path is live-validated; exact native-row gear remains upstream-blocked.
 - ZNE-FR-002 — controller identity must be plan-specific. Live-validated fixed.
 - ZNE-FR-003 — controller config must be isolated per plan. Read-only live evidence plus focused repo coverage now confirms distinct Summer/Winter config entries and selected-entry source binding saves; optional live reversible write-path proof still requires approval if Riley wants closure at live-write level.
