@@ -107,6 +107,13 @@ def validation_details_mapping(value: object) -> dict:
     return dict(value) if isinstance(value, Mapping) else {}
 
 
+def zero_net_export_panel_url(coordinator, section: str = "overview") -> str:
+    """Return the supported HA URL for the ZNE Tier 2 setup surface."""
+    entry_id = str(getattr(coordinator.entry, "entry_id", "entry") or "entry").strip() or "entry"
+    query = urlencode({"section": section or "overview", "entry_id": entry_id})
+    return f"homeassistant://zero-net-export?{query}"
+
+
 def zero_net_export_device_info(coordinator) -> dict:
     """Return the integration's primary Home Assistant device info."""
     return {
@@ -115,6 +122,7 @@ def zero_net_export_device_info(coordinator) -> dict:
         "manufacturer": "OpenClaw",
         "model": "Zero Net Export",
         "sw_version": INTEGRATION_VERSION,
+        "configuration_url": zero_net_export_panel_url(coordinator),
     }
 
 

@@ -111,6 +111,18 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(registry.updated[1]["name"], "Summer Plan")
         self.assertNotIn("name_by_user", registry.updated[1])
 
+    def test_controller_device_info_links_to_tier_two_panel(self) -> None:
+        _load_sensor_module()
+        entity_module = sys.modules["custom_components.zero_net_export.entity"]
+        coordinator = self._coordinator()
+
+        device_info = entity_module.zero_net_export_device_info(coordinator)
+
+        self.assertEqual(
+            device_info["configuration_url"],
+            "homeassistant://zero-net-export?section=overview&entry_id=entry-1",
+        )
+
     def test_managed_device_sensors_register_managed_load_as_own_ha_device(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
