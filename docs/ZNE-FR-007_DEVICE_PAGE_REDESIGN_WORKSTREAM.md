@@ -161,3 +161,73 @@ Design intent:
 Riley accepted the constrained Tier 1 design: keep the native Home Assistant device-page structure and shrink/reprioritise the visible ZNE entities/actions inside the existing cards.
 
 Implementation remains explicitly unapproved until Riley asks to move from design to build. Next design task is Tier 2 detail flow design from the accepted Tier 1 launch points.
+
+## Tier 2 options — 2026-05-01
+
+Riley asked for Tier 2 design options with Home Assistant feasibility validated before implementation.
+
+### Home Assistant feasibility validation
+
+Validated viable Tier 2 mechanisms:
+
+1. Native config-entry flows
+   - Home Assistant supports config entries, reconfigure flows, options flows, and config subentries.
+   - This is the safest supported path for setup/edit workflows.
+   - Best for required configuration, validation, saving, reload, and per-service scoping.
+
+2. Device/configuration links and button entities
+   - Device registry supports `configuration_url`, including `homeassistant://<path>` internal UI links.
+   - Button entities can expose stateless actions from the native device page.
+   - These can launch or trigger Tier 2 workflows from accepted Tier 1 cards.
+
+3. Custom panel / frontend surface
+   - Technically feasible in this repo: `manifest.json` depends on `frontend`, `http`, and `panel_custom`; `__init__.py` registers `zero-net-export-managed-devices`; `frontend/managed-devices-panel.js` already implements an HA-hosted custom element surface.
+   - Product risk: older technical direction says core setup/troubleshooting should not depend on a required custom panel. If used, it needs explicit approval as supported product UI.
+
+4. Dashboard/custom-card surface
+   - Home Assistant dashboards and custom cards can show richer status/monitoring views.
+   - Best for optional visibility; weaker as a primary guided setup/save workflow.
+
+### Option A — Native HA guided flows
+
+Artifact:
+- `/root/.openclaw/outbox/zero-net-export/2026-05-01/zne_tier2_option1.png`
+
+Design:
+- Tier 1 buttons open native Home Assistant reconfigure/options/subentry flows.
+- Short wizard-like steps for controls, sensor mapping, managed devices, review/save.
+
+Assessment:
+- Most Home Assistant-native.
+- Lowest implementation and maintenance risk.
+- Recommended if Tier 2 must be robust and releaseable quickly.
+
+### Option B — ZNE command-center panel
+
+Artifact:
+- `/root/.openclaw/outbox/zero-net-export/2026-05-01/zne_tier2_option2.png`
+
+Design:
+- A ZNE-owned command center inside Home Assistant with overview, controls, sensor mapping, managed fleet, diagnostics, and activity.
+
+Assessment:
+- Best operator experience and layout control.
+- Technically feasible because this repo already has a panel_custom path.
+- Higher maintenance and requires explicit approval to reverse/relax the previous “no required custom panel for core setup” direction.
+
+### Option C — HA dashboard detail view
+
+Artifact:
+- `/root/.openclaw/outbox/zero-net-export/2026-05-01/zne_tier2_option3.png`
+
+Design:
+- A Lovelace/dashboard-style detail page for monitoring, history, managed fleet, and quick links back into HA flows/panel.
+
+Assessment:
+- Feasible with built-in dashboard cards or a custom card resource.
+- Good for visibility and diagnostics.
+- Not recommended as the primary configuration workflow.
+
+### Recommendation
+
+Recommend Option A for the primary Tier 2 workflow, with optional pieces of Option B later only if Riley explicitly approves a maintained ZNE command-center panel. Option C can remain optional/operator-facing visibility, not the main setup path.
