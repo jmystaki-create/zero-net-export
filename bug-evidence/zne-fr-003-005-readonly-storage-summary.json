@@ -1,0 +1,118 @@
+{
+  "checks": {
+    "inventory_names_by_entry": {
+      "Summer Plan": [
+        "7th test list"
+      ],
+      "Winter Plan": [
+        "7th - test light"
+      ]
+    },
+    "runtime_store_keys_are_entry_scoped": true,
+    "runtime_store_per_entry": true,
+    "titles": [
+      "Winter Plan",
+      "Summer Plan"
+    ],
+    "two_live_entries": true
+  },
+  "entries": [
+    {
+      "config": {
+        "battery_reserve_soc": 20,
+        "deadband_w": 100,
+        "grid_export_energy_entity": null,
+        "grid_export_power_entity": null,
+        "grid_import_energy_entity": null,
+        "grid_import_power_entity": null,
+        "grid_sensor_mode": null,
+        "home_load_power_entity": null,
+        "refresh_seconds": 30,
+        "solar_power_entity": null,
+        "target_export_w": 0
+      },
+      "entry_id": "01KQES4HMYAXXXSF6TQCAC8V28",
+      "inventory_count": 1,
+      "inventory_entities": [
+        "light.7th"
+      ],
+      "inventory_names": [
+        "7th - test light"
+      ],
+      "runtime_action_history_count": 0,
+      "runtime_controller": {
+        "battery_reserve_soc": null,
+        "deadband_w": null,
+        "enabled": true,
+        "mode": "zero_export",
+        "target_export_w": null
+      },
+      "runtime_daily_metric_dates": [
+        "2026-04-30",
+        "2026-05-01"
+      ],
+      "runtime_daily_metric_device_keys": [
+        "7th_test_light"
+      ],
+      "runtime_release": {
+        "last_seen_integration_version": "0.1.100",
+        "previous_installed_version": "0.1.99",
+        "version_update_detected_at": "2026-05-01T12:03:11.970235+10:00"
+      },
+      "runtime_store_key": "zero_net_export_runtime_01KQES4HMYAXXXSF6TQCAC8V28",
+      "state": "present",
+      "title": "Winter Plan",
+      "unique_id": "zero_net_export:zero_net_export"
+    },
+    {
+      "config": {
+        "battery_reserve_soc": 20,
+        "deadband_w": 100,
+        "grid_export_energy_entity": null,
+        "grid_export_power_entity": null,
+        "grid_import_energy_entity": null,
+        "grid_import_power_entity": null,
+        "grid_sensor_mode": null,
+        "home_load_power_entity": null,
+        "refresh_seconds": 30,
+        "solar_power_entity": null,
+        "target_export_w": 0
+      },
+      "entry_id": "01KQES5GS0B2XTEAK1SDHEK7KX",
+      "inventory_count": 1,
+      "inventory_entities": [
+        "light.7th"
+      ],
+      "inventory_names": [
+        "7th test list"
+      ],
+      "runtime_action_history_count": 0,
+      "runtime_controller": {
+        "battery_reserve_soc": null,
+        "deadband_w": null,
+        "enabled": true,
+        "mode": "zero_export",
+        "target_export_w": null
+      },
+      "runtime_daily_metric_dates": [
+        "2026-04-30",
+        "2026-05-01"
+      ],
+      "runtime_daily_metric_device_keys": [
+        "7th_test_list"
+      ],
+      "runtime_release": {
+        "last_seen_integration_version": "0.1.100",
+        "previous_installed_version": "0.1.99",
+        "version_update_detected_at": "2026-05-01T12:03:12.071635+10:00"
+      },
+      "runtime_store_key": "zero_net_export_runtime_01KQES5GS0B2XTEAK1SDHEK7KX",
+      "state": "present",
+      "title": "Summer Plan",
+      "unique_id": "zero_net_export:summer_plan"
+    }
+  ],
+  "generated_at": "2026-05-01T02:16:00Z",
+  "runtime_store_count": 28,
+  "source": "read-only Home Assistant API/SSH storage inspection"
+}

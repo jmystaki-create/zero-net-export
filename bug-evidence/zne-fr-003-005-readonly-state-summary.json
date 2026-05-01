@@ -1,0 +1,1213 @@
+[
+  {
+    "device_class": null,
+    "entity_id": "update.zero_net_export_update",
+    "friendly_name": "Zero Net Export Update",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_installed_version",
+    "friendly_name": "Winter Plan Installed version",
+    "icon": null,
+    "state": "0.1.100"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_previous_installed_version",
+    "friendly_name": "Winter Plan Previous installed version",
+    "icon": null,
+    "state": "0.1.99"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_release_summary",
+    "friendly_name": "Winter Plan Release summary",
+    "icon": null,
+    "state": "Release notes deferred until Diagnostics surfaces request them."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_changes_preview",
+    "friendly_name": "Winter Plan Changes preview",
+    "icon": null,
+    "state": "Release notes deferred until Diagnostics surfaces request them."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_update_summary",
+    "friendly_name": "Winter Plan Update summary",
+    "icon": null,
+    "state": "Updated from 0.1.99 to 0.1.100. Release notes deferred until Diagnostics surfaces request them."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_status",
+    "friendly_name": "Winter Plan Status",
+    "icon": null,
+    "state": "blocked"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_reason",
+    "friendly_name": "Winter Plan Reason",
+    "icon": null,
+    "state": "Validation blocked: solar_power is required but not configured"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_current_native_next_action",
+    "friendly_name": "Winter Plan Current native next action",
+    "icon": null,
+    "state": "Complete the required source roles before enabling any control actions"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_diagnostic_summary",
+    "friendly_name": "Winter Plan Diagnostic summary",
+    "icon": null,
+    "state": "Blocking source validation errors remain; safe mode is preventing control"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_confidence",
+    "friendly_name": "Winter Plan Confidence",
+    "icon": null,
+    "state": "low"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_stale_source_count",
+    "friendly_name": "Winter Plan Stale source count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_stale_source_summary",
+    "friendly_name": "Winter Plan Stale source summary",
+    "icon": null,
+    "state": "No required source roles currently look stale"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_health_status",
+    "friendly_name": "Winter Plan Health status",
+    "icon": null,
+    "state": "safe_mode"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_health_summary",
+    "friendly_name": "Winter Plan Health summary",
+    "icon": null,
+    "state": "Validation blocked: solar_power is required but not configured"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_actions_today",
+    "friendly_name": "Winter Plan Actions today",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_successful_actions_today",
+    "friendly_name": "Winter Plan Successful actions today",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_failed_actions_today",
+    "friendly_name": "Winter Plan Failed actions today",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_energy_redirected_today",
+    "friendly_name": "Winter Plan Energy redirected today",
+    "icon": null,
+    "state": "1.34"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_active_controlled_power",
+    "friendly_name": "Winter Plan Active controlled power",
+    "icon": null,
+    "state": "0.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_reserve_soc",
+    "friendly_name": "Winter Plan Battery reserve SOC",
+    "icon": null,
+    "state": "20.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_power",
+    "friendly_name": "Winter Plan Solar power",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_power",
+    "friendly_name": "Winter Plan Grid import power",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_power",
+    "friendly_name": "Winter Plan Grid export power",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_home_load_power",
+    "friendly_name": "Winter Plan Home load power",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_state_of_charge",
+    "friendly_name": "Winter Plan Battery state of charge",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_surplus",
+    "friendly_name": "Winter Plan Surplus",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_last_reconciliation_error",
+    "friendly_name": "Winter Plan Last reconciliation error",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_count",
+    "friendly_name": "Winter Plan Managed Devices count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_enabled_count",
+    "friendly_name": "Winter Plan Managed Devices enabled count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_usable_count",
+    "friendly_name": "Winter Plan Managed Devices usable count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_fixed_load_count",
+    "friendly_name": "Winter Plan Managed Devices fixed-load count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_variable_load_count",
+    "friendly_name": "Winter Plan Managed Devices variable-load count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_controllable_power",
+    "friendly_name": "Winter Plan Managed Devices controllable power",
+    "icon": null,
+    "state": "2400.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_usable_power",
+    "friendly_name": "Winter Plan Managed Devices usable power",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_managed_devices_status_summary",
+    "friendly_name": "Winter Plan Managed Devices status summary",
+    "icon": null,
+    "state": "1 enabled device configured, but source validation is holding control in safe mode"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_control_status",
+    "friendly_name": "Winter Plan Control status",
+    "icon": null,
+    "state": "blocked"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_control_summary",
+    "friendly_name": "Winter Plan Control summary",
+    "icon": null,
+    "state": "Safe mode is blocking control actions"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_control_reason",
+    "friendly_name": "Winter Plan Control reason",
+    "icon": null,
+    "state": "Source validation is degraded or blocked, so the planner will not surface device actions."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_control_guard_summary",
+    "friendly_name": "Winter Plan Control guard summary",
+    "icon": null,
+    "state": "No guard evaluation was needed because no device action was planned in this cycle"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_last_action_status",
+    "friendly_name": "Winter Plan Last action status",
+    "icon": null,
+    "state": "idle"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_last_action_summary",
+    "friendly_name": "Winter Plan Last action summary",
+    "icon": null,
+    "state": "No Home Assistant action was executed in this cycle."
+  },
+  {
+    "device_class": "timestamp",
+    "entity_id": "sensor.zero_net_export_last_action_at",
+    "friendly_name": "Winter Plan Last action at",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": "timestamp",
+    "entity_id": "sensor.zero_net_export_last_successful_action_at",
+    "friendly_name": "Winter Plan Last successful action at",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": "timestamp",
+    "entity_id": "sensor.zero_net_export_last_failed_action_at",
+    "friendly_name": "Winter Plan Last failed action at",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_last_action_device",
+    "friendly_name": "Winter Plan Last action device",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_last_failed_action_device",
+    "friendly_name": "Winter Plan Last failed action device",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_last_failed_action_message",
+    "friendly_name": "Winter Plan Last failed action message",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_recent_action_summary",
+    "friendly_name": "Winter Plan Recent action summary",
+    "icon": null,
+    "state": "No recent control actions recorded"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_recent_failure_summary",
+    "friendly_name": "Winter Plan Recent failure summary",
+    "icon": null,
+    "state": "No recent failed control actions"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_last_successful_action_summary",
+    "friendly_name": "Winter Plan Last successful action summary",
+    "icon": null,
+    "state": "No successful control actions recorded yet"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_action_history_count",
+    "friendly_name": "Winter Plan Action history count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_successful_action_count",
+    "friendly_name": "Winter Plan Successful action count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_failed_action_count",
+    "friendly_name": "Winter Plan Failed action count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_total_successful_action_count",
+    "friendly_name": "Winter Plan Total successful action count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_total_failed_action_count",
+    "friendly_name": "Winter Plan Total failed action count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_export_error",
+    "friendly_name": "Winter Plan Export error",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_planned_action_count",
+    "friendly_name": "Winter Plan Planned action count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_executable_action_count",
+    "friendly_name": "Winter Plan Executable action count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_blocked_planned_action_count",
+    "friendly_name": "Winter Plan Blocked planned action count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_planned_power_delta",
+    "friendly_name": "Winter Plan Planned power delta",
+    "icon": null,
+    "state": "0.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_variable_planned_power_delta",
+    "friendly_name": "Winter Plan Variable planned power delta",
+    "icon": null,
+    "state": "0.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_fixed_planned_power_delta",
+    "friendly_name": "Winter Plan Fixed planned power delta",
+    "icon": null,
+    "state": "0.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surface",
+    "friendly_name": "Managed Devices surface",
+    "icon": null,
+    "state": "Managed Devices surface | 1 managed | 1 needs attention | blocked 7th - test light | 17 unmanaged backlog | source blockers active | open \u2699 Settings \u2014 Managed Devices workspace"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_overview",
+    "friendly_name": "Managed Devices overview",
+    "icon": null,
+    "state": "source blockers active | 1 managed | 17 unmanaged backlog | 1 managed device needs attention | blocked 7th - test light | 8 need review | 9 ready to promote | review Managed Devices \u2014 7th... | review first | warn"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_attention",
+    "friendly_name": "Managed Devices attention",
+    "icon": null,
+    "state": "1 managed device needs attention | attention 7th - test light | blocked 7th - test light"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_ready_next",
+    "friendly_name": "Managed Devices ready next",
+    "icon": null,
+    "state": "source blockers active | 9 fixed candidates | 8 variable candidates | 9 ready to promote | 8 still need review | review Managed Devices \u2014 7th... | review first | warn"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_unmanaged_backlog_count",
+    "friendly_name": "Managed Devices unmanaged backlog count",
+    "icon": null,
+    "state": "17"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_unmanaged_backlog",
+    "friendly_name": "Managed Devices unmanaged backlog",
+    "icon": null,
+    "state": "17 candidates | 9 fixed candidates | 8 variable candidates | fixed backlog 2 review/7 ready | variable backlog 6 review/2 ready | 8 need review | review Managed Devices \u2014 7th.... | 9 ready to promote | ready Air Purifier (fixed) |..."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surfaced_unmanaged_candidate",
+    "friendly_name": "Managed Devices surfaced unmanaged candidate",
+    "icon": null,
+    "state": "Air Purifier (fixed) | likely useful | key warning: No immediate warnings"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surfaced_candidate_usefulness",
+    "friendly_name": "Managed Devices surfaced candidate usefulness",
+    "icon": null,
+    "state": "likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surfaced_candidate_warnings",
+    "friendly_name": "Managed Devices surfaced candidate warnings",
+    "icon": null,
+    "state": "No immediate warnings"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_candidate_shortlist",
+    "friendly_name": "Managed Devices candidate shortlist",
+    "icon": null,
+    "state": "Air Purifier (fixed | likely useful); Coffee machine (fixed | likely useful); Dishwasher Power (fixed | likely useful); +14 more"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_candidate_shortlist_usefulness",
+    "friendly_name": "Managed Devices candidate shortlist usefulness",
+    "icon": null,
+    "state": "Air Purifier: likely useful; Coffee machine: likely useful; Dishwasher Power: likely useful; +14 more"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_next_step",
+    "friendly_name": "Managed Devices next step",
+    "icon": null,
+    "state": "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors, repair blocking source roles first, then return to Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_source_blocker_summary",
+    "friendly_name": "Winter Plan Source blocker summary",
+    "icon": null,
+    "state": "solar_power is required but not configured; solar_energy is required but not configured; grid_import_power is required but not configured"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_source_blocker_next_step",
+    "friendly_name": "Winter Plan Source blocker next step",
+    "icon": null,
+    "state": "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors, repair source blockers, then save and reload the integration"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_command_center_status",
+    "friendly_name": "Winter Plan Command center status",
+    "icon": null,
+    "state": "Missing required source roles: Solar power, Solar energy, Grid import power, Grid export power, Grid import energy, Grid export energy"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_command_center_focus_path",
+    "friendly_name": "Winter Plan Command center focus path",
+    "icon": null,
+    "state": "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_command_center_next_step",
+    "friendly_name": "Winter Plan Command center next step",
+    "icon": null,
+    "state": "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors and use the highlighted native guidance to continue."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_power_status",
+    "friendly_name": "Winter Plan Solar power status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_power_reading",
+    "friendly_name": "Winter Plan Solar power reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_power_age",
+    "friendly_name": "Winter Plan Solar power age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_power_issue_count",
+    "friendly_name": "Winter Plan Solar power issue count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_energy_status",
+    "friendly_name": "Winter Plan Solar energy status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_energy_reading",
+    "friendly_name": "Winter Plan Solar energy reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_energy_age",
+    "friendly_name": "Winter Plan Solar energy age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_solar_energy_issue_count",
+    "friendly_name": "Winter Plan Solar energy issue count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_power_status",
+    "friendly_name": "Winter Plan Grid import power status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_power_reading",
+    "friendly_name": "Winter Plan Grid import power reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_power_age",
+    "friendly_name": "Winter Plan Grid import power age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_power_issue_count",
+    "friendly_name": "Winter Plan Grid import power issue count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_power_status",
+    "friendly_name": "Winter Plan Grid export power status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_power_reading",
+    "friendly_name": "Winter Plan Grid export power reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_power_age",
+    "friendly_name": "Winter Plan Grid export power age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_power_issue_count",
+    "friendly_name": "Winter Plan Grid export power issue count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_energy_status",
+    "friendly_name": "Winter Plan Grid import energy status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_energy_reading",
+    "friendly_name": "Winter Plan Grid import energy reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_energy_age",
+    "friendly_name": "Winter Plan Grid import energy age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_import_energy_issue_count",
+    "friendly_name": "Winter Plan Grid import energy issue count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_energy_status",
+    "friendly_name": "Winter Plan Grid export energy status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_energy_reading",
+    "friendly_name": "Winter Plan Grid export energy reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_energy_age",
+    "friendly_name": "Winter Plan Grid export energy age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_grid_export_energy_issue_count",
+    "friendly_name": "Winter Plan Grid export energy issue count",
+    "icon": null,
+    "state": "1"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_home_load_power_status",
+    "friendly_name": "Winter Plan Home load power status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_home_load_power_reading",
+    "friendly_name": "Winter Plan Home load power reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_home_load_power_age",
+    "friendly_name": "Winter Plan Home load power age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_home_load_power_issue_count",
+    "friendly_name": "Winter Plan Home load power issue count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_state_of_charge_status",
+    "friendly_name": "Winter Plan Battery state of charge status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_state_of_charge_reading",
+    "friendly_name": "Winter Plan Battery state of charge reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_state_of_charge_age",
+    "friendly_name": "Winter Plan Battery state of charge age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_state_of_charge_issue_count",
+    "friendly_name": "Winter Plan Battery state of charge issue count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_charge_power_status",
+    "friendly_name": "Winter Plan Battery charge power status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_charge_power_reading",
+    "friendly_name": "Winter Plan Battery charge power reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_charge_power_age",
+    "friendly_name": "Winter Plan Battery charge power age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_charge_power_issue_count",
+    "friendly_name": "Winter Plan Battery charge power issue count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_discharge_power_status",
+    "friendly_name": "Winter Plan Battery discharge power status",
+    "icon": null,
+    "state": "missing"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_discharge_power_reading",
+    "friendly_name": "Winter Plan Battery discharge power reading",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_discharge_power_age",
+    "friendly_name": "Winter Plan Battery discharge power age",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.zero_net_export_battery_discharge_power_issue_count",
+    "friendly_name": "Winter Plan Battery discharge power issue count",
+    "icon": null,
+    "state": "0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "switch.zero_net_export_enabled",
+    "friendly_name": "Winter Plan Enabled",
+    "icon": null,
+    "state": "on"
+  },
+  {
+    "device_class": null,
+    "entity_id": "select.zero_net_export_mode",
+    "friendly_name": "Winter Plan Mode",
+    "icon": null,
+    "state": "Zero export"
+  },
+  {
+    "device_class": null,
+    "entity_id": "number.zero_net_export_target_export",
+    "friendly_name": "Winter Plan Target export",
+    "icon": null,
+    "state": "0.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "number.zero_net_export_deadband",
+    "friendly_name": "Winter Plan Deadband",
+    "icon": null,
+    "state": "100.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "number.zero_net_export_battery_reserve_soc",
+    "friendly_name": "Winter Plan Battery reserve SOC",
+    "icon": null,
+    "state": "20.0"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_active",
+    "friendly_name": "Winter Plan Active",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_source_mismatch",
+    "friendly_name": "Winter Plan Source mismatch",
+    "icon": null,
+    "state": "on"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_safe_mode",
+    "friendly_name": "Winter Plan Safe mode",
+    "icon": null,
+    "state": "on"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_stale_data",
+    "friendly_name": "Winter Plan Stale data",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_command_failure",
+    "friendly_name": "Winter Plan Command failure",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_battery_below_reserve",
+    "friendly_name": "Winter Plan Battery below reserve",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_solar_power_stale",
+    "friendly_name": "Winter Plan Solar power stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_solar_energy_stale",
+    "friendly_name": "Winter Plan Solar energy stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_grid_import_power_stale",
+    "friendly_name": "Winter Plan Grid import power stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_grid_export_power_stale",
+    "friendly_name": "Winter Plan Grid export power stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_grid_import_energy_stale",
+    "friendly_name": "Winter Plan Grid import energy stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_grid_export_energy_stale",
+    "friendly_name": "Winter Plan Grid export energy stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_home_load_power_stale",
+    "friendly_name": "Winter Plan Home load power stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_battery_state_of_charge_stale",
+    "friendly_name": "Winter Plan Battery state of charge stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_battery_charge_power_stale",
+    "friendly_name": "Winter Plan Battery charge power stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "binary_sensor.zero_net_export_battery_discharge_power_stale",
+    "friendly_name": "Winter Plan Battery discharge power stale",
+    "icon": null,
+    "state": "off"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.zero_net_export_reset_controller_overrides",
+    "friendly_name": "Winter Plan Reset controller overrides",
+    "icon": null,
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.zero_net_export_show_command_center_guide",
+    "friendly_name": "Winter Plan Show command center guide",
+    "icon": "mdi:map-marker-path",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.zero_net_export_settings_open_managed_devices_workspace",
+    "friendly_name": "Winter Plan \u2699 Settings \u2014 Open Managed Devices workspace",
+    "icon": "mdi:cog-outline",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.zero_net_export_settings_open_managed_devices_review",
+    "friendly_name": "Winter Plan \u2699 Settings \u2014 Open Managed Devices review",
+    "icon": "mdi:cog-outline",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.zero_net_export_review_diagnostics",
+    "friendly_name": "Winter Plan Review diagnostics",
+    "icon": "mdi:lifebuoy",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.zero_net_export_review_diagnostics_snapshot",
+    "friendly_name": "Winter Plan Review diagnostics snapshot",
+    "icon": "mdi:clipboard-pulse-outline",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.zero_net_export_show_setup_checklist",
+    "friendly_name": "Winter Plan Show setup checklist",
+    "icon": "mdi:format-list-checks",
+    "state": "2026-04-30T10:09:18.767734+00:00"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.managed_devices_7th_test_light_settings_7th_test_light_review",
+    "friendly_name": "Managed Devices \u2014 7th - test light \u2699 Settings \u2014 7th - test light review",
+    "icon": "mdi:cog-outline",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surface_2",
+    "friendly_name": "Managed Devices surface",
+    "icon": null,
+    "state": "Managed Devices surface | 1 managed | 1 needs attention | blocked 7th test list | 17 unmanaged backlog | source blockers active | open \u2699 Settings \u2014 Managed Devices workspace"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_overview_2",
+    "friendly_name": "Managed Devices overview",
+    "icon": null,
+    "state": "source blockers active | 1 managed | 17 unmanaged backlog | 1 managed device needs attention | blocked 7th test list | 8 need review | 9 ready to promote | review Managed Devices \u2014 7th... | review first | warn"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_attention_2",
+    "friendly_name": "Managed Devices attention",
+    "icon": null,
+    "state": "1 managed device needs attention | attention 7th test list | blocked 7th test list"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_ready_next_2",
+    "friendly_name": "Managed Devices ready next",
+    "icon": null,
+    "state": "source blockers active | 9 fixed candidates | 8 variable candidates | 9 ready to promote | 8 still need review | review Managed Devices \u2014 7th... | review first | warn"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_unmanaged_backlog_count_2",
+    "friendly_name": "Managed Devices unmanaged backlog count",
+    "icon": null,
+    "state": "17"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_unmanaged_backlog_2",
+    "friendly_name": "Managed Devices unmanaged backlog",
+    "icon": null,
+    "state": "17 candidates | 9 fixed candidates | 8 variable candidates | fixed backlog 2 review/7 ready | variable backlog 6 review/2 ready | 8 need review | review Managed Devices \u2014 7th.... | 9 ready to promote | ready Air Purifier (fixed) |..."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surfaced_unmanaged_candidate_2",
+    "friendly_name": "Managed Devices surfaced unmanaged candidate",
+    "icon": null,
+    "state": "Air Purifier (fixed) | likely useful | key warning: No immediate warnings"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surfaced_candidate_usefulness_2",
+    "friendly_name": "Managed Devices surfaced candidate usefulness",
+    "icon": null,
+    "state": "likely useful: Switch entities are usually likely fixed-load candidates when they control a real appliance or relay."
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_surfaced_candidate_warnings_2",
+    "friendly_name": "Managed Devices surfaced candidate warnings",
+    "icon": null,
+    "state": "No immediate warnings"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_candidate_shortlist_2",
+    "friendly_name": "Managed Devices candidate shortlist",
+    "icon": null,
+    "state": "Air Purifier (fixed | likely useful); Coffee machine (fixed | likely useful); Dishwasher Power (fixed | likely useful); +14 more"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_candidate_shortlist_usefulness_2",
+    "friendly_name": "Managed Devices candidate shortlist usefulness",
+    "icon": null,
+    "state": "Air Purifier: likely useful; Coffee machine: likely useful; Dishwasher Power: likely useful; +14 more"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.managed_devices_next_step_2",
+    "friendly_name": "Managed Devices next step",
+    "icon": null,
+    "state": "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors, repair blocking source roles first, then return to Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.summer_plan_source_blocker_summary",
+    "friendly_name": "Summer Plan Source blocker summary",
+    "icon": null,
+    "state": "solar_power is required but not configured; solar_energy is required but not configured; grid_import_power is required but not configured"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.summer_plan_source_blocker_next_step",
+    "friendly_name": "Summer Plan Source blocker next step",
+    "icon": null,
+    "state": "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors, repair source blockers, then save and reload the integration"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.summer_plan_command_center_status",
+    "friendly_name": "Summer Plan Command center status",
+    "icon": null,
+    "state": "Missing required source roles: Solar power, Solar energy, Grid import power, Grid export power, Grid import energy, Grid export energy"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.summer_plan_command_center_focus_path",
+    "friendly_name": "Summer Plan Command center focus path",
+    "icon": null,
+    "state": "Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors"
+  },
+  {
+    "device_class": null,
+    "entity_id": "sensor.summer_plan_command_center_next_step",
+    "friendly_name": "Summer Plan Command center next step",
+    "icon": null,
+    "state": "Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Sensors and use the highlighted native guidance to continue."
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.summer_plan_show_command_center_guide",
+    "friendly_name": "Summer Plan Show command center guide",
+    "icon": "mdi:map-marker-path",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.summer_plan_settings_open_managed_devices_workspace",
+    "friendly_name": "Summer Plan \u2699 Settings \u2014 Open Managed Devices workspace",
+    "icon": "mdi:cog-outline",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.summer_plan_settings_open_managed_devices_review",
+    "friendly_name": "Summer Plan \u2699 Settings \u2014 Open Managed Devices review",
+    "icon": "mdi:cog-outline",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.summer_plan_review_diagnostics",
+    "friendly_name": "Summer Plan Review diagnostics",
+    "icon": "mdi:lifebuoy",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.summer_plan_review_diagnostics_snapshot",
+    "friendly_name": "Summer Plan Review diagnostics snapshot",
+    "icon": "mdi:clipboard-pulse-outline",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.summer_plan_show_setup_checklist",
+    "friendly_name": "Summer Plan Show setup checklist",
+    "icon": "mdi:format-list-checks",
+    "state": "unknown"
+  },
+  {
+    "device_class": null,
+    "entity_id": "button.managed_devices_7th_test_list_settings_7th_test_list_review",
+    "friendly_name": "Managed Devices \u2014 7th test list \u2699 Settings \u2014 7th test list review",
+    "icon": "mdi:cog-outline",
+    "state": "unknown"
+  }
+]
