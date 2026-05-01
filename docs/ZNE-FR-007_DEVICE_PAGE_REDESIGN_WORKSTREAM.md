@@ -1,6 +1,6 @@
 # ZNE-FR-007 — main device page two-tier redesign workstream
 
-Status: design only — no implementation approved.
+Status: design only — Tier 1 native Home Assistant device-page design accepted; Tier 2 still pending. No implementation approved.
 
 ## User outcome
 
@@ -141,6 +141,8 @@ Discard the earlier Tier 1 free-layout mockup as too unconstrained. Produce repl
 
 ## Tier 1 constrained mockup — 2026-05-01
 
+Status: accepted by Riley on 2026-05-01.
+
 Produced a replacement Tier 1 mockup that preserves the screenshoted Home Assistant native device page structure instead of inventing a custom card grid.
 
 Artifact sent for review:
@@ -153,3 +155,9 @@ Design intent:
 - Sensors: keep readiness, active controlled power, grid/source health, battery SOC, actions today, and one mapping link.
 - Activity: curate only meaningful setup/device/diagnostic/control/repair events.
 - Move explanatory or workflow-heavy content to Tier 2.
+
+## Tier 1 acceptance — 2026-05-01
+
+Riley accepted the constrained Tier 1 design: keep the native Home Assistant device-page structure and shrink/reprioritise the visible ZNE entities/actions inside the existing cards.
+
+Implementation remains explicitly unapproved until Riley asks to move from design to build. Next design task is Tier 2 detail flow design from the accepted Tier 1 launch points.
