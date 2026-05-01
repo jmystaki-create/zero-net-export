@@ -275,7 +275,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         self.assertEqual(button.extra_state_attributes["configure_path"], "sources path")
         self.assertEqual(
             button.extra_state_attributes["action_url"],
-            "/zero-net-export?section=sensors&entry_id=entry-1",
+            "/config/integrations/integration/zero_net_export#config_entry=entry-1",
         )
 
         import asyncio
@@ -283,10 +283,10 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(len(calls), 1)
         self.assertIn(
-            "Open link: [Open Sensors setup](/zero-net-export?section=sensors&entry_id=entry-1)",
+            "Open link: [Open Sensors setup](/config/integrations/integration/zero_net_export#config_entry=entry-1)",
             calls[0]["args"][1],
         )
-        self.assertIn("Native fallback path: sources path", calls[0]["args"][1])
+        self.assertIn("Path: sources path", calls[0]["args"][1])
         self.assertEqual(calls[0]["kwargs"]["notification_id"], "zero_net_export_entry-1_open_sensors_guided_flow")
 
     def test_managed_devices_launcher_uses_custom_panel_url(self) -> None:
@@ -306,7 +306,7 @@ class ButtonEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             button.extra_state_attributes["action_url"],
-            "/zero-net-export?section=managed-devices&entry_id=entry-1",
+            "/zero-net-export-managed-devices?entry_id=entry-1",
         )
 
     def test_command_center_button_attributes_use_current_focus_keys(self) -> None:

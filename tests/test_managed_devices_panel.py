@@ -36,11 +36,9 @@ class ManagedDevicesPanelTests(unittest.TestCase):
     def test_integration_registers_panel_static_assets_and_service(self) -> None:
         source = INIT_PATH.read_text(encoding="utf-8")
 
-        self.assertIn("COMMAND_CENTER_PANEL_URL_PATH = \"zero-net-export\"", source)
         self.assertIn("PANEL_URL_PATH = \"zero-net-export-managed-devices\"", source)
         self.assertIn("StaticPathConfig", source)
         self.assertIn("async_register_panel", source)
-        self.assertIn("sidebar_title=\"ZNE Tier 2\"", source)
         self.assertIn("sidebar_title=\"ZNE Managed Devices\"", source)
         self.assertIn("update_managed_device", source)
         self.assertIn('vol.Optional("entry_id"): str', source)

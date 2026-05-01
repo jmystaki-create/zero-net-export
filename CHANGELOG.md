@@ -6,17 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
-### Added
-- Added a real ZNE Tier 2 panel at `/zero-net-export` with Overview, Sensors, Controls, Managed Devices, and Diagnostics sections, while preserving `/zero-net-export-managed-devices` for compatibility.
-
-### Changed
-- Updated Tier 1 launcher targets to point to the real Tier 2 panel section URLs and corrected the launcher notification copy so it no longer implies native Home Assistant button rows can browser-navigate directly.
-- Added a primary controller device configuration URL to the ZNE Tier 2 panel so the native device cog/configuration path has an actual destination.
-
 ### Validation
 - Marked ZNE-578 completed via the supported Home Assistant device-detail cog/deep-link path; exact native-row gear placement remains upstream-only and out of active release scope.
 - Reopened ZNE-588 validation status pending fresh installed-build Home Assistant screenshot/browser proof for the Tier 1/Tier 2 screen outcome; existing `0.1.103` API/entity-registry/button-press evidence is not enough to close the UI brief.
-- Candidate repo validation now passes focused Tier 2/panel tests, full unit discovery, py_compile, and `git diff --check`; local mock screenshots exist, but live HA screenshots remain required before any release.
 
 ## [0.1.103] - 2026-05-01
 

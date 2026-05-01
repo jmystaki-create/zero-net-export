@@ -338,7 +338,6 @@ def _coerce_number(value: Any, fallback: int | float) -> int | float:
     return parsed
 
 
-COMMAND_CENTER_PANEL_URL_PATH = "zero-net-export"
 PANEL_URL_PATH = "zero-net-export-managed-devices"
 PANEL_MODULE_URL = f"/api/{DOMAIN}/frontend/managed-devices-panel.js"
 
@@ -381,25 +380,16 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
 
     from homeassistant.components.panel_custom import async_register_panel
 
-    common_panel_kwargs = {
-        "webcomponent_name": "zero-net-export-managed-devices-panel",
-        "sidebar_icon": "mdi:cog-outline",
-        "module_url": PANEL_MODULE_URL,
-        "require_admin": True,
-        "config": {"domain": DOMAIN},
-    }
-    await async_register_panel(
-        hass,
-        frontend_url_path=COMMAND_CENTER_PANEL_URL_PATH,
-        sidebar_title="ZNE Tier 2",
-        config_panel_domain=DOMAIN,
-        **common_panel_kwargs,
-    )
     await async_register_panel(
         hass,
         frontend_url_path=PANEL_URL_PATH,
+        webcomponent_name="zero-net-export-managed-devices-panel",
         sidebar_title="ZNE Managed Devices",
-        **common_panel_kwargs,
+        sidebar_icon="mdi:cog-outline",
+        module_url=PANEL_MODULE_URL,
+        require_admin=True,
+        config={"domain": DOMAIN},
+        config_panel_domain=DOMAIN,
     )
 
 

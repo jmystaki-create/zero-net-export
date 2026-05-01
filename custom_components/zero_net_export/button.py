@@ -1088,31 +1088,16 @@ def _entry_integrations_url(coordinator) -> str:
     return f"/config/integrations/integration/{DOMAIN}"
 
 
-def _tier2_panel_url(coordinator, section: str = "overview") -> str:
-    entry_id = getattr(getattr(coordinator, "entry", None), "entry_id", "") or ""
-    section_key = {
-        "Sensors": "sensors",
-        "Controls": "controls",
-        DEVICES_SECTION_LABEL: "managed-devices",
-        "Diagnostics": "diagnostics",
-    }.get(section, "overview")
-    query = f"section={section_key}"
-    if entry_id:
-        query = f"{query}&entry_id={entry_id}"
-    return f"/zero-net-export?{query}"
-
-
 def _managed_devices_panel_url(coordinator) -> str:
     entry_id = getattr(getattr(coordinator, "entry", None), "entry_id", "") or ""
-    query = "section=managed-devices"
-    if entry_id:
-        query = f"{query}&entry_id={entry_id}"
-    return f"/zero-net-export?{query}"
+    return f"/zero-net-export-managed-devices?entry_id={entry_id}" if entry_id else "/zero-net-export-managed-devices"
 
 
 def _tier2_action_url(coordinator, section: str) -> str:
-    """Return the accessible Tier 2 panel target for a setup section."""
-    return _tier2_panel_url(coordinator, section)
+    """Return the best available native click target for a Tier 2 section."""
+    if section == DEVICES_SECTION_LABEL:
+        return _managed_devices_panel_url(coordinator)
+    return _entry_integrations_url(coordinator)
 
 
 class ZeroNetExportOpenTier2FlowButton(ZeroNetExportEntity, ButtonEntity):
@@ -1147,9 +1132,9 @@ class ZeroNetExportOpenTier2FlowButton(ZeroNetExportEntity, ButtonEntity):
             [
                 f"Open {self._section} setup",
                 "",
-                "Home Assistant button rows cannot navigate the browser directly; use this link to open the Tier 2 setup page.",
+                "This Tier 1 device-page button opens the closest supported native Home Assistant Tier 2 target.",
                 f"Open link: [Open {self._section} setup]({action_url})",
-                f"Native fallback path: {self._path}",
+                f"Path: {self._path}",
                 f"Recommended now: {command_center.get('recommended_section') or 'None'}",
                 f"Next step: {command_center.get('next_action_summary') or 'Open Configure and choose the matching section.'}",
             ]
