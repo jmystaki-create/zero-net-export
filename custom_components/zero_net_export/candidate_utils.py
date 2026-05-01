@@ -10,6 +10,7 @@ from .const import DEVICE_CANDIDATE_DOMAINS, DEVICE_CANDIDATE_FIXED_DOMAINS, DOM
 _CANDIDATE_CONFIDENCE_ORDER = {
     "switch": 0,
     "number": 0,
+    "climate": 1,
     "light": 1,
     "input_number": 1,
     "input_boolean": 2,
@@ -18,9 +19,10 @@ _CANDIDATE_CONFIDENCE_ORDER = {
 _CANDIDATE_DOMAIN_ORDER = {
     "switch": 0,
     "number": 1,
-    "light": 2,
-    "input_number": 3,
-    "input_boolean": 4,
+    "climate": 2,
+    "light": 3,
+    "input_number": 4,
+    "input_boolean": 5,
 }
 
 _FIT_USEFULNESS_LABELS = {
@@ -425,6 +427,13 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
         summary = "Switch entities are usually likely fixed-load candidates when they control a real appliance or relay."
         suitability_summary = "Switch control is usually a clean native fit for fixed loads because Zero Net Export can turn the load on or off directly."
         operational_value_summary = "Fixed relay-style loads are usually useful when they represent a real appliance that can absorb surplus export in simple blocks."
+    elif domain == "climate" and kind == "fixed":
+        summary = "Climate entities can be useful fixed-load candidates for ACs, heated floors, and HVAC loads when turn_on/turn_off is safe for that device."
+        suitability_summary = "Climate control can work as a fixed load when the device supports safe turn_on/turn_off service calls."
+        operational_value_summary = "ACs, heated floors, and other HVAC loads can be useful export-absorbing loads when the operator is comfortable letting Zero Net Export cycle them."
+        warnings.append(
+            "Confirm this climate device is safe to cycle automatically and that turn_on/turn_off preserves the intended comfort mode."
+        )
     elif domain == "light" and kind == "fixed":
         summary = "Light entities can be controllable, but many are comfort or presence loads rather than discretionary energy sinks."
         suitability_summary = "Light control can work technically, but it needs review because many lights are comfort loads rather than intentional energy sinks."
@@ -529,7 +538,7 @@ def assess_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
             "high"
             if (domain == "switch" and kind == "fixed") or (domain == "number" and kind == "variable")
             else "medium"
-            if domain in {"light", "input_number"}
+            if domain in {"climate", "light", "input_number"}
             else "low"
         ),
         "operational_value_summary": operational_value_summary,

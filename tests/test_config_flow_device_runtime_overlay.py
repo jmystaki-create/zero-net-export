@@ -464,6 +464,27 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(updates[0][0], entry)
         self.assertIn("switch.pool_pump", updates[0][1]["options"][module.CONF_DEVICE_INVENTORY_JSON])
 
+    def test_managed_device_subentry_fixed_selector_includes_climate_entities(self) -> None:
+        module = _load_config_flow_module()
+        entry = SimpleNamespace(title="Winter", entry_id="winter-entry", data={}, options={})
+
+        flow = module.ZeroNetExportManagedDeviceSubentryFlow()
+        flow.handler = ("winter-entry", "managed_device")
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_get_entry=lambda entry_id: entry),
+            states=SimpleNamespace(async_all=lambda: []),
+            data={},
+        )
+        flow.async_show_form = lambda **kwargs: {"type": "form", **kwargs}
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+
+        result = asyncio.run(flow.async_step_device_details())
+
+        domains = result["data_schema"]["entity_id"]["domain"]
+        self.assertIn("climate", domains)
+        self.assertIn("switch", domains)
+        self.assertIn("light", domains)
+
     def test_best_source_candidate_prefers_explicit_grid_export_energy_sensor(self) -> None:
         module = _load_config_flow_module()
         states = [

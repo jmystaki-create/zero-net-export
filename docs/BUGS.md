@@ -101,6 +101,24 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-587 - climate devices missing from Add Managed Devices selector
+
+- **status:** `validated`
+- **severity:** `high`
+- **area:** `managed_devices`
+- **where seen:** Riley screenshot/report on 2026-05-01 from the `Add Managed Devices` fixed-load form control entity picker.
+- **current observed behavior:** the control entity picker shows switches/lights/helpers but not climate entities, so ACs, heated floors, and HVAC loads cannot be selected as managed devices.
+- **expected behavior:** climate entities should be valid fixed-load candidates in Add Managed Devices so operators can add ACs, heated floors, and similar controllable HVAC loads.
+- **acceptance criteria:**
+  - Fixed-load entity selector includes the `climate` domain.
+  - Candidate discovery surfaces available `climate.*` entities as fixed-load candidates.
+  - Fixed-toggle adapter inference supports climate entities via entity-domain `turn_on`/`turn_off` service calls.
+  - Regression tests cover selector eligibility and candidate discovery for climate loads.
+- **fix:** added `climate` to fixed managed-device domains, fixed-toggle adapter domains, candidate ranking, and candidate guidance.
+- **validation evidence:** repo validation passed with focused managed-device/candidate/model/translation/bug-id tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_candidate_utils tests.test_device_model tests.test_translation_sync tests.test_bug_tracker_ids` (126 tests OK), full discovery `python3 -m unittest discover -s tests` (605 tests OK), and `git diff --check`.
+- **next action:** release packaging/live validation if Riley wants this shipped immediately.
+
+
 ## ZNE-586 - Configure service source-selection step is still too wordy
 
 - **status:** `validated`

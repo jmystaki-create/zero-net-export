@@ -469,6 +469,28 @@ class CandidateUtilsTests(unittest.TestCase):
         self.assertIn("review first", preview)
         self.assertIn("generic power/circuit wording", preview)
 
+    def test_discover_candidate_devices_includes_climate_loads(self) -> None:
+        module = _load_candidate_utils_module()
+        states = [
+            SimpleNamespace(
+                entity_id="climate.living_room_ac",
+                state="cool",
+                attributes={"friendly_name": "Living Room AC"},
+            ),
+            SimpleNamespace(
+                entity_id="climate.heated_floor",
+                state="heat",
+                attributes={"friendly_name": "Heated Floor"},
+            ),
+        ]
+
+        candidates = module.discover_candidate_devices(states, managed_entity_ids=set())
+
+        self.assertEqual([item["entity_id"] for item in candidates], ["climate.heated_floor", "climate.living_room_ac"])
+        self.assertTrue(all(item["kind"] == "fixed" for item in candidates))
+        self.assertTrue(all(item["domain"] == "climate" for item in candidates))
+        self.assertIn("ACs, heated floors", module.assess_candidate(candidates[0])["summary"])
+
     def test_build_candidate_name_summary_stays_compact_for_sensor_states(self) -> None:
         module = _load_candidate_utils_module()
 
