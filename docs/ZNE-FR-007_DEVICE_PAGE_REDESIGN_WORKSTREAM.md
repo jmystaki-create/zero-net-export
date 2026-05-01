@@ -249,3 +249,21 @@ Initial acceptance criteria for implementation planning:
 - Keep copy short and operator-focused, consistent with ZNE-585/ZNE-586.
 - Preserve existing Diagnostic and Connected devices cards.
 - Validate with focused config-flow tests, full unit discovery, `git diff --check`, and a live Home Assistant browser proof before release.
+
+## Implementation slice — 2026-05-01 release 0.1.101
+
+Riley approved moving forward with Tier 2 Option A for the next release (`1.101` / `0.1.101`).
+
+Implemented release slice:
+- Keep Tier 1 inside the native Home Assistant device-page model.
+- Preserve the existing Diagnostic and Connected devices cards/surfaces.
+- Use the native options flow as the Tier 2 guided workflow launcher.
+- Shorten Tier 2 flow copy for Sensors, Controls, Managed Devices, and Diagnostics.
+- Keep Sensors, Controls, Managed Devices, and Diagnostics as the native guided flow sections rather than introducing a required custom panel.
+
+Release validation target:
+- Focused copy/translation tests.
+- Config-flow tests covering ZNE-585/ZNE-586/ZNE-587 and native guided flows.
+- Full unit discovery.
+- `git diff --check`.
+- Release/install/live browser proof after publishing.

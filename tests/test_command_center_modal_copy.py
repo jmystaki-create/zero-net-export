@@ -4,47 +4,26 @@ import unittest
 
 
 class TestCommandCenterModalCopy(unittest.TestCase):
-    def test_init_modal_stays_setup_focused(self):
+    def test_init_modal_is_native_guided_flow_launcher(self):
         integration_root = Path(__file__).resolve().parents[1] / "custom_components" / "zero_net_export"
         with (integration_root / "strings.json").open(encoding="utf-8") as handle:
             strings = json.load(handle)
 
-        description = strings["options"]["step"]["init"]["description"]
+        step = strings["options"]["step"]["init"]
+        description = step["description"]
 
-        self.assertTrue(description.startswith("Now\n- Headline decision:"))
-        self.assertIn("\n\nCommand-center use\n- Live setup and current operating picture.", description)
-        self.assertIn(
-            "- Finish source roles and core control checks in the command center; when fleet work is next, continue in the Managed Devices workspace.",
-            description,
-        )
-        self.assertNotIn("Finish source roles and core control checks here", description)
-        self.assertNotIn("Finish source mapping and core control checks", description)
-        self.assertNotIn("basic setup and current operating picture only", description)
-        self.assertIn("\n- Alerts: {alert_summary}", description)
-        self.assertIn("\n- Next action: {next_action_summary}", description)
-        self.assertIn("\n- Current focus section: {recommended_section}", description)
-        self.assertNotIn("{recommended_menu_hint}", description)
+        self.assertEqual(step["title"], "Zero Net Export guided setup")
+        self.assertTrue(description.startswith("Choose the next native Home Assistant workflow"))
+        self.assertIn("\n\nGuided workflows\n- Sensors: map source roles", description)
+        self.assertIn("- Controls: tune target export, deadband, reserve, and refresh interval.", description)
+        self.assertIn("- Managed Devices: add, review, enable, edit, or remove controllable loads.", description)
+        self.assertIn("- Diagnostics: review blockers, install evidence, and repair hints.", description)
+        self.assertIn("Recommended section: {recommended_section}", description)
+        self.assertIn("Recommended path: {recommended_path}.", description)
+        self.assertNotIn("Structured control board", description)
+        self.assertNotIn("Bucket ownership", description)
+        self.assertNotIn("Command-center use", description)
         self.assertNotIn("The first menu item below", description)
-        self.assertNotIn("\n- Recommended path: {recommended_path}", description)
-        self.assertIn("\n\nStructured control board\n- Energy state:", description)
-        self.assertIn("\n\nSetup check\n- Sensors:", description)
-        self.assertIn("\n- Source roles: {source_mapping_summary}", description)
-        self.assertIn("\n- Managed Devices: {device_status}", description)
-        self.assertNotIn("\n- Source map: {source_mapping_summary}", description)
-        self.assertLess(description.index("Now\n- Headline decision:"), description.index("\n\nStructured control board"))
-        self.assertLess(description.index("\n\nStructured control board"), description.index("\n\nCommand-center use"))
-        self.assertIn("\n\nNative paths\n- Sensors:", description)
-        self.assertIn("\n- Controls: {policy_path}\n- Live mode shortcut (Controls device action): {mode_path}", description)
-        self.assertIn("\n- Managed Devices: {devices_path}", description)
-        self.assertIn("\n- Diagnostics: {support_path}", description)
-        self.assertIn("\n\nBucket ownership\n- Sensors owns source roles and source health.", description)
-        self.assertNotIn("Sensors owns source mapping and source health.", description)
-        self.assertIn("Managed Devices owns fleet onboarding, promotion, edits, enablement, and removal: {devices_path}", description)
-        self.assertNotIn("Installed package details", description)
-        self.assertNotIn("Recommended path right now", description)
-        self.assertNotIn("Current mapped roles:", description)
-        self.assertNotIn("Live control mode:", description)
-        self.assertNotIn("Not here:", description)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.101] - 2026-05-01
+
+### Changed
+- Carried forward the service-row `Reconfigure` wrapper fix so the active Home Assistant config-flow `flow_id` and `handler` are preserved, preventing the frontend from rendering `grid_sensor_mode` while also showing `Invalid flow specified`.
+- Implemented the approved Tier 2 Option A direction by making the native Home Assistant options flow a short guided setup launcher for Sensors, Controls, Managed Devices, and Diagnostics.
+- Compressed the Tier 2 native flow copy so the workflow opens from the accepted Tier 1 cards without repeating long bucket-ownership/path essays.
+- Preserved the existing Diagnostic and Connected devices surfaces while making Managed Devices read as the connected-device workflow.
+
 ### Fixed
 - Shortened the per-service `Configure service` modal copy so it stays action-first and removes repeated path/bucket-ownership guidance from the initial grid-layout step.
 - Further compressed the follow-up source-selection step to a short missing/progress/issues block with one fallback sentence.
