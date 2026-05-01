@@ -50,38 +50,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities = [
         ZeroNetExportResetControllerOverridesButton(coordinator),
         ZeroNetExportShowNativeCommandCenterButton(coordinator),
-        ZeroNetExportOpenTier2FlowButton(
-            coordinator,
-            "open_sensors_guided_flow",
-            "Open Sensors setup",
-            "Sensors",
-            SOURCES_CONFIGURE_PATH,
-            "mdi:solar-power-variant-outline",
-        ),
-        ZeroNetExportOpenTier2FlowButton(
-            coordinator,
-            "open_controls_guided_flow",
-            "Open Controls setup",
-            "Controls",
-            POLICY_CONFIGURE_PATH,
-            "mdi:tune-variant",
-        ),
-        ZeroNetExportOpenTier2FlowButton(
-            coordinator,
-            "open_managed_devices_guided_flow",
-            "Open Managed Devices setup",
-            "Managed Devices",
-            DEVICES_CONFIGURE_PATH,
-            MANAGED_LOAD_SETTINGS_ICON,
-        ),
-        ZeroNetExportOpenTier2FlowButton(
-            coordinator,
-            "open_diagnostics_guided_flow",
-            "Open Diagnostics setup",
-            "Diagnostics",
-            SUPPORT_CONFIGURE_PATH,
-            "mdi:lifebuoy",
-        ),
         ZeroNetExportShowFleetConsoleButton(coordinator),
         ZeroNetExportShowManagedDeviceReviewButton(coordinator),
         ZeroNetExportShowNativeSupportCenterButton(coordinator),
@@ -1078,73 +1046,6 @@ def _build_managed_device_detail_lines(
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]
     return lines
-
-
-def _entry_integrations_url(coordinator) -> str:
-    """Return a stable Home Assistant frontend URL for the owning integration entry."""
-    entry_id = getattr(getattr(coordinator, "entry", None), "entry_id", "") or ""
-    if entry_id:
-        return f"/config/integrations/integration/{DOMAIN}#config_entry={entry_id}"
-    return f"/config/integrations/integration/{DOMAIN}"
-
-
-def _managed_devices_panel_url(coordinator) -> str:
-    entry_id = getattr(getattr(coordinator, "entry", None), "entry_id", "") or ""
-    return f"/zero-net-export-managed-devices?entry_id={entry_id}" if entry_id else "/zero-net-export-managed-devices"
-
-
-def _tier2_action_url(coordinator, section: str) -> str:
-    """Return the best available native click target for a Tier 2 section."""
-    if section == DEVICES_SECTION_LABEL:
-        return _managed_devices_panel_url(coordinator)
-    return _entry_integrations_url(coordinator)
-
-
-class ZeroNetExportOpenTier2FlowButton(ZeroNetExportEntity, ButtonEntity):
-    """Visible Tier 1 launcher that points operators at a native Tier 2 flow."""
-
-    def __init__(self, coordinator, key: str, name: str, section: str, path: str, icon: str):
-        super().__init__(coordinator, key, name)
-        self._section = section
-        self._path = path
-        self._attr_icon = icon
-
-    @property
-    def extra_state_attributes(self):
-        command_center = build_native_command_center_summary(self.coordinator)
-        action_url = _tier2_action_url(self.coordinator, self._section)
-        return {
-            "tier": "Tier 1 launcher",
-            "target_tier": "Tier 2 native Home Assistant flow",
-            "section": self._section,
-            "configure_path": self._path,
-            "action_url": action_url,
-            "open_url": action_url,
-            "recommended_section": command_center.get("recommended_section"),
-            "recommended_path": command_center.get("recommended_path"),
-            "next_step": command_center.get("next_action_summary"),
-        }
-
-    async def async_press(self) -> None:
-        command_center = build_native_command_center_summary(self.coordinator)
-        action_url = _tier2_action_url(self.coordinator, self._section)
-        message = "\n".join(
-            [
-                f"Open {self._section} setup",
-                "",
-                "This Tier 1 device-page button opens the closest supported native Home Assistant Tier 2 target.",
-                f"Open link: [Open {self._section} setup]({action_url})",
-                f"Path: {self._path}",
-                f"Recommended now: {command_center.get('recommended_section') or 'None'}",
-                f"Next step: {command_center.get('next_action_summary') or 'Open Configure and choose the matching section.'}",
-            ]
-        )
-        persistent_notification.async_create(
-            self.hass,
-            message,
-            title=f"{self.coordinator.entry.title}: {self._section} setup",
-            notification_id=f"{DOMAIN}_{self.coordinator.entry.entry_id}_{self._key}",
-        )
 
 
 class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEntity):
