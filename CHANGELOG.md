@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Fixed the service-row `Reconfigure` wrapper to preserve the active Home Assistant config-flow `flow_id` and `handler` when reusing the service options form, preventing the frontend from rendering `grid_sensor_mode` while also showing `Invalid flow specified`.
+
 ## [0.1.99] - 2026-04-30
 
 ### Fixed

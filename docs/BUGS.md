@@ -121,22 +121,23 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-583 - service-row Reconfigure opens with Invalid flow specified
 
-- **status:** `validated`
+- **status:** `fixing_after_failed_validation`
 - **severity:** `high`
 - **area:** `config_flow`
-- **where seen:** Riley screenshot/report on 2026-04-30 from the Home Assistant Zero Net Export integration Services list after opening a service row's three-dot `Reconfigure` action.
-- **current observed behavior:** the selected service's reconfigure dialog opened but immediately showed the Home Assistant error banner `Invalid flow specified` above the `grid_sensor_mode` choice, making the per-service Configure service path look broken.
+- **where seen:** Riley screenshot/report on 2026-04-30 and again on 2026-05-01 from the Home Assistant Zero Net Export integration Services list after opening a service row's three-dot `Reconfigure` action.
+- **current observed behavior:** the selected service's reconfigure dialog opens and shows `grid_sensor_mode`, but Home Assistant also shows the error banner `Invalid flow specified`, making the per-service Configure service path look broken.
 - **expected behavior:** selecting `Reconfigure` from a specific service row should open the first Configure service step cleanly, without an invalid-flow banner, and submitting the grid sensor mode should advance to the selected service's source-binding form.
-- **evidence:** user-supplied screenshot shows Zero Net Export `0.1.98`, separate `Summer Plan` and `Winter Plan` service cards, and the `Invalid flow specified` banner inside the reconfigure dialog.
-- **suspected cause:** the reconfigure flow reused the options-flow `native_setup` step but renamed the initial form to `configure_service`; Home Assistant's built-in reconfigure action expects the initial config-flow step id to remain `reconfigure`.
+- **evidence:** user-supplied screenshots show Zero Net Export `0.1.98` and later `0.1.99`, separate `Summer Plan` and `Winter Plan` service cards, and the `Invalid flow specified` banner inside the reconfigure dialog.
+- **confirmed cause:** the reconfigure flow reused the options-flow `native_setup` step and renamed the initial form to `reconfigure`, but returned the delegated options-flow result with `flow_id` and `handler` still set to `null`. Home Assistant could render the `grid_sensor_mode` fields while still surfacing `Invalid flow specified` because the flow identity was invalid.
 - **acceptance criteria:**
   - The initial HA `async_step_reconfigure` result uses step id `reconfigure` so Home Assistant recognises the built-in service-row flow.
+  - The returned reconfigure form preserves a non-null `flow_id` and `handler` from the active config flow.
   - Submitting the initial grid sensor mode advances to `configure_service_sources` and keeps all edits scoped to the selected config entry.
-  - Regression tests cover both the initial step id and the submit transition.
+  - Regression tests cover the initial step id, flow identity, and submit transition.
   - `docs/BUGS.md`, `PROJECT_STATUS.md`, and `CHANGELOG.md` record the regression and fix status.
-- **validation evidence:** repo fix validated with `python3 -m py_compile custom_components/zero_net_export/config_flow.py`, focused regression tests `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_translation_sync tests.test_bug_tracker_ids` (91 tests OK), full test discovery `python3 -m unittest discover -s tests` (600 tests OK), and `git diff --check`.
-- **live validation evidence:** deployed the exact repo component to `/homeassistant/custom_components/zero_net_export` on 2026-04-30, fingerprint comparison returned `overall_match=true`, Home Assistant restart recovered after 22s, and browser proof `bug-evidence/zne-583-final-service-menu.png` shows the service-row overflow contains `Reconfigure`; `bug-evidence/zne-583-final-live-reconfigure-flow.png` / `.json` shows clicking it opens the reconfigure form with `grid_sensor_mode` choices and no `Invalid flow specified` text (`invalid flow` count 0). Follow-up validation through the `Slave Debian Browser Node` on 2026-05-01 captured `bug-evidence/zne-583-slave-reconfigure-20260501.png` / `.json`: the Summer Plan service-row menu opened, the `Reconfigure` item was clicked, the form exposed the grid sensor mode choices, and `invalidFlowCount` was `0`.
-- **next action:** monitor for user feedback; no closure blocker remains for this bug.
+- **failed validation note:** previous live validation is superseded by Riley's 2026-05-01 screenshot. The validation asserted visible form fields and did not assert the raw Home Assistant config-flow `flow_id`/`handler`, so it missed the invalid-flow banner condition.
+- **validation evidence:** new repo fix currently passes `python3 -m py_compile custom_components/zero_net_export/config_flow.py` and `python3 -m unittest -q tests.test_config_flow_device_runtime_overlay` (88 tests OK). Full test discovery, release packaging, HACS install, restart, and exact Slave browser revalidation are pending.
+- **next action:** finish validation, commit, release through the approved release-management path, then revalidate the exact UI path from Riley's screenshot.
 
 
 ## ZNE-582 - no obvious per-service Add Managed Devices action from the service card

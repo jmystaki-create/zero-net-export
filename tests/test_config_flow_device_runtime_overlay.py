@@ -296,6 +296,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             options={module.CONF_GRID_SENSOR_MODE: module.GRID_SENSOR_MODE_COMBINED},
         )
         flow = module.ZeroNetExportConfigFlow()
+        flow.flow_id = "reconfigure-flow"
+        flow.handler = module.DOMAIN
         flow.hass = SimpleNamespace(
             config_entries=SimpleNamespace(async_get_entry=lambda entry_id: entry),
             states=SimpleNamespace(async_all=lambda: []),
@@ -315,6 +317,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         result = asyncio.run(flow.async_step_reconfigure())
 
         self.assertEqual(result["type"], "form")
+        self.assertEqual(result["flow_id"], "reconfigure-flow")
+        self.assertEqual(result["handler"], module.DOMAIN)
         self.assertEqual(result["step_id"], "reconfigure")
 
     def test_reconfigure_submit_advances_to_configure_service_sources(self) -> None:
@@ -326,6 +330,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
             options={module.CONF_GRID_SENSOR_MODE: module.GRID_SENSOR_MODE_COMBINED},
         )
         flow = module.ZeroNetExportConfigFlow()
+        flow.flow_id = "reconfigure-flow"
+        flow.handler = module.DOMAIN
         flow.hass = SimpleNamespace(
             config_entries=SimpleNamespace(async_get_entry=lambda entry_id: entry),
             states=SimpleNamespace(async_all=lambda: []),
@@ -347,6 +353,8 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         )
 
         self.assertEqual(result["type"], "form")
+        self.assertEqual(result["flow_id"], "reconfigure-flow")
+        self.assertEqual(result["handler"], module.DOMAIN)
         self.assertEqual(result["step_id"], "configure_service_sources")
 
     def test_managed_device_subentry_adds_device_to_selected_entry_only(self) -> None:

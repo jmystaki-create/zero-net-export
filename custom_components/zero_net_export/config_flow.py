@@ -791,6 +791,11 @@ class ZeroNetExportConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason="configure_service_saved")
         if result.get("type") in {"form", "menu"}:
             step_id = result.get("step_id")
+            result = {
+                **result,
+                "flow_id": self.flow_id,
+                "handler": self.handler,
+            }
             if step_id == "native_setup":
                 result = {**result, "step_id": initial_step_id}
             elif step_id == "native_setup_sources":
