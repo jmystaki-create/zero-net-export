@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Validation
+- Reopened ZNE-588 validation status pending fresh installed-build Home Assistant screenshot/browser proof for the Tier 1/Tier 2 screen outcome; existing `0.1.103` API/entity-registry/button-press evidence is not enough to close the UI brief.
+
 ## [0.1.103] - 2026-05-01
 
 ### Fixed
