@@ -79,3 +79,56 @@ Generated with a local Chromium harness using the implemented frontend component
 ## Result
 
 Candidate is repo-validated and screenshot-mocked, but **not released** and **not live-validated**.
+
+## Live direct-deploy validation evidence
+
+Date: 2026-05-01
+Status: deployed to Home Assistant for validation; release acceptance still pending Riley screenshot review.
+
+Deployment evidence:
+
+- Release commit deployed: `04c124d`.
+- Installed manifest version: `0.1.104`.
+- Backup created before deploy: `/homeassistant/.openclaw_backups/zero_net_export-20260501-185826`.
+- Restart evidence captured during deploy: Home Assistant API recovered after 25 seconds with `{"message":"API running."}`.
+- Fingerprint comparison file: `tmp/install-fingerprint-compare-0.1.104-direct-deploy-now.json`.
+- Fingerprint comparison result: `overall_match: true`; all tracked files match; no legacy discovery artifacts or stale bytecode paths found by the install fingerprint comparator.
+
+Live Home Assistant entity evidence:
+
+```text
+button.winter_plan_open_controls_setup action_url /zero-net-export?section=controls&entry_id=01KQES4HMYAXXXSF6TQCAC8V28
+button.winter_plan_open_sensors_setup action_url /zero-net-export?section=sensors&entry_id=01KQES4HMYAXXXSF6TQCAC8V28
+button.winter_plan_open_managed_devices_setup action_url /zero-net-export?section=managed-devices&entry_id=01KQES4HMYAXXXSF6TQCAC8V28
+button.winter_plan_open_diagnostics_setup action_url /zero-net-export?section=diagnostics&entry_id=01KQES4HMYAXXXSF6TQCAC8V28
+button.summer_plan_open_controls_setup action_url /zero-net-export?section=controls&entry_id=01KQES5GS0B2XTEAK1SDHEK7KX
+```
+
+Live Tier 2 browser evidence captured from Home Assistant at `http://192.168.86.200:8123`:
+
+- `/home/slave/.openclaw/media/zne-0.1.104/tier2-sensors.png`
+- `/home/slave/.openclaw/media/zne-0.1.104/tier2-controls.png`
+- `/home/slave/.openclaw/media/zne-0.1.104/tier2-managed-devices.png`
+- `/home/slave/.openclaw/media/zne-0.1.104/tier2-diagnostics.png`
+- `/home/slave/.openclaw/media/zne-0.1.104/tier1-integration.png`
+
+Live Tier 2 Controls DOM evidence:
+
+```text
+Zero Net Export Tier 2 Accessible Tier 2 setup surface for Sensors, Controls, Managed Devices, and Diagnostics. Overview Sensors Controls Managed Devices Diagnostics Controls setup Review operator-facing control settings: enablement, mode, target export, reserve, and tuning controls. Winter Plan Enabled: on Winter Plan Target export: 0.0 Winter Plan Deadband: 100.0 Winter Plan Battery reserve SOC: 20.0 Winter Plan Mode: Zero export
+```
+
+Live compact Diagnostics DOM evidence:
+
+```text
+Zero Net Export Tier 2 Accessible Tier 2 setup surface for Sensors, Controls, Managed Devices, and Diagnostics. Overview Sensors Controls Managed Devices Diagnostics Diagnostics Compact Tier 2 diagnostics view. Showing the first 3 support items here instead of filling the native device page for pages. Winter Plan Diagnostic summary: Blocking source validation errors remain; safe mode is preventing control Winter Plan Review diagnostics: unknown Winter Plan Review diagnostics snapshot: unknown
+```
+
+Log evidence note:
+
+- `/homeassistant/home-assistant.log.fault` exists and is zero bytes after restart.
+- No current `/homeassistant/home-assistant.log` file was present at inspection time; historical `.log.1` and `.log.old` files exist, but do not contain current ZNE validation output.
+
+Remaining acceptance gate:
+
+- Riley must review and accept the live screenshots before this can be called fully accepted/released.
