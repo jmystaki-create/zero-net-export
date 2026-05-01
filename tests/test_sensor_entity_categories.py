@@ -446,6 +446,45 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertIsNone(health.entity_category)
         self.assertEqual(telemetry.entity_category, "diagnostic")
         self.assertEqual(device_count.entity_category, "diagnostic")
+        self.assertTrue(primary.entity_registry_visible_default)
+        self.assertFalse(telemetry.entity_registry_visible_default)
+        self.assertFalse(device_count.entity_registry_visible_default)
+
+    def test_tier_one_diagnostics_card_keeps_only_curated_diagnostics_visible_by_default(self) -> None:
+        sensor_module = _load_sensor_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+
+        summary = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "diagnostic_summary",
+            "Diagnostic summary",
+        )
+        next_step = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "command_center_next_step",
+            "Command center next step",
+        )
+        release_summary = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "release_summary",
+            "Release summary",
+        )
+        device_count = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "device_count",
+            "Managed Devices count",
+        )
+
+        self.assertEqual(summary.entity_category, "diagnostic")
+        self.assertEqual(next_step.entity_category, "diagnostic")
+        self.assertEqual(release_summary.entity_category, "diagnostic")
+        self.assertTrue(summary.entity_registry_visible_default)
+        self.assertTrue(next_step.entity_registry_visible_default)
+        self.assertFalse(release_summary.entity_registry_visible_default)
+        self.assertFalse(device_count.entity_registry_visible_default)
 
     def test_managed_device_summary_stays_primary_while_secondary_runtime_details_become_diagnostic(self) -> None:
         sensor_module = _load_sensor_module()

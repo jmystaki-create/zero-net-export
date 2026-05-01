@@ -101,6 +101,27 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-588 - Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page
+
+- **status:** `fixed_pending_validation`
+- **severity:** `high`
+- **area:** `diagnostics`
+- **where seen:** Riley screenshot/report on 2026-05-01 from the native Home Assistant Zero Net Export device page for `Winter Plan` on version `0.1.102`.
+- **current observed behavior:** the Tier 1 `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, and `Open Diagnostics setup` buttons only record button press activity and do not provide an obvious visible route to the Tier 2 setup surface. The default Tier 1 Diagnostics card also remains too long, with detailed diagnostic telemetry filling pages of the device page.
+- **expected behavior:** pressing a Tier 1 setup launcher should produce a visible native target link/path for the matching Tier 2 surface, with Managed Devices using the custom managed-devices panel where available and the other sections linking to the integration Configure surface. The default Diagnostics card should stay compact and only expose curated diagnostic summary/next-action entities while keeping detailed telemetry available from the entity registry when explicitly unhidden.
+- **acceptance criteria:**
+  - Tier 1 setup launcher attributes expose an `action_url`/`open_url` for the target Tier 2 surface.
+  - Pressing a launcher creates a visible native notification containing a clickable target link and the exact Configure path.
+  - Managed Devices launcher points to `/zero-net-export-managed-devices?entry_id=<entry_id>`.
+  - Sensors, Controls, and Diagnostics launchers point to the integration Configure target with the owning config-entry anchor.
+  - Detailed diagnostic telemetry is hidden from the default device page by default, while curated diagnostic summary/next-action sensors remain visible.
+  - Existing visible non-curated diagnostic sensor entities are hidden by the integration on add, unless already explicitly hidden/customised.
+  - Regression tests cover launcher target URLs, notification copy, and compact diagnostics defaults.
+- **repo fix:** added Tier 2 action/open URLs to launcher attributes, added clickable notification links on button press, routed Managed Devices to the custom panel, hid non-curated diagnostic sensors from the default device page by default, and added an upgrade-time registry hide pass for existing visible diagnostic sensor entities.
+- **validation status:** fixed in repo with `python3 -m unittest -q tests.test_button_entity_categories tests.test_sensor_entity_categories tests.test_bug_tracker_ids`, Python compile for `button.py`/`sensor.py`, and `git diff --check`. Live Home Assistant validation remains pending.
+- **next action:** package/release and live-validate in Home Assistant that pressing each launcher shows the target link/path and that the Diagnostics card is compact on a fresh/upgraded entity registry.
+
+
 ## ZNE-587 - climate devices missing from Add Managed Devices selector
 
 - **status:** `validated`

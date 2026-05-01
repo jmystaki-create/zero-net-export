@@ -2,12 +2,13 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 16:25
+last_modified: 2026-05-01 17:32
 
 ## Current focus
-Corrective release `0.1.102` for the `0.1.101` ZNE-FR-007 release miss is published, installed, restarted, fingerprint-matched, and live browser-validated. The Home Assistant device page now exposes visible native Tier 1 launchers for Sensors, Controls, Managed Devices, and Diagnostics, preserves Diagnostic/Connected Devices surfaces, and runs code/manifest version `0.1.102`.
+ZNE-588 is the current release-readiness focus after Riley's `0.1.102` device-page report: Tier 1 setup buttons pressed successfully but did not expose an obvious Tier 2 destination, and the native Diagnostics card still filled pages. A repo fix is committed as `226e4e6` and remains pending package/release plus live Home Assistant validation.
 
 ## Active bugs
+- ZNE-588 — Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page. Fixed in repo commit `226e4e6`: setup launchers now expose `action_url`/`open_url`, button press notifications include clickable Tier 2 target links plus exact Configure paths, Managed Devices routes to the custom panel, and non-curated diagnostic sensors are hidden from the default device page by default/on upgrade. Status: fixed_pending_validation; needs package/release/live validation.
 - ZNE-587 — climate devices missing from Add Managed Devices selector. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: `climate` entities are now fixed-load candidates, shown by the Add Managed Devices entity selector, and supported by fixed-toggle adapter inference. Status: released_live_validated.
 - ZNE-586 — Configure service source-selection step is still too wordy. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: source-selection copy is now a short missing/progress/issues block with one fallback sentence and no role guide, repair essay, repeated paths, or bucket ownership text. Status: released_live_validated.
 - ZNE-585 — Configure service modal copy is too wordy. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: initial grid-layout step now shows only a short status block, removes repeated path/bucket ownership guidance, and keeps detailed help out of the first modal. Status: released_live_validated.
@@ -49,4 +50,4 @@ Corrective release `0.1.102` for the `0.1.101` ZNE-FR-007 release miss is publis
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Monitor for user reports from `0.1.102`. Start the next bugfix/feature slice only after new acceptance criteria and validation plan are defined.
+Package/release the ZNE-588 fix, then live-validate in Home Assistant that each Tier 1 setup button surfaces a useful target link/path and that the Diagnostics card is compact after upgrade. Do not claim closure until screenshot/API evidence is recorded.

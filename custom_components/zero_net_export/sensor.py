@@ -163,6 +163,13 @@ TIER1_DEVICE_PAGE_SENSOR_KEYS = {
     "actions_today",
 }
 
+TIER1_DIAGNOSTIC_CARD_SENSOR_KEYS = {
+    "diagnostic_summary",
+    "mapped_source_blocker_summary",
+    "mapped_source_blocker_next_step",
+    "command_center_next_step",
+}
+
 
 def _candidate_usefulness_summary(candidate: dict) -> str:
     fit = assess_candidate(candidate)
@@ -1460,9 +1467,38 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
         if self._key in SENSOR_DEFS:
             # Keep the Tier 1 native device-page Sensors card legible. Detailed
             # release, source, managed-fleet, action-history, and planning
-            # telemetry stays available from the Diagnostics card and entity list.
+            # telemetry stays available from the entity list, but hidden from the
+            # default device-page Diagnostics card unless explicitly curated.
             return EntityCategory.DIAGNOSTIC
         return None
+
+    @property
+    def entity_registry_visible_default(self) -> bool:
+        # Keep the native Tier 1 Diagnostics card compact. Detailed telemetry is
+        # still available from the entity registry if an operator explicitly
+        # unhides it, but it should not fill pages of the default device page.
+        if self._key in TIER1_DIAGNOSTIC_CARD_SENSOR_KEYS:
+            return True
+        if self.entity_category == EntityCategory.DIAGNOSTIC:
+            return False
+        return True
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if self.entity_registry_visible_default:
+            return
+        try:
+            from homeassistant.helpers import entity_registry as er
+
+            registry = er.async_get(self.hass)
+            entry = registry.async_get(self.entity_id)
+            if entry is not None and getattr(entry, "hidden_by", None) is None:
+                registry.async_update_entity(
+                    self.entity_id,
+                    hidden_by=er.RegistryEntryHider.INTEGRATION,
+                )
+        except Exception:
+            return
 
     @property
     def native_unit_of_measurement(self):

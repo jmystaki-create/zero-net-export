@@ -1080,6 +1080,26 @@ def _build_managed_device_detail_lines(
     return lines
 
 
+def _entry_integrations_url(coordinator) -> str:
+    """Return a stable Home Assistant frontend URL for the owning integration entry."""
+    entry_id = getattr(getattr(coordinator, "entry", None), "entry_id", "") or ""
+    if entry_id:
+        return f"/config/integrations/integration/{DOMAIN}#config_entry={entry_id}"
+    return f"/config/integrations/integration/{DOMAIN}"
+
+
+def _managed_devices_panel_url(coordinator) -> str:
+    entry_id = getattr(getattr(coordinator, "entry", None), "entry_id", "") or ""
+    return f"/zero-net-export-managed-devices?entry_id={entry_id}" if entry_id else "/zero-net-export-managed-devices"
+
+
+def _tier2_action_url(coordinator, section: str) -> str:
+    """Return the best available native click target for a Tier 2 section."""
+    if section == DEVICES_SECTION_LABEL:
+        return _managed_devices_panel_url(coordinator)
+    return _entry_integrations_url(coordinator)
+
+
 class ZeroNetExportOpenTier2FlowButton(ZeroNetExportEntity, ButtonEntity):
     """Visible Tier 1 launcher that points operators at a native Tier 2 flow."""
 
@@ -1092,11 +1112,14 @@ class ZeroNetExportOpenTier2FlowButton(ZeroNetExportEntity, ButtonEntity):
     @property
     def extra_state_attributes(self):
         command_center = build_native_command_center_summary(self.coordinator)
+        action_url = _tier2_action_url(self.coordinator, self._section)
         return {
             "tier": "Tier 1 launcher",
             "target_tier": "Tier 2 native Home Assistant flow",
             "section": self._section,
             "configure_path": self._path,
+            "action_url": action_url,
+            "open_url": action_url,
             "recommended_section": command_center.get("recommended_section"),
             "recommended_path": command_center.get("recommended_path"),
             "next_step": command_center.get("next_action_summary"),
@@ -1104,11 +1127,13 @@ class ZeroNetExportOpenTier2FlowButton(ZeroNetExportEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         command_center = build_native_command_center_summary(self.coordinator)
+        action_url = _tier2_action_url(self.coordinator, self._section)
         message = "\n".join(
             [
                 f"Open {self._section} setup",
                 "",
-                "This Tier 1 device-page button launches the Tier 2 native Home Assistant workflow by giving the exact Configure path.",
+                "This Tier 1 device-page button opens the closest supported native Home Assistant Tier 2 target.",
+                f"Open link: [Open {self._section} setup]({action_url})",
                 f"Path: {self._path}",
                 f"Recommended now: {command_center.get('recommended_section') or 'None'}",
                 f"Next step: {command_center.get('next_action_summary') or 'Open Configure and choose the matching section.'}",
