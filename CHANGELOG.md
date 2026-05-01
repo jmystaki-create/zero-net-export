@@ -9,6 +9,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ### Validation
 - Marked ZNE-578 completed via the supported Home Assistant device-detail cog/deep-link path; exact native-row gear placement remains upstream-only and out of active release scope.
 - Reopened ZNE-588 validation status pending fresh installed-build Home Assistant screenshot/browser proof for the Tier 1/Tier 2 screen outcome; existing `0.1.103` API/entity-registry/button-press evidence is not enough to close the UI brief.
+- Rolled back the rejected `0.1.104` custom-panel candidate from the validation Home Assistant install and reverted its repo commits; ZNE-588 is blocked for native Tier 1 → native guided Tier 2 design rework.
 
 ## [0.1.103] - 2026-05-01
 

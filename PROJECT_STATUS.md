@@ -2,13 +2,13 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 18:56
+last_modified: 2026-05-01 19:28
 
 ## Current focus
-ZNE-588 corrective release `0.1.103` is published/installed and has API/entity-registry/button-press evidence, but the visible screen outcome is **not closed** after Riley challenged the lack of Tier 1/Tier 2 screen evidence. Treat ZNE-588 as validation-blocked until fresh Home Assistant screenshot/browser proof confirms the brief on the installed `0.1.103` build.
+ZNE-588 is back at the last accepted installed baseline `0.1.103` after Riley rejected the `0.1.104` custom-panel candidate as not matching the agreed design. The failed `0.1.104` validation install was rolled back from `/homeassistant/.openclaw_backups/zero_net_export-20260501-185826`; Home Assistant restarted and the installed manifest is again `0.1.103`. Treat ZNE-588 as validation-blocked/design-rework-required: do not mark complete or release a new candidate until the implementation matches the agreed native Tier 1 → native guided Tier 2 flow design.
 
 ## Active bugs
-- ZNE-588 — Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page. `v0.1.103` is published/installed and has API/entity-registry/button-press evidence, but Riley has not been shown fresh installed-build screen proof for the Tier 1/Tier 2 outcome. Status: validation_blocked_screen_evidence_required. Evidence so far: `validation/0.1.103-release-validation.md`; missing evidence: current `0.1.103` screenshot/browser proof that the visible Home Assistant screen matches the brief.
+- ZNE-588 — Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page. The `0.1.104` custom-panel candidate failed Riley validation because it deviated from the agreed native Tier 1 → native guided Tier 2 design and did not provide the expected visible Tier 1 buttons that actually open the agreed Tier 2 flow. Live install has been rolled back to `0.1.103`; bad repo commits were reverted. Status: validation_blocked_design_rework_required. Evidence: `validation/0.1.103-release-validation.md`, `validation/zne-588-0.1.104-rollback.md`.
 - ZNE-587 — climate devices missing from Add Managed Devices selector. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: `climate` entities are now fixed-load candidates, shown by the Add Managed Devices entity selector, and supported by fixed-toggle adapter inference. Status: released_live_validated.
 - ZNE-586 — Configure service source-selection step is still too wordy. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: source-selection copy is now a short missing/progress/issues block with one fallback sentence and no role guide, repair essay, repeated paths, or bucket ownership text. Status: released_live_validated.
 - ZNE-585 — Configure service modal copy is too wordy. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: initial grid-layout step now shows only a short status block, removes repeated path/bucket ownership guidance, and keeps detailed help out of the first modal. Status: released_live_validated.
@@ -50,4 +50,4 @@ ZNE-588 corrective release `0.1.103` is published/installed and has API/entity-r
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Capture fresh installed-build Home Assistant screen proof for `0.1.103` before any further release/update claims: actual device page, Tier 1 launcher placement, button-opened Tier 2 target/notification or native flow, and compact Diagnostics state. Do not return to backlog or mark ZNE-588 closed until Riley accepts that evidence.
+Rework ZNE-588 from the accepted design boundary: native Home Assistant device page for Tier 1, native guided Configure/options flows for Tier 2, and clear visible launch points that actually open those flows. Do not reintroduce the failed custom `/zero-net-export` Tier 2 panel path unless Riley explicitly approves that architecture.

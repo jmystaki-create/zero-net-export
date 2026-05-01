@@ -103,10 +103,10 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-588 - Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page
 
-- **status:** `released_live_validated`
+- **status:** `validation_blocked_design_rework_required`
 - **severity:** `high`
 - **area:** `diagnostics`
-- **where seen:** Riley screenshot/report on 2026-05-01 from the native Home Assistant Zero Net Export device page for `Winter Plan` on version `0.1.102`.
+- **where seen:** Riley screenshot/report on 2026-05-01 from the native Home Assistant Zero Net Export device page for `Winter Plan` on version `0.1.102`; reconfirmed by Riley rejection of the `0.1.104` custom-panel candidate.
 - **current observed behavior:** the Tier 1 `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, and `Open Diagnostics setup` buttons only record button press activity and do not provide an obvious visible route to the Tier 2 setup surface. The default Tier 1 Diagnostics card also remains too long, with detailed diagnostic telemetry filling pages of the device page.
 - **expected behavior:** pressing a Tier 1 setup launcher should produce a visible native target link/path for the matching Tier 2 surface, with Managed Devices using the custom managed-devices panel where available and the other sections linking to the integration Configure surface. The default Diagnostics card should stay compact and only expose curated diagnostic summary/next-action entities while keeping detailed telemetry available from the entity registry when explicitly unhidden.
 - **acceptance criteria:**
@@ -117,9 +117,9 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Detailed diagnostic telemetry is hidden from the default device page by default, while curated diagnostic summary/next-action sensors remain visible.
   - Existing visible non-curated diagnostic sensor entities are hidden by the integration on add, unless already explicitly hidden/customised.
   - Regression tests cover launcher target URLs, notification copy, and compact diagnostics defaults.
-- **repo fix:** added Tier 2 action/open URLs to launcher attributes, added clickable notification links on button press, routed Managed Devices to the custom panel, hid non-curated diagnostic sensors from the default device page by default, and added an upgrade-time registry hide pass for existing visible diagnostic sensor entities.
-- **validation status:** released in `v0.1.103` and live-validated. GitHub latest release is `v0.1.103`; HACS installed `v0.1.103`; installed fingerprint matched (`overall_match=true`, tracked files matched, no mismatches); Home Assistant restarted and reports `sensor.zero_net_export_installed_version=0.1.103`; all four launcher button presses returned `200`; runtime button attributes expose the expected `action_url`/`open_url`; entity registry evidence shows non-curated diagnostic sensors hidden by integration while curated diagnostics remain visible. Repo validation passed with focused release/UI tests, py_compile, `git diff --check`, and full discovery (`608` tests OK). Evidence: `validation/0.1.103-release-validation.md`.
-- **next action:** monitor for Riley's UI confirmation/screenshots in normal use; no release blocker remains for ZNE-588.
+- **repo fix status:** previous `0.1.103` work added Tier 2 action/open URLs, clickable notification links on button press, and compact diagnostics defaults, but Riley has not accepted that as the final visible Tier 1/Tier 2 experience. The later `0.1.104` custom-panel candidate was rejected and rolled back because it deviated from the agreed native guided-flow design.
+- **validation status:** blocked. Live Home Assistant install was restored to `0.1.103` from `/homeassistant/.openclaw_backups/zero_net_export-20260501-185826`; installed manifest verified as `0.1.103`; Home Assistant core is running after restart. Bad repo commits were reverted. Evidence: `validation/0.1.103-release-validation.md`, `validation/zne-588-0.1.104-rollback.md`.
+- **next action:** rework from the accepted design boundary: native Home Assistant device-page Tier 1, native guided Configure/options Tier 2 flows, and clear visible launch points that actually open those flows. Do not mark ZNE-588 complete until Riley accepts screenshot/browser evidence.
 
 
 ## ZNE-587 - climate devices missing from Add Managed Devices selector
