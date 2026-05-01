@@ -2,9 +2,11 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 19:39
+last_modified: 2026-05-01 20:18
 
 ## Current focus
+Rejected Tier 1 mockup `d9a0fd1` must not be used. Riley identified that it did not match the native Home Assistant device page and therefore failed the target-environment feasibility gate. Next action is not more visual design: write and get acceptance for a narrow native HA device-page feasibility check showing exactly what ZNE can control versus what HA frontend owns.
+
 ZNE-588 has been restarted as a bug-only corrective path after Riley directed that Tier 2 be split into a separate feature release. Current ZNE-588 scope is limited to making the native Home Assistant Tier 1 device page truthful, compact, and non-misleading: remove/rename non-navigating setup buttons, keep Diagnostics compact, preserve Diagnostic and Connected devices, and avoid any custom `/zero-net-export` Tier 2 panel. The actual native guided Tier 2 workflow is now split to `ZNE-FR-008` and must not be smuggled back into ZNE-588.
 
 ## Active bugs

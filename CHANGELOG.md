@@ -7,6 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Process
+- Rejected the HA guardrails Tier 1 mockup as invalid because it invented layout outside the verified native Home Assistant device-page structure; replacement design requires a narrower accepted feasibility check first.
 - Added `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md` to require written/accepted target-environment feasibility checks before architecture, mockups, or code; OpenClaw may perform the validation.
 
 ### Validation

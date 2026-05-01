@@ -2,6 +2,14 @@
 
 Date: 2026-05-01
 
+## Status
+
+Rejected. Do not use these mockups for implementation.
+
+Riley rejected the Tier 1 mockup because it still invented a custom-looking layout instead of matching the actual native Home Assistant device page structure. The failure was a feasibility-gate failure: the mockup treated Home Assistant guardrails as visual style rather than hard frontend constraints.
+
+Before any replacement Tier 1 design is produced, a narrower feasibility check must be written and accepted for the exact question: what can a custom integration control on the native Home Assistant device page, and what is owned by the Home Assistant frontend?
+
 ## Feasibility gate
 
 This mockup follows the accepted target-environment feasibility check:
@@ -45,4 +53,6 @@ The Tier 2 page is a native HA guided setup/config flow:
 
 ## Review status
 
-Pending Riley review/acceptance before architecture or implementation continues.
+Rejected by Riley. No architecture or implementation may proceed from these artifacts.
+
+Next required action: write and get acceptance for a native Home Assistant device-page feasibility check that uses the actual HA device page as the structural source of truth, then produce a corrected mockup only by changing controllable entity metadata/content.
