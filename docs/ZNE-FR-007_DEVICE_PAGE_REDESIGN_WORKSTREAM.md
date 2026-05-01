@@ -83,3 +83,58 @@ Riley should choose one of:
 1. A-first: native Tier 1 compression now, custom Tier 2 later.
 2. B-first: build the custom command-center detail experience first and use native page only as a launcher.
 3. Hybrid: approve A as Tier 1 and B as the Tier 2 destination model.
+
+## 2026-05-01 correction — validated Tier 1 boundary
+
+Riley clarified that the screenshoted Home Assistant device page is Tier 1 and should be treated as structurally constrained. This changes the design boundary:
+
+- Tier 1 must remain inside Home Assistant's native device page structure.
+- We should not design a new card grid for Tier 1.
+- We can influence Tier 1 mainly by choosing which entities/buttons exist, their names/icons/categories, and which device they attach to.
+- We should shrink Tier 1 to the key native sections Home Assistant already renders, especially:
+  - Device info
+  - Controls
+  - Sensors
+  - Activity
+- Automation, Scenes, and Scripts appear as native Home Assistant device-page cards and are not useful ZNE product surfaces. Treat them as HA-owned/background, not core ZNE design real estate.
+- Tier 2 may still use ZNE-owned navigation/buttons/config flows/custom panels for expanded workflows, but Tier 2 should be launched from a minimal Tier 1 affordance.
+
+### Revised Tier 1 design principle
+
+Tier 1 is not a dashboard. It is a native HA device summary.
+
+For each native card we should pick only the most important items and remove/reclassify the rest so the screen becomes legible.
+
+### Revised Tier 1 candidate content
+
+Device info:
+1. Plan/service name
+2. Installed version
+3. Setup/readiness status
+4. Open main ZNE detail / command center
+5. Download diagnostics
+
+Controls:
+1. Enabled
+2. Mode
+3. Target export
+4. Battery reserve
+5. Open controls detail / reset override
+
+Sensors:
+1. Active state
+2. Active controlled power
+3. Grid/source health
+4. Battery SOC/reserve SOC
+5. Actions today or last action
+
+Activity:
+1. Latest setup status change
+2. Latest diagnostics event
+3. Latest managed-device event
+4. Latest control action
+5. Latest blocker/repair event
+
+### Revised next design task
+
+Discard the earlier Tier 1 free-layout mockup as too unconstrained. Produce replacement Tier 1 mockups that preserve the screenshoted Home Assistant structure and only shrink/relabel/reprioritise what appears inside the existing native cards.
