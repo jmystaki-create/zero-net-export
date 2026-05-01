@@ -267,3 +267,18 @@ Release validation target:
 - Full unit discovery.
 - `git diff --check`.
 - Release/install/live browser proof after publishing.
+
+## Corrective implementation — 2026-05-01 release 0.1.102
+
+`0.1.101` was validated as installed but did not satisfy the agreed visible Tier 1/Tier 2 outcome. It only delivered the shortened native flow copy/options-flow slice.
+
+Corrective scope for `0.1.102`:
+- Add visible Tier 1 native Home Assistant device-page launcher buttons for Sensors, Controls, Managed Devices, and Diagnostics.
+- Keep those launchers uncategorized so they appear on the primary device-page action surface instead of being hidden in Diagnostics.
+- Point each launcher at the corresponding Tier 2 native Home Assistant Configure/options flow path.
+- Curate the primary native Sensors card to the accepted Tier 1 summary set and move detailed telemetry into Diagnostics.
+- Preserve existing Diagnostic and Connected Devices surfaces.
+
+Validation target:
+- Repo tests must prove the launch buttons and sensor curation.
+- Live browser proof must show the actual device page, not only the integration version page.

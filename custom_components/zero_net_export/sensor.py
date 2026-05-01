@@ -154,6 +154,16 @@ SOURCE_LABELS = {
 TIMESTAMP_SENSOR_KEYS = {"last_action_at", "last_successful_action_at", "last_failed_action_at"}
 
 
+TIER1_DEVICE_PAGE_SENSOR_KEYS = {
+    "status",
+    "health_status",
+    "active_controlled_power_w",
+    "battery_soc",
+    "battery_reserve_soc",
+    "actions_today",
+}
+
+
 def _candidate_usefulness_summary(candidate: dict) -> str:
     fit = assess_candidate(candidate)
     confidence = str(fit.get("confidence") or "medium")
@@ -1445,47 +1455,12 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
     def entity_category(self):
         if self._key in FLEET_WORKSPACE_SENSOR_KEYS:
             return None
-        if self._key in {
-            "installed_version",
-            "previous_installed_version",
-            "release_summary",
-            "changes_preview",
-            "update_summary",
-            "diagnostic_summary",
-            "health_status",
-            "health_summary",
-            "recommendation",
-            "control_status",
-            "control_summary",
-            "control_reason",
-            "control_guard_summary",
-            "last_action_status",
-            "last_action_summary",
-            "last_action_at",
-            "last_successful_action_at",
-            "last_failed_action_at",
-            "last_action_device",
-            "last_failed_action_device",
-            "last_failed_action_message",
-            "recent_action_summary",
-            "recent_failure_summary",
-            "last_successful_action_summary",
-            "stale_source_count",
-            "stale_source_summary",
-            "action_history_count",
-            "successful_action_count",
-            "failed_action_count",
-            "total_successful_action_count",
-            "total_failed_action_count",
-            "planned_action_count",
-            "executable_action_count",
-            "blocked_planned_action_count",
-            "mapped_source_blocker_summary",
-            "mapped_source_blocker_next_step",
-            "command_center_status",
-            "command_center_recommended_path",
-            "command_center_next_step",
-        }:
+        if self._key in TIER1_DEVICE_PAGE_SENSOR_KEYS:
+            return None
+        if self._key in SENSOR_DEFS:
+            # Keep the Tier 1 native device-page Sensors card legible. Detailed
+            # release, source, managed-fleet, action-history, and planning
+            # telemetry stays available from the Diagnostics card and entity list.
             return EntityCategory.DIAGNOSTIC
         return None
 

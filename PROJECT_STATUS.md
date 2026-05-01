@@ -2,10 +2,10 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 15:48
+last_modified: 2026-05-01 16:10
 
 ## Current focus
-Release `0.1.101` is published and live-validated. HACS installed the published artifact, Home Assistant restarted, installed-version and fingerprint evidence matched, and Slave browser proof shows the Zero Net Export integration page on Version `0.1.101` with the Add service / Add Managed Devices actions visible.
+Corrective release `0.1.102` is in progress for the `0.1.101` ZNE-FR-007 release miss. Repo validation now proves visible Tier 1 native Home Assistant device-page launchers for Sensors, Controls, Managed Devices, and Diagnostics, plus a curated Tier 1 Sensors card. Publish/HACS/live browser validation is pending.
 
 ## Active bugs
 - ZNE-587 — climate devices missing from Add Managed Devices selector. Fixed, repo-validated, published in GitHub release `v0.1.101`, and live-validated through HACS install/restart/browser proof: `climate` entities are now fixed-load candidates, shown by the Add Managed Devices entity selector, and supported by fixed-toggle adapter inference. Status: released_live_validated.
@@ -20,7 +20,7 @@ Release `0.1.101` is published and live-validated. HACS installed the published 
 - ZNE-582 — no obvious per-service Add Managed Devices action. Released in `0.1.98`; Home Assistant's native per-service row actions and top-level Add Managed Devices action are visible on the live Zero Net Export integration detail page.
 
 ## Active feature scope
-- ZNE-FR-007 — main device page two-tier redesign. Constrained native Tier 1 design accepted; Tier 2 Option A native HA guided flows selected; implementation slice compresses native guided-flow copy for Sensors, Controls, Managed Devices, and Diagnostics while preserving Diagnostic and Connected devices cards. Released and live-validated in `0.1.101`. See `docs/ZNE-FR-007_DEVICE_PAGE_REDESIGN_WORKSTREAM.md`.
+- ZNE-FR-007 — main device page two-tier redesign. `0.1.101` was a release miss: it installed successfully but only shipped the copy/options-flow slice, not the agreed visible Tier 1/Tier 2 device-page outcome. Corrective `0.1.102` adds visible Tier 1 native Home Assistant launchers for Sensors, Controls, Managed Devices, and Diagnostics, curates the main Sensors card, and preserves Diagnostic/Connected Devices surfaces. Repo-validated; publish/live validation pending. See `docs/ZNE-FR-007_DEVICE_PAGE_REDESIGN_WORKSTREAM.md`.
 - ZNE-FR-001 — managed-device settings should reopen first-provisioned settings. Supported device-detail cog/deep-link path is live-validated; exact native-row gear remains upstream-blocked.
 - ZNE-FR-002 — controller identity must be plan-specific. Live-validated fixed.
 - ZNE-FR-003 — controller config must be isolated per plan. Read-only live evidence plus focused repo coverage now confirms distinct Summer/Winter config entries and selected-entry source binding saves; optional live reversible write-path proof still requires approval if Riley wants closure at live-write level.

@@ -250,6 +250,36 @@ def _load_button_module(notification_calls: list[dict] | None = None):
 
 
 class ButtonEntityCategoryTests(unittest.TestCase):
+
+    def test_tier_one_launcher_button_points_to_native_tier_two_flow(self) -> None:
+        calls = []
+        button_module = _load_button_module(calls)
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=None,
+        )
+        button = button_module.ZeroNetExportOpenTier2FlowButton(
+            coordinator,
+            "open_sensors_guided_flow",
+            "Open Sensors setup",
+            "Sensors",
+            "sources path",
+            "mdi:solar-power-variant-outline",
+        )
+        button.hass = object()
+
+        self.assertEqual(button._attr_name, "Open Sensors setup")
+        self.assertIsNone(getattr(button, "_attr_entity_category", None))
+        self.assertEqual(button.extra_state_attributes["tier"], "Tier 1 launcher")
+        self.assertEqual(button.extra_state_attributes["target_tier"], "Tier 2 native Home Assistant flow")
+        self.assertEqual(button.extra_state_attributes["configure_path"], "sources path")
+
+        import asyncio
+        asyncio.run(button.async_press())
+
+        self.assertEqual(len(calls), 1)
+        self.assertIn("Path: sources path", calls[0]["args"][1])
+        self.assertEqual(calls[0]["kwargs"]["notification_id"], "zero_net_export_entry-1_open_sensors_guided_flow")
     def test_command_center_button_attributes_use_current_focus_keys(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(

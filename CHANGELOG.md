@@ -6,6 +6,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.102] - 2026-05-01
+
+### Changed
+- Corrected the ZNE-FR-007 visible Tier 1/Tier 2 release slice by adding native Home Assistant device-page launch buttons for Sensors, Controls, Managed Devices, and Diagnostics.
+- Curated the primary native Sensors card to the accepted Tier 1 summary set: status, health, active controlled power, battery state of charge, battery reserve, and actions today.
+- Moved detailed release, source, managed-fleet, action-history, and planning telemetry into Diagnostics so the main device page no longer appears as a dense command wall.
+
+### Fixed
+- Fixed the `0.1.101` release miss where Tier 1/Tier 2 was validated as installed but did not expose the agreed visible device-page launch surface.
+
 ## [0.1.101] - 2026-05-01
 
 ### Changed

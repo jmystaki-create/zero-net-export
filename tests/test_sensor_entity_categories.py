@@ -430,16 +430,22 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertIsNone(managed_overview.entity_category)
         self.assertIsNone(shortlist.entity_category)
 
-    def test_telemetry_sensor_stays_uncategorized(self) -> None:
+    def test_tier_one_sensor_card_keeps_only_curated_primary_sensors(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = SimpleNamespace(
             entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
             data=None,
         )
 
+        primary = sensor_module.ZeroNetExportSensor(coordinator, "active_controlled_power_w", "Active controlled power")
+        health = sensor_module.ZeroNetExportSensor(coordinator, "health_status", "Health status")
         telemetry = sensor_module.ZeroNetExportSensor(coordinator, "solar_power_w", "Solar power")
+        device_count = sensor_module.ZeroNetExportSensor(coordinator, "device_count", "Managed Devices count")
 
-        self.assertIsNone(telemetry.entity_category)
+        self.assertIsNone(primary.entity_category)
+        self.assertIsNone(health.entity_category)
+        self.assertEqual(telemetry.entity_category, "diagnostic")
+        self.assertEqual(device_count.entity_category, "diagnostic")
 
     def test_managed_device_summary_stays_primary_while_secondary_runtime_details_become_diagnostic(self) -> None:
         sensor_module = _load_sensor_module()

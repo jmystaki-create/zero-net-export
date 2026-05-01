@@ -50,6 +50,38 @@ async def async_setup_entry(hass, entry, async_add_entities):
     entities = [
         ZeroNetExportResetControllerOverridesButton(coordinator),
         ZeroNetExportShowNativeCommandCenterButton(coordinator),
+        ZeroNetExportOpenTier2FlowButton(
+            coordinator,
+            "open_sensors_guided_flow",
+            "Open Sensors setup",
+            "Sensors",
+            SOURCES_CONFIGURE_PATH,
+            "mdi:solar-power-variant-outline",
+        ),
+        ZeroNetExportOpenTier2FlowButton(
+            coordinator,
+            "open_controls_guided_flow",
+            "Open Controls setup",
+            "Controls",
+            POLICY_CONFIGURE_PATH,
+            "mdi:tune-variant",
+        ),
+        ZeroNetExportOpenTier2FlowButton(
+            coordinator,
+            "open_managed_devices_guided_flow",
+            "Open Managed Devices setup",
+            "Managed Devices",
+            DEVICES_CONFIGURE_PATH,
+            MANAGED_LOAD_SETTINGS_ICON,
+        ),
+        ZeroNetExportOpenTier2FlowButton(
+            coordinator,
+            "open_diagnostics_guided_flow",
+            "Open Diagnostics setup",
+            "Diagnostics",
+            SUPPORT_CONFIGURE_PATH,
+            "mdi:lifebuoy",
+        ),
         ZeroNetExportShowFleetConsoleButton(coordinator),
         ZeroNetExportShowManagedDeviceReviewButton(coordinator),
         ZeroNetExportShowNativeSupportCenterButton(coordinator),
@@ -1046,6 +1078,48 @@ def _build_managed_device_detail_lines(
         f"- Use the reset overrides button for this device if operator overrides should be cleared.",
     ]
     return lines
+
+
+class ZeroNetExportOpenTier2FlowButton(ZeroNetExportEntity, ButtonEntity):
+    """Visible Tier 1 launcher that points operators at a native Tier 2 flow."""
+
+    def __init__(self, coordinator, key: str, name: str, section: str, path: str, icon: str):
+        super().__init__(coordinator, key, name)
+        self._section = section
+        self._path = path
+        self._attr_icon = icon
+
+    @property
+    def extra_state_attributes(self):
+        command_center = build_native_command_center_summary(self.coordinator)
+        return {
+            "tier": "Tier 1 launcher",
+            "target_tier": "Tier 2 native Home Assistant flow",
+            "section": self._section,
+            "configure_path": self._path,
+            "recommended_section": command_center.get("recommended_section"),
+            "recommended_path": command_center.get("recommended_path"),
+            "next_step": command_center.get("next_action_summary"),
+        }
+
+    async def async_press(self) -> None:
+        command_center = build_native_command_center_summary(self.coordinator)
+        message = "\n".join(
+            [
+                f"Open {self._section} setup",
+                "",
+                "This Tier 1 device-page button launches the Tier 2 native Home Assistant workflow by giving the exact Configure path.",
+                f"Path: {self._path}",
+                f"Recommended now: {command_center.get('recommended_section') or 'None'}",
+                f"Next step: {command_center.get('next_action_summary') or 'Open Configure and choose the matching section.'}",
+            ]
+        )
+        persistent_notification.async_create(
+            self.hass,
+            message,
+            title=f"{self.coordinator.entry.title}: {self._section} setup",
+            notification_id=f"{DOMAIN}_{self.coordinator.entry.entry_id}_{self._key}",
+        )
 
 
 class ZeroNetExportResetControllerOverridesButton(ZeroNetExportEntity, ButtonEntity):
