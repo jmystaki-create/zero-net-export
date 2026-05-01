@@ -2,10 +2,10 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 12:45
+last_modified: 2026-05-01 13:05
 
 ## Current focus
-ZNE-587 is fixed and repo-validated from Riley's Add Managed Devices screenshot feedback: climate devices such as ACs and heated floors were missing from the fixed-load control entity picker. The repo fix adds `climate` as an eligible fixed managed-device domain and is ready for release packaging/live validation if requested.
+ZNE-FR-007 is the active design-only workstream: the main device page needs a two-tier redesign. No implementation is approved. Two PNG mockups have been produced for Riley's review: native Tier 1 compression and a custom Tier 2 command-center detail screen. Separately, ZNE-585/ZNE-586/ZNE-587 are repo-validated and pending release packaging/live validation if Riley approves shipping them.
 
 ## Active bugs
 - ZNE-587 — climate devices missing from Add Managed Devices selector. Fixed and repo-validated: `climate` entities are now fixed-load candidates, shown by the Add Managed Devices entity selector, and supported by fixed-toggle adapter inference. Status: validated_pending_release.
@@ -47,4 +47,4 @@ ZNE-587 is fixed and repo-validated from Riley's Add Managed Devices screenshot 
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Ask Riley whether the read-only live evidence plus focused repo write-path/runtime-store tests are sufficient to close ZNE-FR-003/ZNE-FR-005, or whether to proceed with an explicitly approved minimal reversible live write-path validation.
+Ask Riley to choose a ZNE-FR-007 design direction before implementation: A-first native Tier 1 compression, B-first custom command-center detail screen, or the recommended hybrid of A as Tier 1 with B as the Tier 2 destination model. If Riley wants the validated bug fixes live first, request approval to release/deploy/live-validate `0.1.101` containing ZNE-585/ZNE-586/ZNE-587.
