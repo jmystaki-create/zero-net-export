@@ -6,8 +6,10 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.103] - 2026-05-01
+
 ### Fixed
-- Made the Tier 1 Sensors, Controls, Managed Devices, and Diagnostics setup buttons expose visible Tier 2 target links/URLs when pressed, and kept the default device-page Diagnostics card compact by hiding non-curated diagnostic telemetry by default/on upgrade.
+- Made the Home Assistant Tier 1 Sensors, Controls, Managed Devices, and Diagnostics device-page launch buttons expose visible Tier 2 target links/URLs when pressed, and kept the default device-page Diagnostics card compact by hiding non-curated diagnostic telemetry by default/on upgrade.
 
 ## [0.1.102] - 2026-05-01
 
