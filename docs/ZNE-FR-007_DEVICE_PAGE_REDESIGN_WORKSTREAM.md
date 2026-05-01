@@ -1,6 +1,6 @@
 # ZNE-FR-007 — main device page two-tier redesign workstream
 
-Status: design direction approved — Tier 1 native Home Assistant device-page design accepted; Tier 2 Option A (native HA guided flows) selected by Riley on 2026-05-01. Implementation planning is next; no code implementation has started in this task update.
+Status: corrective release `0.1.102` is published and live-validated. Tier 1 native Home Assistant device-page design is accepted and implemented with visible Sensors, Controls, Managed Devices, and Diagnostics launchers; Tier 2 Option A remains native HA guided flows.
 
 ## User outcome
 
@@ -282,3 +282,11 @@ Corrective scope for `0.1.102`:
 Validation target:
 - Repo tests must prove the launch buttons and sensor curation.
 - Live browser proof must show the actual device page, not only the integration version page.
+
+Validation result:
+- GitHub release `v0.1.102` was published at `https://github.com/jmystaki-create/zero-net-export/releases/tag/v0.1.102`.
+- Home Assistant install fingerprint matched the intended repo build (`overall_match=true`, all tracked files matched, manifest version `0.1.102`).
+- Runtime state reported `sensor.zero_net_export_installed_version = 0.1.102`.
+- Browser proof on the actual device page confirmed visible `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, `Open Diagnostics setup`, plus existing `Diagnostic` and `Connected devices` surfaces.
+- Evidence: `validation/0.1.102-release-validation.md`, `bug-evidence/zne-0.1.102-device-page.png`, `bug-evidence/zne-0.1.102-device-page.json`.
+- Status: released_live_validated.
