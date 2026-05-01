@@ -101,6 +101,24 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-586 - Configure service source-selection step is still too wordy
+
+- **status:** `validated`
+- **severity:** `medium`
+- **area:** `config_flow`
+- **where seen:** Riley screenshot/report on 2026-05-01 from the second `Configure service` source-selection modal.
+- **current observed behavior:** the source-selection step still shows a long explanation, role guide, repair section, repeated paths, and fallback essay, pushing the actual sensor choices out of view.
+- **expected behavior:** the source-selection step should be short and practical: say to select sensors for this service, show missing/progress/issues, and mention fallback fields only once.
+- **acceptance criteria:**
+  - Source-selection description is no more than a short status block.
+  - Grid-mode explanation, role guide, bucket ownership, repair paths, candidate cues, and current bindings are absent from this step.
+  - Fallback guidance is one short sentence.
+  - Tests prevent verbose sections from returning.
+- **fix:** shortened `configure_service_sources` in `strings.json` and `translations/en.json` to a 6-line operator-focused block.
+- **validation evidence:** repo validation passed with focused copy/translation/bug-id tests `python3 -m unittest -q tests.test_bucket_ownership_copy tests.test_translation_sync tests.test_bug_tracker_ids` (9 tests OK), full discovery `python3 -m unittest discover -s tests` (602 tests OK), and `git diff --check`.
+- **next action:** release packaging/live validation if Riley wants this shipped immediately.
+
+
 ## ZNE-585 - Configure service modal copy is too wordy
 
 - **status:** `validated`

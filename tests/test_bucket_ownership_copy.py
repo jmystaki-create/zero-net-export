@@ -39,12 +39,16 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertNotIn("Configure service path", configure_description)
 
         configure_sources_description = config_steps["configure_service_sources"]["description"]
-        self.assertLessEqual(len(configure_sources_description.splitlines()), 9)
-        self.assertIn("Map source sensors for this service only.", configure_sources_description)
-        self.assertIn("Use the dropdowns first.", configure_sources_description)
+        self.assertLessEqual(len(configure_sources_description.splitlines()), 7)
+        self.assertIn("Select sensors for this service only.", configure_sources_description)
+        self.assertIn("Missing: {missing_sources}", configure_sources_description)
+        self.assertIn("Progress: {source_mapping_progress}", configure_sources_description)
+        self.assertIn("If a valid dropdown choice is rejected", configure_sources_description)
+        self.assertNotIn("Grid mode", configure_sources_description)
         self.assertNotIn("Role guide for common real-world labels", configure_sources_description)
         self.assertNotIn("Bucket ownership and paths", configure_sources_description)
         self.assertNotIn("Current source bindings, for cross-check only", configure_sources_description)
+        self.assertNotIn("Blocking source repair", configure_sources_description)
 
         steps = strings["options"]["step"]
 

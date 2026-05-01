@@ -33,7 +33,7 @@
       },
       "configure_service_sources": {
         "title": "Configure service",
-        "description": "Map source sensors for this service only. Grid mode: {grid_mode}. {grid_mapping_note}\n\nStatus\n- Missing source roles: {missing_sources}\n- Progress: {source_mapping_progress}\n- Issues: {source_blocker_summary}\n\nUse the dropdowns first. Use fallback ID fields only if Home Assistant rejects a valid choice.",
+        "description": "Select sensors for this service only.\n\nMissing: {missing_sources}\nProgress: {source_mapping_progress}\nIssues: {source_blocker_summary}\n\nIf a valid dropdown choice is rejected, use its fallback ID field.",
         "data": {
           "solar_power_entity": "Solar power entity",
           "solar_energy_entity": "Solar energy entity",
