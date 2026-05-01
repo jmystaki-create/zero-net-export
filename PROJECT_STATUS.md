@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 12:08
+last_modified: 2026-05-01 12:16
 
 ## Current focus
 ZNE-583 is fixed and release-validated in `0.1.100`. The `0.1.99` validation was superseded by Riley's screenshot because it missed Home Assistant's invalid config-flow identity banner; fix commit `2b1b73e` preserves the active `flow_id` and `handler`, and release commit `9c14f39` shipped it through GitHub release `v0.1.100`, HACS install, Home Assistant restart, fingerprint validation, and Slave browser validation with `invalidFlowCount=0`.
@@ -42,4 +42,4 @@ ZNE-583 is fixed and release-validated in `0.1.100`. The `0.1.99` validation was
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 
 ## Next best action
-Close release bookkeeping by committing the `0.1.100` validation record/evidence updates, then continue with the highest-priority remaining multi-plan validation scope (ZNE-FR-003/ZNE-FR-005) if Riley wants the next work item.
+Begin the highest-priority remaining multi-plan validation scope: ZNE-FR-003/ZNE-FR-005. Outcome target: prove that Summer/Winter source bindings, controller options, runtime state, and persisted runtime memory are entry-scoped and cannot bleed between plans. Start with a non-destructive validation plan and read-only state/API inspection; only ask Riley for approval if live writes, service calls, or Home Assistant restart become necessary.
