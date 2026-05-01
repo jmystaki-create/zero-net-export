@@ -357,6 +357,66 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertEqual(result["handler"], module.DOMAIN)
         self.assertEqual(result["step_id"], "configure_service_sources")
 
+    def test_configure_service_sources_updates_selected_entry_only(self) -> None:
+        module = _load_config_flow_module()
+        selected_entry = SimpleNamespace(
+            title="Summer Plan",
+            entry_id="summer-entry",
+            data={module.CONF_SOLAR_POWER_ENTITY: "sensor.old_summer_solar"},
+            options={module.CONF_GRID_SENSOR_MODE: module.GRID_SENSOR_MODE_SEPARATE},
+        )
+        other_entry = SimpleNamespace(
+            title="Winter Plan",
+            entry_id="winter-entry",
+            data={module.CONF_SOLAR_POWER_ENTITY: "sensor.winter_solar"},
+            options={module.CONF_GRID_SENSOR_MODE: module.GRID_SENSOR_MODE_SEPARATE},
+        )
+        updates = []
+        reloads = []
+
+        async def async_reload(entry_id):
+            reloads.append(entry_id)
+
+        flow = module.ZeroNetExportConfigFlow()
+        flow.flow_id = "configure-flow"
+        flow.handler = module.DOMAIN
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(
+                async_get_entry=lambda entry_id: selected_entry if entry_id == "summer-entry" else other_entry,
+                async_update_entry=lambda config_entry, **kwargs: updates.append((config_entry, kwargs)),
+                async_reload=async_reload,
+            ),
+            states=SimpleNamespace(async_all=lambda: []),
+            data={},
+        )
+        flow._get_reconfigure_entry = lambda: selected_entry
+        flow.async_create_entry = lambda *, title, data: {"type": "create_entry", "title": title, "data": data}
+        flow.async_abort = lambda *, reason: {"type": "abort", "reason": reason}
+        module.validate_configured_entities = lambda *args, **kwargs: []
+        module._source_specs_from_config = lambda *args, **kwargs: []
+
+        result = asyncio.run(
+            flow.async_step_configure_service_sources(
+                {
+                    module.CONF_SOLAR_POWER_ENTITY: "sensor.summer_solar",
+                    module.CONF_SOLAR_ENERGY_ENTITY: "sensor.summer_solar_energy",
+                    "grid_power_entity": "sensor.summer_grid_power",
+                    "grid_energy_entity": "sensor.summer_grid_energy",
+                    module.CONF_HOME_LOAD_POWER_ENTITY: "sensor.summer_home_load",
+                }
+            )
+        )
+
+        self.assertEqual(result, {"type": "abort", "reason": "configure_service_saved"})
+        self.assertEqual(reloads, ["summer-entry"])
+        self.assertEqual(len(updates), 1)
+        updated_entry, update_kwargs = updates[0]
+        self.assertIs(updated_entry, selected_entry)
+        self.assertIsNot(updated_entry, other_entry)
+        self.assertEqual(update_kwargs["data"][module.CONF_SOLAR_POWER_ENTITY], "sensor.summer_solar")
+        self.assertEqual(other_entry.data[module.CONF_SOLAR_POWER_ENTITY], "sensor.winter_solar")
+        self.assertEqual(update_kwargs["options"][module.CONF_GRID_SENSOR_MODE], module.GRID_SENSOR_MODE_SEPARATE)
+
     def test_managed_device_subentry_adds_device_to_selected_entry_only(self) -> None:
         module = _load_config_flow_module()
         entry = SimpleNamespace(

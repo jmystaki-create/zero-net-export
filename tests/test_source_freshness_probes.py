@@ -24,8 +24,12 @@ class _DummyCoordinatorBase:
 
 
 class _DummyStore:
+    created: list[tuple[object, ...]] = []
+
     def __init__(self, *args, **kwargs) -> None:
-        pass
+        self.args = args
+        self.kwargs = kwargs
+        self.created.append(args)
 
 
 def _load_coordinator_module():
@@ -124,6 +128,25 @@ def _load_coordinator_module():
 
 
 class SourceFreshnessProbeTests(unittest.TestCase):
+    def test_runtime_store_key_is_scoped_to_config_entry_id(self) -> None:
+        _DummyStore.created.clear()
+        coordinator_module = _load_coordinator_module()
+
+        coordinator_module.ZeroNetExportCoordinator(
+            SimpleNamespace(),
+            SimpleNamespace(entry_id="summer-entry", data={}, options={}, title="Summer Plan"),
+        )
+        coordinator_module.ZeroNetExportCoordinator(
+            SimpleNamespace(),
+            SimpleNamespace(entry_id="winter-entry", data={}, options={}, title="Winter Plan"),
+        )
+
+        store_keys = [args[2] for args in _DummyStore.created]
+        self.assertIn("zero_net_export_runtime_summer-entry", store_keys)
+        self.assertIn("zero_net_export_runtime_winter-entry", store_keys)
+        self.assertNotIn("zero_net_export_runtime", store_keys)
+        self.assertEqual(len(set(store_keys)), len(store_keys))
+
     def test_release_update_details_passes_current_version_to_release_info(self) -> None:
         coordinator_module = _load_coordinator_module()
         captured: dict[str, object] = {}

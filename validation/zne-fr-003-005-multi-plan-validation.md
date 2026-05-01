@@ -1,7 +1,7 @@
 # ZNE-FR-003 / ZNE-FR-005 multi-plan isolation validation
 
 Date: 2026-05-01
-Status: read-only validation started; write-path proof pending approval
+Status: read-only validation plus focused repo coverage completed; live reversible write-path proof pending approval if required
 
 ## Scope
 
@@ -65,18 +65,26 @@ Runtime store evidence:
 
 Read-only evidence supports the architecture claim that the two live plans have separate config entries, separate managed-device inventory names, and separate entry-id-scoped runtime stores. This is useful but not yet sufficient to close ZNE-FR-003/ZNE-FR-005, because it does not prove the write paths cannot cross-edit the other entry.
 
-## Remaining validation needed
+## Repo validation completed
 
-### Non-destructive repo validation
+Focused regression coverage now directly checks:
 
-Run focused tests that directly cover:
+- `tests.test_config_flow_device_runtime_overlay.ConfigFlowDeviceRuntimeOverlayTests.test_configure_service_sources_updates_selected_entry_only`: submitting Configure service source bindings updates/reloads only the selected entry (`summer-entry`) and does not touch a second `winter-entry` object.
+- `tests.test_source_freshness_probes.SourceFreshnessProbeTests.test_runtime_store_key_is_scoped_to_config_entry_id`: two coordinator instances create separate runtime storage keys, `zero_net_export_runtime_summer-entry` and `zero_net_export_runtime_winter-entry`, instead of using a shared domain-level runtime store.
 
-- options-flow/config-flow saves only the selected config entry;
-- runtime store key construction uses the current config entry id;
-- coordinator/runtime state is entry scoped;
-- event/device identifiers do not collapse across Summer/Winter-like entries.
+Validation commands passed:
 
-If coverage is missing, add focused regression tests before any live write test.
+```bash
+python3 -m unittest -q tests.test_config_flow_device_runtime_overlay tests.test_source_freshness_probes
+python3 -m unittest discover -s tests
+git diff --check
+```
+
+Evidence:
+
+- Focused tests: 95 tests OK.
+- Full discovery: 602 tests OK.
+- `git diff --check`: no whitespace errors.
 
 ### Live write-path validation — requires approval
 
@@ -92,4 +100,4 @@ If runtime mutation proof is needed, use the least risky supported action and av
 
 ## Decision
 
-Status remains `tracked_pending_validation` / `validating_readonly`: read-only evidence is promising, but full closure requires focused repo coverage and/or approved live write-path proof.
+Status is `repo_and_readonly_validated_pending_live_write_decision`: read-only live evidence plus focused repo tests now cover the intended isolation architecture and selected-entry write path. If Riley requires live write-path proof, perform the minimal reversible test below only after explicit approval.

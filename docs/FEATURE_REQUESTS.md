@@ -25,12 +25,12 @@ This file tracks user-requested product enhancements separately from confirmed b
 
 ## ZNE-FR-003 - Controller config must be isolated per plan
 
-- **status:** `validating_readonly`
+- **status:** `repo_and_readonly_validated_pending_live_write_decision`
 - **area:** `multi_entry_controller_separation`
 - **requested by:** Riley, 2026-04-30
 - **request:** each controller plan has its own source roles, policy, target export/deadband, refresh cadence, and options.
 - **acceptance target:** changing Summer Plan config does not alter Winter Plan config, and vice versa.
-- **validation progress:** read-only live inspection confirms Summer/Winter are distinct config entries and have separate options/inventory snapshots. Write-path proof through the selected service Configure service/Reconfigure flow remains pending focused repo coverage and/or approval for a reversible live write test. Evidence: `validation/zne-fr-003-005-multi-plan-validation.md`.
+- **validation progress:** read-only live inspection confirms Summer/Winter are distinct config entries and have separate options/inventory snapshots. Focused repo coverage now proves Configure service source binding saves update/reload only the selected entry. Optional live reversible write-path proof remains pending Riley's decision/approval. Evidence: `validation/zne-fr-003-005-multi-plan-validation.md`.
 
 ## ZNE-FR-004 - Managed devices must be isolated per plan
 
@@ -44,12 +44,12 @@ This file tracks user-requested product enhancements separately from confirmed b
 
 ## ZNE-FR-005 - Controller brain/runtime must be isolated per plan
 
-- **status:** `validating_readonly`
+- **status:** `repo_and_readonly_validated_pending_live_write_decision`
 - **area:** `coordinator_runtime`
 - **requested by:** Riley, 2026-04-30
 - **request:** each controller has its own runtime brain: mode, enable state, guard state, action history, daily metrics, and persisted runtime memory.
 - **acceptance target:** runtime store keys and emitted events are entry-scoped; one plan's decisions/history do not bleed into another plan.
-- **validation progress:** read-only live inspection confirms each plan has an entry-id-scoped runtime store, with separate daily metric device keys (`7th_test_light` for Winter and `7th_test_list` for Summer). Runtime write/mutation proof remains pending focused repo coverage and/or approval for a minimal live action. Evidence: `validation/zne-fr-003-005-multi-plan-validation.md`.
+- **validation progress:** read-only live inspection confirms each plan has an entry-id-scoped runtime store, with separate daily metric device keys (`7th_test_light` for Winter and `7th_test_list` for Summer). Focused repo coverage now proves coordinators create runtime store keys from their config entry id. Optional live runtime mutation proof remains pending Riley's decision/approval. Evidence: `validation/zne-fr-003-005-multi-plan-validation.md`.
 
 ## ZNE-FR-006 - Multi-plan validation evidence
 
