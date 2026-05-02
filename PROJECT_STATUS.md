@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-05-01 23:05
+last_modified: 2026-05-03 02:28
 
 ## Current focus
 Rejected Tier 1 mockup `d9a0fd1` must not be used. Riley identified that it did not match the native Home Assistant device page and therefore failed the target-environment feasibility gate. Narrow replacement feasibility check is now written in `docs/ZNE-TIER1_NATIVE_DEVICE_PAGE_FEASIBILITY.md` and is pending Riley acceptance/amendment before any replacement Tier 1 mockup or implementation.
@@ -54,4 +54,4 @@ ZNE-588 has been restarted as a bug-only corrective path after Riley directed th
 - New process gate: no architecture, mockup, or code may proceed until a target environment feasibility check is written and accepted. OpenClaw may perform the validation. Template: `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md`.
 
 ## Next best action
-Continue ZNE-588 validation: focused button/diagnostics tests passed after removing misleading Tier 2 launcher button entities; full discovery is being repaired/validated, then record evidence and prepare a validation Home Assistant deploy only after approval.
+Wait for Riley to accept or amend `docs/ZNE-TIER1_NATIVE_DEVICE_PAGE_FEASIBILITY.md`. Do not create another Tier 1 mockup, architecture, or implementation until that feasibility boundary is accepted. Once accepted, produce the replacement Tier 1 mockup by marking up the actual native Home Assistant device page structure and only changing ZNE-controlled entity/device metadata/content.
