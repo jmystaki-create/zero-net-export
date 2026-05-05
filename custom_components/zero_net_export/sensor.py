@@ -1549,8 +1549,6 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             blocking_validation_details = summarize_validation_issue_messages(state, severities={"error"}, limit=2)
             return {
                 "configure_path": DEVICES_CONFIGURE_PATH,
-                "right_gear_panel_path": "/zero-net-export-managed-devices",
-                "right_gear_panel_title": "ZNE Managed Devices",
                 "config_entry_id": self.coordinator.entry.entry_id,
                 "managed_devices": [
                     {"entry_id": self.coordinator.entry.entry_id, "key": device_key, **dict(detail)}

@@ -7,7 +7,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 ## [Unreleased]
 
 ### Fixed
-- Planned ZNE-589 to remove the custom `ZNE Managed Devices` Home Assistant sidebar/menu panel while preserving native managed-device workflows; feasibility is documented and pending acceptance before implementation.
+- Removed the custom `ZNE Managed Devices` Home Assistant sidebar/menu panel path for ZNE-589 by dropping panel registration, frontend/panel manifest dependencies, the shipped panel asset, and stale links/configuration URLs to `/zero-net-export-managed-devices`, while keeping native managed-device workflows available.
 
 ### Process
 - Rejected the HA guardrails Tier 1 mockup as invalid because it invented layout outside the verified native Home Assistant device-page structure; replacement design requires a narrower accepted feasibility check first.

@@ -8,50 +8,35 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 PANEL_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "frontend" / "managed-devices-panel.js"
 INIT_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "__init__.py"
 MANIFEST_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "manifest.json"
+SERVICES_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "services.yaml"
 
 
 class ManagedDevicesPanelTests(unittest.TestCase):
-    def test_panel_renders_right_side_gear_and_inline_editor(self) -> None:
-        source = PANEL_PATH.read_text(encoding="utf-8")
+    def test_custom_managed_devices_panel_asset_is_not_shipped(self) -> None:
+        self.assertFalse(PANEL_PATH.exists())
 
-        self.assertIn("grid-template-columns:1fr auto", source)
-        self.assertIn("class=\"gear\"", source)
-        self.assertIn("data-gear", source)
-        self.assertIn("managedSurfaces", source)
-        self.assertIn("const byKey = new Map()", source)
-        self.assertIn("const stableKey = `${device.entry_id || entryId}:${deviceKey}`", source)
-        self.assertIn("config_entry_id", source)
-        self.assertIn("entry_id: root.dataset.entryId", source)
-        self.assertIn("device_key: root.dataset.deviceKey", source)
-        self.assertIn("data-device-key", source)
-        self.assertIn("const editKey = `${entryId}:${key}`", source)
-        self.assertIn("applyDeepLink(devices)", source)
-        self.assertIn("new URLSearchParams(window.location.search).get('managed_device')", source)
-        self.assertIn("`${entryId}:${key}` === requested", source)
-        self.assertIn('data-save="${this.escapeAttr(editKey)}"', source)
-        self.assertIn("Edit ${this.escapeAttr(device.name || key)} settings", source)
-        self.assertIn("Save settings", source)
-        self.assertIn("update_managed_device", source)
-
-    def test_integration_registers_panel_static_assets_and_service(self) -> None:
+    def test_integration_does_not_register_sidebar_panel(self) -> None:
         source = INIT_PATH.read_text(encoding="utf-8")
 
-        self.assertIn("PANEL_URL_PATH = \"zero-net-export-managed-devices\"", source)
-        self.assertIn("StaticPathConfig", source)
-        self.assertIn("async_register_panel", source)
-        self.assertIn("sidebar_title=\"ZNE Managed Devices\"", source)
-        self.assertIn("update_managed_device", source)
-        self.assertIn('vol.Optional("entry_id"): str', source)
-        self.assertIn("candidate.entry_id == requested_entry_id", source)
-        self.assertIn("async_update_entry(entry, options=merged_options)", source)
-        self.assertIn("async_reload(entry.entry_id)", source)
+        self.assertNotIn("async_register_panel", source)
+        self.assertNotIn("StaticPathConfig", source)
+        self.assertNotIn("PANEL_URL_PATH", source)
+        self.assertNotIn("zero-net-export-managed-devices", source)
+        self.assertNotIn("sidebar_title=\"ZNE Managed Devices\"", source)
 
-    def test_manifest_loads_frontend_panel_dependencies(self) -> None:
+    def test_manifest_has_no_frontend_panel_dependencies(self) -> None:
         source = MANIFEST_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"frontend"', source)
-        self.assertIn('"http"', source)
-        self.assertIn('"panel_custom"', source)
+        self.assertNotIn('"frontend"', source)
+        self.assertNotIn('"http"', source)
+        self.assertNotIn('"panel_custom"', source)
+
+    def test_backend_managed_device_update_service_remains_available(self) -> None:
+        init_source = INIT_PATH.read_text(encoding="utf-8")
+        services_source = SERVICES_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("update_managed_device", init_source)
+        self.assertIn("update_managed_device:", services_source)
 
 
 if __name__ == "__main__":

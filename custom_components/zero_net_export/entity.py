@@ -4,8 +4,6 @@ from __future__ import annotations
 from collections.abc import Mapping
 import hashlib
 import re
-from urllib.parse import urlencode
-
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON, DOMAIN, INTEGRATION_VERSION
@@ -189,20 +187,6 @@ def managed_load_detail(coordinator, device_key: str, device_name: str | None = 
     return detail
 
 
-def managed_load_configuration_url(coordinator, device_key: str) -> str:
-    """Return the supported HA configuration URL for the managed-device editor.
-
-    Home Assistant's native integration device row does not consume device
-    ``configuration_url`` as an extra row action; the frontend only exposes it as
-    a cog action from the device detail page. Point that supported cog action at
-    the managed-devices panel and deep-link the selected device into edit mode.
-    """
-    entry_id = str(getattr(coordinator.entry, "entry_id", "entry") or "entry").strip() or "entry"
-    key = str(device_key or "unknown").strip() or "unknown"
-    query = urlencode({"managed_device": f"{entry_id}:{key}"})
-    return f"homeassistant://zero-net-export-managed-devices?{query}"
-
-
 def managed_load_device_info(coordinator, device_key: str, detail: dict | None = None) -> dict:
     """Return device info that makes a managed load appear as its own HA device row."""
     detail = detail or managed_load_detail(coordinator, device_key)
@@ -215,7 +199,7 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
         "model": f"Managed Devices — {kind.title()} managed load" if kind else "Managed Devices — Managed load",
         "sw_version": INTEGRATION_VERSION,
         "via_device": (DOMAIN, coordinator.entry.entry_id),
-        "configuration_url": managed_load_configuration_url(coordinator, device_key),
+        "configuration_url": None,
     }
 
 
@@ -377,11 +361,15 @@ def sync_integration_page_child_device_registry(hass, device_info: dict | None, 
         "sw_version": "sw_version",
     }
     for info_key, update_key in field_map.items():
-        value = (device_info or {}).get(info_key)
-        if value in (None, ""):
+        if info_key not in (device_info or {}):
             continue
+        value = (device_info or {}).get(info_key)
         device_value = getattr(device, info_key, None)
         update_value = getattr(device, update_key, None)
+        if value in (None, ""):
+            if device_value not in (None, "") or update_value not in (None, ""):
+                updates[update_key] = None
+            continue
         if device_value != value and update_value != value:
             updates[update_key] = value
 

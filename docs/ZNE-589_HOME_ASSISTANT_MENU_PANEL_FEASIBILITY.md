@@ -1,7 +1,7 @@
 # ZNE-589 Home Assistant sidebar panel feasibility check
 
 Date: 2026-05-06
-Status: Draft for Riley acceptance before implementation.
+Status: Accepted by Riley on 2026-05-06; implementation completed in repo, live validation pending release-managed install.
 
 ## Question
 
@@ -53,6 +53,18 @@ A safe ZNE-589 fix is feasible if it stays limited to removing the custom Home A
 - Regression tests prove the panel is not registered and supported managed-device paths remain available.
 - Live validation captures screenshot/browser evidence showing the sidebar item is gone.
 
-## Recommendation
+## Acceptance decision
 
-Accept this bug-fix boundary and implement the smallest repo change that removes the custom panel registration and stale links, then validate with focused tests, full discovery, `git diff --check`, and live Home Assistant screenshot proof through the normal release-management path.
+Riley accepted this feasibility boundary on 2026-05-06.
+
+## Implemented repo path
+
+- Removed custom panel registration from `async_setup`; the integration no longer calls `panel_custom.async_register_panel`.
+- Removed `frontend`, `http`, and `panel_custom` manifest dependencies.
+- Removed the shipped `managed-devices-panel.js` frontend asset.
+- Stopped adding `/zero-net-export-managed-devices` metadata to managed-device surface attributes.
+- Stopped pointing managed child-device `configuration_url` values to the removed custom panel and added registry sync behavior to clear stale installed `configuration_url` values.
+
+## Remaining validation
+
+Release-managed Home Assistant install/restart plus browser screenshot proof is still required before closing ZNE-589 as live-validated.

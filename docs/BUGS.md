@@ -103,17 +103,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-589 - remove ZNE Managed Devices from the Home Assistant sidebar menu
 
-- **status:** open
+- **status:** fixed_pending_validation
 - **severity:** medium
 - **area:** managed_devices / frontend_panel
 - **where seen:** user-supplied Home Assistant Settings screenshot on 2026-05-06.
 - **current observed behavior:** Home Assistant shows a left sidebar/menu item labelled `ZNE Managed Devices` with a gear icon.
 - **expected behavior:** Zero Net Export should not add a custom `ZNE Managed Devices` sidebar/menu item; managed-device setup and editing should remain on supported native Home Assistant integration/configuration surfaces.
 - **evidence:** screenshot shows the sidebar item. Repo inspection found `custom_components/zero_net_export/__init__.py` registering a `panel_custom` panel with `sidebar_title="ZNE Managed Devices"`, and `manifest.json` declaring `frontend`, `http`, and `panel_custom` dependencies.
-- **target-environment feasibility:** written in `docs/ZNE-589_HOME_ASSISTANT_MENU_PANEL_FEASIBILITY.md`; pending Riley acceptance before implementation.
+- **target-environment feasibility:** accepted by Riley on 2026-05-06 in `docs/ZNE-589_HOME_ASSISTANT_MENU_PANEL_FEASIBILITY.md`.
+- **repo fix:** removed custom panel registration from setup, removed `frontend`/`http`/`panel_custom` manifest dependencies, removed the shipped panel asset, removed managed-device surface attributes that pointed to `/zero-net-export-managed-devices`, and stopped writing managed child-device `configuration_url` values to the removed custom panel. Existing registry rows with stale `configuration_url` are cleared during child-device registry sync.
 - **acceptance criteria:** sidebar item absent after fixed release install/restart; custom panel registration removed; no ZNE configuration/deep links point to the removed panel route; native managed-device flows still work; repo and live browser validation recorded.
-- **validation plan:** focused tests around panel non-registration/native managed-device paths, full test discovery, `git diff --check`, then release-managed HACS install/restart and browser screenshot proving the sidebar item is gone.
-- **next action:** Riley to accept or amend the ZNE-589 feasibility boundary, then implement the smallest code/test/docs change.
+- **repo validation:** focused tests `python3 -m unittest -q tests.test_managed_devices_panel tests.test_integration_page_device_lists` passed: 46 tests OK. Changed-file `py_compile`, full discovery (`Ran 606 tests in 1.733s`, OK), and `git diff --check` passed. Evidence: `validation/zne-589-sidebar-menu-panel-removal.md`.
+- **next action:** release-managed HACS install/restart and browser screenshot proof before closing as live-validated.
 
 ## ZNE-588 - Tier 1 setup buttons imply a broken Tier 2 jump and diagnostics overfill the device page
 

@@ -123,27 +123,25 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
         self.assertNotIn("suggested_area", sensor._attr_device_info)
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Managed Devices")
-        self.assertEqual(
-            sensor._attr_device_info["configuration_url"],
-            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool",
-        )
+        self.assertIsNone(sensor._attr_device_info["configuration_url"])
 
-    def test_managed_device_async_added_updates_existing_registry_configuration_url(self) -> None:
+    def test_managed_device_async_added_clears_existing_registry_configuration_url(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
         sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool Pump")
         identifier = ("zero_net_export", "entry-1:managed-device:pool")
-        device = SimpleNamespace(id="device-1", identifier=identifier, configuration_url=None)
+        device = SimpleNamespace(
+            id="device-1",
+            identifier=identifier,
+            configuration_url="homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool",
+        )
         registry = _FakeDeviceRegistry(device)
         sensor.hass = SimpleNamespace(device_registry=registry)
 
         asyncio.run(sensor.async_added_to_hass())
 
         self.assertEqual(registry.updated[0], "device-1")
-        self.assertEqual(
-            registry.updated[1]["configuration_url"],
-            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool",
-        )
+        self.assertIsNone(registry.updated[1]["configuration_url"])
         self.assertEqual(registry.updated[1]["name"], "Managed Devices — Pool Pump")
         self.assertEqual(registry.updated[1]["model"], "Managed Devices — Fixed managed load")
 
@@ -158,38 +156,12 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         attrs = sensor.extra_state_attributes
 
-        self.assertEqual(attrs["right_gear_panel_path"], "/zero-net-export-managed-devices")
-        self.assertEqual(attrs["right_gear_panel_title"], "ZNE Managed Devices")
+        self.assertNotIn("right_gear_panel_path", attrs)
+        self.assertNotIn("right_gear_panel_title", attrs)
         self.assertEqual(attrs["config_entry_id"], "entry-1")
         self.assertEqual(attrs["managed_devices"][0]["entry_id"], "entry-1")
         self.assertEqual(attrs["managed_devices"][0]["key"], "pool")
         self.assertEqual(attrs["managed_devices"][0]["name"], "Pool Pump")
-
-    def test_managed_device_configuration_url_encodes_query_value(self) -> None:
-        sensor_module = _load_sensor_module()
-        coordinator = self._coordinator()
-
-        sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool pump&main", "Pool Pump")
-
-        self.assertEqual(
-            sensor._attr_device_info["configuration_url"],
-            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool+pump%26main",
-        )
-
-    def test_managed_device_configuration_url_preserves_raw_device_key_separators(self) -> None:
-        sensor_module = _load_sensor_module()
-        coordinator = self._coordinator()
-
-        sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(
-            coordinator,
-            "pool.pump/main:one",
-            "Pool Pump",
-        )
-
-        self.assertEqual(
-            sensor._attr_device_info["configuration_url"],
-            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3Apool.pump%2Fmain%3Aone",
-        )
 
     def test_managed_device_identifier_sanitizes_query_sensitive_device_key(self) -> None:
         sensor_module = _load_sensor_module()
@@ -205,10 +177,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             ("zero_net_export", "entry-1:managed-device:pool_pump_main_one_boost_18a397c3"),
             sensor._attr_device_info["identifiers"],
         )
-        self.assertEqual(
-            sensor._attr_device_info["configuration_url"],
-            "homeassistant://zero-net-export-managed-devices?managed_device=entry-1%3APool+Pump%2FMain%3AOne+%26+Boost",
-        )
+        self.assertIsNone(sensor._attr_device_info["configuration_url"])
 
     def test_child_device_identifiers_remain_unique_after_sanitizing_separators(self) -> None:
         sensor_module = _load_sensor_module()

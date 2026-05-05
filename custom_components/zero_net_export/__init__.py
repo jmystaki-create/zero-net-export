@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from dataclasses import asdict
 import json
-from pathlib import Path
 import re
 from typing import Any
 
@@ -338,10 +337,6 @@ def _coerce_number(value: Any, fallback: int | float) -> int | float:
     return parsed
 
 
-PANEL_URL_PATH = "zero-net-export-managed-devices"
-PANEL_MODULE_URL = f"/api/{DOMAIN}/frontend/managed-devices-panel.js"
-
-
 UPDATE_MANAGED_DEVICE_SCHEMA = vol.Schema(
     {
         vol.Optional("entry_id"): str,
@@ -367,30 +362,6 @@ def _device_config_to_payload(device) -> dict[str, Any]:
     if payload.get("max_active_seconds") is None:
         payload["max_active_seconds"] = 0
     return payload
-
-
-async def _async_register_frontend(hass: HomeAssistant) -> None:
-    """Expose the managed-devices panel with visible right-side gear actions."""
-    from homeassistant.components.http import StaticPathConfig
-
-    frontend_path = Path(__file__).parent / "frontend"
-    await hass.http.async_register_static_paths(
-        [StaticPathConfig(f"/api/{DOMAIN}/frontend", str(frontend_path), False)]
-    )
-
-    from homeassistant.components.panel_custom import async_register_panel
-
-    await async_register_panel(
-        hass,
-        frontend_url_path=PANEL_URL_PATH,
-        webcomponent_name="zero-net-export-managed-devices-panel",
-        sidebar_title="ZNE Managed Devices",
-        sidebar_icon="mdi:cog-outline",
-        module_url=PANEL_MODULE_URL,
-        require_admin=True,
-        config={"domain": DOMAIN},
-        config_panel_domain=DOMAIN,
-    )
 
 
 async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any) -> None:
@@ -471,7 +442,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the integration domain."""
     hass.data.setdefault(DOMAIN, {})
     _register_services(hass)
-    await _async_register_frontend(hass)
     return True
 
 
