@@ -118,7 +118,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-588 - Tier 1 setup buttons imply a broken Tier 2 jump and diagnostics overfill the device page
 
-- **status:** `repo_patch_validating`
+- **status:** `fixed_pending_validation`
 - **severity:** `high`
 - **area:** `native_device_page`
 - **where seen:** Riley screenshot/review on 2026-05-01 from the native Home Assistant Zero Net Export device page; reconfirmed when the `0.1.104` custom-panel candidate was rejected and rolled back.
@@ -141,7 +141,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **validation plan:** focused entity/button/diagnostic tests, full unit discovery, `git diff --check`, direct deploy to validation HA only after approval, install fingerprint check, Home Assistant restart/API recovery, and browser screenshots of the actual native device page.
 - **current evidence:** `validation/0.1.103-release-validation.md` is the baseline; `validation/zne-588-0.1.104-rollback.md` records the failed candidate rollback.
 - **repo patch:** removed the misleading `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, and `Open Diagnostics setup` button entities from the native button platform setup path. Existing truthful actions such as `Show command center guide`, diagnostics snapshot/checklist/review, managed-device review, and reset actions remain.
-- **next action:** complete repo validation, record evidence, then request approval for validation Home Assistant deployment/screenshots.
+- **repo validation:** `validation/zne-588-bug-only-tier1-cleanup.md` records focused tests (115 OK), full discovery (607 OK), `py_compile`, and `git diff --check` clean.
+- **next action:** release-managed Home Assistant deployment/screenshots after approval before closing as live-validated.
 
 
 
