@@ -101,6 +101,20 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 ## Current active bugs
 
 
+## ZNE-589 - remove ZNE Managed Devices from the Home Assistant sidebar menu
+
+- **status:** open
+- **severity:** medium
+- **area:** managed_devices / frontend_panel
+- **where seen:** user-supplied Home Assistant Settings screenshot on 2026-05-06.
+- **current observed behavior:** Home Assistant shows a left sidebar/menu item labelled `ZNE Managed Devices` with a gear icon.
+- **expected behavior:** Zero Net Export should not add a custom `ZNE Managed Devices` sidebar/menu item; managed-device setup and editing should remain on supported native Home Assistant integration/configuration surfaces.
+- **evidence:** screenshot shows the sidebar item. Repo inspection found `custom_components/zero_net_export/__init__.py` registering a `panel_custom` panel with `sidebar_title="ZNE Managed Devices"`, and `manifest.json` declaring `frontend`, `http`, and `panel_custom` dependencies.
+- **target-environment feasibility:** written in `docs/ZNE-589_HOME_ASSISTANT_MENU_PANEL_FEASIBILITY.md`; pending Riley acceptance before implementation.
+- **acceptance criteria:** sidebar item absent after fixed release install/restart; custom panel registration removed; no ZNE configuration/deep links point to the removed panel route; native managed-device flows still work; repo and live browser validation recorded.
+- **validation plan:** focused tests around panel non-registration/native managed-device paths, full test discovery, `git diff --check`, then release-managed HACS install/restart and browser screenshot proving the sidebar item is gone.
+- **next action:** Riley to accept or amend the ZNE-589 feasibility boundary, then implement the smallest code/test/docs change.
+
 ## ZNE-588 - Tier 1 setup buttons imply a broken Tier 2 jump and diagnostics overfill the device page
 
 - **status:** `repo_patch_validating`

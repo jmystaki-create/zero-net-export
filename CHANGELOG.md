@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Planned ZNE-589 to remove the custom `ZNE Managed Devices` Home Assistant sidebar/menu panel while preserving native managed-device workflows; feasibility is documented and pending acceptance before implementation.
+
 ### Process
 - Rejected the HA guardrails Tier 1 mockup as invalid because it invented layout outside the verified native Home Assistant device-page structure; replacement design requires a narrower accepted feasibility check first.
 - Added `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md` to require written/accepted target-environment feasibility checks before architecture, mockups, or code; OpenClaw may perform the validation.
