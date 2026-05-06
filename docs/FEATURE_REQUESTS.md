@@ -59,3 +59,14 @@ This file tracks user-requested product enhancements separately from confirmed b
 - **request:** prove separation with live HA evidence, not just code claims.
 - **acceptance target:** PNG evidence shows distinct Summer/Winter controller rows and managed-device assignment, plus tests proving entry-scoped identity/update paths.
 - **validation:** `bug-evidence/ZNE-580-live-validation.md` records passing focused tests, fingerprint-matched live deploy/restart, API recovery, log scan, registry evidence, and PNG proof.
+
+## ZNE-FR-009 - Managed-load three-dot Delete device action
+
+- **status:** `backlog_feasibility_required`
+- **area:** `managed_devices / native_integration_page`
+- **requested by:** Riley, 2026-05-06
+- **request:** On the Zero Net Export integration page, each managed-load row three-dot menu should expose a `Delete device` action. Pressing it should immediately remove that managed device from the owning Zero Net Export service/plan.
+- **source screenshot:** `/root/.openclaw/media/inbound/image---e2ac28c5-bc32-4ac8-b564-06a4232cdd9a.png` shows the current native row overflow menu for `Managed Devices — 7th test list` with only `20 entities` and `Disable device`.
+- **acceptance target:** the selected managed-load row overflow exposes a clear delete/remove action; activating it removes only that selected managed-load record from the owning service/plan; the original Home Assistant device/entity remains intact; stale ZNE entities/device rows are removed after reload; tests and live browser proof validate the path.
+- **target-environment gate:** do not design or implement until a fresh Home Assistant frontend/source feasibility check is written and accepted for custom integration actions in this exact managed-load row overflow menu. Prior ZNE-591/ZNE-592 evidence found arbitrary device-page/row overflow injection unsupported; if Home Assistant does not support this exact placement, Riley must choose between the closest supported native path or explicitly approving custom/upstream frontend work.
+- **validation plan:** frontend/source feasibility evidence; repo tests for selected-entry managed-device removal and stale registry/entity cleanup; live HA browser proof that the action is visible in the row overflow and that pressing it removes only the ZNE managed-load record without removing the underlying Home Assistant device/entity.

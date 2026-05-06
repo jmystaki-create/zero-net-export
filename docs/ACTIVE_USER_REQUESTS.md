@@ -30,11 +30,17 @@ Focus only on the concrete bugs/features Riley has flagged in the Home Assistant
    - Implementation note: Home Assistant supports custom config-subentry overflow actions, so `Add Managed Devices` can appear with exact wording in the selected service overflow. Home Assistant's built-in entry reconfigure row is labelled by HA as `Reconfigure`, but the opened flow is titled `Configure service` and remains selected-entry scoped.
    - These actions must be entry-scoped so Summer/Winter plans cannot cross-edit each other's source bindings or managed-device fleets.
 
-5. **No release-readiness claim without proof**
+5. **Managed-load row three-dot delete action**
+   - Riley requested a `Delete device` action in the managed-load row three-dot overflow menu on 2026-05-06.
+   - Pressing it should remove that selected managed device from the owning Zero Net Export service/plan.
+   - It must not remove the original Home Assistant device/entity.
+   - This requires a fresh Home Assistant frontend/source feasibility check before design/code because prior ZNE-591/ZNE-592 work found arbitrary native managed-load row/device overflow action injection unsupported.
+
+6. **No release-readiness claim without proof**
    - Do not tag, release, deploy, restart Home Assistant, or claim the next release is ready without explicit approval.
    - Required proof before release/deploy approval: tests pass and PNG evidence shows clean managed rows with the settings affordance on the native right side and no peer `Un Managed — ...` rows.
 
-6. **No direct Home Assistant updates outside release management**
+7. **No direct Home Assistant updates outside release management**
    - No features, bug fixes, or component updates should be pushed directly to the live Home Assistant install outside the GitHub release-management process.
    - Live changes must flow through committed code, pushed GitHub main/tag, published GitHub release, HACS refresh/upgrade, restart, and validation per `RELEASE_MANAGEMENT.md`.
    - Manual install writes are only acceptable as an explicitly approved release-management recovery step for the exact published release artifact, not as ad-hoc deployment.
