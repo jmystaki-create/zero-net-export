@@ -6,6 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Added Home Assistant-native managed-load edit/remove actions for ZNE-591: managed-load device pages now expose `Edit Zero Net Export configuration` and `Remove from Zero Net Export` button rows, plus a guarded `zero_net_export.remove_managed_device` service that removes only the ZNE management record and leaves the original Home Assistant device/entity untouched.
+
+### Validation
+- ZNE-591 repo validation passed focused managed-device/native-surface tests and full unittest discovery (`Ran 607 tests`, OK). Live Home Assistant release validation remains pending.
+
 ## [0.1.107] - 2026-05-06
 
 ### Fixed

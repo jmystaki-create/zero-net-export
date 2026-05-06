@@ -36,7 +36,10 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         services_source = SERVICES_PATH.read_text(encoding="utf-8")
 
         self.assertIn("update_managed_device", init_source)
+        self.assertIn("remove_managed_device", init_source)
         self.assertIn("update_managed_device:", services_source)
+        self.assertIn("remove_managed_device:", services_source)
+        self.assertIn("The original Home Assistant device and entity are left untouched", services_source)
 
 
 if __name__ == "__main__":

@@ -177,6 +177,8 @@ def managed_load_settings_action_name(device_name: str, action: str) -> str:
         "priority": "Priority",
         "managed summary": "Zero Net Export configuration",
         "status": "Zero Net Export status",
+        "edit": "Edit Zero Net Export configuration",
+        "remove": "Remove from Zero Net Export",
         "review": "Review Zero Net Export configuration",
         "reset overrides": "Reset Zero Net Export overrides",
         "test load": "Test load",

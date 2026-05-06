@@ -102,21 +102,23 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-591 - managed-load device overflow lacks configure/delete actions
 
-- **status:** `open`
+- **status:** `repo_validated_pending_release`
 - **severity:** `high`
 - **area:** `managed_devices / native_device_page`
 - **where seen:** Riley screenshot on 2026-05-06 from the Home Assistant managed-load device page overflow menu.
 - **current observed behavior:** the managed-load device page three-dot overflow menu only shows `20 entities` and `Disable device`. There is no visible `Delete`/`Remove managed device` action and no visible `Configure`/`Edit Zero Net Export configuration` action for the managed load.
 - **expected behavior:** an operator viewing a Zero Net Export managed-load device page must have an obvious Home Assistant-native way to edit the ZNE managed-load configuration and remove/delete the managed load from Zero Net Export management.
 - **evidence:** screenshot `image---6f6eced0-bb6a-4fd0-ab15-a8912375b31f.png` shows the overflow menu with `20 entities` and `Disable device` only. Image review found no visible delete/remove action and no visible configure/edit ZNE action in the overflow menu.
-- **target-environment feasibility needed:** before design/code, verify what Home Assistant supports for device-page overflow actions, device/entity actions, config-entry/subentry actions, services, repairs, and device `configuration_url` surfaces. Do not assume custom device overflow actions are supported.
+- **target-environment feasibility:** completed before implementation. Supported: config/options flow, device `configuration_url`, native button entities, services/actions, notifications/repairs/diagnostics. Unsupported/not used: custom sidebar/panel/frontend and arbitrary injection into Home Assistant's native device overflow menu.
 - **acceptance criteria:**
   - The managed-load page exposes an obvious supported edit path for ZNE managed-load configuration.
   - The managed-load page exposes an obvious supported remove/delete path for removing the load from Zero Net Export management.
   - The solution stays inside native Home Assistant integration surfaces unless Riley explicitly approves experimental/custom UI.
   - Tests cover the edit/remove entry points and resulting config mutation/removal behavior.
   - Live Home Assistant browser proof shows the supported entry points are visible and functional.
-- **next action:** perform a target-environment feasibility check for supported Home Assistant-native edit/remove entry points, then propose the smallest supported fix for Riley approval.
+- **repo fix:** implemented native managed-load button rows `Edit Zero Net Export configuration` and `Remove from Zero Net Export`, plus guarded service/action `zero_net_export.remove_managed_device`. The remove path updates only the selected Zero Net Export config entry's managed-device inventory, reloads that ZNE entry, and leaves original Home Assistant devices/entities untouched. No custom frontend/sidebar/panel or unsupported overflow-menu injection was introduced.
+- **repo validation:** `python3 -m unittest tests.test_device_page_managed_settings -v` passed (`Ran 13 tests`, OK); `python3 -m unittest tests.test_managed_devices_panel -v` passed (`Ran 4 tests`, OK); full discovery `python3 -m unittest discover -v` passed (`Ran 607 tests`, OK). Evidence: `validation/zne-591-managed-device-edit-remove-actions.md`.
+- **next action:** prepare release, install in Home Assistant, restart, fingerprint/log-check, and capture browser proof that the managed-load page exposes the native edit/remove rows and that removing a ZNE managed load does not delete the original HA/Tuya device.
 
 
 ## ZNE-590 - managed climate device ZNE settings are confusing and do not preserve the original device experience

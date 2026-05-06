@@ -380,6 +380,15 @@ UPDATE_MANAGED_DEVICE_SCHEMA = vol.Schema(
 )
 
 
+REMOVE_MANAGED_DEVICE_SCHEMA = vol.Schema(
+    {
+        vol.Optional("entry_id"): str,
+        vol.Required("device_key"): str,
+        vol.Required("confirm"): bool,
+    }
+)
+
+
 def _device_config_to_payload(device) -> dict[str, Any]:
     payload = asdict(device)
     if payload.get("max_active_seconds") is None:
@@ -387,8 +396,8 @@ def _device_config_to_payload(device) -> dict[str, Any]:
     return payload
 
 
-async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any) -> None:
-    """Update a managed device from the custom right-gear panel."""
+def _managed_device_entry_and_payloads(hass: HomeAssistant, call: Any) -> tuple[ConfigEntry, str, list[dict[str, Any]]]:
+    """Return the selected ZNE entry, requested managed-device key, and inventory payloads."""
     entries = hass.config_entries.async_entries(DOMAIN)
     if not entries:
         raise ValueError("Zero Net Export has no configured entries")
@@ -404,8 +413,12 @@ async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any
     devices, issues = parse_device_configs(raw_inventory)
     if issues:
         raise ValueError("Managed-device inventory is invalid: " + "; ".join(issues[:3]))
+    return entry, device_key, [_device_config_to_payload(device) for device in devices]
 
-    payloads = [_device_config_to_payload(device) for device in devices]
+
+async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any) -> None:
+    """Update a managed device from a native Home Assistant action/service."""
+    entry, device_key, payloads = _managed_device_entry_and_payloads(hass, call)
     target = next((payload for payload in payloads if payload.get("key") == device_key), None)
     if target is None:
         raise ValueError(f"Managed device '{device_key}' was not found")
@@ -440,9 +453,37 @@ async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any
     await hass.config_entries.async_reload(entry.entry_id)
     persistent_notification.async_create(
         hass,
-        f"Updated managed-device settings for {target.get('name') or device_key} from the right-side gear panel.",
+        f"Updated managed-device settings for {target.get('name') or device_key}. Original Home Assistant devices and entities were not modified.",
         title=f"{entry.title}: managed device settings saved",
         notification_id=f"{DOMAIN}_{entry.entry_id}_managed_device_panel_update",
+    )
+
+
+async def _async_remove_managed_device(hass: HomeAssistant, call: Any) -> None:
+    """Remove one managed device from ZNE configuration only."""
+    if call.data.get("confirm") is not True:
+        raise ValueError("Set confirm=true to remove a managed device from Zero Net Export")
+    entry, device_key, payloads = _managed_device_entry_and_payloads(hass, call)
+    removed = next((payload for payload in payloads if payload.get("key") == device_key), None)
+    if removed is None:
+        raise ValueError(f"Managed device '{device_key}' was not found")
+    remaining = [payload for payload in payloads if payload.get("key") != device_key]
+    _validated_devices, validation_issues = parse_device_configs(json.dumps(remaining))
+    if validation_issues:
+        raise ValueError("Managed-device settings are invalid after removal: " + "; ".join(validation_issues[:3]))
+
+    merged_options = dict(entry.options)
+    merged_options[CONF_DEVICE_INVENTORY_JSON] = json.dumps(remaining, indent=2, sort_keys=True)
+    hass.config_entries.async_update_entry(entry, options=merged_options)
+    await hass.config_entries.async_reload(entry.entry_id)
+    persistent_notification.async_create(
+        hass,
+        (
+            f"Removed {removed.get('name') or device_key} from Zero Net Export management. "
+            "This only removed the ZNE managed-load record and its ZNE child-device rows; the original Home Assistant device/entity was left untouched."
+        ),
+        title=f"{entry.title}: managed device removed",
+        notification_id=f"{DOMAIN}_{entry.entry_id}_managed_device_removed",
     )
 
 
@@ -453,11 +494,20 @@ def _register_services(hass: HomeAssistant) -> None:
     async def _handle_update_managed_device(call: Any) -> None:
         await _async_update_managed_device_from_panel(hass, call)
 
+    async def _handle_remove_managed_device(call: Any) -> None:
+        await _async_remove_managed_device(hass, call)
+
     hass.services.async_register(
         DOMAIN,
         "update_managed_device",
         _handle_update_managed_device,
         schema=UPDATE_MANAGED_DEVICE_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "remove_managed_device",
+        _handle_remove_managed_device,
+        schema=REMOVE_MANAGED_DEVICE_SCHEMA,
     )
 
 

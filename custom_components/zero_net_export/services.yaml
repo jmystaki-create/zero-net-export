@@ -1,14 +1,15 @@
 update_managed_device:
   name: Update managed device
-  description: Update the first-provisioned settings for a Zero Net Export managed device from the right-side gear panel.
+  description: Update Zero Net Export settings for a managed device. This changes only the ZNE managed-load record; it does not edit the original Home Assistant device.
   fields:
     entry_id:
       name: Config entry ID
-      description: Optional Zero Net Export config entry id used by the managed-device gear panel when more than one entry is installed.
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
       selector:
         text:
     device_key:
       name: Device key
+      description: Zero Net Export managed-device key.
       required: true
       selector:
         text:
@@ -87,3 +88,25 @@ update_managed_device:
           min: 0
           max: 86400
           mode: box
+
+remove_managed_device:
+  name: Remove managed device
+  description: Remove one load from Zero Net Export management only. The original Home Assistant device and entity are left untouched.
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
+      selector:
+        text:
+    device_key:
+      name: Device key
+      description: Zero Net Export managed-device key to remove.
+      required: true
+      selector:
+        text:
+    confirm:
+      name: Confirm removal
+      description: Must be true. This is a safety guard for scripts and manual service calls.
+      required: true
+      selector:
+        boolean:

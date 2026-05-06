@@ -62,6 +62,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator._zne_integration_page_managed_details = device_details
     managed_entities = {
         device_key: [
+            ZeroNetExportEditManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
+            ZeroNetExportRemoveManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportTestManagedLoadButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details)),
@@ -78,6 +80,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
         async_add_entities,
         managed_entities,
         lambda device_key, details: [
+            ZeroNetExportEditManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
+            ZeroNetExportRemoveManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportTestManagedLoadButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details)),
@@ -135,6 +139,14 @@ def _managed_device_detail_notification_id(entry_id: str, device_key: str) -> st
 
 def _managed_device_test_notification_id(entry_id: str, device_key: str) -> str:
     return f"{DOMAIN}_{entry_id}_managed_device_{device_key}_test_load"
+
+
+def _managed_device_edit_notification_id(entry_id: str, device_key: str) -> str:
+    return f"{DOMAIN}_{entry_id}_managed_device_{device_key}_edit"
+
+
+def _managed_device_remove_notification_id(entry_id: str, device_key: str) -> str:
+    return f"{DOMAIN}_{entry_id}_managed_device_{device_key}_remove"
 
 
 def _has_active_plan(detail: dict) -> bool:
@@ -1663,6 +1675,102 @@ class ZeroNetExportShowSetupChecklistButton(ZeroNetExportEntity, ButtonEntity):
             message,
             title=f"{self.coordinator.entry.title}: setup checklist",
             notification_id=_setup_notification_id(self.coordinator.entry.entry_id),
+        )
+
+
+class ZeroNetExportEditManagedDeviceButton(ZeroNetExportEntity, ButtonEntity):
+    def __init__(self, coordinator, device_key: str, device_name: str):
+        super().__init__(coordinator, f"device_{device_key}_edit_configuration", managed_load_settings_action_name(device_name, "edit"))
+        self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "edit"
+        self._attr_entity_category = EntityCategory.CONFIG
+        attach_managed_load_device(self, coordinator, device_key, device_name)
+        self._attr_icon = "mdi:pencil-cog-outline"
+
+    def _detail(self) -> dict:
+        return _managed_device_detail_for_state(self._state, self._device_key)
+
+    @property
+    def extra_state_attributes(self):
+        detail = self._detail()
+        return {
+            "configure_path": DEVICES_CONFIGURE_PATH,
+            "action": "Open the Zero Net Export integration Configure flow, choose Managed Devices, then edit this managed load.",
+            "entry_id": self.coordinator.entry.entry_id,
+            "device_key": self._device_key,
+            "device_name": detail.get("name") or self._device_key,
+            "entity_id": detail.get("entity_id"),
+        }
+
+    async def async_press(self) -> None:
+        detail = self._detail()
+        device_name = detail.get("name") or self._device_key
+        persistent_notification.async_create(
+            self.hass,
+            "\n".join(
+                [
+                    f"Edit Zero Net Export configuration for {device_name}.",
+                    "",
+                    f"Path: {DEVICES_CONFIGURE_PATH}.",
+                    "Choose Edit managed device, select this load, then save the native Home Assistant form.",
+                    "",
+                    f"Managed device key: `{self._device_key}`",
+                    f"Current entity: `{detail.get('entity_id') or 'not set'}`",
+                    "",
+                    "This edits only Zero Net Export management settings. Use the original Home Assistant device page for the physical device's own integration settings.",
+                ]
+            ),
+            title=f"{self.coordinator.entry.title}: Edit Zero Net Export configuration",
+            notification_id=_managed_device_edit_notification_id(self.coordinator.entry.entry_id, self._device_key),
+        )
+
+
+class ZeroNetExportRemoveManagedDeviceButton(ZeroNetExportEntity, ButtonEntity):
+    def __init__(self, coordinator, device_key: str, device_name: str):
+        super().__init__(coordinator, f"device_{device_key}_remove_from_zne", managed_load_settings_action_name(device_name, "remove"))
+        self._device_key = device_key
+        self._zero_net_export_managed_name_suffix = "remove"
+        self._attr_entity_category = EntityCategory.CONFIG
+        attach_managed_load_device(self, coordinator, device_key, device_name)
+        self._attr_icon = "mdi:link-off"
+
+    def _detail(self) -> dict:
+        return _managed_device_detail_for_state(self._state, self._device_key)
+
+    @property
+    def extra_state_attributes(self):
+        detail = self._detail()
+        return {
+            "service": f"{DOMAIN}.remove_managed_device",
+            "entry_id": self.coordinator.entry.entry_id,
+            "device_key": self._device_key,
+            "confirm_required": True,
+            "safety": "Removes only Zero Net Export management; original Home Assistant device/entity is not deleted.",
+            "device_name": detail.get("name") or self._device_key,
+            "entity_id": detail.get("entity_id"),
+        }
+
+    async def async_press(self) -> None:
+        detail = self._detail()
+        device_name = detail.get("name") or self._device_key
+        await self.hass.services.async_call(
+            domain=DOMAIN,
+            service="remove_managed_device",
+            service_data={
+                "entry_id": self.coordinator.entry.entry_id,
+                "device_key": self._device_key,
+                "confirm": True,
+            },
+            blocking=True,
+        )
+        persistent_notification.async_create(
+            self.hass,
+            (
+                f"Requested removal of {device_name} from Zero Net Export management. "
+                "The original Home Assistant device/entity was not deleted."
+            ),
+            title=f"{self.coordinator.entry.title}: Remove from Zero Net Export",
+            notification_id=_managed_device_remove_notification_id(self.coordinator.entry.entry_id, self._device_key),
         )
 
 
