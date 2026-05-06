@@ -4,12 +4,16 @@ This file steers the Zero Net Export watchdog.
 
 ## Source of truth
 
+`CONSTRAINTS.md` is the highest-priority audit rulebook for this repository. If any other document conflicts with `CONSTRAINTS.md`, `CONSTRAINTS.md` wins.
+
 Audit against:
 
-1. `docs/ACTIVE_USER_REQUESTS.md`
-2. `docs/BUGS.md`
-3. current repo/test/live evidence
-4. `/root/.openclaw/workspace/TOOLS.md` when Home Assistant access is relevant
+1. `CONSTRAINTS.md`
+2. `PROJECT_STATUS.md`
+3. `docs/ACTIVE_USER_REQUESTS.md`
+4. `docs/BUGS.md`
+5. current repo/test/live evidence
+6. `/root/.openclaw/workspace/TOOLS.md` when Home Assistant access is relevant
 
 Deprecated and non-authoritative:
 
@@ -31,10 +35,12 @@ Catch drift away from Riley's highlighted bugs/features:
 
 A watchdog run adds value when it:
 
-- catches stale docs/cron/tests restoring deprecated UI-map behavior
+- audits every task, plan, code change, release-prep note, and status update against `CONSTRAINTS.md`
+- catches stale docs/cron/tests restoring deprecated UI-map behavior or any custom frontend/panel direction without explicit approval
+- catches work that skipped the required `CONSTRAINTS.md` feasibility classification before implementation
 - catches code or tests that still require `Un Managed — ...` peer rows
 - catches missing gear/settings affordance coverage
-- applies a small safe correction to docs/tests/code when obvious
+- applies a small safe correction to agent/process docs/tests/code when obvious and allowed by `CONSTRAINTS.md`
 - updates `docs/BUGS.md` when a bug state materially changes
 
 Do not use deprecated design-map wording as an audit basis.

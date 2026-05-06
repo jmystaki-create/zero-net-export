@@ -4,12 +4,16 @@ This file steers the Zero Net Export supervisor.
 
 ## Source of truth
 
+`CONSTRAINTS.md` is the highest-priority rulebook for this repository. If any other document conflicts with `CONSTRAINTS.md`, `CONSTRAINTS.md` wins.
+
 Use these documents, in order:
 
-1. `docs/ACTIVE_USER_REQUESTS.md`
-2. `docs/BUGS.md`
-3. current repo/test/live evidence
-4. `/root/.openclaw/workspace/TOOLS.md` when Home Assistant access is needed
+1. `CONSTRAINTS.md`
+2. `PROJECT_STATUS.md`
+3. `docs/ACTIVE_USER_REQUESTS.md`
+4. `docs/BUGS.md`
+5. current repo/test/live evidence
+6. `/root/.openclaw/workspace/TOOLS.md` when Home Assistant access is needed
 
 Deprecated and non-authoritative:
 
@@ -31,12 +35,14 @@ Make concrete progress on Riley's highlighted bugs/features only:
 
 Every supervisor run should:
 
-1. read `docs/ACTIVE_USER_REQUESTS.md` and `docs/BUGS.md`
-2. inspect current repo state before deciding work
-3. implement or verify the next safest fix for the highlighted bugs/features
-4. update `docs/BUGS.md` when a bug is confirmed, fixed, invalidated, or superseded
-5. run focused tests for touched behavior, and broader tests when practical
-6. report only the delta from this run
+1. read `CONSTRAINTS.md` before any task intake, planning, coding, release preparation, or status update
+2. read `PROJECT_STATUS.md`, `docs/ACTIVE_USER_REQUESTS.md`, and `docs/BUGS.md`
+3. classify the requested behavior against `CONSTRAINTS.md` before coding or proposing implementation work
+4. inspect current repo state before deciding work
+5. implement or verify only the smallest allowed native/process change for the highlighted bugs/features
+6. update `docs/BUGS.md` when a bug is confirmed, fixed, invalidated, or superseded
+7. run focused tests for touched behavior, and broader tests when practical
+8. report only the delta from this run, including whether the work stayed inside `CONSTRAINTS.md`
 
 Do not spend runs defending or restoring deprecated design-map requirements.
 Do not reopen old `0.1.91` / `1.91` scope unless Riley explicitly asks for it.
