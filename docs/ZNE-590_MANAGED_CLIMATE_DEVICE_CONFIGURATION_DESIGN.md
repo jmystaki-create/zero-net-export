@@ -1,7 +1,7 @@
 # ZNE-590 — Managed climate device configuration design
 
 Date: 2026-05-06
-Status: feasibility/design candidate pending Riley acceptance
+Status: feasibility/design candidate pending Riley acceptance; original-device attachment investigated and blocked unless explicitly approved as experimental
 
 ## User report
 
@@ -49,7 +49,18 @@ Requested outcome: preserve the original Home Assistant device screen, and add o
 
 ### Unknown / requires proof before implementation
 
-- Whether Zero Net Export can safely attach its own configuration entities directly to the existing thermostat device page for `climate.lounge_room_thermostat` without forging another integration's device identifiers, accidentally merging devices, or creating confusing ownership. This must be proven by Home Assistant source/live read-only inspection before implementation.
+- Whether Zero Net Export can safely attach its own configuration entities directly to the existing thermostat device page for `climate.lounge_room_thermostat` without forging another integration's device identifiers, accidentally merging devices, or creating confusing ownership. This has now been investigated in `validation/zne-590-original-thermostat-device-feasibility.md`: the only proven native mechanism is registry matching/merging by identifiers or connections, which would require cohabiting with the Tuya-owned thermostat device registry row. That is blocked under current constraints unless Riley explicitly approves experimental cross-integration device registry merging.
+
+### Original thermostat device page investigation result
+
+Read-only Home Assistant source and live registry inspection found:
+
+- Home Assistant entities attach to device pages through `device_info` identifiers/connections, not by assigning an arbitrary existing `device_id`.
+- `DeviceRegistry.async_get_or_create` resolves a device by identifiers/connections and adds the calling config entry to the matched device row.
+- The live `climate.lounge_room_thermostat` device is owned by `tuya_local` with identifier `("tuya_local", "bfde93729769c94ee3mmd3")`.
+- The live ZNE managed-load page is a separate ZNE-owned device with identifier `("zero_net_export", "01KQES5GS0B2XTEAK1SDHEK7KX:managed-device:test")` and user name `Heated Floor - Lounge Room`.
+
+Conclusion: placing ZNE entities on the original thermostat page is technically possible only by making ZNE match/cohabit the Tuya device registry row. That would depend on another integration's identifiers and alter another integration's visible device ownership surface. It also still would not guarantee exact card/row placement. Under `CONSTRAINTS.md`, this is not acceptable for the bug-fix path without explicit Riley approval as experimental work.
 
 ## Recommended design direction
 
@@ -144,15 +155,15 @@ Cons:
 
 ### Option B — investigate attaching ZNE config entities to the original thermostat page
 
-Do a read-only Home Assistant source/live feasibility check to determine if ZNE can safely associate its config entities with the existing climate device page without unsupported identifier forging or device merge side effects.
+Read-only Home Assistant source/live feasibility check completed. ZNE cannot safely associate its config entities with the existing climate device page under current constraints without cross-integration device registry merging/cohabitation.
 
 Pros:
 - Closest to Riley's preferred “same device page with an extra ZNE card” outcome.
 
 Cons:
-- Not yet proven supported.
+- Proven risky/blocked under current constraints.
 - Exact card placement still cannot be guaranteed.
-- Must not proceed without a written feasibility proof and acceptance.
+- Must not proceed unless Riley explicitly approves experimental cross-integration device registry merging.
 
 ### Option C — custom card/panel
 
