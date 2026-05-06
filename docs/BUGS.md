@@ -102,7 +102,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-591 - managed-load device overflow lacks configure/delete actions
 
-- **status:** `repo_validated_pending_release`
+- **status:** `released_live_validated`
 - **severity:** `high`
 - **area:** `managed_devices / native_device_page`
 - **where seen:** Riley screenshot on 2026-05-06 from the Home Assistant managed-load device page overflow menu.
@@ -118,7 +118,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Live Home Assistant browser proof shows the supported entry points are visible and functional.
 - **repo fix:** implemented native managed-load button rows `Edit Zero Net Export configuration` and `Remove from Zero Net Export`, plus guarded service/action `zero_net_export.remove_managed_device`. The remove path updates only the selected Zero Net Export config entry's managed-device inventory, reloads that ZNE entry, and leaves original Home Assistant devices/entities untouched. No custom frontend/sidebar/panel or unsupported overflow-menu injection was introduced.
 - **repo validation:** `python3 -m unittest tests.test_device_page_managed_settings -v` passed (`Ran 13 tests`, OK); `python3 -m unittest tests.test_managed_devices_panel -v` passed (`Ran 4 tests`, OK); full discovery `python3 -m unittest discover -v` passed (`Ran 607 tests`, OK). Evidence: `validation/zne-591-managed-device-edit-remove-actions.md`.
-- **next action:** prepare release, install in Home Assistant, restart, fingerprint/log-check, and capture browser proof that the managed-load page exposes the native edit/remove rows and that removing a ZNE managed load does not delete the original HA/Tuya device.
+- **live validation:** release `0.1.108` was published and installed through the Home Assistant update entity. Install fingerprint matched before and after restart (`overall_match=true`, manifest `0.1.108`, no legacy artifacts). Home Assistant restarted and recovered; `update.zero_net_export_update` reported installed/latest `v0.1.108`; `sensor.zero_net_export_installed_version` reported `0.1.108`; post-restart log tail showed no Zero Net Export errors/warnings/tracebacks. Browser proof confirmed the managed-load page exposes `Edit Zero Net Export configuration` and `Remove from Zero Net Export`. Remove/unmanage proof used disposable managed load `Managed Devices — 7th - test light`; `zero_net_export.remove_managed_device` removed the ZNE managed-device row/entities while the original Home Assistant light device/entity (`light.7th`) remained present and on. Evidence: `validation/0.1.108-release-validation.md`, `validation/artifacts/zne-591-heated-floor-managed-device-v0.1.108.png`, `validation/artifacts/zne-591-original-thermostat-device-v0.1.108.png`, `validation/artifacts/zne-591-original-light-after-remove-v0.1.108.png`.
+- **closure:** ZNE-591 is live-validated fixed in `0.1.108`. Exact arbitrary insertion into Home Assistant's native device overflow menu remains unsupported and was not implemented.
 
 
 ## ZNE-590 - managed climate device ZNE settings are confusing and do not preserve the original device experience
