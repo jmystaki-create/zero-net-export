@@ -1,7 +1,7 @@
 # ZNE-590 managed climate device page cleanup validation
 
 Date: 2026-05-06
-Status: repo_validated_pending_live_release_validation
+Status: live_validated_fixed_in_0.1.107
 
 ## Scope
 
@@ -29,20 +29,28 @@ Riley accepted Option A for ZNE-590: preserve the original Home Assistant climat
   - Command: `python3 -m py_compile custom_components/zero_net_export/*.py && python3 -m unittest discover -s tests && git diff --check`
   - Result: `Ran 607 tests in 1.772s`, `OK`; `py_compile` passed; `git diff --check` passed.
 
-## Pending validation
+## Release-managed live validation completed
 
-Before closing ZNE-590, release-managed live validation is still required:
+Release `0.1.107` was published, installed through the Home Assistant update entity, fingerprint-checked, restarted, log-checked, and browser-validated.
 
-1. Bump/package/release the next version.
-2. Install through the Home Assistant update/HACS path.
-3. Confirm install fingerprint matches the intended repo build.
-4. Restart Home Assistant and wait for API recovery.
-5. Capture browser proof that:
-   - the original `climate.lounge_room_thermostat` device page is preserved;
-   - the ZNE managed-load page exposes `Zero Net Export enabled`, `Test load`, `Priority`, `Zero Net Export configuration`, and `Zero Net Export status`;
-   - confusing `Settings — Test ...` rows are absent.
-6. Check Zero Net Export logs after restart.
+Evidence:
+
+- Release validation: `validation/0.1.107-release-validation.md`
+- Managed-load page screenshot: `validation/artifacts/zne-590-managed-climate-device-v0.1.107.png`
+- Managed-load page extracted proof: `validation/artifacts/zne-590-managed-climate-device-v0.1.107.json`
+- Original thermostat page screenshot: `validation/artifacts/zne-590-original-thermostat-device-v0.1.107.png`
+- Original thermostat page extracted proof: `validation/artifacts/zne-590-original-thermostat-device-v0.1.107.json`
+
+Result:
+
+- Installed build fingerprint matched repo commit `dbb9bf2` before and after restart.
+- Home Assistant API recovered after restart.
+- `update.zero_net_export_update` reported installed/latest `v0.1.107`.
+- `sensor.zero_net_export_installed_version` reported `0.1.107`.
+- Post-restart log tail showed no Zero Net Export errors/warnings/tracebacks.
+- Browser proof confirmed the ZNE managed-load page shows `Zero Net Export enabled`, `Test load`, `Priority`, `Zero Net Export configuration`, `Zero Net Export status`, and `Current power`, while confusing `Settings — Test ...` rows are absent.
+- Browser proof confirmed the original Tuya/Tuya Local thermostat device page remains a thermostat page and does not expose ZNE managed-load controls.
 
 ## Current closure decision
 
-Do not close ZNE-590 yet. The repo fix is validated, but the bug affects live Home Assistant UI behavior and needs installed-build browser proof before closure.
+ZNE-590 is live-validated fixed in `0.1.107`.
