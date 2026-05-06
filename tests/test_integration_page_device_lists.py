@@ -123,9 +123,12 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         self.assertEqual(sensor._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
         self.assertNotIn("suggested_area", sensor._attr_device_info)
         self.assertEqual(sensor.extra_state_attributes["integration_page_group"], "Managed Devices")
-        self.assertIsNone(sensor._attr_device_info["configuration_url"])
+        self.assertEqual(
+            sensor._attr_device_info["configuration_url"],
+            "homeassistant://config/integrations/integration/zero_net_export",
+        )
 
-    def test_managed_device_async_added_clears_existing_registry_configuration_url(self) -> None:
+    def test_managed_device_async_added_replaces_stale_registry_configuration_url(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
         sensor = sensor_module.ZeroNetExportDeviceManagedSummarySensor(coordinator, "pool", "Pool Pump")
@@ -141,7 +144,10 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         asyncio.run(sensor.async_added_to_hass())
 
         self.assertEqual(registry.updated[0], "device-1")
-        self.assertIsNone(registry.updated[1]["configuration_url"])
+        self.assertEqual(
+            registry.updated[1]["configuration_url"],
+            "homeassistant://config/integrations/integration/zero_net_export",
+        )
         self.assertEqual(registry.updated[1]["name"], "Managed Devices — Pool Pump")
         self.assertEqual(registry.updated[1]["model"], "Managed Devices — Fixed managed load")
 
@@ -177,7 +183,10 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             ("zero_net_export", "entry-1:managed-device:pool_pump_main_one_boost_18a397c3"),
             sensor._attr_device_info["identifiers"],
         )
-        self.assertIsNone(sensor._attr_device_info["configuration_url"])
+        self.assertEqual(
+            sensor._attr_device_info["configuration_url"],
+            "homeassistant://config/integrations/integration/zero_net_export",
+        )
 
     def test_child_device_identifiers_remain_unique_after_sanitizing_separators(self) -> None:
         sensor_module = _load_sensor_module()

@@ -62,8 +62,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator._zne_integration_page_managed_details = device_details
     managed_entities = {
         device_key: [
-            ZeroNetExportEditManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
-            ZeroNetExportRemoveManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportTestManagedLoadButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details)),
@@ -80,8 +78,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
         async_add_entities,
         managed_entities,
         lambda device_key, details: [
-            ZeroNetExportEditManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
-            ZeroNetExportRemoveManagedDeviceButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportTestManagedLoadButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportShowManagedDeviceDetailButton(coordinator, device_key, managed_load_display_name(device_key, details)),
             ZeroNetExportResetDeviceOverridesButton(coordinator, device_key, managed_load_display_name(device_key, details)),

@@ -6,6 +6,16 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.109] - 2026-05-06
+
+### Fixed
+- Corrected ZNE-592 by removing the misleading managed-load device-page `Edit Zero Net Export configuration` and `Remove from Zero Net Export` button rows whose native click path opened generic Home Assistant button more-info dialogs instead of selected edit/remove workflows.
+- Added a supported Home Assistant `configuration_url` to managed-load child devices so the native device page exposes `Open configuration URL`, routing operators to the Zero Net Export integration page where the supported Configure/options flow contains the Managed Devices edit/remove workspace.
+- Added upgrade cleanup for stale managed-load edit/remove button entity-registry rows from `0.1.108` while keeping the guarded `zero_net_export.remove_managed_device` service available for advanced/manual/scripted removal.
+
+### Validation
+- ZNE-592 feasibility check completed against Home Assistant frontend source and prior live click-through evidence; direct selected edit/remove button rows are unsupported, while `device.configuration_url` to an internal Home Assistant route is supported. Focused repo validation passed for managed-device device-page entities and stale registry cleanup.
+
 ## [0.1.108] - 2026-05-06
 
 ### Fixed

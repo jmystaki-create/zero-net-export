@@ -62,6 +62,10 @@ STALE_GUIDED_FLOW_BUTTON_SUFFIXES = {
     "open_managed_devices_guided_flow",
     "open_diagnostics_guided_flow",
 }
+STALE_MANAGED_LOAD_BUTTON_SUFFIXES = (
+    "_edit_configuration",
+    "_remove_from_zne",
+)
 
 
 def _setup_notification_id(entry: ConfigEntry) -> str:
@@ -78,7 +82,10 @@ def _async_remove_stale_guided_flow_button_entities(hass: HomeAssistant, entry: 
         unique_id = str(getattr(entity_entry, "unique_id", "") or "")
         if not unique_id.startswith(unique_id_prefix):
             continue
-        if unique_id.removeprefix(unique_id_prefix) in STALE_GUIDED_FLOW_BUTTON_SUFFIXES:
+        suffix = unique_id.removeprefix(unique_id_prefix)
+        if suffix in STALE_GUIDED_FLOW_BUTTON_SUFFIXES or (
+            suffix.startswith("device_") and suffix.endswith(STALE_MANAGED_LOAD_BUTTON_SUFFIXES)
+        ):
             entity_registry.async_remove(entity_id)
 
 

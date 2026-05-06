@@ -175,6 +175,18 @@ class SetupNoticeCopyTests(unittest.TestCase):
                         platform="zero_net_export",
                         unique_id="other-entry_open_sensors_guided_flow",
                     ),
+                    "button.pool_edit_zero_net_export_configuration": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="entry-1_device_pool_edit_configuration",
+                    ),
+                    "button.pool_remove_from_zero_net_export": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="entry-1_device_pool_remove_from_zne",
+                    ),
+                    "button.summer_pool_remove_from_zero_net_export": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="other-entry_device_pool_remove_from_zne",
+                    ),
                     "button.winter_plan_show_command_center_guide": SimpleNamespace(
                         platform="zero_net_export",
                         unique_id="entry-1_show_native_command_center",
@@ -203,9 +215,12 @@ class SetupNoticeCopyTests(unittest.TestCase):
                 "button.winter_plan_open_controls_setup",
                 "button.winter_plan_open_managed_devices_setup",
                 "button.winter_plan_open_diagnostics_setup",
+                "button.pool_edit_zero_net_export_configuration",
+                "button.pool_remove_from_zero_net_export",
             ],
         )
         self.assertIn("button.summer_plan_open_sensors_setup", registry.entities)
+        self.assertIn("button.summer_pool_remove_from_zero_net_export", registry.entities)
         self.assertIn("button.winter_plan_show_command_center_guide", registry.entities)
         self.assertIn("button.unrelated", registry.entities)
 

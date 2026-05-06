@@ -11,6 +11,7 @@ from .device_model import parse_device_configs
 
 
 MANAGED_LOAD_SETTINGS_ICON = "mdi:cog-outline"
+MANAGED_LOAD_CONFIGURATION_URL = f"homeassistant://config/integrations/integration/{DOMAIN}"
 
 
 FLEET_WORKSPACE_SENSOR_KEYS = {
@@ -231,7 +232,7 @@ def managed_load_device_info(coordinator, device_key: str, detail: dict | None =
         "model": f"Managed Devices — {kind.title()} managed load" if kind else "Managed Devices — Managed load",
         "sw_version": INTEGRATION_VERSION,
         "via_device": (DOMAIN, coordinator.entry.entry_id),
-        "configuration_url": None,
+        "configuration_url": MANAGED_LOAD_CONFIGURATION_URL,
     }
 
 
