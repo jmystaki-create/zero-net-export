@@ -119,7 +119,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-589 - remove ZNE Managed Devices from the Home Assistant sidebar menu
 
-- **status:** fixed_pending_validation
+- **status:** validated
 - **severity:** medium
 - **area:** managed_devices / frontend_panel
 - **where seen:** user-supplied Home Assistant Settings screenshot on 2026-05-06.
@@ -130,11 +130,12 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **repo fix:** removed custom panel registration from setup, removed `frontend`/`http`/`panel_custom` manifest dependencies, removed the shipped panel asset, removed managed-device surface attributes that pointed to `/zero-net-export-managed-devices`, and stopped writing managed child-device `configuration_url` values to the removed custom panel. Existing registry rows with stale `configuration_url` are cleared during child-device registry sync.
 - **acceptance criteria:** sidebar item absent after fixed release install/restart; custom panel registration removed; no ZNE configuration/deep links point to the removed panel route; native managed-device flows still work; repo and live browser validation recorded.
 - **repo validation:** focused tests `python3 -m unittest -q tests.test_managed_devices_panel tests.test_integration_page_device_lists` passed: 46 tests OK. Changed-file `py_compile`, full discovery (`Ran 606 tests in 1.733s`, OK), and `git diff --check` passed. Evidence: `validation/zne-589-sidebar-menu-panel-removal.md`.
-- **next action:** release-managed HACS install/restart and browser screenshot proof before closing as live-validated.
+- **live validation:** released and live-validated in `0.1.106`: Home Assistant install/restart/browser proof confirmed the `ZNE Managed Devices` sidebar/menu item and `zero-net-export-managed-devices` route were absent. Evidence: `validation/0.1.106-release-validation.md`, `validation/artifacts/zne-589-ha-sidebar-v0.1.106.png`.
+- **closure:** ZNE-589 is live-validated fixed in `0.1.106`.
 
 ## ZNE-588 - Tier 1 setup buttons imply a broken Tier 2 jump and diagnostics overfill the device page
 
-- **status:** `fixed_pending_validation`
+- **status:** `validated`
 - **severity:** `high`
 - **area:** `native_device_page`
 - **where seen:** Riley screenshot/review on 2026-05-01 from the native Home Assistant Zero Net Export device page; reconfirmed when the `0.1.104` custom-panel candidate was rejected and rolled back.
@@ -158,7 +159,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **current evidence:** `validation/0.1.103-release-validation.md` is the baseline; `validation/zne-588-0.1.104-rollback.md` records the failed candidate rollback.
 - **repo patch:** removed the misleading `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, and `Open Diagnostics setup` button entities from the native button platform setup path. Existing truthful actions such as `Show command center guide`, diagnostics snapshot/checklist/review, managed-device review, and reset actions remain.
 - **repo validation:** `validation/zne-588-bug-only-tier1-cleanup.md` records focused tests (115 OK), full discovery (607 OK), `py_compile`, and `git diff --check` clean.
-- **next action:** release-managed Home Assistant deployment/screenshots after approval before closing as live-validated.
+- **live validation:** released and live-validated in `0.1.106`: installed-build browser proof confirmed the retired setup buttons were absent while Diagnostic, Connected devices, Review diagnostics, and firmware `0.1.106` remained visible. Evidence: `validation/0.1.106-release-validation.md`, `validation/artifacts/zne-588-tier1-device-v0.1.106.png`.
+- **closure:** ZNE-588 is live-validated fixed in `0.1.106`; broader native guided Tier 2 work remains split to `ZNE-FR-008`.
 
 
 
