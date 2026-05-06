@@ -1,0 +1,977 @@
+{
+  "url": "http://192.168.86.200:8123/config/devices/device/479dc80f06b5e449440539ab8c9ebb96",
+  "items": [
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/manifest.json",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/static/icons/favicon.ico",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/frontend_latest/core.a0e4dee70a91ed5f.js",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/frontend_latest/app.39751cc1e085e60d.js",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/static/icons/mask-icon.svg",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/static/icons/favicon-apple-180x180.png",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/static/fonts/roboto/Roboto-Regular.woff2",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LINK",
+      "path": "link < head < html",
+      "text": "",
+      "href": "http://192.168.86.200:8123/static/fonts/roboto/Roboto-Medium.woff2",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Kitchen",
+      "href": "/dashboard-kitchen",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/dashboard-kitchen",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Export",
+      "href": "/dashboard-export",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/dashboard-export",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Garage",
+      "href": "/dashboard-garage",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/dashboard-garage",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Lounge Room",
+      "href": "/lounge-room",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/lounge-room",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Power Management",
+      "href": "/power-management",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/power-management",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Test",
+      "href": "/dashboard-test",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/dashboard-test",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Energy",
+      "href": "/energy",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/energy",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Activity",
+      "href": "/logbook",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/logbook",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "History",
+      "href": "/history",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/history",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "AdGuard Home",
+      "href": "/a0d7b954_adguard",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/a0d7b954_adguard",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "File editor",
+      "href": "/core_configurator",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/core_configurator",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "HACS",
+      "href": "/hacs",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/hacs",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Media",
+      "href": "/media-browser",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/media-browser",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Tailscale",
+      "href": "/a0d7b954_tailscale",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/a0d7b954_tailscale",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "Terminal",
+      "href": "/core_ssh",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.. < ha-md-list..ha-scrollbar < div.wrapper < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main",
+      "text": "",
+      "href": "http://192.168.86.200:8123/core_ssh",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item.configuration.selected < ha-md-list..after-spacer < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant < body",
+      "text": "Settings",
+      "href": "/config",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item.configuration.selected < ha-md-list..after-spacer < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "",
+      "href": "http://192.168.86.200:8123/config",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "HA-MD-LIST-ITEM",
+      "path": "ha-md-list-item..user < ha-md-list..after-spacer < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant < body",
+      "text": "jmystaki@hotmail.com",
+      "href": "/profile",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a#item.list-item. < ha-md-list-item..user < ha-md-list..after-spacer < div.panels-list < ha-sidebar < ha-drawer < home-assistant-main < home-assistant",
+      "text": "",
+      "href": "http://192.168.86.200:8123/profile",
+      "aria": null,
+      "role": "listitem",
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.toolbar. < hass-subpage < ha-config-device-page < ha-config-devices < ha-panel-config < partial-panel-resolver < ha-drawer < home-assistant-main",
+      "text": "Managed Devices — 7th test list",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.toolbar-content < div.toolbar. < hass-subpage < ha-config-device-page < ha-config-devices < ha-panel-config < partial-panel-resolver < ha-drawer",
+      "text": "Managed Devices — 7th test list",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.main-title < div.toolbar-content < div.toolbar. < hass-subpage < ha-config-device-page < ha-config-devices < ha-panel-config < partial-panel-resolver",
+      "text": "Managed Devices — 7th test list",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "SLOT",
+      "path": "slot < div.main-title < div.toolbar-content < div.toolbar. < hass-subpage < ha-config-device-page < ha-config-devices < ha-panel-config",
+      "text": "Managed Devices — 7th test list",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a < ha-dropdown < hass-subpage < ha-config-device-page < ha-config-devices < ha-panel-config < partial-panel-resolver < ha-drawer",
+      "text": "20 entities",
+      "href": "http://192.168.86.200:8123/config/entities?historyBack=1&device=479dc80f06b5e449440539ab8c9ebb96",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "HA-CARD",
+      "path": "ha-card < ha-device-info-card < div.column < div.container < hass-subpage < ha-config-device-page < ha-config-devices < ha-panel-config",
+      "text": "Managed Devices — Fixed managed load by OpenClaw Connected via Summer Plan Firmware: 0.1.109",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.card-content < ha-card < ha-device-info-card < div.column < div.container < hass-subpage < ha-config-device-page < ha-config-devices",
+      "text": "Managed Devices — Fixed managed load by OpenClaw Connected via Summer Plan Firmware: 0.1.109",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.model < div.card-content < ha-card < ha-device-info-card < div.column < div.container < hass-subpage < ha-config-device-page",
+      "text": "Managed Devices — Fixed managed load",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a < span.hub < div.extra-info < div.card-content < ha-card < ha-device-info-card < div.column < div.container",
+      "text": "Summer Plan",
+      "href": "http://192.168.86.200:8123/config/devices/device/0462739e40e8874883de5646bd030d7e",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a < ha-device-info-card < div.column < div.container < hass-subpage < ha-config-device-page < ha-config-devices < ha-panel-config",
+      "text": "Zero Net Export",
+      "href": "http://192.168.86.200:8123/config/integrations/integration/zero_net_export#config_entry=01KQES5GS0B2XTEAK1SDHEK7KX",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "HA-BUTTON",
+      "path": "ha-button < div.card-actions < ha-device-info-card < div.column < div.container < hass-subpage < ha-config-device-page < ha-config-devices",
+      "text": "Visit",
+      "href": "/config/integrations/integration/zero_net_export",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "A",
+      "path": "a..button < ha-button < div.card-actions < ha-device-info-card < div.column < div.container < hass-subpage < ha-config-device-page",
+      "text": "",
+      "href": "http://192.168.86.200:8123/config/integrations/integration/zero_net_export",
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.row.pointer < hui-generic-entity-row < hui-sensor-entity-row < div < ha-list < div#entities.move-up < ha-card < ha-device-entities-card",
+      "text": "Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.info.text-content < div.row.pointer < hui-generic-entity-row < hui-sensor-entity-row < div < ha-list < div#entities.move-up < ha-card",
+      "text": "Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.row.pointer < hui-generic-entity-row < hui-button-entity-row < div < ha-list < div#entities.move-up < ha-card < ha-device-entities-card",
+      "text": "Review Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.info.text-content < div.row.pointer < hui-generic-entity-row < hui-button-entity-row < div < ha-list < div#entities.move-up < ha-card",
+      "text": "Review Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container < hass-subpage < ha-config-device-page",
+      "text": "May 6, 2026 Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 35m | today 44m 2s 2:22:15 PM - 4 hours ago Managed Devices — 7th test list Zero Net Export configura",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "LIT-VIRTUALIZER",
+      "path": "lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container < hass-subpage",
+      "text": "May 6, 2026 Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 35m | today 44m 2s 2:22:15 PM - 4 hours ago Managed Devices — 7th test list Zero Net Export configura",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "May 6, 2026 Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 35m | today 44m 2s 2:22:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 35m | today 44m 2s 2:22:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 35m | today 44m 2s 2:22:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 35m | today 44m 2s 2:22:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 35m | today 44m 2s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m 30s | today 43m 32s 2:21:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m 30s | today 43m 32s 2:21:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m 30s | today 43m 32s 2:21:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m 30s | today 43m 32s 2:21:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m 30s | today 43m 32s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m | today 43m 2s 2:21:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m | today 43m 2s 2:21:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m | today 43m 2s 2:21:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m | today 43m 2s 2:21:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 34m | today 43m 2s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m 30s | today 42m 32s 2:20:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m 30s | today 42m 32s 2:20:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m 30s | today 42m 32s 2:20:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m 30s | today 42m 32s 2:20:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m 30s | today 42m 32s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m | today 42m 2s 2:20:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m | today 42m 2s 2:20:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m | today 42m 2s 2:20:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m | today 42m 2s 2:20:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 33m | today 42m 2s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m 30s | today 41m 32s 2:19:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m 30s | today 41m 32s 2:19:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m 30s | today 41m 32s 2:19:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m 30s | today 41m 32s 2:19:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m 30s | today 41m 32s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m | today 41m 2s 2:19:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m | today 41m 2s 2:19:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m | today 41m 2s 2:19:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m | today 41m 2s 2:19:15 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 32m | today 41m 2s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column < div.container",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 31m 30s | today 40m 32s 2:18:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card < div.column",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 31m 30s | today 40m 32s 2:18:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook < ha-card",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 31m 30s | today 40m 32s 2:18:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer < ha-logbook",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 31m 30s | today 40m 32s 2:18:45 PM - 4 hours ago",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "DIV",
+      "path": "div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar < ha-logbook-renderer",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration changed to blocked | active | fixed load | blocked | not usable | enabled | priority 100 | power n/a | nominal 5 W | runtime 31m 30s | today 40m 32s",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    },
+    {
+      "tag": "BUTTON",
+      "path": "button.link < div.message < div.message-relative_time < div.icon-message < div.entry. < div.entry-container. < lit-virtualizer.ha-scrollbar < div.container.ha-scrollbar",
+      "text": "Managed Devices — 7th test list Zero Net Export configuration",
+      "href": null,
+      "aria": null,
+      "role": null,
+      "onclick": false
+    }
+  ]
+}
