@@ -11,6 +11,7 @@ import voluptuous as vol
 from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
@@ -55,8 +56,30 @@ from .release_info import async_prime_install_provenance
 from .repairs import async_clear_repairs_issues, async_sync_repairs_issues
 
 
+STALE_GUIDED_FLOW_BUTTON_SUFFIXES = {
+    "open_sensors_guided_flow",
+    "open_controls_guided_flow",
+    "open_managed_devices_guided_flow",
+    "open_diagnostics_guided_flow",
+}
+
+
 def _setup_notification_id(entry: ConfigEntry) -> str:
     return f"{DOMAIN}_{entry.entry_id}_native_setup"
+
+
+def _async_remove_stale_guided_flow_button_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Remove registry rows for retired device-page launcher buttons."""
+    entity_registry = er.async_get(hass)
+    unique_id_prefix = f"{entry.entry_id}_"
+    for entity_id, entity_entry in list(entity_registry.entities.items()):
+        if getattr(entity_entry, "platform", None) != DOMAIN:
+            continue
+        unique_id = str(getattr(entity_entry, "unique_id", "") or "")
+        if not unique_id.startswith(unique_id_prefix):
+            continue
+        if unique_id.removeprefix(unique_id_prefix) in STALE_GUIDED_FLOW_BUTTON_SUFFIXES:
+            entity_registry.async_remove(entity_id)
 
 
 def _missing_required_source_mappings(entry: ConfigEntry) -> list[str]:
@@ -447,6 +470,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     sync_primary_controller_device_registry(hass, entry)
+    _async_remove_stale_guided_flow_button_entities(hass, entry)
     await _async_update_native_setup_notice(hass, entry)
     await async_prime_install_provenance(hass, force_refresh=True)
 
@@ -497,6 +521,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if changed:
         hass.config_entries.async_update_entry(entry, data=data)
 
+    _async_remove_stale_guided_flow_button_entities(hass, entry)
     await _async_update_native_setup_notice(hass, entry)
     await async_prime_install_provenance(hass, force_refresh=True)
     async_sync_repairs_issues(hass, entry)

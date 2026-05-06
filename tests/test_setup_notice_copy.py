@@ -59,10 +59,14 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
 
     typing_module = types.ModuleType("homeassistant.helpers.typing")
     typing_module.ConfigType = dict
+    entity_registry_module = types.ModuleType("homeassistant.helpers.entity_registry")
+    entity_registry_module.async_get = lambda hass: hass.entity_registry
     helpers_pkg = types.ModuleType("homeassistant.helpers")
     helpers_pkg.typing = typing_module
+    helpers_pkg.entity_registry = entity_registry_module
     sys.modules[helpers_pkg.__name__] = helpers_pkg
     sys.modules[typing_module.__name__] = typing_module
+    sys.modules[entity_registry_module.__name__] = entity_registry_module
     homeassistant_pkg.helpers = helpers_pkg
 
     const_module = types.ModuleType(f"{package_name}.const")
@@ -145,6 +149,66 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
 
 
 class SetupNoticeCopyTests(unittest.TestCase):
+    def test_stale_guided_flow_button_registry_rows_are_removed_for_current_entry(self) -> None:
+        module = _load_init_module([], [])
+
+        class FakeEntityRegistry:
+            def __init__(self):
+                self.entities = {
+                    "button.winter_plan_open_sensors_setup": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="entry-1_open_sensors_guided_flow",
+                    ),
+                    "button.winter_plan_open_controls_setup": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="entry-1_open_controls_guided_flow",
+                    ),
+                    "button.winter_plan_open_managed_devices_setup": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="entry-1_open_managed_devices_guided_flow",
+                    ),
+                    "button.winter_plan_open_diagnostics_setup": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="entry-1_open_diagnostics_guided_flow",
+                    ),
+                    "button.summer_plan_open_sensors_setup": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="other-entry_open_sensors_guided_flow",
+                    ),
+                    "button.winter_plan_show_command_center_guide": SimpleNamespace(
+                        platform="zero_net_export",
+                        unique_id="entry-1_show_native_command_center",
+                    ),
+                    "button.unrelated": SimpleNamespace(
+                        platform="other_integration",
+                        unique_id="entry-1_open_sensors_guided_flow",
+                    ),
+                }
+                self.removed = []
+
+            def async_remove(self, entity_id):
+                self.removed.append(entity_id)
+                self.entities.pop(entity_id, None)
+
+        registry = FakeEntityRegistry()
+        hass = SimpleNamespace(entity_registry=registry)
+        entry = SimpleNamespace(entry_id="entry-1")
+
+        module._async_remove_stale_guided_flow_button_entities(hass, entry)
+
+        self.assertEqual(
+            registry.removed,
+            [
+                "button.winter_plan_open_sensors_setup",
+                "button.winter_plan_open_controls_setup",
+                "button.winter_plan_open_managed_devices_setup",
+                "button.winter_plan_open_diagnostics_setup",
+            ],
+        )
+        self.assertIn("button.summer_plan_open_sensors_setup", registry.entities)
+        self.assertIn("button.winter_plan_show_command_center_guide", registry.entities)
+        self.assertIn("button.unrelated", registry.entities)
+
     def test_setup_notice_is_short_and_action_first(self) -> None:
         notification_calls: list[dict] = []
         dismiss_calls: list[dict] = []

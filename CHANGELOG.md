@@ -6,6 +6,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.106] - 2026-05-06
+
+### Fixed
+- Removed stale Home Assistant entity-registry rows for the retired ZNE-588 guided setup button / launcher buttons on upgrade/migration, so upgraded installs stop showing `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, and `Open Diagnostics setup` on native Tier 1 device pages while preserving the Tier 2 native workflow, the ZNE Managed Devices sidebar/menu removal, and removed `/zero-net-export-managed-devices` route.
+
+### Validation
+- `0.1.105` live validation found ZNE-589 fixed, but exposed stale ZNE-588 launcher-button registry rows on the installed Winter Plan device page; `0.1.106` supersedes that release for final live UI proof.
+
 ## [0.1.105] - 2026-05-06
 
 ### Fixed
