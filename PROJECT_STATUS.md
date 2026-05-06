@@ -55,4 +55,4 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The broader native guided Tie
 - New process gate: no architecture, mockup, or code may proceed until a target environment feasibility check is written and accepted. OpenClaw may perform the validation. Template: `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md`.
 
 ## Next best action
-Run release wrap-up: commit the final `0.1.106` validation/status documentation and then either package a concise release summary for Riley or move to the next backlog item, `ZNE-FR-008` native guided Tier 2 flows, with a fresh feasibility/design checkpoint.
+Package a concise `0.1.106` release summary for Riley, then move to the next backlog item, `ZNE-FR-008` native guided Tier 2 flows, with a fresh feasibility/design checkpoint before any design or code work.
