@@ -62,22 +62,22 @@ This file tracks user-requested product enhancements separately from confirmed b
 
 ## ZNE-FR-009 - Managed-load three-dot Delete device action
 
-- **status:** `backlog_feasibility_required`
+- **status:** `feasibility_checked_pending_user_decision`
 - **area:** `managed_devices / native_integration_page`
 - **requested by:** Riley, 2026-05-06
 - **request:** On the Zero Net Export integration page, each managed-load row three-dot menu should expose a `Delete device` action. Pressing it should immediately remove that managed device from the owning Zero Net Export service/plan.
 - **source screenshot:** `/root/.openclaw/media/inbound/image---e2ac28c5-bc32-4ac8-b564-06a4232cdd9a.png` shows the current native row overflow menu for `Managed Devices — 7th test list` with only `20 entities` and `Disable device`.
 - **acceptance target:** the selected managed-load row overflow exposes a clear delete/remove action; activating it removes only that selected managed-load record from the owning service/plan; the original Home Assistant device/entity remains intact; stale ZNE entities/device rows are removed after reload; tests and live browser proof validate the path.
-- **target-environment gate:** do not design or implement until a fresh Home Assistant frontend/source feasibility check is written and accepted for custom integration actions in this exact managed-load row overflow menu. Prior ZNE-591/ZNE-592 evidence found arbitrary device-page/row overflow injection unsupported; if Home Assistant does not support this exact placement, Riley must choose between the closest supported native path or explicitly approving custom/upstream frontend work.
-- **validation plan:** frontend/source feasibility evidence; repo tests for selected-entry managed-device removal and stale registry/entity cleanup; live HA browser proof that the action is visible in the row overflow and that pressing it removes only the ZNE managed-load record without removing the underlying Home Assistant device/entity.
+- **target-environment result:** Home Assistant frontend/source feasibility in `validation/zne-fr-009-010-ha-design-guideline-feasibility.md` found the exact native row-overflow `Delete` placement is supported when the integration exposes HA's native `async_remove_config_entry_device` / `supports_remove_device` backend path. No frontend injection is needed or approved.
+- **validation plan:** repo tests for selected-entry managed-device removal and stale registry/entity cleanup; live HA browser proof that the native HA row-overflow `Delete` appears through `supports_remove_device` and that pressing it removes only the ZNE managed-load record without removing the underlying Home Assistant device/entity.
 
 ## ZNE-FR-010 - Managed-load configuration card with editable captured settings
 
-- **status:** `backlog_feasibility_required`
+- **status:** `feasibility_checked_pending_user_decision`
 - **area:** `managed_devices / native_device_page / configuration_surface`
 - **requested by:** Riley, 2026-05-06
 - **request:** Add a configuration card for a managed-load device that shows all settings captured when the device was added. Next to each label, show a field/control that lets the operator modify the relevant configuration value for that setting.
 - **source screenshot:** `/root/.openclaw/media/inbound/image---79d3e841-74de-4b05-8966-25c7c7eb37db.png` marks the intended configuration-card area on the managed-load device page.
 - **acceptance target:** the managed-load configuration surface lists the add-time captured settings with clear labels; each editable setting has an adjacent field/control; saving updates only the selected managed device in the owning service/plan; read-only settings are clearly read-only; invalid values show validation feedback; the original Home Assistant device/entity remains untouched.
-- **target-environment gate:** do not design or implement until a fresh Home Assistant target-environment feasibility check is written and accepted for the exact desired placement and editable-field behavior. Prefer supported native Home Assistant surfaces such as config/options/subentry flows, entity controls, forms, or supported cards. Do not introduce custom frontend/sidebar/panel or claim arbitrary native card layout control unless explicitly approved and supported by HA source/docs.
-- **validation plan:** frontend/source feasibility evidence; repo tests for selected-entry managed-device setting updates, validation errors, plan scoping, and original-device preservation; live HA browser proof showing the card/fields, editing at least one safe setting, and verifying only the selected managed-load config changes.
+- **target-environment result:** Home Assistant frontend/source feasibility in `validation/zne-fr-009-010-ha-design-guideline-feasibility.md` found the user outcome fits HA guidelines through native config subentry reconfigure/options/config-entity surfaces, but arbitrary custom card insertion into the native device page is not supported without custom/upstream frontend work. Recommended path: native managed-device subentry reconfigure flow, optionally linked by `configuration_url`, with config entities only for high-value live-tweak settings.
+- **validation plan:** repo tests for selected-entry managed-device setting updates, validation errors, plan scoping, and original-device preservation; live HA browser proof showing the native reconfigure/edit form or supported config controls, editing at least one safe setting, and verifying only the selected managed-load config changes.
