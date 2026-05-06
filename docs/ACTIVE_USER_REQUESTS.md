@@ -36,11 +36,18 @@ Focus only on the concrete bugs/features Riley has flagged in the Home Assistant
    - It must not remove the original Home Assistant device/entity.
    - This requires a fresh Home Assistant frontend/source feasibility check before design/code because prior ZNE-591/ZNE-592 work found arbitrary native managed-load row/device overflow action injection unsupported.
 
-6. **No release-readiness claim without proof**
+6. **Managed-load configuration card with editable captured settings**
+   - Riley requested a configuration card on 2026-05-06 for the managed-load device surface.
+   - The card should show all settings captured when the device was added.
+   - Next to each label, there should be a field/control to modify the configuration relevant to that setting.
+   - Saving must update only the selected managed device in the owning service/plan and must not mutate the original Home Assistant device/entity.
+   - This requires a fresh Home Assistant target-environment feasibility check before design/code for the exact placement and editable-field behavior.
+
+7. **No release-readiness claim without proof**
    - Do not tag, release, deploy, restart Home Assistant, or claim the next release is ready without explicit approval.
    - Required proof before release/deploy approval: tests pass and PNG evidence shows clean managed rows with the settings affordance on the native right side and no peer `Un Managed — ...` rows.
 
-7. **No direct Home Assistant updates outside release management**
+8. **No direct Home Assistant updates outside release management**
    - No features, bug fixes, or component updates should be pushed directly to the live Home Assistant install outside the GitHub release-management process.
    - Live changes must flow through committed code, pushed GitHub main/tag, published GitHub release, HACS refresh/upgrade, restart, and validation per `RELEASE_MANAGEMENT.md`.
    - Manual install writes are only acceptable as an explicitly approved release-management recovery step for the exact published release artifact, not as ad-hoc deployment.
