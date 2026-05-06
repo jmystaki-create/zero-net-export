@@ -100,6 +100,25 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-591 - managed-load device overflow lacks configure/delete actions
+
+- **status:** `open`
+- **severity:** `high`
+- **area:** `managed_devices / native_device_page`
+- **where seen:** Riley screenshot on 2026-05-06 from the Home Assistant managed-load device page overflow menu.
+- **current observed behavior:** the managed-load device page three-dot overflow menu only shows `20 entities` and `Disable device`. There is no visible `Delete`/`Remove managed device` action and no visible `Configure`/`Edit Zero Net Export configuration` action for the managed load.
+- **expected behavior:** an operator viewing a Zero Net Export managed-load device page must have an obvious Home Assistant-native way to edit the ZNE managed-load configuration and remove/delete the managed load from Zero Net Export management.
+- **evidence:** screenshot `image---6f6eced0-bb6a-4fd0-ab15-a8912375b31f.png` shows the overflow menu with `20 entities` and `Disable device` only. Image review found no visible delete/remove action and no visible configure/edit ZNE action in the overflow menu.
+- **target-environment feasibility needed:** before design/code, verify what Home Assistant supports for device-page overflow actions, device/entity actions, config-entry/subentry actions, services, repairs, and device `configuration_url` surfaces. Do not assume custom device overflow actions are supported.
+- **acceptance criteria:**
+  - The managed-load page exposes an obvious supported edit path for ZNE managed-load configuration.
+  - The managed-load page exposes an obvious supported remove/delete path for removing the load from Zero Net Export management.
+  - The solution stays inside native Home Assistant integration surfaces unless Riley explicitly approves experimental/custom UI.
+  - Tests cover the edit/remove entry points and resulting config mutation/removal behavior.
+  - Live Home Assistant browser proof shows the supported entry points are visible and functional.
+- **next action:** perform a target-environment feasibility check for supported Home Assistant-native edit/remove entry points, then propose the smallest supported fix for Riley approval.
+
+
 ## ZNE-590 - managed climate device ZNE settings are confusing and do not preserve the original device experience
 
 - **status:** `validated`
