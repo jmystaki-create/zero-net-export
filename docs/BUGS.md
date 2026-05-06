@@ -100,6 +100,18 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-592 - managed-load edit/remove button rows open unhelpful more-info dialogs
+
+- **status:** `confirmed_backlog`
+- **severity:** `high`
+- **area:** `managed_devices / native_device_page`
+- **where seen:** Riley screenshots on 2026-05-06 after installing `0.1.108`.
+- **current observed behavior:** clicking the `Edit Zero Net Export configuration` row opens the Home Assistant button entity more-info dialog for that button, with a generic `Press` action and history/activity. It does not take the operator to an actual Zero Net Export managed-load edit/configuration workflow. Clicking the `Remove from Zero Net Export` row likewise opens the button entity more-info dialog with a generic `Press` action rather than a meaningful remove/unmanage confirmation workflow.
+- **expected behavior:** the managed-load device page must expose edit/remove actions that are meaningful at the point of click. Edit must open or clearly launch a real supported Home Assistant-native Zero Net Export configuration/edit flow for the selected managed load. Remove must open or clearly launch a supported confirmation path before unmanaging the selected load, and must not present as a generic inert entity-history dialog.
+- **evidence:** screenshots `image---48732f6a-2b46-49f9-b5e1-34d691cdf12f.png` and `image---8d4357da-43f8-4eb7-b1b2-f1675d51e9a4.png` show both rows opening entity more-info dialogs instead of meaningful edit/remove workflows.
+- **impact on ZNE-591:** this invalidates the ZNE-591 closure claim for the operator workflow. The `0.1.108` validation proved that rows existed and that the backend remove service could remove a test managed-load record, but it did not prove that the UI click path met the brief.
+- **acceptance criteria:** write and accept a fresh Home Assistant target-environment feasibility check before design/code; remove or replace misleading button rows if no direct native click workflow is supported; validate by clicking the visible UI rows in browser and proving the operator reaches a meaningful edit/remove workflow, not just the button more-info dialog.
+
 ## ZNE-591 - managed-load device overflow lacks configure/delete actions
 
 - **status:** `released_live_validated`
