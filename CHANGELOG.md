@@ -6,8 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.105] - 2026-05-06
+
 ### Fixed
 - Removed the custom `ZNE Managed Devices` Home Assistant sidebar/menu panel path for ZNE-589 by dropping panel registration, frontend/panel manifest dependencies, the shipped panel asset, and stale links/configuration URLs to `/zero-net-export-managed-devices`, while keeping native managed-device workflows available.
+- Completed the ZNE-588 bug-only Tier 1 cleanup by removing misleading native device-page setup button entities that implied browser navigation to Tier 2 flows.
 
 ### Process
 - Rejected the HA guardrails Tier 1 mockup as invalid because it invented layout outside the verified native Home Assistant device-page structure; replacement design requires a narrower accepted feasibility check first.
@@ -17,7 +20,6 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Marked ZNE-578 completed via the supported Home Assistant device-detail cog/deep-link path; exact native-row gear placement remains upstream-only and out of active release scope.
 - Reopened ZNE-588 validation status pending fresh installed-build Home Assistant screenshot/browser proof for the Tier 1/Tier 2 screen outcome; existing `0.1.103` API/entity-registry/button-press evidence is not enough to close the UI brief.
 - Rolled back the rejected `0.1.104` custom-panel candidate from the validation Home Assistant install and reverted its repo commits; ZNE-588 is reopened as a bug-only Tier 1 cleanup, with the broader native guided Tier 2 workflow split to `ZNE-FR-008`.
-- Started ZNE-588 bug-only cleanup by removing misleading native device-page setup button entities that implied browser navigation to Tier 2 flows.
 
 ## [0.1.103] - 2026-05-01
 

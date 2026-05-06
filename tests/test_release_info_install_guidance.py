@@ -67,15 +67,15 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
         self.assertTrue(info["has_changelog"])
-        self.assertEqual(info["released_on"], "2026-05-01")
+        self.assertEqual(info["released_on"], "2026-05-06")
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
         self.assertIn("Home Assistant", info["changes_preview"])
+        self.assertIn("ZNE Managed Devices", info["changes_preview"])
+        self.assertIn("sidebar/menu", info["changes_preview"])
         self.assertIn("Tier 1", info["changes_preview"])
-        self.assertIn("Tier 2", info["changes_preview"])
-        self.assertIn("device-page launch buttons", info["changes_preview"])
-        self.assertIn("Diagnostics", info["changes_preview"])
+        self.assertIn("setup button", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
         self.assertNotIn("release-target decision", info["changes_preview"])
 
@@ -454,20 +454,19 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("mapped-source", current_highlights.lower())
         self.assertNotIn("source mapping", current_highlights.lower())
 
-    def test_current_candidate_changelog_tracks_visible_tier_one_two_release_scope(self) -> None:
+    def test_current_candidate_changelog_tracks_sidebar_and_tier_one_cleanup_scope(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(
             section for section in sections if section["version"] == release_info.INTEGRATION_VERSION
         )
         current_highlights = "\n".join(current_section["highlights"])
 
+        self.assertIn("ZNE Managed Devices", current_highlights)
+        self.assertIn("sidebar/menu", current_highlights)
+        self.assertIn("/zero-net-export-managed-devices", current_highlights)
         self.assertIn("Tier 1", current_highlights)
+        self.assertIn("setup button", current_highlights)
         self.assertIn("Tier 2", current_highlights)
-        self.assertIn("device-page launch buttons", current_highlights)
-        self.assertIn("Sensors", current_highlights)
-        self.assertIn("Controls", current_highlights)
-        self.assertIn("Managed Devices", current_highlights)
-        self.assertIn("Diagnostics", current_highlights)
         self.assertNotIn("Managed Devices — ⚙ Settings —", current_highlights)
         self.assertNotIn("Added `Managed Devices` and `Un Managed` suggested-area", current_highlights)
         self.assertNotIn("suggested-area/group metadata", current_highlights)
