@@ -327,7 +327,14 @@ def _build_managed_device_row_entities(coordinator, device_key: str, detail: dic
     entities: list[ZeroNetExportEntity] = [
         ZeroNetExportDeviceManagedSummarySensor(coordinator, device_key, device_name),
         ZeroNetExportDeviceStatusSensor(coordinator, device_key, device_name),
-        ZeroNetExportDevicePowerSensor(coordinator, device_key, device_name, "current_power_w", "Current power"),
+        ZeroNetExportDevicePowerSensor(
+            coordinator,
+            device_key,
+            device_name,
+            "current_power_w",
+            "Current power",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        ),
         ZeroNetExportDevicePlanSensor(coordinator, device_key, device_name),
         ZeroNetExportDeviceGuardSensor(coordinator, device_key, device_name),
         ZeroNetExportDevicePowerSensor(
@@ -1816,34 +1823,14 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
         if state is None:
             return None
         detail = _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
-        runtime_bits: list[str] = []
-        if _device_has_blocked_activity(detail):
-            runtime_bits.append("blocked")
-        elif self._active_planned_action(detail):
-            runtime_bits.append("planned")
-        elif _device_has_recent_attention(detail):
-            runtime_bits.append("attention")
-        if detail.get("observed_active") is True and "active" not in runtime_bits:
-            runtime_bits.append("active")
-
-        runtime_bits.extend(
-            [
-                _device_kind_summary(detail.get("kind")),
-                str(detail.get("status") or "status unknown"),
-                "usable" if detail.get("usable") else "not usable",
-                "enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "disabled",
-            ]
-        )
-        priority = detail.get("priority")
+        parts: list[str] = []
+        parts.append("Enabled" if detail.get("effective_enabled", detail.get("enabled", True)) else "Disabled")
+        kind = _device_kind_summary(detail.get("kind"))
+        if kind:
+            parts.append(kind)
+        priority = detail.get("effective_priority", detail.get("priority"))
         if priority is not None:
-            runtime_bits.append(f"priority {priority}")
-        operator_priority_override = detail.get("operator_priority_override")
-        if operator_priority_override is not None:
-            runtime_bits.append(f"priority override {operator_priority_override}")
-        operator_enabled_override = detail.get("operator_enabled_override")
-        if operator_enabled_override is not None:
-            runtime_bits.append(f"enabled override {'on' if operator_enabled_override else 'off'}")
-        runtime_bits.append(f"power {_format_device_power_summary(detail.get('current_power_w'))}")
+            parts.append(f"priority {priority}")
         nominal_power = detail.get("nominal_power_w")
         if nominal_power not in (None, ""):
             try:
@@ -1851,25 +1838,11 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
             except (TypeError, ValueError):
                 nominal_value = 0
             if nominal_value > 0:
-                runtime_bits.append(f"nominal {nominal_value:g} W")
-        if detail.get("kind") == "variable" and detail.get("current_target_power_w") is not None:
-            runtime_bits.append(f"target {_format_device_power_summary(detail.get('current_target_power_w'))}")
-        current_runtime = detail.get("current_active_seconds")
-        if current_runtime not in (None, 0, 0.0):
-            runtime_bits.append(f"runtime {_format_device_duration_summary(current_runtime)}")
-        runtime_today = detail.get("active_runtime_today_seconds")
-        if runtime_today not in (None, 0, 0.0):
-            runtime_bits.append(f"today {_format_device_duration_summary(runtime_today)}")
-        guard_status = str(detail.get("guard_status") or "").strip()
-        if guard_status and guard_status not in {"ready", "idle"}:
-            runtime_bits.append(f"guard {guard_status}")
-        planned_action = self._active_planned_action(detail)
-        if planned_action:
-            runtime_bits.append(f"action {planned_action}")
-        last_action_status = str(detail.get("last_action_status") or "").strip()
-        if last_action_status and last_action_status not in {"ok", "applied", "success"}:
-            runtime_bits.append(f"last {last_action_status}")
-        return " | ".join(runtime_bits)
+                parts.append(f"nominal {nominal_value:g} W")
+        entity_id = str(detail.get("entity_id") or "").strip()
+        if entity_id:
+            parts.append(entity_id)
+        return ", ".join(parts)
 
     @property
     def extra_state_attributes(self):
@@ -1884,8 +1857,6 @@ class ZeroNetExportDeviceManagedSummarySensor(ZeroNetExportEntity, SensorEntity)
 
 
 class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-
     def __init__(self, coordinator, device_key: str, device_name: str):
         super().__init__(coordinator, f"device_{device_key}_status", managed_load_settings_action_name(device_name, "status"))
         self._device_key = device_key
@@ -1897,7 +1868,20 @@ class ZeroNetExportDeviceStatusSensor(ZeroNetExportEntity, SensorEntity):
         state = self._state
         if state is None:
             return None
-        return _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key).get("status")
+        detail = _managed_device_detail_for_coordinator(self.coordinator, state, self._device_key)
+        if not detail:
+            return None
+        if not detail.get("effective_enabled", detail.get("enabled", True)):
+            return "Disabled"
+        if _device_has_blocked_activity(detail):
+            return "Blocked"
+        if detail.get("usable") is False:
+            return "Not usable"
+        if ZeroNetExportDeviceManagedSummarySensor._active_planned_action(detail):
+            return "Planned"
+        if detail.get("observed_active") is True:
+            return "Active"
+        return "Ready"
 
     @property
     def extra_state_attributes(self):
@@ -1970,7 +1954,7 @@ class ZeroNetExportDevicePowerSensor(ZeroNetExportEntity, SensorEntity):
         self._device_key = device_key
         self._value_key = value_key
         self._zero_net_export_managed_name_suffix = suffix
-        self._attr_entity_category = entity_category
+        self._attr_entity_category = EntityCategory.DIAGNOSTIC if entity_category is None and value_key == "current_power_w" else entity_category
         _attach_managed_load_device(self, coordinator, device_key, device_name)
 
     @property

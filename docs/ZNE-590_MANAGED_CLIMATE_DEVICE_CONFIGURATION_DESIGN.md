@@ -1,7 +1,7 @@
 # ZNE-590 — Managed climate device configuration design
 
 Date: 2026-05-06
-Status: feasibility/design candidate pending Riley acceptance; original-device attachment investigated and blocked unless explicitly approved as experimental
+Status: Option A accepted by Riley; repo implementation in progress/validated locally; original-device attachment remains blocked unless explicitly approved as experimental
 
 ## User report
 
@@ -196,6 +196,18 @@ Blocked by project constraints unless Riley explicitly approves a project direct
    - ZNE managed-load configuration surface has the accepted controls/configuration and no confusing `Settings — Test ...` clutter
 8. Post-restart Zero Net Export log scan.
 
+## Implementation status
+
+Riley accepted Option A on 2026-05-06. The repo implementation follows the accepted path:
+
+- the original thermostat/climate device page remains untouched;
+- ZNE-owned managed-load rows use clear native entity names;
+- `Test load` is exposed as a native button for the managed load;
+- review/reset/runtime internals are diagnostic instead of primary configuration clutter;
+- no custom frontend, sidebar panel, external UI, Home Assistant frontend patch, or cross-integration device registry merge was introduced.
+
+Repo validation is recorded in `validation/zne-590-managed-climate-device-page-cleanup.md`. Live Home Assistant release validation is still required before closing ZNE-590.
+
 ## Recommendation
 
-Accept Option A now as the bug-fix path. Run Option B only as a separate feasibility investigation if Riley specifically wants ZNE controls rendered on the original thermostat device page itself.
+Continue with Option A through release-managed live validation. Run Option B only as a separate feasibility/experimental workstream if Riley specifically wants ZNE controls rendered on the original thermostat device page itself.

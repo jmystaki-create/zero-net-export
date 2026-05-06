@@ -65,7 +65,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         switch = switch_module.ZeroNetExportDeviceEnabledSwitch(_coordinator(), "pool", "Pool Pump")
 
         self.assertEqual(switch._attr_entity_category, switch_module.EntityCategory.CONFIG)
-        self.assertEqual(switch._attr_name, "⚙ Settings — Pool Pump enabled")
+        self.assertEqual(switch._attr_name, "Zero Net Export enabled")
         self.assertEqual(switch._attr_icon, "mdi:cog-outline")
         self.assertEqual(switch._attr_device_info["name"], "Managed Devices — Pool Pump")
         self.assertEqual(switch._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
@@ -76,7 +76,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         number = number_module.ZeroNetExportDevicePriorityNumber(_coordinator(), "pool", "Pool Pump")
 
         self.assertEqual(number._attr_entity_category, number_module.EntityCategory.CONFIG)
-        self.assertEqual(number._attr_name, "⚙ Settings — Pool Pump priority")
+        self.assertEqual(number._attr_name, "Priority")
         self.assertEqual(number._attr_icon, "mdi:cog-outline")
         self.assertEqual(number._attr_device_info["name"], "Managed Devices — Pool Pump")
         self.assertEqual(number._attr_device_info["via_device"], ("zero_net_export", "entry-1"))
@@ -84,15 +84,20 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
     def test_managed_device_action_buttons_are_child_device_configuration(self) -> None:
         button_module = _load_button_module()
 
+        test_load = button_module.ZeroNetExportTestManagedLoadButton(_coordinator(), "pool", "Pool Pump")
         review = button_module.ZeroNetExportShowManagedDeviceDetailButton(_coordinator(), "pool", "Pool Pump")
         reset = button_module.ZeroNetExportResetDeviceOverridesButton(_coordinator(), "pool", "Pool Pump")
 
-        self.assertEqual(review._attr_entity_category, button_module.EntityCategory.CONFIG)
-        self.assertEqual(reset._attr_entity_category, button_module.EntityCategory.CONFIG)
-        self.assertEqual(review._attr_name, "⚙ Settings — Pool Pump review")
-        self.assertEqual(reset._attr_name, "⚙ Settings — Pool Pump reset overrides")
+        self.assertEqual(test_load._attr_entity_category, button_module.EntityCategory.CONFIG)
+        self.assertEqual(review._attr_entity_category, button_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(reset._attr_entity_category, button_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(test_load._attr_name, "Test load")
+        self.assertEqual(review._attr_name, "Review Zero Net Export configuration")
+        self.assertEqual(reset._attr_name, "Reset Zero Net Export overrides")
+        self.assertEqual(test_load._attr_icon, "mdi:play-circle-outline")
         self.assertEqual(review._attr_icon, "mdi:cog-outline")
         self.assertEqual(reset._attr_icon, "mdi:cog-outline")
+        self.assertEqual(test_load._attr_device_info["name"], "Managed Devices — Pool Pump")
         self.assertEqual(review._attr_device_info["name"], "Managed Devices — Pool Pump")
         self.assertEqual(reset._attr_device_info["name"], "Managed Devices — Pool Pump")
 
@@ -102,7 +107,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         usable = binary_sensor_module.ZeroNetExportDeviceUsableBinarySensor(_coordinator(), "pool", "Pool Pump")
 
         self.assertEqual(usable._attr_entity_category, binary_sensor_module.EntityCategory.DIAGNOSTIC)
-        self.assertEqual(usable._attr_name, "⚙ Settings — Pool Pump usable")
+        self.assertEqual(usable._attr_name, "Zero Net Export usable")
         self.assertEqual(usable._attr_icon, "mdi:cog-outline")
         self.assertEqual(usable._attr_device_info["name"], "Managed Devices — Pool Pump")
 
@@ -115,15 +120,15 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
             {"name": "Pool Pump", "kind": "fixed"},
         )
 
-        self.assertIn("⚙ Settings — Pool Pump managed summary", [entity._attr_name for entity in entities])
-        self.assertIn("⚙ Settings — Pool Pump status", [entity._attr_name for entity in entities])
-        self.assertIn("⚙ Settings — Pool Pump Current power", [entity._attr_name for entity in entities])
+        self.assertIn("Zero Net Export configuration", [entity._attr_name for entity in entities])
+        self.assertIn("Zero Net Export status", [entity._attr_name for entity in entities])
+        self.assertIn("Current power", [entity._attr_name for entity in entities])
         managed_rows = [
             entity
             for entity in entities
             if getattr(entity, "_zero_net_export_managed_name_suffix", None)
         ]
-        self.assertTrue(all(entity._attr_name.startswith("⚙ Settings — Pool Pump ") for entity in managed_rows))
+        self.assertTrue(all("Settings —" not in entity._attr_name for entity in managed_rows))
         self.assertTrue(all(entity._attr_icon == "mdi:cog-outline" for entity in managed_rows))
 
     def test_managed_device_setup_platforms_keep_sparse_rows_registered(self) -> None:
@@ -175,10 +180,10 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         )
 
         platform_specs = [
-            (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "⚙ Settings — Pool Pump enabled"),
-            (_load_simple_platform_module("number", "number", "NumberEntity"), "⚙ Settings — Pool Pump priority"),
-            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "⚙ Settings — Pool Pump usable"),
-            (_load_button_module(), "⚙ Settings — Pool Pump review"),
+            (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "Zero Net Export enabled"),
+            (_load_simple_platform_module("number", "number", "NumberEntity"), "Priority"),
+            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "Zero Net Export usable"),
+            (_load_button_module(), "Test load"),
         ]
 
         for module, expected_name in platform_specs:
@@ -199,10 +204,10 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
 
     def test_managed_device_setup_platforms_sync_after_managed_fleet_changes(self) -> None:
         platform_specs = [
-            (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "⚙ Settings — Spa Pump enabled", 1),
-            (_load_simple_platform_module("number", "number", "NumberEntity"), "⚙ Settings — Spa Pump priority", 1),
-            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "⚙ Settings — Spa Pump usable", 1),
-            (_load_button_module(), "⚙ Settings — Spa Pump review", 2),
+            (_load_simple_platform_module("switch", "switch", "SwitchEntity"), "Zero Net Export enabled", 1),
+            (_load_simple_platform_module("number", "number", "NumberEntity"), "Priority", 1),
+            (_load_simple_platform_module("binary_sensor", "binary_sensor", "BinarySensorEntity"), "Zero Net Export usable", 1),
+            (_load_button_module(), "Test load", 3),
         ]
 
         for module, expected_spa_name, expected_removed_count in platform_specs:
@@ -254,10 +259,12 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         coordinator.data.device_details = "temporarily malformed runtime details"
         button_module = _load_button_module()
 
+        test_load = button_module.ZeroNetExportTestManagedLoadButton(coordinator, "pool", "Pool")
         review = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool")
         reset = button_module.ZeroNetExportResetDeviceOverridesButton(coordinator, "pool", "Pool")
         review.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
 
+        self.assertEqual(test_load.extra_state_attributes["test_supported"], False)
         self.assertEqual(review.extra_state_attributes["managed_snapshot"], "no managed yet")
         self.assertEqual(reset.extra_state_attributes, {})
 
@@ -273,6 +280,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         enabled = switch_module.ZeroNetExportDeviceEnabledSwitch(coordinator, "pool", "Pool")
         priority = number_module.ZeroNetExportDevicePriorityNumber(coordinator, "pool", "Pool")
         usable = binary_sensor_module.ZeroNetExportDeviceUsableBinarySensor(coordinator, "pool", "Pool")
+        test_load = button_module.ZeroNetExportTestManagedLoadButton(coordinator, "pool", "Pool")
         review = button_module.ZeroNetExportShowManagedDeviceDetailButton(coordinator, "pool", "Pool")
         reset = button_module.ZeroNetExportResetDeviceOverridesButton(coordinator, "pool", "Pool")
         review.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
@@ -283,6 +291,7 @@ class DevicePageManagedSettingsTests(unittest.TestCase):
         self.assertEqual(priority.extra_state_attributes, {})
         self.assertIsNone(usable.is_on)
         self.assertEqual(usable.extra_state_attributes, {})
+        self.assertEqual(test_load.extra_state_attributes["test_supported"], False)
         self.assertIn("1 managed", review.extra_state_attributes["managed_snapshot"])
         self.assertEqual(reset.extra_state_attributes, {})
 

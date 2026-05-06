@@ -6,6 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Cleaned up the Zero Net Export managed-load device page for ZNE-590 using native Home Assistant entities only: confusing `Settings — Test ...` labels are replaced with clear rows such as `Zero Net Export enabled`, `Test load`, `Priority`, `Zero Net Export configuration`, and `Zero Net Export status`, while original thermostat/climate device pages remain untouched.
+
+### Validation
+- ZNE-590 repo validation passed focused managed-device/native entity tests; live Home Assistant release validation and browser proof remain pending before closure.
+
 ## [0.1.106] - 2026-05-06
 
 ### Fixed

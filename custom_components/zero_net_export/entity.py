@@ -164,10 +164,40 @@ def managed_load_display_name(device_key: str, details: dict | None = None) -> s
 
 
 def managed_load_settings_action_name(device_name: str, action: str) -> str:
-    """Return a visible managed-device settings/action label for native HA rows."""
-    name = str(device_name or "Managed device").strip() or "Managed device"
-    action_label = str(action or "settings").strip() or "settings"
-    return f"⚙ Settings — {name} {action_label}"
+    """Return a clear managed-load entity label for native HA device pages.
+
+    The device page already provides the managed-load context. Avoid prefixing
+    every row with the managed-load name (for example ``Test``), because that
+    made rows such as ``Settings — Test enabled`` look like internal test/debug
+    controls instead of the actual Zero Net Export settings for the load.
+    """
+    action_key = str(action or "settings").strip().lower()
+    labels = {
+        "enabled": "Zero Net Export enabled",
+        "priority": "Priority",
+        "managed summary": "Zero Net Export configuration",
+        "status": "Zero Net Export status",
+        "review": "Review Zero Net Export configuration",
+        "reset overrides": "Reset Zero Net Export overrides",
+        "test load": "Test load",
+        "usable": "Zero Net Export usable",
+        "current power": "Current power",
+        "planned action": "Planned action",
+        "guard status": "Guard status",
+        "planned power delta": "Planned power delta",
+        "last requested power": "Last requested power",
+        "last applied power": "Last applied power",
+        "current active runtime": "Current active runtime",
+        "active runtime today": "Active runtime today",
+        "last action at": "Last action at",
+        "last applied at": "Last applied at",
+        "last action status": "Last action status",
+        "last action result": "Last action result",
+        "target power": "Target power",
+    }
+    if action_key in labels:
+        return labels[action_key]
+    return str(action or "Zero Net Export setting").strip() or "Zero Net Export setting"
 
 
 def managed_load_detail(coordinator, device_key: str, device_name: str | None = None) -> dict:

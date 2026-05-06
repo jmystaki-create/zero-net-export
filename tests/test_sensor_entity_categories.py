@@ -551,7 +551,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
             entity_category=sensor_module.EntityCategory.DIAGNOSTIC,
         )
 
-        self.assertEqual(summary._attr_name, "⚙ Settings — Pool pump managed summary")
+        self.assertEqual(summary._attr_name, "Zero Net Export configuration")
         self.assertEqual(
             managed_overview.native_value,
             "1 managed | no unmanaged candidates | 1 managed device needs attention | plan Pool pump | 1 enabled | 1 usable | 1 fixed managed | 1200 W nominal",
@@ -560,11 +560,12 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(managed_overview.extra_state_attributes["usable_count"], 1)
         self.assertEqual(
             summary.native_value,
-            "planned | fixed load | Ready for control | usable | enabled | priority 90 | power 1185 W | nominal 1200 W | runtime 15m 30s | today 1h 15m | action turn_on",
+            "Enabled, fixed load, priority 90, nominal 1200 W",
         )
+        self.assertEqual(status.native_value, "Planned")
         self.assertIsNone(getattr(summary, "_attr_entity_category", None))
-        self.assertIsNone(getattr(current_power, "_attr_entity_category", None))
-        self.assertEqual(status._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertEqual(current_power._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
+        self.assertIsNone(getattr(status, "_attr_entity_category", None))
         self.assertEqual(plan._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(guard._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
         self.assertEqual(planned_delta._attr_entity_category, sensor_module.EntityCategory.DIAGNOSTIC)
@@ -599,7 +600,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             summary.native_value,
-            "planned | active | fixed load | Running | usable | enabled | priority 90 | power 1185 W | nominal 1200 W | runtime 15m 30s | today 1h 15m | action turn_on",
+            "Enabled, fixed load, priority 90, nominal 1200 W",
         )
 
     def test_variable_managed_summary_surfaces_target_and_relevant_guard(self) -> None:
@@ -632,7 +633,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             summary.native_value,
-            "blocked | variable load | Guarded | not usable | enabled | priority 60 | priority override 45 | enabled override off | power 620 W | nominal 7400 W | target 1400 W | guard blocked | last guard_blocked",
+            "Enabled, variable load, priority 60, nominal 7400 W",
         )
 
     def test_managed_summary_surfaces_active_runtime_when_no_attention_or_plan_exists(self) -> None:
@@ -663,7 +664,7 @@ class SensorEntityCategoryTests(unittest.TestCase):
 
         self.assertEqual(
             summary.native_value,
-            "active | fixed load | Running | usable | enabled | priority 40 | power 730 W | nominal 1200 W | runtime 2m 5s | today 1h 2m",
+            "Enabled, fixed load, priority 40, nominal 1200 W",
         )
 
     def test_managed_fleet_overview_surfaces_unmanaged_backlog_when_fleet_is_empty(self) -> None:

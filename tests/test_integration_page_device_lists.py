@@ -531,7 +531,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
 
         self.assertIsNone(status.native_value)
         self.assertEqual(status.extra_state_attributes, {})
-        self.assertIn("status unknown", summary.native_value)
+        self.assertEqual(summary.native_value, "Enabled, unknown kind")
 
     def test_setup_entry_tolerates_missing_runtime_device_details(self) -> None:
         sensor_module = _load_sensor_module()
@@ -697,8 +697,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
 
         self.assertIn("fixed load", summary.native_value)
-        self.assertIn("configured", summary.native_value)
-        self.assertEqual(status.native_value, "configured")
+        self.assertIn("priority 100", summary.native_value)
+        self.assertEqual(status.native_value, "Ready")
         self.assertEqual(status.extra_state_attributes["entity_id"], "switch.pool_pump")
 
     def test_config_fallback_managed_rows_are_excluded_from_later_unmanaged_discovery(self) -> None:
@@ -860,8 +860,8 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             and entity._device_key == "pool"
         )
 
-        self.assertEqual(managed_summary._attr_name, "⚙ Settings — Main Pool Pump managed summary")
-        self.assertEqual(status._attr_name, "⚙ Settings — Main Pool Pump status")
+        self.assertEqual(managed_summary._attr_name, "Zero Net Export configuration")
+        self.assertEqual(status._attr_name, "Zero Net Export status")
         self.assertEqual(managed_summary._attr_device_info["name"], "Managed Devices — Main Pool Pump")
         self.assertEqual(managed_summary._attr_device_info["model"], "Managed Devices — Variable managed load")
         self.assertIn("device_pool_current_target_power_w", [getattr(entity, "_key", None) for entity in added])

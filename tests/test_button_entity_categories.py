@@ -29,6 +29,11 @@ def _load_button_module(notification_calls: list[dict] | None = None):
     homeassistant_pkg = sys.modules.setdefault("homeassistant", types.ModuleType("homeassistant"))
     homeassistant_pkg.__path__ = []
 
+    exceptions_module = types.ModuleType("homeassistant.exceptions")
+    exceptions_module.HomeAssistantError = type("HomeAssistantError", (Exception,), {})
+    sys.modules[exceptions_module.__name__] = exceptions_module
+    homeassistant_pkg.exceptions = exceptions_module
+
     components_pkg = sys.modules.setdefault("homeassistant.components", types.ModuleType("homeassistant.components"))
     components_pkg.__path__ = []
     homeassistant_pkg.components = components_pkg
@@ -1480,11 +1485,11 @@ class ButtonEntityCategoryTests(unittest.TestCase):
         import asyncio
         asyncio.run(button.async_press())
 
-        self.assertEqual(button._attr_name, "⚙ Settings — Pool pump review")
+        self.assertEqual(button._attr_name, "Review Zero Net Export configuration")
         self.assertEqual(len(notification_calls), 1)
         self.assertEqual(
             notification_calls[0]["kwargs"]["title"],
-            "Test Entry: ⚙ Settings — Pool pump review",
+            "Test Entry: Review Zero Net Export configuration",
         )
         self.assertNotIn("Test Entry: managed devices review", notification_calls[0]["kwargs"]["title"])
         message = notification_calls[0]["args"][1]
