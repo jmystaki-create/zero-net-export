@@ -100,6 +100,19 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-590 - managed climate device ZNE settings are confusing and do not preserve the original device experience
+
+- **status:** `open`
+- **severity:** `high`
+- **area:** `managed_devices / native_device_page`
+- **where seen:** Riley screenshots on 2026-05-06 comparing the standard Home Assistant `climate.lounge_room_thermostat` heated-floor device page with the Zero Net Export managed-device page for the same load.
+- **current observed behavior:** the standard Home Assistant climate device page is useful and shows the thermostat/control/configuration context. The Zero Net Export managed-device page instead exposes confusing/internal `Settings — Test ...` entities, ambiguous values, reset/review buttons, long debug-style status text, and settings that do not make sense for configuring a managed heated-floor load.
+- **expected behavior:** preserve the original Home Assistant climate device page and expose a Home Assistant-native Zero Net Export managed-load configuration surface with meaningful operator controls such as enabled yes/no, test load, and the configuration captured when the device was added.
+- **target-environment feasibility:** initial feasibility/design candidate documented in `docs/ZNE-590_MANAGED_CLIMATE_DEVICE_CONFIGURATION_DESIGN.md`. Current classification: native entity/device/config-flow surfaces are supported; exact card placement inside Home Assistant UI and custom frontend/card/panel work are not supported without explicit approval. Attaching ZNE config entities directly to the original thermostat device page remains unknown and requires proof before implementation.
+- **recommended design:** Option A — keep the original climate device page untouched, and fix the Zero Net Export managed-load device page to expose a small native entity set: `Zero Net Export enabled`, `Test load`, `Zero Net Export configuration`, clear status, and optional real config values such as priority/nominal power. Move raw/internal details to Diagnostics or hide them by default.
+- **acceptance criteria:** original climate device page preserved; confusing `Settings — Test ...` entities removed/renamed/hidden; ZNE managed-load surface exposes enabled/test/config summary; no custom frontend/sidebar/panel; tests cover entity naming/category/visibility; live HA screenshot proof confirms both original and ZNE surfaces.
+- **next action:** Riley acceptance of the feasibility/design direction before architecture or implementation. If Riley wants ZNE controls on the original thermostat device page itself, first run a separate source/live feasibility proof for safe cross-integration device association.
+
 
 ## ZNE-589 - remove ZNE Managed Devices from the Home Assistant sidebar menu
 
