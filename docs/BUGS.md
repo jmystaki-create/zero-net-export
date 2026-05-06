@@ -139,7 +139,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **severity:** `high`
 - **area:** `native_device_page`
 - **where seen:** Riley screenshot/review on 2026-05-01 from the native Home Assistant Zero Net Export device page; reconfirmed when the `0.1.104` custom-panel candidate was rejected and rolled back.
-- **scope decision:** Tier 2 is split out of this bug. ZNE-588 must not implement or require the broader native guided Tier 2 workflow. That feature is now tracked separately as `ZNE-FR-008`.
+- **scope decision:** Tier 2 is removed from active scope. ZNE-588 must not implement or require the broader native guided Tier 2 workflow.
 - **current observed behavior:** the native Tier 1 page shows setup/action buttons such as `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, and `Open Diagnostics setup`, but Home Assistant button entities only record a press/activity event and do not visibly navigate the browser into the expected Tier 2 workflow. This makes the UI look broken/misleading. The default Diagnostics card also remains too long and makes Tier 1 feel like a dense command wall.
 - **expected behavior for ZNE-588:** the native Tier 1 page should be compact and truthful. It should not show buttons that imply direct navigation to a Tier 2 screen/flow unless that direct native navigation is actually supported in the shipped bug-fix release. Diagnostic and Connected devices cards must remain present, but Diagnostics must be curated/compact by default.
 - **out of scope for ZNE-588:**
@@ -160,7 +160,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **repo patch:** removed the misleading `Open Sensors setup`, `Open Controls setup`, `Open Managed Devices setup`, and `Open Diagnostics setup` button entities from the native button platform setup path. Existing truthful actions such as `Show command center guide`, diagnostics snapshot/checklist/review, managed-device review, and reset actions remain.
 - **repo validation:** `validation/zne-588-bug-only-tier1-cleanup.md` records focused tests (115 OK), full discovery (607 OK), `py_compile`, and `git diff --check` clean.
 - **live validation:** released and live-validated in `0.1.106`: installed-build browser proof confirmed the retired setup buttons were absent while Diagnostic, Connected devices, Review diagnostics, and firmware `0.1.106` remained visible. Evidence: `validation/0.1.106-release-validation.md`, `validation/artifacts/zne-588-tier1-device-v0.1.106.png`.
-- **closure:** ZNE-588 is live-validated fixed in `0.1.106`; broader native guided Tier 2 work remains split to `ZNE-FR-008`.
+- **closure:** ZNE-588 is live-validated fixed in `0.1.106`; broader native guided Tier 2 work is not active scope.
 
 
 

@@ -4,7 +4,7 @@ Date: 2026-05-01 19:52 AEST
 
 ## Scope
 
-ZNE-588 is limited to the native Home Assistant Tier 1 device page. The broader Tier 2 guided workflow is split to `ZNE-FR-008`.
+ZNE-588 is limited to the native Home Assistant Tier 1 device page. The broader Tier 2 guided workflow is not active scope.
 
 This patch removes the misleading native device-page button entities that looked like direct navigation controls but only fired Home Assistant `button.press` actions:
 
