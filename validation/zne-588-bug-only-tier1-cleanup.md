@@ -50,6 +50,32 @@ python3 -m py_compile custom_components/zero_net_export/button.py
 
 Result: passed.
 
-## Remaining validation
+## Live release validation
 
-Live Home Assistant deployment and browser screenshots are still pending approval. Do not close ZNE-588 until the installed native device page is screenshot-validated and accepted.
+`0.1.105` was rejected/superseded for ZNE-588 because browser proof showed stale Home Assistant entity-registry rows still displaying the retired launcher buttons on the upgraded Winter Plan device page.
+
+`0.1.106` adds upgrade/setup cleanup for those stale registry rows and passed live release-managed validation.
+
+Evidence:
+
+- Superseded release record: `validation/0.1.105-release-validation.md`
+- Passing release record: `validation/0.1.106-release-validation.md`
+- Device-page proof PNG: `validation/artifacts/zne-588-tier1-device-v0.1.106.png`
+- Device-page proof JSON: `validation/artifacts/zne-588-tier1-device-v0.1.106.json`
+
+Installed Winter Plan native device-page proof:
+
+- `Open Sensors setup`: absent / count 0
+- `Open Controls setup`: absent / count 0
+- `Open Managed Devices setup`: absent / count 0
+- `Open Diagnostics setup`: absent / count 0
+- `Review diagnostics`: present
+- `Connected devices`: present
+- `Diagnostic`: present
+- `Firmware: 0.1.106`: present
+
+Runtime state API also returned `404` for the retired Winter Plan button entity IDs after restart.
+
+## Decision
+
+ZNE-588 bug-only Tier 1 cleanup is live-validated fixed in `0.1.106`.

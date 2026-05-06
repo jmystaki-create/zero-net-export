@@ -47,6 +47,21 @@ Result:
 
 Expected negative-path messages from install-helper tests were printed during full discovery.
 
-## Remaining validation
+## Live release validation
 
-Live Home Assistant release-managed install/restart and browser screenshot proof are still pending. ZNE-589 must not be closed until the installed HA sidebar no longer shows `ZNE Managed Devices`.
+Release-managed validation passed in `0.1.106` after the `0.1.105` ZNE-588 stale-registry follow-up was superseded.
+
+Evidence:
+
+- Release record: `validation/0.1.106-release-validation.md`
+- Sidebar proof PNG: `validation/artifacts/zne-589-ha-sidebar-v0.1.106.png`
+- Sidebar proof JSON: `validation/artifacts/zne-589-ha-sidebar-v0.1.106.json`
+
+Proof JSON counts across browser text/accessibility text:
+
+- `ZNE Managed Devices`: 0
+- `zero-net-export-managed-devices`: 0
+
+## Decision
+
+ZNE-589 is live-validated fixed in `0.1.106`.
