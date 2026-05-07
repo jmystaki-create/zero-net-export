@@ -41,6 +41,15 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("remove_managed_device:", services_source)
         self.assertIn("The original Home Assistant device and entity are left untouched", services_source)
 
+    def test_native_remove_device_hook_is_backend_only(self) -> None:
+        init_source = INIT_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("async_remove_config_entry_device", init_source)
+        self.assertIn("supports_remove_device", init_source)
+        self.assertIn("original/source", init_source)
+        self.assertIn("Home Assistant device and entity untouched", init_source)
+        self.assertNotIn("custom overflow", init_source.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

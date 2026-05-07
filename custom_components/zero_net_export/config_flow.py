@@ -849,6 +849,7 @@ class ZeroNetExportManagedDeviceSubentryFlow(config_entries.ConfigSubentryFlow):
 
     def __init__(self) -> None:
         self._pending_device_kind: str | None = None
+        self._pending_device_key: str | None = None
 
     def _config_entry(self):
         entry_id = self.handler[0]
@@ -950,6 +951,126 @@ class ZeroNetExportManagedDeviceSubentryFlow(config_entries.ConfigSubentryFlow):
 
         return self.async_show_form(
             step_id="device_details",
+            data_schema=vol.Schema(schema_dict),
+            errors=errors,
+            description_placeholders={
+                "device_kind": "fixed load" if kind == DEVICE_KIND_FIXED else "variable load",
+                "configure_path": DEVICES_CONFIGURE_PATH,
+            },
+        )
+
+    async def async_step_reconfigure(self, user_input=None):
+        """Edit one existing managed device through HA's native subentry flow."""
+        devices, _ = self._options_flow()._load_devices()
+        if not devices:
+            return self.async_abort(reason="no_managed_devices")
+        if user_input is not None:
+            self._pending_device_key = str(user_input.get("device_key") or "")
+            selected = next((device for device in devices if device.get("key") == self._pending_device_key), None)
+            if selected is None:
+                return self.async_abort(reason="managed_device_not_found")
+            self._pending_device_kind = str(selected.get("kind") or DEVICE_KIND_FIXED)
+            return await self.async_step_reconfigure_device_details()
+
+        options = [
+            selector.SelectOptionDict(
+                value=device["key"],
+                label=f"{device.get('name') or device['key']} — {device.get('entity_id') or 'no entity'}",
+            )
+            for device in devices
+        ]
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required("device_key"): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=options, mode=selector.SelectSelectorMode.DROPDOWN)
+                    )
+                }
+            ),
+            errors={},
+            description_placeholders={"configure_path": DEVICES_CONFIGURE_PATH},
+        )
+
+    async def async_step_reconfigure_device_details(self, user_input=None):
+        """Save edited captured settings for one managed device."""
+        errors: dict[str, str] = {}
+        options_flow = self._options_flow()
+        devices, _ = options_flow._load_devices()
+        editing_key = self._pending_device_key
+        existing_device = next((device for device in devices if device.get("key") == editing_key), None)
+        if editing_key is None or existing_device is None:
+            return self.async_abort(reason="managed_device_not_found")
+        kind = str(existing_device.get("kind") or self._pending_device_kind or DEVICE_KIND_FIXED)
+
+        if user_input is not None:
+            updated_device = options_flow._build_device_payload(user_input, kind, key=editing_key)
+            candidate_devices = [
+                updated_device if device.get("key") == editing_key else device
+                for device in devices
+            ]
+            raw_inventory = _device_options_json(candidate_devices)
+            _, device_issues = parse_device_configs(raw_inventory)
+            if device_issues:
+                errors["base"] = "device_inventory_invalid"
+            else:
+                feedback = options_flow._build_device_action_feedback(
+                    action="edit",
+                    devices=candidate_devices,
+                    device=updated_device,
+                    previous_device=existing_device,
+                )
+                self._pending_device_key = None
+                self._pending_device_kind = None
+                await options_flow._save_devices(candidate_devices, feedback=feedback)
+                return self.async_abort(reason="managed_device_reconfigured")
+
+        defaults = ZeroNetExportOptionsFlow._device_form_defaults(existing_device, kind)
+        entity_domain = list(DEVICE_CANDIDATE_FIXED_DOMAINS) if kind == DEVICE_KIND_FIXED else list(DEVICE_CANDIDATE_VARIABLE_DOMAINS)
+        schema_dict: dict[Any, Any] = {
+            vol.Required("name", default=defaults["name"]): selector.TextSelector(
+                selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+            ),
+            vol.Required("entity_id", default=defaults["entity_id"]): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain=entity_domain)
+            ),
+            vol.Required("nominal_power_w", default=defaults["nominal_power_w"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("priority", default=defaults["priority"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=1, max=1000, step=1, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("enabled", default=defaults["enabled"]): selector.BooleanSelector(),
+            vol.Required("min_on_seconds", default=defaults["min_on_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=86400, step=30, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("min_off_seconds", default=defaults["min_off_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=86400, step=30, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("cooldown_seconds", default=defaults["cooldown_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=3600, step=5, mode=selector.NumberSelectorMode.BOX)
+            ),
+            vol.Required("max_active_seconds", default=defaults["max_active_seconds"]): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=172800, step=60, mode=selector.NumberSelectorMode.BOX)
+            ),
+        }
+        if kind == DEVICE_KIND_VARIABLE:
+            schema_dict.update(
+                {
+                    vol.Required("min_power_w", default=defaults["min_power_w"]): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                    vol.Required("max_power_w", default=defaults["max_power_w"]): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=50000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                    vol.Required("step_w", default=defaults["step_w"]): selector.NumberSelector(
+                        selector.NumberSelectorConfig(min=1, max=5000, step=10, mode=selector.NumberSelectorMode.BOX)
+                    ),
+                }
+            )
+
+        return self.async_show_form(
+            step_id="reconfigure_device_details",
             data_schema=vol.Schema(schema_dict),
             errors=errors,
             description_placeholders={

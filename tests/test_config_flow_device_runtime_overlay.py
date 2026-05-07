@@ -485,6 +485,118 @@ class ConfigFlowDeviceRuntimeOverlayTests(unittest.TestCase):
         self.assertIn("switch", domains)
         self.assertIn("light", domains)
 
+    def test_managed_device_subentry_reconfigure_presents_existing_devices(self) -> None:
+        module = _load_config_flow_module()
+        entry = SimpleNamespace(title="Winter", entry_id="winter-entry", data={}, options={})
+
+        flow = module.ZeroNetExportManagedDeviceSubentryFlow()
+        flow.handler = ("winter-entry", "managed_device")
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_get_entry=lambda entry_id: entry),
+            states=SimpleNamespace(async_all=lambda: []),
+            data={},
+        )
+        flow.async_show_form = lambda **kwargs: {"type": "form", **kwargs}
+        options_flow = SimpleNamespace(
+            _load_devices=lambda: ([{
+                "key": "pool_pump",
+                "name": "Pool Pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+            }], []),
+        )
+        flow._options_flow = lambda: options_flow
+
+        result = asyncio.run(flow.async_step_reconfigure())
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["step_id"], "reconfigure")
+        self.assertEqual(result["data_schema"]["device_key"]["options"][0]["value"], "pool_pump")
+        self.assertIn("Pool Pump", result["data_schema"]["device_key"]["options"][0]["label"])
+
+    def test_managed_device_subentry_reconfigure_saves_selected_device_only(self) -> None:
+        module = _load_config_flow_module()
+        entry = SimpleNamespace(title="Winter", entry_id="winter-entry", data={}, options={})
+        saved_devices = []
+
+        async def save_devices(devices, *, feedback=None):
+            saved_devices.append((devices, feedback))
+            return {"type": "create_entry", "title": "", "data": {}}
+
+        flow = module.ZeroNetExportManagedDeviceSubentryFlow()
+        flow.handler = ("winter-entry", "managed_device")
+        flow.hass = SimpleNamespace(
+            config_entries=SimpleNamespace(async_get_entry=lambda entry_id: entry),
+            states=SimpleNamespace(async_all=lambda: []),
+            data={},
+        )
+        flow.async_show_form = lambda **kwargs: {"type": "form", **kwargs}
+        flow.async_abort = lambda reason: {"type": "abort", "reason": reason}
+        devices = [
+            {
+                "key": "pool_pump",
+                "name": "Pool Pump",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.pool_pump",
+                "adapter": "fixed_toggle",
+                "nominal_power_w": 1100,
+                "min_power_w": 1100,
+                "max_power_w": 1100,
+                "step_w": 1100,
+                "priority": 120,
+                "enabled": True,
+                "min_on_seconds": 900,
+                "min_off_seconds": 900,
+                "cooldown_seconds": 60,
+                "max_active_seconds": 14400,
+            },
+            {
+                "key": "heater",
+                "name": "Heater",
+                "kind": module.DEVICE_KIND_FIXED,
+                "entity_id": "switch.heater",
+                "adapter": "fixed_toggle",
+                "nominal_power_w": 2000,
+                "min_power_w": 2000,
+                "max_power_w": 2000,
+                "step_w": 2000,
+                "priority": 200,
+                "enabled": True,
+                "min_on_seconds": 900,
+                "min_off_seconds": 900,
+                "cooldown_seconds": 60,
+                "max_active_seconds": 14400,
+            },
+        ]
+        options_flow = SimpleNamespace(
+            _load_devices=lambda: (devices, []),
+            _build_device_payload=module.ZeroNetExportOptionsFlow._build_device_payload,
+            _build_device_action_feedback=lambda **kwargs: {"title": "saved", "message": "saved"},
+            _save_devices=save_devices,
+        )
+        flow._options_flow = lambda: options_flow
+        flow._pending_device_key = "pool_pump"
+        flow._pending_device_kind = module.DEVICE_KIND_FIXED
+
+        result = asyncio.run(flow.async_step_reconfigure_device_details({
+            "name": "Pool Pump Updated",
+            "entity_id": "switch.pool_pump",
+            "nominal_power_w": 1250,
+            "priority": 110,
+            "enabled": False,
+            "min_on_seconds": 600,
+            "min_off_seconds": 900,
+            "cooldown_seconds": 30,
+            "max_active_seconds": 7200,
+        }))
+
+        self.assertEqual(result, {"type": "abort", "reason": "managed_device_reconfigured"})
+        self.assertEqual(saved_devices[0][0][0]["key"], "pool_pump")
+        self.assertEqual(saved_devices[0][0][0]["name"], "Pool Pump Updated")
+        self.assertEqual(saved_devices[0][0][0]["priority"], 110)
+        self.assertFalse(saved_devices[0][0][0]["enabled"])
+        self.assertEqual(saved_devices[0][0][1]["name"], "Heater")
+
     def test_best_source_candidate_prefers_explicit_grid_export_energy_sensor(self) -> None:
         module = _load_config_flow_module()
         states = [

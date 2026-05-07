@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+import hashlib
 import json
 import re
 from typing import Any
@@ -355,6 +356,16 @@ async def _async_update_native_setup_notice(
     )
 
 
+def _managed_device_identifier_part(value: object) -> str:
+    """Return the same safe managed-device identifier fragment used by entity.py."""
+    original = str(value or "unknown").strip() or "unknown"
+    safe = re.sub(r"[^a-zA-Z0-9_]+", "_", original).strip("_").lower() or "unknown"
+    if original == safe:
+        return safe
+    digest = hashlib.sha1(original.encode("utf-8")).hexdigest()[:8]
+    return f"{safe}_{digest}"
+
+
 def _coerce_number(value: Any, fallback: int | float) -> int | float:
     if value in (None, ""):
         return fallback
@@ -466,14 +477,16 @@ async def _async_update_managed_device_from_panel(hass: HomeAssistant, call: Any
     )
 
 
-async def _async_remove_managed_device(hass: HomeAssistant, call: Any) -> None:
-    """Remove one managed device from ZNE configuration only."""
-    if call.data.get("confirm") is not True:
-        raise ValueError("Set confirm=true to remove a managed device from Zero Net Export")
-    entry, device_key, payloads = _managed_device_entry_and_payloads(hass, call)
+async def _async_remove_managed_device_payload(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    device_key: str,
+    payloads: list[dict[str, Any]],
+) -> bool:
+    """Remove one managed device from one ZNE entry only."""
     removed = next((payload for payload in payloads if payload.get("key") == device_key), None)
     if removed is None:
-        raise ValueError(f"Managed device '{device_key}' was not found")
+        return False
     remaining = [payload for payload in payloads if payload.get("key") != device_key]
     _validated_devices, validation_issues = parse_device_configs(json.dumps(remaining))
     if validation_issues:
@@ -492,6 +505,57 @@ async def _async_remove_managed_device(hass: HomeAssistant, call: Any) -> None:
         title=f"{entry.title}: managed device removed",
         notification_id=f"{DOMAIN}_{entry.entry_id}_managed_device_removed",
     )
+    return True
+
+
+async def _async_remove_managed_device(hass: HomeAssistant, call: Any) -> None:
+    """Remove one managed device from ZNE configuration only."""
+    if call.data.get("confirm") is not True:
+        raise ValueError("Set confirm=true to remove a managed device from Zero Net Export")
+    entry, device_key, payloads = _managed_device_entry_and_payloads(hass, call)
+    if not await _async_remove_managed_device_payload(hass, entry, device_key, payloads):
+        raise ValueError(f"Managed device '{device_key}' was not found")
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    device_entry: Any,
+) -> bool:
+    """Support Home Assistant's native integration-row Delete device action.
+
+    HA exposes `supports_remove_device` from this backend hook and calls it
+    only after its own native confirmation.  Remove the selected ZNE
+    managed-load record from this config entry and leave the original/source
+    Home Assistant device and entity untouched.
+    """
+    identifiers = getattr(device_entry, "identifiers", set()) or set()
+    managed_identifier_prefix = f"{config_entry.entry_id}:managed-device:"
+    raw_inventory = config_entry.options.get(
+        CONF_DEVICE_INVENTORY_JSON,
+        config_entry.data.get(CONF_DEVICE_INVENTORY_JSON, DEFAULT_DEVICE_INVENTORY_JSON),
+    )
+    devices, issues = parse_device_configs(raw_inventory)
+    if issues:
+        raise ValueError("Managed-device inventory is invalid: " + "; ".join(issues[:3]))
+    payloads = [_device_config_to_payload(device) for device in devices]
+    device_key_by_identifier = {
+        f"{config_entry.entry_id}:managed-device:{_managed_device_identifier_part(payload.get('key'))}": str(payload.get("key"))
+        for payload in payloads
+        if payload.get("key")
+    }
+
+    for domain, identifier in identifiers:
+        if domain != DOMAIN:
+            continue
+        identifier = str(identifier)
+        if not identifier.startswith(managed_identifier_prefix):
+            continue
+        device_key = device_key_by_identifier.get(identifier)
+        if device_key is None:
+            return False
+        return await _async_remove_managed_device_payload(hass, config_entry, device_key, payloads)
+    return False
 
 
 def _register_services(hass: HomeAssistant) -> None:
