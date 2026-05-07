@@ -6,12 +6,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.1.110] - 2026-05-07
+
 ### Added
 - Added the HA-native managed-load removal backend for ZNE-FR-009 via `async_remove_config_entry_device`, allowing Home Assistant's supported row-overflow Delete path to remove only the selected ZNE managed-load record while preserving the original/source HA device/entity.
 - Added native managed-device subentry reconfigure flow support for ZNE-FR-010 so captured add-time settings can be edited through Home Assistant forms without custom frontend/card/sidebar injection.
 
 ### Validation
-- Repo validation for ZNE-FR-009/ZNE-FR-010 passed focused tests (`Ran 97 tests`, OK), full discovery (`Ran 610 tests`, OK), changed-file `py_compile`, and `git diff --check`. Live HA/browser validation remains pending release approval.
+- Repo validation for ZNE-FR-009/ZNE-FR-010 passed focused tests (`Ran 97 tests`, OK), full discovery (`Ran 610 tests`, OK), changed-file `py_compile`, and `git diff --check`. Live HA/browser validation is part of the 0.1.110 release flow.
 
 ## [0.1.109] - 2026-05-06
 
