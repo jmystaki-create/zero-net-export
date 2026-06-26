@@ -66,7 +66,7 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 
 ## Blockers / approvals
 - Application implementation decisions are recorded in `docs/ZNE_APPLICATION_DIRECTION.md`; minimum Home Assistant version is `2026.6.4+`. Milestone 1 plan and feasibility are recorded, and the panel/static-asset registration path is source/live proven for Home Assistant `2026.6.4`.
-- GitHub Release `v0.2.0` is published and public. Read-only HA state still shows `update.zero_net_export_update` installed/latest `v0.1.109`; remaining release-management work is HACS refresh/install, Home Assistant restart, fingerprint comparison, logs, and browser proof.
+- GitHub Release `v0.2.0` is published and public. Read-only HA state still shows `update.zero_net_export_update` installed/latest `v0.1.109`. Follow-up heartbeat evidence shows calling Home Assistant `homeassistant.update_entity` for `update.zero_net_export_update` succeeded but did not refresh HACS metadata, and `/api/services` exposes no `hacs.*` refresh service. Remaining release-management work is HACS UI **Update information**, HACS refresh/install, Home Assistant restart, fingerprint comparison, logs, and browser proof.
 - Runtime control remains blocked in the validation Home Assistant instance until required source roles are configured; this is expected and not a release-install failure.
 - Process gate remains: no application architecture, mockup, or code may proceed until a target-environment feasibility check and milestone-specific acceptance criteria are written and accepted. OpenClaw may perform the validation. Template: `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md`.
 
