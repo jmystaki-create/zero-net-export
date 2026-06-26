@@ -12,7 +12,7 @@
   <a href="https://github.com/jmystaki-create/zero-net-export/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"></a>
   <a href="https://github.com/jmystaki-create/zero-net-export/issues"><img src="https://img.shields.io/github/issues/jmystaki-create/zero-net-export?style=for-the-badge" alt="Issues"></a>
   <br>
-  <em>Turn your Home Assistant into an active energy optimizer that keeps grid export at a precise target (ideally 0W).</em>
+  <em>A Home Assistant application for active energy optimisation and zero-export control.</em>
 </p>
 
 ---
@@ -23,7 +23,8 @@
 | :--- | :--- |
 | **Install via HACS** | [Add as Custom Repository](https://hacs.xyz/docs/faq/custom_repositories) → `jmystaki-create/zero-net-export` |
 | **Install Manually** | [Copy to `custom_components`](#manual-installation) |
-| **Configure the integration** | Install the integration, restart Home Assistant, verify the entry loads cleanly, then open **Settings → Devices & Services → Integrations → Zero Net Export → Configure** |
+| **Configure the current integration** | Install the integration, restart Home Assistant, verify the entry loads cleanly, then open **Settings → Devices & Services → Integrations → Zero Net Export → Configure** |
+| **Follow the application port** | [Application Direction](docs/ZNE_APPLICATION_DIRECTION.md) |
 | **Use optional Lovelace debug visibility** | [Dashboard Setup Guide](docs/DASHBOARD_SETUP.md) |
 | **Understand the Logic** | [Control Loop Architecture](docs/CONTROL_LOOP.md) |
 
@@ -48,7 +49,7 @@ With export tariffs often near **zero**, every watt your solar panels push back 
 
 ## ⚡ The Solution
 
-**Zero Net Export** transforms Home Assistant into an active energy strategist. It intelligently orchestrates your battery storage and flexible loads (EV chargers, hot water, pools) to absorb surplus solar *inside* your home.
+**Zero Net Export** is being developed as a Home Assistant application backed by a custom integration. It intelligently orchestrates your battery storage and flexible loads (EV chargers, hot water, pools) to absorb surplus solar *inside* your home.
 
 Instead of letting excess energy vanish, it dynamically shifts consumption to match generation, ensuring you maximize self-consumption and get the most value from your solar investment.
 
@@ -59,9 +60,9 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 - **Device Adapters**: Explicit control patterns (`fixed_toggle`, `variable_number`) for safe, resolved device control.
 - **Runtime Safety**: Includes runtime caps, battery-reserve gating, and safe-mode degradation.
 - **Explainable Decisions**: Rich diagnostics showing *why* actions were planned, blocked, or executed.
-- **Native Home Assistant setup path**: Sensors/source roles, Managed Devices, Controls, and Diagnostics live at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
-- **Configure is the intended command center**: the product direction is for operators to find Sensors, Controls, Managed Devices, and Diagnostics from one obvious native path.
-- **Clear native section ownership is now a product goal**: Controls should hold the Zero Net Export brain, Sensors should hold mapped/system telemetry, Managed Devices should hold fleet operations, and Diagnostics should hold troubleshooting/support.
+- **Home Assistant application direction**: the product workflow is moving into a Zero Net Export-owned Home Assistant app/panel so the full scope is not constrained by native device-page cards and entity rows.
+- **Integration backend remains the engine**: config entries, coordinator state, planner/executor logic, entities, services/actions, repairs, notifications, diagnostics, and install validation stay in the custom integration.
+- **Native Home Assistant surfaces become supporting paths**: Configure, device pages, entities, notifications, automations/scripts, and Repairs remain useful for fallback, automation, and recovery, but they are no longer the primary product shell.
 - **Native managed-device workspace**: day-to-day device onboarding and edit-in-place updates now have native add/remove/edit flows for fixed and variable devices, guided presets for common loads like hot water, pool pumps, EV chargers, and battery charge sinks, unmanaged-candidate discovery plus promotion review, and a Managed Devices enable/disable step for staging larger installs without dropping into raw JSON.
 - **Native Home Assistant operator surfaces**: Configure, the integration device at **Settings → Devices & Services → Integrations → Zero Net Export → Devices → open the Zero Net Export device**, entities, notifications, and Repairs are the supported operator path.
 - **Native diagnostics actions**: device-page diagnostic buttons can raise a diagnostics guide, a setup checklist, and a detailed diagnostics snapshot as persistent notifications, and those button entities are callable from Scripts / Automations via `button.press`.
@@ -81,9 +82,10 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 4.  Click **Add**.
 5.  Go to **Integrations**, find **Zero Net Export**, and click **Download**.
 6.  **Restart Home Assistant**.
-7.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source roles still appear at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
-8.  If you need to prove the running Home Assistant package matches the intended repo build, run `python3 scripts/validate_install_fingerprint.py /path/to/your/config/custom_components` in this repo. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the live Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the remote install path is inspected over SSH without remote Python. If you want the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare helper refuses repo-local paths so a repo copy cannot be mistaken for live validation. The helper now keeps `expected_commit`, `expected_component_commit`, and `preferred_validation_commit` aligned on the latest component-changing commit, while exposing full repo HEAD separately as `repo_head_commit`, so doc-only or test-only repo commits do not create false deploy-candidate drift. Compare that component anchor and the tracked-file hashes with the installed package details shown in **Configure** or the device-page **Review diagnostics** / **Review diagnostics snapshot** actions.
-9.  If you need one exact manual deploy from this repo before validation, do not make deploy/restart the first approval ask. First finish the repo-side user-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md`, then ask Riley for exact deploy/restart/live-screenshot validation approval. Only after that approval, run `python3 scripts/deploy_exact_repo_build.py /path/to/your/config --dry-run` to preview the resolved destination, then rerun `python3 scripts/deploy_exact_repo_build.py /path/to/your/config` (or point either command at the live Home Assistant `custom_components` directory or the installed `custom_components/zero_net_export` directory outside this repo) when the target looks correct. It replaces the destination component directory instead of layering files onto an older copy, creates a timestamped backup by default, refuses to target this repo's own source component directory, and then runs `scripts/validate_install_fingerprint.py` against the deployed path before you restart Home Assistant. If you need to pin the deploy to the approved component-changing commit instead of full repo HEAD, add `--expected-component-commit <commit>`.
+7.  For `0.2.0+`, confirm **Zero Net Export** appears in the Home Assistant sidebar and opens a nonblank application shell showing the installed version and backend connection status.
+8.  If this is an upgrade or live fix, confirm the Zero Net Export entry comes back loaded and that previously saved source roles still appear at **Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure**.
+9.  If you need to prove the running Home Assistant package matches the intended repo build, run `python3 scripts/validate_install_fingerprint.py /path/to/your/config/custom_components` in this repo. It captures `tmp/expected-install-fingerprint.json`, compares the live install, saves `tmp/install-fingerprint-compare.json`, and exits non-zero on mismatch. You can point it at the Home Assistant config directory, the `custom_components` directory, or the installed `custom_components/zero_net_export` directory itself, as long as that install path is outside this repo. If the live Home Assistant shell does not expose `python3`, keep running the validator from this repo and add `--ssh-host <user@host>` plus `--ssh-port <port>` so the remote install path is inspected over SSH without remote Python. If you want the split steps for debugging, run `python3 scripts/print_expected_install_fingerprint.py --write-json tmp/expected-install-fingerprint.json`, then `python3 scripts/compare_install_fingerprint.py /path/to/your/config/custom_components --expected-json tmp/expected-install-fingerprint.json --write-json tmp/install-fingerprint-compare.json`. The compare helper refuses repo-local paths so a repo copy cannot be mistaken for live validation. The helper now keeps `expected_commit`, `expected_component_commit`, and `preferred_validation_commit` aligned on the latest component-changing commit, while exposing full repo HEAD separately as `repo_head_commit`, so doc-only or test-only repo commits do not create false deploy-candidate drift. Compare that component anchor and the tracked-file hashes with the installed package details shown in **Configure** or the device-page **Review diagnostics** / **Review diagnostics snapshot** actions.
+10.  If you need one exact manual deploy from this repo before validation, do not make deploy/restart the first approval ask. First finish the repo-side user-flagged bugs/features in `docs/ACTIVE_USER_REQUESTS.md`, then ask Riley for exact deploy/restart/live-screenshot validation approval. Only after that approval, run `python3 scripts/deploy_exact_repo_build.py /path/to/your/config --dry-run` to preview the resolved destination, then rerun `python3 scripts/deploy_exact_repo_build.py /path/to/your/config` (or point either command at the live Home Assistant `custom_components` directory or the installed `custom_components/zero_net_export` directory outside this repo) when the target looks correct. It replaces the destination component directory instead of layering files onto an older copy, creates a timestamped backup by default, refuses to target this repo's own source component directory, and then runs `scripts/validate_install_fingerprint.py` against the deployed path before you restart Home Assistant. If you need to pin the deploy to the approved component-changing commit instead of full repo HEAD, add `--expected-component-commit <commit>`.
 
 ### Option 2: Manual Installation
 
@@ -99,7 +101,12 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## ⚙️ Configuration
 
-### Primary operator path: Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure
+### Current operator path: Zero Net Export sidebar app, with Configure as fallback
+
+Starting with `0.2.0`, the primary operator shell is the **Zero Net Export**
+sidebar app. The existing Home Assistant-native Configure/device surfaces remain
+available as fallback, automation, and recovery paths while the app workflow is
+expanded. See [Application Direction](docs/ZNE_APPLICATION_DIRECTION.md).
 
 1.  Add the **Zero Net Export** integration.
 2.  Complete the **minimal bootstrap config flow** by giving the system a clear name.
@@ -131,6 +138,8 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 | File | Role |
 | :--- | :--- |
 | [project_status.md](project_status.md) | Current execution state for the project: status, next action, blocker, user action, notes, and last modified timestamp |
+| [Application Direction](docs/ZNE_APPLICATION_DIRECTION.md) | Current application-port direction and open decisions |
+| [Application Milestone 1](docs/ZNE_APP_MILESTONE_1_PLAN.md) | First sidebar app milestone plan |
 | [docs/SUPERVISOR.md](docs/SUPERVISOR.md) | Active project steering guide and source of truth for current direction, goals, risks, and next actions |
 | [docs/WATCHDOG.md](docs/WATCHDOG.md) | Central audit guide used by watchdog-style runs to detect drift, stale state, and small safe corrective fixes |
 | [RELEASE_MANAGEMENT.md](RELEASE_MANAGEMENT.md) | Operational release workflow, including GitHub visibility, HACS refresh, Home Assistant restart, and post-release log review |
@@ -177,13 +186,13 @@ Instead of letting excess energy vanish, it dynamically shifts consumption to ma
 
 ## 🚧 Development Status
 
-The backend control engine is substantially built, and the project is now in a late **stabilization + native-surface consolidation** phase. The supported operator path remains centered on native Home Assistant surfaces: **Configure** plus `Settings -> Devices & Services -> Integrations -> Zero Net Export`, with no supported custom panel, sidebar app, or external web UI path.
+The backend control engine is substantially built, and the project is now pivoting from **native-surface consolidation** to a **Home Assistant application**. The old native-device-page-led direction is superseded. The integration remains the backend engine; the new application should become the primary operator experience.
 
-The active project scope is intentionally narrow and comes from Riley-flagged bugs/features in [`docs/ACTIVE_USER_REQUESTS.md`](docs/ACTIVE_USER_REQUESTS.md) and [`docs/BUGS.md`](docs/BUGS.md): managed-only peer rows in the integration/device list, visible settings/gear affordance for managed devices, no peer `Un Managed — ...` rows beside managed devices, and unmanaged candidates kept behind Managed Devices workflow/backlog/review surfaces.
+The active project scope now starts with the application port in [`docs/ZNE_APPLICATION_DIRECTION.md`](docs/ZNE_APPLICATION_DIRECTION.md). Older Riley-flagged native-surface bugs remain useful as evidence of why the port is needed, but future work should not continue polishing native device-page UX unless it directly supports the app or Riley explicitly requests a stabilization release.
 
 [`docs/UI_DESIGN.md`](docs/UI_DESIGN.md) and [`docs/UI_IMPLEMENTATION_MAP.md`](docs/UI_IMPLEMENTATION_MAP.md) are deprecated historical roadmap documents. They are not active steering and must not override current user-highlighted bugs/features.
 
-**Current highest-value next step:** keep implementing and validating the highlighted UI bugs/features in repo. Do not deploy, restart Home Assistant, tag/release, or claim release readiness until tests pass and Riley explicitly approves live validation with screenshot proof.
+**Current highest-value next step:** publish the validated `0.2.0` candidate through GitHub release/HACS, then live-test the sidebar-default `Zero Net Export` app shell in Home Assistant. Do not write directly to the live Home Assistant install outside the GitHub/HACS release path.
 
 - [x] Config flow & source validation
 - [x] Device model & guards
@@ -198,7 +207,8 @@ The active project scope is intentionally narrow and comes from Riley-flagged bu
 - [x] Publish native readiness guidance so operators can see the current setup phase, blockers, and highest-value next step from Home Assistant notifications and diagnostics
 - [x] Publish native diagnostics guide and diagnostics snapshot actions so operators can copy a concise runtime/setup/release summary into Discord or issue reports during real-world validation
 - [x] Remove the custom panel route and related launcher/frontend code from the shipped integration
-- [ ] Real-world validation of the rebuilt operator flow
+- [ ] First Home Assistant application/panel route
+- [ ] Real-world validation of the rebuilt application operator flow
 - [ ] Final install/runtime hardening based on real HA feedback
 
 ---

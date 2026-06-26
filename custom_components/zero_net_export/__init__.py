@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import asdict
 import hashlib
 import json
+from pathlib import Path
 import re
 from typing import Any
 
@@ -34,11 +35,18 @@ from .const import (
     DEFAULT_REFRESH_SECONDS,
     DEFAULT_TARGET_EXPORT_W,
     DOMAIN,
+    APP_MODULE_URL,
+    APP_PANEL_COMPONENT_NAME,
+    APP_PANEL_ICON,
+    APP_PANEL_TITLE,
+    APP_PANEL_URL_PATH,
+    APP_STATIC_URL_PATH,
     INTEGRATION_VERSION,
     PLATFORMS,
     REQUIRED_SOURCE_KEYS,
     SOURCE_ROLE_LABELS,
 )
+from .app_api import build_app_panel_config
 from .coordinator import ZeroNetExportCoordinator
 from .device_model import parse_device_configs
 from .entity import sync_primary_controller_device_registry
@@ -67,6 +75,8 @@ STALE_MANAGED_LOAD_BUTTON_SUFFIXES = (
     "_edit_configuration",
     "_remove_from_zne",
 )
+DATA_APP_PANEL_REGISTERED = "app_panel_registered"
+DATA_APP_STATIC_REGISTERED = "app_static_registered"
 
 
 def _setup_notification_id(entry: ConfigEntry) -> str:
@@ -582,6 +592,37 @@ def _register_services(hass: HomeAssistant) -> None:
     )
 
 
+async def _async_register_app_panel(hass: HomeAssistant) -> None:
+    """Register the Zero Net Export Home Assistant application panel."""
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    if not domain_data.get(DATA_APP_STATIC_REGISTERED):
+        from homeassistant.components.http import StaticPathConfig
+
+        frontend_dir = Path(__file__).with_name("frontend")
+        await hass.http.async_register_static_paths(
+            [StaticPathConfig(APP_STATIC_URL_PATH, str(frontend_dir), True)]
+        )
+        domain_data[DATA_APP_STATIC_REGISTERED] = True
+
+    if domain_data.get(DATA_APP_PANEL_REGISTERED):
+        return
+
+    from homeassistant.components import panel_custom
+
+    await panel_custom.async_register_panel(
+        hass,
+        frontend_url_path=APP_PANEL_URL_PATH,
+        webcomponent_name=APP_PANEL_COMPONENT_NAME,
+        sidebar_title=APP_PANEL_TITLE,
+        sidebar_icon=APP_PANEL_ICON,
+        module_url=APP_MODULE_URL,
+        config=build_app_panel_config(hass),
+        require_admin=False,
+        config_panel_domain=DOMAIN,
+    )
+    domain_data[DATA_APP_PANEL_REGISTERED] = True
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the integration domain."""
     hass.data.setdefault(DOMAIN, {})
@@ -590,6 +631,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    await _async_register_app_panel(hass)
     sync_primary_controller_device_registry(hass, entry)
     _async_remove_stale_guided_flow_button_entities(hass, entry)
     await _async_update_native_setup_notice(hass, entry)

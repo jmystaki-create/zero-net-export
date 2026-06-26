@@ -6,6 +6,21 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-26
+
+### Added
+- Added the first Home Assistant application shell for Zero Net Export as a sidebar-default custom panel named `Zero Net Export`.
+- Added packaged frontend assets under the integration and registered them through Home Assistant's supported static path plus custom panel APIs.
+- Added app panel bootstrap data with the running integration version and configured Zero Net Export entries so the app renders a real backend readiness value.
+
+### Changed
+- Raised the HACS/Home Assistant target for the application direction to Home Assistant `2026.6.4+`.
+- Updated project direction, constraints, milestone planning, and tests from native-device-page-first delivery to a GitHub/HACS-delivered Home Assistant application.
+
+### Validation
+- Repo validation for the `0.2.0` candidate must pass focused app/docs tests, changed-file `py_compile`, full unittest discovery, and `git diff --check` before GitHub publication.
+- Live validation remains HACS install/update, Home Assistant restart, sidebar/app browser proof, install fingerprint check, and log review.
+
 ## [0.1.110] - 2026-05-07
 
 ### Added

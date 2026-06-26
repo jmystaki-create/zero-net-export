@@ -7,6 +7,14 @@ from pathlib import Path
 DOMAIN = "zero_net_export"
 PLATFORMS = ["sensor", "switch", "select", "number", "binary_sensor", "button"]
 
+APP_PANEL_URL_PATH = "zero-net-export"
+APP_PANEL_TITLE = "Zero Net Export"
+APP_PANEL_ICON = "mdi:transmission-tower-export"
+APP_PANEL_COMPONENT_NAME = "zero-net-export-app"
+APP_STATIC_URL_PATH = "/zero_net_export_static"
+APP_MODULE_FILENAME = "zero-net-export-app.js"
+APP_MODULE_URL = f"{APP_STATIC_URL_PATH}/{APP_MODULE_FILENAME}"
+
 DEVICE_CANDIDATE_FIXED_DOMAINS = ("switch", "climate", "input_boolean", "light")
 DEVICE_CANDIDATE_VARIABLE_DOMAINS = ("number", "input_number")
 DEVICE_CANDIDATE_DOMAINS = DEVICE_CANDIDATE_FIXED_DOMAINS + DEVICE_CANDIDATE_VARIABLE_DOMAINS

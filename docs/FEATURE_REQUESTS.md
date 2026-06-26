@@ -2,6 +2,19 @@
 
 This file tracks user-requested product enhancements separately from confirmed bugs.
 
+## ZNE-APP-001 - Home Assistant application port
+
+- **status:** `0.2.0_repo_validated_pending_github_release`
+- **area:** `application / frontend / architecture`
+- **requested by:** Riley, 2026-06-26
+- **request:** Port Zero Net Export from a Home Assistant "device" implementation into a Home Assistant application that captures the full Zero Net Export scope.
+- **acceptance target:** Zero Net Export has a Home Assistant-hosted application/panel as the primary operator experience, backed by the existing integration backend. The app covers overview/readiness, source mapping, managed devices, controls, runtime visibility, diagnostics/support, install validation, and multi-plan/service separation. Native device/config-entry/entity surfaces remain supporting/fallback/automation surfaces.
+- **target-environment result:** Feasible. Home Assistant supports panels as full-screen sidebar-linked pages with JavaScript `hass` access, and custom panels can be registered. Repo evidence shows native device/config-entry surfaces cannot carry the full scope without misleading or unsupported UI behavior. Evidence: `validation/zne-application-feasibility.md`.
+- **documentation update:** `CONSTRAINTS.md`, `PROJECT_STATUS.md`, `README.md`, `docs/ZNE_APPLICATION_DIRECTION.md`, `docs/ACTIVE_USER_REQUESTS.md`, `docs/SUPERVISOR.md`, `docs/WATCHDOG.md`, `docs/IMPLEMENTATION_PLAN.md`, `docs/NATIVE_OPERATOR_PLAN.md`, `docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md`, and `docs/OPERATOR_SURFACES_UX.md`.
+- **product decisions:** sidebar by default; app name `Zero Net Export`; first release should include editable workflows; multi-plan/service support from day one; use a conservative vanilla/Lit-style frontend default unless feasibility proves otherwise; first acceptance path should cover core app workflows; destructive actions need strong confirmation; keep optional Lovelace examples; HACS-only frontend delivery is acceptable; minimum Home Assistant version is `2026.6.4+`.
+- **milestone 1 plan:** `docs/ZNE_APP_MILESTONE_1_PLAN.md`; milestone feasibility: `validation/zne-app-milestone-1-feasibility.md`.
+- **implementation status:** `0.2.0` candidate is repo-validated and pending GitHub release/HACS publication. Home Assistant `2026.6.4` source/live proof supports the first implementation path: register frontend assets with `StaticPathConfig` / `hass.http.async_register_static_paths(...)`, then register the sidebar app with `panel_custom.async_register_panel(...)`. First implementation slice is the smallest nonblank sidebar app shell with a backend readiness value, shipped only through GitHub release/HACS for live testing. Evidence: `validation/0.2.0-release-validation.md`.
+
 ## ZNE-FR-001 - Right-side managed-device settings action should reopen first-provisioned settings
 
 - **status:** `live_validated_supported_path`

@@ -85,16 +85,18 @@ Suggested area labels:
 
 ## Current approved scope override
 
-The active scope is Riley's current highlighted bugs/features in `docs/ACTIVE_USER_REQUESTS.md`.
+The active scope is Riley's current application-port direction in `CONSTRAINTS.md`, `docs/ZNE_APPLICATION_DIRECTION.md`, and `docs/ACTIVE_USER_REQUESTS.md`.
+
+As of 2026-06-26, Zero Net Export is being steered as a Home Assistant application backed by the existing integration backend. Native Home Assistant device/config-entry/entity surfaces are supporting/fallback/automation surfaces, not the primary product shell.
 
 The old `0.1.91` / release `1.91` integration-page Managed Devices + Un Managed peer-row scope is superseded. Do not use old ZNE-429/0.1.91 wording, deprecated UI roadmap docs, or old release plans to override current user direction.
 
 Current priority:
-- managed devices only in the native integration/device peer list
-- visible managed-device settings/gear affordance
-- suppress/remove peer `Un Managed — ...` unmanaged-candidate rows from that list
-- keep unmanaged candidates available behind Managed Devices workflow/backlog/review surfaces
-- no release/deploy/readiness claim without approval, tests, and screenshot proof
+- application direction questions answered
+- minimal Home Assistant app/panel milestone planned
+- app route renders nonblank desktop/mobile overview backed by real integration data
+- source mapping, managed devices, controls, runtime, diagnostics, and multi-plan separation are mapped into the app roadmap
+- no release/deploy/readiness claim without approval, tests, browser proof, and screenshot proof
 
 Older bug entries that require peer `Un Managed — ...` rows are historical/superseded unless they are reworked to support the current managed-only peer-list requirement.
 

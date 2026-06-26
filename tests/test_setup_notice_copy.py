@@ -88,6 +88,12 @@ def _load_init_module(notification_calls: list[dict], dismiss_calls: list[dict])
     const_module.DEFAULT_REFRESH_SECONDS = 30
     const_module.DEFAULT_TARGET_EXPORT_W = 0
     const_module.DOMAIN = "zero_net_export"
+    const_module.APP_MODULE_URL = "/zero_net_export_static/zero-net-export-app.js"
+    const_module.APP_PANEL_COMPONENT_NAME = "zero-net-export-app"
+    const_module.APP_PANEL_ICON = "mdi:transmission-tower-export"
+    const_module.APP_PANEL_TITLE = "Zero Net Export"
+    const_module.APP_PANEL_URL_PATH = "zero-net-export"
+    const_module.APP_STATIC_URL_PATH = "/zero_net_export_static"
     const_module.INTEGRATION_VERSION = "0.1.90"
     const_module.PLATFORMS = []
     const_module.REQUIRED_SOURCE_KEYS = ["solar_power_entity", "home_load_power_entity"]

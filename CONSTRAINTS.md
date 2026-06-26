@@ -1,443 +1,203 @@
-# Zero Net Export — Non-Negotiable Development Constraints
+# Zero Net Export — Application Development Constraints
 
-Zero Net Export is a Home Assistant custom integration.
+Zero Net Export is now a **Home Assistant application backed by a custom integration**.
 
-It is not a standalone app, not a custom Home Assistant frontend, not a sidebar panel, and not an external web UI unless the user explicitly approves a change in project direction.
+The project direction changed on 2026-06-26 after repeated validation showed that
+Home Assistant's native device/config-entry surfaces cannot carry the full Zero
+Net Export product scope. The integration backend remains valuable, but the
+primary operator experience must move into a Zero Net Export-owned application
+surface inside Home Assistant.
 
-This document is the highest-priority project rulebook for OpenClaw and all automated agents working on this repository.
-
-If any other document conflicts with this document, this document wins.
-
----
-
-## 1. Mandatory execution rule for every task
-
-Work only inside the Home Assistant-native integration constraints defined in this document.
-
-For every current issue, request, feature, bug, UX improvement, refactor, or UI change, OpenClaw must produce a feasibility classification **before coding**.
-
-The classification must be one of:
-
-- Native HA supported
-- Options flow / config flow supported
-- Entity/device/repair/notification supported
-- Lovelace-only
-- Custom frontend/panel required
-- Not implementable
-
-If the requested behavior requires any of the following, OpenClaw must stop and mark the task as blocked unless explicit user approval is given:
-
-- Custom panel
-- Sidebar app
-- External web UI
-- Home Assistant frontend patch
-- Exact placement inside native Home Assistant rows, cards, menus, or controls that the integration API does not expose
-- Any UI behavior not supported by current Home Assistant integration APIs
-
-OpenClaw must not propose alternatives outside the approved native operator path unless explicitly asked.
-
-The approved native operator path is:
-
-Settings → Devices & Services → Integrations → Zero Net Export → Configure
-
-Secondary supported paths are:
-
-- Device page
-- Entity pages
-- Repairs
-- Persistent notifications
-- Diagnostics
-- Services/actions
-- Optional Lovelace examples for visibility only
+This document is the highest-priority project rulebook for OpenClaw and all
+automated agents working on this repository. If another document conflicts with
+this document, this document wins.
 
 ---
 
-## 2. Source of truth order
+## 1. Product direction
+
+Build Zero Net Export as an application for Home Assistant.
+
+The application must capture the full scope of Zero Net Export:
+
+- system overview and readiness
+- source/sensor role mapping and health
+- managed-device onboarding, editing, staging, prioritisation, and removal
+- control policy, target export, deadband, battery reserve, refresh cadence, and mode
+- runtime planning/execution visibility
+- diagnostics, repairs, install validation, and release/support evidence
+- multi-plan/service separation
+- safe operator actions and explicit confirmation for destructive operations
+
+The Home Assistant integration remains the backend engine:
+
+- config entry lifecycle
+- coordinator/runtime state
+- planner/executor/control logic
+- source validation
+- managed-device model
+- entities for automation/status
+- services/actions
+- repairs, persistent notifications, diagnostics
+- HACS/install/release validation
+
+Native Home Assistant surfaces are now **supporting surfaces**, not the primary
+product UI.
+
+---
+
+## 2. Target application surface
+
+The approved primary surface is a Home Assistant-hosted application/panel.
+
+Feasibility basis:
+
+- Home Assistant developer docs define panels as full-screen pages linked from
+  the sidebar, with real-time access to the `hass` object from JavaScript.
+- Home Assistant allows users to register custom panels through `panel_custom`.
+- The developer docs also note that components can register panels.
+
+Approved implementation direction:
+
+- Add a Zero Net Export application route/panel inside Home Assistant.
+- Ship frontend assets as part of the integration when technically feasible.
+- Use Home Assistant backend services, websocket commands, config entries,
+  diagnostics, and entity state as the app's data/control layer.
+- Keep the app inside Home Assistant's auth/session/frontend shell.
+
+The old rule forbidding custom panel/sidebar/frontend work is retired.
+
+---
+
+## 3. Source of truth order
 
 When documents disagree, use this authority order:
 
 1. `CONSTRAINTS.md`
 2. `PROJECT_STATUS.md`
-3. `docs/ACTIVE_USER_REQUESTS.md`
-4. `docs/BUGS.md`
-5. `docs/SUPERVISOR.md`
-6. Current implementation under `custom_components/zero_net_export`
-7. `README.md`
-8. Historical docs only if explicitly referenced by the user
+3. `docs/ZNE_APPLICATION_DIRECTION.md`
+4. `docs/ACTIVE_USER_REQUESTS.md`
+5. `docs/BUGS.md`
+6. `docs/SUPERVISOR.md`
+7. Current implementation under `custom_components/zero_net_export`
+8. `README.md`
+9. Historical docs only if explicitly referenced by the user
 
-Deprecated docs must not create work.
+Deprecated native-only docs must not create work.
 
-Historical design docs, old implementation maps, previous UX plans, or superseded notes must not override current constraints, active bugs, or current user-highlighted requests.
+Historical design docs, old implementation maps, previous UX plans, or
+superseded notes must not override the current application direction.
 
 ---
 
-## 3. Allowed implementation surfaces
+## 4. Allowed implementation surfaces
 
-The integration may use these Home Assistant-native surfaces:
+The project may use these surfaces:
 
-- Config flow for initial setup/bootstrap
-- Options flow / Configure for normal setup and editing
+- Home Assistant custom application/panel as the primary operator UI
+- Integration backend modules under `custom_components/zero_net_export`
+- Static/frontend assets shipped by the integration
+- Home Assistant config entries and options/reconfigure flows when they remain useful
 - Native Home Assistant entities
-- Native device registry behavior
-- Native entity registry behavior
+- Native device/entity registry behavior
 - Native services/actions
 - Native Repairs issues
 - Persistent notifications
 - Diagnostics snapshots/downloads
 - Translations under `strings.json`
-- Tests and validation scripts
-- Documentation
-- Optional Lovelace dashboard examples for visibility only
+- Optional Lovelace examples for supplementary visibility
+- Tests, validation scripts, and documentation
 
-The primary configuration and management surface is the integration Configure flow.
-
-The device page, entity pages, Repairs, persistent notifications, diagnostics, and services/actions are supporting surfaces.
+The application should own normal operator workflows. Native HA Configure/device
+pages should remain as fallback, secondary visibility, automation, and recovery
+surfaces.
 
 ---
 
-## 4. Forbidden work unless explicitly approved
+## 5. Forbidden work unless explicitly approved
 
-Do not implement or propose the following unless the user explicitly approves a project direction change:
+Do not implement or propose the following unless Riley explicitly approves it:
 
-- Custom Home Assistant panel
-- Sidebar app
-- External web UI
-- Custom frontend replacement for Home Assistant Settings
-- Custom frontend replacement for Devices & Services
-- Custom frontend replacement for the device page
+- external web UI outside Home Assistant
 - Home Assistant core patch
 - Home Assistant frontend patch
-- Custom JavaScript frontend as the primary operator workflow
-- Custom card as the primary configuration workflow
-- Raw JSON/YAML as the primary user workflow
-- Workarounds that depend on undocumented Home Assistant internals
-- Features that require exact placement inside native Home Assistant UI rows, menus, cards, or controls that integrations cannot control
-- Any UX that assumes control over Home Assistant screens the integration does not own
+- browser-extension UI
+- cloud service requirement for local control
+- YAML/raw JSON as the primary user workflow
+- undocumented Home Assistant frontend monkey-patching
+- destructive live Home Assistant changes outside the release-management process
+- direct mutation of original/source Home Assistant devices/entities when removing
+  a Zero Net Export managed-device record
 
-If a requested behavior falls into this category, OpenClaw must stop and mark the task as blocked.
-
-It may explain the boundary and suggest only approved native alternatives unless the user asks for non-native alternatives.
-
----
-
-## 5. Product direction
-
-Zero Net Export must remain a Home Assistant-native integration.
-
-The primary operator path is:
-
-Settings → Devices & Services → Integrations → Zero Net Export → Configure
-
-The Configure flow owns:
-
-- Setup
-- Source sensor selection
-- Import/export/grid role configuration
-- Managed devices
-- Device control settings
-- Control mode
-- Diagnostics visibility
-- Safe reconfiguration
-
-The integration device page may provide:
-
-- Entity visibility
-- Current status
-- Diagnostic entities
-- Links into native Home Assistant surfaces
-- Supporting review/audit information
-
-Repairs may provide:
-
-- Missing required sensor warnings
-- Invalid configuration warnings
-- Unavailable source warnings
-- Unsafe or incomplete setup warnings
-- Recovery guidance
-
-Persistent notifications may provide:
-
-- Runtime warnings
-- Operator-visible diagnostic messages
-- One-off setup or migration notices
-
-Services/actions may provide:
-
-- Explicit operator-triggered behaviours
-- Diagnostics actions
-- Safe helper actions
-- Managed-device operations where appropriate
-
-Lovelace examples may provide:
-
-- Optional dashboards
-- Visibility examples
-- Debug/operator views
-
-Lovelace must not become the required primary configuration surface unless explicitly approved.
+The application may use documented/custom Home Assistant frontend extension
+points, but must not depend on hidden internal DOM structure for correctness.
 
 ---
 
 ## 6. Required proof before implementation
 
-Before coding, OpenClaw must state:
+Before application architecture, frontend implementation, or backend API work,
+OpenClaw must state:
 
 1. The requested behavior.
-2. The Home Assistant surface it intends to use.
+2. The intended Home Assistant application/backend surface.
 3. The feasibility classification.
-4. Why that surface is allowed under this document.
-5. The exact files it expects to change.
+4. The authoritative evidence or live proof used.
+5. The exact files expected to change.
+6. The validation plan.
 
-If the feasibility classification is one of:
+Feasibility classification must be one of:
 
-- Lovelace-only
-- Custom frontend/panel required
+- Application panel supported
+- Integration backend supported
+- Native HA support surface
+- Lovelace-only supplement
+- External/custom unsupported
 - Not implementable
 
-then OpenClaw must not code.
-
-It must stop and report the constraint boundary.
-
----
-
-## 7. Feasibility classification definitions
-
-### Native HA supported
-
-Use this when the requested behavior is directly supported by standard Home Assistant integration patterns.
-
-Examples:
-
-- Creating entities
-- Updating entity state
-- Adding device info
-- Adding services/actions
-- Creating diagnostics
-- Creating Repairs issues
-- Creating persistent notifications
-
-### Options flow / config flow supported
-
-Use this when the requested behavior can be implemented inside Home Assistant’s native setup or Configure flows.
-
-Examples:
-
-- Selecting sensors
-- Editing thresholds
-- Enabling or disabling managed devices
-- Editing device-control settings
-- Re-running setup choices
-- Validating configuration before saving
-
-### Entity/device/repair/notification supported
-
-Use this when the requested behavior belongs on entities, device pages, Repairs, persistent notifications, or services/actions.
-
-Examples:
-
-- Warning the user that a source sensor is unavailable
-- Exposing export/import/current status as entities
-- Creating a Repair when setup is incomplete
-- Creating a persistent notification for a runtime blocker
-- Adding a service/action for a safe explicit operator command
-
-### Lovelace-only
-
-Use this when the requested behavior can only be shown through dashboards, custom cards, or Lovelace UI composition.
-
-OpenClaw must not implement Lovelace-only work as the primary product workflow unless explicitly approved.
-
-### Custom frontend/panel required
-
-Use this when the requested behavior requires a custom Home Assistant panel, sidebar item, JavaScript frontend, or replacement UI.
-
-OpenClaw must stop unless explicitly approved.
-
-### Not implementable
-
-Use this when the requested behavior cannot be done inside the current Home Assistant integration boundaries.
-
-OpenClaw must stop and explain the boundary.
+If a request requires external UI, Home Assistant core/frontend patching, or
+undocumented frontend internals, stop and report the boundary.
 
 ---
 
-## 8. UI and UX constraint rules
+## 7. Application architecture guardrails
 
-OpenClaw must not assume the integration can control arbitrary Home Assistant UI placement.
+The app must be product-grade, not a thin collection of debug panels.
 
-The integration cannot assume control over:
+Required guardrails:
 
-- Native Home Assistant sidebar layout
-- Native device page row layout
-- Native entity row buttons
-- Native pencil/cog/action placement
-- Native card layout outside supported entity metadata
-- Native menu placement
-- Native Settings page structure
-- Native Devices & Services page structure
-
-If the user requests exact placement inside a Home Assistant-native row, page, menu, or card, OpenClaw must classify the request before coding.
-
-If the Home Assistant integration API does not expose that placement, the task is blocked unless the user approves a custom frontend/panel direction.
+- One clear primary entry point in Home Assistant.
+- Mobile and desktop layouts must be designed and validated.
+- Every destructive action needs explicit confirmation and clear scope.
+- Multi-plan/service state must remain entry-scoped.
+- Original Home Assistant devices/entities must remain owned by their source integrations.
+- Backend operations must validate inputs and fail closed.
+- Runtime control must remain safe-mode-first when sources or managed devices are invalid.
+- App state must be derived from authoritative backend/runtime data, not duplicated silently in frontend-only state.
+- The native entity/device surface must not be allowed to re-expand into the primary UI.
 
 ---
 
-## 9. Development loop
+## 8. Release and validation gates
 
-Every task must follow this loop:
+No application release is ready until:
 
-1. Read `CONSTRAINTS.md`.
-2. Read `PROJECT_STATUS.md`.
-3. Read `docs/ACTIVE_USER_REQUESTS.md`.
-4. Read `docs/BUGS.md`.
-5. Identify the smallest allowed native implementation.
-6. State the requested behavior.
-7. State the Home Assistant surface being changed.
-8. State the feasibility classification.
-9. State why the surface is allowed.
-10. State expected files to change.
-11. Implement only that change.
-12. Run relevant tests.
-13. Produce evidence.
-14. Update project status only if materially changed.
-15. Do not deploy, restart, tag, publish, or release unless explicitly approved.
+- repo tests pass
+- frontend build/static asset validation passes, once frontend assets exist
+- Home Assistant installs/loads the integration
+- the application route/panel appears in Home Assistant
+- browser validation proves the app is nonblank and usable on desktop and mobile
+- core workflows are validated: setup/readiness, source mapping, managed devices,
+  controls, diagnostics, and multi-plan isolation
+- logs are checked for Zero Net Export errors/warnings/tracebacks
+- changelog and release notes describe the application direction
+
+Live Home Assistant deploy/restart/release actions still require explicit approval.
 
 ---
 
-## 10. Evidence requirements
+## 9. Current decision questions
 
-OpenClaw must not claim a change is complete without evidence.
-
-Acceptable evidence includes:
-
-- Test output
-- Validation script output
-- Before/after screenshots when applicable
-- Home Assistant log output
-- Config flow validation evidence
-- Options flow validation evidence
-- Entity state evidence
-- Repair issue evidence
-- Persistent notification evidence
-- Service/action registration evidence
-- Diagnostics output evidence
-
-Claims such as “should work”, “likely fixed”, “implemented”, or “ready” are not acceptable without evidence.
-
-If evidence cannot be produced, OpenClaw must say so.
-
----
-
-## 11. Testing requirements
-
-Before claiming completion, OpenClaw must run the relevant available tests.
-
-At minimum, for code changes, consider:
-
-- Unit tests
-- Integration tests
-- Linting
-- Translation validation
-- Config flow tests
-- Options flow tests
-- Service/action tests
-- Repairs tests
-- Diagnostics tests
-- Regression tests for the touched area
-
-If tests cannot be run, OpenClaw must state:
-
-- Which tests were not run
-- Why they were not run
-- What risk remains
-
----
-
-## 12. Release and deployment restrictions
-
-OpenClaw must not do any of the following without explicit user approval:
-
-- Restart Home Assistant
-- Deploy to a live Home Assistant instance
-- Publish a release
-- Create a git tag
-- Push to GitHub
-- Merge branches
-- Delete branches
-- Rewrite git history
-- Bump version numbers for release
-- Mark a release as ready
-- Claim production readiness
-
-Preparing release notes or release metadata is allowed only if the user asked for preparation.
-
-Executing the release is not allowed unless explicitly approved.
-
----
-
-## 13. Git and repository safety
-
-OpenClaw must not perform destructive git operations without explicit approval.
-
-Forbidden without approval:
-
-- `git reset --hard`
-- `git clean -fd`
-- `git push --force`
-- Branch deletion
-- Tag deletion
-- History rewrite
-- Mass file deletion
-- Large refactors unrelated to the task
-
-Before committing, OpenClaw must be able to explain:
-
-- What changed
-- Why it changed
-- Which constraint allowed it
-- Which tests were run
-- What evidence exists
-
----
-
-## 14. Scope control
-
-OpenClaw must implement the smallest useful allowed change.
-
-Do not expand scope from:
-
-- Bug fix into redesign
-- UI request into frontend architecture
-- Config flow improvement into custom panel
-- Entity improvement into dashboard system
-- Diagnostics improvement into external app
-- One issue into broad refactor
-- One operator request into a release plan
-
-If a larger redesign appears useful, OpenClaw must document it as a proposal only.
-
-It must not begin implementation without approval.
-
----
-
-## 15. Handling impossible or blocked requests
-
-When a request is blocked by this document, OpenClaw must respond using this format:
-
-```text
-Blocked by constraint.
-
-Requested behavior:
-<plain-English summary>
-
-Constraint boundary:
-<which rule blocks it>
-
-Feasibility classification:
-<classification>
-
-Allowed native alternative:
-<only if one exists>
-
-Files changed:
-None.
+Before application implementation starts, ask Riley for decisions when they are
+not already clear. Keep questions focused. Current open questions are tracked in
+`docs/ZNE_APPLICATION_DIRECTION.md`.

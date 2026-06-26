@@ -67,15 +67,14 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
         self.assertTrue(info["has_changelog"])
-        self.assertEqual(info["released_on"], "2026-05-07")
+        self.assertEqual(info["released_on"], "2026-06-26")
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
         self.assertIn("Home Assistant", info["changes_preview"])
-        self.assertIn("ZNE-FR-009", info["changes_preview"])
-        self.assertIn("async_remove_config_entry_device", info["changes_preview"])
-        self.assertIn("ZNE-FR-010", info["changes_preview"])
-        self.assertIn("subentry reconfigure", info["changes_preview"])
+        self.assertIn("application shell", info["changes_preview"])
+        self.assertIn("sidebar-default custom panel", info["changes_preview"])
+        self.assertIn("backend readiness value", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
         self.assertNotIn("release-target decision", info["changes_preview"])
 
@@ -357,13 +356,13 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("## What counts as success for 0.1.89", plan)
         self.assertIn("Current steering lives", plan)
 
-    def test_supervisor_steering_uses_0191_integration_page_scope(self) -> None:
+    def test_supervisor_steering_uses_application_port_scope(self) -> None:
         supervisor = (REPO_ROOT / "docs" / "SUPERVISOR.md").read_text(encoding="utf-8")
 
-        self.assertIn("Riley's highlighted bugs/features only", supervisor)
-        self.assertIn("managed devices must be the only peer rows", supervisor)
-        self.assertIn("visible settings/gear affordance", supervisor)
-        self.assertIn("unmanaged candidates must not appear as peer `Un Managed — ...` rows", supervisor)
+        self.assertIn("Home Assistant application port", supervisor)
+        self.assertIn("Zero Net Export as a Home Assistant application", supervisor)
+        self.assertIn("docs/ZNE_APPLICATION_DIRECTION.md", supervisor)
+        self.assertIn("native Home Assistant surfaces as supporting/fallback/automation surfaces", supervisor)
         self.assertNotIn("approved `0.1.91` / release `1.91`", supervisor)
         self.assertNotIn("ordered `0.1.90` corrective UI work", supervisor)
 
@@ -454,22 +453,22 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("mapped-source", current_highlights.lower())
         self.assertNotIn("source mapping", current_highlights.lower())
 
-    def test_current_candidate_changelog_tracks_managed_device_actions_correction_scope(self) -> None:
+    def test_current_candidate_changelog_tracks_application_release_scope(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(
             section for section in sections if section["version"] == release_info.INTEGRATION_VERSION
         )
         current_highlights = "\n".join(current_section["highlights"])
 
-        self.assertIn("ZNE-FR-009", current_highlights)
-        self.assertIn("async_remove_config_entry_device", current_highlights)
-        self.assertIn("row-overflow Delete", current_highlights)
-        self.assertIn("original/source HA device/entity", current_highlights)
-        self.assertIn("ZNE-FR-010", current_highlights)
-        self.assertIn("subentry reconfigure", current_highlights)
+        self.assertIn("Home Assistant application shell", current_highlights)
+        self.assertIn("sidebar-default custom panel", current_highlights)
+        self.assertIn("packaged frontend assets", current_highlights)
+        self.assertIn("static path plus custom panel APIs", current_highlights)
+        self.assertIn("backend readiness value", current_highlights)
+        self.assertIn("Home Assistant `2026.6.4+`", current_highlights)
         self.assertNotIn("unsupported device overflow-menu injection", current_highlights.lower())
         self.assertNotIn("arbitrary custom", current_highlights.lower())
-        self.assertNotIn("sidebar panel", current_highlights.lower())
+        self.assertNotIn("device-page card injection", current_highlights.lower())
         self.assertNotIn("cross-integration registry merge", current_highlights.lower())
         self.assertNotIn("Managed Devices — ⚙ Settings —", current_highlights)
         self.assertNotIn("Added `Managed Devices` and `Un Managed` suggested-area", current_highlights)

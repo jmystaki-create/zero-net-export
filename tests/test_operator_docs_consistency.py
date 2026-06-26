@@ -75,13 +75,14 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         gates = content[content.index("## User approval gates"):]
 
         self.assertIn("`docs/ACTIVE_USER_REQUESTS.md`", source)
+        self.assertIn("`docs/ZNE_APPLICATION_DIRECTION.md`", source)
         self.assertIn("`docs/BUGS.md`", source)
         self.assertIn("Deprecated and non-authoritative", source)
         self.assertIn("`docs/UI_DESIGN.md`", source)
         self.assertIn("`docs/UI_IMPLEMENTATION_MAP.md`", source)
-        self.assertIn("managed devices must be the only peer rows", mission)
-        self.assertIn("visible settings/gear affordance", mission)
-        self.assertIn("unmanaged candidates must not appear as peer `Un Managed — ...` rows", mission)
+        self.assertIn("Home Assistant application port", mission)
+        self.assertIn("Zero Net Export as a Home Assistant application", mission)
+        self.assertIn("native Home Assistant surfaces as supporting/fallback/automation surfaces", mission)
         self.assertIn("without explicit approval and screenshot proof", mission)
         self.assertIn("deploying to Home Assistant", gates)
         self.assertIn("tagging or publishing a release", gates)
@@ -96,11 +97,12 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         behavior = content[content.index("## Watchdog behavior"):]
 
         self.assertIn("`docs/ACTIVE_USER_REQUESTS.md`", source)
+        self.assertIn("`docs/ZNE_APPLICATION_DIRECTION.md`", source)
         self.assertIn("`docs/BUGS.md`", source)
         self.assertIn("Deprecated and non-authoritative", source)
-        self.assertIn("managed-only peer rows", audit)
-        self.assertIn("visible settings/gear affordance", audit)
-        self.assertIn("no peer `Un Managed — ...` unmanaged-candidate rows", audit)
+        self.assertIn("Home Assistant application direction", audit)
+        self.assertIn("app/panel work is approved and expected", audit)
+        self.assertIn("native device/config-entry/entity surfaces are supporting surfaces", audit)
         self.assertIn("no release/deploy/readiness claim without tests, approval, and screenshot proof", audit)
         self.assertIn("catches stale docs/cron/tests restoring deprecated UI-map behavior", behavior)
         self.assertNotIn("current ordered `0.1.91` map", content)
@@ -111,11 +113,12 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         override = content[content.index("## Current approved scope override"):content.index("## Current active bugs")]
 
         self.assertIn("docs/ACTIVE_USER_REQUESTS.md", override)
+        self.assertIn("docs/ZNE_APPLICATION_DIRECTION.md", override)
         self.assertIn("old `0.1.91` / release `1.91`", override)
         self.assertIn("superseded", override)
-        self.assertIn("managed devices only", override)
-        self.assertIn("visible managed-device settings/gear affordance", override)
-        self.assertIn("suppress/remove peer `Un Managed — ...`", override)
+        self.assertIn("Home Assistant application", override)
+        self.assertIn("minimal Home Assistant app/panel milestone", override)
+        self.assertIn("source mapping, managed devices, controls, runtime, diagnostics, and multi-plan separation", override)
 
     def test_steering_bug_records_deprecated_docs_fix(self) -> None:
         content = (ROOT / "docs" / "BUGS.md").read_text(encoding="utf-8")
@@ -133,11 +136,12 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
         status = content[content.index("## 🚧 Development Status"):]
 
         self.assertIn("ACTIVE_USER_REQUESTS.md", docs)
+        self.assertIn("Application Direction", docs)
         self.assertIn("BUGS.md", docs)
         self.assertIn("deprecated", docs.lower())
-        self.assertIn("managed-only", status)
-        self.assertIn("visible settings/gear", status)
-        self.assertIn("no peer `Un Managed — ...` rows", status)
+        self.assertIn("Home Assistant application", status)
+        self.assertIn("application port", status)
+        self.assertIn("First Home Assistant application/panel route", status)
         self.assertNotIn("Those two files are the UI source of truth", content)
 
     def test_project_status_tracks_current_user_request_boundary(self) -> None:

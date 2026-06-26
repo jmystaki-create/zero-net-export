@@ -583,8 +583,9 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         project_root = Path(__file__).resolve().parents[1]
         readme = (project_root / "README.md").read_text(encoding="utf-8")
 
-        self.assertIn("**Native Home Assistant setup path**: Sensors/source roles, Managed Devices, Controls, and Diagnostics live", readme)
-        self.assertIn("operators to find Sensors, Controls, Managed Devices, and Diagnostics", readme)
+        self.assertIn("**Home Assistant application direction**", readme)
+        self.assertIn("Integration backend remains the engine", readme)
+        self.assertIn("Native Home Assistant surfaces become supporting paths", readme)
         self.assertIn("Keep Sensors/source roles, Managed Devices, Controls, and Diagnostics available", readme)
         self.assertIn("Use **Sensors** to map your source entities", readme)
         self.assertIn("Use **Managed Devices** in Configure as the Managed Devices workspace", readme)
@@ -646,8 +647,8 @@ class TestBucketOwnershipCopy(unittest.TestCase):
         self.assertIn("UI_DESIGN.md — DEPRECATED", ui_design)
         self.assertIn("no longer a project source of truth", ui_design)
         self.assertIn("docs/ACTIVE_USER_REQUESTS.md", ui_design)
-        self.assertIn("Riley's highlighted bugs/features only", supervisor)
-        self.assertIn("visible settings/gear affordance", supervisor)
+        self.assertIn("Home Assistant application port", supervisor)
+        self.assertIn("Zero Net Export as a Home Assistant application", supervisor)
         self.assertNotIn("set policy, and review health", supervisor)
         self.assertIn("deprecated historical UI roadmap/spec context", ui_implementation_spec)
         self.assertIn("docs/ACTIVE_USER_REQUESTS.md", ui_implementation_spec)

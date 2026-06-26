@@ -1,7 +1,12 @@
 # ZNE-589 Home Assistant sidebar panel feasibility check
 
 Date: 2026-05-06
-Status: Accepted by Riley on 2026-05-06; implementation completed in repo, live validation pending release-managed install.
+Status: historical/superseded as product direction; bug-fix evidence remains valid for release history.
+
+Current note: this document records why the previous `ZNE Managed Devices`
+sidebar item was removed under the native-only direction. It must not be used to
+block the 2026-06-26 application port. Current direction lives in
+`CONSTRAINTS.md` and `docs/ZNE_APPLICATION_DIRECTION.md`.
 
 ## Question
 
@@ -18,7 +23,7 @@ Can Zero Net Export remove the `ZNE Managed Devices` item from the Home Assistan
 - User screenshot from 2026-05-06 shows `ZNE Managed Devices` as a Home Assistant left sidebar item with a gear icon below `Terminal`.
 - Repo source `custom_components/zero_net_export/__init__.py` registers a custom frontend panel through `homeassistant.components.panel_custom.async_register_panel` with `sidebar_title="ZNE Managed Devices"`, `sidebar_icon="mdi:cog-outline"`, and `frontend_url_path="zero-net-export-managed-devices"`.
 - Repo manifest currently declares frontend/panel dependencies: `frontend`, `http`, and `panel_custom`.
-- Project technical direction in `docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md` says supported operator UX is native HA surfaces and there is no supported custom sidebar, custom panel, or external UI path.
+- Historical project technical direction in `docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md` said supported operator UX was native HA surfaces and there was no supported custom sidebar, custom panel, or external UI path. That direction is now superseded by the application port.
 - Existing Tier 1 feasibility in `docs/ZNE-TIER1_NATIVE_DEVICE_PAGE_FEASIBILITY.md` treats the current scope as native Home Assistant surfaces, not a custom frontend panel.
 
 ## Supported / controllable by ZNE

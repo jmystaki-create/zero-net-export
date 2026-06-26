@@ -1,7 +1,12 @@
 # ZNE Tier 1 native Home Assistant device-page feasibility check
 
 Date: 2026-05-01
-Status: Draft for Riley acceptance before any replacement Tier 1 mockup or implementation.
+Status: historical/superseded by the 2026-06-26 Home Assistant application direction.
+
+Current note: this document remains useful evidence about what Zero Net Export
+can and cannot control on native Home Assistant device pages. It must not be
+used to keep the product roadmap native-device-page-led. Current direction lives
+in `CONSTRAINTS.md` and `docs/ZNE_APPLICATION_DIRECTION.md`.
 
 ## Question
 
@@ -11,7 +16,9 @@ What can Zero Net Export actually control on a native Home Assistant device page
 
 - Home Assistant native device page under Settings > Devices & services > Devices.
 - Custom integration entities registered through normal Home Assistant entity/device registries.
-- Existing Zero Net Export custom integration, not a custom frontend panel.
+- Existing Zero Net Export custom integration, not a custom frontend panel. This
+  was the historical scope for this feasibility check; the current approved
+  direction is now a Home Assistant application/panel backed by the integration.
 
 ## Authoritative evidence consulted
 
@@ -19,7 +26,9 @@ What can Zero Net Export actually control on a native Home Assistant device page
 - Home Assistant developer docs: Entity. Integrations expose entities with `device_info`, `unique_id`, entity naming, state, icons/device classes/categories and other entity metadata.
 - Home Assistant developer docs: Button entity. Button entities are stateless backend/device actions, not navigation controls.
 - Home Assistant developer docs: Config entries/config flow. Config entries are UI-created persistent configuration; integrations can expose reconfigure/options flows.
-- Project note: `docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md` says supported operator UX is native HA surfaces and no required custom sidebar/custom panel/external UI path.
+- Historical project note: `docs/NATIVE_SURFACE_TECHNICAL_DIRECTION.md` formerly
+  said supported operator UX was native HA surfaces and no required custom
+  sidebar/custom panel/external UI path. That direction is now superseded.
 
 ## Supported / controllable by ZNE
 
