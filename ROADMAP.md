@@ -6,7 +6,7 @@ Last updated: 2026-07-01
 
 ### ZNE-APP-002 - App-native Sources workflow
 
-Status: repo validated, pending GitHub/HACS live validation.
+Status: released as `v0.2.3`; GitHub/HACS install live-validated with browser/write proof gaps.
 
 Outcome:
 - Operators can review source-role bindings, status, readings, age, and issues in the Zero Net Export app.
@@ -17,19 +17,24 @@ Evidence:
 - Plan: `docs/ZNE_APP_MILESTONE_2_SOURCES_PLAN.md`
 - Feasibility: `validation/zne-app-milestone-2-sources-feasibility.md`
 - Repo validation: `validation/zne-app-milestone-2-sources-implementation.md`
+- Release validation: `validation/0.2.3-release-validation.md`
 
 Next gate:
-- Release and live-validate as `v0.2.3` through GitHub/HACS only.
-- Validate Home Assistant install version, fingerprint, logs, app routes, browser UI, and a safe reversible source-role write if a safe mapping is approved.
+- Capture browser proof for the installed `0.2.3` Sources workflow.
+- Identify a safe disposable source-role mapping before attempting reversible source-role write validation.
 
 ## Release path
 
-1. Publish `v0.2.3` from the repo-validated ZNE-APP-002 implementation.
-2. Install/update through HACS.
-3. Restart Home Assistant.
-4. Verify installed/latest version, fingerprint match, app/static routes, and targeted logs.
-5. Capture desktop and narrow browser proof for the Sources workflow.
-6. Record validation evidence and update release status.
+Completed:
+- Published `v0.2.3` from the repo-validated ZNE-APP-002 implementation.
+- Installed/updated through HACS.
+- Restarted Home Assistant.
+- Verified installed/latest version, fingerprint match, app/static routes, targeted logs, and HACS metadata.
+- Recorded validation evidence and updated release status.
+
+Remaining:
+- Capture desktop and narrow browser proof for the Sources workflow.
+- Perform a reversible source-role write only after a safe mapping is identified and approved.
 
 ## Risks
 
