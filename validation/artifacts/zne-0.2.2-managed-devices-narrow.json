@@ -1,0 +1,173 @@
+{
+  "url": "http://192.168.86.200:8123/zero-net-export",
+  "title": "Zero Net Export – Home Assistant",
+  "hasVersion022": false,
+  "hasManagedDevices": false,
+  "hasFleetSummary": false,
+  "hasRemoveButton": false,
+  "hasClearedInputError": false,
+  "hasRemovalRequested": false,
+  "text": "",
+  "cards": [
+    {
+      "text": "Fleet summary Overview source blockers active | 1 managed | 30 unmanaged backlog | 1 managed device needs attention | blocked 7th validation load | 14 need review | 16 ready to promote | review Managed Devices — 7th... | review first | warn Attention 1 managed device needs attention | attention 7th validation load | blocked 7th validation load Ready next source blockers active | 27 fixed candidates | 3 variable candidates | 16 ready to promote | 14 still need review | review Managed Devices — 7th... | review first | warn Unmanaged backlog 30",
+      "rect": {
+        "x": 14,
+        "y": 315.96875,
+        "width": 362,
+        "height": 398.5,
+        "top": 315.96875,
+        "right": 376,
+        "bottom": 714.46875,
+        "left": 14
+      }
+    },
+    {
+      "text": "Scoped service action Plan Auto Zero Net Export Managed-device key Enable record Disable record Removal confirmation Remove from ZNE only Removal deletes the Zero Net Export managed record only. It does not remove the original Home Assistant entity.",
+      "rect": {
+        "x": 14,
+        "y": 726.46875,
+        "width": 362,
+        "height": 405.0625,
+        "top": 726.46875,
+        "right": 376,
+        "bottom": 1131.53125,
+        "left": 14
+      }
+    }
+  ],
+  "rows": [
+    {
+      "text": "Overview source blockers active | 1 managed | 30 unmanaged backlog | 1 managed device needs attention | blocked 7th validation load | 14 need review | 16 ready to promote | review Managed Devices — 7th... | review first | warn",
+      "label": {
+        "x": 29,
+        "y": 368.46875,
+        "width": 332,
+        "height": 16,
+        "top": 368.46875,
+        "right": 361,
+        "bottom": 384.46875,
+        "left": 29
+      },
+      "value": {
+        "x": 29,
+        "y": 388.46875,
+        "width": 332,
+        "height": 80,
+        "top": 388.46875,
+        "right": 361,
+        "bottom": 468.46875,
+        "left": 29
+      },
+      "row": {
+        "x": 29,
+        "y": 360.46875,
+        "width": 332,
+        "height": 116,
+        "top": 360.46875,
+        "right": 361,
+        "bottom": 476.46875,
+        "left": 29
+      }
+    },
+    {
+      "text": "Attention 1 managed device needs attention | attention 7th validation load | blocked 7th validation load",
+      "label": {
+        "x": 29,
+        "y": 485.46875,
+        "width": 332,
+        "height": 16,
+        "top": 485.46875,
+        "right": 361,
+        "bottom": 501.46875,
+        "left": 29
+      },
+      "value": {
+        "x": 29,
+        "y": 505.46875,
+        "width": 332,
+        "height": 32,
+        "top": 505.46875,
+        "right": 361,
+        "bottom": 537.46875,
+        "left": 29
+      },
+      "row": {
+        "x": 29,
+        "y": 476.46875,
+        "width": 332,
+        "height": 69,
+        "top": 476.46875,
+        "right": 361,
+        "bottom": 545.46875,
+        "left": 29
+      }
+    },
+    {
+      "text": "Ready next source blockers active | 27 fixed candidates | 3 variable candidates | 16 ready to promote | 14 still need review | review Managed Devices — 7th... | review first | warn",
+      "label": {
+        "x": 29,
+        "y": 554.46875,
+        "width": 332,
+        "height": 16,
+        "top": 554.46875,
+        "right": 361,
+        "bottom": 570.46875,
+        "left": 29
+      },
+      "value": {
+        "x": 29,
+        "y": 574.46875,
+        "width": 332,
+        "height": 64,
+        "top": 574.46875,
+        "right": 361,
+        "bottom": 638.46875,
+        "left": 29
+      },
+      "row": {
+        "x": 29,
+        "y": 545.46875,
+        "width": 332,
+        "height": 101,
+        "top": 545.46875,
+        "right": 361,
+        "bottom": 646.46875,
+        "left": 29
+      }
+    },
+    {
+      "text": "Unmanaged backlog 30",
+      "label": {
+        "x": 29,
+        "y": 655.46875,
+        "width": 332,
+        "height": 16,
+        "top": 655.46875,
+        "right": 361,
+        "bottom": 671.46875,
+        "left": 29
+      },
+      "value": {
+        "x": 29,
+        "y": 675.46875,
+        "width": 16.078125,
+        "height": 16,
+        "top": 675.46875,
+        "right": 45.078125,
+        "bottom": 691.46875,
+        "left": 29
+      },
+      "row": {
+        "x": 29,
+        "y": 646.46875,
+        "width": 332,
+        "height": 53,
+        "top": 646.46875,
+        "right": 361,
+        "bottom": 699.46875,
+        "left": 29
+      }
+    }
+  ]
+}

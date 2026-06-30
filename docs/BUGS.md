@@ -104,7 +104,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-593 - Managed Devices app summary formatting is broken
 
-- **status:** `open`
+- **status:** `validated`
 - **severity:** `high`
 - **area:** `managed_devices / app_frontend`
 - **where seen:** Riley screenshot from live Home Assistant `0.2.1` sidebar app on 2026-06-30, after adding the temporary `light.7th` validation load.
@@ -119,7 +119,9 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
   - Regression evidence captures the Managed Devices page after the fix.
   - Repo validation and live GitHub/HACS-installed validation are recorded before closure.
 - **validation plan:** add or update frontend regression coverage for long Managed Devices summary values; run JavaScript syntax check, focused tests, full test discovery, and `git diff --check`; publish through the approved GitHub/HACS-only release path; install in Home Assistant; capture desktop and narrow screenshots proving the formatting is fixed.
-- **next action:** include this bug in the pending `0.2.2` corrective release alongside the managed-device action form fix.
+- **repo fix:** release-prep commit `9c3f886` changes the app row CSS so summary labels and values use stable desktop columns, stack on narrow screens, and allow long values to wrap with `overflow-wrap:anywhere`.
+- **validation:** `0.2.2` was installed through HACS from GitHub tag `v0.2.2`, Home Assistant restarted, fingerprint matched `9c3f886`, desktop and narrow Managed Devices screenshots were captured, and geometry checks found `any_overlap=false` for the `Fleet summary` rows. Evidence: `validation/0.2.2-release-validation.md`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.png`, `validation/artifacts/zne-0.2.2-managed-devices-narrow.png`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.json`, and `validation/artifacts/zne-0.2.2-managed-devices-narrow.json`.
+- **closure:** ZNE-593 is live-validated fixed in installed Home Assistant `0.2.2`. The public GitHub Release object for `v0.2.2` is still pending authenticated GitHub tooling, but the tag was pushed and HACS installed that tag.
 
 ## ZNE-592 - managed-load edit/remove button rows open unhelpful more-info dialogs
 

@@ -1,0 +1,348 @@
+{
+  "removeStart": {
+    "url": "http://192.168.86.200:8123/zero-net-export",
+    "title": "Zero Net Export – Home Assistant",
+    "hasVersion022": false,
+    "hasManagedDevices": false,
+    "hasFleetSummary": false,
+    "hasRemoveButton": false,
+    "hasClearedInputError": false,
+    "hasRemovalRequested": false,
+    "text": "",
+    "cards": [
+      {
+        "text": "Fleet summary Overview source blockers active | 1 managed | 30 unmanaged backlog | 1 managed device needs attention | blocked 7th validation load | 14 need review | 16 ready to promote | review Managed Devices — 7th... | review first | warn Attention 1 managed device needs attention | attention 7th validation load | blocked 7th validation load Ready next source blockers active | 27 fixed candidates | 3 variable candidates | 16 ready to promote | 14 still need review | review Managed Devices — 7th... | review first | warn Unmanaged backlog 30",
+        "rect": {
+          "x": 308,
+          "y": 216.1875,
+          "width": 564,
+          "height": 386.875,
+          "top": 216.1875,
+          "right": 872,
+          "bottom": 603.0625,
+          "left": 308
+        }
+      },
+      {
+        "text": "Scoped service action Plan Auto Zero Net Export Managed-device key Enable record Disable record Removal confirmation Remove from ZNE only Removal deletes the Zero Net Export managed record only. It does not remove the original Home Assistant entity.",
+        "rect": {
+          "x": 884,
+          "y": 216.1875,
+          "width": 564,
+          "height": 386.875,
+          "top": 216.1875,
+          "right": 1448,
+          "bottom": 603.0625,
+          "left": 884
+        }
+      }
+    ],
+    "rows": [
+      {
+        "text": "Overview source blockers active | 1 managed | 30 unmanaged backlog | 1 managed device needs attention | blocked 7th validation load | 14 need review | 16 ready to promote | review Managed Devices — 7th... | review first | warn",
+        "label": {
+          "x": 323,
+          "y": 268.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 268.6875,
+          "right": 458.84375,
+          "bottom": 284.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 468.84375,
+          "y": 268.6875,
+          "width": 388.140625,
+          "height": 64,
+          "top": 268.6875,
+          "right": 856.984375,
+          "bottom": 332.6875,
+          "left": 468.84375
+        },
+        "row": {
+          "x": 323,
+          "y": 260.6875,
+          "width": 534,
+          "height": 80,
+          "top": 260.6875,
+          "right": 857,
+          "bottom": 340.6875,
+          "left": 323
+        }
+      },
+      {
+        "text": "Attention 1 managed device needs attention | attention 7th validation load | blocked 7th validation load",
+        "label": {
+          "x": 323,
+          "y": 349.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 349.6875,
+          "right": 458.84375,
+          "bottom": 365.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 468.84375,
+          "y": 349.6875,
+          "width": 388.140625,
+          "height": 32,
+          "top": 349.6875,
+          "right": 856.984375,
+          "bottom": 381.6875,
+          "left": 468.84375
+        },
+        "row": {
+          "x": 323,
+          "y": 340.6875,
+          "width": 534,
+          "height": 49,
+          "top": 340.6875,
+          "right": 857,
+          "bottom": 389.6875,
+          "left": 323
+        }
+      },
+      {
+        "text": "Ready next source blockers active | 27 fixed candidates | 3 variable candidates | 16 ready to promote | 14 still need review | review Managed Devices — 7th... | review first | warn",
+        "label": {
+          "x": 323,
+          "y": 398.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 398.6875,
+          "right": 458.84375,
+          "bottom": 414.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 468.84375,
+          "y": 398.6875,
+          "width": 388.140625,
+          "height": 48,
+          "top": 398.6875,
+          "right": 856.984375,
+          "bottom": 446.6875,
+          "left": 468.84375
+        },
+        "row": {
+          "x": 323,
+          "y": 389.6875,
+          "width": 534,
+          "height": 65,
+          "top": 389.6875,
+          "right": 857,
+          "bottom": 454.6875,
+          "left": 323
+        }
+      },
+      {
+        "text": "Unmanaged backlog 30",
+        "label": {
+          "x": 323,
+          "y": 463.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 463.6875,
+          "right": 458.84375,
+          "bottom": 479.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 840.90625,
+          "y": 463.6875,
+          "width": 16.078125,
+          "height": 16,
+          "top": 463.6875,
+          "right": 856.984375,
+          "bottom": 479.6875,
+          "left": 840.90625
+        },
+        "row": {
+          "x": 323,
+          "y": 454.6875,
+          "width": 534,
+          "height": 33,
+          "top": 454.6875,
+          "right": 857,
+          "bottom": 487.6875,
+          "left": 323
+        }
+      }
+    ]
+  },
+  "removeEnd": {
+    "url": "http://192.168.86.200:8123/zero-net-export",
+    "title": "Zero Net Export – Home Assistant",
+    "hasVersion022": false,
+    "hasManagedDevices": false,
+    "hasFleetSummary": false,
+    "hasRemoveButton": false,
+    "hasClearedInputError": false,
+    "hasRemovalRequested": false,
+    "text": "",
+    "cards": [
+      {
+        "text": "Fleet summary Overview source blockers active | no managed yet | 28 unmanaged backlog | 13 need review | 15 ready to promote | review Master Bathroom Heated... | review first | warn Attention No managed devices yet | source blockers active Ready next source blockers active | 26 fixed candidates | 2 variable candidates | 15 ready to promote | 13 still need review | review Master Bathroom Heated... | review first | warn Unmanaged backlog 28",
+        "rect": {
+          "x": 308,
+          "y": 216.1875,
+          "width": 564,
+          "height": 386.875,
+          "top": 216.1875,
+          "right": 872,
+          "bottom": 603.0625,
+          "left": 308
+        }
+      },
+      {
+        "text": "Scoped service action Plan Auto Zero Net Export Managed-device key Enable record Disable record Removal confirmation Remove from ZNE only Removal deletes the Zero Net Export managed record only. It does not remove the original Home Assistant entity.",
+        "rect": {
+          "x": 884,
+          "y": 216.1875,
+          "width": 564,
+          "height": 386.875,
+          "top": 216.1875,
+          "right": 1448,
+          "bottom": 603.0625,
+          "left": 884
+        }
+      }
+    ],
+    "rows": [
+      {
+        "text": "Overview source blockers active | no managed yet | 28 unmanaged backlog | 13 need review | 15 ready to promote | review Master Bathroom Heated... | review first | warn",
+        "label": {
+          "x": 323,
+          "y": 268.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 268.6875,
+          "right": 458.84375,
+          "bottom": 284.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 468.84375,
+          "y": 268.6875,
+          "width": 388.140625,
+          "height": 48,
+          "top": 268.6875,
+          "right": 856.984375,
+          "bottom": 316.6875,
+          "left": 468.84375
+        },
+        "row": {
+          "x": 323,
+          "y": 260.6875,
+          "width": 534,
+          "height": 64,
+          "top": 260.6875,
+          "right": 857,
+          "bottom": 324.6875,
+          "left": 323
+        }
+      },
+      {
+        "text": "Attention No managed devices yet | source blockers active",
+        "label": {
+          "x": 323,
+          "y": 333.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 333.6875,
+          "right": 458.84375,
+          "bottom": 349.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 550.734375,
+          "y": 333.6875,
+          "width": 306.25,
+          "height": 16,
+          "top": 333.6875,
+          "right": 856.984375,
+          "bottom": 349.6875,
+          "left": 550.734375
+        },
+        "row": {
+          "x": 323,
+          "y": 324.6875,
+          "width": 534,
+          "height": 33,
+          "top": 324.6875,
+          "right": 857,
+          "bottom": 357.6875,
+          "left": 323
+        }
+      },
+      {
+        "text": "Ready next source blockers active | 26 fixed candidates | 2 variable candidates | 15 ready to promote | 13 still need review | review Master Bathroom Heated... | review first | warn",
+        "label": {
+          "x": 323,
+          "y": 366.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 366.6875,
+          "right": 458.84375,
+          "bottom": 382.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 468.84375,
+          "y": 366.6875,
+          "width": 388.140625,
+          "height": 48,
+          "top": 366.6875,
+          "right": 856.984375,
+          "bottom": 414.6875,
+          "left": 468.84375
+        },
+        "row": {
+          "x": 323,
+          "y": 357.6875,
+          "width": 534,
+          "height": 65,
+          "top": 357.6875,
+          "right": 857,
+          "bottom": 422.6875,
+          "left": 323
+        }
+      },
+      {
+        "text": "Unmanaged backlog 28",
+        "label": {
+          "x": 323,
+          "y": 431.6875,
+          "width": 135.84375,
+          "height": 16,
+          "top": 431.6875,
+          "right": 458.84375,
+          "bottom": 447.6875,
+          "left": 323
+        },
+        "value": {
+          "x": 840.90625,
+          "y": 431.6875,
+          "width": 16.078125,
+          "height": 16,
+          "top": 431.6875,
+          "right": 856.984375,
+          "bottom": 447.6875,
+          "left": 840.90625
+        },
+        "row": {
+          "x": 323,
+          "y": 422.6875,
+          "width": 534,
+          "height": 33,
+          "top": 422.6875,
+          "right": 857,
+          "bottom": 455.6875,
+          "left": 323
+        }
+      }
+    ]
+  }
+}
