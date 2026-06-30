@@ -6,6 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Known Issues
+- ZNE-593: live `0.2.1` validation shows the Home Assistant app Managed
+  Devices `Fleet summary` formatting is broken when long live status strings
+  are rendered; labels and values overlap instead of wrapping/truncating
+  cleanly. This is now tracked for the next corrective release.
+
 ### Fixed
 - Fixed the Home Assistant app managed-device action form so the managed-device
   key and `REMOVE FROM ZNE` confirmation are captured before the app renders its

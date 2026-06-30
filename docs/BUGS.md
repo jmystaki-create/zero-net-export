@@ -102,6 +102,25 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-593 - Managed Devices app summary formatting is broken
+
+- **status:** `open`
+- **severity:** `high`
+- **area:** `managed_devices / app_frontend`
+- **where seen:** Riley screenshot from live Home Assistant `0.2.1` sidebar app on 2026-06-30, after adding the temporary `light.7th` validation load.
+- **current observed behavior:** the Managed Devices `Fleet summary` card renders long status strings as overlapping, clipped, multi-line text. The `Overview`, `Attention`, and `Ready` rows collide with their values; long summaries such as `source blockers active | no managed yet | ...` and `review Master Bathroom Heated...` overflow the row layout instead of wrapping or truncating cleanly. The page is difficult to scan and looks broken.
+- **expected behavior:** Managed Devices summary rows must preserve readable layout at desktop and narrow widths. Labels and values should not overlap, long values should wrap/truncate predictably, row heights should expand if needed, and the fleet summary should remain scannable with real Home Assistant data.
+- **evidence:** `validation/artifacts/zne-593-managed-devices-formatting-broken-v0.2.1.png`.
+- **target-environment feasibility:** supported within the existing Home Assistant custom panel/static frontend path already validated for `0.2.0` and `0.2.1`; this is a CSS/rendering defect in the Zero Net Export app surface, not a Home Assistant native-surface limitation.
+- **acceptance criteria:**
+  - Fleet summary labels and values do not overlap on desktop or narrow/mobile viewport proof.
+  - Long summary values either wrap cleanly within the card or are truncated with a stable readable affordance.
+  - Card row spacing stays stable with live data containing long status strings.
+  - Regression evidence captures the Managed Devices page after the fix.
+  - Repo validation and live GitHub/HACS-installed validation are recorded before closure.
+- **validation plan:** add or update frontend regression coverage for long Managed Devices summary values; run JavaScript syntax check, focused tests, full test discovery, and `git diff --check`; publish through the approved GitHub/HACS-only release path; install in Home Assistant; capture desktop and narrow screenshots proving the formatting is fixed.
+- **next action:** include this bug in the pending `0.2.2` corrective release alongside the managed-device action form fix.
+
 ## ZNE-592 - managed-load edit/remove button rows open unhelpful more-info dialogs
 
 - **status:** `released_live_validated`
