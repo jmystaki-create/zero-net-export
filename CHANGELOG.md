@@ -6,10 +6,14 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Added
+- Added the `ZNE-APP-002` app-native Sources workflow slice: the Home Assistant
+  app now lists source roles with binding/status/reading/age/issue detail and
+  can save source-role bindings through a scoped backend service.
+
 ### Planning
 - Added `ZNE-APP-002` Sources workflow milestone planning and feasibility
-  records. Implementation remains gated on acceptance of the written
-  acceptance criteria and target-environment feasibility.
+  records before implementation.
 
 ## [0.2.2] - 2026-06-30
 

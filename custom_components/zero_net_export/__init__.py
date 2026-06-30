@@ -416,6 +416,15 @@ REMOVE_MANAGED_DEVICE_SCHEMA = vol.Schema(
     }
 )
 
+SOURCE_ROLE_KEYS = tuple(SOURCE_ROLE_LABELS.keys())
+
+UPDATE_SOURCE_ROLES_SCHEMA = vol.Schema(
+    {
+        vol.Optional("entry_id"): str,
+        **{vol.Optional(key): str for key in SOURCE_ROLE_KEYS},
+    }
+)
+
 
 def _device_config_to_payload(device) -> dict[str, Any]:
     payload = asdict(device)
@@ -527,6 +536,57 @@ async def _async_remove_managed_device(hass: HomeAssistant, call: Any) -> None:
         raise ValueError(f"Managed device '{device_key}' was not found")
 
 
+def _entry_from_service_call(hass: HomeAssistant, call: Any) -> ConfigEntry:
+    entries = hass.config_entries.async_entries(DOMAIN)
+    if not entries:
+        raise ValueError("Zero Net Export has no configured entries")
+    requested_entry_id = str(call.data.get("entry_id") or "")
+    entry = next((candidate for candidate in entries if candidate.entry_id == requested_entry_id), None) if requested_entry_id else entries[0]
+    if entry is None:
+        raise ValueError(f"Zero Net Export entry '{requested_entry_id}' was not found")
+    return entry
+
+
+async def _async_update_source_roles_from_app(hass: HomeAssistant, call: Any) -> None:
+    """Update source-role bindings for one ZNE config entry from the app."""
+    from .native_support import _source_specs_from_config
+    from .validation import validate_configured_entities
+
+    entry = _entry_from_service_call(hass, call)
+    merged_data = dict(entry.data)
+    merged_options = dict(entry.options)
+
+    changed_roles: list[str] = []
+    for key in SOURCE_ROLE_KEYS:
+        if key not in call.data:
+            continue
+        value = str(call.data.get(key) or "").strip()
+        merged_data[key] = value
+        changed_roles.append(SOURCE_ROLE_LABELS.get(key, key))
+
+    if not changed_roles:
+        raise ValueError("No source roles were supplied")
+
+    issues = validate_configured_entities(
+        hass,
+        merged_data,
+        _source_specs_from_config(merged_data),
+    )
+    blocking_issues = [issue for issue in issues if issue.severity == "error"]
+    if blocking_issues:
+        summary = "; ".join(issue.message for issue in blocking_issues[:3])
+        raise ValueError("Source-role settings are invalid: " + summary)
+
+    hass.config_entries.async_update_entry(entry, data=merged_data, options=merged_options)
+    await hass.config_entries.async_reload(entry.entry_id)
+    persistent_notification.async_create(
+        hass,
+        "Saved Zero Net Export source roles: " + ", ".join(changed_roles) + ".",
+        title=f"{entry.title}: source roles saved",
+        notification_id=f"{DOMAIN}_{entry.entry_id}_source_roles_saved",
+    )
+
+
 async def async_remove_config_entry_device(
     hass: HomeAssistant,
     config_entry: ConfigEntry,
@@ -578,6 +638,9 @@ def _register_services(hass: HomeAssistant) -> None:
     async def _handle_remove_managed_device(call: Any) -> None:
         await _async_remove_managed_device(hass, call)
 
+    async def _handle_update_source_roles(call: Any) -> None:
+        await _async_update_source_roles_from_app(hass, call)
+
     hass.services.async_register(
         DOMAIN,
         "update_managed_device",
@@ -589,6 +652,12 @@ def _register_services(hass: HomeAssistant) -> None:
         "remove_managed_device",
         _handle_remove_managed_device,
         schema=REMOVE_MANAGED_DEVICE_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "update_source_roles",
+        _handle_update_source_roles,
+        schema=UPDATE_SOURCE_ROLES_SCHEMA,
     )
 
 

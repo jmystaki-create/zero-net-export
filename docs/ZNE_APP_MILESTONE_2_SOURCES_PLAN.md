@@ -1,7 +1,7 @@
 # ZNE-APP-002 Sources workflow milestone
 
 Date: 2026-06-30
-Status: ready for acceptance; no implementation started
+Status: accepted; repo implementation validated; live validation pending
 
 ## Task
 
@@ -103,3 +103,10 @@ Live validation through GitHub/HACS only:
 
 This milestone is expected to become the next app feature release after
 implementation and validation. Version number is not assigned here.
+
+## Implementation status
+
+Repo implementation is complete and validated in
+`validation/zne-app-milestone-2-sources-implementation.md`.
+
+Live validation remains pending through the approved GitHub/HACS release path.

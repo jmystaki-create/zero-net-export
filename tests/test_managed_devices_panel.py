@@ -48,8 +48,37 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn('callService("number"', source)
         self.assertIn('callService("zero_net_export", "update_managed_device"', source)
         self.assertIn('callService("zero_net_export", "remove_managed_device"', source)
+        self.assertIn('callService("zero_net_export", "update_source_roles"', source)
         self.assertIn("REMOVE FROM ZNE", source)
         self.assertIn("The original Home Assistant entity is left untouched", source)
+
+    def test_sources_app_workflow_lists_roles_and_preserves_values_before_save(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('key: "solar_power_entity", label: "Solar power", required: true', source)
+        self.assertIn('key: "grid_export_energy_entity", label: "Grid export energy", required: true', source)
+        self.assertIn('key: "battery_discharge_power_entity", label: "Battery discharge power", required: false', source)
+        self.assertIn("data-zne-source-role", source)
+        self.assertIn("data-zne-source-original", source)
+        self.assertIn('data-zne-action="update-source-roles"', source)
+        self.assertIn("Source saves are scoped to the selected Zero Net Export plan.", source)
+        self.assertIn("Source-role save requested", source)
+        self.assertIn("if (value || original || value !== original)", source)
+
+        values_capture = source.index("const sourceRoleValues =")
+        busy_render = source.index("this._busy = true;")
+        self.assertLess(values_capture, busy_render)
+
+    def test_sources_app_workflow_shows_binding_health_and_wrapping_layout(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_sourceState(role, suffix, suffixName)", source)
+        self.assertIn('"binding_label"', source)
+        self.assertIn("Reading:", source)
+        self.assertIn("Issues:", source)
+        self.assertIn(".zne-source-editor", source)
+        self.assertIn("grid-template-columns: minmax(150px, 0.35fr) minmax(0, 1fr);", source)
+        self.assertIn(".zne-source-detail input", source)
 
     def test_app_captures_managed_device_form_values_before_busy_render(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -111,6 +140,20 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("update_managed_device:", services_source)
         self.assertIn("remove_managed_device:", services_source)
         self.assertIn("The original Home Assistant device and entity are left untouched", services_source)
+
+    def test_backend_source_role_update_service_is_supported_and_scoped(self) -> None:
+        init_source = INIT_PATH.read_text(encoding="utf-8")
+        services_source = SERVICES_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("UPDATE_SOURCE_ROLES_SCHEMA", init_source)
+        self.assertIn("_async_update_source_roles_from_app", init_source)
+        self.assertIn("update_source_roles", init_source)
+        self.assertIn("validate_configured_entities", init_source)
+        self.assertIn("async_update_entry(entry, data=merged_data, options=merged_options)", init_source)
+        self.assertIn("await hass.config_entries.async_reload(entry.entry_id)", init_source)
+        self.assertIn("update_source_roles:", services_source)
+        self.assertIn("solar_power_entity:", services_source)
+        self.assertIn("battery_discharge_power_entity:", services_source)
 
     def test_native_remove_device_hook_is_backend_only(self) -> None:
         init_source = INIT_PATH.read_text(encoding="utf-8")

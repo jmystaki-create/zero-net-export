@@ -1,7 +1,7 @@
 # ZNE-APP-002 Sources workflow feasibility
 
 Date: 2026-06-30
-Status: written; pending Riley acceptance before implementation
+Status: accepted; implementation repo-validated
 
 ## Task
 
@@ -164,14 +164,13 @@ Status: written; pending Riley acceptance before implementation
 
 - Feasibility check written by: OpenClaw dev
 - Validation performed by: OpenClaw read-only source inspection
-- Accepted by: pending Riley acceptance
+- Accepted by: Riley / OpenClaw channel approval on 2026-06-30
 - Date/time: 2026-06-30
 - Link to task/status update: `PROJECT_STATUS.md`
 
 ## Result
 
-Decision: ready for Riley acceptance; implementation remains blocked until
-accepted.
+Decision: accepted and proceeded to implementation.
 
-Next safe step: have Riley accept the `ZNE-APP-002` milestone plan and this
-feasibility check, then implement the smallest Sources workflow slice.
+Next safe step: live-validate the implemented Sources workflow through the
+approved GitHub/HACS path after release-version approval.

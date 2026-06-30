@@ -46,6 +46,21 @@ class ZeroNetExportApp extends HTMLElement {
     return state.attributes[attr];
   }
 
+  _sourceRoles() {
+    return [
+      { key: "solar_power_entity", label: "Solar power", required: true },
+      { key: "solar_energy_entity", label: "Solar energy", required: true },
+      { key: "grid_import_power_entity", label: "Grid import power", required: true },
+      { key: "grid_export_power_entity", label: "Grid export power", required: true },
+      { key: "grid_import_energy_entity", label: "Grid import energy", required: true },
+      { key: "grid_export_energy_entity", label: "Grid export energy", required: true },
+      { key: "home_load_power_entity", label: "Home load power", required: false },
+      { key: "battery_soc_entity", label: "Battery state of charge", required: false },
+      { key: "battery_charge_power_entity", label: "Battery charge power", required: false },
+      { key: "battery_discharge_power_entity", label: "Battery discharge power", required: false },
+    ];
+  }
+
   _entries() {
     const config = (this._panel && this._panel.config) || {};
     return Array.isArray(config.entries) ? config.entries : [];
@@ -108,6 +123,47 @@ class ZeroNetExportApp extends HTMLElement {
     return entries.length === 1 ? entries[0].entry_id : "";
   }
 
+  _sourceState(role, suffix, suffixName) {
+    if (!this._hass || !this._hass.states) {
+      return undefined;
+    }
+    const exactCandidates = [
+      `sensor.zero_net_export_source_${role.key}_${suffix}`,
+      `sensor.zero_net_export_${role.key.replace(/_entity$/, "")}_${suffix}`,
+    ];
+    for (const entityId of exactCandidates) {
+      if (this._hass.states[entityId]) {
+        return this._hass.states[entityId];
+      }
+    }
+    const roleNeedle = role.key.replace(/_entity$/, "");
+    const labelNeedle = `${role.label} ${suffixName}`.toLowerCase();
+    return Object.entries(this._hass.states)
+      .filter(([entityId]) => entityId.startsWith("sensor."))
+      .map(([, state]) => state)
+      .find((state) => {
+        const friendlyName = String((state.attributes && state.attributes.friendly_name) || "").toLowerCase();
+        const entityId = String(state.entity_id || "").toLowerCase();
+        return friendlyName === labelNeedle || (entityId.includes(roleNeedle) && entityId.includes(suffix));
+      });
+  }
+
+  _sourceValue(role, suffix, suffixName, fallback = "") {
+    const state = this._sourceState(role, suffix, suffixName);
+    if (!state || state.state === undefined || state.state === null) {
+      return fallback;
+    }
+    return String(state.state);
+  }
+
+  _sourceAttr(role, suffix, suffixName, attr, fallback = "") {
+    const state = this._sourceState(role, suffix, suffixName);
+    if (!state || !state.attributes || state.attributes[attr] === undefined || state.attributes[attr] === null) {
+      return fallback;
+    }
+    return state.attributes[attr];
+  }
+
   async _onClick(event) {
     const target = event.target.closest("button");
     if (!target) {
@@ -146,6 +202,14 @@ class ZeroNetExportApp extends HTMLElement {
     const managedDeviceKey = managedDeviceKeyInput ? managedDeviceKeyInput.value.trim() : "";
     const managedConfirmInput = this.querySelector("[data-zne-managed-confirm]");
     const managedConfirm = managedConfirmInput ? managedConfirmInput.value.trim() : "";
+    const sourceRoleValues = {};
+    this.querySelectorAll("[data-zne-source-role]").forEach((input) => {
+      const value = input.value.trim();
+      const original = (input.dataset.zneSourceOriginal || "").trim();
+      if (value || original || value !== original) {
+        sourceRoleValues[input.dataset.zneSourceRole] = value;
+      }
+    });
 
     this._busy = true;
     this._message = "";
@@ -206,6 +270,14 @@ class ZeroNetExportApp extends HTMLElement {
         this._message = "Managed record removal requested. The original Home Assistant entity is left untouched.";
       }
 
+      if (action === "update-source-roles") {
+        await this._hass.callService("zero_net_export", "update_source_roles", {
+          entry_id: this._selectedEntryId(),
+          ...sourceRoleValues,
+        });
+        this._message = "Source-role save requested. Home Assistant will reload this Zero Net Export plan.";
+      }
+
       if (action === "copy-diagnostics") {
         const text = this._diagnosticText();
         await navigator.clipboard.writeText(text);
@@ -263,16 +335,8 @@ class ZeroNetExportApp extends HTMLElement {
   }
 
   _sourcesSection() {
-    const sources = [
-      ["Solar power", "sensor.zero_net_export_solar_power_status"],
-      ["Solar energy", "sensor.zero_net_export_solar_energy_status"],
-      ["Grid import power", "sensor.zero_net_export_grid_import_power_status"],
-      ["Grid export power", "sensor.zero_net_export_grid_export_power_status"],
-      ["Grid import energy", "sensor.zero_net_export_grid_import_energy_status"],
-      ["Grid export energy", "sensor.zero_net_export_grid_export_energy_status"],
-      ["Home load power", "sensor.zero_net_export_home_load_power_status"],
-      ["Battery SOC", "sensor.zero_net_export_battery_state_of_charge_status"],
-    ];
+    const entries = this._entries();
+    const roles = this._sourceRoles();
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
@@ -283,14 +347,44 @@ class ZeroNetExportApp extends HTMLElement {
           <h3>Current blockers</h3>
           <p>${this._escape(this._stateText("sensor.zero_net_export_source_blocker_summary", "No source blockers reported"))}</p>
         </div>
-        <div class="zne-list">
-          ${sources.map(([label, entityId]) => `
-            <div class="zne-source">
-              <span>${this._escape(label)}</span>
-              ${this._pill("state", this._stateText(entityId, "missing"))}
-            </div>
-          `).join("")}
+        <div class="zne-card">
+          <h3>Plan</h3>
+          <label>Zero Net Export plan
+            <select data-zne-entry-id>
+              <option value="">Auto</option>
+              ${entries.map((entry) => `<option value="${this._escape(entry.entry_id)}">${this._escape(entry.title || entry.entry_id)}</option>`).join("")}
+            </select>
+          </label>
+          <p class="zne-muted">Source saves are scoped to the selected Zero Net Export plan.</p>
         </div>
+        <div class="zne-list">
+          ${roles.map((role) => {
+            const status = this._sourceValue(role, "status", "status", "missing");
+            const reading = this._sourceValue(role, "reading", "reading", "unknown");
+            const age = this._sourceValue(role, "age_seconds", "age", "unknown");
+            const issueCount = this._sourceValue(role, "issue_count", "issue count", "0");
+            const binding = this._sourceAttr(role, "status", "status", "binding", "");
+            const bindingLabel = this._sourceAttr(role, "status", "status", "binding_label", binding || "Not configured");
+            return `
+            <div class="zne-source zne-source-editor">
+              <div>
+                <strong>${this._escape(role.label)}</strong>
+                <span>${role.required ? "Required" : "Optional"}</span>
+              </div>
+              <div class="zne-source-detail">
+                ${this._pill("status", status)}
+                <span class="zne-meta">Binding: ${this._escape(bindingLabel)}</span>
+                <span class="zne-meta">Reading: ${this._escape(reading)} | Age: ${this._escape(age)} s | Issues: ${this._escape(issueCount)}</span>
+                <input data-zne-source-role="${this._escape(role.key)}" data-zne-source-original="${this._escape(binding)}" type="text" autocomplete="off" placeholder="sensor.example" value="${this._escape(binding)}">
+              </div>
+            </div>
+          `;
+          }).join("")}
+        </div>
+        <div class="zne-actions">
+          <button type="button" data-zne-action="update-source-roles">Save source roles</button>
+        </div>
+        <p class="zne-muted">Saving uses the Zero Net Export backend service and reloads the selected plan. It does not edit Home Assistant source entities.</p>
       </section>
     `;
   }
@@ -656,6 +750,31 @@ class ZeroNetExportApp extends HTMLElement {
           text-align: right;
         }
 
+        .zne-source-editor {
+          grid-template-columns: minmax(150px, 0.35fr) minmax(0, 1fr);
+        }
+
+        .zne-source-editor strong,
+        .zne-source-editor span,
+        .zne-source-detail {
+          min-width: 0;
+        }
+
+        .zne-source-editor > div:first-child {
+          display: grid;
+          gap: 3px;
+        }
+
+        .zne-source-detail {
+          display: grid;
+          gap: 5px;
+          justify-items: end;
+        }
+
+        .zne-source-detail input {
+          max-width: 420px;
+        }
+
         .zne-control-row {
           grid-template-columns: minmax(0, 1fr) auto auto;
           align-items: center;
@@ -757,6 +876,18 @@ class ZeroNetExportApp extends HTMLElement {
           .zne-source > .zne-pill {
             justify-self: start;
             text-align: left;
+          }
+
+          .zne-source-editor {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
+          .zne-source-detail {
+            justify-items: stretch;
+          }
+
+          .zne-source-detail input {
+            max-width: none;
           }
         }
       </style>

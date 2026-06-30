@@ -110,3 +110,63 @@ remove_managed_device:
       required: true
       selector:
         boolean:
+
+update_source_roles:
+  name: Update source roles
+  description: Update Zero Net Export source-role bindings for one config entry. This is the app-native save path for the Sources workflow.
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
+      selector:
+        text:
+    solar_power_entity:
+      name: Solar power
+      selector:
+        entity:
+          domain: sensor
+    solar_energy_entity:
+      name: Solar energy
+      selector:
+        entity:
+          domain: sensor
+    grid_import_power_entity:
+      name: Grid import power
+      selector:
+        entity:
+          domain: sensor
+    grid_export_power_entity:
+      name: Grid export power
+      selector:
+        entity:
+          domain: sensor
+    grid_import_energy_entity:
+      name: Grid import energy
+      selector:
+        entity:
+          domain: sensor
+    grid_export_energy_entity:
+      name: Grid export energy
+      selector:
+        entity:
+          domain: sensor
+    home_load_power_entity:
+      name: Home load power
+      selector:
+        entity:
+          domain: sensor
+    battery_soc_entity:
+      name: Battery state of charge
+      selector:
+        entity:
+          domain: sensor
+    battery_charge_power_entity:
+      name: Battery charge power
+      selector:
+        entity:
+          domain: sensor
+    battery_discharge_power_entity:
+      name: Battery discharge power
+      selector:
+        entity:
+          domain: sensor
