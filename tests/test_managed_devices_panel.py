@@ -79,11 +79,20 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.2.1"', source)
+        self.assertIn('"version": "0.2.2"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
         self.assertIn('"homeassistant": "2026.6.4"', hacs_source)
+
+    def test_managed_devices_summary_rows_allow_long_live_values(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("grid-template-columns: minmax(88px, 0.35fr) minmax(0, 1fr);", source)
+        self.assertIn("overflow-wrap: anywhere;", source)
+        self.assertIn("white-space: normal;", source)
+        self.assertIn(".zne-row > strong", source)
+        self.assertIn(".zne-row, .zne-source {\n            grid-template-columns: minmax(0, 1fr);", source)
 
     def test_app_panel_config_includes_backend_readiness_values(self) -> None:
         source = APP_API_PATH.read_text(encoding="utf-8")

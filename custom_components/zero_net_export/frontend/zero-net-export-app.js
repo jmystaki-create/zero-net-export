@@ -633,15 +633,32 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-row, .zne-source, .zne-control-row {
           display: grid;
-          grid-template-columns: minmax(0, 1fr) auto;
-          align-items: center;
+          grid-template-columns: minmax(88px, 0.35fr) minmax(0, 1fr);
+          align-items: start;
           gap: 10px;
           padding: 8px 0;
           border-top: 1px solid var(--divider-color);
         }
 
+        .zne-row > span,
+        .zne-source > span {
+          min-width: 0;
+          color: var(--secondary-text-color);
+        }
+
+        .zne-row > strong,
+        .zne-source > .zne-pill {
+          min-width: 0;
+          justify-self: end;
+          max-width: 100%;
+          overflow-wrap: anywhere;
+          word-break: normal;
+          text-align: right;
+        }
+
         .zne-control-row {
           grid-template-columns: minmax(0, 1fr) auto auto;
+          align-items: center;
         }
 
         .zne-row:first-of-type, .zne-source:first-child {
@@ -664,7 +681,7 @@ class ZeroNetExportApp extends HTMLElement {
           padding: 3px 9px;
           margin: 2px;
           font-size: 12px;
-          white-space: nowrap;
+          white-space: normal;
         }
 
         .zne-pill.good {
@@ -729,6 +746,17 @@ class ZeroNetExportApp extends HTMLElement {
           .zne-control-row {
             grid-template-columns: 1fr;
             align-items: stretch;
+          }
+
+          .zne-row, .zne-source {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 4px;
+          }
+
+          .zne-row > strong,
+          .zne-source > .zne-pill {
+            justify-self: start;
+            text-align: left;
           }
         }
       </style>
