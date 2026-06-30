@@ -15,7 +15,8 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ### Validation
 - Local stage-2 validation passed JavaScript syntax check, focused managed-device tests, full unittest discovery, and whitespace diff checks.
-- Live Home Assistant browser/write-path validation must flow through GitHub release publication, HACS install/update, Home Assistant restart, fingerprint comparison, and live evidence capture.
+- Live Home Assistant validation flowed through GitHub release publication, HACS install/update, Home Assistant restart, fingerprint comparison, targeted log review, route checks, desktop/narrow browser evidence, and a reversible enabled-switch write/restore proof.
+- Managed-device strong-confirmation removal validation remains pending because the live validation instance currently has no disposable managed load to remove.
 
 ## [0.2.0] - 2026-06-26
 
