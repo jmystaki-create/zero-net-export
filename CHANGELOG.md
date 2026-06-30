@@ -6,6 +6,17 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-30
+
+### Added
+- Expanded the Home Assistant Zero Net Export sidebar app workflow slice with in-app navigation for Overview, Sources, Managed Devices, Controls, Runtime, Diagnostics, and Settings.
+- Added app-side managed-device controls for enabling/disabling managed records by key, plus guarded removal using the typed confirmation phrase `REMOVE FROM ZNE`.
+- Added app-side control edits for the existing controller enabled, mode, target export, deadband, and battery reserve paths.
+
+### Validation
+- Local stage-2 validation passed JavaScript syntax check, focused managed-device tests, full unittest discovery, and whitespace diff checks.
+- Live Home Assistant browser/write-path validation must flow through GitHub release publication, HACS install/update, Home Assistant restart, fingerprint comparison, and live evidence capture.
+
 ## [0.2.0] - 2026-06-26
 
 ### Added
@@ -18,8 +29,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 - Updated project direction, constraints, milestone planning, and tests from native-device-page-first delivery to a GitHub/HACS-delivered Home Assistant application.
 
 ### Validation
-- Repo validation for the `0.2.0` candidate must pass focused app/docs tests, changed-file `py_compile`, full unittest discovery, and `git diff --check` before GitHub publication.
-- Live validation remains HACS install/update, Home Assistant restart, sidebar/app browser proof, install fingerprint check, and log review.
+- Repo validation for the `0.2.0` candidate passed focused app/docs tests,
+  changed-file `py_compile`, full unittest discovery, and `git diff --check`
+  before GitHub publication.
+- Live validation passed through HACS/Home Assistant install, install
+  fingerprint match, installed/latest version checks, static app route checks,
+  clean targeted log review, and desktop/narrow sidebar app browser proof.
 
 ## [0.1.110] - 2026-05-07
 

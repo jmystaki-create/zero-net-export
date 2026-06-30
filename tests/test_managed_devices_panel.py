@@ -19,7 +19,37 @@ class ManagedDevicesPanelTests(unittest.TestCase):
 
         self.assertIn("customElements.define(\"zero-net-export-app\"", source)
         self.assertIn("Version ${version}", source)
-        self.assertIn("Zero Net Export entities visible", source)
+        self.assertIn("Zero Net Export app-visible entities", source)
+        self.assertIn("data-section=\"${this._escape(id)}\"", source)
+        self.assertIn("Overview", source)
+        self.assertIn("Sources", source)
+        self.assertIn("Managed Devices", source)
+        self.assertIn("Controls", source)
+        self.assertIn("Runtime", source)
+        self.assertIn("Diagnostics", source)
+
+    def test_app_reads_real_backend_entities_for_workflow_sections(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("sensor.zero_net_export_status", source)
+        self.assertIn("binary_sensor.zero_net_export_safe_mode", source)
+        self.assertIn("sensor.zero_net_export_source_blocker_summary", source)
+        self.assertIn("sensor.managed_devices_overview", source)
+        self.assertIn("switch.zero_net_export_enabled", source)
+        self.assertIn("select.zero_net_export_mode", source)
+        self.assertIn("number.zero_net_export_target_export", source)
+        self.assertIn("sensor.zero_net_export_installed_version", source)
+
+    def test_app_exposes_safe_edit_actions_through_home_assistant_services(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('callService("switch"', source)
+        self.assertIn('callService("select"', source)
+        self.assertIn('callService("number"', source)
+        self.assertIn('callService("zero_net_export", "update_managed_device"', source)
+        self.assertIn('callService("zero_net_export", "remove_managed_device"', source)
+        self.assertIn("REMOVE FROM ZNE", source)
+        self.assertIn("The original Home Assistant entity is left untouched", source)
 
     def test_integration_registers_supported_sidebar_app_panel(self) -> None:
         source = INIT_PATH.read_text(encoding="utf-8")
@@ -37,7 +67,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.2.0"', source)
+        self.assertIn('"version": "0.2.1"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
