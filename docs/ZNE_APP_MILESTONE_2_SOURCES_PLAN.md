@@ -103,4 +103,3 @@ Live validation through GitHub/HACS only:
 
 This milestone is expected to become the next app feature release after
 implementation and validation. Version number is not assigned here.
-

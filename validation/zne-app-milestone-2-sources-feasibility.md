@@ -175,4 +175,3 @@ accepted.
 
 Next safe step: have Riley accept the `ZNE-APP-002` milestone plan and this
 feasibility check, then implement the smallest Sources workflow slice.
-
