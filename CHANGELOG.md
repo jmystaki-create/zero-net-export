@@ -6,6 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Fixed
+- Fixed the Home Assistant app managed-device action form so the managed-device
+  key and `REMOVE FROM ZNE` confirmation are captured before the app renders its
+  busy state. Live `0.2.1` validation showed the installed app cleared those
+  inputs before calling the remove service, causing `Enter a managed-device key
+  first.` even when the key and confirmation had been typed.
+
 ## [0.2.1] - 2026-06-30
 
 ### Added

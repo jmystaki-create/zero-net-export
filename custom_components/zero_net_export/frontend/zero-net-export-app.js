@@ -142,6 +142,11 @@ class ZeroNetExportApp extends HTMLElement {
       return;
     }
 
+    const managedDeviceKeyInput = this.querySelector("[data-zne-managed-key]");
+    const managedDeviceKey = managedDeviceKeyInput ? managedDeviceKeyInput.value.trim() : "";
+    const managedConfirmInput = this.querySelector("[data-zne-managed-confirm]");
+    const managedConfirm = managedConfirmInput ? managedConfirmInput.value.trim() : "";
+
     this._busy = true;
     this._message = "";
     this._render();
@@ -175,30 +180,27 @@ class ZeroNetExportApp extends HTMLElement {
       }
 
       if (action === "managed-enable" || action === "managed-disable") {
-        const deviceKey = this.querySelector("[data-zne-managed-key]").value.trim();
-        if (!deviceKey) {
+        if (!managedDeviceKey) {
           throw new Error("Enter a managed-device key first.");
         }
         await this._hass.callService("zero_net_export", "update_managed_device", {
           entry_id: this._selectedEntryId(),
-          device_key: deviceKey,
+          device_key: managedDeviceKey,
           enabled: action === "managed-enable",
         });
         this._message = action === "managed-enable" ? "Managed record enable requested." : "Managed record disable requested.";
       }
 
       if (action === "managed-remove") {
-        const deviceKey = this.querySelector("[data-zne-managed-key]").value.trim();
-        const confirm = this.querySelector("[data-zne-managed-confirm]").value.trim();
-        if (!deviceKey) {
+        if (!managedDeviceKey) {
           throw new Error("Enter a managed-device key first.");
         }
-        if (confirm !== "REMOVE FROM ZNE") {
+        if (managedConfirm !== "REMOVE FROM ZNE") {
           throw new Error("Type REMOVE FROM ZNE to confirm.");
         }
         await this._hass.callService("zero_net_export", "remove_managed_device", {
           entry_id: this._selectedEntryId(),
-          device_key: deviceKey,
+          device_key: managedDeviceKey,
           confirm: true,
         });
         this._message = "Managed record removal requested. The original Home Assistant entity is left untouched.";

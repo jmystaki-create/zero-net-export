@@ -51,6 +51,18 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("REMOVE FROM ZNE", source)
         self.assertIn("The original Home Assistant entity is left untouched", source)
 
+    def test_app_captures_managed_device_form_values_before_busy_render(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        key_capture = source.index("const managedDeviceKey =")
+        confirm_capture = source.index("const managedConfirm =")
+        busy_render = source.index("this._busy = true;")
+
+        self.assertLess(key_capture, busy_render)
+        self.assertLess(confirm_capture, busy_render)
+        self.assertIn("device_key: managedDeviceKey", source)
+        self.assertIn('if (managedConfirm !== "REMOVE FROM ZNE")', source)
+
     def test_integration_registers_supported_sidebar_app_panel(self) -> None:
         source = INIT_PATH.read_text(encoding="utf-8")
 
