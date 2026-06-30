@@ -74,4 +74,4 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 - Process gate remains: no application architecture, mockup, or code may proceed until a target-environment feasibility check and milestone-specific acceptance criteria are written and accepted. `ZNE-APP-002` satisfied that gate and is repo-validated; live validation remains release-gated. Template: `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md`.
 
 ## Next best action
-Commit and push the `ZNE-APP-002` implementation, then request explicit release/version approval for GitHub/HACS live validation, recommended `v0.2.3`.
+Request explicit release/version approval for GitHub/HACS live validation, recommended `v0.2.3`.
