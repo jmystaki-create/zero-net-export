@@ -1,0 +1,80 @@
+    ...<4 lines>...
+    )
+    ^
+  File "/usr/local/lib/python3.14/site-packages/deebot_client/authentication.py", line 403, in post_authenticated
+    return await self._auth_client.post(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/usr/local/lib/python3.14/site-packages/deebot_client/authentication.py", line 294, in post
+    async with self._config.session.post(
+               ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        url,
+        ^^^^
+    ...<3 lines>...
+        timeout=_TIMEOUT,
+        ^^^^^^^^^^^^^^^^^
+    ) as res:
+    ^
+  File "/usr/local/lib/python3.14/site-packages/aiohttp/client.py", line 1521, in __aenter__
+    self._resp: _RetType = await self._coro
+                           ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/aiohttp/client.py", line 788, in _request
+    resp = await handler(req)
+           ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/aiohttp/client_middlewares.py", line 36, in single_middleware_handler
+    return await middleware(req, handler)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/src/homeassistant/homeassistant/helpers/aiohttp_client.py", line 69, in _ssrf_redirect_middleware
+    resp = await handler(request)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/aiohttp/client.py", line 766, in _connect_and_send_request
+    await resp.start(conn)
+  File "/usr/local/lib/python3.14/site-packages/aiohttp/client_reqrep.py", line 539, in start
+    message, payload = await protocol.read()  # type: ignore[union-attr]
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/aiohttp/streams.py", line 707, in read
+    await self._waiter
+aiohttp.client_exceptions.ServerDisconnectedError: Server disconnected[0m
+[23:25:00] INFO: [32mHome Assistant Core finish process exit code 0[0m
+[23:25:00] INFO: [32mHome Assistant Core service shutdown[0m
+s6-rc: info: service legacy-services successfully stopped
+s6-rc: info: service legacy-cont-init: stopping
+s6-rc: info: service legacy-cont-init successfully stopped
+s6-rc: info: service fix-attrs: stopping
+s6-rc: info: service fix-attrs successfully stopped
+s6-rc: warning: service s6rc-oneshot-runner is marked as essential, not stopping it
+s6-rc: info: service s6rc-oneshot-runner: starting
+s6-rc: info: service s6rc-oneshot-runner successfully started
+s6-rc: info: service fix-attrs: starting
+s6-rc: info: service fix-attrs successfully started
+s6-rc: info: service legacy-cont-init: starting
+s6-rc: info: service legacy-cont-init successfully started
+s6-rc: info: service legacy-services: starting
+services-up: info: copying legacy longrun home-assistant (no readiness notification)
+s6-rc: info: service legacy-services successfully started
+[33m2026-07-02 09:25:12.442 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration localtuya which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.445 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration hacs which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.447 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration tuya_local which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.449 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration eufy_security which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.451 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration anker_solix which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.453 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration enphase_envoy which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.455 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration smartir which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.457 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration zero_net_export which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:12.459 WARNING (SyncWorker_0) [homeassistant.loader] We found a custom integration robovac which has not been tested by Home Assistant. This component might cause stability problems, be sure to disable it if you experience issues with Home Assistant[0m
+[33m2026-07-02 09:25:49.280 WARNING (MainThread) [homeassistant.components.sensor] Entity sensor.anker_battery_charge_energy (<class 'homeassistant.components.utility_meter.sensor.UtilityMeterSensor'>) is using state class 'total' which is impossible considering device class ('power') it is using; expected None or one of 'measurement'; Please update your configuration if your entity is manually configured, otherwise create a bug report at https://github.com/home-assistant/core/issues?q=is%3Aopen+is%3Aissue+label%3A%22integration%3A+utility_meter%22[0m
+[33m2026-07-02 09:25:49.288 WARNING (MainThread) [homeassistant.components.sensor] Entity sensor.anker_battery_discharge_power (<class 'homeassistant.components.utility_meter.sensor.UtilityMeterSensor'>) is using state class 'total' which is impossible considering device class ('power') it is using; expected None or one of 'measurement'; Please update your configuration if your entity is manually configured, otherwise create a bug report at https://github.com/home-assistant/core/issues?q=is%3Aopen+is%3Aissue+label%3A%22integration%3A+utility_meter%22[0m
+[33m2026-07-02 09:25:52.169 WARNING (MainThread) [habluetooth.wrappers] HaBleakScannerWrapper.register_detection_callback() is deprecated and will be removed in a future release; bleak already removed this method from BleakScanner. Pass detection_callback to the HaBleakScannerWrapper constructor instead.[0m
+[33m2026-07-02 09:25:52.365 WARNING (MainThread) [aioesphomeapi.reconnect_logic] Can't connect to ESPHome API for sensecap-indicator-d1-energy @ 192.168.86.171: Error connecting to [AddrInfo(family=<AddressFamily.AF_INET: 2>, type=<SocketKind.SOCK_STREAM: 1>, proto=6, sockaddr=IPv4Sockaddr(address='192.168.86.171', port=6053))]: [Errno 113] Connect call failed ('192.168.86.171', 6053) (SocketAPIError)[0m
+[33m2026-07-02 09:25:58.150 WARNING (MainThread) [deebot_client.command] No response received for command "getPos". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:25:58.151 WARNING (MainThread) [deebot_client.command] No response received for command "getStats". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:25:58.307 WARNING (MainThread) [deebot_client.command] No response received for command "getNetInfo". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:26:08.092 WARNING (MainThread) [custom_components.anker_solix] Api Coordinator jmy*** did not find eligible devices for MQTT subscription[0m
+[33m2026-07-02 09:26:18.385 WARNING (MainThread) [deebot_client.command] No response received for command "getChargeState". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:26:18.394 WARNING (MainThread) [deebot_client.command] No response received for command "getCleanInfo". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:26:21.882 WARNING (Recorder) [homeassistant.components.sensor.recorder] The unit of sensor.grid_imported_today_phase_c (kWh) cannot be converted to the unit of previously compiled statistics (None). Generation of long term statistics will be suppressed unless the unit changes back to None or a compatible unit. Go to https://my.home-assistant.io/redirect/developer_statistics to fix this[0m
+[33m2026-07-02 09:26:38.554 WARNING (MainThread) [deebot_client.command] No response received for command "getWaterInfo". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:26:38.586 WARNING (MainThread) [deebot_client.command] No response received for command "getCachedMapInfo". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:26:38.666 WARNING (MainThread) [deebot_client.command] No response received for command "getWaterInfo". This can happen if the device has network issues or does not support the command[0m
+[33m2026-07-02 09:26:45.811 WARNING (MainThread) [custom_components.robovac.vacuum] Vacuum Vac has no data points available[0m

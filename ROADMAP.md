@@ -33,18 +33,19 @@ browser proof is recorded. References:
 
 **Updated:** Milestone 3 feasibility check accepted. Moving card `7f983131` to done; card `WB-ZNE-009` status updated to Doing.
 
-**Latest:** Milestone 4 is active. Home Assistant API access is restored, and
-the live baseline confirms `sensor.zero_net_export_status=degraded` because the
-configured Anker battery discharge source reports `state_class=total`.
-Evidence: `validation/zne-app-milestone-4-live-baseline.md`.
+**Latest:** Milestone 4 is complete and released/live-validated as `v0.2.9`.
+Home Assistant now reports `sensor.zero_net_export_status=ready`, validated
+sources, one usable managed device, acceptable reconciliation, and installed app
+browser proof. Evidence: `validation/0.2.9-release-validation.md`.
 
 ## Current milestone
 
 ### ZNE-APP-004 - Source Health & Runtime Blocker Resolution
 
-Status: Doing. Milestone 4 plan and source-health fix guide are written.
-Home Assistant API access is restored, and a read-only live baseline confirms
-`sensor.zero_net_export_status=degraded`.
+Status: Done; released/live-validated as `v0.2.9`. Milestone 4 plan and
+source-health fix guide are written, the approved Home Assistant template sensor
+workaround is applied, and the installed validation target reports ready runtime
+state.
 
 Outcome:
 - Operators can resolve source-health blockers that keep ZNE runtime status
@@ -58,11 +59,12 @@ Evidence:
 - Plan: `docs/ZNE_APP_MILESTONE_4_PLAN.md`
 - Fix guide: `docs/SOURCE_HEALTH_FIX_GUIDE.md`
 - Live baseline: `validation/zne-app-milestone-4-live-baseline.md`
+- Release/live validation: `validation/0.2.9-release-validation.md`
 
 Next gate:
-- Apply or guide the template sensor workaround, point ZNE at the fixed source,
-  then capture live API/browser proof showing `status=ok` and acceptable
-  reconciliation.
+- Define the next app milestone. Bulk priority adjustment remains deferred;
+  likely next candidates are diagnostics/support polish or the next
+  runtime-control workflow slice.
 
 ## Completed App Milestones
 

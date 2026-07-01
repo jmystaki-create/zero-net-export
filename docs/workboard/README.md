@@ -45,7 +45,7 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.2.5`.
+Current release: `v0.2.9`.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -58,6 +58,9 @@ Current state:
 - Managed Devices browser proof is captured on installed `0.2.5` for both
   empty-fleet and populated `light.7th` states, including UI-driven bulk
   enable/disable with final disabled state.
+- `v0.2.9` completed Milestone 4 source-health/runtime readiness: the live
+  validation target now reports `ready`, validated sources, one usable managed
+  device, acceptable reconciliation, and clean installed app browser proof.
 - Repo `main` is synced with `origin/main`.
 
 ## Known Bugs
@@ -65,15 +68,16 @@ Current state:
 Active/high-signal items:
 - ZNE-594: released/live-validated fixed in `0.2.4`; continue watching logs for recurrence.
 - ZNE-APP-002: released/live-validated; installed desktop/narrow browser proof is captured.
-- Runtime control limitation: validation Home Assistant instance still has source-health warnings and managed-device readiness gaps, so runtime control is not yet fully product-ready.
+- Runtime control readiness is now proven on the validation Home Assistant
+  instance with one disposable managed device. Broader product readiness still
+  depends on future workflow scope and real-fleet validation.
 
 Historical fixed bugs remain tracked in `docs/BUGS.md`.
 
 ## Feature Backlog
 
 Near-term:
-- Complete Milestone 4 source-health validation by applying or guiding the
-  battery discharge template sensor workaround and checking runtime status.
+- Define the next app milestone after Milestone 4.
 - Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
@@ -82,18 +86,18 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-1. Apply or guide the Milestone 4 template sensor workaround for
-   `sensor.anker_battery_discharge_power`.
-2. Point ZNE at the fixed battery discharge source.
-3. Capture live API and browser proof showing `sensor.zero_net_export_status=ok`
-   and acceptable source reconciliation.
+1. Define the next app milestone and acceptance criteria.
+2. Decide when to scope deferred bulk priority adjustment.
+3. Continue app workflow slices for diagnostics/support, runtime visibility,
+   controls, and multi-plan separation.
 
 ## Blockers And Risks
 
 - Browser/node navigation path was previously unavailable, blocking Sources screenshot proof.
 - Browser proof path is now working through the OpenClaw browser CLI; keep using screenshot/snapshot evidence for app-facing workflow changes.
 - The current OpenClaw Workboard CLI can create/list/show cards, but this build does not expose an edit command for existing cards; detailed state updates may need repo Workboard docs plus new focused UI cards until card editing is available.
-- Runtime control remains limited until source-health warnings and managed-device readiness are resolved.
+- Keep using GitHub/HACS-only validation for releases; no direct component
+  deployment.
 - Live validation must continue through GitHub/HACS, not direct file deployment.
 - Future app work must stay inside the accepted Home Assistant app/custom-panel feasibility path.
 - Project docs are large and historical; stale native-device-page docs can mislead future work if `CONSTRAINTS.md` source-of-truth order is ignored.
@@ -111,12 +115,12 @@ A Workboard card is done only when:
 
 Current Sources milestone completion: complete for the accepted `ZNE-APP-002` scope.
 
-Application MVP completion: about 76%. The app shell, managed-device slices,
+Application MVP completion: about 82%. The app shell, managed-device slices,
 controls slice, Sources workflow, release path, backend write proof, installed
-Sources browser proof, and live-validated Managed Devices fleet controls exist.
-Remaining MVP work is mainly Milestone 4 source-health/runtime readiness,
-diagnostics/support polish, completing the next app workflow slices, and later
-bulk-priority scope definition.
+Sources browser proof, live-validated Managed Devices fleet controls, and
+Milestone 4 source-health/runtime readiness exist. Remaining MVP work is mainly
+diagnostics/support polish, completing the next app workflow slices, broader
+real-fleet/runtime validation, and later bulk-priority scope definition.
 
 Full product completion: not yet estimable from current evidence because runtime control readiness and future app milestone scope still need tighter acceptance criteria.
 
@@ -140,5 +144,5 @@ Full product completion: not yet estimable from current evidence because runtime
 - `fe67044b-fd94-4529-b8f4-455e94f0639a` - `ZNE: Decide Milestone 3 bulk priority scope` - superseded; deferred.
 - `348000d4` - `ZNE: Milestone 3 closed` - done.
 - `06b5d15f` - `ZNE: Define bulk priority adjustment scope for later milestone` - ready.
-- `8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` - doing.
+- `8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` - done.
 - `f8d93513-ed96-4228-b1c8-0885e608544d` - `ZNE: Milestone 4 live baseline captured` - done.
