@@ -83,4 +83,7 @@ injection or direct file-backend deployment is required.
 This feasibility check must be accepted before any design, mockup, or code work
 for ZNE-APP-003 proceeds.
 
-Acceptance status: **pending**.
+Acceptance status: **accepted on 2026-07-01 16:35 AEST**.
+
+Acceptance note: User approved Milestone 3 (Managed Devices Fleet Control) implementation.
+Proceed with minimal design and implementation within the accepted feasible path.

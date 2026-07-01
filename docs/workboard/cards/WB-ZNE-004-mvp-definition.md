@@ -40,3 +40,5 @@ The MVP is a Home Assistant app that lets an operator:
 Application MVP is about 65% complete. The Sources milestone (ZNE-APP-002) is complete
 for the accepted scope, including installed browser proof. Milestone 3 (Managed Devices
 Fleet Control) is in draft; feasibility check and plan are written awaiting acceptance.
+
+**Updated:** Milestone 3 feasibility check accepted on 2026-07-01 16:35 AEST. Implementation starting.

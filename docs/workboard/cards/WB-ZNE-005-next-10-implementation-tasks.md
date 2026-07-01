@@ -10,12 +10,12 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 
 ## Next 10 Tasks
 
-1. Accept the feasibility check in `validation/zne-app-milestone-3-feasibility.md` for Milestone 3 (Managed Devices Fleet Control).
-2. Approve starting Milestone 3 implementation.
-3. Read-only inspect current live source-health warnings and classify blockers.
-4. Write target-environment feasibility for the next app milestone before design/code.
-5. Implement the smallest next app workflow slice inside the accepted app/custom-panel path.
-6. Validate the next slice with repo tests, HACS install/update, Home Assistant restart, browser proof, and logs.
+1. ~~Accept the feasibility check in `validation/zne-app-milestone-3-feasibility.md` for Milestone 3 (Managed Devices Fleet Control).~~ (Done)
+2. ~~Approve starting Milestone 3 implementation.~~ (Done)
+3. Begin minimal design and implementation of the Managed Devices Fleet Control workflow.
+4. Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).
+5. Validate the slice with repo tests, HACS install/update, Home Assistant restart, browser proof, and logs.
+6. Read-only inspect current live source-health warnings and classify blockers.
 7. Resolve source-health warnings enough to make runtime readiness actionable.
 8. Refine diagnostics/support surfaces for operator troubleshooting.
 9. Reassess application MVP completion after the next validated slice.

@@ -18,6 +18,8 @@ awaiting acceptance: `validation/zne-app-milestone-3-feasibility.md` and
 `docs/ZNE_APP_MILESTONE_3_PLAN.md`. Repo Workboard card:
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Ready).
 
+**Updated:** Milestone 3 feasibility check accepted. Moving card `7f983131` to done; card `WB-ZNE-009` status updated to Doing.
+
 ## Current milestone
 
 ### ZNE-APP-002 - App-native Sources workflow
@@ -42,8 +44,8 @@ Evidence:
   `validation/artifacts/zne-0.2.4-sources-narrow-snapshot.json`
 
 Next gate:
-- Accept the Milestone 3 feasibility check in `validation/zne-app-milestone-3-feasibility.md`.
-- Approve starting Milestone 3 (Managed Devices Fleet Control) implementation.
+- ~~Accept the Milestone 3 feasibility check in `validation/zne-app-milestone-3-feasibility.md`.~~ (Done)
+- ~~Approve starting Milestone 3 (Managed Devices Fleet Control) implementation.~~ (Done)
 - Proceed with minimal design and implementation within the accepted feasible path.
 
 ## Release path

@@ -1,8 +1,8 @@
 # WB-ZNE-009 Milestone 3: Managed Devices Fleet Control
 
-Status: Ready
+Status: Doing
 Priority: High
-Labels: milestone, feature, app, fleet-control, validation
+Labels: milestone, feature, app, fleet-control, validation, in-progress
 
 ## Purpose
 
@@ -63,10 +63,13 @@ An operator can use the Zero Net Export app to:
 Milestone 3 is in draft. Feasibility check is written but not yet accepted.
 No design or code work has started.
 
+**Status:** Feasibility check accepted on 2026-07-01 16:35 AEST. Ready to proceed with implementation.
+
 ## Next steps
 
-1. Accept the feasibility check in `validation/zne-app-milestone-3-feasibility.md`.
-2. Approve starting Milestone 3 implementation.
-3. Proceed with minimal design and implementation within the accepted feasible path.
-4. Validate with repo tests, HACS install, HA restart, browser proof, and logs.
-5. Release as the next app feature release after validation.
+1. ~~Accept the feasibility check in `validation/zne-app-milestone-3-feasibility.md`.~~ (Done)
+2. ~~Approve starting Milestone 3 implementation.~~ (Done)
+3. Begin minimal design and implementation of the Managed Devices Fleet Control workflow within the accepted feasible path.
+4. Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).
+5. Validate the slice with repo tests, HACS install, HA restart, browser proof, and logs.
+6. Release as the next app feature release after validation.
