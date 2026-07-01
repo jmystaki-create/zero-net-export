@@ -6,6 +6,21 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-07-02
+
+### Fixed
+- Capped the command-center focus path sensor state at Home Assistant's
+  255-character limit while keeping the full path in entity attributes.
+
+### Validation
+- Resolved the live source-health blocker by adding a Home Assistant template
+  sensor for the Anker battery discharge reading, clearing the optional
+  duplicate discharge role after reconciliation proved both battery directions
+  were positive together, and enabling the disposable `7th_validation_load`
+  managed record. Live API proof now reports ready runtime state with validated
+  sources, high confidence, 10 W reconciliation error, and one usable managed
+  device.
+
 ## [0.2.5] - 2026-07-01
 
 ### Added

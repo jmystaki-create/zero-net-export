@@ -1465,7 +1465,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
             command_center = build_native_command_center_summary(self.coordinator)
             mapping = {
                 "command_center_status": command_center.get("status_summary"),
-                "command_center_recommended_path": command_center.get("recommended_path"),
+                "command_center_recommended_path": _next_step_sensor_state(command_center.get("recommended_path")),
                 "command_center_next_step": _next_step_sensor_state(command_center.get("next_action_summary")),
             }
             return mapping.get(self._key)

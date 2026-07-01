@@ -222,6 +222,28 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertNotIn("recommended_section", attrs)
         self.assertNotIn("recommended_path", attrs)
 
+    def test_command_center_focus_path_state_is_capped_but_attribute_keeps_full_path(self) -> None:
+        sensor_module = _load_sensor_module()
+        long_path = "Settings -> " + " -> ".join(f"Very long path segment {index}" for index in range(30))
+        sensor_module.build_native_command_center_summary = lambda coordinator: {
+            "status_summary": "Command center ready.",
+            "recommended_path": long_path,
+            "next_action_summary": "Review Diagnostics.",
+        }
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(validation_details={}),
+        )
+        sensor = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "command_center_recommended_path",
+            "Command center focus path",
+        )
+
+        self.assertLessEqual(len(sensor.native_value), 255)
+        self.assertTrue(sensor.native_value.endswith("..."))
+        self.assertEqual(sensor.extra_state_attributes["current_focus_path"], long_path)
+
     def test_fleet_next_step_sensor_uses_managed_devices_label(self) -> None:
         sensor_module = _load_sensor_module()
 
