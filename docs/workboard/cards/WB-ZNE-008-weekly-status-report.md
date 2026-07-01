@@ -16,10 +16,12 @@ Done:
 - `v0.2.4` released and live-validated.
 - ZNE-594 fixed and validated in installed Home Assistant.
 - Sources backend write proof passed and was restored safely.
+- OpenClaw Workboard UI is populated with the ZNE operating cards, and a dedicated card now tracks installed Sources browser proof.
+- Installed Sources browser proof captured on desktop and narrow viewport.
 
 In progress / pending:
-- Sources workflow browser proof on installed app.
-- Push local validation-doc commit if still ahead of origin.
+- Workboard must be checked and updated every ZNE turn.
+- Next app milestone needs acceptance criteria and feasibility before design/code.
 
 Risks:
 - Runtime control readiness remains limited by source-health and managed-device readiness.
@@ -27,7 +29,7 @@ Risks:
 - Future app work must not drift into unsupported native HA UI injection.
 
 Recommended next action:
-- Push validation-doc commit, then capture desktop and narrow Sources browser proof.
+- Define the next app milestone acceptance criteria and feasibility gate, keeping the OpenClaw Workboard aligned.
 
 ## Acceptance Criteria
 
@@ -40,3 +42,4 @@ Recommended next action:
 - This card is updated weekly or after major release milestones.
 - Project state files match the report.
 - Any completed validation is linked from `validation/`.
+- OpenClaw Workboard state matches the report or the report explains any CLI limitation.

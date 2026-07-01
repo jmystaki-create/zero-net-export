@@ -37,4 +37,4 @@ The MVP is a Home Assistant app that lets an operator:
 
 ## Current Estimate
 
-Application MVP is about 60% complete. The current Sources milestone is about 90% complete, pending installed browser proof.
+Application MVP is about 65% complete. The Sources milestone is complete for the accepted `ZNE-APP-002` scope, including installed browser proof.

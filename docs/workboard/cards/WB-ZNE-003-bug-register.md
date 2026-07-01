@@ -30,4 +30,4 @@ Maintain a clear bug register that distinguishes active defects, fixed/live-vali
 
 ## Current Focus
 
-ZNE-594 is released/live-validated fixed in `0.2.4`. The active quality gap is not a new bug: it is missing installed browser proof for the Sources workflow.
+ZNE-594 is released/live-validated fixed in `0.2.4`. The previous installed browser proof gap for the Sources workflow is now closed with desktop and narrow artifacts.

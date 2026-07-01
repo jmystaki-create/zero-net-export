@@ -37,8 +37,8 @@ Live validation:
 
 - Validation plan is linked from active Workboard cards.
 - Latest release validation is recorded in `validation/0.2.4-release-validation.md`.
-- Remaining Sources browser proof gap is closed or explicitly tracked.
+- Sources browser proof gap is closed with desktop and narrow installed-app artifacts.
 
 ## Current Gap
 
-Sources workflow still needs installed desktop and narrow browser proof.
+Sources workflow has installed desktop and narrow browser proof on `0.2.4`.

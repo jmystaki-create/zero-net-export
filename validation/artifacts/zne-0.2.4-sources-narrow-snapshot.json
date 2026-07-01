@@ -1,0 +1,168 @@
+{
+  "ok": true,
+  "format": "ai",
+  "targetId": "43A59610DA1E43519EAEA25E47AA242F",
+  "url": "http://192.168.86.200:8123/zero-net-export?validation=remove-1782789264887",
+  "snapshot": "- main [ref=e379]:\n  - generic [ref=e380]:\n    - generic [ref=e381]:\n      - heading \"Zero Net Export\" [level=1] [ref=e382]\n      - generic [ref=e383]: Version 0.2.4 · 1 plan\n    - generic [ref=e384]:\n      - strong [ref=e385]: Connected to Home Assistant\n      - generic [ref=e386]: 148 Zero Net Export app-visible entities\n  - navigation \"Zero Net Export application sections\" [ref=e387]:\n    - button \"Overview\" [ref=e388] [cursor=pointer]\n    - button \"Sources\" [ref=e389] [cursor=pointer]\n    - button \"Managed Devices\" [ref=e390] [cursor=pointer]\n    - button \"Controls\" [ref=e391] [cursor=pointer]\n    - button \"Runtime\" [ref=e392] [cursor=pointer]\n    - button \"Diagnostics\" [ref=e393] [cursor=pointer]\n    - button \"Settings\" [ref=e394] [cursor=pointer]\n  - generic [ref=e395]:\n    - generic [ref=e396]:\n      - heading \"Sources\" [level=2] [ref=e397]\n      - button \"Open HA source setup\" [ref=e398] [cursor=pointer]\n    - generic [ref=e399]:\n      - heading \"Current blockers\" [level=3] [ref=e400]\n      - paragraph [ref=e401]: battery_discharge_power (X1-P(5~6)K-US/S Anker Battery Discharge Power, stale)\n    - generic [ref=e402]:\n      - generic [ref=e403]:\n        - generic [ref=e404]: Solar power\n        - generic [ref=e405]: \"state: ok\"\n      - generic [ref=e406]:\n        - generic [ref=e407]: Solar energy\n        - generic [ref=e408]: \"state: ok\"\n      - generic [ref=e409]:\n        - generic [ref=e410]: Grid import power\n        - generic [ref=e411]: \"state: ok\"\n      - generic [ref=e412]:\n        - generic [ref=e413]: Grid export power\n        - generic [ref=e414]: \"state: ok\"\n      - generic [ref=e415]:\n        - generic [ref=e416]: Grid import energy\n        - generic [ref=e417]: \"state: ok\"\n      - generic [ref=e418]:\n        - generic [ref=e419]: Grid export energy\n        - generic [ref=e420]: \"state: ok\"\n      - generic [ref=e421]:\n        - generic [ref=e422]: Home load power\n        - generic [ref=e423]: \"state: ok\"\n      - generic [ref=e424]:\n        - generic [ref=e425]: Battery SOC\n        - generic [ref=e426]: \"state: missing\"\n  - status [ref=e427]",
+  "refs": {
+    "e379": {
+      "role": "main"
+    },
+    "e380": {
+      "role": "generic"
+    },
+    "e381": {
+      "role": "generic"
+    },
+    "e382": {
+      "role": "heading",
+      "name": "Zero Net Export"
+    },
+    "e383": {
+      "role": "generic"
+    },
+    "e384": {
+      "role": "generic"
+    },
+    "e385": {
+      "role": "strong"
+    },
+    "e386": {
+      "role": "generic"
+    },
+    "e387": {
+      "role": "navigation",
+      "name": "Zero Net Export application sections"
+    },
+    "e388": {
+      "role": "button",
+      "name": "Overview"
+    },
+    "e389": {
+      "role": "button",
+      "name": "Sources"
+    },
+    "e390": {
+      "role": "button",
+      "name": "Managed Devices"
+    },
+    "e391": {
+      "role": "button",
+      "name": "Controls"
+    },
+    "e392": {
+      "role": "button",
+      "name": "Runtime"
+    },
+    "e393": {
+      "role": "button",
+      "name": "Diagnostics"
+    },
+    "e394": {
+      "role": "button",
+      "name": "Settings"
+    },
+    "e395": {
+      "role": "generic"
+    },
+    "e396": {
+      "role": "generic"
+    },
+    "e397": {
+      "role": "heading",
+      "name": "Sources"
+    },
+    "e398": {
+      "role": "button",
+      "name": "Open HA source setup"
+    },
+    "e399": {
+      "role": "generic"
+    },
+    "e400": {
+      "role": "heading",
+      "name": "Current blockers"
+    },
+    "e401": {
+      "role": "paragraph"
+    },
+    "e402": {
+      "role": "generic"
+    },
+    "e403": {
+      "role": "generic"
+    },
+    "e404": {
+      "role": "generic"
+    },
+    "e405": {
+      "role": "generic"
+    },
+    "e406": {
+      "role": "generic"
+    },
+    "e407": {
+      "role": "generic"
+    },
+    "e408": {
+      "role": "generic"
+    },
+    "e409": {
+      "role": "generic"
+    },
+    "e410": {
+      "role": "generic"
+    },
+    "e411": {
+      "role": "generic"
+    },
+    "e412": {
+      "role": "generic"
+    },
+    "e413": {
+      "role": "generic"
+    },
+    "e414": {
+      "role": "generic"
+    },
+    "e415": {
+      "role": "generic"
+    },
+    "e416": {
+      "role": "generic"
+    },
+    "e417": {
+      "role": "generic"
+    },
+    "e418": {
+      "role": "generic"
+    },
+    "e419": {
+      "role": "generic"
+    },
+    "e420": {
+      "role": "generic"
+    },
+    "e421": {
+      "role": "generic"
+    },
+    "e422": {
+      "role": "generic"
+    },
+    "e423": {
+      "role": "generic"
+    },
+    "e424": {
+      "role": "generic"
+    },
+    "e425": {
+      "role": "generic"
+    },
+    "e426": {
+      "role": "generic"
+    },
+    "e427": {
+      "role": "status"
+    }
+  }
+}

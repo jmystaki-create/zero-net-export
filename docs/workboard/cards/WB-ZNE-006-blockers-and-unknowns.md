@@ -10,7 +10,7 @@ Track blockers and unknowns that could prevent the app MVP from being validated 
 
 ## Current Blockers / Unknowns
 
-- Browser proof path for the installed Sources workflow needs a reliable desktop and narrow capture route.
+- Browser proof path for the installed Sources workflow is now proven through the OpenClaw browser CLI; use it for future app-facing proof.
 - Runtime control remains limited by source-health warnings and managed-device readiness in the validation Home Assistant instance.
 - Live validation must continue through GitHub/HACS only.
 - Future app workflow scope needs milestone-specific acceptance criteria before implementation.

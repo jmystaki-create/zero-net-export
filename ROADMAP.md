@@ -8,12 +8,17 @@ The maintained project Workboard lives at `docs/workboard/README.md`.
 Initial cards are under `docs/workboard/cards/` and cover project charter,
 architecture inventory, bug register, MVP definition, next 10 implementation
 tasks, blockers/unknowns, testing/validation plan, and weekly status report.
+The OpenClaw Workboard UI is the active visible board for ZNE. Check and update
+it every ZNE work turn when status, validation evidence, blockers, next actions,
+or release readiness changes. Current relevant UI cards:
+`72ed354f` - `ZNE: Sources browser proof captured` (done),
+`7f983131` - `ZNE: Define next app milestone` (ready).
 
 ## Current milestone
 
 ### ZNE-APP-002 - App-native Sources workflow
 
-Status: released as `v0.2.3`; GitHub/HACS install live-validated with browser proof gap.
+Status: released as `v0.2.3`; GitHub/HACS install live-validated. Desktop and narrow browser proof captured on installed `v0.2.4`.
 
 Outcome:
 - Operators can review source-role bindings, status, readings, age, and issues in the Zero Net Export app.
@@ -26,9 +31,14 @@ Evidence:
 - Repo validation: `validation/zne-app-milestone-2-sources-implementation.md`
 - Release validation: `validation/0.2.3-release-validation.md`
 - Corrective release validation: `validation/0.2.4-release-validation.md`
+- Browser proof:
+  `validation/artifacts/zne-0.2.4-sources-desktop.png`,
+  `validation/artifacts/zne-0.2.4-sources-desktop-snapshot.json`,
+  `validation/artifacts/zne-0.2.4-sources-narrow.png`,
+  `validation/artifacts/zne-0.2.4-sources-narrow-snapshot.json`
 
 Next gate:
-- Capture browser proof for the installed `0.2.3` Sources workflow.
+- Define and accept the next app milestone before any new design/code work.
 
 ## Release path
 
@@ -46,7 +56,7 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Capture desktop and narrow browser proof for the Sources workflow.
+- Plan the next app milestone and keep the OpenClaw Workboard aligned every turn.
 
 ## Risks
 

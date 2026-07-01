@@ -4,6 +4,10 @@ Last updated: 2026-07-01
 
 This workboard is the operational project view for Zero Net Export. It summarizes what exists, what is broken, what is next, and how far the project is from a useful Home Assistant application MVP.
 
+## Operating Rule
+
+The OpenClaw Workboard is wired into the Zero Net Export project and must be checked and updated on every ZNE work turn. If project state, validation state, blockers, next actions, or release readiness change, update the relevant OpenClaw Workboard card and keep these repo workboard files, `PROJECT_STATUS.md`, and `ROADMAP.md` aligned. If no Workboard card update is needed, the turn summary must say why.
+
 ## Project Scope
 
 Zero Net Export is a Home Assistant application backed by the existing `zero_net_export` custom integration backend.
@@ -47,14 +51,14 @@ Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
 - `v0.2.4` fixed ZNE-594 next-step sensor state overflow and is live-validated.
 - Source-role write proof passed through the supported backend service path.
-- The remaining validation gap for ZNE-APP-002 is browser proof of the installed Sources workflow on desktop and narrow/mobile viewport.
-- The repo is ahead of `origin/main` by one validation-doc commit: `5936a0d docs: record 0.2.4 live validation`.
+- Browser proof for ZNE-APP-002 is captured on installed `0.2.4` with desktop and narrow/mobile viewport artifacts.
+- Repo `main` is synced with `origin/main`.
 
 ## Known Bugs
 
 Active/high-signal items:
 - ZNE-594: released/live-validated fixed in `0.2.4`; continue watching logs for recurrence.
-- ZNE-APP-002 browser proof gap: Sources workflow is released/live-validated through service/API paths, but installed UI screenshot proof is still missing.
+- ZNE-APP-002: released/live-validated; installed desktop/narrow browser proof is captured.
 - Runtime control limitation: validation Home Assistant instance still has source-health warnings and managed-device readiness gaps, so runtime control is not yet fully product-ready.
 
 Historical fixed bugs remain tracked in `docs/BUGS.md`.
@@ -62,7 +66,7 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Complete browser proof for installed Sources workflow.
+- Define and accept the next app milestone before new design/code work.
 - Resolve source-health warnings enough to make runtime readiness actionable.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
@@ -71,15 +75,16 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-1. Push the local validation-doc commit if not already pushed.
-2. Capture desktop and narrow browser proof for the installed Sources workflow.
-3. Record Sources browser evidence in `validation/0.2.3-release-validation.md` or a follow-up validation record.
-4. Update `PROJECT_STATUS.md` and `ROADMAP.md` to close the browser proof gap.
-5. Start the next app milestone only after the current validation gap is closed.
+1. Update the OpenClaw Workboard with the completed Sources browser proof state.
+2. Define the next app milestone acceptance criteria.
+3. Write and accept the target-environment feasibility check for the next app milestone before design/code.
+4. Start the next app milestone only after the feasibility gate is satisfied.
 
 ## Blockers And Risks
 
 - Browser/node navigation path was previously unavailable, blocking Sources screenshot proof.
+- Browser proof path is now working through the OpenClaw browser CLI; keep using screenshot/snapshot evidence for app-facing workflow changes.
+- The current OpenClaw Workboard CLI can create/list/show cards, but this build does not expose an edit command for existing cards; detailed state updates may need repo Workboard docs plus new focused UI cards until card editing is available.
 - Runtime control remains limited until source-health warnings and managed-device readiness are resolved.
 - Live validation must continue through GitHub/HACS, not direct file deployment.
 - Future app work must stay inside the accepted Home Assistant app/custom-panel feasibility path.
@@ -96,9 +101,9 @@ A Workboard card is done only when:
 
 ## Completion Estimate
 
-Current Sources milestone completion: about 90%. The remaining item is installed browser proof.
+Current Sources milestone completion: complete for the accepted `ZNE-APP-002` scope.
 
-Application MVP completion: about 60%. The app shell, managed-device slices, controls slice, Sources workflow, release path, and backend write proof exist. Remaining MVP work is mainly visual proof closure, runtime/source-health readiness, diagnostics/support polish, and completing the next app workflow slices.
+Application MVP completion: about 65%. The app shell, managed-device slices, controls slice, Sources workflow, release path, backend write proof, and installed Sources browser proof exist. Remaining MVP work is mainly runtime/source-health readiness, diagnostics/support polish, and completing the next app workflow slices.
 
 Full product completion: not yet estimable from current evidence because runtime control readiness and future app milestone scope still need tighter acceptance criteria.
 
@@ -112,3 +117,8 @@ Full product completion: not yet estimable from current evidence because runtime
 - [WB-ZNE-006 Blockers and unknowns](cards/WB-ZNE-006-blockers-and-unknowns.md)
 - [WB-ZNE-007 Testing and validation plan](cards/WB-ZNE-007-testing-and-validation-plan.md)
 - [WB-ZNE-008 Weekly status report](cards/WB-ZNE-008-weekly-status-report.md)
+
+## OpenClaw UI Cards
+
+- `72ed354f` - `ZNE: Sources browser proof captured` - done.
+- `7f983131` - `ZNE: Define next app milestone` - ready.

@@ -1,0 +1,439 @@
+{
+  "ok": true,
+  "format": "ai",
+  "targetId": "43A59610DA1E43519EAEA25E47AA242F",
+  "url": "http://192.168.86.200:8123/zero-net-export?validation=remove-1782789264887",
+  "snapshot": "- generic [ref=e428]:\n  - generic [ref=e7]:\n    - generic [ref=e8]:\n      - generic \"Sidebar toggle\" [ref=e431]:\n        - button \"Sidebar toggle\" [ref=e432] [cursor=pointer]:\n          - generic [ref=e434]:\n            - img\n      - generic [ref=e14]: Home Assistant\n    - generic [ref=e15]:\n      - navigation [ref=e18]:\n        - list [ref=e19]:\n          - generic:\n            - listitem [ref=e20] [cursor=pointer]:\n              - link \"Kitchen\" [ref=e21]:\n                - /url: /dashboard-kitchen\n                - generic [ref=e24]:\n                  - img\n                - generic [ref=e27]: Kitchen\n            - listitem [ref=e28] [cursor=pointer]:\n              - link \"Garage\" [ref=e29]:\n                - /url: /dashboard-garage\n                - generic [ref=e32]:\n                  - img\n                - generic [ref=e35]: Garage\n            - listitem [ref=e36] [cursor=pointer]:\n              - link \"Import Export\" [ref=e37]:\n                - /url: /dashboard-export\n                - generic [ref=e40]:\n                  - img\n                - generic [ref=e43]: Import Export\n            - listitem [ref=e44] [cursor=pointer]:\n              - link \"Power Management\" [ref=e45]:\n                - /url: /power-management\n                - generic [ref=e48]:\n                  - img\n                - generic [ref=e51]: Power Management\n            - listitem [ref=e52] [cursor=pointer]:\n              - link \"Energy\" [ref=e53]:\n                - /url: /energy\n                - generic [ref=e55]:\n                  - img\n                - generic [ref=e58]: Energy\n            - listitem [ref=e59] [cursor=pointer]:\n              - link \"Activity\" [ref=e60]:\n                - /url: /logbook\n                - generic [ref=e62]:\n                  - img\n                - generic [ref=e65]: Activity\n            - listitem [ref=e66] [cursor=pointer]:\n              - link \"History\" [ref=e67]:\n                - /url: /history\n                - generic [ref=e69]:\n                  - img\n                - generic [ref=e72]: History\n            - listitem [ref=e73] [cursor=pointer]:\n              - link \"AdGuard Home\" [ref=e74]:\n                - /url: /a0d7b954_adguard\n                - generic [ref=e77]:\n                  - img\n                - generic [ref=e80]: AdGuard Home\n            - listitem [ref=e81] [cursor=pointer]:\n              - link \"File editor\" [ref=e82]:\n                - /url: /core_configurator\n                - generic [ref=e85]:\n                  - img\n                - generic [ref=e88]: File editor\n            - listitem [ref=e89] [cursor=pointer]:\n              - link \"HACS\" [ref=e90]:\n                - /url: /hacs\n                - generic [ref=e93]:\n                  - img\n                - generic [ref=e96]: HACS\n            - listitem [ref=e97] [cursor=pointer]:\n              - link \"Media\" [ref=e98]:\n                - /url: /media-browser\n                - generic [ref=e100]:\n                  - img\n                - generic [ref=e103]: Media\n            - listitem [ref=e104] [cursor=pointer]:\n              - link \"Tailscale\" [ref=e105]:\n                - /url: /a0d7b954_tailscale\n                - generic [ref=e108]:\n                  - img\n                - generic [ref=e111]: Tailscale\n            - listitem [ref=e112] [cursor=pointer]:\n              - link \"Terminal\" [ref=e113]:\n                - /url: /core_ssh\n                - generic [ref=e116]:\n                  - img\n                - generic [ref=e119]: Terminal\n            - listitem [ref=e120] [cursor=pointer]:\n              - link \"Zero Net Export\" [ref=e121]:\n                - /url: /zero-net-export\n                - generic [ref=e124]:\n                  - img\n                - generic [ref=e127]: Zero Net Export\n      - navigation [ref=e129]:\n        - list [ref=e130]:\n          - generic:\n            - listitem [ref=e131] [cursor=pointer]:\n              - link \"1 Settings 1\" [ref=e132]:\n                - /url: /config\n                - generic [ref=e133]:\n                  - generic:\n                    - generic [ref=e134]:\n                      - img\n                    - generic: \"1\"\n                - generic [ref=e137]: Settings\n                - generic [ref=e139]: \"1\"\n            - listitem [ref=e140] [cursor=pointer]:\n              - button \"1 Notifications 1\" [ref=e141]:\n                - generic [ref=e142]:\n                  - generic:\n                    - generic [ref=e143]:\n                      - img\n                    - generic: \"1\"\n                - generic [ref=e146]: Notifications\n                - generic [ref=e148]: \"1\"\n            - listitem [ref=e149] [cursor=pointer]:\n              - link \"j jmystaki@hotmail.com\" [ref=e150]:\n                - /url: /profile\n                - generic [ref=e153]: j\n                - generic [ref=e156]: jmystaki@hotmail.com\n  - main [ref=e436]:\n    - generic [ref=e437]:\n      - generic [ref=e438]:\n        - heading \"Zero Net Export\" [level=1] [ref=e439]\n        - generic [ref=e440]: Version 0.2.4 · 1 plan\n      - generic [ref=e441]:\n        - strong [ref=e442]: Connected to Home Assistant\n        - generic [ref=e443]: 148 Zero Net Export app-visible entities\n    - navigation \"Zero Net Export application sections\" [ref=e444]:\n      - button \"Overview\" [ref=e445] [cursor=pointer]\n      - button \"Sources\" [ref=e446] [cursor=pointer]\n      - button \"Managed Devices\" [ref=e447] [cursor=pointer]\n      - button \"Controls\" [ref=e448] [cursor=pointer]\n      - button \"Runtime\" [ref=e449] [cursor=pointer]\n      - button \"Diagnostics\" [ref=e450] [cursor=pointer]\n      - button \"Settings\" [ref=e451] [cursor=pointer]\n    - generic [ref=e452]:\n      - generic [ref=e453]:\n        - heading \"Sources\" [level=2] [ref=e454]\n        - button \"Open HA source setup\" [ref=e455] [cursor=pointer]\n      - generic [ref=e456]:\n        - heading \"Current blockers\" [level=3] [ref=e457]\n        - paragraph [ref=e458]: battery_discharge_power (X1-P(5~6)K-US/S Anker Battery Discharge Power, stale)\n      - generic [ref=e459]:\n        - generic [ref=e460]:\n          - generic [ref=e461]: Solar power\n          - generic [ref=e462]: \"state: ok\"\n        - generic [ref=e463]:\n          - generic [ref=e464]: Solar energy\n          - generic [ref=e465]: \"state: ok\"\n        - generic [ref=e466]:\n          - generic [ref=e467]: Grid import power\n          - generic [ref=e468]: \"state: ok\"\n        - generic [ref=e469]:\n          - generic [ref=e470]: Grid export power\n          - generic [ref=e471]: \"state: ok\"\n        - generic [ref=e472]:\n          - generic [ref=e473]: Grid import energy\n          - generic [ref=e474]: \"state: ok\"\n        - generic [ref=e475]:\n          - generic [ref=e476]: Grid export energy\n          - generic [ref=e477]: \"state: ok\"\n        - generic [ref=e478]:\n          - generic [ref=e479]: Home load power\n          - generic [ref=e480]: \"state: ok\"\n        - generic [ref=e481]:\n          - generic [ref=e482]: Battery SOC\n          - generic [ref=e483]: \"state: missing\"\n    - status [ref=e484]",
+  "refs": {
+    "e428": {
+      "role": "generic"
+    },
+    "e7": {
+      "role": "generic"
+    },
+    "e8": {
+      "role": "generic"
+    },
+    "e431": {
+      "role": "generic",
+      "name": "Sidebar toggle"
+    },
+    "e432": {
+      "role": "button",
+      "name": "Sidebar toggle"
+    },
+    "e434": {
+      "role": "generic"
+    },
+    "e14": {
+      "role": "generic"
+    },
+    "e15": {
+      "role": "generic"
+    },
+    "e18": {
+      "role": "navigation"
+    },
+    "e19": {
+      "role": "list"
+    },
+    "e20": {
+      "role": "listitem"
+    },
+    "e21": {
+      "role": "link",
+      "name": "Kitchen"
+    },
+    "e24": {
+      "role": "generic"
+    },
+    "e27": {
+      "role": "generic"
+    },
+    "e28": {
+      "role": "listitem"
+    },
+    "e29": {
+      "role": "link",
+      "name": "Garage"
+    },
+    "e32": {
+      "role": "generic"
+    },
+    "e35": {
+      "role": "generic"
+    },
+    "e36": {
+      "role": "listitem"
+    },
+    "e37": {
+      "role": "link",
+      "name": "Import Export"
+    },
+    "e40": {
+      "role": "generic"
+    },
+    "e43": {
+      "role": "generic"
+    },
+    "e44": {
+      "role": "listitem"
+    },
+    "e45": {
+      "role": "link",
+      "name": "Power Management"
+    },
+    "e48": {
+      "role": "generic"
+    },
+    "e51": {
+      "role": "generic"
+    },
+    "e52": {
+      "role": "listitem"
+    },
+    "e53": {
+      "role": "link",
+      "name": "Energy"
+    },
+    "e55": {
+      "role": "generic"
+    },
+    "e58": {
+      "role": "generic"
+    },
+    "e59": {
+      "role": "listitem"
+    },
+    "e60": {
+      "role": "link",
+      "name": "Activity"
+    },
+    "e62": {
+      "role": "generic"
+    },
+    "e65": {
+      "role": "generic"
+    },
+    "e66": {
+      "role": "listitem"
+    },
+    "e67": {
+      "role": "link",
+      "name": "History"
+    },
+    "e69": {
+      "role": "generic"
+    },
+    "e72": {
+      "role": "generic"
+    },
+    "e73": {
+      "role": "listitem"
+    },
+    "e74": {
+      "role": "link",
+      "name": "AdGuard Home"
+    },
+    "e77": {
+      "role": "generic"
+    },
+    "e80": {
+      "role": "generic"
+    },
+    "e81": {
+      "role": "listitem"
+    },
+    "e82": {
+      "role": "link",
+      "name": "File editor"
+    },
+    "e85": {
+      "role": "generic"
+    },
+    "e88": {
+      "role": "generic"
+    },
+    "e89": {
+      "role": "listitem"
+    },
+    "e90": {
+      "role": "link",
+      "name": "HACS"
+    },
+    "e93": {
+      "role": "generic"
+    },
+    "e96": {
+      "role": "generic"
+    },
+    "e97": {
+      "role": "listitem"
+    },
+    "e98": {
+      "role": "link",
+      "name": "Media"
+    },
+    "e100": {
+      "role": "generic"
+    },
+    "e103": {
+      "role": "generic"
+    },
+    "e104": {
+      "role": "listitem"
+    },
+    "e105": {
+      "role": "link",
+      "name": "Tailscale"
+    },
+    "e108": {
+      "role": "generic"
+    },
+    "e111": {
+      "role": "generic"
+    },
+    "e112": {
+      "role": "listitem"
+    },
+    "e113": {
+      "role": "link",
+      "name": "Terminal"
+    },
+    "e116": {
+      "role": "generic"
+    },
+    "e119": {
+      "role": "generic"
+    },
+    "e120": {
+      "role": "listitem"
+    },
+    "e121": {
+      "role": "link",
+      "name": "Zero Net Export"
+    },
+    "e124": {
+      "role": "generic"
+    },
+    "e127": {
+      "role": "generic"
+    },
+    "e129": {
+      "role": "navigation"
+    },
+    "e130": {
+      "role": "list"
+    },
+    "e131": {
+      "role": "listitem"
+    },
+    "e132": {
+      "role": "link",
+      "name": "1 Settings 1"
+    },
+    "e133": {
+      "role": "generic"
+    },
+    "e134": {
+      "role": "generic"
+    },
+    "e137": {
+      "role": "generic"
+    },
+    "e139": {
+      "role": "generic"
+    },
+    "e140": {
+      "role": "listitem"
+    },
+    "e141": {
+      "role": "button",
+      "name": "1 Notifications 1"
+    },
+    "e142": {
+      "role": "generic"
+    },
+    "e143": {
+      "role": "generic"
+    },
+    "e146": {
+      "role": "generic"
+    },
+    "e148": {
+      "role": "generic"
+    },
+    "e149": {
+      "role": "listitem"
+    },
+    "e150": {
+      "role": "link",
+      "name": "j jmystaki@hotmail.com"
+    },
+    "e153": {
+      "role": "generic"
+    },
+    "e156": {
+      "role": "generic"
+    },
+    "e436": {
+      "role": "main"
+    },
+    "e437": {
+      "role": "generic"
+    },
+    "e438": {
+      "role": "generic"
+    },
+    "e439": {
+      "role": "heading",
+      "name": "Zero Net Export"
+    },
+    "e440": {
+      "role": "generic"
+    },
+    "e441": {
+      "role": "generic"
+    },
+    "e442": {
+      "role": "strong"
+    },
+    "e443": {
+      "role": "generic"
+    },
+    "e444": {
+      "role": "navigation",
+      "name": "Zero Net Export application sections"
+    },
+    "e445": {
+      "role": "button",
+      "name": "Overview"
+    },
+    "e446": {
+      "role": "button",
+      "name": "Sources"
+    },
+    "e447": {
+      "role": "button",
+      "name": "Managed Devices"
+    },
+    "e448": {
+      "role": "button",
+      "name": "Controls"
+    },
+    "e449": {
+      "role": "button",
+      "name": "Runtime"
+    },
+    "e450": {
+      "role": "button",
+      "name": "Diagnostics"
+    },
+    "e451": {
+      "role": "button",
+      "name": "Settings"
+    },
+    "e452": {
+      "role": "generic"
+    },
+    "e453": {
+      "role": "generic"
+    },
+    "e454": {
+      "role": "heading",
+      "name": "Sources"
+    },
+    "e455": {
+      "role": "button",
+      "name": "Open HA source setup"
+    },
+    "e456": {
+      "role": "generic"
+    },
+    "e457": {
+      "role": "heading",
+      "name": "Current blockers"
+    },
+    "e458": {
+      "role": "paragraph"
+    },
+    "e459": {
+      "role": "generic"
+    },
+    "e460": {
+      "role": "generic"
+    },
+    "e461": {
+      "role": "generic"
+    },
+    "e462": {
+      "role": "generic"
+    },
+    "e463": {
+      "role": "generic"
+    },
+    "e464": {
+      "role": "generic"
+    },
+    "e465": {
+      "role": "generic"
+    },
+    "e466": {
+      "role": "generic"
+    },
+    "e467": {
+      "role": "generic"
+    },
+    "e468": {
+      "role": "generic"
+    },
+    "e469": {
+      "role": "generic"
+    },
+    "e470": {
+      "role": "generic"
+    },
+    "e471": {
+      "role": "generic"
+    },
+    "e472": {
+      "role": "generic"
+    },
+    "e473": {
+      "role": "generic"
+    },
+    "e474": {
+      "role": "generic"
+    },
+    "e475": {
+      "role": "generic"
+    },
+    "e476": {
+      "role": "generic"
+    },
+    "e477": {
+      "role": "generic"
+    },
+    "e478": {
+      "role": "generic"
+    },
+    "e479": {
+      "role": "generic"
+    },
+    "e480": {
+      "role": "generic"
+    },
+    "e481": {
+      "role": "generic"
+    },
+    "e482": {
+      "role": "generic"
+    },
+    "e483": {
+      "role": "generic"
+    },
+    "e484": {
+      "role": "status"
+    }
+  }
+}
