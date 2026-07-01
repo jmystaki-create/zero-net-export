@@ -60,9 +60,9 @@ Evidence:
 - Release/live validation: `validation/0.2.5-release-validation.md`
 
 Next gate:
+- **Milestone 4**: Source Health & Runtime Blocker Resolution (see `docs/ZNE_APP_MILESTONE_4_PLAN.md`).
 - Decide whether bulk priority adjustment remains required for Milestone 3 or
   moves to a later milestone.
-
 ## Completed App Milestones
 
 ### ZNE-APP-002 - App-native Sources workflow

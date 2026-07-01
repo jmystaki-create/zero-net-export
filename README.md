@@ -213,6 +213,14 @@ The active project scope now starts with the application port in [`docs/ZNE_APPL
 
 ---
 
+## 🚧 Known Issues & Fixes
+
+### Source Health: Battery Discharge Power `state_class` Mismatch
+
+The `sensor.anker_battery_discharge_power` entity may expose `state_class=total` instead of `measurement`, causing ZNE to report `degraded` status. See [SOURCE_HEALTH_FIX_GUIDE.md](docs/SOURCE_HEALTH_FIX_GUIDE.md) for the recommended template sensor workaround.
+
+---
+
 ## 📄 License
 
 MIT License. See [LICENSE](LICENSE) for details.
