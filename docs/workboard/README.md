@@ -123,3 +123,4 @@ Full product completion: not yet estimable from current evidence because runtime
 
 - `72ed354f` - `ZNE: Sources browser proof captured` - done.
 - `7f983131` - `ZNE: Define next app milestone` - ready.
+- `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` - done.
