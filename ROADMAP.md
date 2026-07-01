@@ -14,16 +14,42 @@ or release readiness changes. Current relevant UI cards:
 `72ed354f` - `ZNE: Sources browser proof captured` (done),
 `7f983131` - `ZNE: Define next app milestone` (stale ready; superseded),
 `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` (done).
-Milestone 3 (Managed Devices Fleet Control) feasibility check and plan are written
-awaiting acceptance: `validation/zne-app-milestone-3-feasibility.md` and
-`docs/ZNE_APP_MILESTONE_3_PLAN.md`. Repo Workboard card:
-`WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Ready).
+Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
+repo-validated, and live validation is pending. References:
+`validation/zne-app-milestone-3-feasibility.md`,
+`docs/ZNE_APP_MILESTONE_3_PLAN.md`,
+`validation/zne-app-milestone-3-stage-2-validation.md`, and repo Workboard card
+`WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Doing).
 
 **Updated:** Milestone 3 feasibility check accepted. Moving card `7f983131` to done; card `WB-ZNE-009` status updated to Doing.
 
 **Latest:** Stage 2 (priority/readiness filters, sorting, Last Seen and Blockers columns, visible-row selection, and confirmation-gated bulk enable/disable actions) is implemented and repo-validated. Evidence: `validation/zne-app-milestone-3-stage-2-validation.md`. Live validation and browser proof are pending.
 
 ## Current milestone
+
+### ZNE-APP-003 - Managed Devices Fleet Control
+
+Status: Stage 2 repo-validated; live GitHub/HACS validation and desktop/narrow browser proof pending.
+
+Outcome:
+- Operators can review the Managed Devices fleet in the Zero Net Export app.
+- Operators can filter by plan/status/priority/readiness.
+- Operators can sort by priority/status/last-seen age.
+- Operators can inspect Last Seen and Blockers columns.
+- Operators can select visible rows and perform confirmation-gated bulk enable/disable actions.
+
+Evidence:
+- Plan: `docs/ZNE_APP_MILESTONE_3_PLAN.md`
+- Feasibility: `validation/zne-app-milestone-3-feasibility.md`
+- Stage 1 plan: `validation/zne-app-milestone-3-stage-1-plan.md`
+- Stage 1 repo validation: `validation/zne-app-milestone-3-stage-1-validation.md`
+- Stage 2 plan: `validation/zne-app-milestone-3-stage-2-plan.md`
+- Stage 2 repo validation: `validation/zne-app-milestone-3-stage-2-validation.md`
+
+Next gate:
+- Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.
+
+## Completed App Milestones
 
 ### ZNE-APP-002 - App-native Sources workflow
 
@@ -45,12 +71,6 @@ Evidence:
   `validation/artifacts/zne-0.2.4-sources-desktop-snapshot.json`,
   `validation/artifacts/zne-0.2.4-sources-narrow.png`,
   `validation/artifacts/zne-0.2.4-sources-narrow-snapshot.json`
-
-Next gate:
-- ~~Accept the Milestone 3 feasibility check in `validation/zne-app-milestone-3-feasibility.md`.~~ (Done)
-- ~~Approve starting Milestone 3 (Managed Devices Fleet Control) implementation.~~ (Done)
-- ~~Proceed with minimal design and implementation within the accepted feasible path.~~ (Stage 1 complete)
-- Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.
 
 ## Release path
 
