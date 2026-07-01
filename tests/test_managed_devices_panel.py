@@ -7,6 +7,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 APP_PANEL_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "frontend" / "zero-net-export-app.js"
 INIT_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "__init__.py"
+CONST_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "const.py"
 MANIFEST_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "manifest.json"
 SERVICES_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "services.yaml"
 APP_API_PATH = REPO_ROOT / "custom_components" / "zero_net_export" / "app_api.py"
@@ -108,11 +109,17 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.2.7"', source)
+        self.assertIn('"version": "0.2.8"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
         self.assertIn('"homeassistant": "2026.6.4"', hacs_source)
+
+    def test_app_module_url_is_version_cache_busted(self) -> None:
+        source = CONST_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("APP_MODULE_URL", source)
+        self.assertIn("?v={INTEGRATION_VERSION}", source)
 
     def test_managed_devices_summary_rows_allow_long_live_values(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")

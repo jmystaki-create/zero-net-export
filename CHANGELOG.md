@@ -6,6 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.2.8] - 2026-07-02
+
+### Fixed
+- Added manifest-version cache busting to the Home Assistant app module URL so
+  each HACS release loads the current frontend bundle instead of reusing a
+  stale browser-cached script.
+
 ## [0.2.7] - 2026-07-02
 
 ### Fixed

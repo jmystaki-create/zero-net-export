@@ -13,7 +13,6 @@ APP_PANEL_ICON = "mdi:transmission-tower-export"
 APP_PANEL_COMPONENT_NAME = "zero-net-export-app"
 APP_STATIC_URL_PATH = "/zero_net_export_static"
 APP_MODULE_FILENAME = "zero-net-export-app.js"
-APP_MODULE_URL = f"{APP_STATIC_URL_PATH}/{APP_MODULE_FILENAME}"
 
 DEVICE_CANDIDATE_FIXED_DOMAINS = ("switch", "climate", "input_boolean", "light")
 DEVICE_CANDIDATE_VARIABLE_DOMAINS = ("number", "input_number")
@@ -32,6 +31,7 @@ def _read_integration_version() -> str:
 
 
 INTEGRATION_VERSION = _read_integration_version()
+APP_MODULE_URL = f"{APP_STATIC_URL_PATH}/{APP_MODULE_FILENAME}?v={INTEGRATION_VERSION}"
 
 CONF_NAME = "name"
 CONF_SOLAR_POWER_ENTITY = "solar_power_entity"
