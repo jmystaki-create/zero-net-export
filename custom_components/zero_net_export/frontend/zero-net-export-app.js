@@ -1169,22 +1169,27 @@ class ZeroNetExportApp extends HTMLElement {
           gap: 10px;
           padding: 8px 0;
           border-top: 1px solid var(--divider-color);
+          line-height: 1.35;
         }
 
         .zne-row > span,
         .zne-source > span {
+          display: block;
           min-width: 0;
           color: var(--secondary-text-color);
+          line-height: 1.35;
         }
 
         .zne-row > strong,
         .zne-source > .zne-pill {
+          display: block;
           min-width: 0;
           justify-self: end;
           max-width: 100%;
           overflow-wrap: anywhere;
           word-break: normal;
           text-align: right;
+          line-height: 1.35;
         }
 
         .zne-source-editor {

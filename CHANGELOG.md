@@ -6,6 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-07-02
+
+### Fixed
+- Fixed wrapped Overview/Diagnostics row text in the Home Assistant app so long
+  readiness and next-step values expand their rows instead of visually
+  overlapping neighbouring rows.
+
 ## [0.2.6] - 2026-07-02
 
 ### Fixed

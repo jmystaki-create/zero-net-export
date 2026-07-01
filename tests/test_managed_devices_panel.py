@@ -108,7 +108,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.2.6"', source)
+        self.assertIn('"version": "0.2.7"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
@@ -119,6 +119,9 @@ class ManagedDevicesPanelTests(unittest.TestCase):
 
         self.assertIn("grid-template-columns: minmax(88px, 0.35fr) minmax(0, 1fr);", source)
         self.assertIn("overflow-wrap: anywhere;", source)
+        self.assertIn("line-height: 1.35;", source)
+        self.assertIn(".zne-row > strong", source)
+        self.assertIn("display: block;", source)
         self.assertIn("white-space: normal;", source)
         self.assertIn(".zne-row > strong", source)
         self.assertIn(".zne-row, .zne-source {\n            grid-template-columns: minmax(0, 1fr);", source)
