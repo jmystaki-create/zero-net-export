@@ -25,10 +25,10 @@ Track blockers and unknowns that could prevent the app MVP from being validated 
 
 ## Evidence Needed To Mark Done
 
-- Browser proof is captured or the blocker has a fresh diagnostic record.
+- Browser proof path remains available for app-facing validation.
 - Runtime/source-health blockers are summarized with current live state evidence.
 - `PROJECT_STATUS.md` and `ROADMAP.md` reflect any resolved blockers.
 
 ## Next Diagnostic Step
 
-Re-test the browser automation path for `/zero-net-export` and the Sources tab, then capture desktop/narrow proof or document the specific blocker.
+Read-only inspect current live source-health warnings and managed-device readiness blockers, then use that evidence to shape the next app milestone.

@@ -39,6 +39,6 @@ Live validation:
 - Latest release validation is recorded in `validation/0.2.4-release-validation.md`.
 - Sources browser proof gap is closed with desktop and narrow installed-app artifacts.
 
-## Current Gap
+## Current State
 
 Sources workflow has installed desktop and narrow browser proof on `0.2.4`.

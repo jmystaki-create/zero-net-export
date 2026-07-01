@@ -10,9 +10,9 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 
 ## Next 10 Tasks
 
-1. Update the OpenClaw Workboard with the completed Sources browser proof state.
+1. Define the next app milestone acceptance criteria after Sources proof closure.
 2. Read-only inspect current live source-health warnings and classify blockers.
-3. Define the next app milestone acceptance criteria after Sources proof closure.
+3. Confirm the OpenClaw Workboard UI remains aligned with repo Workboard docs, noting any CLI edit limitations.
 4. Write target-environment feasibility for the next app milestone before design/code.
 5. Implement the smallest next app workflow slice inside the accepted app/custom-panel path.
 6. Validate the next slice with repo tests, HACS install/update, Home Assistant restart, browser proof, and logs.

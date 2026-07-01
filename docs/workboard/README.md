@@ -75,8 +75,8 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-1. Update the OpenClaw Workboard with the completed Sources browser proof state.
-2. Define the next app milestone acceptance criteria.
+1. Define the next app milestone acceptance criteria.
+2. Read-only inspect current live source-health warnings and managed-device readiness blockers.
 3. Write and accept the target-environment feasibility check for the next app milestone before design/code.
 4. Start the next app milestone only after the feasibility gate is satisfied.
 

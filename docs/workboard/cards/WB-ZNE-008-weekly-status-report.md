@@ -25,7 +25,7 @@ In progress / pending:
 
 Risks:
 - Runtime control readiness remains limited by source-health and managed-device readiness.
-- Browser proof path needs a reliable capture route.
+- Browser proof path is proven through the OpenClaw browser CLI and should remain part of future app-facing validation.
 - Future app work must not drift into unsupported native HA UI injection.
 
 Recommended next action:
