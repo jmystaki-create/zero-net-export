@@ -71,10 +71,9 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
-        self.assertIn("Home Assistant", info["changes_preview"])
-        self.assertIn("Sources workflow", info["changes_preview"])
-        self.assertIn("source roles", info["changes_preview"])
-        self.assertIn("scoped backend service", info["changes_preview"])
+        self.assertIn("ZNE-594", info["changes_preview"])
+        self.assertIn("next-step sensor state overflow", info["changes_preview"])
+        self.assertIn("Home Assistant's 255-character", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
         self.assertNotIn("release-target decision", info["changes_preview"])
 
@@ -453,18 +452,17 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertNotIn("mapped-source", current_highlights.lower())
         self.assertNotIn("source mapping", current_highlights.lower())
 
-    def test_current_candidate_changelog_tracks_application_release_scope(self) -> None:
+    def test_current_candidate_changelog_tracks_corrective_release_scope(self) -> None:
         sections = release_info._parse_changelog_text((REPO_ROOT / "CHANGELOG.md").read_text())
         current_section = next(
             section for section in sections if section["version"] == release_info.INTEGRATION_VERSION
         )
         current_highlights = "\n".join(current_section["highlights"])
 
-        self.assertIn("Sources workflow", current_highlights)
-        self.assertIn("source roles", current_highlights)
-        self.assertIn("binding/status/reading/age/issue detail", current_highlights)
-        self.assertIn("scoped backend service", current_highlights)
-        self.assertIn("milestone planning and feasibility", current_highlights)
+        self.assertIn("ZNE-594", current_highlights)
+        self.assertIn("next-step sensor state overflow", current_highlights)
+        self.assertIn("Home Assistant's 255-character", current_highlights)
+        self.assertIn("full guidance in attributes", current_highlights)
         self.assertNotIn("unsupported device overflow-menu injection", current_highlights.lower())
         self.assertNotIn("arbitrary custom", current_highlights.lower())
         self.assertNotIn("device-page card injection", current_highlights.lower())

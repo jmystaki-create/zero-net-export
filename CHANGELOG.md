@@ -6,10 +6,10 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-07-01
+
 ### Fixed
-- Fixed ZNE-594 next-step sensor state overflow by capping source-blocker and
-  command-center next-step sensor states at Home Assistant's 255-character
-  state limit while preserving full guidance in attributes.
+- Fixed ZNE-594 next-step sensor state overflow at Home Assistant's 255-character limit while preserving full guidance in attributes.
 
 ## [0.2.3] - 2026-07-01
 
