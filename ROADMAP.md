@@ -37,9 +37,9 @@ captured for the empty-fleet state. Evidence:
 
 ### ZNE-APP-003 - Managed Devices Fleet Control
 
-Status: Released as `v0.2.5`; installed empty-fleet workflow live-validated.
-Populated-row and reversible bulk-action live proof are pending a safe
-disposable managed device.
+Status: Released as `v0.2.5`; installed empty-fleet workflow and populated
+`light.7th` fleet workflow live-validated. Final `7th_validation_load` ZNE
+record remains present and disabled.
 
 Outcome:
 - Operators can review the Managed Devices fleet in the Zero Net Export app.
@@ -58,8 +58,8 @@ Evidence:
 - Release/live validation: `validation/0.2.5-release-validation.md`
 
 Next gate:
-- Add or identify a safe disposable managed device, then live-test populated
-  Managed Devices rows and reversible bulk enable/disable.
+- Decide whether bulk priority adjustment remains required for Milestone 3 or
+  moves to a later milestone.
 
 ## Completed App Milestones
 
@@ -100,8 +100,8 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Capture populated Managed Devices row proof and reversible bulk-action proof
-  when a disposable managed device is available.
+- Decide whether bulk priority adjustment remains required for Milestone 3 or
+  moves to a later milestone.
 - Keep the OpenClaw Workboard aligned every turn.
 
 ## Risks

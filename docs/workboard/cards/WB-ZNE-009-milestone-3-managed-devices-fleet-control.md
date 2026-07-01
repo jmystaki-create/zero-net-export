@@ -73,10 +73,16 @@ and after restart, app/static routes returned HTTP 200, targeted ZNE logs showed
 no project-specific errors, and desktop/narrow Managed Devices browser proof was
 captured. Evidence: `validation/0.2.5-release-validation.md`.
 
-Remaining validation gap: the live validation instance currently has
-`sensor.zero_net_export_managed_devices_count=0`, so populated row proof for
-Blockers and reversible bulk enable/disable mutation need a safe disposable
-managed device before this card can move to Done.
+**Follow-up:** OpenClaw approved adding and keeping `light.7th` in ZNE. The
+supported HA subentry flow added `7th validation load` / `7th_validation_load`
+as a disabled fixed managed load. Installed app browser proof captured the
+populated row, Blockers column, UI-driven bulk enable, UI-driven bulk disable,
+and final disabled state. Evidence: `validation/0.2.5-release-validation.md`.
+
+Remaining product-scope question: the original Milestone 3 plan named bulk
+priority adjustment as part of bulk actions, but `v0.2.5` shipped
+confirmation-gated bulk enable/disable only. Decide whether bulk priority
+adjustment stays in Milestone 3 or moves to a later milestone.
 
 ## Next steps
 
@@ -87,4 +93,5 @@ managed device before this card can move to Done.
 5. ~~Validate Stage 1 with repo tests.~~ (Done; live validation pending)
 6. ~~Implement Stage 2 priority/readiness filters, bulk actions, and sorting.~~ (Done)
 7. ~~Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.~~ (Done for installed empty-fleet workflow in `v0.2.5`)
-8. Add or identify a safe disposable managed device, then capture populated-row and reversible bulk-action proof.
+8. ~~Add or identify a safe disposable managed device, then capture populated-row and reversible bulk-action proof.~~ (Done with `light.7th`; final ZNE record remains disabled)
+9. Decide whether bulk priority adjustment is required before closing Milestone 3, or move it to a later milestone.
