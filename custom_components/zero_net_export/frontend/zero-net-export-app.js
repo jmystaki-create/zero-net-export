@@ -169,7 +169,7 @@ class ZeroNetExportApp extends HTMLElement {
     const select = event.target.closest("select");
 
     // Handle filter changes
-    if (select && (select.dataset.filterPlan || select.dataset.filterStatus)) {
+    if (select && (select.dataset.filterPlan || select.dataset.filterStatus || select.dataset.filterPriority || select.dataset.filterReadiness)) {
       this._render();
       return;
     }
@@ -479,6 +479,8 @@ class ZeroNetExportApp extends HTMLElement {
     // Filter state (stored in data attributes on the section)
     const filterPlan = this.querySelector("[data-filter-plan]")?.value || "all";
     const filterStatus = this.querySelector("[data-filter-status]")?.value || "all";
+    const filterPriority = this.querySelector("[data-filter-priority]")?.value || "all";
+    const filterReadiness = this.querySelector("[data-filter-readiness]")?.value || "all";
 
     // Apply filters
     let filtered = fleet;
@@ -489,9 +491,17 @@ class ZeroNetExportApp extends HTMLElement {
       const statusMatch = filterStatus === "enabled" ? true : false;
       filtered = filtered.filter(d => d.enabled === statusMatch);
     }
+    if (filterPriority !== "all") {
+      filtered = filtered.filter(d => String(d.priority || "").toLowerCase() === filterPriority.toLowerCase());
+    }
+    if (filterReadiness !== "all") {
+      filtered = filtered.filter(d => String(d.readiness || d.status || "").toLowerCase() === filterReadiness.toLowerCase());
+    }
 
-    // Get unique plans for filter dropdown
+    // Get unique values for filter dropdowns
     const plans = [...new Set(fleet.map(d => d.entry_id))];
+    const priorities = [...new Set(fleet.map(d => d.priority).filter(p => p))];
+    const readinessStates = [...new Set(fleet.map(d => d.readiness || d.status).filter(r => r))];
 
     // Selected device for drill-down (stored in data attribute)
     const selectedDeviceKey = this.querySelector("[data-selected-device]")?.value || "";
@@ -533,6 +543,18 @@ class ZeroNetExportApp extends HTMLElement {
                 <option value="all">All Status</option>
                 <option value="enabled" ${filterStatus === "enabled" ? "selected" : ""}>Enabled</option>
                 <option value="disabled" ${filterStatus === "disabled" ? "selected" : ""}>Disabled</option>
+              </select>
+            </label>
+            <label>Priority
+              <select data-filter-priority>
+                <option value="all">All Priorities</option>
+                ${priorities.map(p => `<option value="${this._escape(p)}" ${p === filterPriority ? "selected" : ""}>${this._escape(p)}</option>`).join("")}
+              </select>
+            </label>
+            <label>Readiness
+              <select data-filter-readiness>
+                <option value="all">All Readiness</option>
+                ${readinessStates.map(r => `<option value="${this._escape(r)}" ${r === filterReadiness ? "selected" : ""}>${this._escape(r)}</option>`).join("")}
               </select>
             </label>
           </div>
