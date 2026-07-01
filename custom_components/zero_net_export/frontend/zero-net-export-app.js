@@ -1457,4 +1457,6 @@ class ZeroNetExportApp extends HTMLElement {
   }
 }
 
-customElements.define("zero-net-export-app", ZeroNetExportApp);
+if (!customElements.get("zero-net-export-app")) {
+  customElements.define("zero-net-export-app", ZeroNetExportApp);
+}

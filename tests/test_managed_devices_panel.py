@@ -109,7 +109,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.2.8"', source)
+        self.assertIn('"version": "0.2.9"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
@@ -120,6 +120,12 @@ class ManagedDevicesPanelTests(unittest.TestCase):
 
         self.assertIn("APP_MODULE_URL", source)
         self.assertIn("?v={INTEGRATION_VERSION}", source)
+
+    def test_app_custom_element_registration_is_idempotent(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('customElements.get("zero-net-export-app")', source)
+        self.assertIn('customElements.define("zero-net-export-app"', source)
 
     def test_managed_devices_summary_rows_allow_long_live_values(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")

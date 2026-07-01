@@ -6,6 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.2.9] - 2026-07-02
+
+### Fixed
+- Guarded the Home Assistant app custom-element registration so loading a
+  versioned frontend module more than once in the same browser session does not
+  throw a duplicate `customElements.define` error.
+
 ## [0.2.8] - 2026-07-02
 
 ### Fixed
