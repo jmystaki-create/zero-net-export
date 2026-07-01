@@ -754,6 +754,12 @@ def _truncate_sensor_state(text: str, *, max_chars: int = 255) -> str:
     return f"{text[: max_chars - 3].rstrip()}..."
 
 
+def _next_step_sensor_state(text: object) -> str | None:
+    """Keep operator next-step entity states within Home Assistant's state limit."""
+    normalized = " ".join(str(text or "").split())
+    return _truncate_sensor_state(normalized) if normalized else None
+
+
 def _fleet_overview_state(parts: list[str], *, max_chars: int = 255) -> str:
     def _compress_part(part: str, *, part_max_chars: int = 64) -> str:
         if len(part) <= part_max_chars:
@@ -1453,14 +1459,14 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 return f"Open {SOURCES_CONFIGURE_PATH}, repair source blockers, then save and reload the integration"
             recommended_next_step = str(build_native_operator_readiness(self.coordinator).get("next_step") or "").strip()
             if recommended_next_step:
-                return recommended_next_step
+                return _next_step_sensor_state(recommended_next_step)
             return _healthy_sources_next_step(self.coordinator, self.hass, state)
         if self._key in {"command_center_status", "command_center_recommended_path", "command_center_next_step"}:
             command_center = build_native_command_center_summary(self.coordinator)
             mapping = {
                 "command_center_status": command_center.get("status_summary"),
                 "command_center_recommended_path": command_center.get("recommended_path"),
-                "command_center_next_step": command_center.get("next_action_summary"),
+                "command_center_next_step": _next_step_sensor_state(command_center.get("next_action_summary")),
             }
             return mapping.get(self._key)
         return getattr(state, self._key, None)
@@ -1647,6 +1653,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                 "devices_path": command_center.get("devices_path"),
                 "policy_path": command_center.get("policy_path"),
                 "support_path": command_center.get("support_path"),
+                "current_next_step": command_center.get("next_action_summary"),
             }
         if self._key in VALIDATION_ATTRIBUTE_SENSOR_KEYS:
             return self._validation_details

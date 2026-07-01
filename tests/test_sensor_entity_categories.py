@@ -1536,6 +1536,31 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
 
+    def test_mapped_source_blocker_next_step_truncates_long_operator_state(self) -> None:
+        sensor_module = _load_sensor_module()
+        long_next_step = (
+            "Open devices path to continue in the Managed Devices workspace, "
+            "review unmanaged candidate: Master Bathroom Heated Floor (variable) "
+            "| review first | warn helper-backed, then promote ready unmanaged "
+            "candidate: Lounge Room Heated Floor (fixed) | likely useful. "
+        ) * 2
+        sensor_module.build_native_operator_readiness = lambda coordinator: {"next_step": long_next_step}
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "mapped_source_blocker_next_step",
+            "Source blocker next step",
+        )
+        next_step.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        self.assertLessEqual(len(next_step.native_value), 255)
+        self.assertTrue(next_step.native_value.endswith("..."))
+        self.assertEqual(next_step.extra_state_attributes["current_native_next_step"], long_next_step)
+
     def test_mapped_source_blocker_next_step_uses_managed_devices_manual_add_when_no_readiness_step_exists(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module.build_native_operator_readiness = lambda coordinator: {}
@@ -1588,6 +1613,34 @@ class SensorEntityCategoryTests(unittest.TestCase):
         )
         self.assertNotIn("policy path", next_step.native_value)
         self.assertNotIn("continue in devices path or policy path", next_step.native_value)
+
+    def test_command_center_next_step_truncates_long_state_and_keeps_attribute_detail(self) -> None:
+        sensor_module = _load_sensor_module()
+        long_next_step = (
+            "Open devices path to continue in the Managed Devices workspace, "
+            "review unmanaged candidate: Master Bathroom Heated Floor (variable) "
+            "| review first | warn helper-backed, then promote ready unmanaged "
+            "candidate: Lounge Room Heated Floor (fixed) | likely useful. "
+        ) * 2
+        sensor_module.build_native_command_center_summary = lambda coordinator: {
+            "next_action_summary": long_next_step,
+            "recommended_path": "devices path",
+            "recommended_section": "Managed Devices",
+        }
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        next_step = sensor_module.ZeroNetExportSensor(
+            coordinator,
+            "command_center_next_step",
+            "Command center next step",
+        )
+
+        self.assertLessEqual(len(next_step.native_value), 255)
+        self.assertTrue(next_step.native_value.endswith("..."))
+        self.assertEqual(next_step.extra_state_attributes["current_next_step"], long_next_step)
 
     def test_fleet_workspace_attributes_reuse_cached_candidate_discovery(self) -> None:
         sensor_module = _load_sensor_module()

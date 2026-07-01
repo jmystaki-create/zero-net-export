@@ -104,7 +104,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-594 - next-step sensors can exceed Home Assistant's 255-character state limit
 
-- **status:** `open`
+- **status:** `fixed_pending_validation`
 - **severity:** `medium`
 - **area:** `sensors`
 - **where seen:** live Home Assistant log review on 2026-07-01 during post-release `0.2.3` source-role write validation.
@@ -113,7 +113,9 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **evidence:** `tmp/ha-core-logs-after-source-write-tail80-scan.txt` contains errors such as `State Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices ... for sensor.zero_net_export_source_blocker_next_step is longer than 255, falling back to unknown` and the equivalent command-center next-step error. Current restored state snapshots showed those two states at 156 and 147 characters, so this is tracked as a separate recurring/runtime risk rather than a failure of the source-role write proof.
 - **target-environment feasibility:** written in `validation/zne-594-state-length-feasibility.md`; Home Assistant source confirms entity state strings are limited to 255 characters, and ZNE should keep detailed next-step guidance in attributes rather than state.
 - **suspected cause:** next-step entity state composition can include dynamic managed-device candidate detail instead of keeping state text short and moving detail into attributes.
-- **next action:** accept the feasibility record, then fix the next-step sensor state contract so state values are short stable summaries and detailed guidance is exposed through attributes; add regression coverage for the 255-character state limit.
+- **repo fix:** added `_next_step_sensor_state(...)` in `custom_components/zero_net_export/sensor.py`, applied it to source-blocker and command-center next-step entity states, and preserved full command-center next-step guidance in `current_next_step` attributes.
+- **validation status:** repo validated in `validation/zne-594-state-length-implementation.md` with focused sensor tests (`Ran 60 tests`, OK), command-center tests (`Ran 160 tests`, OK), full discovery (`Ran 620 tests`, OK), py_compile, and `git diff --check`.
+- **next action:** release/live validate through the approved GitHub/HACS path, then check Home Assistant logs for absence of `sensor.zero_net_export_*_next_step is longer than 255` errors.
 
 ## ZNE-593 - Managed Devices app summary formatting is broken
 
