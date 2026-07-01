@@ -166,6 +166,14 @@ class ZeroNetExportApp extends HTMLElement {
 
   async _onClick(event) {
     const target = event.target.closest("button");
+    const select = event.target.closest("select");
+
+    // Handle filter changes
+    if (select && (select.dataset.filterPlan || select.dataset.filterStatus)) {
+      this._render();
+      return;
+    }
+
     if (!target) {
       return;
     }
@@ -178,6 +186,18 @@ class ZeroNetExportApp extends HTMLElement {
 
     if (target.dataset.route) {
       this._navigate(target.dataset.route);
+      return;
+    }
+
+    // Handle fleet row click for drill-down
+    const fleetRow = event.target.closest(".zne-fleet-row");
+    if (fleetRow && !event.target.closest("button")) {
+      const deviceKey = fleetRow.dataset.deviceKey;
+      const selectedInput = this.querySelector("[data-selected-device]");
+      if (selectedInput) {
+        selectedInput.value = deviceKey || "";
+        this._render();
+      }
       return;
     }
 
@@ -268,6 +288,59 @@ class ZeroNetExportApp extends HTMLElement {
           confirm: true,
         });
         this._message = "Managed record removal requested. The original Home Assistant entity is left untouched.";
+      }
+
+      if (action === "fleet-toggle") {
+        const deviceKey = target.dataset.deviceKey;
+        if (!deviceKey) {
+          throw new Error("No device key provided.");
+        }
+        // Find the device in the fleet to get its current state
+        const overview = this._state("sensor.managed_devices_overview");
+        const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
+          ? overview.attributes.managed_devices
+          : [];
+        const device = fleet.find(d => d.key === deviceKey);
+        if (!device) {
+          throw new Error("Device not found in fleet.");
+        }
+        await this._hass.callService("zero_net_export", "update_managed_device", {
+          entry_id: device.entry_id || this._selectedEntryId(),
+          device_key: deviceKey,
+          enabled: !device.enabled,
+        });
+        this._message = `Managed record ${device.enabled ? "disabled" : "enabled"} for ${deviceKey}.`;
+      }
+
+      if (action === "fleet-remove") {
+        const deviceKey = target.dataset.deviceKey;
+        if (!deviceKey) {
+          throw new Error("No device key provided.");
+        }
+        const overview = this._state("sensor.managed_devices_overview");
+        const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
+          ? overview.attributes.managed_devices
+          : [];
+        const device = fleet.find(d => d.key === deviceKey);
+        if (!device) {
+          throw new Error("Device not found in fleet.");
+        }
+        const managedConfirmInput = this.querySelector("[data-zne-managed-confirm]");
+        const managedConfirm = managedConfirmInput ? managedConfirmInput.value.trim() : "";
+        if (managedConfirm !== "REMOVE FROM ZNE") {
+          throw new Error("Type REMOVE FROM ZNE to confirm.");
+        }
+        await this._hass.callService("zero_net_export", "remove_managed_device", {
+          entry_id: device.entry_id || this._selectedEntryId(),
+          device_key: deviceKey,
+          confirm: true,
+        });
+        // Clear the selected device
+        const selectedInput = this.querySelector("[data-selected-device]");
+        if (selectedInput) {
+          selectedInput.value = "";
+        }
+        this._message = `Managed record removal requested for ${deviceKey}. The original Home Assistant entity is left untouched.`;
       }
 
       if (action === "update-source-roles") {
@@ -391,41 +464,157 @@ class ZeroNetExportApp extends HTMLElement {
 
   _managedDevicesSection() {
     const entries = this._entries();
+    const overview = this._state("sensor.managed_devices_overview");
+    const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
+      ? overview.attributes.managed_devices
+      : [];
+
+    // Compute summary counts
+    const total = fleet.length;
+    const enabled = fleet.filter(d => d.enabled === true).length;
+    const disabled = fleet.filter(d => d.enabled === false).length;
+    const blocked = fleet.filter(d => d.blocked === true || d.blocked === "true" || d.status === "blocked").length;
+    const stale = fleet.filter(d => d.stale === true || d.stale === "true" || d.last_seen_age > 3600).length;
+
+    // Filter state (stored in data attributes on the section)
+    const filterPlan = this.querySelector("[data-filter-plan]")?.value || "all";
+    const filterStatus = this.querySelector("[data-filter-status]")?.value || "all";
+
+    // Apply filters
+    let filtered = fleet;
+    if (filterPlan !== "all" && filterPlan !== "") {
+      filtered = filtered.filter(d => d.entry_id === filterPlan);
+    }
+    if (filterStatus !== "all") {
+      const statusMatch = filterStatus === "enabled" ? true : false;
+      filtered = filtered.filter(d => d.enabled === statusMatch);
+    }
+
+    // Get unique plans for filter dropdown
+    const plans = [...new Set(fleet.map(d => d.entry_id))];
+
+    // Selected device for drill-down (stored in data attribute)
+    const selectedDeviceKey = this.querySelector("[data-selected-device]")?.value || "";
+    const selectedDevice = selectedDeviceKey
+      ? fleet.find(d => d.key === selectedDeviceKey)
+      : null;
+
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
           <h2>Managed Devices</h2>
           <button type="button" data-route="/config/integrations/integration/zero_net_export">Open HA managed devices setup</button>
         </div>
+
+        <!-- Fleet Summary -->
         <div class="zne-grid">
           <div class="zne-card">
-            <h3>Fleet summary</h3>
-            ${this._entityRow("Overview", "sensor.managed_devices_overview", "No managed-device overview yet")}
-            ${this._entityRow("Attention", "sensor.managed_devices_attention", "No attention item")}
-            ${this._entityRow("Ready next", "sensor.managed_devices_ready_next", "No ready item")}
-            ${this._entityRow("Unmanaged backlog", "sensor.managed_devices_unmanaged_backlog_count", "0")}
+            <h3>Fleet Summary</h3>
+            <div class="zne-fleet-stats">
+              <span class="zne-stat"><strong>${total}</strong> Total</span>
+              <span class="zne-stat good"><strong>${enabled}</strong> Enabled</span>
+              <span class="zne-stat neutral"><strong>${disabled}</strong> Disabled</span>
+              <span class="zne-stat bad"><strong>${blocked}</strong> Blocked</span>
+              <span class="zne-stat bad"><strong>${stale}</strong> Stale</span>
+            </div>
           </div>
+
+          <!-- Filters -->
           <div class="zne-card">
-            <h3>Scoped service action</h3>
+            <h3>Filters</h3>
             <label>Plan
-              <select data-zne-entry-id>
-                <option value="">Auto</option>
-                ${entries.map((entry) => `<option value="${this._escape(entry.entry_id)}">${this._escape(entry.title || entry.entry_id)}</option>`).join("")}
+              <select data-filter-plan>
+                <option value="all">All Plans</option>
+                ${plans.map(p => `<option value="${this._escape(p)}" ${p === filterPlan ? "selected" : ""}>${this._escape(p)}</option>`).join("")}
               </select>
             </label>
-            <label>Managed-device key
-              <input data-zne-managed-key type="text" autocomplete="off" placeholder="pool_pump">
+            <label>Status
+              <select data-filter-status>
+                <option value="all">All Status</option>
+                <option value="enabled" ${filterStatus === "enabled" ? "selected" : ""}>Enabled</option>
+                <option value="disabled" ${filterStatus === "disabled" ? "selected" : ""}>Disabled</option>
+              </select>
             </label>
-            <div class="zne-actions">
-              <button type="button" data-zne-action="managed-enable">Enable record</button>
-              <button type="button" data-zne-action="managed-disable">Disable record</button>
-            </div>
-            <label>Removal confirmation
-              <input data-zne-managed-confirm type="text" autocomplete="off" placeholder="REMOVE FROM ZNE">
-            </label>
-            <button class="danger" type="button" data-zne-action="managed-remove">Remove from ZNE only</button>
-            <p class="zne-muted">Removal deletes the Zero Net Export managed record only. It does not remove the original Home Assistant entity.</p>
           </div>
+        </div>
+
+        <!-- Fleet Table -->
+        <div class="zne-card">
+          <h3>Fleet List (${filtered.length} devices)</h3>
+          ${filtered.length === 0
+            ? '<p class="zne-muted">No managed devices found.</p>'
+            : `
+            <div class="zne-fleet-table">
+              <div class="zne-fleet-header">
+                <span>Device Key</span>
+                <span>Plan</span>
+                <span>Status</span>
+                <span>Priority</span>
+                <span>Readiness</span>
+                <span>Actions</span>
+              </div>
+              ${filtered.map(d => `
+                <div class="zne-fleet-row ${d.enabled ? "enabled" : "disabled"}" data-device-key="${this._escape(d.key)}">
+                  <span><strong>${this._escape(d.key)}</strong></span>
+                  <span>${this._escape(d.entry_id || "-")}</span>
+                  <span>${this._pill(d.enabled ? "Enabled" : "Disabled", d.enabled ? "good" : "neutral")}</span>
+                  <span>${this._escape(d.priority || "-")}</span>
+                  <span>${this._escape(d.readiness || d.status || "-")}</span>
+                  <span>
+                    <button type="button" data-zne-action="fleet-toggle" data-device-key="${this._escape(d.key)}">
+                      ${d.enabled ? "Disable" : "Enable"}
+                    </button>
+                  </span>
+                </div>
+              `).join("")}
+            </div>
+            `}
+        </div>
+
+        <!-- Device Detail (Drill-down) -->
+        ${selectedDevice ? `
+        <div class="zne-card">
+          <h3>Device Detail: ${this._escape(selectedDevice.key)}</h3>
+          <div class="zne-device-detail">
+            <div class="zne-row"><span>Key:</span><strong>${this._escape(selectedDevice.key)}</strong></div>
+            <div class="zne-row"><span>Plan:</span><strong>${this._escape(selectedDevice.entry_id || "-")}</strong></div>
+            <div class="zne-row"><span>Status:</span><strong>${this._escape(selectedDevice.enabled ? "Enabled" : "Disabled")}</strong></div>
+            <div class="zne-row"><span>Priority:</span><strong>${this._escape(selectedDevice.priority || "-")}</strong></div>
+            <div class="zne-row"><span>Readiness:</span><strong>${this._escape(selectedDevice.readiness || selectedDevice.status || "-")}</strong></div>
+            ${selectedDevice.blocked ? `<div class="zne-row"><span>Blocked:</span><strong>Yes</strong></div>` : ""}
+            ${selectedDevice.last_seen_age ? `<div class="zne-row"><span>Last Seen:</span><strong>${Math.round(selectedDevice.last_seen_age / 60)} min ago</strong></div>` : ""}
+            ${selectedDevice.settings ? `<div class="zne-row"><span>Settings:</span><pre>${this._escape(JSON.stringify(selectedDevice.settings, null, 2))}</pre></div>` : ""}
+          </div>
+          <div class="zne-actions">
+            <button type="button" data-zne-action="fleet-toggle" data-device-key="${this._escape(selectedDevice.key)}">
+              ${selectedDevice.enabled ? "Disable" : "Enable"}
+            </button>
+            <button type="button" data-zne-action="fleet-remove" data-device-key="${this._escape(selectedDevice.key)}">Remove</button>
+          </div>
+        </div>
+        ` : ""}
+
+        <!-- Legacy Single-Device Actions (preserved) -->
+        <div class="zne-card">
+          <h3>Scoped Service Action (Legacy)</h3>
+          <label>Plan
+            <select data-zne-entry-id>
+              <option value="">Auto</option>
+              ${entries.map((entry) => `<option value="${this._escape(entry.entry_id)}">${this._escape(entry.title || entry.entry_id)}</option>`).join("")}
+            </select>
+          </label>
+          <label>Managed-device key
+            <input data-zne-managed-key type="text" autocomplete="off" placeholder="pool_pump">
+          </label>
+          <div class="zne-actions">
+            <button type="button" data-zne-action="managed-enable">Enable record</button>
+            <button type="button" data-zne-action="managed-disable">Disable record</button>
+          </div>
+          <label>Removal confirmation
+            <input data-zne-managed-confirm type="text" autocomplete="off" placeholder="REMOVE FROM ZNE">
+          </label>
+          <button class="danger" type="button" data-zne-action="managed-remove">Remove from ZNE only</button>
+          <p class="zne-muted">Removal deletes the Zero Net Export managed record only. It does not remove the original Home Assistant entity.</p>
         </div>
       </section>
     `;
@@ -835,6 +1024,103 @@ class ZeroNetExportApp extends HTMLElement {
           flex-wrap: wrap;
           gap: 8px;
           margin: 8px 0;
+        }
+
+        /* Fleet table styles */
+        .zne-fleet-stats {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .zne-stat {
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 8px;
+          border: 1px solid var(--divider-color);
+          border-radius: 4px;
+          font-size: 13px;
+        }
+
+        .zne-stat.good {
+          color: var(--success-color, #2e7d32);
+          border-color: var(--success-color, #2e7d32);
+        }
+
+        .zne-stat.bad {
+          color: var(--error-color, #c62828);
+          border-color: var(--error-color, #c62828);
+        }
+
+        .zne-stat.neutral {
+          color: var(--secondary-text-color);
+        }
+
+        .zne-fleet-table {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .zne-fleet-header {
+          display: grid;
+          grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr 0.8fr;
+          gap: 8px;
+          padding: 8px 0;
+          border-bottom: 2px solid var(--divider-color);
+          font-weight: 500;
+          font-size: 13px;
+          color: var(--secondary-text-color);
+        }
+
+        .zne-fleet-row {
+          display: grid;
+          grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr 0.8fr;
+          gap: 8px;
+          padding: 10px 0;
+          border-bottom: 1px solid var(--divider-color);
+          align-items: center;
+          cursor: pointer;
+        }
+
+        .zne-fleet-row:hover {
+          background: var(--secondary-background-color);
+        }
+
+        .zne-fleet-row.enabled {
+          border-left: 3px solid var(--success-color, #2e7d32);
+        }
+
+        .zne-fleet-row.disabled {
+          border-left: 3px solid var(--secondary-text-color);
+        }
+
+        .zne-fleet-row span {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .zne-device-detail {
+          display: grid;
+          gap: 6px;
+          padding: 10px 0;
+        }
+
+        .zne-device-detail .zne-row {
+          display: flex;
+          gap: 8px;
+          padding: 4px 0;
+          border-top: none;
+        }
+
+        .zne-device-detail pre {
+          background: var(--primary-background-color);
+          padding: 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          overflow-x: auto;
+          margin: 4px 0;
         }
 
         .zne-message {
