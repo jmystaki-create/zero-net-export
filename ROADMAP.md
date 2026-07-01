@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-01
 
+## Workboard
+
+The maintained project Workboard lives at `docs/workboard/README.md`.
+Initial cards are under `docs/workboard/cards/` and cover project charter,
+architecture inventory, bug register, MVP definition, next 10 implementation
+tasks, blockers/unknowns, testing/validation plan, and weekly status report.
+
 ## Current milestone
 
 ### ZNE-APP-002 - App-native Sources workflow
