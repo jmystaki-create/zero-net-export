@@ -14,7 +14,9 @@ or release readiness changes. Current relevant UI cards:
 `72ed354f` - `ZNE: Sources browser proof captured` (done),
 `7f983131` - `ZNE: Define next app milestone` (stale ready; superseded),
 `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` (done),
-`a8048485` - `ZNE: Milestone 3 populated fleet live proof` (ready).
+`a8048485` - `ZNE: Milestone 3 populated fleet live proof` (ready; proof now recorded),
+`fe67044b-fd94-4529-b8f4-455e94f0639a` -
+`ZNE: Decide Milestone 3 bulk priority scope` (ready).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 repo-validated, and `v0.2.5` is published/installed with empty-fleet browser
 proof. References:
