@@ -141,3 +141,4 @@ Full product completion: not yet estimable from current evidence because runtime
 - `348000d4` - `ZNE: Milestone 3 closed` - done.
 - `06b5d15f` - `ZNE: Define bulk priority adjustment scope for later milestone` - ready.
 - `8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` - doing.
+- `f8d93513-ed96-4228-b1c8-0885e608544d` - `ZNE: Milestone 4 live baseline captured` - done.
