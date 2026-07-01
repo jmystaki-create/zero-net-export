@@ -21,7 +21,10 @@ Evidence:
 
 Next gate:
 - Capture browser proof for the installed `0.2.3` Sources workflow.
-- Identify a safe disposable source-role mapping before attempting reversible source-role write validation.
+- With approval, perform the safe reversible source-role write proof using
+  optional `battery_soc_entity` on config entry `01KWC2HX12V4P0Q82A0WM69EHV`
+  and candidate `sensor.x1_p6k_us_s_state_of_charge`, then restore it to
+  unset.
 
 ## Release path
 
@@ -34,7 +37,8 @@ Completed:
 
 Remaining:
 - Capture desktop and narrow browser proof for the Sources workflow.
-- Perform a reversible source-role write only after a safe mapping is identified and approved.
+- Perform the approved reversible source-role write proof for optional
+  `battery_soc_entity`, then restore the previous unset state.
 
 ## Risks
 
