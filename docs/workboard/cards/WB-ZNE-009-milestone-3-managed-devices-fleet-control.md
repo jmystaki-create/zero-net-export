@@ -65,6 +65,8 @@ No design or code work has started.
 
 **Status:** Feasibility check accepted on 2026-07-01 16:35 AEST. Ready to proceed with implementation.
 
+**Updated:** Stage 1 (fleet list with summary, filters, and drill-down) implemented and committed. Repo validation passed (620 tests OK, `git diff --check` clean, JS syntax valid).
+
 ## Next steps
 
 1. ~~Accept the feasibility check in `validation/zne-app-milestone-3-feasibility.md`.~~ (Done)
