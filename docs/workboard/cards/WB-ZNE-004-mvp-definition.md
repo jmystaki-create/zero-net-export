@@ -37,10 +37,15 @@ The MVP is a Home Assistant app that lets an operator:
 
 ## Current Estimate
 
-Application MVP is about 65% complete. The Sources milestone (ZNE-APP-002) is complete
-for the accepted scope, including installed browser proof. Milestone 3 (Managed Devices
-Fleet Control) is in draft; feasibility check and plan are written awaiting acceptance.
+Application MVP is about 76% complete. The app shell, Sources workflow,
+managed-device fleet workflow, controls slice, release path, backend write
+proof, and installed browser proof for Sources and Managed Devices are in place.
 
-**Updated:** Milestone 3 feasibility check accepted on 2026-07-01 16:35 AEST. Implementation starting.
+**Updated:** Milestone 3 feasibility check accepted on 2026-07-01 16:35 AEST.
 
-**Latest:** Milestone 3 Stage 2 is repo-validated with Managed Devices fleet filters, sorting, enhanced columns, and confirmation-gated bulk enable/disable actions. Application MVP is about 72% complete, pending live HACS validation and browser proof for the Managed Devices fleet workflow.
+**Latest:** Milestone 3 Stage 2 is released and live-validated as `v0.2.5`
+with Managed Devices fleet filters, sorting, enhanced columns, row selection,
+and confirmation-gated bulk enable/disable actions. Empty-fleet and populated
+`light.7th` browser proof are recorded in `validation/0.2.5-release-validation.md`.
+Remaining product decision: whether bulk priority adjustment stays in Milestone
+3 or moves to a later milestone.

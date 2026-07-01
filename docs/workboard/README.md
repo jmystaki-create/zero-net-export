@@ -24,7 +24,7 @@ Primary references:
 - `ROADMAP.md`
 - `docs/ZNE_APPLICATION_DIRECTION.md`
 - `docs/ZNE_APP_MILESTONE_2_SOURCES_PLAN.md`
-- `validation/0.2.4-release-validation.md`
+- `validation/0.2.5-release-validation.md`
 
 ## Goals And Objectives
 
@@ -45,14 +45,19 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.2.4`.
+Current release: `v0.2.5`.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
 - `v0.2.4` fixed ZNE-594 next-step sensor state overflow and is live-validated.
-- ZNE-APP-003 Milestone 3 Stage 2 is repo-validated with Managed Devices fleet filters, sorting, enhanced columns, and confirmation-gated bulk enable/disable actions.
+- `v0.2.5` delivered ZNE-APP-003 Managed Devices fleet filters, sorting,
+  enhanced columns, row selection, and confirmation-gated bulk enable/disable
+  actions.
 - Source-role write proof passed through the supported backend service path.
 - Browser proof for ZNE-APP-002 is captured on installed `0.2.4` with desktop and narrow/mobile viewport artifacts.
+- Managed Devices browser proof is captured on installed `0.2.5` for both
+  empty-fleet and populated `light.7th` states, including UI-driven bulk
+  enable/disable with final disabled state.
 - Repo `main` is synced with `origin/main`.
 
 ## Known Bugs
@@ -67,7 +72,8 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Live-validate the complete Milestone 3 Managed Devices fleet workflow.
+- Decide whether Milestone 3 still requires bulk priority adjustment, or move
+  it to a later milestone.
 - Resolve source-health warnings enough to make runtime readiness actionable.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
@@ -76,10 +82,10 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-1. Live-validate the complete Milestone 3 Managed Devices fleet workflow through GitHub/HACS.
-2. Capture desktop and narrow browser proof for the installed Managed Devices tab.
-3. Read-only inspect current live source-health warnings and managed-device readiness blockers.
-4. Use the live evidence to select the next app milestone or corrective release.
+1. Decide whether bulk priority adjustment remains required before closing
+   Milestone 3, or move it to a later milestone.
+2. Read-only inspect current live source-health warnings and managed-device readiness blockers.
+3. Use the live evidence to select the next app milestone or corrective release.
 
 ## Blockers And Risks
 
@@ -104,7 +110,12 @@ A Workboard card is done only when:
 
 Current Sources milestone completion: complete for the accepted `ZNE-APP-002` scope.
 
-Application MVP completion: about 72%. The app shell, managed-device slices, controls slice, Sources workflow, release path, backend write proof, installed Sources browser proof, and repo-validated Managed Devices fleet controls exist. Remaining MVP work is mainly live validation for the fleet workflow, runtime/source-health readiness, diagnostics/support polish, and completing the next app workflow slices.
+Application MVP completion: about 76%. The app shell, managed-device slices,
+controls slice, Sources workflow, release path, backend write proof, installed
+Sources browser proof, and live-validated Managed Devices fleet controls exist.
+Remaining MVP work is mainly the Milestone 3 bulk-priority scope decision,
+runtime/source-health readiness, diagnostics/support polish, and completing the
+next app workflow slices.
 
 Full product completion: not yet estimable from current evidence because runtime control readiness and future app milestone scope still need tighter acceptance criteria.
 
@@ -124,3 +135,5 @@ Full product completion: not yet estimable from current evidence because runtime
 - `72ed354f` - `ZNE: Sources browser proof captured` - done.
 - `7f983131` - `ZNE: Define next app milestone` - ready.
 - `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` - done.
+- `a8048485` - `ZNE: Milestone 3 populated fleet live proof` - ready; proof now recorded in repo docs.
+- `fe67044b-fd94-4529-b8f4-455e94f0639a` - `ZNE: Decide Milestone 3 bulk priority scope` - ready.

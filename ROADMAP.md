@@ -18,8 +18,8 @@ or release readiness changes. Current relevant UI cards:
 `fe67044b-fd94-4529-b8f4-455e94f0639a` -
 `ZNE: Decide Milestone 3 bulk priority scope` (ready).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
-repo-validated, and `v0.2.5` is published/installed with empty-fleet browser
-proof. References:
+released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
+browser proof is recorded. References:
 `validation/zne-app-milestone-3-feasibility.md`,
 `docs/ZNE_APP_MILESTONE_3_PLAN.md`,
 `validation/zne-app-milestone-3-stage-2-validation.md`,

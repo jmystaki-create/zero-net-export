@@ -13,16 +13,21 @@ Provide a concise weekly project status that shows progress, current focus, bloc
 Date: 2026-07-01
 
 Done:
-- `v0.2.4` released and live-validated.
+- `v0.2.5` released and live-validated.
 - ZNE-594 fixed and validated in installed Home Assistant.
 - Sources backend write proof passed and was restored safely.
 - OpenClaw Workboard UI is populated with the ZNE operating cards, and a dedicated card now tracks installed Sources browser proof.
 - Installed Sources browser proof captured on desktop and narrow viewport.
-- Milestone 3 Stage 2 is repo-validated with Managed Devices fleet filters, sorting, enhanced columns, and confirmation-gated bulk enable/disable actions.
+- Milestone 3 Stage 2 is live-validated with Managed Devices fleet filters,
+  sorting, enhanced columns, row selection, and confirmation-gated bulk
+  enable/disable actions.
+- Populated `light.7th` proof is captured; final ZNE managed record remains
+  disabled.
 
 In progress / pending:
 - Workboard must be checked and updated every ZNE turn.
-- Milestone 3 live HACS validation and desktop/narrow browser proof are pending.
+- Product decision pending: whether bulk priority adjustment is required before
+  closing Milestone 3 or should move to a later milestone.
 
 Risks:
 - Runtime control readiness remains limited by source-health and managed-device readiness.
@@ -30,7 +35,7 @@ Risks:
 - Future app work must not drift into unsupported native HA UI injection.
 
 Recommended next action:
-- Live-validate the complete Milestone 3 Managed Devices fleet workflow and capture browser proof.
+- Decide whether bulk priority adjustment remains required for Milestone 3.
 
 ## Acceptance Criteria
 
