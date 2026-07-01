@@ -1,6 +1,6 @@
 # WB-ZNE-009 Milestone 3: Managed Devices Fleet Control
 
-Status: Doing
+Status: Validating
 Priority: High
 Labels: milestone, feature, app, fleet-control, validation, in-progress
 
@@ -67,11 +67,16 @@ No design or code work has started.
 
 **Updated:** Stage 1 (fleet list with summary, filters, and drill-down) implemented and committed. Repo validation passed (620 tests OK, `git diff --check` clean, JS syntax valid).
 
-**Latest:** Stage 2 implemented and repo-validated: priority/readiness filters,
-sorting, Last Seen and Blockers columns, visible-row selection, and
-confirmation-gated bulk enable/disable actions. Validation record:
-`validation/zne-app-milestone-3-stage-2-validation.md`. Live HACS validation
-and browser proof are still pending.
+**Latest:** `v0.2.5` is published and installed through the approved
+GitHub/HACS path. Home Assistant restarted, install fingerprint matched before
+and after restart, app/static routes returned HTTP 200, targeted ZNE logs showed
+no project-specific errors, and desktop/narrow Managed Devices browser proof was
+captured. Evidence: `validation/0.2.5-release-validation.md`.
+
+Remaining validation gap: the live validation instance currently has
+`sensor.zero_net_export_managed_devices_count=0`, so populated row proof for
+Blockers and reversible bulk enable/disable mutation need a safe disposable
+managed device before this card can move to Done.
 
 ## Next steps
 
@@ -81,4 +86,5 @@ and browser proof are still pending.
 4. ~~Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).~~ (Stage 1 complete)
 5. ~~Validate Stage 1 with repo tests.~~ (Done; live validation pending)
 6. ~~Implement Stage 2 priority/readiness filters, bulk actions, and sorting.~~ (Done)
-7. Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.
+7. ~~Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.~~ (Done for installed empty-fleet workflow in `v0.2.5`)
+8. Add or identify a safe disposable managed device, then capture populated-row and reversible bulk-action proof.

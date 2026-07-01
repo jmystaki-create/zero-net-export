@@ -16,9 +16,9 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 4. ~~Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).~~ (Stage 1 complete)
 5. ~~Validate Stage 1 with repo tests.~~ (Done; live validation pending)
 6. ~~Implement Stage 2 priority/readiness filters, sorting, enhanced columns, and bulk actions.~~ (Done)
-7. Live-validate the complete Stage 1+2 Managed Devices fleet workflow through GitHub/HACS, restart, fingerprint, browser proof, and logs.
-8. Read-only inspect current live source-health warnings and classify blockers.
-9. Resolve source-health warnings enough to make runtime readiness actionable.
+7. ~~Live-validate the complete Stage 1+2 Managed Devices fleet workflow through GitHub/HACS, restart, fingerprint, browser proof, and logs.~~ (Done for installed empty-fleet workflow in `v0.2.5`; populated-row/bulk mutation proof pending a disposable managed device)
+8. Add or identify a safe disposable managed device, then live-test populated Managed Devices rows and reversible bulk enable/disable.
+9. Read-only inspect current live source-health warnings and classify blockers.
 10. Keep the OpenClaw Workboard updated on every ZNE turn, including status, blockers, validation evidence, and next action.
 
 ## Acceptance Criteria
