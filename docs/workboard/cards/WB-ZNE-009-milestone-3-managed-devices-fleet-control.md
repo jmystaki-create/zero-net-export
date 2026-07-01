@@ -75,4 +75,4 @@ No design or code work has started.
 4. ~~Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).~~ (Stage 1 complete)
 5. ~~Validate the slice with repo tests, HACS install, HA restart, browser proof, and logs.~~ (Repo validation done; live validation pending)
 6. Proceed with live validation and browser proof for Stage 1.
-7. Plan and implement Stage 2 (priority/readiness filters, bulk actions, sorting).
+7. Implement Stage 2 (priority/readiness filters, bulk actions, sorting) - Plan written, awaiting implementation.
