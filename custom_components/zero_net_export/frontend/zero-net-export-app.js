@@ -167,10 +167,23 @@ class ZeroNetExportApp extends HTMLElement {
   async _onClick(event) {
     const target = event.target.closest("button");
     const select = event.target.closest("select");
+    const checkbox = event.target.closest("input[type=checkbox]");
 
     // Handle filter/sort changes
     if (select && (select.dataset.filterPlan || select.dataset.filterStatus || select.dataset.filterPriority || select.dataset.filterReadiness || select.dataset.sortBy || select.dataset.sortDir)) {
       this._render();
+      return;
+    }
+
+    // Handle bulk checkbox changes
+    if (checkbox && checkbox.classList.contains("zne-bulk-checkbox")) {
+      this._updateBulkSelection();
+      return;
+    }
+
+    // Handle bulk action buttons
+    if (target && (target.id === "bulk-enable" || target.id === "bulk-disable" || target.id === "bulk-select-all" || target.id === "bulk-clear")) {
+      await this._handleBulkAction(target.id);
       return;
     }
 
@@ -191,7 +204,7 @@ class ZeroNetExportApp extends HTMLElement {
 
     // Handle fleet row click for drill-down
     const fleetRow = event.target.closest(".zne-fleet-row");
-    if (fleetRow && !event.target.closest("button")) {
+    if (fleetRow && !event.target.closest("button") && !event.target.closest("input[type=checkbox]")) {
       const deviceKey = fleetRow.dataset.deviceKey;
       const selectedInput = this.querySelector("[data-selected-device]");
       if (selectedInput) {
@@ -355,6 +368,106 @@ class ZeroNetExportApp extends HTMLElement {
         const text = this._diagnosticText();
         await navigator.clipboard.writeText(text);
         this._message = "Diagnostics summary copied.";
+      }
+    } catch (error) {
+      this._message = error && error.message ? error.message : String(error);
+    } finally {
+      this._busy = false;
+      this._render();
+    }
+  }
+
+  _updateBulkSelection() {
+    const checkboxes = this.querySelectorAll(".zne-bulk-checkbox");
+    const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+
+    // Update hidden input to store selected count
+    let selectedInput = this.querySelector("[data-bulk-selected]");
+    if (!selectedInput) {
+      selectedInput = document.createElement("input");
+      selectedInput.type = "hidden";
+      selectedInput.dataset.bulkSelected = "";
+      this.insertBefore(selectedInput, this.firstChild);
+    }
+    selectedInput.value = String(selectedCount);
+
+    // Update bulk action buttons
+    const bulkEnableBtn = this.querySelector("#bulk-enable");
+    const bulkDisableBtn = this.querySelector("#bulk-disable");
+    const bulkSelectAllBtn = this.querySelector("#bulk-select-all");
+    const bulkClearBtn = this.querySelector("#bulk-clear");
+
+    if (bulkEnableBtn) {
+      bulkEnableBtn.disabled = selectedCount === 0;
+      bulkEnableBtn.textContent = `Enable Selected (${selectedCount})`;
+    }
+    if (bulkDisableBtn) {
+      bulkDisableBtn.disabled = selectedCount === 0;
+      bulkDisableBtn.textContent = `Disable Selected (${selectedCount})`;
+    }
+    if (bulkSelectAllBtn) {
+      const filteredCount = this._state("sensor.managed_devices_overview")?.attributes?.filtered_count || checkboxes.length;
+      bulkSelectAllBtn.textContent = `Select All (${filteredCount})`;
+    }
+    if (bulkClearBtn) {
+      bulkClearBtn.disabled = selectedCount === 0;
+    }
+  }
+
+  async _handleBulkAction(action) {
+    const checkboxes = this.querySelectorAll(".zne-bulk-checkbox:checked");
+    const selectedDevices = Array.from(checkboxes).map(cb => cb.dataset.deviceKey);
+
+    if (selectedDevices.length === 0) {
+      this._message = "No devices selected.";
+      return;
+    }
+
+    try {
+      if (action === "bulk-enable") {
+        for (const deviceKey of selectedDevices) {
+          const overview = this._state("sensor.managed_devices_overview");
+          const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
+            ? overview.attributes.managed_devices
+            : [];
+          const device = fleet.find(d => d.key === deviceKey);
+          if (device && !device.enabled) {
+            await this._hass.callService("zero_net_export", "update_managed_device", {
+              entry_id: device.entry_id || this._selectedEntryId(),
+              device_key: deviceKey,
+              enabled: true,
+            });
+          }
+        }
+        this._message = `Enable requested for ${selectedDevices.length} device(s).`;
+      } else if (action === "bulk-disable") {
+        for (const deviceKey of selectedDevices) {
+          const overview = this._state("sensor.managed_devices_overview");
+          const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
+            ? overview.attributes.managed_devices
+            : [];
+          const device = fleet.find(d => d.key === deviceKey);
+          if (device && device.enabled) {
+            await this._hass.callService("zero_net_export", "update_managed_device", {
+              entry_id: device.entry_id || this._selectedEntryId(),
+              device_key: deviceKey,
+              enabled: false,
+            });
+          }
+        }
+        this._message = `Disable requested for ${selectedDevices.length} device(s).`;
+      } else if (action === "bulk-select-all") {
+        const checkboxes = this.querySelectorAll(".zne-bulk-checkbox");
+        checkboxes.forEach(cb => cb.checked = true);
+        this._updateBulkSelection();
+        this._message = `All ${checkboxes.length} devices selected.`;
+        return;
+      } else if (action === "bulk-clear") {
+        const checkboxes = this.querySelectorAll(".zne-bulk-checkbox");
+        checkboxes.forEach(cb => cb.checked = false);
+        this._updateBulkSelection();
+        this._message = "Selection cleared.";
+        return;
       }
     } catch (error) {
       this._message = error && error.message ? error.message : String(error);
@@ -620,11 +733,29 @@ class ZeroNetExportApp extends HTMLElement {
         <!-- Fleet Table -->
         <div class="zne-card">
           <h3>Fleet List (${filtered.length} devices)</h3>
+
+          <!-- Bulk Actions -->
+          <div class="zne-actions" style="margin-bottom: 12px;">
+            <button type="button" id="bulk-enable" class="zne-btn zne-btn-good" disabled>
+              Enable Selected (${this.querySelector("[data-bulk-selected]")?.value || 0})
+            </button>
+            <button type="button" id="bulk-disable" class="zne-btn zne-btn-bad" disabled>
+              Disable Selected (${this.querySelector("[data-bulk-selected]")?.value || 0})
+            </button>
+            <button type="button" id="bulk-select-all" class="zne-btn zne-btn-tertiary">
+              Select All (${filtered.length})
+            </button>
+            <button type="button" id="bulk-clear" class="zne-btn zne-btn-tertiary">
+              Clear Selection
+            </button>
+          </div>
+
           ${filtered.length === 0
             ? '<p class="zne-muted">No managed devices found.</p>'
             : `
             <div class="zne-fleet-table">
               <div class="zne-fleet-header">
+                <span style="width: 30px;">&#160;</span>
                 <span>Device Key</span>
                 <span>Plan</span>
                 <span>Status</span>
@@ -638,6 +769,9 @@ class ZeroNetExportApp extends HTMLElement {
                 const blockers = d.blockers && Array.isArray(d.blockers) ? d.blockers.length : (d.blocked ? 1 : 0);
                 return `
                 <div class="zne-fleet-row ${d.enabled ? "enabled" : "disabled"}" data-device-key="${this._escape(d.key)}">
+                  <span style="width: 30px; text-align: center;">
+                    <input type="checkbox" class="zne-bulk-checkbox" data-device-key="${this._escape(d.key)}" />
+                  </span>
                   <span><strong>${this._escape(d.key)}</strong></span>
                   <span>${this._escape(d.entry_id || "-")}</span>
                   <span>${this._pill(d.enabled ? "Enabled" : "Disabled", d.enabled ? "good" : "neutral")}</span>
@@ -1148,7 +1282,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-header {
           display: grid;
-          grid-template-columns: 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
+          grid-template-columns: 0.3fr 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
           gap: 8px;
           padding: 8px 0;
           border-bottom: 2px solid var(--divider-color);
@@ -1159,7 +1293,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-row {
           display: grid;
-          grid-template-columns: 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
+          grid-template-columns: 0.3fr 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
           gap: 8px;
           padding: 10px 0;
           border-bottom: 1px solid var(--divider-color);
