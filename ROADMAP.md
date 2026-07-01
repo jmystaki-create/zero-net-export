@@ -6,7 +6,7 @@ Last updated: 2026-07-01
 
 ### ZNE-APP-002 - App-native Sources workflow
 
-Status: released as `v0.2.3`; GitHub/HACS install live-validated with browser/write proof gaps.
+Status: released as `v0.2.3`; GitHub/HACS install live-validated with browser proof gap.
 
 Outcome:
 - Operators can review source-role bindings, status, readings, age, and issues in the Zero Net Export app.
@@ -21,10 +21,6 @@ Evidence:
 
 Next gate:
 - Capture browser proof for the installed `0.2.3` Sources workflow.
-- With approval, perform the safe reversible source-role write proof using
-  optional `battery_soc_entity` on config entry `01KWC2HX12V4P0Q82A0WM69EHV`
-  and candidate `sensor.x1_p6k_us_s_state_of_charge`, then restore it to
-  unset.
 
 ## Release path
 
@@ -33,15 +29,19 @@ Completed:
 - Installed/updated through HACS.
 - Restarted Home Assistant.
 - Verified installed/latest version, fingerprint match, app/static routes, targeted logs, and HACS metadata.
+- Validated the reversible app-native source-role write path through
+  `zero_net_export.update_source_roles` using optional `battery_soc_entity`,
+  then restored it to unset.
 - Recorded validation evidence and updated release status.
 
 Remaining:
 - Capture desktop and narrow browser proof for the Sources workflow.
-- Perform the approved reversible source-role write proof for optional
-  `battery_soc_entity`, then restore the previous unset state.
 
 ## Risks
 
-- Runtime control remains blocked until required source roles are configured.
+- Runtime control remains limited until source-health warnings and managed
+  device readiness are resolved in the validation Home Assistant instance.
+- ZNE-594 tracks older HA log evidence where long next-step sensor state text
+  exceeded Home Assistant's 255-character state limit.
 - Live validation must not use direct Home Assistant file-backend deployment.
 - Future app work must stay inside the accepted Home Assistant app/custom-panel feasibility path.
