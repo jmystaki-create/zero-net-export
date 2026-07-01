@@ -12,7 +12,11 @@ The OpenClaw Workboard UI is the active visible board for ZNE. Check and update
 it every ZNE work turn when status, validation evidence, blockers, next actions,
 or release readiness changes. Current relevant UI cards:
 `72ed354f` - `ZNE: Sources browser proof captured` (done),
-`7f983131` - `ZNE: Define next app milestone` (ready).
+`7f983131` - `ZNE: Define next app milestone` (ready -> doing).
+Milestone 3 (Managed Devices Fleet Control) feasibility check and plan are written
+awaiting acceptance: `validation/zne-app-milestone-3-feasibility.md` and
+`docs/ZNE_APP_MILESTONE_3_PLAN.md`. Repo Workboard card:
+`WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Ready).
 
 ## Current milestone
 
@@ -38,7 +42,9 @@ Evidence:
   `validation/artifacts/zne-0.2.4-sources-narrow-snapshot.json`
 
 Next gate:
-- Define and accept the next app milestone before any new design/code work.
+- Accept the Milestone 3 feasibility check in `validation/zne-app-milestone-3-feasibility.md`.
+- Approve starting Milestone 3 (Managed Devices Fleet Control) implementation.
+- Proceed with minimal design and implementation within the accepted feasible path.
 
 ## Release path
 

@@ -80,4 +80,4 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 - Process gate remains: no application architecture, mockup, or code may proceed until a target-environment feasibility check and milestone-specific acceptance criteria are written and accepted. `ZNE-APP-002` satisfied that gate and is repo-validated; live validation remains release-gated. Template: `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md`.
 
 ## Next best action
-Next best action: update the OpenClaw Workboard and plan the next app milestone. The `0.2.4` corrective release is live-validated, and the remaining `0.2.3` Sources workflow browser proof gap is now closed on installed `0.2.4`.
+Next best action: update the OpenClaw Workboard and plan the next app milestone (Milestone 3: Managed Devices Fleet Control). The `0.2.4` corrective release is live-validated, the remaining `0.2.3` Sources workflow browser proof gap is now closed on installed `0.2.4`, and the Milestone 3 feasibility check and plan are written awaiting acceptance.
