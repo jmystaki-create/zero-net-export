@@ -168,8 +168,8 @@ class ZeroNetExportApp extends HTMLElement {
     const target = event.target.closest("button");
     const select = event.target.closest("select");
 
-    // Handle filter changes
-    if (select && (select.dataset.filterPlan || select.dataset.filterStatus || select.dataset.filterPriority || select.dataset.filterReadiness)) {
+    // Handle filter/sort changes
+    if (select && (select.dataset.filterPlan || select.dataset.filterStatus || select.dataset.filterPriority || select.dataset.filterReadiness || select.dataset.sortBy || select.dataset.sortDir)) {
       this._render();
       return;
     }
@@ -482,6 +482,10 @@ class ZeroNetExportApp extends HTMLElement {
     const filterPriority = this.querySelector("[data-filter-priority]")?.value || "all";
     const filterReadiness = this.querySelector("[data-filter-readiness]")?.value || "all";
 
+    // Sort state
+    const sortBy = this.querySelector("[data-sort-by]")?.value || "priority";
+    const sortDir = this.querySelector("[data-sort-dir]")?.value || "desc";
+
     // Apply filters
     let filtered = fleet;
     if (filterPlan !== "all" && filterPlan !== "") {
@@ -498,6 +502,30 @@ class ZeroNetExportApp extends HTMLElement {
       filtered = filtered.filter(d => String(d.readiness || d.status || "").toLowerCase() === filterReadiness.toLowerCase());
     }
 
+    // Apply sorting
+    const sortField = sortBy;
+    const reverse = sortDir === "asc" ? -1 : 1;
+    filtered = [...filtered].sort((a, b) => {
+      let valA, valB;
+      if (sortField === "priority") {
+        const priorityOrder = {"high": 3, "medium": 2, "low": 1, "": 0};
+        valA = priorityOrder[(a.priority || "").toLowerCase()] || 0;
+        valB = priorityOrder[(b.priority || "").toLowerCase()] || 0;
+      } else if (sortField === "status") {
+        valA = a.enabled ? 1 : 0;
+        valB = b.enabled ? 1 : 0;
+      } else if (sortField === "last_seen") {
+        valA = a.last_seen_age || 0;
+        valB = b.last_seen_age || 0;
+      } else {
+        valA = a[sortField] || "";
+        valB = b[sortField] || "";
+      }
+      if (valA < valB) return -1 * reverse;
+      if (valA > valB) return 1 * reverse;
+      return 0;
+    });
+
     // Get unique values for filter dropdowns
     const plans = [...new Set(fleet.map(d => d.entry_id))];
     const priorities = [...new Set(fleet.map(d => d.priority).filter(p => p))];
@@ -508,6 +536,17 @@ class ZeroNetExportApp extends HTMLElement {
     const selectedDevice = selectedDeviceKey
       ? fleet.find(d => d.key === selectedDeviceKey)
       : null;
+
+    // Format last-seen age helper
+    const formatAge = (ageSeconds) => {
+      if (!ageSeconds || ageSeconds === 0) return "Just now";
+      const mins = Math.round(ageSeconds / 60);
+      if (mins < 60) return `${mins} min ago`;
+      const hours = Math.round(mins / 60);
+      if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+      const days = Math.round(hours / 24);
+      return `${days} day${days > 1 ? "s" : ""} ago`;
+    };
 
     return `
       <section class="zne-panel">
@@ -558,6 +597,24 @@ class ZeroNetExportApp extends HTMLElement {
               </select>
             </label>
           </div>
+
+          <!-- Sort Controls -->
+          <div class="zne-card">
+            <h3>Sort</h3>
+            <label>By
+              <select data-sort-by>
+                <option value="priority" ${sortBy === "priority" ? "selected" : ""}>Priority</option>
+                <option value="status" ${sortBy === "status" ? "selected" : ""}>Status</option>
+                <option value="last_seen" ${sortBy === "last_seen" ? "selected" : ""}>Last Seen</option>
+              </select>
+            </label>
+            <label>Direction
+              <select data-sort-dir>
+                <option value="desc" ${sortDir === "desc" ? "selected" : ""}>Descending</option>
+                <option value="asc" ${sortDir === "asc" ? "selected" : ""}>Ascending</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <!-- Fleet Table -->
@@ -573,22 +630,28 @@ class ZeroNetExportApp extends HTMLElement {
                 <span>Status</span>
                 <span>Priority</span>
                 <span>Readiness</span>
+                <span>Last Seen</span>
+                <span>Blockers</span>
                 <span>Actions</span>
               </div>
-              ${filtered.map(d => `
+              ${filtered.map(d => {
+                const blockers = d.blockers && Array.isArray(d.blockers) ? d.blockers.length : (d.blocked ? 1 : 0);
+                return `
                 <div class="zne-fleet-row ${d.enabled ? "enabled" : "disabled"}" data-device-key="${this._escape(d.key)}">
                   <span><strong>${this._escape(d.key)}</strong></span>
                   <span>${this._escape(d.entry_id || "-")}</span>
                   <span>${this._pill(d.enabled ? "Enabled" : "Disabled", d.enabled ? "good" : "neutral")}</span>
                   <span>${this._escape(d.priority || "-")}</span>
                   <span>${this._escape(d.readiness || d.status || "-")}</span>
+                  <span>${this._escape(formatAge(d.last_seen_age))}</span>
+                  <span>${blockers > 0 ? this._pill(`${blockers} blocker${blockers > 1 ? "s" : ""}`, "bad") : "-"}</span>
                   <span>
                     <button type="button" data-zne-action="fleet-toggle" data-device-key="${this._escape(d.key)}">
                       ${d.enabled ? "Disable" : "Enable"}
                     </button>
                   </span>
                 </div>
-              `).join("")}
+              `;}).join("")}
             </div>
             `}
         </div>
@@ -1085,7 +1148,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-header {
           display: grid;
-          grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr 0.8fr;
+          grid-template-columns: 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
           gap: 8px;
           padding: 8px 0;
           border-bottom: 2px solid var(--divider-color);
@@ -1096,7 +1159,7 @@ class ZeroNetExportApp extends HTMLElement {
 
         .zne-fleet-row {
           display: grid;
-          grid-template-columns: 1.5fr 1fr 0.8fr 0.8fr 1fr 0.8fr;
+          grid-template-columns: 1fr 1fr 0.8fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
           gap: 8px;
           padding: 10px 0;
           border-bottom: 1px solid var(--divider-color);
