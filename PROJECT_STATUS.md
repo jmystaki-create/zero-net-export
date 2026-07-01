@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-07-01 14:33
+last_modified: 2026-07-01 18:58
 
 ## Current focus
 Project direction changed on 2026-06-26: Zero Net Export is now a Home Assistant application backed by the existing integration backend. The old native-device-page-led direction is superseded because validation showed Home Assistant's native device/config-entry/button surfaces cannot carry the full Zero Net Export product scope. Current steering lives in `CONSTRAINTS.md` and `docs/ZNE_APPLICATION_DIRECTION.md`.
@@ -80,7 +80,7 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 - Process gate remains: no application architecture, mockup, or code may proceed until a target-environment feasibility check and milestone-specific acceptance criteria are written and accepted. `ZNE-APP-002` satisfied that gate and is repo-validated; live validation remains release-gated. Template: `docs/TECHNICAL_FEASIBILITY_CHECK_TEMPLATE.md`.
 
 ## Next best action
-Next best action: update the OpenClaw Workboard and plan the next app milestone (Milestone 3: Managed Devices Fleet Control). The `0.2.4` corrective release is live-validated, the remaining `0.2.3` Sources workflow browser proof gap is now closed on installed `0.2.4`, and the Milestone 3 feasibility check and plan are written awaiting acceptance.
+Next best action: live-validate the complete Milestone 3 Managed Devices fleet workflow through the approved GitHub/HACS path. The `0.2.4` corrective release is live-validated, Sources workflow browser proof is closed on installed `0.2.4`, Milestone 3 feasibility is accepted, and Stage 2 is repo-validated.
 
 **Updated:** Milestone 3 feasibility check accepted on 2026-07-01 16:35 AEST. Proceeding with implementation of Managed Devices Fleet Control.
 
