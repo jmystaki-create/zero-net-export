@@ -47,5 +47,7 @@ proof, and installed browser proof for Sources and Managed Devices are in place.
 with Managed Devices fleet filters, sorting, enhanced columns, row selection,
 and confirmation-gated bulk enable/disable actions. Empty-fleet and populated
 `light.7th` browser proof are recorded in `validation/0.2.5-release-validation.md`.
-Remaining product decision: whether bulk priority adjustment stays in Milestone
-3 or moves to a later milestone.
+Bulk priority adjustment is deferred to a later milestone. The current MVP gap
+is Milestone 4 source-health/runtime readiness: live API proof shows
+`sensor.zero_net_export_status=degraded` until the battery discharge source is
+corrected and reconciliation is rechecked.

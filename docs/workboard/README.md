@@ -72,9 +72,9 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Decide whether Milestone 3 still requires bulk priority adjustment, or move
-  it to a later milestone.
-- Resolve source-health warnings enough to make runtime readiness actionable.
+- Complete Milestone 4 source-health validation by applying or guiding the
+  battery discharge template sensor workaround and checking runtime status.
+- Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
 Deferred / not current focus:
@@ -82,10 +82,11 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-1. Decide whether bulk priority adjustment remains required before closing
-   Milestone 3, or move it to a later milestone.
-2. Read-only inspect current live source-health warnings and managed-device readiness blockers.
-3. Use the live evidence to select the next app milestone or corrective release.
+1. Apply or guide the Milestone 4 template sensor workaround for
+   `sensor.anker_battery_discharge_power`.
+2. Point ZNE at the fixed battery discharge source.
+3. Capture live API and browser proof showing `sensor.zero_net_export_status=ok`
+   and acceptable source reconciliation.
 
 ## Blockers And Risks
 
@@ -113,9 +114,9 @@ Current Sources milestone completion: complete for the accepted `ZNE-APP-002` sc
 Application MVP completion: about 76%. The app shell, managed-device slices,
 controls slice, Sources workflow, release path, backend write proof, installed
 Sources browser proof, and live-validated Managed Devices fleet controls exist.
-Remaining MVP work is mainly the Milestone 3 bulk-priority scope decision,
-runtime/source-health readiness, diagnostics/support polish, and completing the
-next app workflow slices.
+Remaining MVP work is mainly Milestone 4 source-health/runtime readiness,
+diagnostics/support polish, completing the next app workflow slices, and later
+bulk-priority scope definition.
 
 Full product completion: not yet estimable from current evidence because runtime control readiness and future app milestone scope still need tighter acceptance criteria.
 
@@ -136,4 +137,7 @@ Full product completion: not yet estimable from current evidence because runtime
 - `7f983131` - `ZNE: Define next app milestone` - ready.
 - `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` - done.
 - `a8048485` - `ZNE: Milestone 3 populated fleet live proof` - ready; proof now recorded in repo docs.
-- `fe67044b-fd94-4529-b8f4-455e94f0639a` - `ZNE: Decide Milestone 3 bulk priority scope` - ready.
+- `fe67044b-fd94-4529-b8f4-455e94f0639a` - `ZNE: Decide Milestone 3 bulk priority scope` - superseded; deferred.
+- `348000d4` - `ZNE: Milestone 3 closed` - done.
+- `06b5d15f` - `ZNE: Define bulk priority adjustment scope for later milestone` - ready.
+- `8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` - doing.

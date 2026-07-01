@@ -26,16 +26,21 @@ Done:
 
 In progress / pending:
 - Workboard must be checked and updated every ZNE turn.
-- Product decision pending: whether bulk priority adjustment is required before
-  closing Milestone 3 or should move to a later milestone.
+- Milestone 4 source-health work is active. Live API auth is restored and the
+  baseline shows `sensor.zero_net_export_status=degraded` because
+  `sensor.anker_battery_discharge_power` exposes `state_class=total`.
+- Bulk priority adjustment is deferred to a later milestone.
 
 Risks:
-- Runtime control readiness remains limited by source-health and managed-device readiness.
+- Runtime control readiness remains limited by source-health until the battery
+  discharge source is corrected and reconciliation is rechecked.
 - Browser proof path is proven through the OpenClaw browser CLI and should remain part of future app-facing validation.
 - Future app work must not drift into unsupported native HA UI injection.
 
 Recommended next action:
-- Decide whether bulk priority adjustment remains required for Milestone 3.
+- Apply or guide the Milestone 4 template sensor workaround, point ZNE at the
+  fixed battery discharge source, and capture live proof that runtime status
+  returns to `ok`.
 
 ## Acceptance Criteria
 

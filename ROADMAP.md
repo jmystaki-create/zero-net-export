@@ -16,7 +16,10 @@ or release readiness changes. Current relevant UI cards:
 `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` (done),
 `a8048485` - `ZNE: Milestone 3 populated fleet live proof` (ready; proof now recorded),
 `fe67044b-fd94-4529-b8f4-455e94f0639a` -
-`ZNE: Decide Milestone 3 bulk priority scope` (ready).
+`ZNE: Decide Milestone 3 bulk priority scope` (superseded; deferred),
+`348000d4` - `ZNE: Milestone 3 closed` (done),
+`06b5d15f` - `ZNE: Define bulk priority adjustment scope for later milestone` (ready),
+`8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` (doing).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -24,31 +27,49 @@ browser proof is recorded. References:
 `docs/ZNE_APP_MILESTONE_3_PLAN.md`,
 `validation/zne-app-milestone-3-stage-2-validation.md`,
 `validation/0.2.5-release-validation.md`, and repo Workboard card
-`WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Doing).
+`WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
 **Updated:** Milestone 3 feasibility check accepted. Moving card `7f983131` to done; card `WB-ZNE-009` status updated to Doing.
 
-**Latest:** Stage 2 is released as `v0.2.5` and installed through HACS. Home
-Assistant restarted, install fingerprint matched, app/static routes returned
-HTTP 200, targeted ZNE logs were clean apart from the standard custom
-integration warning, and desktop/narrow Managed Devices browser proof was
-captured for the empty-fleet state. Evidence:
-`validation/0.2.5-release-validation.md`.
+**Latest:** Milestone 4 is active. Home Assistant API access is restored, and
+the live baseline confirms `sensor.zero_net_export_status=degraded` because the
+configured Anker battery discharge source reports `state_class=total`.
+Evidence: `validation/zne-app-milestone-4-live-baseline.md`.
 
 ## Current milestone
 
-### ZNE-APP-003 - Managed Devices Fleet Control
+### ZNE-APP-004 - Source Health & Runtime Blocker Resolution
 
-Status: Released as `v0.2.5`; installed empty-fleet workflow and populated
-`light.7th` fleet workflow live-validated. Final `7th_validation_load` ZNE
-record remains present and disabled.
+Status: Doing. Milestone 4 plan and source-health fix guide are written.
+Home Assistant API access is restored, and a read-only live baseline confirms
+`sensor.zero_net_export_status=degraded`.
 
 Outcome:
-- Operators can review the Managed Devices fleet in the Zero Net Export app.
-- Operators can filter by plan/status/priority/readiness.
-- Operators can sort by priority/status/last-seen age.
-- Operators can inspect Last Seen and Blockers columns.
-- Operators can select visible rows and perform confirmation-gated bulk enable/disable actions.
+- Operators can resolve source-health blockers that keep ZNE runtime status
+  degraded.
+- Operators can use a corrected battery discharge power source with
+  measurement semantics.
+- Operators can verify runtime source reconciliation is acceptable before
+  relying on control decisions.
+
+Evidence:
+- Plan: `docs/ZNE_APP_MILESTONE_4_PLAN.md`
+- Fix guide: `docs/SOURCE_HEALTH_FIX_GUIDE.md`
+- Live baseline: `validation/zne-app-milestone-4-live-baseline.md`
+
+Next gate:
+- Apply or guide the template sensor workaround, point ZNE at the fixed source,
+  then capture live API/browser proof showing `status=ok` and acceptable
+  reconciliation.
+
+## Completed App Milestones
+
+### ZNE-APP-003 - Managed Devices Fleet Control
+
+Status: released as `v0.2.5`; installed empty-fleet workflow and populated
+`light.7th` fleet workflow live-validated. Final `7th_validation_load` ZNE
+record remains present and disabled. Bulk priority adjustment is deferred to a
+later milestone.
 
 Evidence:
 - Plan: `docs/ZNE_APP_MILESTONE_3_PLAN.md`
@@ -58,12 +79,6 @@ Evidence:
 - Stage 2 plan: `validation/zne-app-milestone-3-stage-2-plan.md`
 - Stage 2 repo validation: `validation/zne-app-milestone-3-stage-2-validation.md`
 - Release/live validation: `validation/0.2.5-release-validation.md`
-
-Next gate:
-- **Milestone 4**: Source Health & Runtime Blocker Resolution (see `docs/ZNE_APP_MILESTONE_4_PLAN.md`).
-- Decide whether bulk priority adjustment remains required for Milestone 3 or
-  moves to a later milestone.
-## Completed App Milestones
 
 ### ZNE-APP-002 - App-native Sources workflow
 
@@ -102,8 +117,8 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Decide whether bulk priority adjustment remains required for Milestone 3 or
-  moves to a later milestone.
+- Complete Milestone 4 source-health validation and decide whether it requires
+  a `v0.2.6` release or only Home Assistant configuration changes.
 - Keep the OpenClaw Workboard aligned every turn.
 
 ## Risks

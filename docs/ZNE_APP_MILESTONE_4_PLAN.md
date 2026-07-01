@@ -1,9 +1,9 @@
 # Milestone 4: Source Health & Runtime Blocker Resolution
 
-**Status**: Ready  
-**Priority**: High  
-**Labels**: milestone, feature, app, source-health, blocker  
-**Workboard Card**: `8b148624`  
+**Status**: Doing
+**Priority**: High
+**Labels**: milestone, feature, app, source-health, blocker
+**Workboard Card**: `8b148624`
 
 ---
 
@@ -38,9 +38,26 @@ An operator can:
 - **Expected State**: `state_class=measurement` (required for real-time power reconciliation).
 - **Root Cause**: The source sensor (likely from an Anker/EcoFlow integration) exposes `total` instead of `measurement`.
 
+### Live Baseline
+
+Read-only Home Assistant API proof on 2026-07-02 confirmed:
+
+- `sensor.zero_net_export_status=degraded`
+- `sensor.zero_net_export_reason=Validation degraded: battery_discharge_power state_class is <SensorStateClass.TOTAL: 'total'>; expected 'measurement'`
+- `sensor.zero_net_export_last_reconciliation_error=300.0 W`
+- `sensor.zero_net_export_home_load_power=300.0 W`
+- `sensor.zero_net_export_surplus=-300.0 W`
+- `sensor.anker_battery_discharge_power=0`, `unit_of_measurement=kW`,
+  `state_class=total`
+
+The current blocking validation issue is the battery discharge metadata. The
+earlier large reconciliation gap was not present in the latest read-only
+snapshot, but reconciliation must still be rechecked after the source fix.
+
 ### Feasibility Options
 1. **Option A: Template Sensor Workaround** (Recommended)
-   - Create a HA template sensor that wraps `sensor.anker_battery_discharge_power` and forces `state_class=measurement`.
+   - Create a HA template sensor that wraps `sensor.anker_battery_discharge_power`,
+     converts its live kW reading to W, and exposes `state_class=measurement`.
    - ZNE config is updated to use the template sensor as the battery discharge source.
    - **Pros**: Non-invasive, reversible, no ZNE code changes.
    - **Cons**: Requires user to add a template sensor to their HA config.

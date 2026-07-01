@@ -2,17 +2,25 @@
 
 ## Problem
 
-The `sensor.anker_battery_discharge_power` entity (from the Anker/EcoFlow integration) exposes `state_class=total` instead of the required `state_class=measurement`. This causes Zero Net Export (ZNE) to report `sensor.zero_net_export_status=degraded` with the reason:
+The `sensor.anker_battery_discharge_power` entity exposes `state_class=total`
+instead of the required `state_class=measurement`. On the validation Home
+Assistant instance it also reports in `kW`, while ZNE runtime values are
+displayed and reconciled as watts. This causes Zero Net Export (ZNE) to report
+`sensor.zero_net_export_status=degraded` with the reason:
 
 > "Validation degraded: battery_discharge_power state_class is total; expected 'measurement'"
 
 ## Root Cause
 
-The Anker/EcoFlow integration incorrectly classifies the battery discharge power sensor as a `total` (cumulative) value instead of a `measurement` (instantaneous) value. This is a known limitation of some third-party HA integrations.
+The source integration classifies the battery discharge power sensor as a
+`total` (cumulative) value instead of a `measurement` (instantaneous) value.
+The live source also uses `kW`, so the safest workaround is to expose a
+template sensor in watts with correct power metadata.
 
 ## Solution: Template Sensor Workaround
 
-Create a Home Assistant template sensor that wraps the original sensor and forces the correct `state_class=measurement`.
+Create a Home Assistant template sensor that wraps the original sensor,
+converts kW to W, and exposes `state_class=measurement`.
 
 ### Step 1: Add Template Sensor to `configuration.yaml`
 
@@ -26,11 +34,14 @@ template:
         state_class: "measurement"
         unit_of_measurement: "W"
         device_class: "power"
-        state: "{{ states('sensor.anker_battery_discharge_power') }}"
+        state: >-
+          {{ (states('sensor.anker_battery_discharge_power') | float(0) * 1000) | round(0) }}
         attributes:
-          # Preserve original attributes
           original_entity: "sensor.anker_battery_discharge_power"
+          original_unit: "kW"
 ```
+
+If your source entity already reports watts, remove the `* 1000` conversion.
 
 ### Step 2: Restart Home Assistant
 
@@ -47,9 +58,14 @@ After saving `configuration.yaml`, restart Home Assistant to apply the changes.
 
 ### Step 4: Verify Fix
 
-1. Check `sensor.zero_net_export_status` - it should now report `ok`.
-2. Check `sensor.zero_net_export_reason` - it should be empty or non-blocking.
-3. Verify power reconciliation in the **Diagnostics** tab.
+1. Check the fixed template sensor has:
+   - `device_class=power`
+   - `state_class=measurement`
+   - `unit_of_measurement=W`
+2. Check `sensor.zero_net_export_status` - it should report `ok` once ZNE is
+   pointed at the fixed sensor and source values reconcile.
+3. Check `sensor.zero_net_export_reason` - it should be empty or non-blocking.
+4. Verify power reconciliation in the **Diagnostics** tab.
 
 ## Alternative: ZNE Adaptation (Fallback)
 

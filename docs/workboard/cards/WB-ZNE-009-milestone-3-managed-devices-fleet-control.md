@@ -1,8 +1,8 @@
 # WB-ZNE-009 Milestone 3: Managed Devices Fleet Control
 
-Status: Validating
+Status: Done
 Priority: High
-Labels: milestone, feature, app, fleet-control, validation, in-progress
+Labels: milestone, feature, app, fleet-control, validation, done
 
 ## Purpose
 
@@ -90,8 +90,8 @@ adjustment stays in Milestone 3 or moves to a later milestone.
 2. ~~Approve starting Milestone 3 implementation.~~ (Done)
 3. ~~Begin minimal design and implementation of the Managed Devices Fleet Control workflow within the accepted feasible path.~~ (Stage 1 complete)
 4. ~~Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).~~ (Stage 1 complete)
-5. ~~Validate Stage 1 with repo tests.~~ (Done; live validation pending)
+5. ~~Validate Stage 1 with repo tests.~~ (Done)
 6. ~~Implement Stage 2 priority/readiness filters, bulk actions, and sorting.~~ (Done)
-7. ~~Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.~~ (Done for installed empty-fleet workflow in `v0.2.5`)
+7. ~~Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.~~ (Done in `v0.2.5`, including populated `light.7th` proof)
 8. ~~Add or identify a safe disposable managed device, then capture populated-row and reversible bulk-action proof.~~ (Done with `light.7th`; final ZNE record remains disabled)
-9. Decide whether bulk priority adjustment is required before closing Milestone 3, or move it to a later milestone.
+9. ~~Decide whether bulk priority adjustment is required before closing Milestone 3, or move it to a later milestone.~~ (Deferred to a later milestone)
