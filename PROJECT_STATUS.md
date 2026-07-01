@@ -84,4 +84,4 @@ Next best action: update the OpenClaw Workboard and plan the next app milestone 
 
 **Updated:** Milestone 3 feasibility check accepted on 2026-07-01 16:35 AEST. Proceeding with implementation of Managed Devices Fleet Control.
 
-**Latest:** Stage 1 (fleet list with summary, filters, and drill-down) implemented and validated. Repo validation passed (620 tests OK, `git diff --check` clean, JS syntax valid). Live validation pending.
+**Latest:** Milestone 3 Stage 2 is implemented and repo-validated with priority/readiness filters, sorting, Last Seen and Blockers columns, visible-row selection, and confirmation-gated bulk enable/disable actions. Evidence: `validation/zne-app-milestone-3-stage-2-validation.md`. Live HACS validation and desktop/narrow browser proof are pending.

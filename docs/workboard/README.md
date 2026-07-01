@@ -50,6 +50,7 @@ Current release: `v0.2.4`.
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
 - `v0.2.4` fixed ZNE-594 next-step sensor state overflow and is live-validated.
+- ZNE-APP-003 Milestone 3 Stage 2 is repo-validated with Managed Devices fleet filters, sorting, enhanced columns, and confirmation-gated bulk enable/disable actions.
 - Source-role write proof passed through the supported backend service path.
 - Browser proof for ZNE-APP-002 is captured on installed `0.2.4` with desktop and narrow/mobile viewport artifacts.
 - Repo `main` is synced with `origin/main`.
@@ -66,7 +67,7 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Define and accept the next app milestone before new design/code work.
+- Live-validate the complete Milestone 3 Managed Devices fleet workflow.
 - Resolve source-health warnings enough to make runtime readiness actionable.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
@@ -75,10 +76,10 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-1. Define the next app milestone acceptance criteria.
-2. Read-only inspect current live source-health warnings and managed-device readiness blockers.
-3. Write and accept the target-environment feasibility check for the next app milestone before design/code.
-4. Start the next app milestone only after the feasibility gate is satisfied.
+1. Live-validate the complete Milestone 3 Managed Devices fleet workflow through GitHub/HACS.
+2. Capture desktop and narrow browser proof for the installed Managed Devices tab.
+3. Read-only inspect current live source-health warnings and managed-device readiness blockers.
+4. Use the live evidence to select the next app milestone or corrective release.
 
 ## Blockers And Risks
 
@@ -103,7 +104,7 @@ A Workboard card is done only when:
 
 Current Sources milestone completion: complete for the accepted `ZNE-APP-002` scope.
 
-Application MVP completion: about 65%. The app shell, managed-device slices, controls slice, Sources workflow, release path, backend write proof, and installed Sources browser proof exist. Remaining MVP work is mainly runtime/source-health readiness, diagnostics/support polish, and completing the next app workflow slices.
+Application MVP completion: about 72%. The app shell, managed-device slices, controls slice, Sources workflow, release path, backend write proof, installed Sources browser proof, and repo-validated Managed Devices fleet controls exist. Remaining MVP work is mainly live validation for the fleet workflow, runtime/source-health readiness, diagnostics/support polish, and completing the next app workflow slices.
 
 Full product completion: not yet estimable from current evidence because runtime control readiness and future app milestone scope still need tighter acceptance criteria.
 

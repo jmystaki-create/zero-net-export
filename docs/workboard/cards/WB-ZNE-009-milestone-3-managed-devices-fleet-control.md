@@ -67,12 +67,18 @@ No design or code work has started.
 
 **Updated:** Stage 1 (fleet list with summary, filters, and drill-down) implemented and committed. Repo validation passed (620 tests OK, `git diff --check` clean, JS syntax valid).
 
+**Latest:** Stage 2 implemented and repo-validated: priority/readiness filters,
+sorting, Last Seen and Blockers columns, visible-row selection, and
+confirmation-gated bulk enable/disable actions. Validation record:
+`validation/zne-app-milestone-3-stage-2-validation.md`. Live HACS validation
+and browser proof are still pending.
+
 ## Next steps
 
 1. ~~Accept the feasibility check in `validation/zne-app-milestone-3-feasibility.md`.~~ (Done)
 2. ~~Approve starting Milestone 3 implementation.~~ (Done)
 3. ~~Begin minimal design and implementation of the Managed Devices Fleet Control workflow within the accepted feasible path.~~ (Stage 1 complete)
 4. ~~Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).~~ (Stage 1 complete)
-5. ~~Validate the slice with repo tests, HACS install, HA restart, browser proof, and logs.~~ (Repo validation done; live validation pending)
-6. Proceed with live validation and browser proof for Stage 1.
-7. Implement Stage 2 (priority/readiness filters, bulk actions, sorting) - Plan written, awaiting implementation.
+5. ~~Validate Stage 1 with repo tests.~~ (Done; live validation pending)
+6. ~~Implement Stage 2 priority/readiness filters, bulk actions, and sorting.~~ (Done)
+7. Proceed with live validation and browser proof for the complete Stage 1+2 Managed Devices fleet workflow.

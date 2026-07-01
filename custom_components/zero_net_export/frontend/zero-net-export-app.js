@@ -176,7 +176,7 @@ class ZeroNetExportApp extends HTMLElement {
     }
 
     // Handle bulk checkbox changes
-    if (checkbox && checkbox.classList.contains("zne-bulk-checkbox")) {
+    if (checkbox && (checkbox.classList.contains("zne-bulk-checkbox") || checkbox.classList.contains("zne-bulk-confirm"))) {
       this._updateBulkSelection();
       return;
     }
@@ -396,13 +396,15 @@ class ZeroNetExportApp extends HTMLElement {
     const bulkDisableBtn = this.querySelector("#bulk-disable");
     const bulkSelectAllBtn = this.querySelector("#bulk-select-all");
     const bulkClearBtn = this.querySelector("#bulk-clear");
+    const bulkConfirm = this.querySelector(".zne-bulk-confirm");
+    const confirmed = Boolean(bulkConfirm && bulkConfirm.checked);
 
     if (bulkEnableBtn) {
-      bulkEnableBtn.disabled = selectedCount === 0;
+      bulkEnableBtn.disabled = selectedCount === 0 || !confirmed;
       bulkEnableBtn.textContent = `Enable Selected (${selectedCount})`;
     }
     if (bulkDisableBtn) {
-      bulkDisableBtn.disabled = selectedCount === 0;
+      bulkDisableBtn.disabled = selectedCount === 0 || !confirmed;
       bulkDisableBtn.textContent = `Disable Selected (${selectedCount})`;
     }
     if (bulkSelectAllBtn) {
@@ -415,6 +417,26 @@ class ZeroNetExportApp extends HTMLElement {
   }
 
   async _handleBulkAction(action) {
+    if (action === "bulk-select-all") {
+      const checkboxes = this.querySelectorAll(".zne-bulk-checkbox");
+      checkboxes.forEach(cb => cb.checked = true);
+      this._updateBulkSelection();
+      this._message = `All ${checkboxes.length} visible device(s) selected.`;
+      return;
+    }
+
+    if (action === "bulk-clear") {
+      const checkboxes = this.querySelectorAll(".zne-bulk-checkbox");
+      const bulkConfirm = this.querySelector(".zne-bulk-confirm");
+      checkboxes.forEach(cb => cb.checked = false);
+      if (bulkConfirm) {
+        bulkConfirm.checked = false;
+      }
+      this._updateBulkSelection();
+      this._message = "Selection cleared.";
+      return;
+    }
+
     const checkboxes = this.querySelectorAll(".zne-bulk-checkbox:checked");
     const selectedDevices = Array.from(checkboxes).map(cb => cb.dataset.deviceKey);
 
@@ -423,8 +445,20 @@ class ZeroNetExportApp extends HTMLElement {
       return;
     }
 
+    const bulkConfirm = this.querySelector(".zne-bulk-confirm");
+    if (!bulkConfirm || !bulkConfirm.checked) {
+      this._message = "Confirm the selected-device bulk change first.";
+      this._updateBulkSelection();
+      return;
+    }
+
+    this._busy = true;
+    this._message = "";
+    this._render();
+
     try {
       if (action === "bulk-enable") {
+        let changed = 0;
         for (const deviceKey of selectedDevices) {
           const overview = this._state("sensor.managed_devices_overview");
           const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
@@ -437,10 +471,12 @@ class ZeroNetExportApp extends HTMLElement {
               device_key: deviceKey,
               enabled: true,
             });
+            changed += 1;
           }
         }
-        this._message = `Enable requested for ${selectedDevices.length} device(s).`;
+        this._message = `Enable requested for ${changed} selected device(s).`;
       } else if (action === "bulk-disable") {
+        let changed = 0;
         for (const deviceKey of selectedDevices) {
           const overview = this._state("sensor.managed_devices_overview");
           const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
@@ -453,21 +489,10 @@ class ZeroNetExportApp extends HTMLElement {
               device_key: deviceKey,
               enabled: false,
             });
+            changed += 1;
           }
         }
-        this._message = `Disable requested for ${selectedDevices.length} device(s).`;
-      } else if (action === "bulk-select-all") {
-        const checkboxes = this.querySelectorAll(".zne-bulk-checkbox");
-        checkboxes.forEach(cb => cb.checked = true);
-        this._updateBulkSelection();
-        this._message = `All ${checkboxes.length} devices selected.`;
-        return;
-      } else if (action === "bulk-clear") {
-        const checkboxes = this.querySelectorAll(".zne-bulk-checkbox");
-        checkboxes.forEach(cb => cb.checked = false);
-        this._updateBulkSelection();
-        this._message = "Selection cleared.";
-        return;
+        this._message = `Disable requested for ${changed} selected device(s).`;
       }
     } catch (error) {
       this._message = error && error.message ? error.message : String(error);
@@ -749,6 +774,10 @@ class ZeroNetExportApp extends HTMLElement {
               Clear Selection
             </button>
           </div>
+          <label class="zne-bulk-confirm-row">
+            <input type="checkbox" class="zne-bulk-confirm">
+            Confirm bulk changes for the selected visible devices.
+          </label>
 
           ${filtered.length === 0
             ? '<p class="zne-muted">No managed devices found.</p>'

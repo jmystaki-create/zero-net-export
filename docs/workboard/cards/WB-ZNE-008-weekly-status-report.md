@@ -18,10 +18,11 @@ Done:
 - Sources backend write proof passed and was restored safely.
 - OpenClaw Workboard UI is populated with the ZNE operating cards, and a dedicated card now tracks installed Sources browser proof.
 - Installed Sources browser proof captured on desktop and narrow viewport.
+- Milestone 3 Stage 2 is repo-validated with Managed Devices fleet filters, sorting, enhanced columns, and confirmation-gated bulk enable/disable actions.
 
 In progress / pending:
 - Workboard must be checked and updated every ZNE turn.
-- Next app milestone needs acceptance criteria and feasibility before design/code.
+- Milestone 3 live HACS validation and desktop/narrow browser proof are pending.
 
 Risks:
 - Runtime control readiness remains limited by source-health and managed-device readiness.
@@ -29,7 +30,7 @@ Risks:
 - Future app work must not drift into unsupported native HA UI injection.
 
 Recommended next action:
-- Define the next app milestone acceptance criteria and feasibility gate, keeping the OpenClaw Workboard aligned.
+- Live-validate the complete Milestone 3 Managed Devices fleet workflow and capture browser proof.
 
 ## Acceptance Criteria
 

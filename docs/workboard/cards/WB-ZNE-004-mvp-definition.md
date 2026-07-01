@@ -43,4 +43,4 @@ Fleet Control) is in draft; feasibility check and plan are written awaiting acce
 
 **Updated:** Milestone 3 feasibility check accepted on 2026-07-01 16:35 AEST. Implementation starting.
 
-**Latest:** Stage 1 (fleet list with summary, filters, and drill-down) implemented and validated. Repo validation passed (620 tests OK, `git diff --check` clean, JS syntax valid).
+**Latest:** Milestone 3 Stage 2 is repo-validated with Managed Devices fleet filters, sorting, enhanced columns, and confirmation-gated bulk enable/disable actions. Application MVP is about 72% complete, pending live HACS validation and browser proof for the Managed Devices fleet workflow.

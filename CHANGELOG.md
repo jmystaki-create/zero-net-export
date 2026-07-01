@@ -6,6 +6,9 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Added
+- Added repo-validated ZNE-APP-003 Managed Devices fleet controls: priority/readiness filters, sorting, last-seen and blocker columns, row selection, and confirmation-gated bulk enable/disable actions.
+
 ## [0.2.4] - 2026-07-01
 
 ### Fixed

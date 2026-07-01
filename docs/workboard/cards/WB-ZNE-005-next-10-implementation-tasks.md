@@ -14,11 +14,11 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 2. ~~Approve starting Milestone 3 implementation.~~ (Done)
 3. ~~Begin minimal design and implementation of the Managed Devices Fleet Control workflow.~~ (Stage 1 complete)
 4. ~~Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).~~ (Stage 1 complete)
-5. ~~Validate the slice with repo tests, HACS install, HA restart, browser proof, and logs.~~ (Repo validation done; live validation pending)
-6. Read-only inspect current live source-health warnings and classify blockers.
-7. Resolve source-health warnings enough to make runtime readiness actionable.
-8. Refine diagnostics/support surfaces for operator troubleshooting.
-9. Reassess application MVP completion after the next validated slice.
+5. ~~Validate Stage 1 with repo tests.~~ (Done; live validation pending)
+6. ~~Implement Stage 2 priority/readiness filters, sorting, enhanced columns, and bulk actions.~~ (Done)
+7. Live-validate the complete Stage 1+2 Managed Devices fleet workflow through GitHub/HACS, restart, fingerprint, browser proof, and logs.
+8. Read-only inspect current live source-health warnings and classify blockers.
+9. Resolve source-health warnings enough to make runtime readiness actionable.
 10. Keep the OpenClaw Workboard updated on every ZNE turn, including status, blockers, validation evidence, and next action.
 
 ## Acceptance Criteria
