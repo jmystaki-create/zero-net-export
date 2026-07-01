@@ -111,8 +111,9 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **current observed behavior:** Home Assistant logged repeated errors where `sensor.zero_net_export_source_blocker_next_step` and `sensor.zero_net_export_command_center_next_step` state strings exceeded the 255-character entity state limit and fell back to `unknown`.
 - **expected behavior:** ZNE sensor state values should stay comfortably under Home Assistant's state length limit. Longer operator guidance should live in attributes or another supported diagnostics surface.
 - **evidence:** `tmp/ha-core-logs-after-source-write-tail80-scan.txt` contains errors such as `State Open Settings -> Devices & Services -> Integrations -> Zero Net Export -> Configure -> Managed Devices ... for sensor.zero_net_export_source_blocker_next_step is longer than 255, falling back to unknown` and the equivalent command-center next-step error. Current restored state snapshots showed those two states at 156 and 147 characters, so this is tracked as a separate recurring/runtime risk rather than a failure of the source-role write proof.
+- **target-environment feasibility:** written in `validation/zne-594-state-length-feasibility.md`; Home Assistant source confirms entity state strings are limited to 255 characters, and ZNE should keep detailed next-step guidance in attributes rather than state.
 - **suspected cause:** next-step entity state composition can include dynamic managed-device candidate detail instead of keeping state text short and moving detail into attributes.
-- **next action:** fix the next-step sensor state contract so state values are short stable summaries and detailed guidance is exposed through attributes; add regression coverage for the 255-character state limit.
+- **next action:** accept the feasibility record, then fix the next-step sensor state contract so state values are short stable summaries and detailed guidance is exposed through attributes; add regression coverage for the 255-character state limit.
 
 ## ZNE-593 - Managed Devices app summary formatting is broken
 

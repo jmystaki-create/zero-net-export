@@ -42,6 +42,8 @@ Remaining:
 - Runtime control remains limited until source-health warnings and managed
   device readiness are resolved in the validation Home Assistant instance.
 - ZNE-594 tracks older HA log evidence where long next-step sensor state text
-  exceeded Home Assistant's 255-character state limit.
+  exceeded Home Assistant's 255-character state limit. Feasibility is written
+  in `validation/zne-594-state-length-feasibility.md`; code should wait for
+  acceptance.
 - Live validation must not use direct Home Assistant file-backend deployment.
 - Future app work must stay inside the accepted Home Assistant app/custom-panel feasibility path.
