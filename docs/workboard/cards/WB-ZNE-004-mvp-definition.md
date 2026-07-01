@@ -42,3 +42,5 @@ for the accepted scope, including installed browser proof. Milestone 3 (Managed 
 Fleet Control) is in draft; feasibility check and plan are written awaiting acceptance.
 
 **Updated:** Milestone 3 feasibility check accepted on 2026-07-01 16:35 AEST. Implementation starting.
+
+**Latest:** Stage 1 (fleet list with summary, filters, and drill-down) implemented and validated. Repo validation passed (620 tests OK, `git diff --check` clean, JS syntax valid).

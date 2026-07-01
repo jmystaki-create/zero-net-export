@@ -71,7 +71,8 @@ No design or code work has started.
 
 1. ~~Accept the feasibility check in `validation/zne-app-milestone-3-feasibility.md`.~~ (Done)
 2. ~~Approve starting Milestone 3 implementation.~~ (Done)
-3. Begin minimal design and implementation of the Managed Devices Fleet Control workflow within the accepted feasible path.
-4. Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).
-5. Validate the slice with repo tests, HACS install, HA restart, browser proof, and logs.
-6. Release as the next app feature release after validation.
+3. ~~Begin minimal design and implementation of the Managed Devices Fleet Control workflow within the accepted feasible path.~~ (Stage 1 complete)
+4. ~~Implement the smallest next app workflow slice (e.g., fleet list with filters and summary).~~ (Stage 1 complete)
+5. ~~Validate the slice with repo tests, HACS install, HA restart, browser proof, and logs.~~ (Repo validation done; live validation pending)
+6. Proceed with live validation and browser proof for Stage 1.
+7. Plan and implement Stage 2 (priority/readiness filters, bulk actions, sorting).

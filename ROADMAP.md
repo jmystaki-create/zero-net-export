@@ -20,6 +20,8 @@ awaiting acceptance: `validation/zne-app-milestone-3-feasibility.md` and
 
 **Updated:** Milestone 3 feasibility check accepted. Moving card `7f983131` to done; card `WB-ZNE-009` status updated to Doing.
 
+**Latest:** Stage 1 (fleet list with summary, filters, and drill-down) implemented. Repo validation passed (620 tests OK, `git diff --check` clean, JS syntax valid). Live validation pending.
+
 ## Current milestone
 
 ### ZNE-APP-002 - App-native Sources workflow
@@ -46,7 +48,9 @@ Evidence:
 Next gate:
 - ~~Accept the Milestone 3 feasibility check in `validation/zne-app-milestone-3-feasibility.md`.~~ (Done)
 - ~~Approve starting Milestone 3 (Managed Devices Fleet Control) implementation.~~ (Done)
-- Proceed with minimal design and implementation within the accepted feasible path.
+- ~~Proceed with minimal design and implementation within the accepted feasible path.~~ (Stage 1 complete)
+- Proceed with live validation and browser proof for Stage 1.
+- Plan and implement Stage 2 (priority/readiness filters, bulk actions, sorting).
 
 ## Release path
 
