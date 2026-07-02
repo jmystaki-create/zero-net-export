@@ -531,6 +531,30 @@ class ZeroNetExportApp extends HTMLElement {
             ${this._entityRow("Next step", "sensor.zero_net_export_command_center_next_step")}
           </div>
           <div class="zne-card">
+            <h3>Reconciliation Status</h3>
+            ${this._entityRow("Home Load", "sensor.zero_net_export_home_load_power", "W")}
+            ${this._entityRow("Source Power", "sensor.zero_net_export_source_power", "W")}
+            ${this._entityRow("Battery Power", "sensor.zero_net_export_battery_power", "W")}
+            ${this._entityRow("Surplus/Deficit", "sensor.zero_net_export_surplus", "W")}
+            ${this._entityRow("Reconciliation Error", "sensor.zero_net_export_last_reconciliation_error", "W")}
+            <div class="zne-row">
+              <span>Confidence</span>
+              <strong>${this._attr("sensor.zero_net_export_status", "confidence", "unknown")}</strong>
+            </div>
+            <div class="zne-row">
+              <span>Executor State</span>
+              <strong>${this._stateText("sensor.zero_net_export_executor_state", "unknown")}</strong>
+            </div>
+          </div>
+          <div class="zne-card">
+            <h3>Executor Control</h3>
+            <p class="zne-muted">Pause stops new actions. Existing device states remain unchanged.</p>
+            <div class="zne-actions">
+              <button type="button" data-zne-action="pause-executor">Pause Executor</button>
+              <button type="button" data-zne-action="resume-executor">Resume Executor</button>
+            </div>
+          </div>
+          <div class="zne-card">
             <h3>Plans</h3>
             ${entries.length ? entries.map((entry) => `
               <div class="zne-plan">
@@ -997,6 +1021,36 @@ class ZeroNetExportApp extends HTMLElement {
       return this._settingsSection();
     }
     return this._overviewSection();
+  }
+
+  _handlePauseExecutor() {
+    if (!this._hass) {
+      this._message = "Home Assistant connection not available.";
+      return;
+    }
+    this._hass.callService("zero_net_export", "pause_executor")
+      .then(() => {
+        this._message = "Executor paused.";
+        this._render();
+      })
+      .catch((err) => {
+        this._message = "Failed to pause executor: " + (err.message || String(err));
+      });
+  }
+
+  _handleResumeExecutor() {
+    if (!this._hass) {
+      this._message = "Home Assistant connection not available.";
+      return;
+    }
+    this._hass.callService("zero_net_export", "resume_executor")
+      .then(() => {
+        this._message = "Executor resumed.";
+        this._render();
+      })
+      .catch((err) => {
+        this._message = "Failed to resume executor: " + (err.message || String(err));
+      });
   }
 
   _render() {
