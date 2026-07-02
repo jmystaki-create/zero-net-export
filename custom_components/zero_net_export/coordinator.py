@@ -253,14 +253,14 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         if not self._executor_paused:
             self._executor_paused = True
             _LOGGER.info("Executor paused by user")
-            await self._async_write_ha_state()  # Trigger sensor update
+            # Sensor will update on next coordinator refresh
 
     async def async_resume_executor(self) -> None:
         """Resume the executor loop."""
         if self._executor_paused:
             self._executor_paused = False
             _LOGGER.info("Executor resumed by user")
-            await self._async_write_ha_state()  # Trigger sensor update
+            # Sensor will update on next coordinator refresh
 
     async def async_note_current_integration_version(self, integration_version: str) -> None:
         """Persist version-update context so the UI can explain what changed after upgrades."""
