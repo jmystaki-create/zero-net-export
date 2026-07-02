@@ -6,6 +6,15 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-02
+
+### Added
+- Runtime Visibility & Manual Override (Milestone 5):
+  - New `sensor.zero_net_export_executor_state` showing "running" or "paused".
+  - New `zero_net_export.pause_executor` service to stop the executor loop.
+  - New `zero_net_export.resume_executor` service to restart the executor loop.
+  - Live reconciliation data available in the app Overview card.
+
 ## [0.2.9] - 2026-07-02
 
 ### Fixed

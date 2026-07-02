@@ -108,6 +108,8 @@ class DeviceGuardRuntime:
 
 @dataclass
 class ZeroNetExportState:
+    executor_state: str  # "running" or "paused"  # Milestone 5
+
     mode: str
     enabled: bool
     active: bool
@@ -190,6 +192,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         self.entry = entry
         self._mode = MODE_ZERO_EXPORT
         self._enabled = True
+        self._executor_paused = False  # Milestone 5: Manual override flag
         self._target_export_w_override: float | None = None
         self._deadband_w_override: float | None = None
         self._battery_reserve_soc_override: float | None = None
@@ -239,9 +242,25 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         self._version_update_detected_at = self._parse_iso_datetime(release_state.get("version_update_detected_at"))
         self._mode = str(controller.get("mode") or MODE_ZERO_EXPORT)
         self._enabled = bool(controller.get("enabled", True))
+        self._executor_paused = bool(controller.get("executor_paused", False))  # Milestone 5
         self._target_export_w_override = self._parse_float(controller.get("target_export_w"))
         self._deadband_w_override = self._parse_float(controller.get("deadband_w"))
         self._battery_reserve_soc_override = self._parse_float(controller.get("battery_reserve_soc"))
+
+
+    async def async_pause_executor(self) -> None:
+        """Pause the executor loop. No new control actions will be dispatched."""
+        if not self._executor_paused:
+            self._executor_paused = True
+            _LOGGER.info("Executor paused by user")
+            await self._async_write_ha_state()  # Trigger sensor update
+
+    async def async_resume_executor(self) -> None:
+        """Resume the executor loop."""
+        if self._executor_paused:
+            self._executor_paused = False
+            _LOGGER.info("Executor resumed by user")
+            await self._async_write_ha_state()  # Trigger sensor update
 
     async def async_note_current_integration_version(self, integration_version: str) -> None:
         """Persist version-update context so the UI can explain what changed after upgrades."""
@@ -349,6 +368,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         return {
             "mode": self._mode,
             "enabled": self._enabled,
+            "executor_paused": self._executor_paused,  # Milestone 5
             "configured_target_export_w": self._configured_target_export_w(),
             "effective_target_export_w": self._effective_target_export_w(),
             "target_export_override_active": self._target_export_w_override is not None,
@@ -1259,7 +1279,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
                 device_summary.devices,
             )
 
-            active = self._enabled and not effective_safe_mode and device_summary.usable_devices > 0
+            active = self._enabled and not effective_safe_mode and not self._executor_paused  # Milestone 5 and device_summary.usable_devices > 0
             if not self._enabled:
                 status = "disabled"
                 reason = "Controller disabled by operator"
@@ -1416,6 +1436,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             }
 
             state = ZeroNetExportState(
+                executor_state="paused" if self._executor_paused else "running",  # Milestone 5
                 mode=self._mode,
                 enabled=self._enabled,
                 active=active,

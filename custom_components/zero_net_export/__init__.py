@@ -710,6 +710,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_initialize()
     await coordinator.async_note_current_integration_version(INTEGRATION_VERSION)
     await coordinator.async_config_entry_first_refresh()
+    # Milestone 5: Register pause/resume executor services
+    async def _async_pause_executor_service(call):
+        coordinator = hass.data[DOMAIN][entry.entry_id]
+        await coordinator.async_pause_executor()
+
+    async def _async_resume_executor_service(call):
+        coordinator = hass.data[DOMAIN][entry.entry_id]
+        await coordinator.async_resume_executor()
+
+    hass.services.async_register(
+        DOMAIN,
+        "pause_executor",
+        _async_pause_executor_service,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "resume_executor",
+        _async_resume_executor_service,
+    )
+
     await _async_update_native_setup_notice(hass, entry, coordinator)
     async_sync_repairs_issues(hass, entry, coordinator)
 

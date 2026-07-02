@@ -114,6 +114,7 @@ SENSOR_DEFS = {
     "planned_action_count": "Planned action count",
     "executable_action_count": "Executable action count",
     "blocked_planned_action_count": "Blocked planned action count",
+    "executor_state": "Executor state",  # Milestone 5
     "planned_power_delta_w": "Planned power delta",
     "variable_planned_power_delta_w": "Variable planned power delta",
     "fixed_planned_power_delta_w": "Fixed planned power delta",

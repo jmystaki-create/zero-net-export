@@ -71,8 +71,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
-        self.assertIn("custom-element registration", info["changes_preview"])
-        self.assertIn("Home Assistant app", info["changes_preview"])
+        self.assertIn("executor_state", info["changes_preview"])
+        self.assertIn("Runtime Visibility", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
         self.assertNotIn("release-target decision", info["changes_preview"])
 
@@ -458,8 +458,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         current_highlights = "\n".join(current_section["highlights"])
 
-        self.assertIn("custom-element registration", current_highlights)
-        self.assertIn("Home Assistant app", current_highlights)
+        self.assertIn("executor_state", current_highlights)  # Milestone 5
+        self.assertIn("Runtime Visibility", current_highlights)  # Milestone 5
         self.assertNotIn("unsupported device overflow-menu injection", current_highlights.lower())
         self.assertNotIn("arbitrary custom", current_highlights.lower())
         self.assertNotIn("device-page card injection", current_highlights.lower())
