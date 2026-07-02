@@ -45,7 +45,7 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.2.9`.
+Current release: `v0.2.9`. Next: Milestone 5 (Runtime Visibility Current release: `v0.2.9`. Manual Override) in planning.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -85,6 +85,8 @@ Deferred / not current focus:
 - ZNE-FR-009 and ZNE-FR-010 native managed-device work were repo/release-prepped for `0.1.110` but are no longer the primary roadmap while app work is active.
 
 ## Next Development Steps
+
+**Immediate**: Implement Milestone 5 (Runtime Visibility ## Next Development Steps Manual Override).
 
 1. Define the next app milestone and acceptance criteria.
 2. Decide when to scope deferred bulk priority adjustment.
