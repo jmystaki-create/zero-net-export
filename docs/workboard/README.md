@@ -138,7 +138,8 @@ Full product completion: not yet estimable from current evidence because runtime
 ## OpenClaw UI Cards
 
 - `72ed354f` - `ZNE: Sources browser proof captured` - done.
-- `7f983131` - `ZNE: Define next app milestone` - ready.
+- `7f983131` - `ZNE: Define next app milestone` - done.
+- `a1b2c3d4` - `ZNE: Milestone 5 Runtime Visibility - `7f983131` - `ZNE: Define next app milestone` - ready. Manual Override` - ready.
 - `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` - done.
 - `a8048485` - `ZNE: Milestone 3 populated fleet live proof` - ready; proof now recorded in repo docs.
 - `fe67044b-fd94-4529-b8f4-455e94f0639a` - `ZNE: Decide Milestone 3 bulk priority scope` - superseded; deferred.
