@@ -7504,3 +7504,17 @@ These entries remain tracked for future installed-build/browser validation, but 
 
 Do not mark a bug `closed` just because a commit exists.
 If the bug affects the user-visible product or live Home Assistant behavior, closure should usually require live validation evidence.
+
+## ZNE-APP-005 - Runtime Visibility & Manual Override (Milestone 5)
+
+- **status**: `planning`
+- **severity**: `medium`
+- **area**: `app_runtime`
+- **where seen**: Milestone 4 closure (Source Health & Runtime Blocker Resolution) completed; next app milestone defined.
+- **current observed behavior**: The app lacks a dedicated live reconciliation status card and a manual executor pause/resume control.
+- **expected behavior**: Operators should see live reconciliation data (Home Load, Source Power, Battery Power, Surplus/Deficit, Reconciliation Error, Confidence) and be able to pause/resume the executor without restarting HA.
+- **evidence**: Milestone 5 plan created in `docs/ZNE_APP_MILESTONE_5_RUNTIME_VISIBILITY_PLAN.md`.
+- **repo fix**: To be implemented: backend services `pause_executor`/`resume_executor`, new `sensor.zero_net_export_executor_state`, frontend Reconciliation Card and toggle.
+- **validation status**: Pending implementation.
+- **next action**: Implement Milestone 5 backend and frontend changes, then validate via HACS/live install.
+
