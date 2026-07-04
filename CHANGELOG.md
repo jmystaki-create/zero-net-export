@@ -6,6 +6,18 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+### Added
+- Diagnostics & Support Polish (Milestone 6):
+  - Complete Diagnostics tab UI with log buffer display.
+  - System health summary section showing key health metrics.
+  - Reconciliation trend display showing recent reconciliation history.
+  - Error banner with repair guidance for actionable issues.
+  - "Download Diagnostics" button to export diagnostics as a text file.
+  - "Copy summary" button to copy diagnostics to clipboard.
+  - "Repair" button to trigger repair actions for detected issues.
+  - Event handlers for `export-diagnostics` and `repair-issue` actions.
+
+
 ## [0.3.0] - 2026-07-02
 
 ### Added
