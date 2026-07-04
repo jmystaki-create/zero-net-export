@@ -1,6 +1,6 @@
 # Zero Net Export Workboard
 
-Last updated: 2026-07-01
+Last updated: 2026-07-05
 
 This workboard is the operational project view for Zero Net Export. It summarizes what exists, what is broken, what is next, and how far the project is from a useful Home Assistant application MVP.
 
@@ -45,7 +45,8 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.2.9`. Next: Milestone 5 (Runtime Visibility Current release: `v0.2.9`. Manual Override) in planning.
+Current release: `v0.3.0` (Milestone 5 complete, released 2026-07-02).
+Next: Milestone 6 (Diagnostics & Support Polish) - target `v0.3.1`.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
