@@ -1,0 +1,10 @@
+*** Begin Patch
+*** Add: export_diagnostics service handler function before async_setup_entry
++async def _async_export_diagnostics_service(hass: HomeAssistant, call) -> None:
++    """Export diagnostics to a JSON file."""
++    entry = _entry_from_service_call(hass, call)
++    coordinator = hass.data[DOMAIN][entry.entry_id]
++    filename = await coordinator.async_export_diagnostics(hass)
++    _LOGGER.info("Diagnostics exported to %s", filename)
++
+*** End Patch

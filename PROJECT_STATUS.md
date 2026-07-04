@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-07-02
+last_modified: 2026-07-03
 
 ## Current Focus
 
@@ -29,7 +29,9 @@ Native Home Assistant surfaces are now supporting/fallback surfaces. The primary
 
 Corrective release `0.2.4` is now published as GitHub Release `v0.2.4` from commit `63c2568`, installed through HACS, restarted, fingerprint-matched before and after restart, route/static/state/log checked, and HACS metadata reports installed/latest `v0.2.4`. ZNE-594 is released/live-validated: post-restart state proof shows `sensor.zero_net_export_source_blocker_next_step` length `156` and `sensor.zero_net_export_command_center_next_step` length `147`, and the post-restart log scan found `0` Zero Net Export next-step state length errors. Evidence: `validation/0.2.4-release-validation.md`.
 
-Previous release state remains relevant but is no longer the primary roadmap: ZNE-FR-009/ZNE-FR-010 are release-prepped as `0.1.110` but the public GitHub Release object is not published; `v0.2.4` is now the latest visible GitHub Release. Future release work should not continue polishing native device-page UX unless it directly supports the application port.
+Release `v0.2.5` delivered ZNE-APP-003 (Milestone 3) with managed device fleet controls. Release `v0.2.9` delivered ZNE-APP-004 (Milestone 4) with source health and runtime blocker resolution. Release `v0.3.0` delivered ZNE-APP-005 (Milestone 5) with runtime visibility and manual override.
+
+Previous release state remains relevant but is no longer the primary roadmap: ZNE-FR-009/ZNE-FR-010 are release-prepped as `0.1.110` but the public GitHub Release object is not published; `v0.3.0` is now the latest visible GitHub Release. Future release work should not continue polishing native device-page UX unless it directly supports the application port.
 
 Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 workflow is superseded by the application direction.
 

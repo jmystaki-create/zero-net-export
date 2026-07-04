@@ -719,6 +719,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = hass.data[DOMAIN][entry.entry_id]
         await coordinator.async_resume_executor()
 
+    async def _async_export_diagnostics_service(call):
+        coordinator = hass.data[DOMAIN][entry.entry_id]
+        filename = await coordinator.async_export_diagnostics(hass)
+        _LOGGER.info("Diagnostics exported to %s", filename)
+
     hass.services.async_register(
         DOMAIN,
         "pause_executor",
@@ -728,6 +733,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         DOMAIN,
         "resume_executor",
         _async_resume_executor_service,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "export_diagnostics",
+        _async_export_diagnostics_service,
     )
 
     await _async_update_native_setup_notice(hass, entry, coordinator)

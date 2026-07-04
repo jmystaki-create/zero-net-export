@@ -170,3 +170,13 @@ update_source_roles:
       selector:
         entity:
           domain: sensor
+
+export_diagnostics:
+  name: Export diagnostics
+  description: Export Zero Net Export diagnostics to a JSON file in the Home Assistant config directory. The file contains log buffer, sensor states, config entry state, and reconciliation history with sensitive data filtered.
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
+      selector:
+        text:

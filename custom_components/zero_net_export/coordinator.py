@@ -49,6 +49,7 @@ from .validation import SourceSpec, ValidationIssue, get_source_reading, issues_
 STORAGE_VERSION = 1
 STORAGE_KEY_PREFIX = f"{DOMAIN}_runtime"
 MAX_ACTION_HISTORY = 20
+MAX_LOG_BUFFER_SIZE = 50
 MAX_DAILY_METRIC_DAYS = 7
 STALE_SOURCE_MIN_SECONDS = 120
 STALE_SOURCE_ENERGY_MIN_SECONDS = 900
@@ -193,6 +194,7 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         self._mode = MODE_ZERO_EXPORT
         self._enabled = True
         self._executor_paused = False  # Milestone 5: Manual override flag
+        self._log_buffer: list[dict] = []  # Milestone 6: Internal log buffer
         self._target_export_w_override: float | None = None
         self._deadband_w_override: float | None = None
         self._battery_reserve_soc_override: float | None = None
@@ -261,6 +263,100 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
             self._executor_paused = False
             _LOGGER.info("Executor resumed by user")
             # Sensor will update on next coordinator refresh
+
+    def _capture_log(self, level: str, message: str) -> None:
+        """Capture a log entry in the internal buffer."""
+        entry = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "level": level,
+            "message": message,
+        }
+        self._log_buffer.append(entry)
+        if len(self._log_buffer) > MAX_LOG_BUFFER_SIZE:
+            self._log_buffer.pop(0)
+
+
+    async def async_get_diagnostics(self, hass) -> dict:
+        """Return diagnostics data for the UI."""
+        # Gather sensor states
+        sensor_states = {}
+        for entity_id in [
+            "sensor.zero_net_export_status",
+            "sensor.zero_net_export_executor_state",
+            "sensor.zero_net_export_home_load_power",
+            "sensor.zero_net_export_source_power",
+            "sensor.zero_net_export_battery_power",
+            "sensor.zero_net_export_surplus",
+            "sensor.zero_net_export_last_reconciliation_error",
+            "binary_sensor.zero_net_export_source_mismatch",
+        ]:
+            state = hass.states.get(entity_id)
+            if state:
+                sensor_states[entity_id] = {
+                    "state": state.state,
+                    "attributes": dict(state.attributes) if state.attributes else {},
+                }
+
+        # Gather config entry state
+        config_entry = self.entry
+        config_state = {
+            "entry_id": config_entry.entry_id,
+            "state": str(config_entry.state),
+            "disabled_by": str(config_entry.disabled_by) if config_entry.disabled_by else None,
+        }
+
+        # Gather reconciliation history (from existing buffer if available, or empty)
+        reconciliation_history = getattr(self, "_reconciliation_history", [])[-100:]
+
+        return {
+            "log_buffer": self._log_buffer,
+            "sensor_states": sensor_states,
+            "config_entry": config_state,
+            "reconciliation_history": reconciliation_history,
+            "executor_paused": self._executor_paused,
+            "last_action_timestamp": getattr(self, "_last_action_timestamp", None),
+        }
+
+    async def async_export_diagnostics(self, hass) -> str:
+        """Export diagnostics to a JSON file and return the filename."""
+        import json
+        import re as regex_module
+
+        diagnostics = await self.async_get_diagnostics(hass)
+
+        # Filter sensitive data
+        def filter_sensitive(obj):
+            if isinstance(obj, dict):
+                return {
+                    k: filter_sensitive(v)
+                    for k, v in obj.items()
+                    if k.lower() not in ["token", "password", "api_key", "secret", "access_token"]
+                }
+            elif isinstance(obj, str):
+                # Redact sensitive patterns
+                return regex_module.sub(
+                    r"(token|password|api_key|secret|access_token)=\S+",
+                    r"\1=REDACTED",
+                    obj
+                )
+            elif isinstance(obj, list):
+                return [filter_sensitive(item) for item in obj]
+            else:
+                return obj
+
+        diagnostics = filter_sensitive(diagnostics)
+
+        # Write to file
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+        filename = f"zne-diagnostics-{timestamp}.json"
+        filepath = hass.config.path(filename)
+
+        with open(filepath, "w") as f:
+            json.dump(diagnostics, f, indent=2, default=str)
+
+        _LOGGER.info("Diagnostics exported to %s", filepath)
+        return filename
+
 
     async def async_note_current_integration_version(self, integration_version: str) -> None:
         """Persist version-update context so the UI can explain what changed after upgrades."""

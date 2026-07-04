@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-07-01
+Last updated: 2026-07-03
 
 ## Workboard
 
@@ -9,19 +9,21 @@ Initial cards are under `docs/workboard/cards/` and cover project charter,
 architecture inventory, bug register, MVP definition, next 10 implementation
 tasks, blockers/unknowns, testing/validation plan, and weekly status report.
 The OpenClaw Workboard UI is the active visible board for ZNE. Check and update
-it every ZNE work turn when status, validation evidence, blockers, next actions,
+it every ZNE work turn when status, validation state, blockers, next actions,
 or release readiness changes. Current relevant UI cards:
 `72ed354f` - `ZNE: Sources browser proof captured` (done),
-`7f983131` - `ZNE: Define next app milestone` (stale ready; superseded),
+`7f983131` - `ZNE: Define next app milestone` (done),
 `a42c2107` - `ZNE: Milestone 3 Stage 2 repo validated` (done),
-`a8048485` - `ZNE: Milestone 3 populated fleet live proof` (ready; proof now recorded),
+`a8048485` - `ZNE: Milestone 3 populated fleet live proof` (done),
 `fe67044b-fd94-4529-b8f4-455e94f0639a` -
 `ZNE: Decide Milestone 3 bulk priority scope` (superseded; deferred),
 `348000d4` - `ZNE: Milestone 3 closed` (done),
 `06b5d15f` - `ZNE: Define bulk priority adjustment scope for later milestone` (ready),
-`8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` (doing),
+`8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` (done),
 `f8d93513-ed96-4228-b1c8-0885e608544d` -
-`ZNE: Milestone 4 live baseline captured` (done).
+`ZNE: Milestone 4 live baseline captured` (done),
+`a1b2c3d4` - `ZNE: Milestone 5 Runtime Visibility - Manual Override` (done),
+`zne-app-006` - `ZNE: Milestone 6 Diagnostics & Support Polish` (ready).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -31,18 +33,58 @@ browser proof is recorded. References:
 `validation/0.2.5-release-validation.md`, and repo Workboard card
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Updated:** Milestone 3 feasibility check accepted. Moving card `7f983131` to done; card `WB-ZNE-009` status updated to Doing.
-
-**Latest:** Milestone 4 is complete and released/live-validated as `v0.2.9`.
-Home Assistant now reports `sensor.zero_net_export_status=ready`, validated
-sources, one usable managed device, acceptable reconciliation, and installed app
-browser proof. Evidence: `validation/0.2.9-release-validation.md`.
+**Latest**: Milestone 5 is complete and released/live-validated as `v0.3.0`.
+Home Assistant now has `executor_state` sensor, `pause_executor`/`resume_executor`
+services, Reconciliation card with live power/surplus data, and Pause/Resume
+buttons. Evidence: `validation/milestone-5-runtime-visibility-validation.md`.
 
 ## Current milestone
 
+### ZNE-APP-006 - Diagnostics & Support Polish
+
+Status: Ready; target release `v0.3.1`. Implementation plan is written with
+backend changes (log buffer, diagnostics service) and frontend changes (Diagnostics
+tab, error banners, download button). Feasibility accepted.
+
+Outcome:
+- Operators can view recent ZNE logs, system health summary, and reconciliation
+trend in the app.
+- Operators can see error banners with repair guidance when sources are blocked
+or mismatched.
+- Operators can download a JSON diagnostics file with filtered sensitive data.
+
+Evidence:
+- Plan: `docs/MILESTONE_6_IMPLEMENTATION_PLAN.md`
+- Feasibility: `docs/MILESTONE_6_DIAGNOSTICS_SUPPORT_FEASIBILITY.md` (to be created/confirmed)
+- Next action: begin backend implementation (log buffer, diagnostics service)
+
+Next gate:
+- Complete backend implementation (coordinator log buffer, `async_get_diagnostics`,
+`async_export_diagnostics`, service registration).
+- Complete frontend implementation (Diagnostics tab, error banners, export button).
+- Run repo validation (tests, compile, diff check).
+- Release `v0.3.1` via GitHub/HACS and live-validate.
+
+## Completed App Milestones
+
+### ZNE-APP-005 - Runtime Visibility & Manual Override
+
+Status: released as `v0.3.0`; live-validated with API tests and sensor checks.
+
+Outcome:
+- Operators can view live reconciliation data (home load, source power, battery
+power, surplus/deficit, reconciliation error).
+- Operators can pause/resume the executor via services and frontend buttons.
+- Safety logging and executor pause flag implemented.
+
+Evidence:
+- Plan: `docs/ZNE_APP_MILESTONE_5_PLAN.md` (to be created if not exists)
+- Live baseline: `validation/milestone-5-runtime-visibility-validation.md`
+- Release validation: `validation/0.3.0-release-validation.md` (to be created)
+
 ### ZNE-APP-004 - Source Health & Runtime Blocker Resolution
 
-Status: Done; released/live-validated as `v0.2.9`. Milestone 4 plan and
+Status: released/live-validated as `v0.2.9`. Milestone 4 plan and
 source-health fix guide are written, the approved Home Assistant template sensor
 workaround is applied, and the installed validation target reports ready runtime
 state.
@@ -60,13 +102,6 @@ Evidence:
 - Fix guide: `docs/SOURCE_HEALTH_FIX_GUIDE.md`
 - Live baseline: `validation/zne-app-milestone-4-live-baseline.md`
 - Release/live validation: `validation/0.2.9-release-validation.md`
-
-Next gate:
-- Define the next app milestone. Bulk priority adjustment remains deferred;
-  likely next candidates are diagnostics/support polish or the next
-  runtime-control workflow slice.
-
-## Completed App Milestones
 
 ### ZNE-APP-003 - Managed Devices Fleet Control
 
@@ -110,19 +145,20 @@ Evidence:
 Completed:
 - Published `v0.2.3` from the repo-validated ZNE-APP-002 implementation.
 - Published corrective `v0.2.4` for ZNE-594.
+- Published `v0.2.5` for ZNE-APP-003 (Milestone 3).
+- Published `v0.2.9` for ZNE-APP-004 (Milestone 4).
+- Published `v0.3.0` for ZNE-APP-005 (Milestone 5).
 - Installed/updated through HACS.
 - Restarted Home Assistant.
 - Verified installed/latest version, fingerprint match, app/static routes, targeted logs, and HACS metadata.
-- Verified next-step sensor states are under Home Assistant's 255-character
-  state limit and post-restart logs contain no new ZNE next-step length errors.
 - Validated the reversible app-native source-role write path through
   `zero_net_export.update_source_roles` using optional `battery_soc_entity`,
   then restored it to unset.
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Complete Milestone 4 source-health validation and decide whether it requires
-  a `v0.2.6` release or only Home Assistant configuration changes.
+- Implement Milestone 6 (Diagnostics & Support Polish).
+- Release `v0.3.1` via GitHub/HACS and live-validate.
 - Keep the OpenClaw Workboard aligned every turn.
 
 ## Risks
@@ -133,3 +169,5 @@ Remaining:
   recurrence while broader app workflow validation proceeds.
 - Live validation must not use direct Home Assistant file-backend deployment.
 - Future app work must stay inside the accepted Home Assistant app/custom-panel feasibility path.
+- Milestone 6 implementation requires careful handling of log capture (either
+  wrapping logger calls or using a custom handler) and sensitive data filtering.
