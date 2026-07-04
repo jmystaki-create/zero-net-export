@@ -369,6 +369,28 @@ class ZeroNetExportApp extends HTMLElement {
         await navigator.clipboard.writeText(text);
         this._message = "Diagnostics summary copied.";
       }
+
+      if (action === "export-diagnostics") {
+        const text = this._diagnosticText();
+        const blob = new Blob([text], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "zne-diagnostics-" + new Date().toISOString().slice(0, 10) + ".txt";
+        a.click();
+        URL.revokeObjectURL(url);
+        this._message = "Diagnostics file download started.";
+      }
+
+      if (action === "repair-issue") {
+        // Call the repair service if available, or show guidance
+        try {
+          await this._hass.callService("zero_net_export", "repair_issue", {});
+          this._message = "Repair request sent. Check logs for status.";
+        } catch (err) {
+          this._message = "Repair service not available. Check Home Assistant logs.";
+        }
+      }
     } catch (error) {
       this._message = error && error.message ? error.message : String(error);
     } finally {
@@ -963,29 +985,104 @@ class ZeroNetExportApp extends HTMLElement {
   }
 
   _diagnosticsSection() {
+    // Get diagnostics data from coordinator if available
+    const diagnostics = this._hass?.states?.['sensor.zero_net_export_diagnostics']?.attributes || {};
+    const logBuffer = diagnostics.log_buffer || [];
+    const healthSummary = diagnostics.health_summary || {};
+    const reconciliationTrend = diagnostics.reconciliation_trend || [];
+    const errorBanner = diagnostics.error_banner || null;
+    
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
           <h2>Diagnostics</h2>
           <button type="button" data-zne-action="copy-diagnostics">Copy summary</button>
+          <button type="button" data-zne-action="export-diagnostics">Download</button>
         </div>
+        
+        ${errorBanner ? `
+          <div class="zne-error-banner">
+            <strong>Error:</strong> ${errorBanner}
+            <button type="button" data-zne-action="repair-issue">Repair</button>
+          </div>
+        ` : ''}
+        
         <div class="zne-grid">
+          <!-- Release Info -->
           <div class="zne-card">
             <h3>Release</h3>
             ${this._entityRow("Installed", "sensor.zero_net_export_installed_version")}
             ${this._entityRow("Update summary", "sensor.zero_net_export_update_summary")}
             ${this._entityRow("Changes", "sensor.zero_net_export_changes_preview")}
           </div>
+          
+          <!-- Support Status -->
           <div class="zne-card">
             <h3>Support</h3>
             ${this._entityRow("Safe mode", "binary_sensor.zero_net_export_safe_mode")}
             ${this._entityRow("Stale data", "binary_sensor.zero_net_export_stale_data")}
             ${this._entityRow("Command failure", "binary_sensor.zero_net_export_command_failure")}
           </div>
+          
+          <!-- System Health Summary -->
+          ${healthSummary && Object.keys(healthSummary).length > 0 ? `
+            <div class="zne-card">
+              <h3>System Health</h3>
+              ${Object.entries(healthSummary).map(([key, value]) => 
+                `<div class="zne-health-item">
+                  <span class="zne-health-label">${key}</span>
+                  <span class="zne-health-value">${value}</span>
+                </div>`
+              ).join('')}
+            </div>
+          ` : ''}
+          
+          <!-- Log Buffer -->
+          ${logBuffer && logBuffer.length > 0 ? `
+            <div class="zne-card">
+              <h3>Recent Logs (${logBuffer.length} entries)</h3>
+              <div class="zne-log-container">
+                ${logBuffer.slice(-10).reverse().map(log => `
+                  <div class="zne-log-entry">
+                    <span class="zne-log-time">${log.timestamp || 'N/A'}</span>
+                    <span class="zne-log-level ${log.level || 'info'}">${log.level || 'INFO'}</span>
+                    <span class="zne-log-message">${log.message || ''}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : `
+            <div class="zne-card">
+              <h3>Recent Logs</h3>
+              <p class="zne-empty">No log entries available.</p>
+            </div>
+          `}
+          
+          <!-- Reconciliation Trend -->
+          ${reconciliationTrend && reconciliationTrend.length > 0 ? `
+            <div class="zne-card">
+              <h3>Reconciliation Trend</h3>
+              <div class="zne-trend-container">
+                ${reconciliationTrend.slice(-7).map(entry => `
+                  <div class="zne-trend-item">
+                    <span class="zne-trend-time">${entry.timestamp || 'N/A'}</span>
+                    <span class="zne-trend-status ${entry.status || 'unknown'}">${entry.status || 'unknown'}</span>
+                    <span class="zne-trend-delta">Δ ${entry.delta || 0}W</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : `
+            <div class="zne-card">
+              <h3>Reconciliation Trend</h3>
+              <p class="zne-empty">No reconciliation data available.</p>
+            </div>
+          `}
         </div>
       </section>
     `;
   }
+
 
   _settingsSection() {
     return `
