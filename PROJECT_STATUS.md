@@ -2,15 +2,15 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-07-03
+last_modified: 2026-07-05
 
 ## Current Focus
 
-**Milestone 6: Diagnostics & Support Polish** (status: `ready`, target: `v0.3.1`)
+**Milestone 6: Diagnostics & Support Polish** (status: `in_progress`, target: `v0.3.1`)
 - Workboard card: `zne-app-006`
 - Feasibility: ACCEPTED (see `docs/MILESTONE_6_DIAGNOSTICS_SUPPORT_FEASIBILITY.md`)
 - Implementation plan: defined (see `docs/MILESTONE_6_IMPLEMENTATION_PLAN.md`)
-- Next action: begin backend implementation (log buffer, diagnostics service)
+- Next action: live validation of Diagnostics tab in Home Assistant (verify UI rendering, data binding, and button actions); create validation record
 
 **Milestone 5: Runtime Visibility & Manual Override** - **COMPLETED** (v0.3.0)
 - Released: v0.3.0 (GitHub Release, HACS validated)
