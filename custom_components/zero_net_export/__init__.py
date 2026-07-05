@@ -723,6 +723,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         coordinator = hass.data[DOMAIN][entry.entry_id]
         filename = await coordinator.async_export_diagnostics(hass)
         _LOGGER.info("Diagnostics exported to %s", filename)
+    async def _async_repair_issue_service(call):
+        """Clear all repairs issues for the Zero Net Export integration."""
+        async_clear_repairs_issues(hass, entry)
+        _LOGGER.info("Repairs issues cleared for Zero Net Export")
+
 
     hass.services.async_register(
         DOMAIN,
@@ -738,6 +743,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         DOMAIN,
         "export_diagnostics",
         _async_export_diagnostics_service,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "repair_issue",
+        _async_repair_issue_service,
     )
 
     await _async_update_native_setup_notice(hass, entry, coordinator)
