@@ -6,7 +6,7 @@ last_modified: 2026-07-05
 
 ## Current Focus
 
-**Milestone 6: Diagnostics & Support Polish** (status: `in_progress`, target: `v0.3.1`)
+**Milestone 6: Diagnostics & Support Polish** (status: `validating`, target: `v0.3.1`)
 - Workboard card: `zne-app-006`
 - Feasibility: ACCEPTED (see `docs/MILESTONE_6_DIAGNOSTICS_SUPPORT_FEASIBILITY.md`)
 - Implementation plan: defined (see `docs/MILESTONE_6_IMPLEMENTATION_PLAN.md`)
