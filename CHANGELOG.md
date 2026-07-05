@@ -4,7 +4,7 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
-## [Unreleased]
+## [0.3.1] - 2026-07-05
 
 ### Added
 - Diagnostics & Support Polish (Milestone 6):
@@ -18,7 +18,7 @@ This project follows a practical Keep a Changelog style and uses semantic versio
   - Event handlers for `export-diagnostics` and `repair-issue` actions.
 
 
-## [0.3.0] - 2026-07-02
+## [0.3.0] - 2026-07-02 - 2026-07-02
 
 ### Added
 - Runtime Visibility & Manual Override (Milestone 5):
