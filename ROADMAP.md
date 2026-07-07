@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-07-03
+Last updated: 2026-07-07
 
 ## Workboard
 
@@ -23,7 +23,10 @@ or release readiness changes. Current relevant UI cards:
 `f8d93513-ed96-4228-b1c8-0885e608544d` -
 `ZNE: Milestone 4 live baseline captured` (done),
 `a1b2c3d4` - `ZNE: Milestone 5 Runtime Visibility - Manual Override` (done),
-`zne-app-006` - `ZNE: Milestone 6 Diagnostics & Support Polish` (ready).
+`zne-app-006` - `ZNE: Milestone 6 Diagnostics & Support Polish` (released/live smoke validated),
+`workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` (done),
+`workboard-focused` - `ZNE: complete v0.3.3 service/action validation` (done),
+`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (ready).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -33,18 +36,41 @@ browser proof is recorded. References:
 `validation/0.2.5-release-validation.md`, and repo Workboard card
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Latest**: Milestone 5 is complete and released/live-validated as `v0.3.0`.
-Home Assistant now has `executor_state` sensor, `pause_executor`/`resume_executor`
-services, Reconciliation card with live power/surplus data, and Pause/Resume
-buttons. Evidence: `validation/milestone-5-runtime-visibility-validation.md`.
+**Latest**: Milestone 6 is published and installed as `v0.3.3`, with HACS/app
+browser validation and service/action validation complete. The app reports
+version `0.3.3`, backend connected, Diagnostics tab rendered, `export_diagnostics`
+created a diagnostics JSON file, and `repair_issue` returned successfully.
+Evidence: `validation/0.3.3-release-validation.md`.
 
 ## Current milestone
 
+### ZNE-APP-007 - Multi-Plan And Service Separation
+
+Status: Ready; target release `v0.4.0`.
+
+Outcome:
+- Operators can see and work inside an explicit Zero Net Export plan/service context.
+- Reads and writes for sources, managed devices, controls, runtime, diagnostics,
+  export, and repair are scoped to the selected context.
+- Ambiguous multi-entry write requests fail safely instead of silently choosing
+  the first entry.
+
+Evidence:
+- Feasibility: `validation/zne-app-milestone-7-multi-plan-feasibility.md`
+- Plan: `docs/ZNE_APP_MILESTONE_7_PLAN.md`
+
+Next gate:
+- Implement shared entry resolver.
+- Add app context header/selector.
+- Scope frontend service payloads to selected `entry_id`.
+- Add tests for multi-entry isolation.
+- Release through GitHub/HACS and validate.
+
 ### ZNE-APP-006 - Diagnostics & Support Polish
 
-Status: Ready; target release `v0.3.1`. Implementation plan is written with
-backend changes (log buffer, diagnostics service) and frontend changes (Diagnostics
-tab, error banners, download button). Feasibility accepted.
+Status: released/live validated as `v0.3.3`. Implementation and corrective
+releases are published; browser validation proves the installed app renders, and
+service/action validation proves diagnostics export and repair services run.
 
 Outcome:
 - Operators can view recent ZNE logs, system health summary, and reconciliation
@@ -55,15 +81,13 @@ or mismatched.
 
 Evidence:
 - Plan: `docs/MILESTONE_6_IMPLEMENTATION_PLAN.md`
-- Feasibility: `docs/MILESTONE_6_DIAGNOSTICS_SUPPORT_FEASIBILITY.md` (to be created/confirmed)
-- Next action: begin backend implementation (log buffer, diagnostics service)
+- Feasibility: `docs/MILESTONE_6_DIAGNOSTICS_SUPPORT_FEASIBILITY.md`
+- Implementation validation: `validation/milestone-6-implementation-validation.md`
+- Release validation: `validation/0.3.3-release-validation.md`
+- Previous corrective note: `validation/v0.3.1-fix-validation.md`
 
 Next gate:
-- Complete backend implementation (coordinator log buffer, `async_get_diagnostics`,
-`async_export_diagnostics`, service registration).
-- Complete frontend implementation (Diagnostics tab, error banners, export button).
-- Run repo validation (tests, compile, diff check).
-- Release `v0.3.1` via GitHub/HACS and live-validate.
+- Track runtime degraded state separately from Milestone 6 service validation.
 
 ## Completed App Milestones
 
@@ -148,6 +172,7 @@ Completed:
 - Published `v0.2.5` for ZNE-APP-003 (Milestone 3).
 - Published `v0.2.9` for ZNE-APP-004 (Milestone 4).
 - Published `v0.3.0` for ZNE-APP-005 (Milestone 5).
+- Published and installed `v0.3.3` for ZNE-APP-006 (Milestone 6 corrective line).
 - Installed/updated through HACS.
 - Restarted Home Assistant.
 - Verified installed/latest version, fingerprint match, app/static routes, targeted logs, and HACS metadata.
@@ -157,8 +182,7 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Implement Milestone 6 (Diagnostics & Support Polish).
-- Release `v0.3.1` via GitHub/HACS and live-validate.
+- Implement ZNE-APP-007 Multi-Plan And Service Separation.
 - Keep the OpenClaw Workboard aligned every turn.
 
 ## Risks

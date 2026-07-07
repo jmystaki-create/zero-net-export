@@ -1,6 +1,6 @@
 # Zero Net Export Workboard
 
-Last updated: 2026-07-05
+Last updated: 2026-07-07
 
 This workboard is the operational project view for Zero Net Export. It summarizes what exists, what is broken, what is next, and how far the project is from a useful Home Assistant application MVP.
 
@@ -45,8 +45,8 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.3.0` (Milestone 5 complete, released 2026-07-02).
-Next: Milestone 6 (Diagnostics & Support Polish) - target `v0.3.1`.
+Current release: `v0.3.3` (Milestone 6 Diagnostics & Support Polish corrective line, installed through HACS and live validated 2026-07-07).
+Next: ZNE-APP-007 Multi-Plan And Service Separation.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -62,6 +62,12 @@ Current state:
 - `v0.2.9` completed Milestone 4 source-health/runtime readiness: the live
   validation target now reports `ready`, validated sources, one usable managed
   device, acceptable reconciliation, and clean installed app browser proof.
+- `v0.3.0` completed Milestone 5 runtime visibility and manual override.
+- `v0.3.3` supersedes `v0.3.1-fix` for Milestone 6 diagnostics/support polish.
+  HACS/app browser validation passed: app header shows `Version 0.3.3 - 1
+  plan`, backend connected, Overview ready, Diagnostics tab renders, installed
+  version is `0.3.3`, and diagnostics service/action validation passed through
+  the Home Assistant REST API.
 - Repo `main` is synced with `origin/main`.
 
 ## Known Bugs
@@ -78,7 +84,7 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Define the next app milestone after Milestone 4.
+- Implement ZNE-APP-007 Multi-Plan And Service Separation.
 - Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
@@ -87,11 +93,15 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Implement Milestone 5 (Runtime Visibility ## Next Development Steps Manual Override).
+**Immediate**: Begin ZNE-APP-007 Multi-Plan And Service Separation.
 
-1. Define the next app milestone and acceptance criteria.
-2. Decide when to scope deferred bulk priority adjustment.
-3. Continue app workflow slices for diagnostics/support, runtime visibility,
+1. Implement shared backend entry resolver.
+2. Add app plan/service context header and selector.
+3. Scope Sources, Managed Devices, Controls, Runtime, Diagnostics, export, and
+   repair calls to selected `entry_id`.
+4. Add multi-entry isolation tests.
+5. Decide when to scope deferred bulk priority adjustment.
+6. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
@@ -99,6 +109,8 @@ Deferred / not current focus:
 - Browser/node navigation path was previously unavailable, blocking Sources screenshot proof.
 - Browser proof path is now working through the OpenClaw browser CLI; keep using screenshot/snapshot evidence for app-facing workflow changes.
 - The current OpenClaw Workboard CLI can create/list/show cards, but this build does not expose an edit command for existing cards; detailed state updates may need repo Workboard docs plus new focused UI cards until card editing is available.
+- Current runtime status is `degraded` due to power-source reconciliation; track
+  separately from Milestone 6 diagnostics service validation.
 - Keep using GitHub/HACS-only validation for releases; no direct component
   deployment.
 - Live validation must continue through GitHub/HACS, not direct file deployment.
@@ -116,14 +128,16 @@ A Workboard card is done only when:
 
 ## Completion Estimate
 
-Current Sources milestone completion: complete for the accepted `ZNE-APP-002` scope.
+Current Milestone 6 completion: release installed, browser validated, and
+service/action checks complete.
 
-Application MVP completion: about 82%. The app shell, managed-device slices,
+Application MVP completion: about 88%. The app shell, managed-device slices,
 controls slice, Sources workflow, release path, backend write proof, installed
 Sources browser proof, live-validated Managed Devices fleet controls, and
-Milestone 4 source-health/runtime readiness exist. Remaining MVP work is mainly
-diagnostics/support polish, completing the next app workflow slices, broader
-real-fleet/runtime validation, and later bulk-priority scope definition.
+Milestone 4 source-health/runtime readiness exist. Milestone 6 diagnostics UI
+is installed and smoke validated. Remaining MVP work is mainly service/action
+validation, completing the next app workflow slices, broader real-fleet/runtime
+validation, and later bulk-priority scope definition.
 
 Full product completion: not yet estimable from current evidence because runtime control readiness and future app milestone scope still need tighter acceptance criteria.
 
@@ -150,3 +164,6 @@ Full product completion: not yet estimable from current evidence because runtime
 - `06b5d15f` - `ZNE: Define bulk priority adjustment scope for later milestone` - ready.
 - `8b148624` - `ZNE: Source Health & Runtime Blocker Resolution` - done.
 - `f8d93513-ed96-4228-b1c8-0885e608544d` - `ZNE: Milestone 4 live baseline captured` - done.
+- `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` - done.
+- `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` - done.
+- `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - ready.
