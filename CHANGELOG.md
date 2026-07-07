@@ -4,6 +4,13 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [0.4.1] - 2026-07-08
+
+### Fixed
+- Fixed the Sources app Battery state of charge row so it reads
+  `sensor.zero_net_export_battery_state_of_charge_*` entities instead of
+  incorrectly deriving non-existent `battery_soc_*` entities.
+
 ## [0.4.0] - 2026-07-07
 
 ### Added

@@ -89,6 +89,8 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
         self.assertIn("_sourceState(role, suffix, suffixName)", source)
+        self.assertIn("_sourceEntitySlug(role)", source)
+        self.assertIn('battery_soc_entity: "battery_state_of_charge"', source)
         self.assertIn('"binding_label"', source)
         self.assertIn("Reading:", source)
         self.assertIn("Issues:", source)
@@ -124,7 +126,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.0"', source)
+        self.assertIn('"version": "0.4.1"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

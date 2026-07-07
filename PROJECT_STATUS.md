@@ -2,7 +2,7 @@
 
 project_name: zero-net-export
 status: active
-last_modified: 2026-07-07
+last_modified: 2026-07-08
 
 ## Current Focus
 
@@ -15,7 +15,7 @@ last_modified: 2026-07-07
 - User outcome: operators can see and act within an explicit selected plan/service context, preventing cross-plan confusion as Zero Net Export grows beyond one plan.
 - Implemented: shared entry resolver, app selected-plan context header/selector, selected `entry_id` payloads for source-role saves, managed-device changes, executor pause/resume, diagnostics export, and repair. Ambiguous multi-entry service calls now fail safely.
 - Release: v0.4.0 published, installed through HACS, restarted, and live validated with Home Assistant API/static route checks. Browser proof is pending because the OpenClaw managed browser host is unavailable.
-- Follow-up risk: post-release logs show many Zero Net Export entity attributes exceeding Home Assistant's 16 KB recorder attribute limit. Next action is a focused fix to trim recorder-backed attributes and keep bulky detail in diagnostics/app API surfaces.
+- Follow-up risk: post-release logs show many Zero Net Export entity attributes exceeding Home Assistant's 16 KB recorder attribute limit. A separate user-visible Sources app SOC display regression was found and is release-prepped as ZNE-596 in `v0.4.1`; live validation is pending before returning to the broader recorder attribute cleanup.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -50,6 +50,7 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 
 ## Active Bugs
 
+- ZNE-596 — Sources app shows Battery state of charge as missing despite valid backend binding. Status: repo_validated/release_prepped_pending_live_validation/high. Evidence: `docs/BUGS.md`, `validation/zne-596-soc-source-status-display.md`. Next action: publish/install `v0.4.1`, restart Home Assistant, and verify the Sources app SOC row against live backend state.
 - ZNE-595 — recorder-backed entity attributes exceed Home Assistant's 16 KB limit. Status: open/high. Evidence: `docs/BUGS.md`, `validation/0.4.0-release-validation.md`. Next action: trim large source/action-history/diagnostic details from recorder-backed attributes and keep bulky detail in diagnostics/app API surfaces.
 - ZNE-594 — next-step sensors can exceed Home Assistant's 255-character state limit. Status: released_live_validated in `0.2.4`. Evidence: `docs/BUGS.md`, `validation/zne-594-state-length-implementation.md`, `validation/0.2.4-release-validation.md`.
 - ZNE-593 — Managed Devices app summary formatting is broken. Status: validated in installed `0.2.2`. Evidence: `validation/0.2.2-release-validation.md`, `validation/artifacts/zne-593-managed-devices-formatting-broken-v0.2.1.png`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.png`, `validation/artifacts/zne-0.2.2-managed-devices-narrow.png`.

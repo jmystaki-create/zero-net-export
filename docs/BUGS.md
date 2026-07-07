@@ -102,6 +102,23 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-596 - Sources app shows Battery state of charge as missing despite valid backend binding
+
+- **status:** `release_prepped_pending_live_validation`
+- **severity:** `high`
+- **area:** `app_frontend / source_mapping`
+- **where seen:** Riley screenshot from live Home Assistant `v0.4.0` Sources app on 2026-07-07; read-only HA API check in the same session.
+- **current observed behavior:** the native Configure dialog shows the Battery state of charge source role currently selected as `sensor.x1_p6k_us_s_state_of_charge`, but the Zero Net Export app Sources panel shows Battery state of charge as `status: missing`, `Binding: Not configured`, and an empty `sensor.example` input.
+- **expected behavior:** the Sources app should display the same live SOC binding and health as the backend: `sensor.x1_p6k_us_s_state_of_charge`, status `ok`, with the current reading.
+- **evidence:** live HA API returned `sensor.zero_net_export_battery_state_of_charge_status=ok`, binding `sensor.x1_p6k_us_s_state_of_charge`; `binary_sensor.zero_net_export_battery_state_of_charge_stale=off`; `sensor.x1_p6k_us_s_state_of_charge=39%`. The app frontend derived `sensor.zero_net_export_battery_soc_status`, which does not exist.
+- **impact:** user-visible Sources UI confusion. Backend runtime and Configure flow can still hold the correct SOC binding, but the app incorrectly invites the operator to re-enter a valid source role.
+- **target-environment feasibility:** supported within the existing Home Assistant custom panel/static frontend path already validated for `v0.4.0`; this is a Zero Net Export frontend entity-name mapping defect, not a Home Assistant platform limitation.
+- **suspected cause:** the app derived source status entity IDs by stripping `_entity` from source-role keys. That works for most roles but maps `battery_soc_entity` to `battery_soc`, while the integration entity slug is `battery_state_of_charge`.
+- **repo fix:** added an explicit frontend source-entity slug map so `battery_soc_entity` resolves to `battery_state_of_charge`; added focused regression coverage in `tests/test_managed_devices_panel.py`.
+- **validation status:** repo validation passed: focused Sources app tests ran 17 tests OK; full discovery ran 627 tests OK; Python compile, frontend syntax, and `git diff --check` passed. Live HACS/browser validation remains pending.
+- **validation plan:** publish corrective release `v0.4.1`, install through HACS, restart Home Assistant, confirm the Sources app SOC row shows `status: ok`, binding `sensor.x1_p6k_us_s_state_of_charge`, and the current reading.
+- **next action:** publish/install `v0.4.1`, restart Home Assistant, and complete live API/browser validation.
+
 ## ZNE-595 - recorder-backed entity attributes exceed Home Assistant's 16 KB limit
 
 - **status:** `open`

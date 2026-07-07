@@ -65,6 +65,13 @@ class ZeroNetExportApp extends HTMLElement {
     ];
   }
 
+  _sourceEntitySlug(role) {
+    const slugs = {
+      battery_soc_entity: "battery_state_of_charge",
+    };
+    return slugs[role.key] || role.key.replace(/_entity$/, "");
+  }
+
   _entries() {
     const config = (this._panel && this._panel.config) || {};
     return Array.isArray(config.entries) ? config.entries : [];
@@ -156,16 +163,17 @@ class ZeroNetExportApp extends HTMLElement {
     if (!this._hass || !this._hass.states) {
       return undefined;
     }
+    const sourceSlug = this._sourceEntitySlug(role);
     const exactCandidates = [
       `sensor.zero_net_export_source_${role.key}_${suffix}`,
-      `sensor.zero_net_export_${role.key.replace(/_entity$/, "")}_${suffix}`,
+      `sensor.zero_net_export_${sourceSlug}_${suffix}`,
     ];
     for (const entityId of exactCandidates) {
       if (this._hass.states[entityId]) {
         return this._hass.states[entityId];
       }
     }
-    const roleNeedle = role.key.replace(/_entity$/, "");
+    const roleNeedle = sourceSlug;
     const labelNeedle = `${role.label} ${suffixName}`.toLowerCase();
     return Object.entries(this._hass.states)
       .filter(([entityId]) => entityId.startsWith("sensor."))

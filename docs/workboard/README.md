@@ -46,7 +46,7 @@ Primary references:
 ## Architecture / Current State
 
 Current release: `v0.4.0` (Milestone 7 Multi-Plan And Service Separation, installed through HACS and live validated with API/static/service checks 2026-07-07).
-Next: fix post-v0.4.0 recorder attribute-size warnings, then capture browser proof when the managed browser host is available.
+Next: finish ZNE-596 SOC Sources app display validation/release, then fix post-v0.4.0 recorder attribute-size warnings, then capture browser proof when the managed browser host is available.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -80,6 +80,11 @@ Current state:
 ## Known Bugs
 
 Active/high-signal items:
+- ZNE-596: fixed_pending_validation/high after `v0.4.0`; the Sources app
+  showed Battery state of charge as missing because the frontend derived
+  `battery_soc_status` while the backend exposes `battery_state_of_charge_status`.
+  Repo fix and focused validation are complete; live corrective release/browser
+  validation is pending.
 - ZNE-595: open/high after `v0.4.0`; many recorder-backed entity attributes
   exceed Home Assistant's 16 KB attribute limit. Next implementation focus is
   trimming recorder attributes and moving bulky detail to diagnostics/app API
@@ -105,16 +110,21 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Fix post-v0.4.0 oversized recorder-backed entity attributes.
+**Immediate**: Finish ZNE-596 SOC Sources app display validation/release.
 
-1. Define a focused bug for the 16 KB recorder attribute warnings.
-2. Move bulky source/action-history/diagnostic detail out of recorder-backed attributes.
-3. Keep concise entity attributes for dashboard use.
-4. Preserve full detail through diagnostics export and app API surfaces.
-5. Validate with tests and Home Assistant log review after HACS install/restart.
-6. Capture browser proof of selected plan context when browser tooling is available.
-7. Decide when to scope deferred bulk priority adjustment.
-8. Continue app workflow slices for diagnostics/support, runtime visibility,
+1. Run full repo validation for ZNE-596.
+2. Decide whether to release ZNE-596 as a corrective `v0.4.1` or bundle with
+   the next recorder-attribute cleanup release.
+3. Install through HACS, restart Home Assistant, and capture browser/API proof
+   that the SOC Sources row shows the valid backend binding.
+4. Then return to ZNE-595 and move bulky source/action-history/diagnostic detail
+   out of recorder-backed attributes.
+5. Keep concise entity attributes for dashboard use.
+6. Preserve full detail through diagnostics export and app API surfaces.
+7. Validate with tests and Home Assistant log review after HACS install/restart.
+8. Capture browser proof of selected plan context when browser tooling is available.
+9. Decide when to scope deferred bulk priority adjustment.
+10. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks

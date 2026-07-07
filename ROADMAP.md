@@ -27,6 +27,7 @@ or release readiness changes. Current relevant UI cards:
 `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` (done),
 `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` (done),
 `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (released/live validated via API/static/service checks).
+`36a26d60` - `ZNE: Fix SOC source status display in Sources app` (running; repo fix pending full/live validation).
 `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (ready).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
@@ -185,6 +186,7 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
+- Finish ZNE-596 full repo validation and decide corrective release timing.
 - Fix post-v0.4.0 recorder attribute-size warnings.
 - Capture v0.4.0 browser proof when browser tooling is available.
 - Keep the OpenClaw Workboard aligned every turn.
@@ -196,6 +198,9 @@ Remaining:
 - v0.4.0 log review found many Zero Net Export entity attributes exceeding Home
   Assistant's 16 KB recorder attribute limit; trim recorder-backed attributes
   and move bulky detail to diagnostics/app API surfaces.
+- v0.4.0 Sources app display had a SOC slug mismatch: backend status is exposed
+  as `battery_state_of_charge`, while the frontend derived `battery_soc`. Repo
+  fix exists as ZNE-596; live validation is pending.
 - ZNE-594 is released/live-validated in `0.2.4`; continue watching logs for
   recurrence while broader app workflow validation proceeds.
 - Live validation must not use direct Home Assistant file-backend deployment.

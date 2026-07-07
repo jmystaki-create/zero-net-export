@@ -67,12 +67,12 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
 
         self.assertEqual(info["current_version"], release_info.INTEGRATION_VERSION)
         self.assertTrue(info["has_changelog"])
-        self.assertEqual(info["released_on"], "2026-07-07")
+        self.assertEqual(info["released_on"], "2026-07-08")
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
-        self.assertIn("Multi-Plan", info["changes_preview"])
-        self.assertIn("Entry-scoped", info["changes_preview"])
+        self.assertIn("Sources app Battery state of charge", info["changes_preview"])
+        self.assertIn("state of charge row", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
         self.assertNotIn("release-target decision", info["changes_preview"])
 
@@ -458,8 +458,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         current_highlights = "\n".join(current_section["highlights"])
 
-        self.assertIn("Multi-Plan", current_highlights)
-        self.assertIn("entry_id", current_highlights)
+        self.assertIn("Sources app Battery state of charge", current_highlights)
+        self.assertIn("state of charge row", current_highlights)
         self.assertNotIn("unsupported device overflow-menu injection", current_highlights.lower())
         self.assertNotIn("arbitrary custom", current_highlights.lower())
         self.assertNotIn("device-page card injection", current_highlights.lower())
