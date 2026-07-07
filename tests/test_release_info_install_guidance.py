@@ -71,8 +71,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         self.assertGreaterEqual(info["highlight_count"], 1)
         self.assertLessEqual(info["highlight_count"], 10)
         self.assertGreaterEqual(info["total_highlight_count"], info["highlight_count"])
-        self.assertIn("export_diagnostics", info["changes_preview"])
-        self.assertIn("event loop", info["changes_preview"])
+        self.assertIn("Multi-Plan", info["changes_preview"])
+        self.assertIn("Entry-scoped", info["changes_preview"])
         self.assertNotIn("James", info["changes_preview"])
         self.assertNotIn("release-target decision", info["changes_preview"])
 
@@ -458,8 +458,8 @@ class ReleaseInfoInstallGuidanceTests(unittest.TestCase):
         )
         current_highlights = "\n".join(current_section["highlights"])
 
-        self.assertIn("export_diagnostics", current_highlights)
-        self.assertIn("event loop", current_highlights)
+        self.assertIn("Multi-Plan", current_highlights)
+        self.assertIn("entry_id", current_highlights)
         self.assertNotIn("unsupported device overflow-menu injection", current_highlights.lower())
         self.assertNotIn("arbitrary custom", current_highlights.lower())
         self.assertNotIn("device-page card injection", current_highlights.lower())

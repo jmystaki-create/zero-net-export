@@ -4,7 +4,7 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
-## [Unreleased]
+## [0.4.0] - 2026-07-07
 
 ### Added
 - Added the first ZNE-APP-007 Multi-Plan And Service Separation slice:
