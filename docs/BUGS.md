@@ -102,6 +102,25 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## Current active bugs
 
+## ZNE-595 - recorder-backed entity attributes exceed Home Assistant's 16 KB limit
+
+- **status:** `open`
+- **severity:** `high`
+- **area:** `sensors / diagnostics / recorder`
+- **where seen:** live Home Assistant log review on 2026-07-07 after installing and restarting `v0.4.0`.
+- **current observed behavior:** Home Assistant logged repeated recorder warnings that Zero Net Export entity attributes exceeded the 16 KB maximum attribute size, including status, health, summary, action-history, control, switch, select, number, and button entities. Home Assistant reports that oversized attributes will not be stored and may affect database performance.
+- **expected behavior:** recorder-backed Zero Net Export entities should expose concise dashboard-safe attributes under Home Assistant's attribute-size limit. Bulky source diagnostics, action history, daily metrics, calibration hints, and detailed health payloads should be available through diagnostics export or app API surfaces rather than on every recorder-backed entity.
+- **evidence:** `validation/0.4.0-release-validation.md` records the `2026-07-07 20:24:31` and `20:24:32` recorder warnings after the v0.4.0 HACS install/restart. Live API proof also showed `sensor.zero_net_export_health_status` carrying large action-history, daily-metrics, source-diagnostics, and source-freshness attributes.
+- **impact:** Home Assistant suppresses storage of the oversized attributes and warns about database performance. This does not block the Milestone 7 scoped-service release, but it is the next high-priority implementation bug before claiming broader app/runtime polish.
+- **suspected cause:** shared coordinator/runtime detail is being mirrored into many entity extra-state attributes instead of being trimmed per entity and routed to diagnostics/app API surfaces.
+- **acceptance criteria:**
+  - Zero Net Export recorder-backed entities expose only concise attributes needed for dashboard and automation use.
+  - Full diagnostic/source/action-history detail remains available through diagnostics export and app API surfaces.
+  - Tests cover representative attribute-size trimming.
+  - Live Home Assistant post-restart log review shows no Zero Net Export 16 KB recorder attribute warnings in the reviewed window.
+- **validation plan:** add repo tests for attribute trimming, run full test discovery, py_compile, JS syntax if frontend API behavior changes, publish through GitHub/HACS, restart Home Assistant, inspect key entity states, and review `ha core logs` for recorder warnings.
+- **next action:** implement a focused attribute-budget cleanup.
+
 ## ZNE-594 - next-step sensors can exceed Home Assistant's 255-character state limit
 
 - **status:** `released_live_validated`
@@ -7517,4 +7536,3 @@ If the bug affects the user-visible product or live Home Assistant behavior, clo
 - **repo fix**: To be implemented: backend services `pause_executor`/`resume_executor`, new `sensor.zero_net_export_executor_state`, frontend Reconciliation Card and toggle.
 - **validation status**: Pending implementation.
 - **next action**: Implement Milestone 5 backend and frontend changes, then validate via HACS/live install.
-

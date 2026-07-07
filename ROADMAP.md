@@ -26,7 +26,8 @@ or release readiness changes. Current relevant UI cards:
 `zne-app-006` - `ZNE: Milestone 6 Diagnostics & Support Polish` (released/live smoke validated),
 `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` (done),
 `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` (done),
-`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (repo validated; release pending).
+`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (released/live validated via API/static/service checks).
+`workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (ready).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -36,17 +37,19 @@ browser proof is recorded. References:
 `validation/0.2.5-release-validation.md`, and repo Workboard card
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Latest**: Milestone 6 is published and installed as `v0.3.3`, with HACS/app
-browser validation and service/action validation complete. The app reports
-version `0.3.3`, backend connected, Diagnostics tab rendered, `export_diagnostics`
-created a diagnostics JSON file, and `repair_issue` returned successfully.
-Evidence: `validation/0.3.3-release-validation.md`.
+**Latest**: Milestone 7 is published and installed as `v0.4.0`, with HACS
+install/restart, API/static route validation, service registry validation, and
+explicit entry-scoped service calls complete. The installed version sensor
+reports `0.4.0`; `export_diagnostics`, `repair_issue`, `pause_executor`, and
+`resume_executor` returned successfully with explicit `entry_id`. Browser visual
+proof remains pending because the managed browser host is unavailable. Evidence:
+`validation/0.4.0-release-validation.md`.
 
 ## Current milestone
 
 ### ZNE-APP-007 - Multi-Plan And Service Separation
 
-Status: repo validated; target release `v0.4.0`.
+Status: released/live validated via API/static/service checks as `v0.4.0`.
 
 Outcome:
 - Operators can see and work inside an explicit Zero Net Export plan/service context.
@@ -59,13 +62,11 @@ Evidence:
 - Feasibility: `validation/zne-app-milestone-7-multi-plan-feasibility.md`
 - Plan: `docs/ZNE_APP_MILESTONE_7_PLAN.md`
 - Implementation: `validation/zne-app-milestone-7-implementation.md`
+- Release/live validation: `validation/0.4.0-release-validation.md`
 
 Next gate:
-- Run full test discovery.
-- Choose and publish release tag.
-- Install/update through GitHub/HACS.
-- Restart Home Assistant.
-- Validate installed app context and entry-scoped services.
+- Fix oversized recorder-backed entity attributes found in the v0.4.0 log review.
+- Capture browser visual proof once the OpenClaw managed browser host is available again.
 
 ### ZNE-APP-006 - Diagnostics & Support Polish
 
@@ -174,6 +175,7 @@ Completed:
 - Published `v0.2.9` for ZNE-APP-004 (Milestone 4).
 - Published `v0.3.0` for ZNE-APP-005 (Milestone 5).
 - Published and installed `v0.3.3` for ZNE-APP-006 (Milestone 6 corrective line).
+- Published and installed `v0.4.0` for ZNE-APP-007 (Milestone 7).
 - Installed/updated through HACS.
 - Restarted Home Assistant.
 - Verified installed/latest version, fingerprint match, app/static routes, targeted logs, and HACS metadata.
@@ -183,13 +185,17 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
+- Fix post-v0.4.0 recorder attribute-size warnings.
+- Capture v0.4.0 browser proof when browser tooling is available.
 - Keep the OpenClaw Workboard aligned every turn.
 
 ## Risks
 
 - Runtime control remains limited until source-health warnings and managed
   device readiness are resolved in the validation Home Assistant instance.
+- v0.4.0 log review found many Zero Net Export entity attributes exceeding Home
+  Assistant's 16 KB recorder attribute limit; trim recorder-backed attributes
+  and move bulky detail to diagnostics/app API surfaces.
 - ZNE-594 is released/live-validated in `0.2.4`; continue watching logs for
   recurrence while broader app workflow validation proceeds.
 - Live validation must not use direct Home Assistant file-backend deployment.

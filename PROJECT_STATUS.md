@@ -6,14 +6,16 @@ last_modified: 2026-07-07
 
 ## Current Focus
 
-**Milestone 7: Multi-Plan And Service Separation** (status: `repo_validated`, target: `v0.4.0`)
+**Milestone 7: Multi-Plan And Service Separation** (status: `released_live_validated_api_static`, target: `v0.4.0`)
 - Workboard card: `ZNE: Milestone 7 Multi-Plan And Service Separation`
 - Feasibility: ACCEPTED (see `validation/zne-app-milestone-7-multi-plan-feasibility.md`)
 - Implementation plan: defined (see `docs/ZNE_APP_MILESTONE_7_PLAN.md`)
 - Implementation validation: passed (see `validation/zne-app-milestone-7-implementation.md`)
+- Release/live validation: passed for API/static/service scope (see `validation/0.4.0-release-validation.md`)
 - User outcome: operators can see and act within an explicit selected plan/service context, preventing cross-plan confusion as Zero Net Export grows beyond one plan.
 - Implemented: shared entry resolver, app selected-plan context header/selector, selected `entry_id` payloads for source-role saves, managed-device changes, executor pause/resume, diagnostics export, and repair. Ambiguous multi-entry service calls now fail safely.
-- Next action: run full test discovery, choose release tag, publish through GitHub/HACS, and live-validate installed `v0.4.0` candidate.
+- Release: v0.4.0 published, installed through HACS, restarted, and live validated with Home Assistant API/static route checks. Browser proof is pending because the OpenClaw managed browser host is unavailable.
+- Follow-up risk: post-release logs show many Zero Net Export entity attributes exceeding Home Assistant's 16 KB recorder attribute limit. Next action is a focused fix to trim recorder-backed attributes and keep bulky detail in diagnostics/app API surfaces.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -48,6 +50,7 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 
 ## Active Bugs
 
+- ZNE-595 — recorder-backed entity attributes exceed Home Assistant's 16 KB limit. Status: open/high. Evidence: `docs/BUGS.md`, `validation/0.4.0-release-validation.md`. Next action: trim large source/action-history/diagnostic details from recorder-backed attributes and keep bulky detail in diagnostics/app API surfaces.
 - ZNE-594 — next-step sensors can exceed Home Assistant's 255-character state limit. Status: released_live_validated in `0.2.4`. Evidence: `docs/BUGS.md`, `validation/zne-594-state-length-implementation.md`, `validation/0.2.4-release-validation.md`.
 - ZNE-593 — Managed Devices app summary formatting is broken. Status: validated in installed `0.2.2`. Evidence: `validation/0.2.2-release-validation.md`, `validation/artifacts/zne-593-managed-devices-formatting-broken-v0.2.1.png`, `validation/artifacts/zne-0.2.2-managed-devices-desktop.png`, `validation/artifacts/zne-0.2.2-managed-devices-narrow.png`.
 - ZNE-592 — managed-load edit/remove button rows open unhelpful more-info dialogs. Status: live_validated_fixed in `0.1.109`. Evidence: `validation/zne-592-clickthrough-workflow-audit.md`, `validation/zne-592-native-clickthrough-feasibility.md`, `validation/0.1.109-release-validation.md`, `docs/BUGS.md`.

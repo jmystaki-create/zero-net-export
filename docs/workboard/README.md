@@ -45,8 +45,8 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.3.3` (Milestone 6 Diagnostics & Support Polish corrective line, installed through HACS and live validated 2026-07-07).
-Next: release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
+Current release: `v0.4.0` (Milestone 7 Multi-Plan And Service Separation, installed through HACS and live validated with API/static/service checks 2026-07-07).
+Next: fix post-v0.4.0 recorder attribute-size warnings, then capture browser proof when the managed browser host is available.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -68,14 +68,22 @@ Current state:
   plan`, backend connected, Overview ready, Diagnostics tab renders, installed
   version is `0.3.3`, and diagnostics service/action validation passed through
   the Home Assistant REST API.
-- ZNE-APP-007 is repo-validated: shared backend entry resolver, app selected
+- ZNE-APP-007 is released/live validated as `v0.4.0`: shared backend entry resolver, app selected
   plan context, and selected `entry_id` payloads for source, managed-device,
   executor, diagnostics, and repair actions are implemented.
+- v0.4.0 live validation confirmed installed/latest HACS metadata, installed
+  version sensor `0.4.0`, app/static routes returning HTTP 200, `entry_id`
+  service fields, and explicit scoped service calls for export, repair,
+  pause, and resume.
 - Repo `main` is synced with `origin/main`.
 
 ## Known Bugs
 
 Active/high-signal items:
+- ZNE-595: open/high after `v0.4.0`; many recorder-backed entity attributes
+  exceed Home Assistant's 16 KB attribute limit. Next implementation focus is
+  trimming recorder attributes and moving bulky detail to diagnostics/app API
+  surfaces.
 - ZNE-594: released/live-validated fixed in `0.2.4`; continue watching logs for recurrence.
 - ZNE-APP-002: released/live-validated; installed desktop/narrow browser proof is captured.
 - Runtime control readiness is now proven on the validation Home Assistant
@@ -87,7 +95,8 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
+- Fix post-v0.4.0 oversized recorder-backed entity attributes.
+- Capture v0.4.0 browser visual proof once the OpenClaw managed browser host is available.
 - Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
@@ -96,25 +105,29 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
+**Immediate**: Fix post-v0.4.0 oversized recorder-backed entity attributes.
 
-1. Run full test discovery.
-2. Choose and publish release tag.
-3. Install/update through HACS.
-4. Restart Home Assistant.
-5. Capture browser proof of selected plan context.
-6. Validate entry-scoped services on the installed build.
-5. Decide when to scope deferred bulk priority adjustment.
-6. Continue app workflow slices for diagnostics/support, runtime visibility,
+1. Define a focused bug for the 16 KB recorder attribute warnings.
+2. Move bulky source/action-history/diagnostic detail out of recorder-backed attributes.
+3. Keep concise entity attributes for dashboard use.
+4. Preserve full detail through diagnostics export and app API surfaces.
+5. Validate with tests and Home Assistant log review after HACS install/restart.
+6. Capture browser proof of selected plan context when browser tooling is available.
+7. Decide when to scope deferred bulk priority adjustment.
+8. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
 
-- Browser/node navigation path was previously unavailable, blocking Sources screenshot proof.
-- Browser proof path is now working through the OpenClaw browser CLI; keep using screenshot/snapshot evidence for app-facing workflow changes.
+- Browser/node navigation path is currently unavailable in this agent environment
+  because the managed browser host is not running and Chrome/CDP is unreachable.
+  Browser proof for v0.4.0 is pending until that tooling is repaired.
 - The current OpenClaw Workboard CLI can create/list/show cards, but this build does not expose an edit command for existing cards; detailed state updates may need repo Workboard docs plus new focused UI cards until card editing is available.
 - Current runtime status is `degraded` due to power-source reconciliation; track
   separately from Milestone 6 diagnostics service validation.
+- v0.4.0 log review found many Zero Net Export entity attributes exceeding Home
+  Assistant's 16 KB recorder attribute limit. Treat this as the next high-priority
+  implementation bug.
 - Keep using GitHub/HACS-only validation for releases; no direct component
   deployment.
 - Live validation must continue through GitHub/HACS, not direct file deployment.
@@ -132,8 +145,9 @@ A Workboard card is done only when:
 
 ## Completion Estimate
 
-Current Milestone 7 completion: repo implementation validated; release/live
-validation pending.
+Current Milestone 7 completion: released/live validated via API/static/service
+checks as `v0.4.0`; browser visual proof pending because browser tooling is
+unavailable.
 
 Application MVP completion: about 88%. The app shell, managed-device slices,
 controls slice, Sources workflow, release path, backend write proof, installed
@@ -170,4 +184,5 @@ Full product completion: not yet estimable from current evidence because runtime
 - `f8d93513-ed96-4228-b1c8-0885e608544d` - `ZNE: Milestone 4 live baseline captured` - done.
 - `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` - done.
 - `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` - done.
-- `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - repo validated; release pending.
+- `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - released/live validated via API/static/service checks.
+- `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - ready.
