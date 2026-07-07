@@ -104,7 +104,7 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 
 ## ZNE-596 - Sources app shows Battery state of charge as missing despite valid backend binding
 
-- **status:** `release_prepped_pending_live_validation`
+- **status:** `released_live_validated`
 - **severity:** `high`
 - **area:** `app_frontend / source_mapping`
 - **where seen:** Riley screenshot from live Home Assistant `v0.4.0` Sources app on 2026-07-07; read-only HA API check in the same session.
@@ -115,9 +115,8 @@ Older bug entries that require peer `Un Managed — ...` rows are historical/sup
 - **target-environment feasibility:** supported within the existing Home Assistant custom panel/static frontend path already validated for `v0.4.0`; this is a Zero Net Export frontend entity-name mapping defect, not a Home Assistant platform limitation.
 - **suspected cause:** the app derived source status entity IDs by stripping `_entity` from source-role keys. That works for most roles but maps `battery_soc_entity` to `battery_soc`, while the integration entity slug is `battery_state_of_charge`.
 - **repo fix:** added an explicit frontend source-entity slug map so `battery_soc_entity` resolves to `battery_state_of_charge`; added focused regression coverage in `tests/test_managed_devices_panel.py`.
-- **validation status:** repo validation passed: focused Sources app tests ran 17 tests OK; full discovery ran 627 tests OK; Python compile, frontend syntax, and `git diff --check` passed. Live HACS/browser validation remains pending.
-- **validation plan:** publish corrective release `v0.4.1`, install through HACS, restart Home Assistant, confirm the Sources app SOC row shows `status: ok`, binding `sensor.x1_p6k_us_s_state_of_charge`, and the current reading.
-- **next action:** publish/install `v0.4.1`, restart Home Assistant, and complete live API/browser validation.
+- **validation status:** released/live-validated in `v0.4.1`. Repo validation passed: full discovery ran 627 tests OK; Python compile, frontend syntax, and `git diff --check` passed. GitHub release `v0.4.1` was published, installed through HACS, fingerprint-matched before and after Home Assistant restart, and live API/browser proof confirmed the Sources app SOC row shows `status: ok`, binding `sensor.x1_p6k_us_s_state_of_charge`, and a current reading.
+- **release evidence:** `validation/zne-596-soc-source-status-display.md`, `validation/0.4.1-release-validation.md`.
 
 ## ZNE-595 - recorder-backed entity attributes exceed Home Assistant's 16 KB limit
 

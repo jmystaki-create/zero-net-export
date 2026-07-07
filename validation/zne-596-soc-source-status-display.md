@@ -1,7 +1,7 @@
 # ZNE-596 SOC Source Status Display Validation
 
 Date: 2026-07-08
-Status: release prepped as v0.4.1; live release validation pending
+Status: released and live validated in v0.4.1
 
 ## Bug
 
@@ -76,11 +76,26 @@ Passed:
 git diff --check
 ```
 
-## Pending Validation
+## Release Validation
 
-- Publish corrective release `v0.4.1`.
-- HACS install/update and Home Assistant restart.
-- Browser proof that the installed Sources app SOC row shows:
-  - status `ok`
-  - binding `sensor.x1_p6k_us_s_state_of_charge`
-  - current SOC reading
+Corrective release `v0.4.1` was published from commit `f985ad3`,
+installed through HACS, fingerprint-matched against the intended repo build,
+and validated after a Home Assistant restart.
+
+Live API proof after restart:
+
+- `sensor.zero_net_export_installed_version`: `0.4.1`
+- `update.zero_net_export_update`: installed/latest `v0.4.1`
+- `sensor.zero_net_export_battery_state_of_charge_status`: `ok`
+- Binding: `sensor.x1_p6k_us_s_state_of_charge`
+- `binary_sensor.zero_net_export_battery_state_of_charge_stale`: `off`
+- Source reading: `61 %`
+
+Browser proof from the installed `v0.4.1` app Sources tab showed:
+
+- `Battery state of charge`
+- `status: ok`
+- `Binding: sensor.x1_p6k_us_s_state_of_charge`
+- `Reading: 62.0 | Age: unknown s | Issues: 0`
+
+Evidence: `validation/0.4.1-release-validation.md`.
