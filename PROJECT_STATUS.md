@@ -6,11 +6,12 @@ last_modified: 2026-07-05
 
 ## Current Focus
 
-**Milestone 6: Diagnostics & Support Polish** (status: `validating`, target: `v0.3.1`)
+**Milestone 6: Diagnostics & Support Polish** (status: `released`, target: `v0.3.1-fix`)
 - Workboard card: `zne-app-006`
 - Feasibility: ACCEPTED (see `docs/MILESTONE_6_DIAGNOSTICS_SUPPORT_FEASIBILITY.md`)
 - Implementation plan: defined (see `docs/MILESTONE_6_IMPLEMENTATION_PLAN.md`)
-- Next action: live validation of Diagnostics tab in Home Assistant (verify UI rendering, data binding, and button actions); create validation record
+- Release: v0.3.1-fix published (2026-07-07) with manifest version correction
+- Next action: user installs v0.3.1-fix via HACS, restarts HA, validates version sensor shows 0.3.1, creates validation record
 
 **Milestone 5: Runtime Visibility & Manual Override** - **COMPLETED** (v0.3.0)
 - Released: v0.3.0 (GitHub Release, HACS validated)

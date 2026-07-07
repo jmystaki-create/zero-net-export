@@ -4,6 +4,11 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [0.3.1-fix] - 2026-07-07
+
+### Fixed
+- Corrected manifest.json version from 0.3.0 to 0.3.1 so HACS/Home Assistant correctly reports the installed version.
+
 ## [0.3.1] - 2026-07-05
 
 ### Added
