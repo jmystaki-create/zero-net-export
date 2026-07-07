@@ -4,7 +4,9 @@ class ZeroNetExportApp extends HTMLElement {
     this._activeSection = "overview";
     this._busy = false;
     this._message = "";
+    this._selectedEntryIdValue = "";
     this._onClick = this._onClick.bind(this);
+    this._onChange = this._onChange.bind(this);
   }
 
   set hass(value) {
@@ -19,11 +21,13 @@ class ZeroNetExportApp extends HTMLElement {
 
   connectedCallback() {
     this.addEventListener("click", this._onClick);
+    this.addEventListener("change", this._onChange);
     this._render();
   }
 
   disconnectedCallback() {
     this.removeEventListener("click", this._onClick);
+    this.removeEventListener("change", this._onChange);
   }
 
   _state(entityId) {
@@ -119,8 +123,33 @@ class ZeroNetExportApp extends HTMLElement {
     if (entryInput && entryInput.value) {
       return entryInput.value;
     }
+    if (this._selectedEntryIdValue) {
+      return this._selectedEntryIdValue;
+    }
     const entries = this._entries();
     return entries.length === 1 ? entries[0].entry_id : "";
+  }
+
+  _selectedEntry() {
+    const entryId = this._selectedEntryId();
+    return this._entries().find((entry) => entry.entry_id === entryId);
+  }
+
+  _entryServiceData() {
+    const entryId = this._selectedEntryId();
+    if (!entryId && this._entries().length > 1) {
+      throw new Error("Select a Zero Net Export plan first.");
+    }
+    return entryId ? { entry_id: entryId } : {};
+  }
+
+  _entryOptions() {
+    const selectedEntryId = this._selectedEntryId();
+    return this._entries().map((entry) => `
+      <option value="${this._escape(entry.entry_id)}" ${entry.entry_id === selectedEntryId ? "selected" : ""}>
+        ${this._escape(entry.title || entry.entry_id)}
+      </option>
+    `).join("");
   }
 
   _sourceState(role, suffix, suffixName) {
@@ -219,6 +248,22 @@ class ZeroNetExportApp extends HTMLElement {
     }
   }
 
+  _onChange(event) {
+    const select = event.target.closest("select");
+    if (!select) {
+      return;
+    }
+    if (select.dataset.zneEntryId !== undefined) {
+      this._selectedEntryIdValue = select.value;
+      this._message = select.value ? "Plan context selected." : "Plan context set to automatic.";
+      this._render();
+      return;
+    }
+    if (select.dataset.filterPlan || select.dataset.filterStatus || select.dataset.filterPriority || select.dataset.filterReadiness || select.dataset.sortBy || select.dataset.sortDir) {
+      this._render();
+    }
+  }
+
   _navigate(path) {
     window.history.pushState(null, "", path);
     window.dispatchEvent(new Event("location-changed"));
@@ -281,7 +326,7 @@ class ZeroNetExportApp extends HTMLElement {
           throw new Error("Enter a managed-device key first.");
         }
         await this._hass.callService("zero_net_export", "update_managed_device", {
-          entry_id: this._selectedEntryId(),
+          ...this._entryServiceData(),
           device_key: managedDeviceKey,
           enabled: action === "managed-enable",
         });
@@ -296,7 +341,7 @@ class ZeroNetExportApp extends HTMLElement {
           throw new Error("Type REMOVE FROM ZNE to confirm.");
         }
         await this._hass.callService("zero_net_export", "remove_managed_device", {
-          entry_id: this._selectedEntryId(),
+          ...this._entryServiceData(),
           device_key: managedDeviceKey,
           confirm: true,
         });
@@ -358,7 +403,7 @@ class ZeroNetExportApp extends HTMLElement {
 
       if (action === "update-source-roles") {
         await this._hass.callService("zero_net_export", "update_source_roles", {
-          entry_id: this._selectedEntryId(),
+          ...this._entryServiceData(),
           ...sourceRoleValues,
         });
         this._message = "Source-role save requested. Home Assistant will reload this Zero Net Export plan.";
@@ -371,6 +416,7 @@ class ZeroNetExportApp extends HTMLElement {
       }
 
       if (action === "export-diagnostics") {
+        await this._hass.callService("zero_net_export", "export_diagnostics", this._entryServiceData());
         const text = this._diagnosticText();
         const blob = new Blob([text], { type: "text/plain" });
         const url = URL.createObjectURL(blob);
@@ -379,17 +425,26 @@ class ZeroNetExportApp extends HTMLElement {
         a.download = "zne-diagnostics-" + new Date().toISOString().slice(0, 10) + ".txt";
         a.click();
         URL.revokeObjectURL(url);
-        this._message = "Diagnostics file download started.";
+        this._message = "Diagnostics export requested and summary download started.";
       }
 
       if (action === "repair-issue") {
-        // Call the repair service if available, or show guidance
         try {
-          await this._hass.callService("zero_net_export", "repair_issue", {});
+          await this._hass.callService("zero_net_export", "repair_issue", this._entryServiceData());
           this._message = "Repair request sent. Check logs for status.";
         } catch (err) {
-          this._message = "Repair service not available. Check Home Assistant logs.";
+          this._message = err && err.message ? err.message : "Repair service not available. Check Home Assistant logs.";
         }
+      }
+
+      if (action === "pause-executor") {
+        await this._hass.callService("zero_net_export", "pause_executor", this._entryServiceData());
+        this._message = "Executor pause requested for selected plan.";
+      }
+
+      if (action === "resume-executor") {
+        await this._hass.callService("zero_net_export", "resume_executor", this._entryServiceData());
+        this._message = "Executor resume requested for selected plan.";
       }
     } catch (error) {
       this._message = error && error.message ? error.message : String(error);
@@ -609,7 +664,7 @@ class ZeroNetExportApp extends HTMLElement {
           <label>Zero Net Export plan
             <select data-zne-entry-id>
               <option value="">Auto</option>
-              ${entries.map((entry) => `<option value="${this._escape(entry.entry_id)}">${this._escape(entry.title || entry.entry_id)}</option>`).join("")}
+              ${this._entryOptions()}
             </select>
           </label>
           <p class="zne-muted">Source saves are scoped to the selected Zero Net Export plan.</p>
@@ -894,7 +949,7 @@ class ZeroNetExportApp extends HTMLElement {
           <label>Plan
             <select data-zne-entry-id>
               <option value="">Auto</option>
-              ${entries.map((entry) => `<option value="${this._escape(entry.entry_id)}">${this._escape(entry.title || entry.entry_id)}</option>`).join("")}
+              ${this._entryOptions()}
             </select>
           </label>
           <label>Managed-device key
@@ -1156,6 +1211,10 @@ class ZeroNetExportApp extends HTMLElement {
     const title = this._escape(config.title || "Zero Net Export");
     const version = this._escape(config.version || "unknown");
     const planCount = this._entries().length;
+    const selectedEntry = this._selectedEntry();
+    const selectedEntryLabel = selectedEntry
+      ? `${selectedEntry.title || "Zero Net Export"} (${selectedEntry.entry_id})`
+      : (planCount > 1 ? "Select a plan" : "Automatic");
     const readyLabel = this._escape(this._hass ? "Connected to Home Assistant" : "Waiting for Home Assistant");
 
     this.innerHTML = `
@@ -1272,6 +1331,23 @@ class ZeroNetExportApp extends HTMLElement {
           min-width: 220px;
           text-align: right;
           background: var(--card-background-color);
+        }
+
+        .zne-context {
+          display: grid;
+          grid-template-columns: minmax(180px, 1fr) minmax(180px, 260px);
+          gap: 10px;
+          align-items: end;
+          margin: 12px 0 0;
+          padding: 10px 12px;
+          border: 1px solid var(--divider-color);
+          border-radius: 8px;
+          background: var(--card-background-color);
+        }
+
+        .zne-context strong {
+          display: block;
+          overflow-wrap: anywhere;
         }
 
         .zne-tabs {
@@ -1552,6 +1628,10 @@ class ZeroNetExportApp extends HTMLElement {
             text-align: left;
           }
 
+          .zne-context {
+            grid-template-columns: minmax(0, 1fr);
+          }
+
           .zne-control-row {
             grid-template-columns: 1fr;
             align-items: stretch;
@@ -1592,6 +1672,18 @@ class ZeroNetExportApp extends HTMLElement {
             <div class="zne-meta">${states.length} Zero Net Export app-visible entities</div>
           </div>
         </header>
+        <div class="zne-context">
+          <div>
+            <span class="zne-muted">Selected plan context</span>
+            <strong>${this._escape(selectedEntryLabel)}</strong>
+          </div>
+          <label>Plan
+            <select data-zne-entry-id>
+              <option value="">${planCount > 1 ? "Select plan" : "Auto"}</option>
+              ${this._entryOptions()}
+            </select>
+          </label>
+        </div>
         <nav class="zne-tabs" aria-label="Zero Net Export application sections">
           ${this._navButton("overview", "Overview")}
           ${this._navButton("sources", "Sources")}

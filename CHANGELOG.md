@@ -4,6 +4,14 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [Unreleased]
+
+### Added
+- Added the first ZNE-APP-007 Multi-Plan And Service Separation slice:
+  - App-wide selected plan context header and selector.
+  - Entry-scoped backend service resolution for executor pause/resume, diagnostics export, repairs, source-role saves, and managed-device updates/removals.
+  - Guardrail that rejects ambiguous multi-entry service calls when `entry_id` is omitted.
+
 ## [0.3.3] - 2026-07-07
 
 ### Fixed

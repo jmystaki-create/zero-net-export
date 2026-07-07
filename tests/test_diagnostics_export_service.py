@@ -13,7 +13,7 @@ class DiagnosticsExportServiceTests(unittest.TestCase):
         self.assertIn("import logging", source)
         self.assertIn("_LOGGER = logging.getLogger(__name__)", source)
         self.assertIn('_LOGGER.info("Diagnostics exported to %s", filename)', source)
-        self.assertIn('_LOGGER.info("Repairs issues cleared for Zero Net Export")', source)
+        self.assertIn('_LOGGER.info("Repairs issues cleared for Zero Net Export entry %s", entry.entry_id)', source)
 
     def test_diagnostics_export_writes_file_off_event_loop(self) -> None:
         source = (PACKAGE_ROOT / "coordinator.py").read_text(encoding="utf-8")

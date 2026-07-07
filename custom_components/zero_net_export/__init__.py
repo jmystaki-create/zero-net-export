@@ -428,6 +428,8 @@ UPDATE_SOURCE_ROLES_SCHEMA = vol.Schema(
     }
 )
 
+ENTRY_SCOPED_SERVICE_SCHEMA = vol.Schema({vol.Optional("entry_id"): str})
+
 
 def _device_config_to_payload(device) -> dict[str, Any]:
     payload = asdict(device)
@@ -436,15 +438,32 @@ def _device_config_to_payload(device) -> dict[str, Any]:
     return payload
 
 
-def _managed_device_entry_and_payloads(hass: HomeAssistant, call: Any) -> tuple[ConfigEntry, str, list[dict[str, Any]]]:
-    """Return the selected ZNE entry, requested managed-device key, and inventory payloads."""
+def _entry_from_service_call(hass: HomeAssistant, call: Any) -> ConfigEntry:
+    """Resolve a service call to exactly one Zero Net Export config entry."""
     entries = hass.config_entries.async_entries(DOMAIN)
     if not entries:
         raise ValueError("Zero Net Export has no configured entries")
     requested_entry_id = str(call.data.get("entry_id") or "")
+    if not requested_entry_id and len(entries) > 1:
+        raise ValueError("Set entry_id when more than one Zero Net Export plan is configured")
     entry = next((candidate for candidate in entries if candidate.entry_id == requested_entry_id), None) if requested_entry_id else entries[0]
     if entry is None:
         raise ValueError(f"Zero Net Export entry '{requested_entry_id}' was not found")
+    return entry
+
+
+def _coordinator_from_service_call(hass: HomeAssistant, call: Any) -> ZeroNetExportCoordinator:
+    """Resolve a service call to the selected entry coordinator."""
+    entry = _entry_from_service_call(hass, call)
+    coordinator = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+    if coordinator is None:
+        raise ValueError(f"Zero Net Export entry '{entry.entry_id}' is not loaded")
+    return coordinator
+
+
+def _managed_device_entry_and_payloads(hass: HomeAssistant, call: Any) -> tuple[ConfigEntry, str, list[dict[str, Any]]]:
+    """Return the selected ZNE entry, requested managed-device key, and inventory payloads."""
+    entry = _entry_from_service_call(hass, call)
     device_key = str(call.data["device_key"])
     raw_inventory = entry.options.get(
         CONF_DEVICE_INVENTORY_JSON,
@@ -537,17 +556,6 @@ async def _async_remove_managed_device(hass: HomeAssistant, call: Any) -> None:
     entry, device_key, payloads = _managed_device_entry_and_payloads(hass, call)
     if not await _async_remove_managed_device_payload(hass, entry, device_key, payloads):
         raise ValueError(f"Managed device '{device_key}' was not found")
-
-
-def _entry_from_service_call(hass: HomeAssistant, call: Any) -> ConfigEntry:
-    entries = hass.config_entries.async_entries(DOMAIN)
-    if not entries:
-        raise ValueError("Zero Net Export has no configured entries")
-    requested_entry_id = str(call.data.get("entry_id") or "")
-    entry = next((candidate for candidate in entries if candidate.entry_id == requested_entry_id), None) if requested_entry_id else entries[0]
-    if entry is None:
-        raise ValueError(f"Zero Net Export entry '{requested_entry_id}' was not found")
-    return entry
 
 
 async def _async_update_source_roles_from_app(hass: HomeAssistant, call: Any) -> None:
@@ -644,6 +652,22 @@ def _register_services(hass: HomeAssistant) -> None:
     async def _handle_update_source_roles(call: Any) -> None:
         await _async_update_source_roles_from_app(hass, call)
 
+    async def _handle_pause_executor(call: Any) -> None:
+        await _coordinator_from_service_call(hass, call).async_pause_executor()
+
+    async def _handle_resume_executor(call: Any) -> None:
+        await _coordinator_from_service_call(hass, call).async_resume_executor()
+
+    async def _handle_export_diagnostics(call: Any) -> None:
+        coordinator = _coordinator_from_service_call(hass, call)
+        filename = await coordinator.async_export_diagnostics(hass)
+        _LOGGER.info("Diagnostics exported to %s", filename)
+
+    async def _handle_repair_issue(call: Any) -> None:
+        entry = _entry_from_service_call(hass, call)
+        async_clear_repairs_issues(hass, entry)
+        _LOGGER.info("Repairs issues cleared for Zero Net Export entry %s", entry.entry_id)
+
     hass.services.async_register(
         DOMAIN,
         "update_managed_device",
@@ -661,6 +685,30 @@ def _register_services(hass: HomeAssistant) -> None:
         "update_source_roles",
         _handle_update_source_roles,
         schema=UPDATE_SOURCE_ROLES_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "pause_executor",
+        _handle_pause_executor,
+        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "resume_executor",
+        _handle_resume_executor,
+        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "export_diagnostics",
+        _handle_export_diagnostics,
+        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "repair_issue",
+        _handle_repair_issue,
+        schema=ENTRY_SCOPED_SERVICE_SCHEMA,
     )
 
 
@@ -713,45 +761,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await coordinator.async_initialize()
     await coordinator.async_note_current_integration_version(INTEGRATION_VERSION)
     await coordinator.async_config_entry_first_refresh()
-    # Milestone 5: Register pause/resume executor services
-    async def _async_pause_executor_service(call):
-        coordinator = hass.data[DOMAIN][entry.entry_id]
-        await coordinator.async_pause_executor()
-
-    async def _async_resume_executor_service(call):
-        coordinator = hass.data[DOMAIN][entry.entry_id]
-        await coordinator.async_resume_executor()
-
-    async def _async_export_diagnostics_service(call):
-        coordinator = hass.data[DOMAIN][entry.entry_id]
-        filename = await coordinator.async_export_diagnostics(hass)
-        _LOGGER.info("Diagnostics exported to %s", filename)
-    async def _async_repair_issue_service(call):
-        """Clear all repairs issues for the Zero Net Export integration."""
-        async_clear_repairs_issues(hass, entry)
-        _LOGGER.info("Repairs issues cleared for Zero Net Export")
-
-
-    hass.services.async_register(
-        DOMAIN,
-        "pause_executor",
-        _async_pause_executor_service,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "resume_executor",
-        _async_resume_executor_service,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "export_diagnostics",
-        _async_export_diagnostics_service,
-    )
-    hass.services.async_register(
-        DOMAIN,
-        "repair_issue",
-        _async_repair_issue_service,
-    )
 
     await _async_update_native_setup_notice(hass, entry, coordinator)
     async_sync_repairs_issues(hass, entry, coordinator)

@@ -26,7 +26,7 @@ or release readiness changes. Current relevant UI cards:
 `zne-app-006` - `ZNE: Milestone 6 Diagnostics & Support Polish` (released/live smoke validated),
 `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` (done),
 `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` (done),
-`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (ready).
+`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (repo validated; release pending).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -46,7 +46,7 @@ Evidence: `validation/0.3.3-release-validation.md`.
 
 ### ZNE-APP-007 - Multi-Plan And Service Separation
 
-Status: Ready; target release `v0.4.0`.
+Status: repo validated; target release `v0.4.0`.
 
 Outcome:
 - Operators can see and work inside an explicit Zero Net Export plan/service context.
@@ -58,13 +58,14 @@ Outcome:
 Evidence:
 - Feasibility: `validation/zne-app-milestone-7-multi-plan-feasibility.md`
 - Plan: `docs/ZNE_APP_MILESTONE_7_PLAN.md`
+- Implementation: `validation/zne-app-milestone-7-implementation.md`
 
 Next gate:
-- Implement shared entry resolver.
-- Add app context header/selector.
-- Scope frontend service payloads to selected `entry_id`.
-- Add tests for multi-entry isolation.
-- Release through GitHub/HACS and validate.
+- Run full test discovery.
+- Choose and publish release tag.
+- Install/update through GitHub/HACS.
+- Restart Home Assistant.
+- Validate installed app context and entry-scoped services.
 
 ### ZNE-APP-006 - Diagnostics & Support Polish
 
@@ -182,7 +183,7 @@ Completed:
 - Recorded validation evidence and updated release status.
 
 Remaining:
-- Implement ZNE-APP-007 Multi-Plan And Service Separation.
+- Release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
 - Keep the OpenClaw Workboard aligned every turn.
 
 ## Risks

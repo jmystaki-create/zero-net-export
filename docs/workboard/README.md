@@ -46,7 +46,7 @@ Primary references:
 ## Architecture / Current State
 
 Current release: `v0.3.3` (Milestone 6 Diagnostics & Support Polish corrective line, installed through HACS and live validated 2026-07-07).
-Next: ZNE-APP-007 Multi-Plan And Service Separation.
+Next: release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -68,6 +68,9 @@ Current state:
   plan`, backend connected, Overview ready, Diagnostics tab renders, installed
   version is `0.3.3`, and diagnostics service/action validation passed through
   the Home Assistant REST API.
+- ZNE-APP-007 is repo-validated: shared backend entry resolver, app selected
+  plan context, and selected `entry_id` payloads for source, managed-device,
+  executor, diagnostics, and repair actions are implemented.
 - Repo `main` is synced with `origin/main`.
 
 ## Known Bugs
@@ -84,7 +87,7 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Implement ZNE-APP-007 Multi-Plan And Service Separation.
+- Release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
 - Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
 
@@ -93,13 +96,14 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Begin ZNE-APP-007 Multi-Plan And Service Separation.
+**Immediate**: Release/live-validate ZNE-APP-007 Multi-Plan And Service Separation.
 
-1. Implement shared backend entry resolver.
-2. Add app plan/service context header and selector.
-3. Scope Sources, Managed Devices, Controls, Runtime, Diagnostics, export, and
-   repair calls to selected `entry_id`.
-4. Add multi-entry isolation tests.
+1. Run full test discovery.
+2. Choose and publish release tag.
+3. Install/update through HACS.
+4. Restart Home Assistant.
+5. Capture browser proof of selected plan context.
+6. Validate entry-scoped services on the installed build.
 5. Decide when to scope deferred bulk priority adjustment.
 6. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
@@ -128,8 +132,8 @@ A Workboard card is done only when:
 
 ## Completion Estimate
 
-Current Milestone 6 completion: release installed, browser validated, and
-service/action checks complete.
+Current Milestone 7 completion: repo implementation validated; release/live
+validation pending.
 
 Application MVP completion: about 88%. The app shell, managed-device slices,
 controls slice, Sources workflow, release path, backend write proof, installed
@@ -166,4 +170,4 @@ Full product completion: not yet estimable from current evidence because runtime
 - `f8d93513-ed96-4228-b1c8-0885e608544d` - `ZNE: Milestone 4 live baseline captured` - done.
 - `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` - done.
 - `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` - done.
-- `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - ready.
+- `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - repo validated; release pending.

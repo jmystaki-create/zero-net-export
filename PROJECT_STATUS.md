@@ -6,12 +6,14 @@ last_modified: 2026-07-07
 
 ## Current Focus
 
-**Milestone 7: Multi-Plan And Service Separation** (status: `ready`, target: `v0.4.0`)
+**Milestone 7: Multi-Plan And Service Separation** (status: `repo_validated`, target: `v0.4.0`)
 - Workboard card: `ZNE: Milestone 7 Multi-Plan And Service Separation`
 - Feasibility: ACCEPTED (see `validation/zne-app-milestone-7-multi-plan-feasibility.md`)
 - Implementation plan: defined (see `docs/ZNE_APP_MILESTONE_7_PLAN.md`)
+- Implementation validation: passed (see `validation/zne-app-milestone-7-implementation.md`)
 - User outcome: operators can see and act within an explicit selected plan/service context, preventing cross-plan confusion as Zero Net Export grows beyond one plan.
-- Next action: implement entry resolver and app plan context UI.
+- Implemented: shared entry resolver, app selected-plan context header/selector, selected `entry_id` payloads for source-role saves, managed-device changes, executor pause/resume, diagnostics export, and repair. Ambiguous multi-entry service calls now fail safely.
+- Next action: run full test discovery, choose release tag, publish through GitHub/HACS, and live-validate installed `v0.4.0` candidate.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`

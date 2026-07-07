@@ -147,12 +147,12 @@ class OperatorDocsConsistencyTests(unittest.TestCase):
     def test_project_status_tracks_current_user_request_boundary(self) -> None:
         content = (ROOT / "PROJECT_STATUS.md").read_text(encoding="utf-8")
 
-        self.assertIn("ZNE-578", content)
-        self.assertIn("ZNE-582", content)
-        self.assertIn("supported path", content)
-        self.assertIn("0.1.98", content)
-        self.assertIn("Release `0.1.100`", content)
-        self.assertIn("invalidFlowCount=0", content)
+        self.assertIn("Home Assistant application", content)
+        self.assertIn("Milestone 7: Multi-Plan And Service Separation", content)
+        self.assertIn("repo_validated", content)
+        self.assertIn("selected `entry_id` payloads", content)
+        self.assertIn("v0.3.3", content)
+        self.assertIn("GitHub/HACS", content)
         self.assertNotIn("release `1.91`", content)
         self.assertNotIn("source-of-truth docs still approve only `0.1.91`", content)
 

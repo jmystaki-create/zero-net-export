@@ -50,8 +50,23 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn('callService("zero_net_export", "update_managed_device"', source)
         self.assertIn('callService("zero_net_export", "remove_managed_device"', source)
         self.assertIn('callService("zero_net_export", "update_source_roles"', source)
+        self.assertIn('callService("zero_net_export", "pause_executor"', source)
+        self.assertIn('callService("zero_net_export", "resume_executor"', source)
+        self.assertIn('callService("zero_net_export", "export_diagnostics"', source)
+        self.assertIn('callService("zero_net_export", "repair_issue"', source)
         self.assertIn("REMOVE FROM ZNE", source)
         self.assertIn("The original Home Assistant entity is left untouched", source)
+
+    def test_app_exposes_and_uses_selected_plan_context(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("this._selectedEntryIdValue", source)
+        self.assertIn("Selected plan context", source)
+        self.assertIn("_entryServiceData()", source)
+        self.assertIn('throw new Error("Select a Zero Net Export plan first.")', source)
+        self.assertIn("select.dataset.zneEntryId", source)
+        self.assertIn("...this._entryServiceData()", source)
+        self.assertIn("Plan context selected.", source)
 
     def test_sources_app_workflow_lists_roles_and_preserves_values_before_save(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -109,7 +124,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.3.0"', source)
+        self.assertIn('"version": "0.3.3"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
@@ -170,6 +185,23 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("update_source_roles:", services_source)
         self.assertIn("solar_power_entity:", services_source)
         self.assertIn("battery_discharge_power_entity:", services_source)
+
+    def test_backend_entry_scoped_services_fail_ambiguous_multi_entry_calls(self) -> None:
+        init_source = INIT_PATH.read_text(encoding="utf-8")
+        services_source = SERVICES_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("def _entry_from_service_call", init_source)
+        self.assertIn('len(entries) > 1', init_source)
+        self.assertIn('raise ValueError("Set entry_id when more than one Zero Net Export plan is configured")', init_source)
+        self.assertIn("def _coordinator_from_service_call", init_source)
+        self.assertIn("schema=ENTRY_SCOPED_SERVICE_SCHEMA", init_source)
+        self.assertIn('"pause_executor"', init_source)
+        self.assertIn('"resume_executor"', init_source)
+        self.assertIn('"export_diagnostics"', init_source)
+        self.assertIn('"repair_issue"', init_source)
+        self.assertIn("pause_executor:", services_source)
+        self.assertIn("resume_executor:", services_source)
+        self.assertIn("repair_issue:", services_source)
 
     def test_native_remove_device_hook_is_backend_only(self) -> None:
         init_source = INIT_PATH.read_text(encoding="utf-8")

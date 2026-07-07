@@ -171,9 +171,39 @@ update_source_roles:
         entity:
           domain: sensor
 
+pause_executor:
+  name: Pause executor
+  description: Pause the executor for one Zero Net Export config entry.
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
+      selector:
+        text:
+
+resume_executor:
+  name: Resume executor
+  description: Resume the executor for one Zero Net Export config entry.
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
+      selector:
+        text:
+
 export_diagnostics:
   name: Export diagnostics
   description: Export Zero Net Export diagnostics to a JSON file in the Home Assistant config directory. The file contains log buffer, sensor states, config entry state, and reconciliation history with sensitive data filtered.
+  fields:
+    entry_id:
+      name: Config entry ID
+      description: Optional Zero Net Export config entry id used when more than one entry is installed.
+      selector:
+        text:
+
+repair_issue:
+  name: Repair issue
+  description: Clear repair issues for one Zero Net Export config entry after the operator has addressed the underlying problem.
   fields:
     entry_id:
       name: Config entry ID
