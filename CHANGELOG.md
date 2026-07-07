@@ -4,6 +4,12 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [0.3.3] - 2026-07-07
+
+### Fixed
+- Fixed the `zero_net_export.export_diagnostics` service so it no longer raises a `_LOGGER` `NameError` after writing the diagnostics file.
+- Moved diagnostics JSON file writing off the Home Assistant event loop to avoid blocking-call warnings during diagnostics export.
+
 ## [0.3.1-fix] - 2026-07-07
 
 ### Fixed

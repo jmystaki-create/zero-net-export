@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import asdict
 import hashlib
 import json
+import logging
 from pathlib import Path
 import re
 from typing import Any
@@ -77,6 +78,8 @@ STALE_MANAGED_LOAD_BUTTON_SUFFIXES = (
 )
 DATA_APP_PANEL_REGISTERED = "app_panel_registered"
 DATA_APP_STATIC_REGISTERED = "app_static_registered"
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _setup_notification_id(entry: ConfigEntry) -> str:

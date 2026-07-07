@@ -351,8 +351,11 @@ class ZeroNetExportCoordinator(DataUpdateCoordinator[ZeroNetExportState]):
         filename = f"zne-diagnostics-{timestamp}.json"
         filepath = hass.config.path(filename)
 
-        with open(filepath, "w") as f:
-            json.dump(diagnostics, f, indent=2, default=str)
+        def _write_diagnostics_file() -> None:
+            with open(filepath, "w") as f:
+                json.dump(diagnostics, f, indent=2, default=str)
+
+        await hass.async_add_executor_job(_write_diagnostics_file)
 
         _LOGGER.info("Diagnostics exported to %s", filepath)
         return filename
