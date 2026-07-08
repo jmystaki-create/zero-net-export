@@ -1,6 +1,6 @@
 # WB-ZNE-011 Overview Readiness Clarity
 
-Status: Validating
+Status: Done
 Priority: High
 Labels: application, overview, readiness, ux, validation
 
@@ -27,15 +27,23 @@ structured, and actionable.
 - Target-environment feasibility: supported and recorded in `validation/zne-fr-013-overview-readiness-clarity.md`.
 - Implementation: completed in `custom_components/zero_net_export/frontend/zero-net-export-app.js`.
 - Repo validation: passed; evidence recorded in `validation/zne-fr-013-overview-readiness-clarity.md`.
-- Release/live validation: pending normal release-management approval.
+- Release/live validation: passed in `v0.4.3`; evidence recorded in
+  `validation/0.4.3-release-validation.md`.
+
+## Release Evidence
+
+- GitHub release `v0.4.3` published.
+- HACS installed `v0.4.3`.
+- Home Assistant restarted and recovered with installed version sensor `0.4.3`.
+- Install fingerprint matched before and after restart.
+- Browser proof confirmed `Version 0.4.3`, `Current focus`,
+  `What is wrong`, and `How to resolve` on desktop and narrow viewports.
 
 ## Next Actions
 
-1. Prepare release notes/version bump after approval.
-2. Publish through the approved GitHub/HACS release path.
-3. Restart Home Assistant.
-4. Capture desktop/narrow browser proof of the Readiness card.
-5. Record installed-version, fingerprint, HACS metadata, and targeted log evidence.
+1. Start `ZNE-595` recorder attribute cleanup.
+2. Preserve the full readiness detail in diagnostics/app API surfaces while
+   trimming recorder-backed entity attributes.
 
 ## Risks
 

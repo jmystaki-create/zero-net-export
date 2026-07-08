@@ -29,7 +29,7 @@ The current highest-priority request is the 2026-06-26 direction change:
 3. **Overview Readiness must explain what is wrong**
    - Riley requested on 2026-07-08 that the Readiness section be structurally reformatted and explain the current errors plus what needs to be done to resolve them.
    - Tracked as `ZNE-FR-013` in `docs/FEATURE_REQUESTS.md`.
-   - Current state: repo-validated pending release/live validation. Evidence is recorded in `validation/zne-fr-013-overview-readiness-clarity.md`.
+   - Current state: released and live-validated in `v0.4.3`. Evidence is recorded in `validation/zne-fr-013-overview-readiness-clarity.md` and `validation/0.4.3-release-validation.md`.
 
 Older native-surface bugs/features below remain evidence and stabilization context, but they should not drive new work unless Riley explicitly asks to finish a native release or the work directly supports the application port:
 

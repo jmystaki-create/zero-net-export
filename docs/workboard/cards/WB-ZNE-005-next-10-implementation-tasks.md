@@ -1,6 +1,6 @@
 # WB-ZNE-005 Next 10 Implementation Tasks
 
-Status: Validating
+Status: Ready
 Priority: High
 Labels: planning, implementation, validation, roadmap
 
@@ -23,9 +23,8 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 
 ## Next Active Tasks
 
-1. Release/live validate `ZNE-FR-013` Overview Readiness clarity.
-2. Start `ZNE-595` recorder attribute cleanup.
-3. Decide whether deferred bulk priority adjustment belongs in the next app
+1. Start `ZNE-595` recorder attribute cleanup.
+2. Decide whether deferred bulk priority adjustment belongs in the next app
    workflow milestone.
 
 Standing rule: keep the OpenClaw Workboard updated on every ZNE turn, including
@@ -49,5 +48,5 @@ status, blockers, validation evidence, and next action.
 ## Notes
 
 Overview console live metrics are released/live validated in `v0.4.2`.
-Overview Readiness clarity is repo-validated pending release/live validation;
-then return to `ZNE-595`.
+Overview Readiness clarity is released/live validated in `v0.4.3`; return to
+`ZNE-595`.

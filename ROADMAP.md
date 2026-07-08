@@ -29,7 +29,7 @@ or release readiness changes. Current relevant UI cards:
 `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (released/live validated via API/static/service checks),
 `36a26d60` - `ZNE: Fix SOC source status display in Sources app` (done; released/live validated in `v0.4.1`),
 `workboard-focused` - `ZNE: Overview console live metrics` (done; released/live validated in `v0.4.2`),
-`workboard-focused` - `ZNE: Overview Readiness clarity` (validating; repo validated pending release/live validation),
+`workboard-focused` - `ZNE: Overview Readiness clarity` (done; released/live validated in `v0.4.3`),
 `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (ready; next).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
@@ -40,18 +40,17 @@ browser proof is recorded. References:
 `validation/0.2.5-release-validation.md`, and repo Workboard card
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Latest released**: `v0.4.2` is published, installed through HACS, restarted, and
-live/browser validated for the Overview console live-metrics slice. The
-installed version sensor reports `0.4.2`; the Overview Reconciliation Status
-card shows live freshness, Source Power, Battery Power, Confidence, and
-stale/source-blocker context. Evidence:
-`validation/0.4.2-release-validation.md` and
-`validation/artifacts/v0.4.2-overview-console-live.png`.
-
-**Current repo-validated work**: `ZNE-FR-013` restructures the Overview
-Readiness card into status chips, current focus, and issue cards with
-`What is wrong` / `How to resolve` guidance. Evidence:
+**Latest released**: `v0.4.3` is published, installed through HACS, restarted,
+and live/browser validated for the Overview Readiness clarity slice. The
+installed version sensor reports `0.4.3`; the Overview Readiness card shows
+status chips, current focus, and issue cards with `What is wrong` /
+`How to resolve` guidance. Evidence:
+`validation/0.4.3-release-validation.md` and
 `validation/zne-fr-013-overview-readiness-clarity.md`.
+
+**Current next work**: `ZNE-595` recorder attribute cleanup. Oversized
+recorder-backed entity attribute warnings remain in the `v0.4.3` post-restart
+log review.
 
 ## Current milestone
 
@@ -73,8 +72,8 @@ Evidence:
 - Release/live validation: `validation/0.4.0-release-validation.md`
 
 Next gate:
-- Release/live validate `ZNE-FR-013`, then fix oversized recorder-backed entity
-  attributes found in the v0.4.0 and v0.4.2 log reviews.
+- Fix oversized recorder-backed entity attributes found in the v0.4.0, v0.4.2,
+  and v0.4.3 log reviews.
 
 ### ZNE-APP-006 - Diagnostics & Support Polish
 
