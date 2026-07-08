@@ -7,6 +7,7 @@ class ZeroNetExportApp extends HTMLElement {
     this._selectedEntryIdValue = "";
     this._onClick = this._onClick.bind(this);
     this._onChange = this._onChange.bind(this);
+    this._realtimeTimer = undefined;
   }
 
   set hass(value) {
@@ -22,12 +23,17 @@ class ZeroNetExportApp extends HTMLElement {
   connectedCallback() {
     this.addEventListener("click", this._onClick);
     this.addEventListener("change", this._onChange);
+    this._realtimeTimer = window.setInterval(() => this._render(), 10000);
     this._render();
   }
 
   disconnectedCallback() {
     this.removeEventListener("click", this._onClick);
     this.removeEventListener("change", this._onChange);
+    if (this._realtimeTimer) {
+      window.clearInterval(this._realtimeTimer);
+      this._realtimeTimer = undefined;
+    }
   }
 
   _state(entityId) {
@@ -101,6 +107,206 @@ class ZeroNetExportApp extends HTMLElement {
       <div class="zne-row">
         <span>${this._escape(label)}</span>
         <strong>${this._escape(state)}</strong>
+      </div>
+    `;
+  }
+
+  _stateFromCandidates(entityIds) {
+    for (const entityId of entityIds) {
+      const state = this._state(entityId);
+      if (state) {
+        return state;
+      }
+    }
+    return undefined;
+  }
+
+  _sourceMetricState(sourceKey, suffix = "reading") {
+    return this._stateFromCandidates([
+      `sensor.zero_net_export_source_${sourceKey}_${suffix}`,
+      `sensor.zero_net_export_${sourceKey}_${suffix}`,
+    ]);
+  }
+
+  _numericStateValue(state) {
+    if (!state || state.state === undefined || state.state === null) {
+      return undefined;
+    }
+    const value = Number(state.state);
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  _isMissingState(state) {
+    if (!state) {
+      return true;
+    }
+    const value = String(state.state || "").toLowerCase();
+    return ["", "unknown", "unavailable", "none"].includes(value);
+  }
+
+  _formatNumber(value, unit = "") {
+    if (value === undefined || value === null || !Number.isFinite(Number(value))) {
+      return "unknown";
+    }
+    const number = Number(value);
+    const formatted = Math.abs(number) >= 100 ? Math.round(number).toString() : number.toFixed(1).replace(/\.0$/, "");
+    return unit ? `${formatted} ${unit}` : formatted;
+  }
+
+  _relativeTime(timestamp) {
+    if (!timestamp) {
+      return "";
+    }
+    const parsed = Date.parse(timestamp);
+    if (!Number.isFinite(parsed)) {
+      return "";
+    }
+    const ageSeconds = Math.max(Math.round((Date.now() - parsed) / 1000), 0);
+    if (ageSeconds < 5) {
+      return "just now";
+    }
+    if (ageSeconds < 60) {
+      return `${ageSeconds}s ago`;
+    }
+    const ageMinutes = Math.round(ageSeconds / 60);
+    if (ageMinutes < 60) {
+      return `${ageMinutes}m ago`;
+    }
+    const ageHours = Math.round(ageMinutes / 60);
+    if (ageHours < 48) {
+      return `${ageHours}h ago`;
+    }
+    return new Date(parsed).toLocaleString();
+  }
+
+  _stateUpdatedAt(state) {
+    return state && (state.last_updated || state.last_changed || state.last_reported);
+  }
+
+  _sourceFreshness(sourceKey) {
+    const status = this._sourceMetricState(sourceKey, "status");
+    const reading = this._sourceMetricState(sourceKey, "reading");
+    const freshness = (status && status.attributes && status.attributes.freshness)
+      || (reading && reading.attributes && reading.attributes.freshness)
+      || {};
+    return {
+      status,
+      reading,
+      ageSeconds: freshness.age_seconds,
+      isStale: freshness.is_stale === true,
+      blocksRuntime: freshness.stale_blocks_runtime === true,
+      lastUpdated: freshness.last_updated || freshness.entity_last_updated || this._stateUpdatedAt(reading || status),
+      probe: freshness.freshness_probe_entity_id || "",
+    };
+  }
+
+  _metricDetail(label, value, unit, states, note = "") {
+    const stateList = states.filter(Boolean);
+    const staleSources = stateList
+      .map((state) => {
+        const attrs = state.attributes || {};
+        const freshness = attrs.freshness || {};
+        return freshness.is_stale ? (attrs.binding_label || attrs.binding || state.entity_id || label) : "";
+      })
+      .filter(Boolean);
+    const missing = value === undefined || value === null || !Number.isFinite(Number(value));
+    const latestTimestamp = stateList
+      .map((state) => this._stateUpdatedAt(state))
+      .filter(Boolean)
+      .sort()
+      .pop();
+    const sourceText = stateList
+      .map((state) => (state.attributes && (state.attributes.binding_label || state.attributes.binding)) || state.entity_id)
+      .filter(Boolean)
+      .join(" + ");
+    return {
+      label,
+      value: missing ? "unknown" : this._formatNumber(value, unit),
+      status: missing ? "missing" : staleSources.length ? "stale" : "live",
+      detail: staleSources.length
+        ? `Stale: ${staleSources.join(", ")}`
+        : note || (sourceText ? `From ${sourceText}` : ""),
+      updated: this._relativeTime(latestTimestamp),
+    };
+  }
+
+  _reconciliationMetrics() {
+    const homeLoadState = this._stateFromCandidates([
+      "sensor.zero_net_export_home_load_power_w",
+      "sensor.zero_net_export_home_load_power",
+    ]) || this._sourceMetricState("home_load_power");
+    const solarState = this._stateFromCandidates([
+      "sensor.zero_net_export_solar_power_w",
+      "sensor.zero_net_export_source_power",
+    ]) || this._sourceMetricState("solar_power");
+    const batteryChargeState = this._stateFromCandidates([
+      "sensor.zero_net_export_battery_charge_power_w",
+    ]) || this._sourceMetricState("battery_charge_power");
+    const batteryDischargeState = this._stateFromCandidates([
+      "sensor.zero_net_export_battery_discharge_power_w",
+      "sensor.zero_net_export_battery_power",
+    ]) || this._sourceMetricState("battery_discharge_power");
+    const surplusState = this._stateFromCandidates([
+      "sensor.zero_net_export_surplus_w",
+      "sensor.zero_net_export_surplus",
+    ]);
+    const errorState = this._stateFromCandidates([
+      "sensor.zero_net_export_last_reconciliation_error_w",
+      "sensor.zero_net_export_last_reconciliation_error",
+    ]);
+    const confidenceState = this._state("sensor.zero_net_export_confidence");
+    const staleSummary = this._stateText("sensor.zero_net_export_stale_source_summary", "");
+    const sourceBlocker = this._stateText("sensor.zero_net_export_source_blocker_summary", "");
+    const chargeValue = this._numericStateValue(batteryChargeState) || 0;
+    const dischargeValue = this._numericStateValue(batteryDischargeState) || 0;
+    const hasBatteryPower = !this._isMissingState(batteryChargeState) || !this._isMissingState(batteryDischargeState);
+    const batteryPower = hasBatteryPower ? dischargeValue - chargeValue : undefined;
+    const batteryNote = hasBatteryPower
+      ? (batteryPower >= 0 ? "Positive means battery discharge" : "Negative means battery charging")
+      : "Map battery charge/discharge source roles to populate this";
+    const confidenceValue = confidenceState && !this._isMissingState(confidenceState)
+      ? confidenceState.state
+      : this._attr("sensor.zero_net_export_status", "confidence", "unknown");
+    const allStates = [
+      homeLoadState,
+      solarState,
+      batteryChargeState,
+      batteryDischargeState,
+      surplusState,
+      errorState,
+      confidenceState,
+    ].filter(Boolean);
+    const latestTimestamp = allStates
+      .map((state) => this._stateUpdatedAt(state))
+      .filter(Boolean)
+      .sort()
+      .pop();
+
+    return {
+      rows: [
+        this._metricDetail("Home Load", this._numericStateValue(homeLoadState), "W", [homeLoadState]),
+        this._metricDetail("Source Power", this._numericStateValue(solarState), "W", [solarState], "Solar production source"),
+        this._metricDetail("Battery Power", batteryPower, "W", [batteryDischargeState, batteryChargeState], batteryNote),
+        this._metricDetail("Surplus/Deficit", this._numericStateValue(surplusState), "W", [surplusState]),
+        this._metricDetail("Reconciliation Error", this._numericStateValue(errorState), "W", [errorState]),
+      ],
+      confidence: confidenceValue,
+      executorState: this._stateText("sensor.zero_net_export_executor_state", "unknown"),
+      updated: this._relativeTime(latestTimestamp),
+      staleSummary,
+      sourceBlocker,
+    };
+  }
+
+  _metricRow(metric) {
+    return `
+      <div class="zne-row zne-metric-row ${this._escape(metric.status)}">
+        <span>${this._escape(metric.label)}</span>
+        <strong>
+          ${this._escape(metric.value)}
+          ${metric.updated ? `<small>Updated ${this._escape(metric.updated)}</small>` : ""}
+          ${metric.detail ? `<small>${this._escape(metric.detail)}</small>` : ""}
+        </strong>
       </div>
     `;
   }
@@ -602,6 +808,7 @@ class ZeroNetExportApp extends HTMLElement {
     const status = this._stateText("sensor.zero_net_export_status", "unknown");
     const safeMode = this._stateText("binary_sensor.zero_net_export_safe_mode", "unknown");
     const sourceMismatch = this._stateText("binary_sensor.zero_net_export_source_mismatch", "unknown");
+    const metrics = this._reconciliationMetrics();
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
@@ -617,19 +824,28 @@ class ZeroNetExportApp extends HTMLElement {
           </div>
           <div class="zne-card">
             <h3>Reconciliation Status</h3>
-            ${this._entityRow("Home Load", "sensor.zero_net_export_home_load_power", "W")}
-            ${this._entityRow("Source Power", "sensor.zero_net_export_source_power", "W")}
-            ${this._entityRow("Battery Power", "sensor.zero_net_export_battery_power", "W")}
-            ${this._entityRow("Surplus/Deficit", "sensor.zero_net_export_surplus", "W")}
-            ${this._entityRow("Reconciliation Error", "sensor.zero_net_export_last_reconciliation_error", "W")}
+            <div class="zne-live-strip">
+              ${this._pill("Refresh", "live")}
+              <span>${metrics.updated ? `Last update ${this._escape(metrics.updated)}` : "Waiting for runtime update"}</span>
+            </div>
+            ${metrics.rows.map((metric) => this._metricRow(metric)).join("")}
             <div class="zne-row">
               <span>Confidence</span>
-              <strong>${this._attr("sensor.zero_net_export_status", "confidence", "unknown")}</strong>
+              <strong>
+                ${this._pill("confidence", metrics.confidence)}
+                <small>${metrics.confidence === "unknown" ? "Waiting for source validation confidence" : "From source reconciliation quality"}</small>
+              </strong>
             </div>
             <div class="zne-row">
               <span>Executor State</span>
               <strong>${this._stateText("sensor.zero_net_export_executor_state", "unknown")}</strong>
             </div>
+            ${metrics.staleSummary && metrics.staleSummary !== "None" ? `
+              <p class="zne-alert">Stale source: ${this._escape(metrics.staleSummary)}</p>
+            ` : ""}
+            ${metrics.sourceBlocker && metrics.sourceBlocker !== "None" ? `
+              <p class="zne-alert">Source blocker: ${this._escape(metrics.sourceBlocker)}</p>
+            ` : ""}
           </div>
           <div class="zne-card">
             <h3>Executor Control</h3>
@@ -1425,6 +1641,40 @@ class ZeroNetExportApp extends HTMLElement {
           word-break: normal;
           text-align: right;
           line-height: 1.35;
+        }
+
+        .zne-row small {
+          display: block;
+          margin-top: 3px;
+          color: var(--secondary-text-color);
+          font-weight: 400;
+          font-size: 12px;
+        }
+
+        .zne-live-strip {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          padding: 0 0 8px;
+          color: var(--secondary-text-color);
+          font-size: 12px;
+        }
+
+        .zne-metric-row.live > strong {
+          color: var(--success-color, #2e7d32);
+        }
+
+        .zne-metric-row.stale > strong,
+        .zne-metric-row.missing > strong {
+          color: var(--error-color, #c62828);
+        }
+
+        .zne-alert {
+          margin: 8px 0 0;
+          padding: 8px;
+          border-left: 3px solid var(--warning-color, #f9a825);
+          background: var(--secondary-background-color);
         }
 
         .zne-source-editor {

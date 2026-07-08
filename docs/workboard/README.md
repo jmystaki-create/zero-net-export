@@ -1,6 +1,6 @@
 # Zero Net Export Workboard
 
-Last updated: 2026-07-07
+Last updated: 2026-07-08
 
 This workboard is the operational project view for Zero Net Export. It summarizes what exists, what is broken, what is next, and how far the project is from a useful Home Assistant application MVP.
 
@@ -45,8 +45,8 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.4.0` (Milestone 7 Multi-Plan And Service Separation, installed through HACS and live validated with API/static/service checks 2026-07-07).
-Next: fix post-v0.4.0 recorder attribute-size warnings, then capture broader browser proof when needed.
+Current release: `v0.4.1` (ZNE-596 Sources SOC display fix, installed through HACS and live/browser validated 2026-07-08).
+Next: release/live-validate the repo-validated Overview console live-metrics implementation for `ZNE-FR-011` / `ZNE-FR-012` after version approval, then continue ZNE-595 recorder attribute cleanup.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -75,7 +75,11 @@ Current state:
   version sensor `0.4.0`, app/static routes returning HTTP 200, `entry_id`
   service fields, and explicit scoped service calls for export, repair,
   pause, and resume.
-- Repo `main` is synced with `origin/main`.
+- `v0.4.1` fixed and live-validated the Sources app Battery state of charge row.
+- `ZNE-FR-011` and `ZNE-FR-012` are repo-validated pending release/live validation: the Overview
+  Reconciliation Status card now has local freshness re-rendering, resolves
+  Source Power/Battery Power/Confidence from existing runtime/source entities,
+  and shows stale/source-blocker context. Repo validation passed.
 
 ## Known Bugs
 
@@ -100,6 +104,8 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
+- Release-manage the repo-validated Overview console live-metrics work
+  (`ZNE-FR-011` / `ZNE-FR-012`) after version approval is given.
 - Fix post-v0.4.0 oversized recorder-backed entity attributes.
 - Capture v0.4.0 browser visual proof once the OpenClaw managed browser host is available.
 - Define deferred bulk priority adjustment scope in a later milestone.
@@ -110,16 +116,18 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Fix post-v0.4.0 oversized recorder-backed entity attributes.
+**Immediate**: Release/live validate the Overview console live-metrics implementation after version approval.
 
-1. Return to ZNE-595 and move bulky source/action-history/diagnostic detail
+1. Prepare release notes/version bump only after user approval.
+2. Release/live validate through GitHub/HACS/restart/browser proof.
+3. Record installed-version, fingerprint, browser, and log evidence.
+4. Return to ZNE-595 and move bulky source/action-history/diagnostic detail
    out of recorder-backed attributes.
-2. Keep concise entity attributes for dashboard use.
-3. Preserve full detail through diagnostics export and app API surfaces.
-4. Validate with tests and Home Assistant log review after HACS install/restart.
-5. Capture browser proof of selected plan context when browser tooling is available.
-6. Decide when to scope deferred bulk priority adjustment.
-7. Continue app workflow slices for diagnostics/support, runtime visibility,
+5. Keep concise entity attributes for dashboard use.
+6. Preserve full detail through diagnostics export and app API surfaces.
+7. Validate with tests and Home Assistant log review after HACS install/restart.
+8. Decide when to scope deferred bulk priority adjustment.
+9. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
@@ -174,6 +182,7 @@ Full product completion: not yet estimable from current evidence because runtime
 - [WB-ZNE-006 Blockers and unknowns](cards/WB-ZNE-006-blockers-and-unknowns.md)
 - [WB-ZNE-007 Testing and validation plan](cards/WB-ZNE-007-testing-and-validation-plan.md)
 - [WB-ZNE-008 Weekly status report](cards/WB-ZNE-008-weekly-status-report.md)
+- [WB-ZNE-010 Overview console live metrics](cards/WB-ZNE-010-overview-console-live-metrics.md)
 
 ## OpenClaw UI Cards
 

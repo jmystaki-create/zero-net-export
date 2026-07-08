@@ -1,6 +1,6 @@
 # WB-ZNE-005 Next 10 Implementation Tasks
 
-Status: Ready
+Status: Validating
 Priority: High
 Labels: planning, implementation, validation, roadmap
 
@@ -23,13 +23,11 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 
 ## Next Active Tasks
 
-1. Apply or guide the `sensor.anker_battery_discharge_power` template sensor
-   workaround from `docs/SOURCE_HEALTH_FIX_GUIDE.md`.
-2. Point ZNE at the fixed battery discharge source.
-3. Capture live API proof for `sensor.zero_net_export_status=ok`.
-4. Capture Diagnostics browser proof for the resolved source-health state.
-5. Decide whether Milestone 4 needs a ZNE-side fallback release (`v0.2.6`) or
-   closes as a Home Assistant configuration fix.
+1. After approval, release/live validate the Overview console through
+   GitHub/HACS/restart/browser proof.
+2. Return to `ZNE-595` recorder attribute cleanup.
+3. Decide whether deferred bulk priority adjustment belongs in the next app
+   workflow milestone.
 
 Standing rule: keep the OpenClaw Workboard updated on every ZNE turn, including
 status, blockers, validation evidence, and next action.
@@ -51,4 +49,6 @@ status, blockers, validation evidence, and next action.
 
 ## Notes
 
-Do not start implementation work until the next milestone feasibility check is written and accepted.
+Current active implementation has feasibility recorded in
+`validation/zne-fr-011-012-overview-console-live-metrics.md`; keep validation
+and release state updated before starting the next feature slice.

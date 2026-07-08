@@ -4,6 +4,15 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [0.4.2] - 2026-07-08
+
+### Added
+- Made the Overview Reconciliation Status card feel more realtime with local
+  freshness updates, last-updated context, and stale/source-blocker messages.
+- Filled Source Power, Battery Power, and Confidence from current runtime/source
+  entity state, deriving Battery Power from discharge minus charge where
+  available.
+
 ## [0.4.1] - 2026-07-08
 
 ### Fixed

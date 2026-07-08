@@ -1,6 +1,6 @@
 # WB-ZNE-008 Weekly Status Report
 
-Status: Ready
+Status: Validating
 Priority: Normal
 Labels: status, reporting, release, roadmap
 
@@ -10,37 +10,33 @@ Provide a concise weekly project status that shows progress, current focus, bloc
 
 ## Current Status Snapshot
 
-Date: 2026-07-01
+Date: 2026-07-08
 
 Done:
-- `v0.2.5` released and live-validated.
-- ZNE-594 fixed and validated in installed Home Assistant.
-- Sources backend write proof passed and was restored safely.
-- OpenClaw Workboard UI is populated with the ZNE operating cards, and a dedicated card now tracks installed Sources browser proof.
-- Installed Sources browser proof captured on desktop and narrow viewport.
-- Milestone 3 Stage 2 is live-validated with Managed Devices fleet filters,
-  sorting, enhanced columns, row selection, and confirmation-gated bulk
-  enable/disable actions.
-- Populated `light.7th` proof is captured; final ZNE managed record remains
-  disabled.
+- `v0.4.1` released and live/browser validated for ZNE-596 Sources SOC display.
+- Milestone 7 multi-plan/service separation is released/live validated for
+  API/static/service scope in `v0.4.0`.
+- Sources app Battery state of charge now shows the correct backend binding and
+  current reading in the installed app.
 
 In progress / pending:
 - Workboard must be checked and updated every ZNE turn.
-- Milestone 4 source-health work is active. Live API auth is restored and the
-  baseline shows `sensor.zero_net_export_status=degraded` because
-  `sensor.anker_battery_discharge_power` exposes `state_class=total`.
-- Bulk priority adjustment is deferred to a later milestone.
+- `ZNE-FR-011` / `ZNE-FR-012` Overview console live-metrics implementation is
+  repo-validated and pending release/live validation.
+- `ZNE-595` recorder attribute cleanup remains the next bug after the console
+  feature slice is validated.
+- Bulk priority adjustment remains deferred to a later milestone.
 
 Risks:
-- Runtime control readiness remains limited by source-health until the battery
-  discharge source is corrected and reconciliation is rechecked.
 - Browser proof path is proven through the OpenClaw browser CLI and should remain part of future app-facing validation.
 - Future app work must not drift into unsupported native HA UI injection.
+- Multi-plan live proof for app-visible runtime metrics still needs a real
+  multi-entry validation pass before claiming complete multi-plan UI telemetry.
+- ZNE-595 recorder warning cleanup remains open.
 
 Recommended next action:
-- Apply or guide the Milestone 4 template sensor workaround, point ZNE at the
-  fixed battery discharge source, and capture live proof that runtime status
-  returns to `ok`.
+- Request release approval for `ZNE-FR-011` / `ZNE-FR-012` HACS/live browser
+  validation, then return to ZNE-595.
 
 ## Acceptance Criteria
 

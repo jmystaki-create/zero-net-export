@@ -16,6 +16,7 @@ last_modified: 2026-07-08
 - Implemented: shared entry resolver, app selected-plan context header/selector, selected `entry_id` payloads for source-role saves, managed-device changes, executor pause/resume, diagnostics export, and repair. Ambiguous multi-entry service calls now fail safely.
 - Release: v0.4.0 published, installed through HACS, restarted, and live validated with Home Assistant API/static route checks. Browser proof is pending because the OpenClaw managed browser host is unavailable.
 - Follow-up risk: post-release logs show many Zero Net Export entity attributes exceeding Home Assistant's 16 KB recorder attribute limit. A separate user-visible Sources app SOC display regression was fixed and live-validated as ZNE-596 in `v0.4.1`; return to the broader recorder attribute cleanup next.
+- New user-requested Overview console polish: `ZNE-FR-011` tracks making Reconciliation Status feel more realtime, and `ZNE-FR-012` tracks filling Source Power, Battery Power, and Confidence with meaningful live values/blockers. Target-environment feasibility and repo validation are recorded in `validation/zne-fr-011-012-overview-console-live-metrics.md`; release/live validation is pending.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -59,3 +60,8 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 - ZNE-590 — managed climate device ZNE settings are confusing and do not preserve the original device experience. Status: released_live_validated in `0.1.107`. Evidence: `docs/BUGS.md`, `validation/zne-590-managed-climate-device-page-cleanup.md`, `validation/0.1.107-release-validation.md`.
 - ZNE-589 — remove `ZNE Managed Devices` from the Home Assistant sidebar/menu. Status: released_live_validated in `0.1.106`. Evidence: `validation/zne-589-sidebar-menu-panel-removal.md`, `validation/0.1.106-release-validation.md`.
 - ZNE-588 — Tier 1 setup buttons do not open visible Tier 2 targets and diagnostics overfill the device page. Status: released_live_validated in `0.1.106`. Evidence: `validation/zne-588-bug-only-tier1-cleanup.md`, `validation/0.1.106-release-validation.md`.
+
+## Active Feature Work
+
+- ZNE-FR-011 — Reconciliation Status should feel realtime. Status: repo_validated_pending_release_live_validation. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`. Next action: release/live validate through the approved HACS path after version approval.
+- ZNE-FR-012 — Overview console should include Source Power, Battery Power, and Confidence. Status: repo_validated_pending_release_live_validation. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`. Next action: release/live validate through the approved HACS path after version approval.

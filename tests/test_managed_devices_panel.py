@@ -98,6 +98,27 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("grid-template-columns: minmax(150px, 0.35fr) minmax(0, 1fr);", source)
         self.assertIn(".zne-source-detail input", source)
 
+    def test_overview_reconciliation_console_uses_live_runtime_metrics(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("this._realtimeTimer = window.setInterval(() => this._render(), 10000)", source)
+        self.assertIn("window.clearInterval(this._realtimeTimer)", source)
+        self.assertIn("_reconciliationMetrics()", source)
+        self.assertIn('"sensor.zero_net_export_home_load_power_w"', source)
+        self.assertIn('"sensor.zero_net_export_solar_power_w"', source)
+        self.assertIn('"sensor.zero_net_export_battery_charge_power_w"', source)
+        self.assertIn('"sensor.zero_net_export_battery_discharge_power_w"', source)
+        self.assertIn('"sensor.zero_net_export_surplus_w"', source)
+        self.assertIn('"sensor.zero_net_export_last_reconciliation_error_w"', source)
+        self.assertIn('"sensor.zero_net_export_confidence"', source)
+        self.assertIn("const batteryPower = hasBatteryPower ? dischargeValue - chargeValue : undefined", source)
+        self.assertIn("Source Power", source)
+        self.assertIn("Battery Power", source)
+        self.assertIn("Confidence", source)
+        self.assertIn("Last update", source)
+        self.assertIn("Source blocker:", source)
+        self.assertIn("Stale source:", source)
+
     def test_app_captures_managed_device_form_values_before_busy_render(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
@@ -126,7 +147,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.1"', source)
+        self.assertIn('"version": "0.4.2"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)
