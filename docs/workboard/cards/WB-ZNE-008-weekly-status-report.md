@@ -14,6 +14,8 @@ Date: 2026-07-08
 
 Done:
 - `v0.4.1` released and live/browser validated for ZNE-596 Sources SOC display.
+- `v0.4.2` released and live/browser validated for `ZNE-FR-011` /
+  `ZNE-FR-012` Overview console live metrics.
 - Milestone 7 multi-plan/service separation is released/live validated for
   API/static/service scope in `v0.4.0`.
 - Sources app Battery state of charge now shows the correct backend binding and
@@ -21,10 +23,7 @@ Done:
 
 In progress / pending:
 - Workboard must be checked and updated every ZNE turn.
-- `ZNE-FR-011` / `ZNE-FR-012` Overview console live-metrics implementation is
-  repo-validated and pending release/live validation.
-- `ZNE-595` recorder attribute cleanup remains the next bug after the console
-  feature slice is validated.
+- `ZNE-595` recorder attribute cleanup is now the next bug.
 - Bulk priority adjustment remains deferred to a later milestone.
 
 Risks:
@@ -35,8 +34,7 @@ Risks:
 - ZNE-595 recorder warning cleanup remains open.
 
 Recommended next action:
-- Request release approval for `ZNE-FR-011` / `ZNE-FR-012` HACS/live browser
-  validation, then return to ZNE-595.
+- Start `ZNE-595` recorder attribute cleanup.
 
 ## Acceptance Criteria
 

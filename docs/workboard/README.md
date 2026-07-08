@@ -45,8 +45,8 @@ Primary references:
 
 ## Architecture / Current State
 
-Current release: `v0.4.1` (ZNE-596 Sources SOC display fix, installed through HACS and live/browser validated 2026-07-08).
-Next: release/live-validate the repo-validated Overview console live-metrics implementation for `ZNE-FR-011` / `ZNE-FR-012` after version approval, then continue ZNE-595 recorder attribute cleanup.
+Current release: `v0.4.2` (Overview console live metrics for `ZNE-FR-011` / `ZNE-FR-012`, installed through HACS and live/browser validated 2026-07-08).
+Next: continue ZNE-595 recorder attribute cleanup.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -76,10 +76,12 @@ Current state:
   service fields, and explicit scoped service calls for export, repair,
   pause, and resume.
 - `v0.4.1` fixed and live-validated the Sources app Battery state of charge row.
-- `ZNE-FR-011` and `ZNE-FR-012` are repo-validated pending release/live validation: the Overview
+- `ZNE-FR-011` and `ZNE-FR-012` are released/live validated in `v0.4.2`: the Overview
   Reconciliation Status card now has local freshness re-rendering, resolves
   Source Power/Battery Power/Confidence from existing runtime/source entities,
-  and shows stale/source-blocker context. Repo validation passed.
+  and shows stale/source-blocker context. GitHub release, HACS install, restart,
+  fingerprint, browser proof, and log review are recorded in
+  `validation/0.4.2-release-validation.md`.
 
 ## Known Bugs
 
@@ -104,9 +106,7 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
-- Release-manage the repo-validated Overview console live-metrics work
-  (`ZNE-FR-011` / `ZNE-FR-012`) after version approval is given.
-- Fix post-v0.4.0 oversized recorder-backed entity attributes.
+- Fix post-v0.4.0/v0.4.2 oversized recorder-backed entity attributes.
 - Capture v0.4.0 browser visual proof once the OpenClaw managed browser host is available.
 - Define deferred bulk priority adjustment scope in a later milestone.
 - Continue app milestones for managed-device onboarding/editing, controls, runtime visibility, diagnostics/support, and multi-plan separation.
@@ -116,25 +116,22 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Release/live validate the Overview console live-metrics implementation after version approval.
+**Immediate**: Start ZNE-595 recorder attribute cleanup.
 
-1. Prepare release notes/version bump only after user approval.
-2. Release/live validate through GitHub/HACS/restart/browser proof.
-3. Record installed-version, fingerprint, browser, and log evidence.
-4. Return to ZNE-595 and move bulky source/action-history/diagnostic detail
+1. Move bulky source/action-history/diagnostic detail
    out of recorder-backed attributes.
-5. Keep concise entity attributes for dashboard use.
-6. Preserve full detail through diagnostics export and app API surfaces.
-7. Validate with tests and Home Assistant log review after HACS install/restart.
-8. Decide when to scope deferred bulk priority adjustment.
-9. Continue app workflow slices for diagnostics/support, runtime visibility,
+2. Keep concise entity attributes for dashboard use.
+3. Preserve full detail through diagnostics export and app API surfaces.
+4. Validate with tests and Home Assistant log review after HACS install/restart.
+5. Decide when to scope deferred bulk priority adjustment.
+6. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
 
-- Browser/node navigation path is currently unavailable in this agent environment
-  because the managed browser host is not running and Chrome/CDP is unreachable.
-  Browser proof for v0.4.0 is pending until that tooling is repaired.
+- Browser/node navigation path is currently working through the OpenClaw browser
+  node and was used for `v0.4.2` browser proof. Browser visual proof for
+  `v0.4.0` remains historically pending.
 - The current OpenClaw Workboard CLI can create/list/show cards, but this build does not expose an edit command for existing cards; detailed state updates may need repo Workboard docs plus new focused UI cards until card editing is available.
 - Current runtime status is `degraded` due to power-source reconciliation; track
   separately from Milestone 6 diagnostics service validation.
@@ -199,4 +196,5 @@ Full product completion: not yet estimable from current evidence because runtime
 - `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` - done.
 - `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` - done.
 - `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - released/live validated via API/static/service checks.
-- `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - ready.
+- `workboard-focused` - `ZNE: Overview console live metrics` - done; released/live validated in `v0.4.2`.
+- `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - ready; next.

@@ -23,10 +23,8 @@ Maintain the next ten concrete tasks in priority order so development stays focu
 
 ## Next Active Tasks
 
-1. After approval, release/live validate the Overview console through
-   GitHub/HACS/restart/browser proof.
-2. Return to `ZNE-595` recorder attribute cleanup.
-3. Decide whether deferred bulk priority adjustment belongs in the next app
+1. Start `ZNE-595` recorder attribute cleanup.
+2. Decide whether deferred bulk priority adjustment belongs in the next app
    workflow milestone.
 
 Standing rule: keep the OpenClaw Workboard updated on every ZNE turn, including
@@ -49,6 +47,6 @@ status, blockers, validation evidence, and next action.
 
 ## Notes
 
-Current active implementation has feasibility recorded in
-`validation/zne-fr-011-012-overview-console-live-metrics.md`; keep validation
-and release state updated before starting the next feature slice.
+Overview console live metrics are released/live validated in `v0.4.2`.
+Current active implementation should return to `ZNE-595`; keep validation and
+release state updated before starting the next feature slice.

@@ -24,7 +24,7 @@ The current highest-priority request is the 2026-06-26 direction change:
    - The console should expose meaningful current values for Source Power, Battery Power, and Confidence instead of blank/unit-only/unknown fields.
    - Freshness, stale data, and missing source blockers should be visible from the Overview card.
    - Tracked as `ZNE-FR-011` and `ZNE-FR-012` in `docs/FEATURE_REQUESTS.md`.
-   - Current state: target-environment feasibility and repo validation are recorded in `validation/zne-fr-011-012-overview-console-live-metrics.md`; release/live validation remains pending.
+   - Current state: released and live-validated in `v0.4.2`. Evidence is recorded in `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`, and `validation/artifacts/v0.4.2-overview-console-live.png`.
 
 Older native-surface bugs/features below remain evidence and stabilization context, but they should not drive new work unless Riley explicitly asks to finish a native release or the work directly supports the application port:
 

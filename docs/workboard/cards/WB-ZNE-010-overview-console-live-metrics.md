@@ -1,6 +1,6 @@
 # WB-ZNE-010 Overview Console Live Metrics
 
-Status: Validating
+Status: Done
 Priority: High
 Labels: application, overview, realtime, validation, feature
 
@@ -29,18 +29,16 @@ Track Riley's 2026-07-08 request to make the Overview console feel alive by maki
 - Target-environment feasibility: supported and recorded in `validation/zne-fr-011-012-overview-console-live-metrics.md`.
 - Implementation: completed in `custom_components/zero_net_export/frontend/zero-net-export-app.js`.
 - Repo validation: passed; evidence recorded in `validation/zne-fr-011-012-overview-console-live-metrics.md`.
-- Release/live validation: not started; requires normal release-management approval.
+- Release/live validation: passed in `v0.4.2`.
+- Evidence: `validation/0.4.2-release-validation.md` and `validation/artifacts/v0.4.2-overview-console-live.png`.
 
 ## Next Actions
 
-1. After user approval, prepare release notes/version bump.
-2. Publish through the approved GitHub/HACS release path.
-3. Restart Home Assistant.
-4. Capture desktop/narrow browser proof of the Overview console.
-5. Record installed-version, fingerprint, HACS metadata, and targeted log evidence.
+1. Keep monitoring runtime source quality while ZNE-595 is implemented.
+2. Return to ZNE-595 recorder attribute cleanup.
 
 ## Risks
 
 - Multi-plan installs may suffix entity IDs differently; validate against live app-visible entity names before calling multi-plan support complete.
 - This slice intentionally does not add a new polling API, so all values depend on existing HA state propagation and current ZNE entity surfaces.
-- ZNE-595 recorder attribute cleanup remains separate and should follow after this feature slice is validated.
+- ZNE-595 recorder attribute cleanup remains separate and is now the next implementation item.

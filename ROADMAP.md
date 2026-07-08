@@ -1,6 +1,6 @@
 # Roadmap
 
-Last updated: 2026-07-07
+Last updated: 2026-07-08
 
 ## Workboard
 
@@ -26,9 +26,10 @@ or release readiness changes. Current relevant UI cards:
 `zne-app-006` - `ZNE: Milestone 6 Diagnostics & Support Polish` (released/live smoke validated),
 `workboard-focused` - `ZNE: v0.3.3 HACS/browser validation passed` (done),
 `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` (done),
-`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (released/live validated via API/static/service checks).
-`36a26d60` - `ZNE: Fix SOC source status display in Sources app` (done; released/live validated in `v0.4.1`).
-`workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (ready).
+`workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` (released/live validated via API/static/service checks),
+`36a26d60` - `ZNE: Fix SOC source status display in Sources app` (done; released/live validated in `v0.4.1`),
+`workboard-focused` - `ZNE: Overview console live metrics` (done; released/live validated in `v0.4.2`),
+`workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` (ready; next).
 Milestone 3 (Managed Devices Fleet Control) feasibility is accepted, Stage 2 is
 released as `v0.2.5`, and installed empty-fleet plus populated `light.7th`
 browser proof is recorded. References:
@@ -38,13 +39,13 @@ browser proof is recorded. References:
 `validation/0.2.5-release-validation.md`, and repo Workboard card
 `WB-ZNE-009-milestone-3-managed-devices-fleet-control.md` (Done).
 
-**Latest**: Milestone 7 is published and installed as `v0.4.0`, with HACS
-install/restart, API/static route validation, service registry validation, and
-explicit entry-scoped service calls complete. The installed version sensor
-reports `0.4.0`; `export_diagnostics`, `repair_issue`, `pause_executor`, and
-`resume_executor` returned successfully with explicit `entry_id`. Browser visual
-proof remains pending because the managed browser host is unavailable. Evidence:
-`validation/0.4.0-release-validation.md`.
+**Latest**: `v0.4.2` is published, installed through HACS, restarted, and
+live/browser validated for the Overview console live-metrics slice. The
+installed version sensor reports `0.4.2`; the Overview Reconciliation Status
+card shows live freshness, Source Power, Battery Power, Confidence, and
+stale/source-blocker context. Evidence:
+`validation/0.4.2-release-validation.md` and
+`validation/artifacts/v0.4.2-overview-console-live.png`.
 
 ## Current milestone
 
@@ -66,8 +67,8 @@ Evidence:
 - Release/live validation: `validation/0.4.0-release-validation.md`
 
 Next gate:
-- Fix oversized recorder-backed entity attributes found in the v0.4.0 log review.
-- Capture browser visual proof once the OpenClaw managed browser host is available again.
+- Fix oversized recorder-backed entity attributes found in the v0.4.0 and
+  v0.4.2 log reviews.
 
 ### ZNE-APP-006 - Diagnostics & Support Polish
 

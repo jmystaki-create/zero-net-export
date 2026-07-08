@@ -16,7 +16,7 @@ last_modified: 2026-07-08
 - Implemented: shared entry resolver, app selected-plan context header/selector, selected `entry_id` payloads for source-role saves, managed-device changes, executor pause/resume, diagnostics export, and repair. Ambiguous multi-entry service calls now fail safely.
 - Release: v0.4.0 published, installed through HACS, restarted, and live validated with Home Assistant API/static route checks. Browser proof is pending because the OpenClaw managed browser host is unavailable.
 - Follow-up risk: post-release logs show many Zero Net Export entity attributes exceeding Home Assistant's 16 KB recorder attribute limit. A separate user-visible Sources app SOC display regression was fixed and live-validated as ZNE-596 in `v0.4.1`; return to the broader recorder attribute cleanup next.
-- New user-requested Overview console polish: `ZNE-FR-011` tracks making Reconciliation Status feel more realtime, and `ZNE-FR-012` tracks filling Source Power, Battery Power, and Confidence with meaningful live values/blockers. Target-environment feasibility and repo validation are recorded in `validation/zne-fr-011-012-overview-console-live-metrics.md`; release/live validation is pending.
+- New user-requested Overview console polish: `ZNE-FR-011` and `ZNE-FR-012` are released/live validated in `v0.4.2`. The Overview Reconciliation Status card now shows local freshness, Source Power, Battery Power, Confidence, and stale/source-blocker context. Evidence: `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`, and `validation/artifacts/v0.4.2-overview-console-live.png`.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -63,5 +63,5 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 
 ## Active Feature Work
 
-- ZNE-FR-011 — Reconciliation Status should feel realtime. Status: repo_validated_pending_release_live_validation. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`. Next action: release/live validate through the approved HACS path after version approval.
-- ZNE-FR-012 — Overview console should include Source Power, Battery Power, and Confidence. Status: repo_validated_pending_release_live_validation. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`. Next action: release/live validate through the approved HACS path after version approval.
+- ZNE-FR-011 — Reconciliation Status should feel realtime. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
+- ZNE-FR-012 — Overview console should include Source Power, Battery Power, and Confidence. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
