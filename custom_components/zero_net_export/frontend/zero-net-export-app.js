@@ -311,12 +311,160 @@ class ZeroNetExportApp extends HTMLElement {
     `;
   }
 
+  _asDisplayText(value, fallback = "") {
+    if (value === undefined || value === null || value === "") {
+      return fallback;
+    }
+    if (Array.isArray(value)) {
+      return value.filter(Boolean).join("; ") || fallback;
+    }
+    if (typeof value === "object") {
+      return JSON.stringify(value);
+    }
+    return String(value);
+  }
+
+  _readinessItem(title, status, detail, action, tone = "neutral") {
+    return { title, status, detail, action, tone };
+  }
+
+  _readinessModel(status, safeMode, sourceMismatch) {
+    const commandState = this._state("sensor.zero_net_export_command_center_status");
+    const commandNextState = this._state("sensor.zero_net_export_command_center_next_step");
+    const sourceBlockerState = this._state("sensor.zero_net_export_source_blocker_summary");
+    const staleSourceState = this._state("sensor.zero_net_export_stale_source_summary");
+    const guardState = this._state("sensor.zero_net_export_control_guard_summary");
+    const commandAttrs = commandState && commandState.attributes ? commandState.attributes : {};
+    const nextAttrs = commandNextState && commandNextState.attributes ? commandNextState.attributes : {};
+    const sourceAttrs = sourceBlockerState && sourceBlockerState.attributes ? sourceBlockerState.attributes : {};
+    const staleAttrs = staleSourceState && staleSourceState.attributes ? staleSourceState.attributes : {};
+    const guardAttrs = guardState && guardState.attributes ? guardState.attributes : {};
+    const sourceBlockers = this._stateText("sensor.zero_net_export_source_blocker_summary", "");
+    const staleSummary = this._stateText("sensor.zero_net_export_stale_source_summary", "");
+    const commandSummary = this._stateText("sensor.zero_net_export_command_center_status", "");
+    const currentNextStep = this._asDisplayText(
+      nextAttrs.device_next_step || commandAttrs.device_next_step || commandNextState?.state,
+      "Open the Sources tab and confirm each required source binding is present, fresh, and numeric."
+    );
+    const items = [];
+
+    if (status && !["ready", "ok", "healthy"].includes(status.toLowerCase())) {
+      items.push(this._readinessItem(
+        "Controller status",
+        status,
+        this._asDisplayText(commandAttrs.source_status || commandAttrs.status_summary || commandSummary, "Controller is not currently reporting ready."),
+        this._asDisplayText(commandAttrs.current_next_step || nextAttrs.current_next_step || currentNextStep),
+        "bad"
+      ));
+    }
+
+    if (sourceBlockers && !["none", "unknown", "no source blockers reported"].includes(sourceBlockers.toLowerCase())) {
+      items.push(this._readinessItem(
+        "Source blockers",
+        "active",
+        sourceBlockers,
+        currentNextStep,
+        "bad"
+      ));
+    }
+
+    if (sourceMismatch === "on") {
+      items.push(this._readinessItem(
+        "Power reconciliation",
+        "mismatch",
+        this._asDisplayText(
+          guardAttrs.diagnostic_summary || staleAttrs.diagnostic_summary || commandAttrs.source_status,
+          "Power sources do not reconcile cleanly."
+        ),
+        this._asDisplayText(
+          guardAttrs.calibration_hints || staleAttrs.calibration_hints,
+          "Compare solar, grid import/export, battery charge/discharge, and home-load sensors during an obvious export period; replace any sign-inverted, stale, or semantically wrong source binding."
+        ),
+        "bad"
+      ));
+    }
+
+    if (staleSummary && !["none", "no required source roles currently look stale"].includes(staleSummary.toLowerCase())) {
+      items.push(this._readinessItem(
+        "Stale sources",
+        "attention",
+        staleSummary,
+        this._asDisplayText(sourceAttrs.configure_path || commandAttrs.sources_path, "Open Sources and refresh or replace stale bindings."),
+        "warn"
+      ));
+    }
+
+    const policyReadiness = this._asDisplayText(commandAttrs.policy_readiness || nextAttrs.policy_readiness);
+    if (policyReadiness) {
+      items.push(this._readinessItem(
+        "Controls readiness",
+        "blocked",
+        this._asDisplayText(commandAttrs.policy_status || nextAttrs.policy_status, "Controls are waiting for source readiness."),
+        policyReadiness,
+        "warn"
+      ));
+    }
+
+    const deviceStatus = this._asDisplayText(commandAttrs.device_status || commandSummary);
+    if (deviceStatus && /need review|unmanaged backlog|source blockers active/i.test(deviceStatus)) {
+      items.push(this._readinessItem(
+        "Managed-device queue",
+        "review",
+        deviceStatus,
+        this._asDisplayText(commandAttrs.current_next_step || nextAttrs.current_next_step || commandAttrs.device_next_step),
+        "neutral"
+      ));
+    }
+
+    if (!items.length) {
+      items.push(this._readinessItem(
+        "No active readiness blockers",
+        "ready",
+        "Sources, controls, and managed-device readiness do not currently report a blocking issue.",
+        "Continue monitoring Runtime and Diagnostics while the controller runs.",
+        "good"
+      ));
+    }
+
+    return {
+      chips: [
+        { label: "Controller", value: status },
+        { label: "Safe mode", value: safeMode },
+        { label: "Source mismatch", value: sourceMismatch },
+      ],
+      focus: this._asDisplayText(commandAttrs.current_focus_section || nextAttrs.current_focus_section, "Overview"),
+      path: this._asDisplayText(commandAttrs.current_focus_path || nextAttrs.current_focus_path || commandAttrs.sources_path),
+      items,
+    };
+  }
+
+  _readinessItemTemplate(item) {
+    return `
+      <div class="zne-readiness-item ${this._escape(item.tone)}">
+        <div class="zne-readiness-item-title">
+          <strong>${this._escape(item.title)}</strong>
+          ${this._pill("status", item.status)}
+        </div>
+        <dl>
+          <div>
+            <dt>What is wrong</dt>
+            <dd>${this._escape(item.detail)}</dd>
+          </div>
+          <div>
+            <dt>How to resolve</dt>
+            <dd>${this._escape(item.action)}</dd>
+          </div>
+        </dl>
+      </div>
+    `;
+  }
+
   _statusClass(value) {
     const normalized = String(value || "").toLowerCase();
-    if (["on", "blocked", "missing", "error", "safe_mode"].includes(normalized)) {
+    if (["on", "blocked", "missing", "error", "safe_mode", "active", "mismatch", "degraded"].includes(normalized)) {
       return "bad";
     }
-    if (["off", "ok", "ready", "loaded", "available"].includes(normalized)) {
+    if (["off", "ok", "ready", "loaded", "available", "healthy"].includes(normalized)) {
       return "good";
     }
     return "neutral";
@@ -809,6 +957,7 @@ class ZeroNetExportApp extends HTMLElement {
     const safeMode = this._stateText("binary_sensor.zero_net_export_safe_mode", "unknown");
     const sourceMismatch = this._stateText("binary_sensor.zero_net_export_source_mismatch", "unknown");
     const metrics = this._reconciliationMetrics();
+    const readiness = this._readinessModel(status, safeMode, sourceMismatch);
     return `
       <section class="zne-panel">
         <div class="zne-panel-title">
@@ -816,11 +965,19 @@ class ZeroNetExportApp extends HTMLElement {
           <div>${this._pill("Status", status)} ${this._pill("Safe mode", safeMode)} ${this._pill("Source mismatch", sourceMismatch)}</div>
         </div>
         <div class="zne-grid">
-          <div class="zne-card">
+          <div class="zne-card zne-readiness-card">
             <h3>Readiness</h3>
-            ${this._entityRow("Controller", "sensor.zero_net_export_status")}
-            ${this._entityRow("Command center", "sensor.zero_net_export_command_center_status")}
-            ${this._entityRow("Next step", "sensor.zero_net_export_command_center_next_step")}
+            <div class="zne-readiness-chips">
+              ${readiness.chips.map((chip) => this._pill(chip.label, chip.value)).join("")}
+            </div>
+            <div class="zne-readiness-focus">
+              <span>Current focus</span>
+              <strong>${this._escape(readiness.focus)}</strong>
+              ${readiness.path ? `<small>${this._escape(readiness.path)}</small>` : ""}
+            </div>
+            <div class="zne-readiness-list">
+              ${readiness.items.map((item) => this._readinessItemTemplate(item)).join("")}
+            </div>
           </div>
           <div class="zne-card">
             <h3>Reconciliation Status</h3>
@@ -1677,6 +1834,88 @@ class ZeroNetExportApp extends HTMLElement {
           background: var(--secondary-background-color);
         }
 
+        .zne-readiness-card {
+          display: grid;
+          gap: 10px;
+        }
+
+        .zne-readiness-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+
+        .zne-readiness-focus {
+          display: grid;
+          gap: 4px;
+          padding: 10px;
+          border: 1px solid var(--divider-color);
+          border-radius: 6px;
+          background: var(--secondary-background-color);
+          line-height: 1.35;
+        }
+
+        .zne-readiness-focus span,
+        .zne-readiness-focus small {
+          color: var(--secondary-text-color);
+        }
+
+        .zne-readiness-list {
+          display: grid;
+          gap: 10px;
+        }
+
+        .zne-readiness-item {
+          display: grid;
+          gap: 8px;
+          padding: 10px;
+          border: 1px solid var(--divider-color);
+          border-left: 3px solid var(--primary-color);
+          border-radius: 6px;
+          min-width: 0;
+        }
+
+        .zne-readiness-item.bad {
+          border-left-color: var(--error-color, #c62828);
+        }
+
+        .zne-readiness-item.warn {
+          border-left-color: var(--warning-color, #f9a825);
+        }
+
+        .zne-readiness-item.good {
+          border-left-color: var(--success-color, #2e7d32);
+        }
+
+        .zne-readiness-item-title {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+        }
+
+        .zne-readiness-item dl {
+          display: grid;
+          gap: 8px;
+          margin: 0;
+        }
+
+        .zne-readiness-item dl > div {
+          display: grid;
+          gap: 3px;
+        }
+
+        .zne-readiness-item dt {
+          color: var(--secondary-text-color);
+          font-size: 12px;
+        }
+
+        .zne-readiness-item dd {
+          margin: 0;
+          line-height: 1.4;
+          overflow-wrap: anywhere;
+        }
+
         .zne-source-editor {
           grid-template-columns: minmax(150px, 0.35fr) minmax(0, 1fr);
         }
@@ -1904,6 +2143,11 @@ class ZeroNetExportApp extends HTMLElement {
           .zne-source > .zne-pill {
             justify-self: start;
             text-align: left;
+          }
+
+          .zne-readiness-item-title {
+            align-items: flex-start;
+            flex-direction: column;
           }
 
           .zne-source-editor {

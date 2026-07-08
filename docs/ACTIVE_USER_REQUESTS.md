@@ -26,48 +26,53 @@ The current highest-priority request is the 2026-06-26 direction change:
    - Tracked as `ZNE-FR-011` and `ZNE-FR-012` in `docs/FEATURE_REQUESTS.md`.
    - Current state: released and live-validated in `v0.4.2`. Evidence is recorded in `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`, and `validation/artifacts/v0.4.2-overview-console-live.png`.
 
+3. **Overview Readiness must explain what is wrong**
+   - Riley requested on 2026-07-08 that the Readiness section be structurally reformatted and explain the current errors plus what needs to be done to resolve them.
+   - Tracked as `ZNE-FR-013` in `docs/FEATURE_REQUESTS.md`.
+   - Current state: repo-validated pending release/live validation. Evidence is recorded in `validation/zne-fr-013-overview-readiness-clarity.md`.
+
 Older native-surface bugs/features below remain evidence and stabilization context, but they should not drive new work unless Riley explicitly asks to finish a native release or the work directly supports the application port:
 
-3. **Managed-device list must be managed-only**
+4. **Managed-device list must be managed-only**
    - The Zero Net Export native integration/device list must not show unmanaged candidates as peer rows beside managed devices.
    - Existing/stale `Un Managed — ...` device-registry rows should be removed/suppressed.
 
-4. **Managed rows need the settings gear in the native right-side action location / visible right-side action location**
+5. **Managed rows need the settings gear in the native right-side action location / visible right-side action location**
    - Managed device rows/surfaces must expose settings/configuration access through a visible right-side clickable gear affordance.
    - Do not fake the gear by embedding `⚙ Settings` inside the left-side device row name. Riley rejected that placement on 2026-04-29.
    - Do not treat hidden native `configuration_url` metadata as sufficient if the screenshoted Home Assistant surface does not show the designed gear.
    - Managed child row labels should stay clean, e.g. `Managed Devices — Coffee machine`, while settings/action entities may still use settings-oriented labels/icons where Home Assistant renders them as actual controls.
    - Clicking the right-side settings/configuration affordance should lead to editing the settings captured when the managed device was first provisioned.
 
-5. **Unmanaged candidates stay behind workflow/backlog surfaces**
+6. **Unmanaged candidates stay behind workflow/backlog surfaces**
    - Unmanaged devices/candidates should remain discoverable through Managed Devices workflow/backlog/review surfaces.
    - They should not appear as peer `Un Managed — ...` rows in the same integration/device list as managed devices.
 
-6. **Per-service service-card actions for multi-plan operation**
+7. **Per-service service-card actions for multi-plan operation**
    - Each service/plan card needs an obvious per-service path to configure core parameters/source bindings such as solar, home load, and grid.
    - Each service/plan card needs an obvious per-service path to add managed devices/loads to that specific service only.
    - Preferred design is service-card three-dot actions labelled `Configure service` and `Add Managed Devices`; if Home Assistant does not allow custom integration actions in that exact overflow menu, use the nearest supported HA-native entry point while preserving the wording, scope, and outcome.
    - Implementation note: Home Assistant supports custom config-subentry overflow actions, so `Add Managed Devices` can appear with exact wording in the selected service overflow. Home Assistant's built-in entry reconfigure row is labelled by HA as `Reconfigure`, but the opened flow is titled `Configure service` and remains selected-entry scoped.
    - These actions must be entry-scoped so Summer/Winter plans cannot cross-edit each other's source bindings or managed-device fleets.
 
-7. **Managed-load row three-dot delete action**
+8. **Managed-load row three-dot delete action**
    - Riley requested a `Delete device` action in the managed-load row three-dot overflow menu on 2026-05-06.
    - Pressing it should remove that selected managed device from the owning Zero Net Export service/plan.
    - It must not remove the original Home Assistant device/entity.
    - This requires a fresh Home Assistant frontend/source feasibility check before design/code because prior ZNE-591/ZNE-592 work found arbitrary native managed-load row/device overflow action injection unsupported.
 
-8. **Managed-load configuration card with editable captured settings**
+9. **Managed-load configuration card with editable captured settings**
    - Riley requested a configuration card on 2026-05-06 for the managed-load device surface.
    - The card should show all settings captured when the device was added.
    - Next to each label, there should be a field/control to modify the configuration relevant to that setting.
    - Saving must update only the selected managed device in the owning service/plan and must not mutate the original Home Assistant device/entity.
    - This requires a fresh Home Assistant target-environment feasibility check before design/code for the exact placement and editable-field behavior.
 
-9. **No release-readiness claim without proof**
+10. **No release-readiness claim without proof**
    - Do not tag, release, deploy, restart Home Assistant, or claim the next release is ready without explicit approval.
    - Required proof before release/deploy approval: tests pass and PNG evidence shows clean managed rows with the settings affordance on the native right side and no peer `Un Managed — ...` rows.
 
-10. **No direct Home Assistant updates outside release management**
+11. **No direct Home Assistant updates outside release management**
    - No features, bug fixes, or component updates should be pushed directly to the live Home Assistant install outside the GitHub release-management process.
    - Live changes must flow through committed code, pushed GitHub main/tag, published GitHub release, HACS refresh/upgrade, restart, and validation per `RELEASE_MANAGEMENT.md`.
    - Manual install writes are only acceptable as an explicitly approved release-management recovery step for the exact published release artifact, not as ad-hoc deployment.

@@ -17,6 +17,7 @@ last_modified: 2026-07-08
 - Release: v0.4.0 published, installed through HACS, restarted, and live validated with Home Assistant API/static route checks. Browser proof is pending because the OpenClaw managed browser host is unavailable.
 - Follow-up risk: post-release logs show many Zero Net Export entity attributes exceeding Home Assistant's 16 KB recorder attribute limit. A separate user-visible Sources app SOC display regression was fixed and live-validated as ZNE-596 in `v0.4.1`; return to the broader recorder attribute cleanup next.
 - New user-requested Overview console polish: `ZNE-FR-011` and `ZNE-FR-012` are released/live validated in `v0.4.2`. The Overview Reconciliation Status card now shows local freshness, Source Power, Battery Power, Confidence, and stale/source-blocker context. Evidence: `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`, and `validation/artifacts/v0.4.2-overview-console-live.png`.
+- Current user-requested Readiness polish: `ZNE-FR-013` is repo-validated pending release/live validation. The Overview Readiness card now uses dedicated status chips, current-focus context, and issue cards with `What is wrong` / `How to resolve` guidance. Evidence: `validation/zne-fr-013-overview-readiness-clarity.md`.
 
 **Milestone 6: Diagnostics & Support Polish** (status: `released_live_validated`, target: `v0.3.3`)
 - Workboard card: `zne-app-006`
@@ -65,3 +66,4 @@ Rejected Tier 1 mockup `d9a0fd1` must not be used. The native guided Tier 2 work
 
 - ZNE-FR-011 — Reconciliation Status should feel realtime. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
 - ZNE-FR-012 — Overview console should include Source Power, Battery Power, and Confidence. Status: released_live_validated in `v0.4.2`. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-011-012-overview-console-live-metrics.md`, `validation/0.4.2-release-validation.md`.
+- ZNE-FR-013 — Overview Readiness should explain errors and resolution steps. Status: repo_validated_pending_release_live_validation. Evidence: `docs/FEATURE_REQUESTS.md`, `validation/zne-fr-013-overview-readiness-clarity.md`. Next action: release/live validate through the approved HACS path after version approval.

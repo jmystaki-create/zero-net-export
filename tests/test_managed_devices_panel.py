@@ -119,6 +119,25 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("Source blocker:", source)
         self.assertIn("Stale source:", source)
 
+    def test_overview_readiness_console_explains_errors_and_resolution_steps(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("_readinessModel(status, safeMode, sourceMismatch)", source)
+        self.assertIn("_readinessItemTemplate(item)", source)
+        self.assertIn("zne-readiness-card", source)
+        self.assertIn("zne-readiness-item", source)
+        self.assertIn("What is wrong", source)
+        self.assertIn("How to resolve", source)
+        self.assertIn("Current focus", source)
+        self.assertIn("sensor.zero_net_export_command_center_status", source)
+        self.assertIn("sensor.zero_net_export_command_center_next_step", source)
+        self.assertIn("sensor.zero_net_export_source_blocker_summary", source)
+        self.assertIn("sensor.zero_net_export_stale_source_summary", source)
+        self.assertIn("sensor.zero_net_export_control_guard_summary", source)
+        self.assertIn("Source blockers", source)
+        self.assertIn("Power reconciliation", source)
+        self.assertIn("Managed-device queue", source)
+
     def test_app_captures_managed_device_form_values_before_busy_render(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 

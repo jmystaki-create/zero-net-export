@@ -124,3 +124,15 @@ This file tracks user-requested product enhancements separately from confirmed b
 - **implementation status:** app frontend now maps Source Power to the solar/source power runtime reading, derives Battery Power from discharge minus charge where available, uses the real confidence sensor, and explains stale/missing source blockers. Released and live-validated in `v0.4.2`.
 - **release validation:** `validation/0.4.2-release-validation.md` confirms the installed app shows Source Power, Battery Power, and Confidence with current live values and source context.
 - **validation plan:** backend/API tests for source power, battery power, and confidence payloads; frontend rendering tests or static validation for populated and missing states; live Home Assistant proof on the installed app showing the three fields populated or explaining blockers; targeted log review.
+
+## ZNE-FR-013 - Overview Readiness should explain errors and resolution steps
+
+- **status:** `repo_validated_pending_release_live_validation`
+- **area:** `application / overview / readiness`
+- **requested by:** Riley, 2026-07-08
+- **request:** The Overview Readiness section is not clear and the formatting is poor. Structurally fix the formatting and explain the errors plus what needs to be done to resolve them.
+- **user outcome:** operators can understand why the controller is not ready directly from Overview, without decoding long command-center strings.
+- **acceptance target:** Readiness shows compact status chips, current focus, and separate issue cards with `What is wrong` and `How to resolve`; long text wraps cleanly on desktop and narrow screens; source blockers, reconciliation mismatch, controls readiness, and managed-device queue context are shown when present.
+- **target-environment result:** supported in the existing ZNE-owned Home Assistant custom panel using current `hass.states` data. No Home Assistant frontend patch, native page injection, or new recorder-backed attributes are required. Evidence: `validation/zne-fr-013-overview-readiness-clarity.md`.
+- **implementation status:** app frontend has a dedicated Readiness model and CSS layout. Repo validation passed; release/live validation is pending.
+- **validation plan:** frontend syntax check, focused app tests, `git diff --check`, then HACS/restart/browser proof in the release path.

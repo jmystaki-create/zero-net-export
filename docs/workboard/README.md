@@ -46,7 +46,7 @@ Primary references:
 ## Architecture / Current State
 
 Current release: `v0.4.2` (Overview console live metrics for `ZNE-FR-011` / `ZNE-FR-012`, installed through HACS and live/browser validated 2026-07-08).
-Next: continue ZNE-595 recorder attribute cleanup.
+Next: release/live validate ZNE-FR-013 Overview Readiness clarity, then continue ZNE-595 recorder attribute cleanup.
 
 Current state:
 - `v0.2.3` delivered the app-native Sources workflow and `zero_net_export.update_source_roles`.
@@ -82,6 +82,9 @@ Current state:
   and shows stale/source-blocker context. GitHub release, HACS install, restart,
   fingerprint, browser proof, and log review are recorded in
   `validation/0.4.2-release-validation.md`.
+- `ZNE-FR-013` is repo-validated pending release/live validation: the Overview
+  Readiness card now has dedicated formatting, current-focus context, and
+  issue cards that explain what is wrong and how to resolve it.
 
 ## Known Bugs
 
@@ -106,6 +109,7 @@ Historical fixed bugs remain tracked in `docs/BUGS.md`.
 ## Feature Backlog
 
 Near-term:
+- Release/live validate ZNE-FR-013 Overview Readiness clarity.
 - Fix post-v0.4.0/v0.4.2 oversized recorder-backed entity attributes.
 - Capture v0.4.0 browser visual proof once the OpenClaw managed browser host is available.
 - Define deferred bulk priority adjustment scope in a later milestone.
@@ -116,15 +120,18 @@ Deferred / not current focus:
 
 ## Next Development Steps
 
-**Immediate**: Start ZNE-595 recorder attribute cleanup.
+**Immediate**: Release/live validate ZNE-FR-013, then start ZNE-595 recorder attribute cleanup.
 
-1. Move bulky source/action-history/diagnostic detail
+1. Prepare release notes/version bump after approval.
+2. Release/live validate through GitHub/HACS/restart/browser proof.
+3. Record installed-version, fingerprint, browser, and log evidence.
+4. Move bulky source/action-history/diagnostic detail
    out of recorder-backed attributes.
-2. Keep concise entity attributes for dashboard use.
-3. Preserve full detail through diagnostics export and app API surfaces.
-4. Validate with tests and Home Assistant log review after HACS install/restart.
-5. Decide when to scope deferred bulk priority adjustment.
-6. Continue app workflow slices for diagnostics/support, runtime visibility,
+5. Keep concise entity attributes for dashboard use.
+6. Preserve full detail through diagnostics export and app API surfaces.
+7. Validate with tests and Home Assistant log review after HACS install/restart.
+8. Decide when to scope deferred bulk priority adjustment.
+9. Continue app workflow slices for diagnostics/support, runtime visibility,
    controls, and multi-plan separation.
 
 ## Blockers And Risks
@@ -180,6 +187,7 @@ Full product completion: not yet estimable from current evidence because runtime
 - [WB-ZNE-007 Testing and validation plan](cards/WB-ZNE-007-testing-and-validation-plan.md)
 - [WB-ZNE-008 Weekly status report](cards/WB-ZNE-008-weekly-status-report.md)
 - [WB-ZNE-010 Overview console live metrics](cards/WB-ZNE-010-overview-console-live-metrics.md)
+- [WB-ZNE-011 Overview Readiness clarity](cards/WB-ZNE-011-overview-readiness-clarity.md)
 
 ## OpenClaw UI Cards
 
@@ -197,4 +205,5 @@ Full product completion: not yet estimable from current evidence because runtime
 - `workboard-focused` - `ZNE: complete v0.3.3 service/action validation` - done.
 - `workboard-focused` - `ZNE: Milestone 7 Multi-Plan And Service Separation` - released/live validated via API/static/service checks.
 - `workboard-focused` - `ZNE: Overview console live metrics` - done; released/live validated in `v0.4.2`.
+- `workboard-focused` - `ZNE: Overview Readiness clarity` - validating; repo validated pending release/live validation.
 - `workboard-focused` - `ZNE: Fix oversized recorder-backed entity attributes after v0.4.0` - ready; next.

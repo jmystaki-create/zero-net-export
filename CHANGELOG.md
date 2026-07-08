@@ -4,6 +4,14 @@ All notable changes to **Zero Net Export** will be documented in this file.
 
 This project follows a practical Keep a Changelog style and uses semantic versioning for tagged releases where possible.
 
+## [Unreleased]
+
+### Added
+- Restructured the Overview Readiness card so it shows clear health chips,
+  current focus, and issue cards with `What is wrong` / `How to resolve`
+  guidance for source blockers, reconciliation mismatch, controls readiness,
+  and managed-device queue context.
+
 ## [0.4.2] - 2026-07-08
 
 ### Added
