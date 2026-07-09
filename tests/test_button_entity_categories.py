@@ -948,6 +948,35 @@ class ButtonEntityCategoryTests(unittest.TestCase):
             attrs["promotion_handoff"],
         )
 
+    def test_fleet_and_review_buttons_expose_full_candidate_queue(self) -> None:
+        button_module = _load_button_module()
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry"),
+            data=SimpleNamespace(device_details={}),
+        )
+        hass = SimpleNamespace(
+            states=SimpleNamespace(
+                async_all=lambda: [
+                    SimpleNamespace(
+                        entity_id=f"switch.pool_pump_{index}",
+                        state="off",
+                        attributes={"friendly_name": f"Pool pump {index}"},
+                    )
+                    for index in range(13)
+                ]
+            )
+        )
+
+        fleet_button = button_module.ZeroNetExportShowFleetConsoleButton(coordinator)
+        review_button = button_module.ZeroNetExportShowManagedDeviceReviewButton(coordinator)
+        fleet_button.hass = hass
+        review_button.hass = hass
+
+        self.assertEqual(fleet_button.extra_state_attributes["candidate_count"], 13)
+        self.assertEqual(len(fleet_button.extra_state_attributes["candidate_devices"]), 13)
+        self.assertEqual(review_button.extra_state_attributes["unmanaged_candidate_count"], 13)
+        self.assertEqual(len(review_button.extra_state_attributes["candidate_devices"]), 13)
+
     def test_fleet_console_attributes_gate_promotion_handoff_behind_blocker_repair(self) -> None:
         button_module = _load_button_module()
         coordinator = SimpleNamespace(

@@ -720,6 +720,40 @@ class SensorEntityCategoryTests(unittest.TestCase):
         self.assertEqual(overview.extra_state_attributes["ready_candidate"]["name"], "EV charger limit")
         self.assertFalse(overview.extra_state_attributes["source_blocked"])
 
+    def test_managed_fleet_overview_exposes_full_compact_candidate_queue(self) -> None:
+        sensor_module = _load_sensor_module()
+        sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [
+            {
+                "name": f"Pool pump {index}",
+                "entity_id": f"switch.pool_pump_{index}",
+                "domain": "switch",
+                "kind": "fixed",
+                "state": "off",
+                "unit": "",
+                "device_class": "",
+            }
+            for index in range(13)
+        ]
+
+        coordinator = SimpleNamespace(
+            entry=SimpleNamespace(entry_id="entry-1", title="Test Entry", data={}, options={}),
+            data=SimpleNamespace(device_details={}),
+        )
+        overview = sensor_module.ZeroNetExportSensor(coordinator, "managed_fleet_overview", "Managed devices overview")
+        overview.hass = SimpleNamespace(states=SimpleNamespace(async_all=lambda: []))
+
+        candidate_devices = overview.extra_state_attributes["candidate_devices"]
+
+        self.assertEqual(overview.extra_state_attributes["candidate_count"], 13)
+        self.assertEqual(len(candidate_devices), 13)
+        self.assertEqual(candidate_devices[12]["entity_id"], "switch.pool_pump_12")
+        self.assertIn("fit_confidence", candidate_devices[0])
+        self.assertIn("needs_review", candidate_devices[0])
+        self.assertIn("usefulness_label", candidate_devices[0])
+        self.assertIn("warning_summary", candidate_devices[0])
+        self.assertNotIn("fit", candidate_devices[0])
+        self.assertNotIn("review_hint", candidate_devices[0])
+
     def test_unmanaged_candidate_overview_sensor_is_distinct_from_shortlist(self) -> None:
         sensor_module = _load_sensor_module()
         sensor_module._candidate_devices_for_hass = lambda hass, managed_ids: [

@@ -6,6 +6,12 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-07-09
+
+### Fixed
+- Surfaced the full unmanaged Managed Devices candidate queue in the app.
+- Stopped Zero Net Export's own helper entities from being counted as unmanaged promotion candidates.
+
 ## [0.4.5] - 2026-07-09
 
 ### Fixed

@@ -577,6 +577,19 @@ def _candidate_fit_details(candidate: dict[str, str]) -> dict[str, str | list[st
     return assess_candidate(candidate)
 
 
+def _candidate_queue_item(candidate: dict[str, object]) -> dict[str, object]:
+    fit = assess_candidate(candidate)
+    warnings = [str(item).strip() for item in (fit.get("warnings") or []) if str(item).strip()]
+    return {
+        **dict(candidate),
+        "fit_confidence": str(fit.get("confidence") or "medium"),
+        "needs_review": candidate_needs_review(fit),
+        "usefulness_label": _candidate_usefulness_summary(candidate),
+        "warnings": warnings,
+        "warning_summary": "; ".join(warnings) if warnings else "No immediate warnings",
+    }
+
+
 def _managed_device_details(state) -> dict[str, dict[str, object]]:
     return managed_load_details_mapping(getattr(state, "device_details", {}) if state is not None else {})
 
@@ -1569,7 +1582,7 @@ class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
                     for device_key, detail in sorted(device_details.items(), key=lambda item: _device_sort_key(item[1]))
                 ],
                 **counts,
-                "candidate_devices": candidates[:12],
+                "candidate_devices": [_candidate_queue_item(candidate) for candidate in candidates],
                 "candidate_count": len(candidates),
                 "review_needed_count": review_needed_count,
                 "ready_candidate_count": max(len(candidates) - review_needed_count, 0),

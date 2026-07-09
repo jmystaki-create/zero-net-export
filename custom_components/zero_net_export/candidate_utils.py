@@ -348,6 +348,19 @@ def _should_exclude_candidate(candidate: dict[str, Any]) -> bool:
     return False
 
 
+def _is_internal_zero_net_export_candidate(entity_id: str, name: str) -> bool:
+    """Return True for Zero Net Export's own helper/control entities."""
+    _, _, object_id = str(entity_id or "").partition(".")
+    normalized_name = str(name or "").strip().lower()
+    return (
+        object_id.startswith(f"{DOMAIN}_")
+        or object_id.startswith("managed_devices_")
+        or normalized_name.startswith("zero net export ")
+        or normalized_name.startswith("managed devices ")
+        or normalized_name.startswith("managed devices —")
+    )
+
+
 def candidate_sort_key(candidate: dict[str, Any]) -> tuple[int, int, int, str, str]:
     """Return a stable sort key that prefers stronger promotion targets first."""
     domain = str(candidate.get("domain") or "")
@@ -828,15 +841,16 @@ def discover_candidate_devices(states: Iterable[Any], managed_entity_ids: set[st
             continue
         if entity_id in managed_entity_ids:
             continue
-        if object_id.startswith(f"{DOMAIN}_"):
-            continue
         state_value = str(getattr(state, "state", "")).lower()
         if state_value in {"unknown", "unavailable"}:
             continue
         attributes = getattr(state, "attributes", {}) or {}
+        name = str(attributes.get("friendly_name") or entity_id)
+        if _is_internal_zero_net_export_candidate(entity_id, name):
+            continue
         candidate = {
             "entity_id": entity_id,
-            "name": str(attributes.get("friendly_name") or entity_id),
+            "name": name,
             "domain": domain,
             "kind": "fixed" if domain in DEVICE_CANDIDATE_FIXED_DOMAINS else "variable",
             "state": str(getattr(state, "state", "")),

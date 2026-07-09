@@ -70,6 +70,16 @@ class CandidateUtilsTests(unittest.TestCase):
         states = [
             SimpleNamespace(entity_id="switch.managed_device", state="on", attributes={"friendly_name": "Managed"}),
             SimpleNamespace(entity_id="switch.zero_net_export_enabled", state="on", attributes={"friendly_name": "Zero Net Export Enabled"}),
+            SimpleNamespace(
+                entity_id="switch.managed_devices_the_7th_zero_net_export_enabled",
+                state="on",
+                attributes={"friendly_name": "Managed Devices — The 7th Zero Net Export enabled"},
+            ),
+            SimpleNamespace(
+                entity_id="number.managed_devices_the_7th_priority",
+                state="40",
+                attributes={"friendly_name": "Managed Devices — The 7th Priority"},
+            ),
             SimpleNamespace(entity_id="switch.unknown_device", state="unknown", attributes={"friendly_name": "Unknown"}),
             SimpleNamespace(entity_id="number.unavailable_device", state="unavailable", attributes={"friendly_name": "Unavailable"}),
             SimpleNamespace(entity_id="sensor.not_a_device", state="42", attributes={"friendly_name": "Not a device"}),

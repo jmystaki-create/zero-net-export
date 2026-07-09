@@ -41,6 +41,23 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("number.zero_net_export_target_export", source)
         self.assertIn("sensor.zero_net_export_installed_version", source)
 
+    def test_managed_devices_panel_surfaces_unmanaged_candidate_queue(self) -> None:
+        source = APP_PANEL_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("candidate_devices", source)
+        self.assertIn("Unmanaged Candidate Queue", source)
+        self.assertIn("candidate_count", source)
+        self.assertIn("review_needed_count", source)
+        self.assertIn("ready_candidate_count", source)
+        self.assertIn("fixed_candidate_count", source)
+        self.assertIn("variable_candidate_count", source)
+        self.assertIn("zne-candidate-table", source)
+        self.assertIn("zne-candidate-header", source)
+        self.assertIn("zne-candidate-row", source)
+        self.assertIn("candidate.needs_review", source)
+        self.assertIn("candidate.warning_summary", source)
+        self.assertIn("candidate.fit_confidence", source)
+
     def test_app_exposes_safe_edit_actions_through_home_assistant_services(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
 
@@ -176,7 +193,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.5"', source)
+        self.assertIn('"version": "0.4.6"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

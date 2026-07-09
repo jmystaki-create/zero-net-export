@@ -1181,6 +1181,9 @@ class ZeroNetExportApp extends HTMLElement {
     const fleet = overview && overview.attributes && Array.isArray(overview.attributes.managed_devices)
       ? overview.attributes.managed_devices
       : [];
+    const candidateQueue = overview && overview.attributes && Array.isArray(overview.attributes.candidate_devices)
+      ? overview.attributes.candidate_devices
+      : [];
 
     // Compute summary counts
     const total = fleet.length;
@@ -1188,6 +1191,11 @@ class ZeroNetExportApp extends HTMLElement {
     const disabled = fleet.filter(d => d.enabled === false).length;
     const blocked = fleet.filter(d => d.blocked === true || d.blocked === "true" || d.status === "blocked").length;
     const stale = fleet.filter(d => d.stale === true || d.stale === "true" || d.last_seen_age > 3600).length;
+    const candidateCount = Number(overview?.attributes?.candidate_count || candidateQueue.length || 0);
+    const reviewNeeded = Number(overview?.attributes?.review_needed_count || candidateQueue.filter(c => c.needs_review).length || 0);
+    const readyCandidates = Number(overview?.attributes?.ready_candidate_count || Math.max(candidateCount - reviewNeeded, 0));
+    const fixedCandidates = Number(overview?.attributes?.fixed_candidate_count || candidateQueue.filter(c => c.kind === "fixed").length || 0);
+    const variableCandidates = Number(overview?.attributes?.variable_candidate_count || candidateQueue.filter(c => c.kind === "variable").length || 0);
 
     // Filter state (stored in data attributes on the section)
     const filterPlan = this.querySelector("[data-filter-plan]")?.value || "all";
@@ -1328,6 +1336,49 @@ class ZeroNetExportApp extends HTMLElement {
               </select>
             </label>
           </div>
+        </div>
+
+        <!-- Unmanaged Candidate Queue -->
+        <div class="zne-card">
+          <h3>Unmanaged Candidate Queue (${candidateCount} candidates)</h3>
+          <div class="zne-fleet-stats">
+            <span class="zne-stat neutral"><strong>${candidateCount}</strong> Total</span>
+            <span class="zne-stat bad"><strong>${reviewNeeded}</strong> Need review</span>
+            <span class="zne-stat good"><strong>${readyCandidates}</strong> Ready</span>
+            <span class="zne-stat neutral"><strong>${fixedCandidates}</strong> Fixed</span>
+            <span class="zne-stat neutral"><strong>${variableCandidates}</strong> Variable</span>
+          </div>
+          ${candidateQueue.length === 0
+            ? '<p class="zne-muted">No unmanaged candidates are currently surfaced.</p>'
+            : `
+            <div class="zne-candidate-table">
+              <div class="zne-candidate-header">
+                <span>Candidate</span>
+                <span>Kind</span>
+                <span>Review</span>
+                <span>Current</span>
+                <span>Fit</span>
+                <span>Warnings</span>
+              </div>
+              ${candidateQueue.map((candidate) => {
+                const needsReview = candidate.needs_review === true || candidate.needs_review === "true";
+                const fit = candidate.usefulness_label || candidate.fit_confidence || "-";
+                const warning = candidate.warning_summary || (Array.isArray(candidate.warnings) ? candidate.warnings.join("; ") : "") || "No immediate warnings";
+                return `
+                <div class="zne-candidate-row ${needsReview ? "review" : "ready"}">
+                  <span>
+                    <strong>${this._escape(candidate.name || candidate.entity_id || "-")}</strong>
+                    <small>${this._escape(candidate.entity_id || "")}</small>
+                  </span>
+                  <span>${this._escape(candidate.kind || "-")}</span>
+                  <span>${needsReview ? this._pill("status", "review") : this._pill("status", "ready")}</span>
+                  <span>${this._escape(candidate.state || "-")}${candidate.unit ? ` ${this._escape(candidate.unit)}` : ""}</span>
+                  <span>${this._escape(fit)}</span>
+                  <span>${this._escape(warning)}</span>
+                </div>
+              `;}).join("")}
+            </div>
+          `}
         </div>
 
         <!-- Fleet Table -->
@@ -2216,6 +2267,57 @@ class ZeroNetExportApp extends HTMLElement {
           white-space: nowrap;
         }
 
+        .zne-candidate-table {
+          display: flex;
+          flex-direction: column;
+          margin-top: 12px;
+        }
+
+        .zne-candidate-header,
+        .zne-candidate-row {
+          display: grid;
+          grid-template-columns: minmax(160px, 1.4fr) minmax(64px, 0.45fr) minmax(86px, 0.55fr) minmax(64px, 0.5fr) minmax(110px, 0.8fr) minmax(160px, 1.3fr);
+          gap: 8px;
+          align-items: start;
+        }
+
+        .zne-candidate-header {
+          padding: 8px 0;
+          border-bottom: 2px solid var(--divider-color);
+          color: var(--secondary-text-color);
+          font-size: 13px;
+          font-weight: 500;
+        }
+
+        .zne-candidate-row {
+          padding: 10px 0;
+          border-bottom: 1px solid var(--divider-color);
+        }
+
+        .zne-candidate-row.review {
+          border-left: 3px solid var(--warning-color, #f9a825);
+          padding-left: 8px;
+        }
+
+        .zne-candidate-row.ready {
+          border-left: 3px solid var(--success-color, #2e7d32);
+          padding-left: 8px;
+        }
+
+        .zne-candidate-row span {
+          min-width: 0;
+          overflow-wrap: anywhere;
+          line-height: 1.35;
+        }
+
+        .zne-candidate-row small {
+          display: block;
+          color: var(--secondary-text-color);
+          font-size: 12px;
+          margin-top: 3px;
+          overflow-wrap: anywhere;
+        }
+
         .zne-device-detail {
           display: grid;
           gap: 6px;
@@ -2281,6 +2383,14 @@ class ZeroNetExportApp extends HTMLElement {
           .zne-source > .zne-pill {
             justify-self: start;
             text-align: left;
+          }
+
+          .zne-candidate-header {
+            display: none;
+          }
+
+          .zne-candidate-row {
+            grid-template-columns: minmax(0, 1fr);
           }
 
           .zne-readiness-item-title {
