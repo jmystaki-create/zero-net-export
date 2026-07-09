@@ -6,6 +6,11 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.7] - 2026-07-09
+
+### Fixed
+- Attached Managed Devices backlog/review summary sensors to the primary Zero Net Export device so the candidate review queue surfaces in native Home Assistant device/integration screens.
+
 ## [0.4.6] - 2026-07-09
 
 ### Fixed

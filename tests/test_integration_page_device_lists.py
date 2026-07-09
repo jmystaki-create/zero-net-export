@@ -331,7 +331,7 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
         )
         self.assertIn("sensor.other_entry_legacy_pool_managed_summary", entity_registry.entities)
 
-    def test_fleet_workspace_summary_sensors_do_not_attach_to_primary_device_page(self) -> None:
+    def test_fleet_workspace_summary_sensors_attach_to_primary_device_page(self) -> None:
         sensor_module = _load_sensor_module()
         coordinator = self._coordinator()
 
@@ -341,7 +341,9 @@ class IntegrationPageDeviceListTests(unittest.TestCase):
             "Managed Devices candidate shortlist",
         )
 
-        self.assertIsNone(sensor._attr_device_info)
+        self.assertEqual(sensor._attr_device_info["identifiers"], {("zero_net_export", "entry-1")})
+        self.assertEqual(sensor._attr_device_info["name"], "Zero Net Export")
+        self.assertEqual(sensor._attr_device_info["sw_version"], sensor_module.INTEGRATION_VERSION)
 
     def test_fleet_workspace_extra_attributes_use_shared_key_set(self) -> None:
         sensor_module = _load_sensor_module()

@@ -1079,13 +1079,6 @@ def _healthy_sources_next_step(coordinator, hass, state) -> str:
 
 
 class ZeroNetExportSensor(ZeroNetExportEntity, SensorEntity):
-    def __init__(self, coordinator, key: str, name: str) -> None:
-        super().__init__(coordinator, key, name)
-        if key in FLEET_WORKSPACE_SENSOR_KEYS:
-            # Managed/unmanaged workspace summaries should not pollute the primary
-            # Zero Net Export device-info page Controls/Activity surface.
-            self._attr_device_info = None
-
     @property
     def native_value(self):
         if self._key == "installed_version":
