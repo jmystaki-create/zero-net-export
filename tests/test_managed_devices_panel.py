@@ -145,6 +145,8 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         self.assertIn("Source blockers", source)
         self.assertIn("Reconcile power balance", source)
         self.assertIn("Review managed-device queue", source)
+        self.assertIn("_isBlockingPolicyReadiness(value)", source)
+        self.assertIn("actionable now", source)
 
     def test_app_captures_managed_device_form_values_before_busy_render(self) -> None:
         source = APP_PANEL_PATH.read_text(encoding="utf-8")
@@ -174,7 +176,7 @@ class ManagedDevicesPanelTests(unittest.TestCase):
         source = MANIFEST_PATH.read_text(encoding="utf-8")
         hacs_source = HACS_PATH.read_text(encoding="utf-8")
 
-        self.assertIn('"version": "0.4.4"', source)
+        self.assertIn('"version": "0.4.5"', source)
         self.assertIn('"frontend"', source)
         self.assertIn('"http"', source)
         self.assertIn('"panel_custom"', source)

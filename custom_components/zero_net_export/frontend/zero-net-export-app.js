@@ -396,6 +396,11 @@ class ZeroNetExportApp extends HTMLElement {
     return { title, status, detail: detailList, action: actionList, tone };
   }
 
+  _isBlockingPolicyReadiness(value) {
+    const text = this._asDisplayText(value).toLowerCase();
+    return Boolean(text) && !/actionable now|ready|can set controls defaults/i.test(text);
+  }
+
   _readinessModel(status, safeMode, sourceMismatch) {
     const commandState = this._state("sensor.zero_net_export_command_center_status");
     const commandNextState = this._state("sensor.zero_net_export_command_center_next_step");
@@ -465,7 +470,7 @@ class ZeroNetExportApp extends HTMLElement {
     }
 
     const policyReadiness = this._asDisplayText(commandAttrs.policy_readiness || nextAttrs.policy_readiness);
-    if (policyReadiness) {
+    if (this._isBlockingPolicyReadiness(policyReadiness)) {
       items.push(this._readinessItem(
         "Controls are paused",
         "blocked",

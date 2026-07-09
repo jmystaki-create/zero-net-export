@@ -6,6 +6,13 @@ This project follows a practical Keep a Changelog style and uses semantic versio
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-07-09
+
+### Fixed
+- Fixed the false Controls readiness warning in the Overview Readiness card.
+  Affirmative readiness text no longer creates `Controls are paused` when
+  sources are healthy and managed devices are actionable.
+
 ## [0.4.4] - 2026-07-08
 
 ### Fixed
